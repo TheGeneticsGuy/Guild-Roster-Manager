@@ -3053,16 +3053,25 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
     GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_DropDownList1AttachmentFrame.name = "";
     GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously = false;
+
+    GRM_UI.AltMainSetButton = function()
+        if string.find ( GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText:GetText() , GRM.L ( "Set as Main" ) , 1 , true ) ~= nil then
+            GRM.SetAltAsMainDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
+        elseif string.find ( GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText:GetText() , GRM.L ( "Set as Alt" ) , 1 , true ) ~= nil then
+            GRM.DemoteMainToAltDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
+        end
+        DropDownList1:Hide();
+    end
     
     GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
+            GRM_UI.AltMainSetButton();
+        end
+    end);
 
-            if string.find ( GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText:GetText() , GRM.L ( "Set as Main" ) , 1 , true ) ~= nil then
-                GRM.SetAltAsMainDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
-            elseif string.find ( GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText:GetText() , GRM.L ( "Set as Alt" ) , 1 , true ) ~= nil then
-                GRM.DemoteMainToAltDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
-            end
-            DropDownList1:Hide();
+    GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton:SetScript ( "OnHide" , function( self )
+        if self:IsMouseOver() and IsMouseButtonDown ( 1 ) then
+            GRM_UI.AltMainSetButton();
         end
     end);
 
@@ -13828,7 +13837,6 @@ end
 
 
 -- END CALENDAR
-
 
 -- Method:          GRM_UI.OldRosterLog_OnShow()
 -- What it Does:    Hooks the built-in roster frame to pin something better and configures this checkbox for enabling the mouseover window to appear on the old roster or not

@@ -245,8 +245,6 @@ GRML.Dutch = function()
     GRM_L["Your Sync is Currently Disabled"] = true
 
     -- OPTIONS WINDOW
-    GRM_L["Add Join Date to:  |cffff0000Officer Note|r"] = true         -- Context: Please keep |cffff0000 for color coding of the text, and the |r to signify the end of color change
-    GRM_L["Add Join Date to:  Officer Note"] = true
     GRM_L["Public Note"] = true
     GRM_L["Scanning Roster:"] = true
     GRM_L["Guild Rank Restricted:"] = true
@@ -1374,6 +1372,10 @@ GRML.Dutch = function()
     GRM_L["The previous action still has 1 recommended task. It is advised to do that first."] = true               -- Singular
     GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = true         -- Plural
     GRM_L["Step {num}"] = true               
+
+    -- R1.86
+    GRM_L["What tags look like:"] = true
+    GRM_L["Add Join Date to:"] = true
 
     
 end
