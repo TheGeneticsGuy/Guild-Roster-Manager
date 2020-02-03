@@ -246,8 +246,6 @@ GRML.PortugueseBR = function()
     GRM_L["Your Sync is Currently Disabled"] = "Sua Sincronização está Desativada no Momento"
 
     -- OPTIONS WINDOW DONE
-    GRM_L["Add Join Date to:  |cffff0000Officer Note|r"] = "Adicionar Data de Entrada para:  |cffff0000Nota de Oficial|r"         -- Context: Please keep |cffff0000 for color coding of the text, and the |r to signify the end of color change
-    GRM_L["Add Join Date to:  Officer Note"] = "Adicionar Data de Entrada para:  Nota de Oficial"
     GRM_L["Public Note"] = "Nota Pública "
     GRM_L["Scanning Roster:"] = "Escaniando Lista:"
     GRM_L["Guild Rank Restricted:"] = "Restrito á Cargo da Guilda:"
@@ -1375,7 +1373,9 @@ GRML.PortugueseBR = function()
     GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = true         -- Plural
     GRM_L["Step {num}"] = true
     
-
+    -- 1.86
+    GRM_L["What tags look like:"] = true
+    GRM_L["Add Join Date to:"] = "Adicionar Data de Entrada para:"
     
 end
 

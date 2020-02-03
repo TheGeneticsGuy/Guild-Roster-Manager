@@ -244,10 +244,8 @@ GRML.German = function()
     GRM_L["Version"] = "Version"
     GRM_L["Sync"] = "Sync"
     GRM_L["Your Sync is Currently Disabled"] = "Dein Sync ist momentan deaktiviert"
-
+    
     -- OPTIONS WINDOW
-    GRM_L["Add Join Date to:  |cffff0000Officer Note|r"] = "Füge Beitrittsdatum hinzu: |cffff0000Offiziersnotiz|r"        -- Context: Please keep |cffff0000 for color coding of the text, and the |r to signify the end of color change
-    GRM_L["Add Join Date to:  Officer Note"] = "Füge Beitrittsdatum hinzu: Offiziersnotiz"
     GRM_L["Public Note"] = "Öffentliche Notiz"
     GRM_L["Scanning Roster:"] = "Scan:"
     GRM_L["Guild Rank Restricted:"] = "Durch Gildenrang beschränkte Einstellungen:"
@@ -1379,7 +1377,10 @@ GRML.German = function()
     GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = true         -- Plural
     GRM_L["Step {num}"] = true               
 
-    
+    -- 1.86
+    GRM_L["What tags look like:"] = true
+    GRM_L["Add Join Date to:"] = "Füge Beitrittsdatum hinzu:"
+
 end
 
 -- THANK YOU @Nehry for this full translation up to R1.20

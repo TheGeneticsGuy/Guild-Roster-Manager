@@ -246,8 +246,6 @@ GRML.Russian = function()
     GRM_L["Your Sync is Currently Disabled"] = true
 
     -- OPTIONS WINDOW
-    GRM_L["Add Join Date to:  |cffff0000Officer Note|r"] = "Добавлять дату вербовки в: |cffff0000Офицерскую заметку|r"         -- Context: Please keep |cffff0000 for color coding of the text, and the |r to signify the end of color change
-    GRM_L["Add Join Date to:  Officer Note"] = "Добавлять дату вербовки в: Офицерскую заметку"
     GRM_L["Public Note"] = "Публичную заметку"
     GRM_L["Scanning Roster:"] = "Сканирование журнала"
     GRM_L["Guild Rank Restricted:"] = "Ограничено для звания:"
@@ -1382,6 +1380,9 @@ GRML.Russian = function()
      GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = true         -- Plural
      GRM_L["Step {num}"] = true                                                                                      -- Like Step 1 , Step 2 , etc.
 
+     -- 1.86
+    GRM_L["What tags look like:"] = true
+    GRM_L["Add Join Date to:"] = "Добавлять дату вербовки в:"
      
 end
 
