@@ -2,12 +2,14 @@
 
 _______________________
 
-**VERSION R1.851 DATE: January 29th, 2020**
+**VERSION R1.86 DATE: January 29th, 2020**
 
 
 ***QUALITY OF LIFE***
 
 **BOTH**
+
+* New addon description and info written up on Curseforge/Twitch and WowInterface
 
 * Guild Info control tag mouseover in the options is improved and now gives more detailed explanation of what each control stands for.
 
@@ -19,10 +21,18 @@ _______________________
 
 * Options Officer tab now has the Join date destination Radial buttons in veritcal alignment, which is cleaner.
 
+* Main will now be tagged in the leveled up info, so it's more clear when a person levels a toon
+
+**CLASSIC**
+
+* Roster names will now be colored to match their class in WOW Classic, just like in Retail!
+
 
 ***BUG FIXES***
 
 **BOTH**
+
+* Major bug fix where the 8.3 release (R1.85) would not work for some players. Now it should.
 
 * Fixed a fairly major bug where any Promotion date edits would be overwritten on sync in certain cases even though they shouldn't have been.
 
@@ -37,6 +47,12 @@ _______________________
 * Found a bug where IF you had a player who had a birthhday set, but was not linked to any alt/main grouping, and then another player was the main in another grouping, if you adding the player with the birthdate set to the grouping that had the main, it would successfully clear the birthdate to match whatever the main had, but then it would erroneously attempt to add an empty string timestamp to the mouseover window for the birthdate rather than hiding the text, in this very specific situation, and showing the button.
 
 * Birthday sync was not obeying the restrictions.
+
+* Fixed an issue where the online status would not properly update from offline/online when swapping and selecting alts.
+
+**RETAIL**
+
+* Right click on the roster to set main or set as alt is working again on the community frame guild interface.
 
 
 

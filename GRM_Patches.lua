@@ -3,7 +3,7 @@
 
 GRM_Patch = {};
 local patchNeeded = false;
-GRM_Patch.DBGuildNames = nil;
+local DBGuildNames = {};
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
 -- What it Does:    Holds the patch logic for when people upgrade the addon
@@ -712,44 +712,44 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
-    -- -- Additional Database Rebuilding!
-    -- if numericV < 1.833 and baseValue < 1.833 then
-    --     -- Update the database now!!!
-    --     GRM_Patch.ConvertAddonSettings();
-    --     GRM_Patch.ConvertListOfAddonAlts();
-    --     GRM_Patch.ConvertMiscToNewDB();
-    --     GRM_Patch.ConvertBackupDB();
+    -- Additional Database Rebuilding!
+    if numericV < 1.833 and baseValue < 1.833 then
+        -- Update the database now!!!
+        GRM_Patch.ConvertAddonSettings();
+        GRM_Patch.ConvertListOfAddonAlts();
+        GRM_Patch.ConvertMiscToNewDB();
+        GRM_Patch.ConvertBackupDB();
 
-    --     if loopCheck ( 1.833 ) then
-    --         return;
-    --     end
-    -- end
+        if loopCheck ( 1.833 ) then
+            return;
+        end
+    end
 
-    -- -- Additional Database Rebuilding!
-    -- if numericV < 1.834 and baseValue < 1.834 then
-    --     GRM_Patch.ConvertLogDB();
-    --     GRM_Patch.ConvertCalenderDB();
+    -- Additional Database Rebuilding!
+    if numericV < 1.834 and baseValue < 1.834 then
+        GRM_Patch.ConvertLogDB();
+        GRM_Patch.ConvertCalenderDB();
 
-    --     if loopCheck ( 1.834 ) then
-    --         return;
-    --     end
-    -- end
+        if loopCheck ( 1.834 ) then
+            return;
+        end
+    end
 
-    -- -- Additional DB Rebuilding
-    -- -- Additional Database Rebuilding!
-    -- if numericV < 1.835 and baseValue < 1.835 then
-    --     GRM_GuildMemberHistory_Save = GRM_Patch.ConvertPlayerMetaDataDB ( GRM_GuildMemberHistory_Save , 1 );
-    --     GRM_PlayersThatLeftHistory_Save = GRM_Patch.ConvertPlayerMetaDataDB ( GRM_PlayersThatLeftHistory_Save , 2 );
+    -- Additional DB Rebuilding
+    -- Additional Database Rebuilding!
+    if numericV < 1.835 and baseValue < 1.835 then
+        GRM_GuildMemberHistory_Save = GRM_Patch.ConvertPlayerMetaDataDB ( GRM_GuildMemberHistory_Save , 1 );
+        GRM_PlayersThatLeftHistory_Save = GRM_Patch.ConvertPlayerMetaDataDB ( GRM_PlayersThatLeftHistory_Save , 2 );
 
-    --     if loopCheck ( 1.835 ) then
-    --         return;
-    --     end
-    -- end
+        if loopCheck ( 1.835 ) then
+            return;
+        end
+    end
 
-    -- -- For those coming off the beta...
-    -- if numericV == 1.84 then
-    --     GRM_Patch.FixNameChangePreReleaseBug();
-    -- end
+    -- For those coming off the beta...
+    if numericV == 1.84 then
+        GRM_Patch.FixNameChangePreReleaseBug();
+    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -3947,22 +3947,38 @@ GRM_Patch.ConvertAddonSettings = function()
     end
 end
 
--- /run for x in pairs (GRM_Patch.DBGuildNames) do print(x);end
+-- /run for x in pairs (DBGuildNames) do print(x);end
 
 GRM_Patch.CollectAllGuildNames = function()
     local result = {};
     local F = "H";
 
-    for i = 1 , #GRM_PlayerListOfAlts_Save do
-        if i == 2 then
-            F = "A";
-        end
-        result[ F ] = {};
+    if GRM_PlayerListOfAlts_Save["H"] == nil then
 
-        for j = 2 , #GRM_PlayerListOfAlts_Save[i] do
-            if type ( GRM_PlayerListOfAlts_Save[i][j][1] ) ~= "string" and string.find ( GRM_PlayerListOfAlts_Save[i][j][1][1] , "-" ) ~= nil then
-                result[ F ][ GRM_PlayerListOfAlts_Save[i][j][1][1] ] = {};
+        for i = 1 , #GRM_PlayerListOfAlts_Save do
+            if i == 2 then
+                F = "A";
             end
+            result[ F ] = {};
+
+            for j = 2 , #GRM_PlayerListOfAlts_Save[i] do
+                if type ( GRM_PlayerListOfAlts_Save[i][j][1] ) ~= "string" and string.find ( GRM_PlayerListOfAlts_Save[i][j][1][1] , "-" ) ~= nil then
+                    result[ F ][ GRM_PlayerListOfAlts_Save[i][j][1][1] ] = {};
+                end
+            end
+        end
+    else
+        for i = 1 , 2 do
+            if i == 2 then
+                F = "A";
+            end
+
+            result[ F ] = {};
+
+            for guildName in pairs ( GRM_PlayerListOfAlts_Save[ F ] ) do
+                result[ F ][ guildName ] = {};
+            end
+
         end
     end
     
@@ -3974,7 +3990,7 @@ end
 -- Purpose:         Faster efficiency in accessing player info.
 GRM_Patch.ConvertListOfAddonAlts = function()
 
-    GRM_Patch.DBGuildNames = GRM_Patch.CollectAllGuildNames();
+    DBGuildNames = GRM_Patch.CollectAllGuildNames();
 
     if GRM_PlayerListOfAlts_Save["H"] == nil then
         local tempUI = GRM.DeepCopyArray ( GRM_PlayerListOfAlts_Save );
@@ -4021,7 +4037,7 @@ GRM_Patch.ConvertBackupDB = function()
         local tempUI = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save );
         local newUI = {};
 
-        GRM_Patch.DBGuildNames = GRM_Patch.DBGuildNames or GRM_Patch.CollectAllGuildNames();
+        DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
 
         newUI["H"] = {};
         newUI["A"] = {};
@@ -4083,7 +4099,7 @@ GRM_Patch.ConvertBackupDB = function()
             end
 
             -- Due to dealing with an old bug of a database being converted and normalizing database properly.
-            for names in pairs ( GRM_Patch.DBGuildNames[f] ) do
+            for names in pairs ( DBGuildNames[f] ) do
                 if newUI[f][ names ] == nil then
                     newUI[f][ names ] = { "" };
                     local type = "Auto";
@@ -4158,7 +4174,7 @@ GRM_Patch.ConvertLogDB = function()
     if GRM_LogReport_Save["H"] == nil then
         local tempUI = GRM.DeepCopyArray ( GRM_LogReport_Save );
         local newUI = {};
-        GRM_Patch.DBGuildNames = GRM_Patch.DBGuildNames or GRM_Patch.CollectAllGuildNames();
+        DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
 
         newUI["H"] = {};
         newUI["A"] = {};
@@ -4192,7 +4208,7 @@ GRM_Patch.ConvertLogDB = function()
                 end
             end
 
-            for names in pairs ( GRM_Patch.DBGuildNames[f] ) do
+            for names in pairs ( DBGuildNames[f] ) do
                 if newUI[f][ names ] == nil then
                     newUI[f][ names ] = {};
                 end
@@ -4235,7 +4251,7 @@ GRM_Patch.ConvertCalenderDB = function()
     if GRM_CalendarAddQue_Save["H"] == nil then
         local tempUI = GRM.DeepCopyArray ( GRM_CalendarAddQue_Save );
         local newUI = {};
-        GRM_Patch.DBGuildNames = GRM_Patch.DBGuildNames or GRM_Patch.CollectAllGuildNames();
+        DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
 
         newUI["H"] = {};
         newUI["A"] = {};
@@ -4263,7 +4279,7 @@ GRM_Patch.ConvertCalenderDB = function()
                 end
             end
 
-            for names in pairs ( GRM_Patch.DBGuildNames[f] ) do
+            for names in pairs ( DBGuildNames[f] ) do
                 if newUI[f][ names ] == nil then
                     newUI[f][ names ] = {};
                 end
@@ -4285,7 +4301,7 @@ GRM_Patch.ConvertPlayerMetaDataDB = function( database , version )
     if database["H"] == nil then
         local tempUI = GRM.DeepCopyArray ( database );
         local newUI = {};
-        GRM_Patch.DBGuildNames = GRM_Patch.DBGuildNames or GRM_Patch.CollectAllGuildNames();
+        DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
 
         newUI["H"] = {};
         newUI["A"] = {};
@@ -4404,7 +4420,7 @@ GRM_Patch.ConvertPlayerMetaDataDB = function( database , version )
                 end                
             end
 
-            for names in pairs ( GRM_Patch.DBGuildNames[f] ) do
+            for names in pairs ( DBGuildNames[f] ) do
                 if newUI[f][ names ] == nil then
                     newUI[f][ names ] = {};
                     newUI[f][ names ]["grmName"] = names;

@@ -4927,7 +4927,6 @@ GRM.RosterButton_OnUpdate = function ( self , elapsed )
     end
 end
 
-
 -- Method:          GRM.InitializeOldRosterButtons( string )
 -- What it Does:    Initializes, one time, the script handlers for the roster frames
 -- Purpose:         So main player popup window appears properly 
@@ -5034,6 +5033,8 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
     end
 end
 
+local oldGuildFrameNameFontStrings = { GuildFrameButton1Name , GuildFrameButton2Name , GuildFrameButton3Name , GuildFrameButton4Name , GuildFrameButton5Name , GuildFrameButton6Name , GuildFrameButton7Name , GuildFrameButton8Name , GuildFrameButton9Name , GuildFrameButton10Name , GuildFrameButton11Name , GuildFrameButton12Name , GuildFrameButton13Name };
+
 -- Method:          GRM.OldRosterButton_OnUpdate ( buttonObject , int )
 -- What it Does:    On each frame refresh it does a check (at max 20FPS), and checks to see if the name has changed, and then updates
 --                  the player mouseover popup window if so.
@@ -5041,28 +5042,42 @@ end
 --                  This is important because the core logic happens "OnEnter" rather than on update.
 GRM.OldRosterButton_OnUpdate = function ( self , elapsed )
     GRM_G.ButtonRosterTimer2 = GRM_G.ButtonRosterTimer2 + elapsed;
-    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld and GRM_G.ButtonRosterTimer2 > 0.05 and self:IsMouseOver()  then
+    if GRM_G.ButtonRosterTimer2 > 0.05 then
         local name = GetGuildRosterInfo ( self.guildIndex );
+        
+        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld and self:IsMouseOver() then
 
-        if name ~= "" and name ~= nil and name ~= GRM_G.currentName and not GRM_G.pause then
+            if name ~= "" and name ~= nil and name ~= GRM_G.currentName and not GRM_G.pause then
 
-        GRM_G.currentName = name;
-        GRM_G.RosterSelection = self.guildIndex;
-            GRM.SubFrameCheck();
-            GRM.PopulateMemberDetails ( name );
-            if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                if GRM_G.CurrentPinCommunity then
-                    if GRM_UI.MemberDetailFrame:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                    else
-                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
+            GRM_G.currentName = name;
+            GRM_G.RosterSelection = self.guildIndex;
+                GRM.SubFrameCheck();
+                GRM.PopulateMemberDetails ( name );
+                if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                    if GRM_G.CurrentPinCommunity then
+                        if GRM_UI.MemberDetailFrame:IsVisible() then
+                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                        else
+                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
+                        end
+                        GRM_G.CurrentPinCommunity = false;
                     end
-                    GRM_G.CurrentPinCommunity = false;
-                end
-                if GRM_G.guildName ~= "" then
-                    GRM_UI.GRM_MemberDetailMetaData:Show();
+                    if GRM_G.guildName ~= "" then
+                        GRM_UI.GRM_MemberDetailMetaData:Show();
+                    end
                 end
             end
+        end
+
+        if GRM_G.BuildVersion < 20000 then
+            local isOnline , _ , class = select ( 9 , GetGuildRosterInfo ( self.guildIndex ) );
+
+            if isOnline then
+                local colors= GRM.GetClassColorRGB ( class , false );
+
+                oldGuildFrameNameFontStrings [ tonumber ( string.match ( self:GetName() , "%d+" ) ) ]:SetTextColor ( colors[1] , colors[2] , colors[3] );
+            end
+
         end
 
         GRM_G.ButtonRosterTimer2 = 0;
@@ -10347,8 +10362,30 @@ end
 -- Method:          GRM.GetLeveledString ( string , int , int , int , array )
 -- What it Does:    Builds the string on the fly of when someone has leveled and reached configured milestones.
 -- Purpose:         Ease of reusing this code and ease of reading it.
-GRM.GetLeveledString = function ( simpleName , milestoneLevel , level , numGained , date , atLevelCap )
+GRM.GetLeveledString = function ( simpleName , milestoneLevel , level , numGained , date , atLevelCap , fullName )
     local result = "";
+
+    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].useMainTag and fullName ~= nil then
+        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ fullName ];
+
+        if player ~= nil then
+
+            local mainDisplay = GRM.GetMainTags ( false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].mainTagIndex );
+            if player.isMain then
+                simpleName = simpleName .. " " .. GRM_G.MainTagHexCode .. mainDisplay .. "|r";
+            else
+                if #player.alts > 0 then
+                    for j = 1 , #player.alts do
+                        if player.alts[j][5] then
+                            simpleName = simpleName .. " " .. GRM_G.MainTagHexCode .. mainDisplay .. "|r (" .. GRM.GetStringClassColorByName ( player.alts[j][1] , false ) .. GRM.SlimName ( player.alts[j][1] ) .. "|r)";
+
+                            break;
+                        end
+                    end
+                end
+            end
+        end
+    end
 
     if milestoneLevel == 0 or atLevelCap then
         if atLevelCap then
@@ -10823,8 +10860,8 @@ end
 -- Method:          GRM.AddLeveledTempLogEntry ( string , int , int , int , array , bool )
 -- What it Does     Stores a temp log entry that will later be added in the final report with the pre-processed string
 -- Purpose:         By adding all the metadata the string can be re-processed if the player changes their preferred date format or language.
-GRM.AddLeveledTempLogEntry = function ( simpleName , milestoneLevel , level , numGained , date , levelCap )
-    table.insert ( GRM_G.TempLogLeveled , { 3 , GRM.GetLeveledString ( simpleName , milestoneLevel , level , numGained , date , levelCap ) , simpleName , milestoneLevel , level , numGained , date , levelCap } );
+GRM.AddLeveledTempLogEntry = function ( simpleName , milestoneLevel , level , numGained , date , levelCap , fullName )
+    table.insert ( GRM_G.TempLogLeveled , { 3 , GRM.GetLeveledString ( simpleName , milestoneLevel , level , numGained , date , levelCap , fullName ) , simpleName , milestoneLevel , level , numGained , date , levelCap , fullName } );
 end
 
 -- Method:          GRM.AddNoteTempLogEntry ( string , string , string , array )
@@ -12072,7 +12109,7 @@ GRM.RecordChanges = function ( indexOfInfo , member , memberOldInfo , logEntryMe
 
     -- 4 = level
     elseif indexOfInfo == 4 then
-        GRM.AddLeveledTempLogEntry ( simpleName , logEntryMetaData , member.level , ( member.level - memberOldInfo.level ) , dateArray , ( member.level == GRM_G.LvlCap ) );
+        GRM.AddLeveledTempLogEntry ( simpleName , logEntryMetaData , member.level , ( member.level - memberOldInfo.level ) , dateArray , ( member.level == GRM_G.LvlCap ) , member.name );
 
     -- 5 = note
     elseif indexOfInfo == 5 then
@@ -13952,14 +13989,15 @@ GRM.GetSearchLog = function ( isSearch , searchString )
             elseif index == 2 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["toLog"].demotion then  -- Demotion
                 trueString = true;
             elseif index == 3 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["toLog"].leveled then  -- Leveled
-                if #gLog[i] > 2 then -- Old string was in 2 entry arry.
-                    num = select ( 2 , string.find ( logTxt , gLog[i][3] ) );
+                if string.find ( logTxt , "***" ) == nil then
+                    num = GRM.Trim ( string.match ( logTxt , " %d+ " ) );
                 else
-                    num = 34;                    
+                    num = string.match ( string.match ( logTxt , "cffafffdc%d+" ) , "%d+" );
                 end
-                if tonumber ( string.match ( logTxt , "%d+" , num ) ) >= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].levelReportMin then
+                if tonumber ( num ) >= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].levelReportMin then
                     trueString = true;
                 end
+                
             elseif index == 4 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["toLog"].note then  -- Note
                 trueString = true;
             elseif index == 5 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["toLog"].officerNote then  -- OfficerNote
@@ -18608,6 +18646,7 @@ GRM.SelectPlayerOnRoster = function ( playerName )
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:ClearFocus();
     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
     GRM_G.currentName = playerName;
+    GRM_G.RosterSelection = GRM.GetRosterSelectionID ( playerName );
     GRM_G.pause = false;
     GRM.ClearAllFrames( false );
     GRM.PopulateMemberDetails ( playerName );
@@ -23909,8 +23948,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- ***BUSY WORK***
 
--- * Adapt recruitment integration to the new Commmunity system and be rid of the Friends issue since new Blizz interface in 8.2.5 does not require it!
-
 -- * Finally implement re-translation of the roster if you swap languages. The metadata is there, but I have the strings processed and am only printing the already processed, so reprocess on language selection.
 --     - This is a lot of busy work here...
 
@@ -23961,10 +23998,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- ClEANUP BuildLogFrames() and compartmentalize each one to their proper page for ease...
 
--- Rewrite wowinterface and curseforge addon description with the updated uploaded pictures.
-
--- Click GRM button at window not working, nor is mouseover info in Classic only
-
 -- When player joins the guild a new toon, it errors, like when you get an invite.
 -- Also, when adding a new guild, check to see if it is already there first. Make sure not to overwrite it...
 -- Settings getting reset ??
@@ -23979,6 +24012,8 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- Right click on the roster not working button unclickable
 
+
+-- When a player leaves the guild it is saying they were in the guild less than 1 day.
 
 -------------------------------------
 ---- SUGGESTIONS FOR RECRUITMENT ----
