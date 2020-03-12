@@ -209,9 +209,19 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 ![Macro Tool ignore/Safe List](https://i.imgur.com/DxANz4A.jpg)
 
-**Phase 2: Custom Rules (unreleased)**
+**Phase 2: Custom Rules **
 
-* This will incorporate more than just filters for kicking players after X time offline. You can apply rules to only certain ranks, players within certain level ranges, and so on. You can combine rules to apply or separate them.
+![Custom Filters and Rule Creation](https://i.imgur.com/PlSSQav.jpg)
+
+* Ability to add as many custom rules as you want. Want to build a rule for each rank, for level ranges and so on? Not a problem. In fact, if you ever build a rule where this is overlap, the tooltip when mousing over a player in the list will show you which rules apply to that player.
+
+* Ability to Enable/Disable specific rules on the fly. No need to delete them, just temporarily disable.
+
+* Additional Rule Filters: Specific ranks you want the rule to apply, level ranges, and even if you want to add people to the list that have a certain text match in any of their public,officer, or custom notes.
+
+* The rules are so customizable that you could theoretically disable all the rules and just have it apply to a specific rank, so all the people that are then recommended to be kicked would just be a certain rank. Have fun with it!
+
+* Ability to name each rule whatever you want.
 
 **Phase 3: Mass Promote/Demote (unreleased)**
 

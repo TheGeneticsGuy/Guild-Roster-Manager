@@ -68,4 +68,4 @@ end
 
 -- Guild Event Log                          = 40000 (4.0 CATA)
 
--- Guild News and Rewards and so on         = 40000
+-- Guild News and Rewards and so on         = 40000 ''

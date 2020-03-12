@@ -750,6 +750,26 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV == 1.84 then
         GRM_Patch.FixNameChangePreReleaseBug();
     end
+
+    if numericV < 1.865 and baseValue < 1.865 then
+        GRM_Patch.FixMemberDataError ( GRM_Patch.AddVerifiedPromotionDatesToHistory , true , true , false );
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.updateKickRules );
+        GRM_Patch.ModifyPlayerSetting ( "promoteRules" , {} );
+        GRM_Patch.ModifyPlayerSetting ( "demoteRules" , {} );
+        GRM_Patch.ModifyPlayerSetting ( "allAltsApplyToKick" , nil );
+
+        if loopCheck ( 1.865 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.87 and baseValue < 1.87 then
+        GRM_Patch.AddPlayerSetting ( "colorizeClassicRosterNames" , true );
+
+        if loopCheck ( 1.87 ) then
+            return;
+        end
+    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -3673,8 +3693,6 @@ GRM_Patch.IsAnySettingsTooLow = function()
 
     return false;
 end
--- /run GRM_Patch.AddNewSetting ( "kickRules" , {} );
--- /dump GRM_AddonSettings_Save[1][2].kickRules
 
 -- 1.84
 -- Method:          GRM_Patch.AddNewSetting ( string , object )
@@ -4575,5 +4593,168 @@ GRM_Patch.FixNameChangePreReleaseBug = function()
 
 end
 
+-- 1.87
+-- Method:          GRM_Patch.FixMemberDataError ( function , bool , bool , bool )
+-- What it Does:    Goes through the entire account wide database and modifies a player's or guild's metadata based on the actions of the given function
+-- Purpose:         Reusable function for error work and to avoid on code bloat spam.
+GRM_Patch.FixMemberDataError = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData )
+    if editCurrentPlayers then
+        for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+            for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+                for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                    if type ( player ) == "table" then 
+                        if includeAllGuildData then
+                            GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( GRM_GuildMemberHistory_Save[F][guildName] , player );
+                        else
+                            GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( player );
+                        end
+                    end
+                end
+            end
+        end
+    end
 
--- /dump GRM_GuildDataBackup_Save["H"][GRM_G.guildName]["Manual"]["members"]
+    -- Former memebrs
+    if editLeftPlayers then
+        for F in pairs ( GRM_PlayersThatLeftHistory_Save ) do                         -- Horde and Alliance
+            for guildName in pairs ( GRM_PlayersThatLeftHistory_Save[F] ) do                  -- The guilds in each faction
+                for name , player in pairs ( GRM_PlayersThatLeftHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                    if type ( player ) == "table" then 
+                        if includeAllGuildData then
+                            GRM_PlayersThatLeftHistory_Save[F][guildName][name] = databaseChangeFunction ( GRM_PlayersThatLeftHistory_Save[F][guildName] , player );
+                        else
+                            GRM_PlayersThatLeftHistory_Save[F][guildName][name] = databaseChangeFunction ( player );
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "Auto" , "Manual" , "members" , "formerMembers" };
+    for F in pairs ( GRM_GuildDataBackup_Save ) do
+        for guildName in pairs ( GRM_GuildDataBackup_Save[F] ) do
+            for i = 1 , 2 do            -- Auto vs Manual
+                if #GRM_GuildDataBackup_Save[F][guildName][backup[i]] > 0 then
+
+                    for j = 3 , 4 do        -- Member vs formerMember
+
+                        if ( j == 3 and editCurrentPlayers ) or ( j == 4 and editLeftPlayers ) then
+                            for name , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] ) do
+                                if type ( player ) == "table" then 
+                                    if includeAllGuildData then
+                                        GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]][name] = databaseChangeFunction ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] , player );
+                                    else
+                                        GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]][name] = databaseChangeFunction ( player );
+                                    end
+                                end
+                            end
+                        end
+                    end
+
+                end
+            end
+        end
+    end
+
+end
+
+-- 1.87
+-- Method:          GRM_Patch.ModifyPlayerSetting ( string , function )
+-- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
+-- Purpose:         To be able to retroactively adapt and make changes to the database.
+GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic )
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+            if type ( valueOrLogic ) == "function" then
+                GRM_AddonSettings_Save[F][p][setting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+            else
+                GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
+            end
+        end
+    end
+end
+
+-- 1.87
+-- Method:          GRM_Patch.AddPlayerSetting ( string , object )
+-- What it Does:    Allows the player to add a new setting to all settings profiles
+-- Purpose:         To be able to retroactively adapt and make changes to the database.
+GRM_Patch.AddPlayerSetting = function ( nameOfNewSetting , value )
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+            GRM_AddonSettings_Save[F][p][nameOfNewSetting] = value;
+        end
+    end
+end
+
+-- 1.87
+-- Method:          GRM_Patch.AddVerifiedPromotionDatesToHistory ( player )
+-- What it Does:    Checks if the rank has been verified but not added to the player history and if so, adds it to player history
+-- Purpose:         Correct a flaw of failed promotion date DB placement from previous update
+GRM_Patch.AddVerifiedPromotionDatesToHistory = function ( player )
+
+    if player.verifiedPromoteDate[1] ~= "" and ( #player.rankHistory == 0 or player.rankHistory[#player.rankHistory][1] == "" ) then
+        local rankName = player.rankName;
+        local dateString = player.verifiedPromoteDate[1];
+        local dateEpoch = player.verifiedPromoteDate[2];
+
+        if #player.rankHistory > 0 then
+            player.rankHistory[#player.rankHistory][1] = rankName;
+            player.rankHistory[#player.rankHistory][2] = dateString;
+            player.rankHistory[#player.rankHistory][3] = dateEpoch;
+        else
+            table.insert ( player.rankHistory , { rankName , dateString , dateEpoch } );
+        end
+    end
+
+    return player;
+end
+
+-- 1.87
+-- Method:          GRM_Patch.updateKickRules ( table )
+-- What it Does:    Converts the old kickRules format to the new one.
+-- Purpose:         Setup the kickRules properly
+GRM_Patch.updateKickRules = function( kickRules )
+    local result = {};
+
+    if #kickRules > 0 then
+
+        local kickRule1 = GRM.L ( "Kick Rule {num}" , nil , nil , 1 );
+        result[ kickRule1 ] = {};
+        result[ kickRule1 ].name = kickRule1;
+        result[ kickRule1 ].isEnabled = true;
+        
+        result[ kickRule1 ].activityFilter = true;
+        if not kickRules[1][5] then
+            result[ kickRule1 ].activityFilter = false;
+        end
+        result[ kickRule1 ].isMonths = true;
+        if not kickRules[1][3] == 2 then
+            result[ kickRule1 ].isMonths = false;
+        end
+        result[ kickRule1 ].numDaysOrMonths = kickRules[1][4];
+
+        result[ kickRule1 ].rankFilter = false;
+        result[ kickRule1 ].ranks = {};
+
+        result[ kickRule1 ].levelFilter = false;
+        result[ kickRule1 ].levelRange = { 1 , 999 }; -- 999 represents level cap
+
+        result[ kickRule1 ].classFilter = false;
+        result[ kickRule1 ].classes = {};
+
+        result[ kickRule1 ].raceFilter = false;
+        result[ kickRule1 ].races = {};
+
+        result[ kickRule1 ].noteMatch = false;
+        result[ kickRule1 ].notesToCheck = { true , true , true };
+        result[ kickRule1 ].matchingString = "";
+        result[ kickRule1 ].ruleNumber = 1;
+    else
+        result = kickRules;     -- It has already been set, no needto overwrite!
+    end
+
+    return result
+end
+
