@@ -209,7 +209,7 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 ![Macro Tool ignore/Safe List](https://i.imgur.com/DxANz4A.jpg)
 
-**Phase 2: Custom Rules **
+**Phase 2: Custom Rules**
 
 ![Custom Filters and Rule Creation](https://i.imgur.com/PlSSQav.jpg)
 
@@ -232,7 +232,7 @@ I just want to make it extremely clear that even though GRM provides a way to un
 *PHASE 2 and PHASE 3 are core priorities for release, at the moment.
 
 
-***!NOTE TRIGGER**
+**!NOTE TRIGGER**
 
 *This particular tool is more useful in CLASSIC since players have to deal with the issue of any guildie being able to edit other members' public notes again, unlike retail.*
 
