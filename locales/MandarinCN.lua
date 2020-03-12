@@ -680,7 +680,7 @@ GRML.MandarinCN = function()
     GRM_L["|CFF00CCFFCustom Note Defaults:"] = true
     GRM_L["|CFFE6CC7FLeft-Click|r to ONLY reset all to default rank"] = true
     GRM_L["|CFFE6CC7FCtrl-Shift-Click|r to reset BOTH sync and rank defaults"] = true
-    GRM_L["|CFFE6CC7FCtrl-Left-Click|r to re-enable custom note sync for all"] = true
+    GRM_L["|CFFE6CC7FLeft-Click|r to re-enable custom note sync for all"] = true
     GRM_L["Custom Note Sync Disabled in Settings"] = true
     GRM_L["{name} modified {name2}'s CUSTOM Note: \"{custom1}\" was Added"] = true
     GRM_L["{name} modified {name2}'s CUSTOM Note: \"{custom1}\" was Removed"] = true
@@ -694,7 +694,7 @@ GRML.MandarinCN = function()
     GRM_L["Edited by {name}"] = true
     GRM_L["Note Removed by {name}"] = true
     GRM_L["|CFFFF0000Player No Longer in Guild"] = true
-    GRM_L["|CFF00CCFFMinimum Rank to Sync: Player Data, Custom Notes, Ban List"] = true
+    GRM_L["|CFF00CCFFMinimum Rank to Sync: Player Data, Ban List"] = true
     GRM_L["Warning! Ban List rank threshold is below the overall sync rank. Changing from \"{name}\" to \"{name2}\""] = true
     GRM_L["Warning! Custom Note rank threshold is below the overall sync rank. Changing default from \"{name}\" to \"{name2}\""] = true
     GRM_L["Custom Note Default Rank is Also Being Set to \"{name}\""] = true
@@ -1325,7 +1325,7 @@ GRML.MandarinCN = function()
     GRM_L["The note is too long. Only the first {num} characters will be set."] = true
     GRM_L["Edit {name} Rule {num}"] = true          -- "Edit Kick Rule 1" or "Edit Promotion Rule 5" 
     GRM_L["{name} Rule {num}"] = true
-    GRM_L["Apply Only to Selected Ranks:"] = true
+    GRM_L["Apply Only to Selected Ranks"] = true
     GRM_L["Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat."] = true
     GRM_L["No player data found, recommend full removal."] = true
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, and Birthdates."] = true
@@ -1375,7 +1375,40 @@ GRML.MandarinCN = function()
 
     -- 1.86
 	GRM_L["What tags look like:"] = true
-    GRM_L["Add Join Date to:"] = "Aggiungi la data di entrata a:"
+    GRM_L["Add Join Date to:"] = true
+    
+    -- R1.87
+    GRM_L["Kick Rule {num}"] = true         -- Exampe: Kick Rule 1
+    GRM_L["Edit Custom Rule"] = true
+    GRM_L["|CFFE6CC7FLeft-Click|r to Disable Rule"] = true
+    GRM_L["|CFFE6CC7FLeft-Click|r to Enable Rule"] = true
+    GRM_L["Edit"] = true
+    GRM_L["|CFFE6CC7FClick|r to Change the Rule Name"] = true
+    GRM_L["Apply to All Ranks"] = true
+    GRM_L["Please select at least 1 RANK to apply this rule to."] = true
+    GRM_L["Apply to All Levels"] = true
+    GRM_L["Apply Only to Level Range"] = true
+    GRM_L["Level Range:"] = true
+    GRM_L["{num} to {custom1}"] = true          -- Example: "Level Range: 100 to 120"
+    GRM_L["1 to {num}"] = true                  -- Same principle.
+    GRM_L["Require Text Match"] = true
+    GRM_L["Click to Set"] = true
+    GRM_L["Inactivity:"] = true
+    GRM_L["Notify if inactive for {num} {name}" ] = true       -- Notify if inactive for 15 Days  or Notify if inactive for 10 Months
+    GRM_L["Rule Filter: {name}"] = true
+    GRM_L["Ranks:"] = true
+    GRM_L["All Ranks"] = true
+    GRM_L["Note Match:"] = true
+    GRM_L["Please Set a Name for this Rule. It can be 1 to 25 characters in length."] = true
+    GRM_L["This will also clear all of your saved rules."] = true
+    GRM_L["Within Level Range: {num} - {custom1}"] = true               -- Qued macro tool tooltip
+    GRM_L["Note match: {name}"] = true                                  -- Same
+    GRM_L["Matching Rank"] = true                                       -- ''
+    GRM_L["Right-Click|r to Edit or Remove custom rule"] = true         -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
+    GRM_L["{name} matches the paramaters of {num} of your macro tool rules. Kick Recommended!"] = true
+    GRM_L["|CFFE6CC7FClick|r to Change"] = true
+    GRM_L["Colorize Roster Names to Match Class"] = true
+    GRM_L["(Applies Only to Classic)"] = true           -- For the Options... rather than removing them all
     
 end
 -- BuildLog() - might have some extra work, conditionally based on localization as it will now have a mix of languages saved to the log, since log is not retroactively changed.

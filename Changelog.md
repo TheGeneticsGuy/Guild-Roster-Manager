@@ -2,9 +2,132 @@
 
 _______________________
 
-**VERSION R1.86 DATE: January 29th, 2020**
+
+**VERSION R1.87 DATE: March 12th, 2020**
+
+***FEATURE RELEASE***
+
+**Phase II Macro Tool Release - Custom Rules**
+
+*My lenghty and probably unnecessary exposition that prefaces large releases*
+
+Phase II has been a long time coming. As I began building the custom rules, the ideas began to expand. Initially I had sketched out some plans on where I wanted to go with the design, laid some groundwork, had some ambitions, and when I started building it my thoughts evolved and ultimately went a different direction altogether. Utility, user experience, and ease is generally what I find the most important and what I wanted this to be. This also took me a while, aside from the many real-life distractions and priorities I have had over this the last month, because I felt this feature was so important that I wanted to make sure I got it right. It's a lot of work and there is nothing more soul killing in design when you dump so much time into something, realize you hated it, and decide to start over from the ground up. I have been there. 
+
+You see, just for a little insight into my personal behavior and thought process, when I am building something for GRM, even though I can be presented with logical arguments from others and rationalize to myself as to why some ideas are good, I have no joy in building them if they don't "click" for me. I want to feel them, to be excited to put it together. As this remains a hobby project for me, I have to get enjoyment out of it, and I really do. So, for a while I would start development again, start adding UI frames and I just felt no energy in doing so, no excitement, no deep feeling that what I was building was "right" for the job. The underlying code was simple and had already been built, but then came designing and integrating it in meaningful ways. There was no passion inside for it. I was not having fun doing it because I didn't have a clear picture of what I wanted. So, after chipping away at it, going back to the drawing board on some design issues, pruning out some unnecessary filters that made no sense (like I built a filter for race/class which didn't make sense to just say, kick all gnomes from your guild). I can now say I am happy with the final design (and happy for continued suggestions on further improvements). While it is my personal preference in design, I hope that it is an overall improvement for people that use the GRM Macro Tool as well.
+
+*Phase III plans, with promotion/demotions are going to be that much easier because much of the underlying infrastructure for it has now been built and I feel like I can see light at the end of the tunnel as I think about finalizing the that project now that Phase II is out of the way.*
+
+*/end exposition*
+
+**PHASE II FEATURES**
+
+![Phase II Release](https://i.imgur.com/PlSSQav.jpg)
+
+* Ability to add as many custom rules as you want. Want to build a rule for each rank, for level ranges and so on? Not a problem. In fact, if you ever build a rule where this is overlap, the tooltip when mousing over a player in the list will show you which rules apply to that player.
+
+* Ability to Enable/Disable specific rules on the fly. No need to delete them, just temporarily disable.
+
+* Additional Rule Filters: Specific ranks you want the rule to apply, level ranges, and even if you want to add people to the list that have a certain text match in any of their public,officer, or custom notes.
+
+* The rules are so customizable that you could theoretically disable all the rules and just have it apply to a specific rank, so all the people that are then recommended to be kicked would just be a certain rank. Have fun with it!
+
+* Ability to name each rule whatever you want.
 
 
+***QUALITY OF LIFE***
+
+**FIX TO RETAIL DISCONNECT BUG THAT BLIZZ HAS NOT YET ADDRESSED (that will affect any officer even if all addons disabled)**
+
+Retail 8.3 Disconnect bug has been temporarily fixed until Blizzard can get their act together and resolve it. I love Blizzard, and I love Warcraft, but having this disconnect bug go unaddressed by Blizzard for months post 8.3 release is just unacceptable. So, I have decided to build my own fix to address it. Note, this disconnect bug **ONLY** affects officers because it is directly related to having access to the new guild recruitment system. If you have the Retail Guild Community window open and you are on the chat tab that has your guild chat scrollable history, the game gets stuck in a loop querying the server over and over and over again about the recruitment info, to the point it snowballs into hundreds and even thousands of calls a second. Eventually it just overloads and the server boots you. You can see the exact spam yourself. Just type `/etrace` - open your guild window, be on the chat tab, and look for this event being mass spammed: "CLUB_FINDER_RECRUITMENT_POST_RETURNED."
+
+The fix is all done behind the scenes and automatically, but it is merely a stop-gap to address the issue until Blizz fixes it on their end of the code with an update. Having dissected their own code on the community frame, this is *NOT* a difficult fix and this is why I find it particularly frustrating that they have not even taken the short amount of time to address this, as a single developer on Blizz's team could probably properly fix it before lunch time the day they investigate it.
+
+**BOTH**
+
+* To get around the restrictions on addons promoting/demoting - with a little inspiration from the "Guild Search" addon and @gankenz on discord I was able to finagle a semi-solution that is very limited. Ctrl-Clicking a player's name in the audit, or any other GRM tool will now fully bring up the player member details window that has the promote/demote - Of note, due to the lock down and limitations of the community frame, I can only get this working using the Classic roster. So, in retail, you will notice now that Ctrl-clicking the names will now only bring up the Classic roster (/groster or Ctrl-J to bring it up).
+
+* AddOnSkins profile has been updated - scrollbars now working properly. Some unskinned frames have now been skinned. New Macro Tool Custom Rules is updated as well.
+
+* Mousewheel now properly works for scrolliing up and down when hovered over the scrollbar sliders, not just the windows themselves.
+
+* Audit window will now properly refresh on the fly when using the macro tool, if the audit window is open and visible.
+
+**CLASSIC**
+
+* Names in the roster are now properly class colorized, even if you swap the status windows. Also, the side details popout window the name is now colorized. You can disable this class coloring in the GRM > Options > UI tab if you really wish to have a more authentic Classic experience. I'd imagine something as useful and unintrusive as this most will not have as much of an issue with.
+
+
+***BUG FIXES***
+
+**BOTH**
+
+* Addon was erroring and failing to report players rejoining the guild. It now should properly.
+
+* Every major bug reported on discord has been resolved.
+
+* Resolved a bug that could happen shortly after login when interacting with other GRM users to inform the player on *who* currently is online with GRM installed.
+
+* Fixed an issue where if editing the custom note you hit confirm with no changes it now properly resets and hides the confirm/cancel button.
+
+* !note rule restrictions should properly work again if you disable the feature.
+
+* Players that share the same name as their guild should now properly be added to the guild - It was looking at the guild names if already added to the guild on accident rather than guild members, so mostly unnoticed bug unless you
+
+* Fixed an issue in reporting rank changes if you deleted a bunch of ranks and people shifted up or down.
+
+* Fixed an issue where if you went from not allowing people of any GRM version to sync with you to instead restricting it to only the current version as you, it now properly wipes names already approved for sync. Before it would continue to allow outdated versions to sync if you enabled this and would only reset on a reload or relog.
+
+* CustomNote sync seemed to only be working one direction, depending on who was the behind-the-scenes sync leader. It now is going both directions and should properly update the custom note.
+
+* Custom note was not clearing the note properly - the new update should now fix that, and on your next sync, should properly collect the changes of any custom Notes that have been removed.
+
+* Promotion dates in some cases were not getting set when a player joined the guildm even if they were verified joins.
+
+* Audit list should now properly show player data as "incomplete" if it is Unverified ("!!")
+
+* Fixed an issue where the Ban list would not load properly if you had a combination of players banned both outside the guild and some still in the guild.
+
+* Also found an issue with the ban list where it would, in some cases, be missing 1 name from the ban list.
+
+* Fixed an issue with the Advanced Join Date tool where it was using unverified dates to compare to the note rather than the verified.
+
+* Creating a new toon, the addon settings were not being properly sync'd when the newly created toon received an invite to the guild. It should now properly absorb existing settings if you have it set to sync settings among all your alts.
+
+* Minor bug that could cause a Lua error when trying to populate the tooltip on the Addon Users tab
+
+* Fixed an issue where on mass kicking a player with the tool it would sometimes report them rejoining and then being promoted.
+
+* fixed an issue whre you can get occasionally double recording of when you kick a player from the guild.
+
+* Fixed a lua error that could occur on the "Macro Tool" button if opening community frame within seconds of logging in.
+
+* Fixed an issue where if you use the macro tool, if the actual built-in /macro window was open, it would close it, then the ESC key would no longer work to bring up game menu. This is no longer a problem and the ESC key should work just normal again.
+
+
+**RETAIL**
+
+* Fixed an issue where it would error out the localization of the Death Knight class name when adding a custom ban on a player no longer in the guild that happens to be a Death Knight Class.
+
+* Fixed another issue where it would fail to set the GUID properly on adding a ban on a player that was never a member of the guild or you don't have any metadata record of the player, so when it builds it it was setting to the GUID info incorrectly thus it would erroneously say on the ban list that the "player is no longer on the server." This is now resolved!
+
+* Right click should work again on the roster when setting main
+
+* Found an issue where you could theoretically encounter 2 join dates and the 2 one is set at an earlier date. How it works is if a player joins the guild they auto join at the lowest rank. The addon will record that rank. However, if let's say someone joins the guild while you are offline AND they get promoted, before you ever record them, the addon will take note that they joined the guild AND they were promoted. Here is the scenario. Let's say the day that they joined the guild was > 100 events ago, thus the date is unverified. If that is the case the addon puts a placeholder unverified date in the history tree as the date you logged in. But, then the addon detects they are no longer the same rank so they got a promotion, and now addon checks and guess what, their promotion <= 100 events that occurred, so now it can accurately report the date. You end up getting the first promotion/join date as an unverified date the day you logged in, but now the 2nd promotion received is given an accurate date X time previous, thus you end up with a potential for 2 promotion dates to be recorded, but 1 of them to be today and the other to be further in the past, even though it was a more recent promotion. Silly nuance, would be rare to find, but definitely possible to happen if you don't log on very much or are in an extremely high activity guild so events get pushed through faster. 
+
+* Fixed an issue where the promotion date was not properly getting added and the audit log was not reporting it properly even though the filters showed it was complete.
+
+
+**CLASSIC**
+
+* The guild export window the default button no longer overlaps the info on about the Guild Rep being disabled in Classic.
+
+
+
+**VERSION R1.86 DATE: Feb 3rd, 2020**
+
+*Post DB overhaul cleanup and a few other things*
+
+My neighbor is a business manager for Cox and a wonderful guy. He speaks so highly of the company. With my own good experience as a customer, when I began looking for a new job, it just made sense to first check out Cox Communications.
 ***QUALITY OF LIFE***
 
 **BOTH**

@@ -1,5 +1,5 @@
 -- Public Tool Useful APIs
-
+-- NOT YET EXPANDED ON.
 
 
 -- Method:          GRM.ClearFriendsList()
@@ -18,7 +18,7 @@ end
 GRM.ClearAllOfficerNotes = function()
 
     if CanEditOfficerNote() then
-        for i = GetNumGuildMembers() do
+        for i = 1 , GetNumGuildMembers() do
             GuildRosterSetOfficerNote ( i , "" );
         end
     else
