@@ -121,7 +121,7 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 ![Add additional syncable information about the player with 150 extra characters in the custom note](https://i.imgur.com/Kje1577.jpg)
 
-* In regards to the Custom Note - These can be controlled globally in sync restriction, and individually. I personally keep custom notes open to almost all ranks in the guild, but I know some may not wish to.
+* In regards to the Custom Note - These can be controlled globally in sync restriction. I personally keep custom notes open to almost all ranks in the guild, but I know some may not wish to. I'd still recommend keeping private officer only info to officer channel so maximum utility of the custom note can be had.
 
 
 **JOIN AND PROMOTION DATE HISTORIES**
@@ -316,6 +316,32 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 * Ensure all officers have the feature enabled to auto-add public notes with the !note capabilities.
 
+
+**GRM Module/Plugin Support**
+
+**EXISTING MODULES:**
+
+* **Group Info**
+
+    
+![Mouseover Information](https://i.imgur.com/MKwNQQv.jpg)
+
+![Lock window, then mouseover each name for more details](https://i.imgur.com/Y6ySSca.jpg)
+
+    * It will tell you the names of all the people currently in your group who are guildies.
+
+    * It will inform you if you are grouped with any *former* guildies. This particularly feature goes very deep in that it will inform you the date they left. It will let you know if they were previously banned from the guild. It will let you know if they have name-changed since leaving the guild. It will inform you of their known alts and if any of them are still currently in your guild.
+
+    * It will inform you of all the people you are grouped with that are on the same server, or a connected realm member
+
+    * Colored indicators will appear next to raid/party member names if you are within trade distance of the player. They will update on the fly. Yes, it can be disabled.
+
+
+[Download on Curseforge/Twitch Here](https://www.curseforge.com/wow/addons/guild-roster-manager-group-info) or [Github Here](https://github.com/TheGeneticsGuy/Guild_Roster_Manager-Group_Info)
+
+* **Recruitment (Retail)**
+
+*WORK IN PROGRESS*
 
 **JOIN-UP ON DISCORD!**
 
