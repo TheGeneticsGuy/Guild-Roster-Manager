@@ -8,16 +8,16 @@ _______________________
 
 **PLUGIN FRAMEWORK**
 
-*As time has gone on GRM has really grown to be a fairly significantly large addon, ever growing with more and more features. While I attempt to focus on features that are within the **scope** of guild management, I find that there is room for a little bit of grey area feature support. Furthermore, I find that in many ways the overall addon can be useful for all players, but there are just some features that are completely unnecessary unless you are an officer. So, in an attempt to keep GRM's core from growing *too* bloated, I built an underlying framework to support my own "modules," or plugins, so to speak. Some things are just going to be far too niche for the most guildies that maybe it will be better suited for a smaller module addon to the GRM core. Going forward, many large features are going to be introduced as modules.*
+As time has passed, GRM has really grown to be a fairly large addon, ever growing with more and more features. While I attempt to focus on features that are within the **scope** of guild management, I find that there is room for a little bit of grey area feature support. Furthermore, I find that in many ways the overall addon can be useful for all players, but there are just some features that are completely unnecessary unless you are an officer. So, in an attempt to keep GRM's core from growing *too* bloated, I built an underlying framework to support my own "modules" - plugins, so to speak. Some things are just going to be far too niche for many guild members that there is just no reason to bloat the core addon with those features. I will use them, many leaders will use them, but maybe they will be better suited for a smaller module addon to the GRM core. An example of this is my future plans for the new retail "Recruitment" system. Clearly this only has to do with officers, so in the future I have it planned as another module rather than a core addon feature. 
 
-*Of note, if it still falls explicitly wwithin the scope of the original core addon goal, that will not be compartmentalized off, but kept within the core of the addon. Today I introduce the **first** GRM module!!!*
+*Of note, if it still falls explicitly within the scope of the original core addon goal, that will not be compartmentalized off, but kept within the core of the addon. So, today I introduce the **first** GRM module!!!*
 
 * New Options tab called "Modules" - and it will populate dynamically depending on if you have the module installed or not.
 
 
 **GROUP INFO MODULE**
 
-*Now, if you are in a party or a raid group, you are given a special GRM button you can mouseover - this will reveal various things about your raid group.*
+*If you are in a party or a raid group, you are now given a special GRM "Group Info" button you can mouseover - this will reveal various things about your raid group.*
 
 * It will tell you the names of all the people currently in your group who are guildies.
 
@@ -38,7 +38,7 @@ _______________________
 
 **BOTH**
 
-* Re-translate the log on the fly now just by swapping languages. On occasion we have wonderful volunteers that submit translation work to *localize* the addon to your country. Well, the neat thing now is you can retroactively re-translate your log entries to the updates. Or, you can swap to new languages. Maybe you are tired of using English, which may not be your first language. Just swap to your native language and see the log auto-translated for you, if there are sufficient localization work done at least (any help here always appreciated). Of note, there are limitations here. If you have been using GRM for a long time, older log entries will not be re-translated as they are stored in just static strings as I was not yet storing any of the metadata to rebuild the log entries. Otherwise, the data to rebuild the strings has been stored for, if I remember, maybe the last 6 months or so. It is hard to state how much underlying work exists to make this possible, of which will likely never be used by most people lol. It was fun building it at least!
+* Re-translate the log on the fly now just by swapping languages. On occasion we have wonderful volunteers that submit translation work to *localize* the addon to your country. Well, the neat thing now is you can retroactively re-translate your log entries to the updates. Or, you can swap to new languages. Maybe you are tired of using English, which may not be your first language. Just swap to your native language and see the log auto-translated for you, if there are sufficient localization work done at least (any help here always appreciated). Of note, there are limitations here. If you have been using GRM for a long time, older log entries will not be re-translated as they are stored in just static strings as I was not yet storing any of the metadata to rebuild the log entries. Otherwise, the data to rebuild the strings has been stored for, if I remember, maybe the last 6 months or so. It is hard to express how much underlying work needed to happen to make this possible. I doubt many will use it as well lol.
 
 * On the log entries where a player left the guild or was removed, it will now state if they were themselves the "main" that left. Previously it only stated if their main was still in the guild, thus identifying an alt as leaving. It is now more obvious if a "main" has left.
 
@@ -46,11 +46,10 @@ _______________________
 
 ![New Color Customization for the log!](https://i.imgur.com/MaIpzjE.jpg)
 
+
 * I removed the "NG" tag on system message names when people login or out - and I changed it to "Friend" as it just makes more sense. "Non-Guildie" I was needing to explain. I was originally just trying to keep the tag very small, but since it really only affects those limited system messages then "Friend" seems an appropriate tag
 
-* The "Log Tools" button is now in a more obvious place. Many people seem to not know there are additional controls for managing the core GRM log for your guild as the button was semi-obscure - it is now in an obvious place.
-
-* Sort of "Bug" related, but there is this elusive bug evading me that has been reported a few times where players get the text error stating to report the error to the devs... but since it is an empty "" string it has been impossible to trace. I went ahead and added a purposeful error in the code so as to force a Lua error to create a code trace - so if you have seen this, please have some kind of Lua error reporting enabled so I can get it fixed immediately. It's been out there for a while and driving me nuts and I want to squash it but I need to trace the source first!
+* The "Log Tools" button is now in a more obvious place. Many people seemed to not know there were additional controls for managing the core GRM log for your guild as the button was semi-obscure - it is now in an obvious place.
 
 * The Ban list now has the ability to mass kick players who are on the ban list, yet are still in the guild. Just click the button (which will only appear as an option if you have players banned that are still currently in the guild), and it will open the Macro Tool with the names all populated in and ready to go.
 
