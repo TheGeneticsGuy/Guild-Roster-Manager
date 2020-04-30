@@ -59,10 +59,15 @@ As time has passed, GRM has really grown to be a fairly large addon, ever growin
 
 ![Multi-Channel support](https://i.imgur.com/XKAjOye.jpg)
 
+* The counter for the Macro Tool button above the roster, which states how many are ready to be kicked before you ever open the tool, will now properly update after a sync and if you remove or add any alts, as that can adjust how the rule applies to some. It typically only refreshes every 60 seconds, if visible, but now it is forced to update immediately on any of these actions so there is no confusion.
+
+* Purged all unused and deprecated strings from the localization files now due to some modifications
 
 ***BUG FIXES***
 
 **BOTH**
+
+* Longstanding bug where alt groups had been getting disassociated on sync - this is due to a flaw in how the DB got updated for some people and I won't get into the specifics, but I had tried to bandaid it and it just was getting to the point of too many reports so I've basically had to take a bazooka to the problem to isolate and fix it. Unfortunately this has the side-effect of disassociating the alt groupings of any affected groups. The reason this had to be done is let's say in your group 2 different groupings of alts were affected and becoming associated/disassociated over and over. Well, the addon has know way to correctly identify which of those groupings was the accurate one. It can at least identify the inconsistencies, and the flaw, but not the fix, so it just purges all associations, and then the player will need to rebuild them. This should hopefully make that issue go away, yay!
 
 * Export should now properly not include the birthdays if it is unchecked.
 

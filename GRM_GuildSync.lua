@@ -3294,6 +3294,14 @@ GRMsync.InitiateDataSync = function ()
                         GRM_G.LogNumbersColorUpdate = true;
                         GRM.BuildLogComplete( true , true );
                     end
+
+                    if GRM_UI.GRM_ToolCoreFrame:IsVisible() then
+                        GRM_UI.RefreshManagementTool();
+                    end
+                    
+                    if GRM_UI.GRM_LoadToolButton:IsVisible() then
+                        GRM_UI.RefreshToolButtonsOnUpdate();
+                    end
                 end
             end
         end
@@ -5229,6 +5237,10 @@ GRMsync.ReportSyncCompletion = function ( currentSyncer , finalAnnounce )
 
         if GRM_UI.GRM_ToolCoreFrame:IsVisible() then
             GRM_UI.RefreshManagementTool();
+        end
+        
+        if GRM_UI.GRM_LoadToolButton:IsVisible() then
+            GRM_UI.RefreshToolButtonsOnUpdate();
         end
 
         local playerCount = GRMsyncGlobals.AddLeftPlayerCount;

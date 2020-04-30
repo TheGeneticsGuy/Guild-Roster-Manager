@@ -3497,6 +3497,10 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
 
                         self:ClearFocus();
                         GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame:Hide();
+
+                        if GRM_UI.GRM_LoadToolButton:IsVisible() then
+                            GRM_UI.RefreshToolButtonsOnUpdate();
+                        end
                     end
                 else
                     GRM.Report ( GRM.L ( "Please choose a character to set as alt." ) );
@@ -3574,6 +3578,10 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
 
                 if GRM_UI.GRM_ToolCoreFrame:IsVisible() then
                     GRM_UI.RefreshManagementTool();
+                end
+                
+                if GRM_UI.GRM_LoadToolButton:IsVisible() then
+                    GRM_UI.RefreshToolButtonsOnUpdate();
                 end
 
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then

@@ -31,9 +31,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "8.3.0R1.88";
-GRM_G.PatchDay = 1588226551;             -- In Epoch Time
-GRM_G.PatchDayString = "1588226551";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "8.3.0R1.881";
+GRM_G.PatchDay = 1588270968;             -- In Epoch Time
+GRM_G.PatchDayString = "1588270968";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "8.3.0";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
