@@ -2,7 +2,7 @@
 
 _______________________
 
-**VERSION R1.88 DATE: April 27th 2020**
+**VERSION R1.88 DATE: April 29th 2020**
 
 ***NEW FEATURES***
 
@@ -83,6 +83,13 @@ _______________________
 
 * Fixed a minor bug in relation to the MainTag color select box not functioning properly in the General GRM Options
 
+* The message when you tried to sync while grouped was erroneously stating you didn't have access to guild chat when it should just be stating sync was restricted while in group. This has caused some confusion and should now properly report why sync is not triggering while in group.
+
+* Fixed an issue when the ban list syncs it wasn't storing the original player join date properly and not syncing some data as a result in some few cases.
+
+* Fixed an issue where the Guild Info tag was not being checked as often as it should be for updates.
+
+* Finally found the origin of that stupid bug that messed up some groupings of alts and it had to do with some stupid database diving that occured pre-DB overhaul as a prep for the DB overhaul, but deep and nesteed in the code I had a variable pointing to an int counter "r" when it should have been pointing to "s" and subsequent downstream mess occurred. Wow, funny how something so imple can cause so much hassle.
 
 
 **VERSION R1.871 DATE: March 16th, 2020**

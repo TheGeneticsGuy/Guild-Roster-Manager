@@ -15,12 +15,12 @@ end
 -- What it Does:    Live checks when a player joins the guild and reports on it
 -- Purpose:         For specific use on Classic. In Retail there is the new, vastly more efficient, community API. Here we aree forced to be somewhat limited.
 GRM.ClassicCheckForNewMember = function ( name )
-    local rosterName , rank , rankInd , level , zone , note , oNote , online , classFile , pts , rep , guid;
+    local rosterName , rank , rankInd , level , zone , note , oNote , classFile , pts , rep , guid , _ ;
     local isFound = false;
     local rosterIndex = 0;
 
     for i = 1 , GRM.GetNumGuildies() do
-        rosterName , rank , rankInd , level , _ , zone , note , oNote , online , _ , classFile , pts , _ , _ , _ , rep , guid = GetGuildRosterInfo ( i );
+        rosterName , rank , rankInd , level , _ , zone , note , oNote , _ , _ , classFile , pts , _ , _ , _ , rep , guid = GetGuildRosterInfo ( i );
         if name == rosterName then
             isFound = true;
             rosterIndex = i;

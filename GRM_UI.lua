@@ -3274,6 +3274,10 @@ end
 GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
 
     --ADD ALT FRAME
+    if not isManualUpdate then
+        -- To be used in the future
+    end
+
     GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_MemberDetailMetaData , "BOTTOMRIGHT" ,  -7 , 0 );
     GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame:SetSize ( 130 + ( #GRM_G.realmName * 3.5 ) , 170 );                -- Slightly wider for larger guild names.
     GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame:SetToplevel ( true );
@@ -4425,7 +4429,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         );
     end);
 
-    if not isManual then
+    if not isManualUpdate then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetBackdrop ( GRM_UI.noteBackdrop2 );
     end
     
@@ -6345,7 +6349,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             GRM_G.changeHappenedExitScan = true;
 
-            GRM.PurgeGuildFromDatabase ( GRM_G.BackupFrameSelectDetails[1] , GRM_G.BackupFrameSelectDetails[2] , GRM_G.selectedFID ); -- Getting it done! Purging the guild completely...
+            GRM.PurgeGuildFromDatabase ( GRM_G.BackupFrameSelectDetails[1] , GRM_G.selectedFID ); -- Getting it done! Purging the guild completely...
 
             -- Need to set IDs again!
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Hide();
@@ -7708,7 +7712,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     end);
 
-    if not isManual then
+    if not isManualUpdate then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_CoreWindowScaleSlider:HookScript ( "OnMouseDown" , function ()
             GRM_UI.RestoreTooltipScale();
             GameTooltip:Hide();
@@ -7789,7 +7793,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     end);
 
-    if not isManual then
+    if not isManualUpdate then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_MouseOverScaleSlider:HookScript ( "OnMouseDown" , function ()
             GRM_UI.RestoreTooltipScale();
             GameTooltip:Hide();
@@ -7873,7 +7877,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     end);
 
-    if not isManual then
+    if not isManualUpdate then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_MacroToolScaleSlider:HookScript ( "OnMouseDown" , function ()
             GRM_UI.RestoreTooltipScale();
             GameTooltip:Hide();
@@ -7956,7 +7960,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     end);
 
-    if not isManual then
+    if not isManualUpdate then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ExportToolScaleSlider:HookScript ( "OnMouseDown" , function ()
             GRM_UI.RestoreTooltipScale();
             GameTooltip:Hide();
@@ -8047,7 +8051,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     end);
 
-    if not isManual then
+    if not isManualUpdate then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_AdvancedAuditToolScaleSlider:HookScript ( "OnMouseDown" , function ()
             GRM_UI.RestoreTooltipScale();
             GameTooltip:Hide();
@@ -8362,7 +8366,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_AddJoinedTagButton:SetScript ( "OnEnter" , function ( self )
-        local isRestricted , controlValue = GRM.IsSyncRankGuildLeaderRestricted ( 5 );
+        local isRestricted = GRM.IsSyncRankGuildLeaderRestricted ( 5 );
         local formatJD = "";
 
         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].includeTag then
@@ -10009,8 +10013,6 @@ end
 --                  In other words, this can be loaded upon logging, but the rest will only load if the guild roster window loads.
 GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
-    local tempString = "";
-
     -- CHECKBUTTONS for Logging Details
     GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterJoinedCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterCheckBoxSideFrame , 14 , -45 );
     GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_RosterJoinedChatCheckButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_RosterCheckBoxSideFrame , -14 , -45 );
@@ -10625,7 +10627,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnEnter" , function( self )
-        local isRestricted , index = GRM.IsSyncRankGuildLeaderRestricted ( 9 );
+        local isRestricted = GRM.IsSyncRankGuildLeaderRestricted ( 9 );
 
         if isRestricted and not IsGuildLeader() then
             GRM_G.GlobalControl7 = true;
@@ -14172,7 +14174,7 @@ end
 -- Purpose:         Warcraft is smart in how it handles loading frames and it only loads them *as needed* and as a result, they will appear as "nil" until you
 --                  execute the trigger to load them. This applies to things like the guild roster. Well, now this is a control to compartmentalize these loads until
 --                  the built-in frames are loaded by Blizz.
-GRM_UI.BlizzardFramePinHookInitializations = function ( isManual )
+GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
     
     if not isManualUpdate then
         GRM_G.BlizzFramePinsInitialized = true;

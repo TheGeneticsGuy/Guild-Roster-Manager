@@ -1476,7 +1476,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetSize ( 145 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "BOTTOM" , -20 , 15 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton.GRM_ToolCustomRulesConfirmButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetScript ( "OnClick" , function ( self , button )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
                 if GRM.IsRuleReady() then
                     -- Add or edit the new rule
@@ -1495,7 +1495,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton:SetSize ( 145 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "BOTTOM" , 20 , 15 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton.GRM_ToolCustomRulesCancelButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton:SetScript ( "OnClick" , function ( self , button )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton:SetScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
             end
@@ -1658,14 +1658,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Purpose:         Keep rules settings displayed properly.
         GRM_UI.ConfigureCustomRuleKickFrame = function ( isEdit , ruleName )
 
-            local timeType = "";
             local matchString = "";
-
-            if not isEdit or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules[ruleName].isMonths then
-                timeType = GRM.L ( "Months" );
-            else
-                timeType = GRM.L ( "Days" );
-            end
 
             -- Build Rank Filter
             BuildRankCheckBoxes();
@@ -1835,18 +1828,18 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end
  
         -- Method:          GRM_UI.ConfigureCustomRulePromoteFrame ( bool , string )
-        -- What it Does:    Configures the values of all the buttons on the custom rules creation window
-        -- Purpose:         Keep rules settings displayed properly.
-        GRM_UI.ConfigureCustomRulePromoteFrame = function ( isEdit , ruleName )
+        -- -- What it Does:    Configures the values of all the buttons on the custom rules creation window
+        -- -- Purpose:         Keep rules settings displayed properly.
+        -- GRM_UI.ConfigureCustomRulePromoteFrame = function ( isEdit , ruleName )
 
-        end
+        -- end
 
-        -- Method:          GRM_UI.ConfigureCustomRuleDemoteFrame ( bool , string )
-        -- What it Does:    Configures the values of all the buttons on the custom rules creation window
-        -- Purpose:         Keep rules settings displayed properly.
-        GRM_UI.ConfigureCustomRuleDemoteFrame = function ( isEdit , ruleName )
+        -- -- Method:          GRM_UI.ConfigureCustomRuleDemoteFrame ( bool , string )
+        -- -- What it Does:    Configures the values of all the buttons on the custom rules creation window
+        -- -- Purpose:         Keep rules settings displayed properly.
+        -- GRM_UI.ConfigureCustomRuleDemoteFrame = function ( isEdit , ruleName )
 
-        end
+        -- end
 
         -- INACTIVITY CUSTOM RULES
         --------------------------
@@ -1995,7 +1988,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 FontButton:SetScript ( "OnClick" , function( self , button ) 
                     if button == "LeftButton" then
-                        local nameOfButton = self:GetName();
                         local number = tonumber ( string.match ( self:GetName() , ("%d+" ) ) );
 
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetText ( FontButtonText:GetText() );
@@ -3914,7 +3906,7 @@ GRM.GetRuleEntries = function ( ruleType )
         tempTable = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteRules );
     end
 
-    for name , rule in pairs ( tempTable ) do
+    for _ , rule in pairs ( tempTable ) do
         table.insert ( result , rule );
     end
     sort ( result , function ( a , b ) return a.ruleNumber < b.ruleNumber end );
@@ -4369,9 +4361,7 @@ GRM.GetKickNamesByFilterRules = function()
     -- The name formatting is purely to be used for the macro to be added.
     
     local ruleConfirmedCheck = true
-    local listOfPlayers , tempRuleCollection = {} , {};
-    local isFound , ind;
-    
+    local listOfPlayers , tempRuleCollection = {} , {};   
 
     for _ , player in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
         if type ( player ) == "table" then

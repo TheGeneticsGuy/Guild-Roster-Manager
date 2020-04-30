@@ -32,8 +32,8 @@ GRM_G = {};
 
 -- Addon Details:
 GRM_G.Version = "8.3.0R1.88";
-GRM_G.PatchDay = 1588191716;             -- In Epoch Time
-GRM_G.PatchDayString = "1588191716";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.PatchDay = 1588226551;             -- In Epoch Time
+GRM_G.PatchDayString = "1588226551";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "8.3.0";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -1465,7 +1465,6 @@ end
 -- What it Does:    Checks if the channel is still one listed. If not, removes it
 -- Purpose:         Quality control for the use of custom channels. Ensures cleanup when channels removed.
 GRM.CleanupUnusedChannels = function( channels )
-    local chatFrame;
     local isEstablished;
 
     -- Remove ones not in the Channel List
@@ -1747,11 +1746,11 @@ GRM.L = function ( key , playerName , playerName2 , num , custom1 , custom2 )
         end
     else
         if key ~= nil then
-            if not GRM_G.Region == koKR or key ~= "SYNC USERS" then
-                if key == "" then
-                    GRM.Report ( "GRM Warning! - Trying to localize an empty string!!! Please report to addon dev the Lua error that occurs. Thank You! This error is causing a forced Lua error so I can trace the bug. Please report the Lua error and I will fix it immediately!" )
-                    local failureTest = 5 + nil;    -- Too to force a Lua error so this can be traced.
-                else
+            if not GRM_G.Region == "koKR" or key ~= "SYNC USERS" then
+                if key ~= "" then
+                --     GRM.Report ( "GRM Warning! - Trying to localize an empty string!!! Please report to addon dev the Lua error that occurs. Thank You! This error is causing a forced Lua error so I can trace the bug. Please report the Lua error and I will fix it immediately!" )
+                --     local PuposefullyUnusedToForceCodeFailLuaTrace = 5 + nil;    -- Too to force a Lua error so this can be traced.
+                -- else
                     GRM.Report ("GRM WARNING!!! FAILURE TO LOAD THIS KEY: " .. key .. "\nPLEASE REPORT TO ADDON DEV! THANK YOU!" );  -- for debugging purposes.
                 end
             end
@@ -1969,7 +1968,7 @@ end
 GRM.GetNumStoredFormerMembers = function ( guildName , faction )
     local c = 0;
 
-    for x in pairs ( GRM_PlayersThatLeftHistory_Save[faction][guildName] ) do
+    for _ in pairs ( GRM_PlayersThatLeftHistory_Save[faction][guildName] ) do
         c = c + 1;
     end
 
@@ -2038,10 +2037,10 @@ GRM.GetAllConnectedRealms = function()
     return realms;
 end
 
--- Method:          GRM.PurgeGuildFromDatabase(string,string)
+-- Method:          GRM.PurgeGuildFromDatabase( string , string)
 -- What it Does:    Completely purges a guild from the player database... that it is not currently logged into
 -- Purpose:         Cleanup old guild data from a guild the player is no longer a part of.
-GRM.PurgeGuildFromDatabase = function ( guildName , creationDate , faction )
+GRM.PurgeGuildFromDatabase = function ( guildName , faction )
 
     if guildName == GRM_G.guildName or guildName == GRM.SlimName ( GRM_G.guildName ) then
         GRM.Report ( "\n" .. GRM.L ( "Player Cannot Purge the Guild Data they are Currently In!!!" ) .. "\n" .. GRM.L( "To reset your current guild data type '/grm clearguild'" ) );
@@ -2062,7 +2061,6 @@ GRM.PurgeGuildFromDatabase = function ( guildName , creationDate , faction )
             -- remove the saved data if any exists as well
             -- Do a purge of the guild regardless, if it's showing up here, it means it's get lingering bad data.
             if GRM_GuildDataBackup_Save[faction][guildName] ~= nil then
-                removed = true;
                 GRM_GuildDataBackup_Save[faction][guildName] = nil;
                 GRM.Report ( GRM.L ( "Error: Guild Not Found..." ) );
             else
@@ -2263,7 +2261,7 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
                 GRM_G.SystemMsgThrottle = time();
                 GRM_G.CreationDatePattern = GRM_G.CreationDatePattern or GRM.CreateGuildCreationDatePattern();
 
-                local a , b , c , players , numUniqueAccounts = string.match ( msg , GRM_G.CreationDatePattern );
+                local a , b , c , _ , numUniqueAccounts = string.match ( msg , GRM_G.CreationDatePattern );
                 local month , day , year;
                 -- a , b , c can be either day, month, or year, depending on the Region formatting for the note.
                 -- string.match ( "Guild created 8-31-2019, 4 players, 4 accounts" , GRM_G.CreationDatePattern )
@@ -7615,7 +7613,7 @@ GRM.AddAltAutoComplete = function()
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if member ~= GRM_G.currentName then   -- no need to go through player's own window
+            if player.name ~= GRM_G.currentName then   -- no need to go through player's own window
                 -- Determine alt/main tag
                 local tag = 0;
                 -- 0 = no tag, 1 = main, 2 = alt
@@ -7753,13 +7751,6 @@ GRM.KickAllAlts = function ( playerName )
                     -- The kicking...
                     if GRM_G.isChecked2 then
 
-                        local name = "";
-                        if string.find ( tempAlt.name , GetRealmName() , 1 , true ) ~= nil then
-                            name = GRM.SlimName ( tempAlt.name );
-                        else
-                            name = tempAlt.name;
-                        end
-
                         table.insert ( GRM_G.KickAllAltsTable , {} );
                         index = #GRM_G.KickAllAltsTable;
                         GRM_G.KickAllAltsTable[index].name = tempAlt.name;
@@ -7796,18 +7787,21 @@ end
 GRM.KickAllBanned = function()
     GRM_G.KickAllBannedTable = {};
 
-    local num , names = GRM.GetNumberOfPlayerSBannedCurrentlyInGuild();
+    local names = select ( 2 , GRM.GetNumberOfPlayerSBannedCurrentlyInGuild() );
     local c = 1;
-    for i = 1 , #names do
-        if names[i][1] ~= GRM_G.addonUser then
-            GRM_G.KickAllBannedTable[c] = {};
-            GRM_G.KickAllBannedTable[c].name = names[i][1];
-            GRM_G.KickAllBannedTable[c].class = names[i][2];
-            GRM_G.KickAllBannedTable[c].lastOnline = names[i][3];
-            GRM_G.KickAllBannedTable[c].action = GRM.L ( "Kick" );
-            GRM_G.KickAllBannedTable[c].macro = "/gremove";
-            GRM_G.KickAllBannedTable[c].isHighlighted = false;
-            c = c + 1;
+
+    if names ~= nil then
+        for i = 1 , #names do
+            if names[i][1] ~= GRM_G.addonUser then
+                GRM_G.KickAllBannedTable[c] = {};
+                GRM_G.KickAllBannedTable[c].name = names[i][1];
+                GRM_G.KickAllBannedTable[c].class = names[i][2];
+                GRM_G.KickAllBannedTable[c].lastOnline = names[i][3];
+                GRM_G.KickAllBannedTable[c].action = GRM.L ( "Kick" );
+                GRM_G.KickAllBannedTable[c].macro = "/gremove";
+                GRM_G.KickAllBannedTable[c].isHighlighted = false;
+                c = c + 1;
+            end
         end
     end
 
@@ -7914,6 +7908,7 @@ end
 -- purpose:         To maintain exact function of banning a player without doing other tasks.
 GRM.BanSpecificPlayer = function ( playerName , isAlt , banReason , personWhoBanned )
     local player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local isFoundInGuild = false;
 
     if not personWhoBanned then
         personWhoBanned = "";
@@ -8998,7 +8993,7 @@ GRM.BuildAutoCompleteBanNames = function ( listOfAlts )
         -- Build height
         scrollHeight = scrollHeight + button:GetHeight();
         -- Set button logic...
-        button:SetScript ( "OnClick" , function ( self , key )
+        button:SetScript ( "OnClick" , function ( _ , key )
             if key == "LeftButton" then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox.clickControl = true;
                 local indexOfClass = 1
@@ -11467,7 +11462,7 @@ GRM.ScanRecommendationsList = function()
     end
 
     -- Clear all names NOT on this list.
-    for name , player in pairs ( guildData ) do
+    for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" and player.recommendToKick and tempListOfNames[player.name] == nil then
             player.recommendToKick = false;        
         end
@@ -12333,8 +12328,7 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
                 local epochTime = time();
                 local nameOfBaseRank = GuildControlGetRankName( GuildControlGetNumRanks() );
                 local added , logEntryMetaData = GRM.GetGuildEventString ( 2 , member.name , nameOfBaseRank , member.rankName );
-                local eTime = time();
-                local jTime = nil;
+                local rankHistoryIsGood = false;
 
                 -- I don't want to have an instance where I have the promotion date in the log but the join date is too old os it has fallen off,
                 -- Thus, if the exact join date cannot be determined, it will set the promotion date to be no different.
@@ -12342,10 +12336,8 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
                     if added then
                         timestamp2 = logEntryMetaData[6][1];
                         epochTime = logEntryMetaData[6][2];
+                        rankHistoryIsGood = true;
                     end
-
-                    jTime = string.sub ( timestamp2 , 1 , string.find ( timestamp2 , "'" ) + 2 ); -- Time stamping rank change
-                    eTime = epochTime;
 
                     -- Clear if set to unknown
                     player.promoteDateUnknown = false;
@@ -14473,6 +14465,7 @@ GRM.GetSearchLog = function ( isSearch , searchString )
             elseif index == 2 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["toLog"].demotion then  -- Demotion
                 trueString = true;
             elseif index == 3 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["toLog"].leveled then  -- Leveled
+                local num = "";
                 if string.find ( logTxt , "***" ) == nil then
                     num = GRM.Trim ( string.match ( logTxt , " %d+ " ) );
                 else
@@ -16705,10 +16698,8 @@ GRM.PopulateOptionsRankDropDown = function ()
 
                     GRM.UpdateGuildInfoWithNewValue ( 2 , selectedRank );
 
-                    local banListTooLow = false;
                     -- ban list check
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank < GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList then
-                        banListTooLow = true;
                         GRM.Report ( GRM.L ( "Warning! Ban List rank threshold is below the overall sync rank. Changing from \"{name}\" to \"{name2}\"" , GuildControlGetRankName ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList + 1 ) ,  RankButtonsText:GetText() ) );
 
                         -- Saving the data
@@ -16852,7 +16843,6 @@ GRM.PopulateDefaultDropDownRankMenu = function ()
     -- populating the frames!
     local buffer = 3;
     local height = 0;
-    local color1 = { 1 , 0 , 0 };
     local color2 = { 0 , 0.8 , 1 };
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons or {};
 
@@ -17629,7 +17619,6 @@ end
 -- Purpose:             Editing ability in case of user error.
 GRM.ClearPromoDateHistory = function ( name , isUnknown )
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
-    local pDate = GRM.GetTimestamp();
 
     if player ~= nil then
         -- Ok, let's clear the history now!
@@ -18648,7 +18637,7 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
 
         local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][handle];
         if player ~= nil then
-            local fullName , zone , isOnline;
+            local fullName , zone , isOnline , _ ;
 
             if memberInfo then
                 if memberInfo.guid ~= nil then
@@ -19090,6 +19079,8 @@ end
 -- Purpose:         Collect more than just the count, but get the player metadata too
 GRM.GetBannedPlayersStillInGuild = function()
     local playerDetails = {};
+    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             if player.bannedInfo[1] then
@@ -19122,7 +19113,7 @@ end
 -- What it Does:    Adds a ban during sync with the reason
 -- Purpose:         Ban mechanism for during retroactive sync.
 GRM.SyncAddCurrentPlayerBan = function ( name , timestamp , reason , banner )
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
+    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
 
     if player ~= nil then
         if timestamp > player.bannedInfo[2] then
@@ -20573,6 +20564,7 @@ end
 -- Purpose:         To help conformity in the guild on the destination of the notes.
 GRM.SetLeaderUsingJoinTagHeaders = function( headerControl )
     if headerControl == "+" or headerControl == "-" then
+        local needsRefresh = false;
 
         if not IsGuildLeader() then
             GRM_G.GlobalControl4_5 = true;
@@ -20608,7 +20600,7 @@ end
 -- What it Does:    Returns a boolean if the player's guild leader does have restriction standardization
 --                  and returns the rank of that restriction by index.
 -- Purpose:         Necessary for UX quality control on various methods to change and manipulate the settings.
-GRM.IsSyncRankGuildLeaderRestricted = function ( selectedIndex  )
+GRM.IsSyncRankGuildLeaderRestricted = function ( selectedIndex )
 
     local result = false;
     local controlValue = GRM.GetGlobalControlValue ( selectedIndex );
@@ -23450,10 +23442,10 @@ GRM.SyncCommandScan = function()
         else
             GRM.Report ( GRM.L ( "Please wait {num} more seconds before manually initiating the sync process again." , nil , nil , 15 - ( time() - GRM_G.slashCommandSyncTimer ) ) );
         end
-    elseif not GRM_G.HasAccessToGuildChat and IsInGroup() then
+    elseif GRM_G.HasAccessToGuildChat and IsInGroup() then
         GRM.Report ( GRM.L ( "SYNC is currently disabled while you are grouped. Due to server restricted addon to addon talk data caps, and in an effort to avoid clogging up the shared global comm space of all addons, sync will be temporarily restricted while grouped." ) );
 
-    else
+    elseif not GRM_G.HasAccessToGuildChat then
         GRM.Report ( GRM.L ( "SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted." ) );
     end
 end

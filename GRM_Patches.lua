@@ -3669,7 +3669,7 @@ GRM_Patch.FixAltGroupings = function()
                                     for v = 2 , #GRM_GuildDataBackup_Save[i][j][s][m] do
                 
                                         -- no need to check oneself.
-                                        if r ~= v and #GRM_GuildDataBackup_Save[i][j][s][m][v][11] > 0 then
+                                        if s ~= v and #GRM_GuildDataBackup_Save[i][j][s][m][v][11] > 0 then
                 
                                             for k = #GRM_GuildDataBackup_Save[i][j][s][m][v][11] , 1 , -1 do
                                                 if GRM_GuildDataBackup_Save[i][j][s][m][v][11][k][1] == GRM_GuildDataBackup_Save[i][j][s][m][n][1] then
@@ -3729,8 +3729,8 @@ end
 GRM_Patch.ModifySetting = function ( settingName , value )
     for i = 1 , #GRM_AddonSettings_Save do
         for j = 2 , #GRM_AddonSettings_Save[i] do
-            if GRM_AddonSettings_Save[i][j].settingName ~= nil then
-                GRM_AddonSettings_Save[i][j].settingName = value;
+            if GRM_AddonSettings_Save[i][j][settingName] ~= nil then
+                GRM_AddonSettings_Save[i][j][settingName] = value;
             end
         end
     end
@@ -4162,10 +4162,7 @@ end
 -- What it Does:    Adapts the old DB to the new 
 -- Purpose:         Resolve a lingering issue that could occur if the log ever grows > 30,000 lines.
 local adaptLogDB = function ( newUI , tempUI , f )
-
     local gName = tempUI[1][1];
-    local c = 1;
-    local loop = 1;
 
     newUI[f][ gName ] = {};                         -- Set the guild Name
     table.remove ( tempUI , 1 );                    -- No need to keep the name/creation date index. Irrelevant position and info now.
@@ -4185,8 +4182,6 @@ end
 -- Purpose:         Resolve a lingering issue that could occur if the log ever grows > 30,000 lines, and now sets no limit.
 local convertBackLogDB = function ( backupLog )
     local newUI = {};
-    local c = 1;
-    local loop = 1;
 
     table.remove ( backupLog , 1 );
 
@@ -4215,11 +4210,9 @@ GRM_Patch.ConvertLogDB = function()
         
         local f = "H";
         local gName;
-        local numTables;
 
         for i = 1 , 2 do
             gName = "";
-            numTables = 0;
 
             if i == 2 then
                 f = "A";
@@ -4794,7 +4787,6 @@ end
 -- What it Does:    Checks for inconsistent alt groups and de-associates them as necessary
 -- Purpose:         To fix alt groupings.
 GRM_Patch.fixAltGroups = function ( guildData , player )
-    local altsNames;
     local altAltNames;
     local isValid = true;
 
@@ -4812,7 +4804,7 @@ GRM_Patch.fixAltGroups = function ( guildData , player )
 
     if #player.alts > 0 then                                    -- Only proceed if this toon has alts.
         isValid = true;                                         -- Good so far reset
-        altNames = getAltNames ( player.alts , player.name );                 -- get the list of altNames, including player, sorted
+        local altNames = getAltNames ( player.alts , player.name );                 -- get the list of altNames, including player, sorted
         for i = #altNames , 1 , -1 do
             if altNames[i] ~= player.name then
                 if guildData[altNames[i]] == nil then           -- Some error protection - removing the name if it is no longer in the guild.

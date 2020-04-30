@@ -841,7 +841,7 @@ GRMsync.CheckAddAltChange = function ( msg , sender , prefix )
         
             else
                 player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ name ];
-                if r ~= nil then
+                if player ~= nil then
                         
                     local listOfAlts = player.alts;
                     if #listOfAlts > 0 then                                                                 -- There is more than 1 alt for new alt to be added to
@@ -996,8 +996,6 @@ end
 -- What it Does:    Syncs Main selection control between players
 -- Purpose:         Sync data between players LIVE
 GRMsync.CheckAltMainChange = function ( msg , sender )
-    local name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
-    local mainName = string.sub ( msg , string.find ( msg , "?" ) + 1 );
 
     GRM_G.CheckAltMainPattern = GRM_G.CheckAltMainPattern or GRM.BuildComPattern ( 2 , "?" , false );
     local name , mainName = GRM.ParseComMsg ( msg , GRM_G.CheckAltMainPattern );
@@ -1097,10 +1095,10 @@ GRMsync.CheckAltMainToAltChange = function ( msg , sender )
     end
 end
 
--- Method:          GRMsync.CheckCustomNoteChange ( string , string , int )
+-- Method:          GRMsync.CheckCustomNoteChange ( string , string )
 -- What it Does:    It updates the Custom Note as needed, live
 -- Purpose:         Sync the information between guildies live, as well as obey the filtering rules between clients.
-GRMsync.CheckCustomNoteChange = function ( msg , sender , senderRankID )
+GRMsync.CheckCustomNoteChange = function ( msg , sender )
     -- No need to do all the work if custom note sync disabled!
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncCustomNote then
 
@@ -1169,10 +1167,10 @@ GRMsync.CheckCustomNoteChange = function ( msg , sender , senderRankID )
     end
 end
 
--- Method:          GRMsync.CheckCustomNoteSyncChange ( string )
+-- Method:          GRMsync.CheckCustomNoteSyncChange ( string , bool )
 -- What it Does:    For use in the Retroactive non-live sync, it checks and compares custom notes and applies the most current one
 -- Purpose:         For updating and syncing the custom notes!!!
-GRMsync.CheckCustomNoteSyncChange = function ( msg , senderRankID , isReceivedSync )
+GRMsync.CheckCustomNoteSyncChange = function ( msg , isReceivedSync )
     -- No need to check if sync is disable for custo notes :D
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncCustomNote then
 
@@ -1374,7 +1372,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
                         banSet = false;
                         -- Need to search data the guildData and the nonGuildData...
                         player = guildData[ listOfAlts[s][1] ];
-                        if r ~= nil and player.name ~= GRM_G.addonUser then
+                        if player ~= nil and player.name ~= GRM_G.addonUser then
                             banSet = true;
                             -- Banning the alts one by one in the for loop
                             player.bannedInfo[1] = true;
@@ -1387,7 +1385,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
                         -- if not found, then let's check the left players as well.
                         if not banSet then
                             player = leftGuildData[ listOfAlts[s][1] ];
-                            if r ~= nil and player.name ~= GRM_G.addonUser then
+                            if player ~= nil and player.name ~= GRM_G.addonUser then
     
                                 -- Banning the alts one by one in the for loop
                                 player.bannedInfo[1] = true;
@@ -3517,7 +3515,7 @@ GRMsync.SubmitFinalSyncData = function()
                 
                 -- Do my own changes too!
                 if ( GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank and GRMsyncGlobals.CurrentSyncPlayerRankRequirement >= GRMsyncGlobals.CurrentLeaderRankID ) then
-                    GRMsync.CheckCustomNoteSyncChange ( msg , 0 , false );
+                    GRMsync.CheckCustomNoteSyncChange ( msg , false );
                 end
                 if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
                     GRMsyncGlobals.SyncCount = 0;
@@ -4389,7 +4387,7 @@ GRMsync.CheckingBANChanges = function ( currentTime , syncRankFilter )
                     end
                     
                     -- Send request to ADD player w/ban or unban status.
-                    local tempMessage = GRM_G.PatchDayString .. "?GRM_ADDLEFT?" .. GRMsyncGlobals.numGuildRanks .. "?" .. leftGuildData[i].name .. "?" .. tostring ( leftGuildData[i].rankIndex ) .. "?" .. tostring ( leftGuildData[i].level ) .. "?" .. class .. "?" .. tostring ( leftGuildData[i].leftGuildEpoch[#leftGuildData[i].leftGuildEpoch] ) .. "?" .. tostring ( leftGuildData[i].oldJoinDateMeta ) .. "?" .. guid;
+                    local tempMessage = GRM_G.PatchDayString .. "?GRM_ADDLEFT?" .. GRMsyncGlobals.numGuildRanks .. "?" .. leftGuildData[i].name .. "?" .. tostring ( leftGuildData[i].rankIndex ) .. "?" .. tostring ( leftGuildData[i].level ) .. "?" .. class .. "?" .. tostring ( leftGuildData[i].leftGuildEpoch[#leftGuildData[i].leftGuildEpoch] ) .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. guid;
                     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMessage + GRMsyncGlobals.sizeModifier + 254;
                     GRMsync.SendMessage ( "GRM_SYNC" , tempMessage , GRMsyncGlobals.channelName );    -- (name , rank, rankID, level , class , leftguildEpochMeta , OldJoinDateMeta , banStatus , guid)
                     
@@ -5426,7 +5424,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                         GRMsync.CheckAltMainToAltChange ( msg , sender );
 
                     elseif comms.prefix2 == "GRM_CNOTE" then
-                        GRMsync.CheckCustomNoteChange ( msg , sender , comms.senderRankID );
+                        GRMsync.CheckCustomNoteChange ( msg , sender );
 
                     elseif comms.prefix2 == "GRM_BDAY" then
                         GRMsync.CheckBirthdayChange ( msg , sender , false )
@@ -5641,7 +5639,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                         -- Final sync on Custom Note Changes
                         elseif comms.prefix2 == "GRM_CUSTSYNCUP" then
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                            GRMsync.CheckCustomNoteSyncChange ( msg , comms.senderRankID , true );
+                            GRMsync.CheckCustomNoteSyncChange ( msg , true );
 
                         -- Final sync on Birthdays
                         elseif comms.prefix2 == "GRM_BDSYNCUP" then
