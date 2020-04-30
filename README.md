@@ -328,13 +328,13 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 ![Lock window, then mouseover each name for more details](https://i.imgur.com/Y6ySSca.jpg)
 
-    * It will tell you the names of all the people currently in your group who are guildies.
+* It will tell you the names of all the people currently in your group who are guildies.
 
-    * It will inform you if you are grouped with any *former* guildies. This particularly feature goes very deep in that it will inform you the date they left. It will let you know if they were previously banned from the guild. It will let you know if they have name-changed since leaving the guild. It will inform you of their known alts and if any of them are still currently in your guild.
+* It will inform you if you are grouped with any *former* guildies. This particularly feature goes very deep in that it will inform you the date they left. It will let you know if they were previously banned from the guild. It will let you know if they have name-changed since leaving the guild. It will inform you of their known alts and if any of them are still currently in your guild.
 
-    * It will inform you of all the people you are grouped with that are on the same server, or a connected realm member
+* It will inform you of all the people you are grouped with that are on the same server, or a connected realm member
 
-    * Colored indicators will appear next to raid/party member names if you are within trade distance of the player. They will update on the fly. Yes, it can be disabled.
+* Colored indicators will appear next to raid/party member names if you are within trade distance of the player. They will update on the fly. Yes, it can be disabled.
 
 
 [Download on Curseforge/Twitch Here](https://www.curseforge.com/wow/addons/guild-roster-manager-group-info) or [Github Here](https://github.com/TheGeneticsGuy/Guild_Roster_Manager-Group_Info)
