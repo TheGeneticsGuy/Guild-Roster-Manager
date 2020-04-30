@@ -1749,7 +1749,7 @@ GRM.L = function ( key , playerName , playerName2 , num , custom1 , custom2 )
         if key ~= nil then
             if not GRM_G.Region == koKR or key ~= "SYNC USERS" then
                 if key == "" then
-                    GRM.Report ( "GRM Warning! - Trying to localize an empty string!!! Please report to addon dev the Lua error that occurs. Thank You!" )
+                    GRM.Report ( "GRM Warning! - Trying to localize an empty string!!! Please report to addon dev the Lua error that occurs. Thank You! This error is causing a forced Lua error so I can trace the bug. Please report the Lua error and I will fix it immediately!" )
                     local failureTest = 5 + nil;    -- Too to force a Lua error so this can be traced.
                 else
                     GRM.Report ("GRM WARNING!!! FAILURE TO LOAD THIS KEY: " .. key .. "\nPLEASE REPORT TO ADDON DEV! THANK YOU!" );  -- for debugging purposes.
