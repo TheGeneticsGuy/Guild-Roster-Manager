@@ -770,6 +770,22 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    if numericV < 1.88 and baseValue < 1.88 then
+        GRM_Patch.ModifyPlayerSetting ( "exportFilters" , nil , "class" );
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , nil , "allAltsApplyToKick" );
+        GRM_Patch.FixMemberDataError ( GRM_Patch.fixAltGroups , true , false , true );
+        GRM_Patch.FixManualBackupsFromDBLoad();
+        GRM_Patch.AddGroupInfoModuleSettings();
+        GRM_Patch.AddPlayerSetting ( "useFullName" , false );
+        GRM_Patch.AddTextColoringValues();
+        GRM_Patch.ModifyPlayerSetting ( "reportChannel" , GRM_Patch.ModifyPlayerChannelToMulti , nil );
+        
+
+        if loopCheck ( 1.88 ) then
+            return;
+        end
+    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -3848,7 +3864,7 @@ GRM_Patch.ConvertAddonSettings = function()
 
                 newUI[faction][ name ] = {};     -- Set each player name to the settings properly
                 for i = 0 , 14 do
-                    GRM.SetDefaultAddonSettings ( newUI[faction][ name ] , i );
+                    GRM.SetDefaultAddonSettings ( newUI[faction][ name ] , i , true );
                 end
 
                 newUI[faction][name]["version"] = tempUI[i][j][2][1];
@@ -4641,12 +4657,16 @@ GRM_Patch.FixMemberDataError = function ( databaseChangeFunction , editCurrentPl
                     for j = 3 , 4 do        -- Member vs formerMember
 
                         if ( j == 3 and editCurrentPlayers ) or ( j == 4 and editLeftPlayers ) then
-                            for name , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] ) do
-                                if type ( player ) == "table" then 
-                                    if includeAllGuildData then
-                                        GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]][name] = databaseChangeFunction ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] , player );
-                                    else
-                                        GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]][name] = databaseChangeFunction ( player );
+                            if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] > 0 then
+                                GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
+                            else
+                                for name , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] ) do
+                                    if type ( player ) == "table" then 
+                                        if includeAllGuildData then
+                                            GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]][name] = databaseChangeFunction ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] , player );
+                                        else
+                                            GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]][name] = databaseChangeFunction ( player );
+                                        end
                                     end
                                 end
                             end
@@ -4657,20 +4677,31 @@ GRM_Patch.FixMemberDataError = function ( databaseChangeFunction , editCurrentPl
             end
         end
     end
-
 end
 
 -- 1.87
 -- Method:          GRM_Patch.ModifyPlayerSetting ( string , function )
 -- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
 -- Purpose:         To be able to retroactively adapt and make changes to the database.
-GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic )
+GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic , additionalSetting )
     for F in pairs ( GRM_AddonSettings_Save ) do
         for p in pairs ( GRM_AddonSettings_Save[F] ) do
             if type ( valueOrLogic ) == "function" then
-                GRM_AddonSettings_Save[F][p][setting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+                if additionalSetting then
+                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
+                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+                    end
+                else
+                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+                end
             else
-                GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
+                if additionalSetting then
+                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
+                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic;
+                    end
+                else
+                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
+                end
             end
         end
     end
@@ -4723,7 +4754,7 @@ GRM_Patch.updateKickRules = function( kickRules )
         local kickRule1 = GRM.L ( "Kick Rule {num}" , nil , nil , 1 );
         result[ kickRule1 ] = {};
         result[ kickRule1 ].name = kickRule1;
-        result[ kickRule1 ].isEnabled = true;
+        result[ kickRule1 ].isEnabled = kickRules[1][5];
         
         result[ kickRule1 ].activityFilter = true;
         if not kickRules[1][5] then
@@ -4758,3 +4789,131 @@ GRM_Patch.updateKickRules = function( kickRules )
     return result
 end
 
+-- 1.88
+-- Method:          GRM_Patch.fixAltGroups ( table , table )
+-- What it Does:    Checks for inconsistent alt groups and de-associates them as necessary
+-- Purpose:         To fix alt groupings.
+GRM_Patch.fixAltGroups = function ( guildData , player )
+    local altsNames;
+    local altAltNames;
+    local isValid = true;
+
+    -- Collect the altNames
+    local getAltNames = function ( altList , name )
+        local names = {};
+        for i = 1 , #altList do
+            table.insert ( names , altList[i][1] );
+        end
+        table.insert ( names , name );
+        -- Now, add my own name;
+        sort ( names )
+        return names;
+    end
+
+    if #player.alts > 0 then                                    -- Only proceed if this toon has alts.
+        isValid = true;                                         -- Good so far reset
+        altNames = getAltNames ( player.alts , player.name );                 -- get the list of altNames, including player, sorted
+        for i = #altNames , 1 , -1 do
+            if altNames[i] ~= player.name then
+                if guildData[altNames[i]] == nil then           -- Some error protection - removing the name if it is no longer in the guild.
+                    table.remove ( altNames , i );
+                else
+                    altAltNames = getAltNames ( guildData[altNames[i]].alts , altNames[i] );
+                    for j = 1 , #altNames do
+                        if altAltNames[j] == nil or altNames[j] ~= altAltNames[j] then
+                            isValid = false;
+                            break;
+                        end
+                    end
+                end
+            end
+        end
+
+        if not isValid then             -- If not valid clear all the alts in this grouping.
+            for i = 1 , #altNames do
+                guildData[altNames[i]].alts = {};
+            end
+        end
+    end
+
+    player.removedAlts = {};    -- Cleaning up removed alts.
+
+    return player;
+end
+
+-- 1.872
+-- Method:          GRM_Patch.FixManualBackupsFromDBLoad
+-- What it Does:    CleansUpDatabases that need to be cleaned up
+-- Purpose:         Apparently there is a bug where if the previous one crashed on load, the auto got updated but not manual. This resolves that by just removing it.
+GRM_Patch.FixManualBackupsFromDBLoad = function()
+    -- Check the backup data as well.
+    local backup = { "Auto" , "Manual" , "members" , "formerMembers" };
+    for F in pairs ( GRM_GuildDataBackup_Save ) do
+        for guildName in pairs ( GRM_GuildDataBackup_Save[F] ) do
+            for i = 1 , 2 do            -- Auto vs Manual
+                if #GRM_GuildDataBackup_Save[F][guildName][backup[i]] > 0 then
+
+                    for j = 3 , 4 do        -- Member vs formerMember
+                        if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] > 0 then
+                            GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- 1.872
+-- Method:          GRM_Patch.AddGroupInfoModuleSettings()
+-- What it Does:    Adds the module settings for the Group Info optional plugin/module
+-- Purpose:         Allow user to control the module from within the core grm page
+GRM_Patch.AddGroupInfoModuleSettings = function()
+    local values = {};
+    values = {};
+    values["enabled"] = true;
+    values["InteractDistanceIndicator"] = true
+    values["tradeIndicatorColorAny"] = { 0 , 0.97 , 0.97 };
+    values["tradeIndicatorColorConnectedRealm"] = { 0 , 0.97 , 0.97 };
+
+    GRM_Patch.AddPlayerSetting ( "GIModule" , values );
+end
+
+-- 1.872
+-- Method:          GRM_Patch.AddTextColoringValues()
+-- What it Does:    Adds a new control for message coloring
+-- Purpose:         Bring log coloring controls to player UX customization options.
+GRM_Patch.AddTextColoringValues = function()
+    local values = { 
+        { 0.5 , 1.0 , 0.0 },        -- Joined
+        { 0.0 , 0.44 , 0.87 },      -- Leveled
+        { 0.0 , 1.0 , 0.87 },       -- Inactive Return
+        { 1.0 , 0.914 , 0.0 },      -- Promotions
+        { 0.91 , 0.388 , 0.047 },   -- Demotions
+        { 1.0 , 0.6 , 1.0 },        -- Note
+        { 1.0 , 0.094 , 0.93 },     -- Officer Note
+        { 0.24 , 0.69 , 0.49 },     -- Custom Note
+        { 0.90 , 0.82 , 0.62 },     -- Name Change
+        { 0.64 , 0.102 , 0.102 },   -- Rank Rename
+        { 0.0 , 0.8 , 1.0 },        -- Event Announce
+        { 0.5 , 0.5 , 0.5 },        -- Left Guild
+        { 0.65 , 0.19 , 1.0 },      -- Recommendations
+        { 1.0 , 0.0 , 0.0 }         -- Banned Coloring        
+    };
+
+    GRM_Patch.AddPlayerSetting ( "logColor" , values );
+end
+
+-- 1.872
+-- Method:          GRM_Patch.ModifyPlayerChannelToMulti ( string )
+-- What it Does:    Takes the reportChannel and converts the formatting to an array for multiple channels
+-- Purpose:         To allow message output to multiple channels.
+GRM_Patch.ModifyPlayerChannelToMulti = function ( reportChannel )
+    local result = {};
+
+    if reportChannel ~= "" then
+        table.insert ( result , reportChannel );
+    end
+
+    return result;
+end

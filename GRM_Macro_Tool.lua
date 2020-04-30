@@ -2453,18 +2453,20 @@ end
 -- Method:          GRM.BuildQueuedScrollFrame( bool , bool , bool )
 -- What it Does:    Updates the Queued scrollframe as needed
 -- Purpose:         UX of the GRM mass kick tool
-GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList )
+GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , bannedInGuildList )
     local hybridScrollFrameButtonCount = 13;
     local buttonHeight = 25;
     local scrollHeight = 0;
     local buttonWidth = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame:GetWidth() - 5;
-
     if showAll and fullRefresh then
-        if not isBanAltList then
+        if not isBanAltList and not bannedInGuildList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries ( true );
-        else
+        elseif isBanAltList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllAltsTable );
             GRM_G.KickAllAltsTable = {};
+        elseif bannedInGuildList then
+            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllBannedTable );
+            GRM_G.KickAllBannedTable = {};
         end
     end
 
@@ -4360,7 +4362,7 @@ GRM.GetKickNamesByFilterRules = function()
     local listOfPlayers = {};
 
     -- No need to do all the work if there are no rules to check!
-    if GRM.GetKickRulesCount() == 0 then
+    if GRM.GetKickRulesCount() == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then
         return listOfPlayers;
     end
 
@@ -4653,7 +4655,7 @@ end
 -- Method:          GRM_UI.RefreshManagementTool( bool )
 -- What it Does:    Refreshes the management tool
 -- Purpose:         Compartmentalize the refresh details.
-GRM_UI.RefreshManagementTool = function( isBanAltList )
+GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild )
     if not GRM_UI.GRM_ToolCoreFrame.IsInitialized then
 
         -- Check permissions - set tab as default one 
@@ -4668,7 +4670,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList )
         GRM_UI.LoadToolFrames ( false );
     end
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
-    GRM.BuildQueuedScrollFrame ( true , true , isBanAltList );
+    GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild );
     -- On reshow, always reset the macro
     GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
     GRM.BuildMacrodScrollFrame ( true , false );
@@ -4678,7 +4680,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList )
     GRM_UI.RefreshToolButtonsOnUpdate();
 
     -- Populate the macro 
-    if isBanAltList then
+    if isBanAltList or isBanInGuild then
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:Click();
     end
 
@@ -4732,7 +4734,18 @@ GRM_UI.FullMacroToolRefresh = function()
     GRM.SyncSettings();
 end
 
+-- Method:          GRM_UI.GRM_ToolCoreFrame()
+-- What it Does:    Handles some on load property controls, if it is a rules load, or you are loading to use the tool for kicking alts or currently banned but still in guild players
+-- Purpose:         UX ease of controls.
 GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
-    GRM_UI.RefreshManagementTool( GRM_G.KickAltControl );
-    GRM_G.KickAltControl = false;
+
+    if GRM_G.KickAltControl then
+        GRM_UI.RefreshManagementTool( GRM_G.KickAltControl );
+        GRM_G.KickAltControl = false;
+    elseif GRM_G.kickBannedControl then
+        GRM_UI.RefreshManagementTool( false , GRM_G.kickBannedControl );
+        GRM_G.kickBannedControl = false;
+    else
+        GRM_UI.RefreshManagementTool( false , false );
+    end
 end);

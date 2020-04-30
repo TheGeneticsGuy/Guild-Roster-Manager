@@ -2,6 +2,99 @@
 
 _______________________
 
+**VERSION R1.88 DATE: April 27th 2020**
+
+***NEW FEATURES***
+
+**PLUGIN FRAMEWORK**
+
+*As time has gone on GRM has really grown to be a fairly significantly large addon, ever growing with more and more features. While I attempt to focus on features that are within the **scope** of guild management, I find that there is room for a little bit of grey area feature support. Furthermore, I find that in many ways the overall addon can be useful for all players, but there are just some features that are completely unnecessary unless you are an officer. So, in an attempt to keep GRM's core from growing *too* bloated, I built an underlying framework to support my own "modules," or plugins, so to speak. Some things are just going to be far too niche for the most guildies that maybe it will be better suited for a smaller module addon to the GRM core. Going forward, many large features are going to be introduced as modules.*
+
+*Of note, if it still falls explicitly wwithin the scope of the original core addon goal, that will not be compartmentalized off, but kept within the core of the addon. Today I introduce the **first** GRM module!!!*
+
+* New Options tab called "Modules" - and it will populate dynamically depending on if you have the module installed or not.
+
+
+**GROUP INFO MODULE**
+
+*Now, if you are in a party or a raid group, you are given a special GRM button you can mouseover - this will reveal various things about your raid group.*
+
+* It will tell you the names of all the people currently in your group who are guildies.
+
+* It will inform you if you are grouped with any *former* guildies. This particularly feature goes very deep in that it will inform you the date they left. It will let you know if they were previously banned from the guild. It will let you know if they have name-changed since leaving the guild. It will inform you of their known alts and if any of them are still currently in your guild.
+
+* It will inform you of all the people you are grouped with that are on the same server, or a connected realm member
+
+* Colored indicators will appear next to raid/party member names if you are within trade distance of the player. They will update on the fly. Yes, it can be disabled.
+
+![Mouseover Information](https://i.imgur.com/MKwNQQv.jpg)
+
+![Lock window, then mouseover each name for more details](https://i.imgur.com/Y6ySSca.jpg)
+
+![Don't forget to check out the new Modules Options](https://i.imgur.com/M7ya4B3.jpg)
+
+
+***QUALITY OF LIFE***
+
+**BOTH**
+
+* Re-translate the log on the fly now just by swapping languages. On occasion we have wonderful volunteers that submit translation work to *localize* the addon to your country. Well, the neat thing now is you can retroactively re-translate your log entries to the updates. Or, you can swap to new languages. Maybe you are tired of using English, which may not be your first language. Just swap to your native language and see the log auto-translated for you, if there are sufficient localization work done at least (any help here always appreciated). Of note, there are limitations here. If you have been using GRM for a long time, older log entries will not be re-translated as they are stored in just static strings as I was not yet storing any of the metadata to rebuild the log entries. Otherwise, the data to rebuild the strings has been stored for, if I remember, maybe the last 6 months or so. It is hard to state how much underlying work exists to make this possible, of which will likely never be used by most people lol. It was fun building it at least!
+
+* On the log entries where a player left the guild or was removed, it will now state if they were themselves the "main" that left. Previously it only stated if their main was still in the guild, thus identifying an alt as leaving. It is now more obvious if a "main" has left.
+
+* Customization of the Log message coloring! That's right! You can now select and save your own coloring for the logs... particularly that pesky eyesore that is the "Recommendations" coloring! You can always reset to default. To get the color selection options to appear, just click the "Open Log Tools" button.
+
+![New Color Customization for the log!](https://i.imgur.com/MaIpzjE.jpg)
+
+* I removed the "NG" tag on system message names when people login or out - and I changed it to "Friend" as it just makes more sense. "Non-Guildie" I was needing to explain. I was originally just trying to keep the tag very small, but since it really only affects those limited system messages then "Friend" seems an appropriate tag
+
+* The "Log Tools" button is now in a more obvious place. Many people seem to not know there are additional controls for managing the core GRM log for your guild as the button was semi-obscure - it is now in an obvious place.
+
+* Sort of "Bug" related, but there is this elusive bug evading me that has been reported a few times where players get the text error stating to report the error to the devs... but since it is an empty "" string it has been impossible to trace. I went ahead and added a purposeful error in the code so as to force a Lua error to create a code trace - so if you have seen this, please have some kind of Lua error reporting enabled so I can get it fixed immediately. It's been out there for a while and driving me nuts and I want to squash it but I need to trace the source first!
+
+* The Ban list now has the ability to mass kick players who are on the ban list, yet are still in the guild. Just click the button (which will only appear as an option if you have players banned that are still currently in the guild), and it will open the Macro Tool with the names all populated in and ready to go.
+
+![New Banning kick button](https://i.imgur.com/7o57y9d.jpg)
+
+* MULTI-CHANNEL support for GRM reporting! The Custom Channel in the GRM > Options > General Tab you can now have multiple channels supported by separating with commas.
+
+![Multi-Channel support](https://i.imgur.com/XKAjOye.jpg)
+
+
+***BUG FIXES***
+
+**BOTH**
+
+* Export should now properly not include the birthdays if it is unchecked.
+
+* Fixed an issue where the kickRules were not configuring properly
+
+* Fixed an issue where if a player guild Name Changed it would cause the addon to not longer load properly.
+
+* Fixed a bug where on some toons the game would crash out on early configuration of the addon. This is now fixed.
+
+* Fixed a potential load bug for a player who possibly crashed in the middle of a large update previously. I ran a stress test on doing a massive overhaul where you install the first version of the addon, then the latest, and seeing how it processes all updates from the beginning of time. On one of my builds it crashed. It *might* just be some edge case as I couldn't recreate it on my 2 other accounts, oddly enough. But, it is accounted for and fixed even though I doubt anyone will encounter it lol.
+
+* Fixed a bug where if you log on to a new toon for the first time using GRM it attempts to sync addon settings even though you have not even build the guild DB yet. It is a one-time only error and next session would go away, so that is my guess why I haven't seen it reported yet as it literally only affected first session of a first time GRM user, but this now should no longer occur at all!
+
+* Fixed an issue where the Auto-Complete list of names when clicking it for selection to add to the Ban List (includes current and former members in the list), if you click it it was not properly populating the editBox for name selection. This is now resolved.
+
+* Fixed a minor UI bug where if you were changing the font size the note, officer note, and custom Note would not update their font size until your next session or on reload. This now should happen immediately. I oddly had it wrapped in a protective function to prevent them from being resized and I have no reason why I did that however long ago lol.
+
+* Fixed a minor bug in relation to the MainTag color select box not functioning properly in the General GRM Options
+
+
+
+**VERSION R1.871 DATE: March 16th, 2020**
+
+**Minor Bug Fixes**
+
+* On importing the kick rules to new system, if you had it disabled, it is re-enabling it, except with inactivity filters disabled, which is bad because now it has created a rule which has all of your guild members selected as the only remaining rules enabled are "All Levels" and "All Ranks" - so you will get some spam lol. For new downloads this resolves that.
+
+* Fixed a significant issue involving not being able to update the addon properly if you haven't updated from an older version pre-DB overhaul (so basically anything pre-January).
+
+* Fixed an issue in retail wow when Ctrl-Clicking Audit and opening the old roster window it would force the window to the right and it never properly configured and reset the position. This will no longer happen.
+
 
 **VERSION R1.87 DATE: March 12th, 2020**
 

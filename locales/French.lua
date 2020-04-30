@@ -27,6 +27,9 @@ GRML.French = function()
     -- BEGIN TRANSLATION WORK HERE --
     ---------------------------------
 
+    -- Auto Localized (Only use this on Client languages)
+    GRM_L["Friend"] = FRIEND;
+    
     -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
     GRM_L["/XXXX"] = true            -- /grm will always work, now you can make your own acronym that fits your language.
 
@@ -669,16 +672,11 @@ GRML.French = function()
     GRM_L["Reset to Default"] = "Réinitialiser par défaut"
     GRM_L["Reset"] = "Réinitialiser"
     GRM_L["|CFF00CCFFDefault Selection For All Players"] = "|CFF00CCFFSélection par défaut pour tous les joueurs"
-    GRM_L["Each Guildie Can Still be Manually Configured"] = "Chaque membre peut toujours être configuré manuellement"
     GRM_L["Does NOT apply to Ban List or Custom Note"] = "Ne s'applique PAS à la liste de bans ou à la note personnalisée"
-    GRM_L["Custom note Rank reset to default \"{name}\" (or higher)"] = "Grade de note personnalisée réinitialisé : \"{name}\" (ou supérieur)"
     GRM_L["If sync was manually disabled for specific guildies, this does NOT enabled it."] = "Si la synchronisation a été désactivée manuellement pour des membres spécifiques, cela ne l’a PAS activée."
-    GRM_L["Custom note default settings for Rank and Sync have been reset."] = "Les réglages des notes personnalisées pour les grades et la synchronisation ont été réinitialisés."
     GRM_L["Custom note Sync has been reset to default"] = "Synchronisation des notes personnalisées réinitialisée par défaut."
     GRM_L["Click here to set Custom Notes"] = "Cliquer pour ajouter une note personnalisée"
     GRM_L["|CFF00CCFFCustom Note Defaults:"] = "|CFF00CCFFNote personnalisée par défaut :"
-    GRM_L["|CFFE6CC7FLeft-Click|r to ONLY reset all to default rank"] = "|CFFE6CC7FClic-gauche|r pour ne réinitialiser QUE le grade par défaut"
-    GRM_L["|CFFE6CC7FCtrl-Shift-Click|r to reset BOTH sync and rank defaults"] = "|CFFE6CC7FCtrl-Maj-Clic|r pour réinitialiser la synchronisation ET le grade par défaut"
     GRM_L["|CFFE6CC7FLeft-Click|r to re-enable custom note sync for all"] = "|CFFE6CC7FCtrl-Clic-Gauche|r pour réactiver la synchronisation des notes personnalisées pour tous"
     GRM_L["Custom Note Sync Disabled in Settings"] = "Synchro des notes personnalisées désactivée dans les réglages"
     GRM_L["{name} modified {name2}'s CUSTOM Note: \"{custom1}\" was Added"] = "{name} a modifié la note personnalisée de {name2} : \"{custom1}\" a été ajouté"
@@ -695,13 +693,9 @@ GRML.French = function()
     GRM_L["|CFFFF0000Player No Longer in Guild"] = "|CFFFF0000Le joueur n'est plus dans la guilde"
     GRM_L["|CFF00CCFFMinimum Rank to Sync: Player Data, Ban List"] = "|CFF00CCFFGrade minimum pour synchro : Données joueur, Liste de bans"
     GRM_L["Warning! Ban List rank threshold is below the overall sync rank. Changing from \"{name}\" to \"{name2}\""] = "Avertissement ! Le grade requis pour accéder à la liste de bans est inférieur à celui de la synchronisation globale. Modification de \"{name}\" en \"{name2}\""
-    GRM_L["Warning! Custom Note rank threshold is below the overall sync rank. Changing default from \"{name}\" to \"{name2}\""] = "Avertissement ! Le grade requis pour accéder aux notes personnalisées est inférieur à celui de la synchronisation globale. Modification de \"{name}\" en \"{name2}\""
-    GRM_L["Custom Note Default Rank is Also Being Set to \"{name}\""] = "Le grade par défaut des notes personnalisées sera également défini sur \"{name}\""
     GRM_L["|CFF00CCFFSync filter can be set tighter for the Ban List"] = "|CFF00CCFFLe filtre de synchronisation peut être plus restrictif pour la liste de bans"
     GRM_L["Warning! Unable to select a Ban List rank below \"{name}\""] = "Avertissement ! Impossible de sélectionner un grade d'accès à la liste de bans inférieur à \"{name}\""
-    GRM_L["Warning! Custom Note rank filter must be below \"{name}\""] = "Avertissement ! Le grade d'accès aux notes personnalisées doit être inférieur à \"{name}\""
     GRM_L["Setting to match core filter rank"] = "Réglage pour faire correspondre le grade au filtre principal"
-    GRM_L["Warning! \"{name}\" is the lowest rank that can receive this custom note.\nCheck the options menu to adjust overall settings."] = "Avertissement ! \"{name}\" est le grade le plus bas qui puisse recevoir cette note personnalisée. \nConsultez le menu options pour ajuster les paramètres globaux."
 
     -- R1.1482
     GRM_L["Shift-Click Name On Roster Also Works"] = "Maj-Clic sur un nom dans la liste fonctionne également"
@@ -789,7 +783,6 @@ GRML.French = function()
     GRM_L["<A>"] = "<R>"                                        -- This is the "Alt" tag on the Add Alt side window. For use in the Alt tagging <A> (A) etc...
 
     -- R1.25
-    GRM_L["NG"] = "NG"                                          -- Stands for "Non-guildie" and can be in the context of calendar invites... it explains why some might have tags and others not... They might not be in your guild
     GRM_L["Include \"Joined:\" tag with the date."] = "Ajouter la mention \"Recruté le\" avec la date."                                          -- the \" is so you include the qutoations in the actual text. You need them or it closes the phrase.
     GRM_L["Joined: {name}"] = "Recruté le {name}"                                                                  -- {name} is actually in reference to the Data Format... So "Joined: 22 May '18"   {name} = "22 May '18"
     GRM_L["GRM Auto-Detect! {name} has joined the guild and will be set as Main"] = "Détection automatique GRM ! {name} a rejoint la guilde et sera défini comme 'Main'"            -- Main auto-detect message
@@ -797,8 +790,6 @@ GRML.French = function()
     -- R1.26
     GRM_L["Click to Disable Sync of Custom Note"] = "Cliquer pour désactiver la synchronisation des notes personnalisées"
     GRM_L["Click to Enable Sync of Custom Note"] = "Cliquer pour activer la synchronisation des notes personnalisées"
-    GRM_L["Sync is Currently Disabled"] = "Synchronisation désactivée"
-    GRM_L["Custom Note Sync is Currently Disabled"] = "Synchronisation des notes personnalisées désactivée"
     GRM_L["|CFFE6CC7FRight-Click|r for Additional Options"] = "|CFFE6CC7FClic-Droit|r pour plus d'options"
 
     -- R1.27
@@ -865,8 +856,6 @@ GRML.French = function()
     GRM_L["UI"] = "UI"
     GRM_L["UI Controls"] = "Réglages UI"
     GRM_L["UI Configuration:"] = "Configuration Interface Utilisateur"
-    GRM_L["|CFFE6CC7FClick|r to Change Rank Restriction for Custom Note"] = "|CFFE6CC7FClic|r pour modifier la restriction de grade de la note personnalisée"
-    GRM_L["Sync restriction is unique to just {name}'s custom note"] = "Restriction de synchronisation uniquement pour la note personnalisée de {name}"
     GRM_L["Show Character Guild Reputation"] = "Afficher la réputation du personnage"
     GRM_L["Show Guild Member Birthdays"] = "Afficher la date de naissance des membres"
     GRM_L["Set Birthday"] = "Définir"
@@ -1320,7 +1309,6 @@ GRML.French = function()
 
     -- 1.84
     GRM_L["The note is too long. Only the first {num} characters will be set."] = true
-    GRM_L["Edit {name} Rule {num}"] = true          -- "Edit Kick Rule 1" or "Edit Promotion Rule 5" 
     GRM_L["{name} Rule {num}"] = true
     GRM_L["Apply Only to Selected Ranks"] = true
     GRM_L["Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat."] = true
@@ -1407,6 +1395,39 @@ GRML.French = function()
     GRM_L["Colorize Roster Names to Match Class"] = true
     GRM_L["(Applies Only to Classic)"] = true           -- For the Options... rather than removing them all
     
+    -- R1.88
+    -- Group Info Module
+    GRM_L["GRM Info"] = true
+    GRM_L["GRM Group Info"] = true
+    GRM_L["Group Info"] = true
+    GRM_L["Click to Lock Info Window"] = true
+    GRM_L["Total in Group: {num}"] = true
+    GRM_L["Guildies: {num}"] = true
+    GRM_L["Former Guildies: {num}"] = true
+    GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
+    GRM_L["Other Connected Realm Members: {num}"] = true
+    GRM_L["Total in Group: {num}"] = true
+    GRM_L["Date Left"] = true
+    GRM_L["1 Alt Still in Guild"] = true
+    GRM_L["{num} Alts Still in Guild"] = true
+    GRM_L["Known Alts:"] = true
+    GRM_L["Close Enough to Trade"] = true
+    GRM_L["Plugins"] = true         -- plural
+    GRM_L["Plugin"] = true          -- Singular
+    GRM_L["Module"] = true
+    GRM_L["GRM Optional Modules"] = true
+    GRM_L["Enable Module"] = true
+    GRM_L["Show Interactable Distance Indicator"] = true
+    GRM_L["No GRM Modules Currently Installed"] = true
+    GRM_L["Recruitment"] = true
+    GRM_L["Pending Feature"] = true
+    GRM_L["Custom Color"] = true
+    GRM_L["{name} is listed as the Main"] = true
+    GRM_L["Kick Banned in Guild"] = true
+    GRM_L["Kick macro created. Press Hotkey to Remove Banned Players Still in Guild"] = true
+    GRM_L["Easily remove all Banned players still in the Guild with the Macro Tool"] = true
+    GRM_L["GRM will automatically send messages to the \"{name}\" window if you remove all custom channels."] = true
+    GRM_L["Multi-Channel support. Just separate with commas"] = true
     
 end
 
