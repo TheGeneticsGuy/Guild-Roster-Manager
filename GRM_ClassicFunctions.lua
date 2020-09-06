@@ -160,6 +160,6 @@ end
 GRM.ClearRosterHighlights = function()
     SetGuildRosterSelection ( 0 );      -- If you do not clear the selection, it will just re-highlight the bar when it updates.
     for i = 1 , 13 do
-        GetClickFrame ( "GuildFrameButton" .. i ):UnlockHighlight();
+        _G[ "GuildFrameButton" .. i ]:UnlockHighlight();
     end
 end

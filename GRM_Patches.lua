@@ -17,18 +17,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     -- Updates are not that computationally intensive on their own, but I'd imagine if a player has not updated GRM is a very very long time the process might cause the game to hang for several seconds and possible
     -- timeout. This prevents that and makes it more obvious to the player what is occurring.
     local loopCheck = function ( actionValue )
-
         local needsUpdate = false;
         numActions = numActions + 1;
         baseValue = actionValue;
 
         -- Announce in chat that GRM is updating for patches... Only state this one time in the cycle.
         if numActions == 1 then
-            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Applying update patches... one moment." ) )
+            print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Applying update patches... one moment." ) );
             patchNeeded = true;
         end
 
-        if numActions % 5 == 0 then
+        if numActions % 1 == 0 then
             needsUpdate = true;
             C_Timer.After ( 2 , function()
                 GRM_Patch.SettingsCheck ( numericV , numActions , baseValue );
@@ -162,7 +161,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     
     -- Cleanup the guild backups feature. This will affect almost no one, but I had the methods in the code, this just protects some smarter coders who noticed it and utilized them.
     if numericV < 1.140 and baseValue < 1.140 then
-        GRM.Report ( "GRM: Warning!!! Due to a flaw in the database build of the backups that I had missed, the entire backup database had to be wiped and rebuilt. There was a critical flaw in it. I apologize, but this really is the best solution. A new auto-backup will be established the first time you logout, but a manual save is also encouraged." , 1 , 0 , 0 , 1 );
+        print ( "|CFFFFD100" .. "GRM: Warning!!! Due to a flaw in the database build of the backups that I had missed, the entire backup database had to be wiped and rebuilt. There was a critical flaw in it. I apologize, but this really is the best solution. A new auto-backup will be established the first time you logout, but a manual save is also encouraged." , 1 , 0 , 0 , 1 );
         GRM_Patch.ResetAllBackupsPatch();
         if loopCheck ( 1.140 ) then
             return;
@@ -734,10 +733,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-
+    
     -- Additional DB Rebuilding
     -- Additional Database Rebuilding!
     if numericV < 1.835 and baseValue < 1.835 then
+        GRM_Patch.FixUnremovedData();
         GRM_GuildMemberHistory_Save = GRM_Patch.ConvertPlayerMetaDataDB ( GRM_GuildMemberHistory_Save , 1 );
         GRM_PlayersThatLeftHistory_Save = GRM_Patch.ConvertPlayerMetaDataDB ( GRM_PlayersThatLeftHistory_Save , 2 );
 
@@ -770,7 +770,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-
+    
     if numericV < 1.88 and baseValue < 1.88 then
         GRM_Patch.ModifyPlayerSetting ( "exportFilters" , nil , "class" );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , nil , "allAltsApplyToKick" );
@@ -781,8 +781,24 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddTextColoringValues();
         GRM_Patch.ModifyPlayerSetting ( "reportChannel" , GRM_Patch.ModifyPlayerChannelToMulti , nil );
         
-
         if loopCheck ( 1.88 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.89 and baseValue < 1.89 then
+        GRM_Patch.FixMemberDataError ( GRM_Patch.RemoveInvalidIndex , true , true , false );
+        GRM_Patch.FixMemberDataError ( GRM_Patch.FixMainTimestampError , true , true , false );
+        GRM_Patch.ModifyPlayerSetting ( "exportFilters" , GRM_Patch.AddExportOptions );
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRule );
+        GRM_Patch.ModifyPlayerSetting ( "removedAlts" , {} );   -- Clear these out - can I remove this feature?
+        GRM_Patch.AddPlayerSetting ( "defaultTabSelection" , { false , 1 } );
+
+        if GRM_G.BuildVersion < 20000 then
+            SetCVar("chatClassColorOverride" , 0 );     -- This will get overridden if needed
+        end
+        
+        if loopCheck ( 1.89 ) then
             return;
         end
     end
@@ -794,14 +810,14 @@ end
 GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
     if patchNeeded then
         if numActions > 1 then
-            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... {num} patches applied." , nil , nil , numActions ) );
+            print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... {num} patches applied." , nil , nil , numActions ) );
         else
-            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... 1 patch applied." ) );
+            print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... 1 patch applied." ) );
         end
     end
 
     -- Ok, let's update the version!
-    GRM.Report ( GRM.L ( "GRM Updated:" ) .. " v" .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 ) );
+    print ( "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 ) );
 
     -- Updating the version for ALL saved accoutns.
     for f in pairs ( GRM_AddonSettings_Save ) do
@@ -810,7 +826,7 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         end
     end
 
-    GRM.FinalSettingsConfigurations();
+    C_Timer.After ( 1 , GRM.FinalSettingsConfigurations );
 end
 
 ---------------------
@@ -1655,7 +1671,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
                         if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true ) == backupPoint then
                             if reportChange then
-                                GRM.Report ( GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
+                                print ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
                             if string.find ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , "AUTO_" ) ~= nil then
                                 GRM_GuildDataBackup_Save[factionInd][i][j] = {};
@@ -1672,7 +1688,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
                         if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true ) == backupPoint then
                             if reportChange then
-                                GRM.Report ( GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
+                                print ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
                             if string.find ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , "AUTO_" ) ~= nil then
                                 GRM_GuildDataBackup_Save[factionInd][i][j] = {};
@@ -1693,7 +1709,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
                         if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true ) == backupPoint then
                             if reportChange then
-                                GRM.Report ( GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
+                                print ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
                             if string.find ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , "AUTO_" ) ~= nil then
                                 GRM_GuildDataBackup_Save[factionInd][i][j] = {};
@@ -1710,7 +1726,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
                         if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true ) == backupPoint then
                             if reportChange then
-                                GRM.Report ( GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
+                                print ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
                             if string.find ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , "AUTO_" ) ~= nil then
                                 GRM_GuildDataBackup_Save[factionInd][i][j] = {};
@@ -3624,35 +3640,7 @@ GRM_Patch.FixAltGroupings = function()
             end
         end
     end
-
-    -- need to update the left player's database too...
-    for i = 1 , #GRM_PlayersThatLeftHistory_Save do                         -- Horde and Alliance
-        for j = 2 , #GRM_PlayersThatLeftHistory_Save[i] do                  -- The guilds in each faction
-            for r = 2 , #GRM_PlayersThatLeftHistory_Save[i][j] do           -- The players in each guild (starts at 2 as position 1 is the name of the guild)
-                if #GRM_PlayersThatLeftHistory_Save[i][j][r][11] == 0 then  -- player has no alts
-
-                    -- Let's see if player is on any alt lists.
-                    for s = 2 , #GRM_PlayersThatLeftHistory_Save[i][j] do
-
-                        -- no need to check oneself.
-                        if r ~= s and #GRM_PlayersThatLeftHistory_Save[i][j][s][11] > 0 then
-
-                            for k = #GRM_PlayersThatLeftHistory_Save[i][j][s][11] , 1 , -1 do
-                                if GRM_PlayersThatLeftHistory_Save[i][j][s][11][k][1] == GRM_PlayersThatLeftHistory_Save[i][j][r][1] then
-                                    -- Player IS on a list!!! Remove him 
-                                    table.remove ( GRM_PlayersThatLeftHistory_Save[i][j][s][11] , k );
-                                end
-                            end
-
-                        end
-
-                    end
-
-                end
-            end
-        end
-    end
-
+    
     -- Need backup info to be modified as well...
     if GRM_GuildDataBackup_Save ~= nil then
         for i = 1 , #GRM_GuildDataBackup_Save do
@@ -3660,7 +3648,7 @@ GRM_Patch.FixAltGroupings = function()
                 for s = 2 , #GRM_GuildDataBackup_Save[i][j] do
                     if #GRM_GuildDataBackup_Save[i][j][s] > 0 then
                         -- 3 and 4 = history and leftHistory
-                        for m = 3 , 4 do
+                        for m = 3 , 3 do
                             for n = 2 , #GRM_GuildDataBackup_Save[i][j][s][m] do
 
                                 if #GRM_GuildDataBackup_Save[i][j][s][m][n][11] == 0 then  -- player has no alts
@@ -3683,7 +3671,6 @@ GRM_Patch.FixAltGroupings = function()
                                     end
                 
                                 end
-
                             end
                         end
                     end
@@ -4464,6 +4451,10 @@ GRM_Patch.ConvertPlayerMetaDataDB = function( database , version )
         result = newUI;
     end
 
+    if result == nil then
+        result = database;
+    end
+
     return result;
 end
 
@@ -4908,4 +4899,129 @@ GRM_Patch.ModifyPlayerChannelToMulti = function ( reportChannel )
     end
 
     return result;
+end
+
+-- 1.89
+-- Method:          GRM_Patch.RemoveInvalidIndex ( table )
+-- What it Does:    An old error from sync which still had the old database integer index of 40, is redundant, is now removed
+-- Purpose:         Properly cleaned up database.
+GRM_Patch.RemoveInvalidIndex = function ( player )
+
+    if player[40] ~= nil then
+        player[40] = nil;
+    end
+
+    return player;
+end
+
+
+-- 1.89
+-- Method:          GRM_Patch.AddExportOptions ( table )
+-- What it Does:    Adds 3 options to the xport rules for members/non members
+-- Purpose:         More control of the export data.
+GRM_Patch.AddExportOptions = function ( exportFilters )
+    
+    if exportFilters then
+        if #exportFilters == 16 then
+            exportFilters[17] = false;      -- Mains only export? False by default.
+        end
+
+        if #exportFilters == 17 then        -- Rank history
+            exportFilters[18] = true;       
+        end
+
+        if #exportFilters == 18 then        -- alts only or mains only
+            exportFilters[19] = true;       
+        end
+    end
+
+    return exportFilters;
+end
+
+-- 1.89
+-- Method:          GRM_Patch.FixUnremovedData()
+-- What it Does:    Sees if there is an old index of a guild that was never purged from the core DB, though it was removed from everywhere else, and purges it
+-- Purpose:         Unable to do DB conversion for some people without first resolving this old bug.
+GRM_Patch.FixUnremovedData = function()
+
+    local isGuildFound = false;
+
+    for i = 1 , #GRM_GuildMemberHistory_Save do        -- Faction  
+        for j = #GRM_GuildMemberHistory_Save[i] , 2 , -1 do   -- guild
+                
+            if GRM_GuildMemberHistory_Save[i][j][1] ~= nil and GRM_GuildMemberHistory_Save[i][j][1][1] ~= nil then
+
+                -- Let's scan through the LeftPlayerHistory to see if guild is found. If not, let's remove it.
+                isGuildFound = false;
+                
+                for r = 2 , #GRM_PlayersThatLeftHistory_Save[i] do
+                    if GRM_PlayersThatLeftHistory_Save[i][r][1] ~= nil and GRM_PlayersThatLeftHistory_Save[i][r][1][1] ~= nil then
+                        if GRM_PlayersThatLeftHistory_Save[i][r][1][1] == GRM_GuildMemberHistory_Save[i][j][1][1] then      -- Comparing if guild names the same, then it is found
+                            isGuildFound = true;
+                            break;
+                        end
+                    end
+                end
+
+                if not isGuildFound then
+                    table.remove ( GRM_GuildMemberHistory_Save[i] , j );
+                end
+
+            end
+        end        
+    end
+end
+
+--1.89
+-- Method:          GRM_Patch.FixMainTimestampError ( table )
+-- What it Does:    Checks to see if incorrect information is in this data slot during sync
+-- Purpose:         Fix an error that breaks sync for some people.
+GRM_Patch.FixMainTimestampError = function( player )
+    if type ( player.mainStatusChangeTime ) ~= "number" then
+        player.mainStatusChangeTime = nil;
+        player.mainStatusChangeTime = 0;
+    end
+
+    return player;
+end
+
+-- 1.89
+-- Method:          GRM_Patch.AddKickRule()
+-- What it Does:    Adds a new kickRuleOption
+-- Purpose:         AddMoreFilters
+GRM_Patch.AddKickRule = function ( kickRules )
+    for name in pairs ( kickRules ) do 
+        if not kickRules[name].noteMatchEmpty then
+            kickRules[name].noteMatchEmpty = false;
+        end
+        if not kickRules[name].applyRulesTo then
+            kickRules[name].applyRulesTo = 1;
+        end
+        if not kickRules[name].applyEvenIfActiive then
+            kickRules[name].applyEvenIfActiive = false;
+        end
+        if not kickRules[name].rankSpecialIsMonths then
+            kickRules[name].rankSpecialIsMonths = true;
+        end
+        if not kickRules[name].rankSpecialNumDaysOrMonths then
+            kickRules[name].rankSpecialNumDaysOrMonths = 12;
+        end
+        if not kickRules[name].repFilter then
+            kickRules[name].repFilter = false;
+        end
+        if not kickRules[name].rep then
+            kickRules[name].rep = 4;                -- Selection = neutral
+        end
+        if not kickRules[name].repOperator then
+            kickRules[name].repOperator = 2;        -- lesser, equals, greater  2 is equals
+        end
+        if not kickRules[name].customLogMsg then
+            kickRules[name].customLogMsg = "";
+        end
+        if not kickRules[name].customLog then
+            kickRules[name].customLog = false;
+        end
+
+    end
+    return kickRules
 end

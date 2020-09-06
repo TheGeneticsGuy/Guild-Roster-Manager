@@ -654,7 +654,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
             GRM.RemoveFromCalendarQue ( player.name , 1 , nil );
         
             -- In case of Unknown
-            player[40] = false;
+            player.joinDateUnknown = false;
         
             -- Report the updates!
             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled and not isSyncUpdate then
@@ -953,6 +953,7 @@ GRMsync.CheckRemoveAltChange = function ( msg , sender , prefix )
     end
     
     if not abortUpdate then
+        
         if isSyncUpdate then
             GRM.RemoveAlt ( name , altName , true , altChangeTimeStamp , false );
         else
@@ -2400,6 +2401,11 @@ GRMsync.SendRemoveAltPackets = function ( syncRankFilter )
 
     local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
 
+    local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
+    if exactIndexes[3] == nil then
+        exactIndexes[3] = {};
+    end
+
     for i = GRMsyncGlobals.SyncCountAltRem , #exactIndexes[3] do
         messageReady = false;
         if GRMsyncGlobals.SyncOK then
@@ -2530,7 +2536,7 @@ GRMsync.SendMainPackets = function()
                 if guildData[exactIndexes[4][i]].isMain then
                     isPlayerMain = "true";
                 end
-                if guildData[exactIndexes[4][i]].isMain or guildData[exactIndexes[4][i]].mainStatusChangeTime~= 0 then
+                if guildData[exactIndexes[4][i]].isMain or guildData[exactIndexes[4][i]].mainStatusChangeTime ~= 0 then
                     hasAtLeastOne = true;
                     -- Expand the string more... Fill up the full 255 characters for efficiency.
                     if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
@@ -3210,6 +3216,28 @@ GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline = function()
     return result;
 end
 
+-- Method:          GRMsync.ReportAuditMessage()
+-- What it Does:    Reports a Message to chat indicating how much of the GRM profile data is complete on members of the whole guild
+-- Purpose:         Useful report to act as a reminder after sync completes.
+GRMsync.ReportAuditMessage = function()
+    if not GRM_G.AuditMessageDeliverd then
+        GRM_G.AuditMessageDeliverd = true;
+        local numIncomplete = GRM.GetIncompleteGuildDataCounts()[5];
+        local message = "";
+        local percentComplete = 100 - ( math.floor ( ( numIncomplete / GRM.GetNumGuildies() ) * 100 ) );
+        
+        if numIncomplete == 0 then
+            message = GRM.L ( "100% complete. Great work!" );
+        elseif numIncomplete == 1 then
+            message = GRM.L ( "{num}% complete." , nil , nil , percentComplete ) .. " " .. GRM.L ( "Only 1 member with incomplete data." );
+        else
+            message = GRM.L ( "{num}% complete." , nil , nil , percentComplete ) .. " " .. GRM.L ( "{num} members with incomplete data." , nil , nil , numIncomplete );
+        end
+
+        GRM.Report ( "\n|CFFFF0000" .. GRM.L ( "GRM Audit Report:" ) .. "|r " .. message );
+    end
+end
+
 -- Method:          GRMsync.InitiateDataSync()
 -- What it Does:    Begins the sync process going throug hthe sync que
 -- Purpose:         To Sync data!
@@ -3284,6 +3312,7 @@ GRMsync.InitiateDataSync = function ()
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
                         if GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline() or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync With Guildies Complete..." ) );
+                            GRMsync.ReportAuditMessage();
                         end
                         GRMsyncGlobals.timeOfLastSyncCompletion = time();
                     end
@@ -4109,10 +4138,13 @@ GRMsync.CollectAltRemData = function ( msg )
     end
 end
 
+----- HUGE ERROR!!! I AM NOT CHECKING FINAL TABLES< ONLY INITIAL TEMP TABLES!!! NEED TO FIX!!!!!!!
+
+-- GRM>AddAlt = if player being added is already an alt it should abort or else it messes up the main and linkage.
 -- PROBLEM -- Removed alt is removing each individual previous alt rather than the alts removing him...
 -- Method:          GRMsync.AddToProperAltTable ( string , string , int , boolean )
 -- What it Does:    Verifies that the alt needs to be added to the finalized data... or removed.
--- Purpose:         Sync control for alt management.                                                                    ----- HUGE ERROR!!! I AM NOT CHECKING FINAL TABLES< ONLY INITIAL TEMP TABLES!!! NEED TO FIX!!!!!!!
+-- Purpose:         Sync control for alt management.                                                                    
 GRMsync.AddToProperAltTable = function ( name , altName , timeStamp , toAddAlt , syncName , syncRankRestrictID )
     local needsAdding = true;
     local isAlreadyAdded = false;
@@ -4930,6 +4962,7 @@ GRMsync.CheckAltChanges = function()
     ----- CHECKING AGAINST LEADER'S DATA  --------
     ----------------------------------------------
     for i = 1 , #leaderListOfAlts do                                                                -- Cycling through every single player in the guild in leader's database
+
         for j = 1 , #GRMsyncGlobals.AltReceivedTemp do                                              -- Cycling through the alt list of guildie to receive comparative info!
             if leaderListOfAlts[i][1] == GRMsyncGlobals.AltReceivedTemp[j][1] then                  -- We have a match! Let's compare the alt tables of both players now.
 
@@ -5000,6 +5033,7 @@ GRMsync.CheckAltChanges = function()
 
                 end
                 altIsMatched = false;
+
                 -- STEP2: RECEIVED DATA
                 -- Comparing alt lists held by received...
                 for r = 1 , #GRMsyncGlobals.AltReceivedTemp[j][2] do
@@ -5019,6 +5053,7 @@ GRMsync.CheckAltChanges = function()
                         local epochStampLeader = -1;
                         -- Ok, the ONLY way to know what is the correct course of action:
                         -- If I am going to ADD this, I must do 2 things. First, check if the leader has them on the removed list, and if so, Second, compare timestamps to know proper action (whichever was most recent.)
+
                         for m = 1 , #leaderListOfRemovedAlts do
                             if leaderListOfRemovedAlts[m][1] == GRMsyncGlobals.AltReceivedTemp[j][1] then -- Ok, an alt has been removed by leader... we know this now. We don't yet know if the alt we are looking for is the one removed
 
@@ -5225,6 +5260,7 @@ GRMsync.ReportSyncCompletion = function ( currentSyncer , finalAnnounce )
             end
             GRM.Report ( announce );
             GRMsync.ReportResults();
+            GRMsync.ReportAuditMessage();
         end
 
         if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then

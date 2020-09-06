@@ -673,7 +673,6 @@ GRML.Danish = function()
     GRM_L["Reset to Default"] = true
     GRM_L["Reset"] = true
     GRM_L["|CFF00CCFFDefault Selection For All Players"] = true
-    GRM_L["Does NOT apply to Ban List or Custom Note"] = true
     GRM_L["If sync was manually disabled for specific guildies, this does NOT enabled it."] = true
     GRM_L["Custom note Sync has been reset to default"] = true
     GRM_L["Click here to set Custom Notes"] = true
@@ -1316,7 +1315,6 @@ GRML.Danish = function()
     GRM_L["Apply Only to Selected Ranks"] = true
     GRM_L["Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat."] = true
     GRM_L["No player data found, recommend full removal."] = true
-    GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, and Birthdates."] = true
     GRM_L["OR"] = true      -- "Or" as in  This OR that  Use this button OR that button -- Advanced JD audit tool.
     GRM_L["Use Promo Date"] = true
     GRM_L["Use Join Date"] = true
@@ -1395,7 +1393,6 @@ GRML.Danish = function()
     GRM_L["Right-Click|r to Edit or Remove custom rule"] = true         -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
     GRM_L["{name} matches the paramaters of {num} of your macro tool rules. Kick Recommended!"] = true
     GRM_L["|CFFE6CC7FClick|r to Change"] = true
-    GRM_L["Colorize Roster Names to Match Class"] = true
     GRM_L["(Applies Only to Classic)"] = true           -- For the Options... rather than removing them all
     
     -- R1.872
@@ -1432,5 +1429,111 @@ GRML.Danish = function()
     GRM_L["GRM will automatically send messages to the \"{name}\" window if you remove all custom channels."] = true
     GRM_L["Multi-Channel support. Just separate with commas"] = true
 
+    -- R1.88
+    -- Group Info Module
+    GRM_L["GRM Info"] = true
+    GRM_L["GRM Group Info"] = true
+    GRM_L["Group Info"] = true
+    GRM_L["Click to Lock Info Window"] = true
+    GRM_L["Total in Group: {num}"] = true
+    GRM_L["Guildies: {num}"] = true
+    GRM_L["Former Guildies: {num}"] = true
+    GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
+    GRM_L["Other Connected Realm Members: {num}"] = true
+    GRM_L["Total in Group: {num}"] = true
+    GRM_L["Date Left"] = true
+    GRM_L["1 Alt Still in Guild"] = true
+    GRM_L["{num} Alts Still in Guild"] = true
+    GRM_L["Known Alts:"] = true
+    GRM_L["Close Enough to Trade"] = true
+    GRM_L["Plugins"] = true         -- plural
+    GRM_L["Plugin"] = true          -- Singular
+    GRM_L["Module"] = true
+    GRM_L["GRM Optional Modules"] = true
+    GRM_L["Enable Module"] = true
+    GRM_L["Show Interactable Distance Indicator"] = true
+    GRM_L["No GRM Modules Currently Installed"] = true
+    GRM_L["Recruitment"] = true
+    GRM_L["Pending Feature"] = true
+    GRM_L["Custom Color"] = true
+    GRM_L["{name} is listed as the Main"] = true
+    GRM_L["Kick Banned in Guild"] = true
+    GRM_L["Kick macro created. Press Hotkey to Remove Banned Players Still in Guild"] = true
+    GRM_L["Easily remove all Banned players still in the Guild with the Macro Tool"] = true
+    GRM_L["GRM will automatically send messages to the \"{name}\" window if you remove all custom channels."] = true
+    GRM_L["Multi-Channel support. Just separate with commas"] = true
 
+    -- R1.89
+    GRM_L["GRM API Error:"] = true
+    GRM_L["The guild name \"{name}\" cannot be found in the database. Ensure proper formatting."] = true
+    GRM_L["The player name \"{name}\" cannot be found in the database. Ensure proper spelling."] = true
+    GRM_L["Unable to change officer notes at current rank"] = true
+    GRM_L["Player is not currently in a Guild"] = true
+    GRM_L["Mains Only"] = true
+    GRM_L["Alts Only"] = true
+    GRM_L["Custom Public Notes:"] = true        -- Updated from "Custom Notes"
+    GRM_L["Leave unchecked to export every member of the guild"] = true
+    GRM_L["Only the 10 most recent rank changes will be included"] = true
+    GRM_L["When you are ready to remove the players, press the Hot-Key {name} 1 time to complete all actions"] = true
+    GRM_L["When you are ready to remove the players, press the Hot-Key {name} {num} times to complete all actions"] = true
+    GRM_L["This only affects GRM tooltips"] = true
+    GRM_L["Unable to remove players from the guild at current rank."] = true
+    GRM_L["Unable to promote players within the guild at current rank."] = true
+    GRM_L["Unable to demote players within the guild at current rank."] = true
+    GRM_L["Feature disabled."] = true
+    GRM_L["Does NOT apply to Ban List"] = true
+    GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
+    GRM_L["Custom Notes can be Restricted Further Below"] = true
+    GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
+    GRM_L["Always open to selected tab:"] = true
+    GRM_L["{num} guild members have incomeplete info."] = true
+    GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
+    GRM_L["No Audit Necessary! Great Work!"] = true
+    GRM_L["GRM Audit Report:"] = true                                                               -- Appears after the player's first sync that game secssion.
+    GRM_L["100% complete. Great work!"] = true
+    GRM_L["{num}% complete."] = true
+    GRM_L["Only 1 member with incomplete data."] = true     -- singular phrase
+    GRM_L["{num} members with incomplete data."] = true     -- plural version of it
+    GRM_L["Colorize Names on Roster and Chat Window to Match Class"] = true
+    GRM_L["Only Match Empty Notes"] = true
+    -- macro Tool
+    GRM_L["Empty Note match: {name}"] = true
+    GRM_L["Empty Notes"] = true
+    GRM_L["Public"] = true
+    GRM_L["Custom"] = true
+    GRM_L["Apply Rules to:"] = true         -- Macro tool rule (top selection)
+    GRM_L["All"] = true                     -- As in, apply to everyone.
+    GRM_L["Player is an Alt"] = true
+    GRM_L["Player is a Main"] = true
+    GRM_L["This only applies to KNOWN alts. Unconfigured will be excluded."] = true
+    GRM_L["Main/Alt: {name}"] = true
+    GRM_L["Kick Players at Selected Rank(s) after"] = true
+    GRM_L["Use Cautiously. Applies to all at rank, regardless of being active or inactive."] = true
+    GRM_L["This will only apply to players with verified promotion dates."] = true
+    GRM_L["Time at Rank: {name}"] = true
+    GRM_L["Notify if at Rank for {num} {name}"] = true      -- "Notify if at Rank for 30 Days" or "Notify if at Rank for 12 Months" 
+    GRM_L["Player Guild Rep is"] = true         -- Ex: "Player Guild Rep is < Honored" or "Player Guild Rep is = Neutral"  -- Dropdown selection options immediately follow this line. If ordering of boxes before the line would be better, please inform me and I can accomadate your localization efforts
+    GRM_L["|CFFE6CC7FClick|r to Change Rep"] = true
+    GRM_L["Guild Rep: {name}"] = true
+    GRM_L["Guild Rep:"] = true
+    GRM_L["Guild Rep lower than {name}"] = true
+    GRM_L["Guild Rep equal to {name}"] = true
+    GRM_L["Guild Rep higher than {name}"] = true
+    GRM_L["Rep: {name} - {name2}"] = true
+    GRM_L["Custom Log Entry Message"] = true
+    GRM_L["Press ENTER to Save"] = true
+    GRM_L["{name} matches {num} macro tool rules. Kick Recommended!"] = true
+    GRM_L["{name} matches {num} macro tool rule. Kick Recommended!"] = true
+    -- Classic Only
+    GRM_L["Shift Rank Up"] = true
+    GRM_L["Shift Rank Down"] = true
+    GRM_L["The Guild Rank \"{name}\" has Shifted up from rank {num} to {custom1}"] = true
+    GRM_L["The Guild Rank \"{name}\" has Shifted lower from rank {num} to {custom1}"] = true
+    GRM_L["After shifting the rank up by 1, the window will automatically close"] = true
+    GRM_L["After shifting the down by 1, the window will automatically close"] = true
+    GRM_L["Addon restrictions require manual selection of guild rank"] = true
+    GRM_L["Shift Rank Down"] = true
+
+
+    
 end
