@@ -1382,6 +1382,7 @@ GRML.SpanishEU = function()
     GRM_L["{num} to {custom1}"] = true          -- Example: "Level Range: 100 to 120"
     GRM_L["1 to {num}"] = true                  -- Same principle.
     GRM_L["Require Text Match"] = true
+    GRM_L["Only if note is empty"] = true
     GRM_L["Click to Set"] = true
     GRM_L["Inactivity:"] = true
     GRM_L["Notify if inactive for {num} {name}" ] = true       -- Notify if inactive for 15 Days  or Notify if inactive for 10 Months
