@@ -31,9 +31,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "8.3.0R1.891";
-GRM_G.PatchDay = 1599334911;             -- In Epoch Time
-GRM_G.PatchDayString = "1599334911";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "8.3.0R1.892";
+GRM_G.PatchDay = 1599496245;             -- In Epoch Time
+GRM_G.PatchDayString = "1599496245";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "8.3.0";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -25086,14 +25086,9 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- ElvUI AddOnSkins: - GRM_KickEvenIfActiveTimeSelected , GRM_KickEvenIfActiveTimeMenu
 
+-- Ability to rearrange the order of the rules.
 
--- Create Frames
--- Add the text strings for translation
--- Add Rule
--- Initialize them in "GRM_UI.ConfigureCustomRuleKickFrame()""
--- Add filter
--- Add both tooltip displays
-
+-- Account wide macro tool rules -- Optiions to make it rule specific
 
 -- Slash command to force all epoch stamps for sync purposes to be today's date... mass tool for sync control power.
 
@@ -25104,6 +25099,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- Sync rules to other officers.
 
 -- /grm search -- bring up Classic window with search box.
+
 
 -- Add nickname functionality
 

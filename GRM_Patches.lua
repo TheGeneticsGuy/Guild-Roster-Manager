@@ -957,7 +957,7 @@ end
 GRM_Patch.IntroduceUnknown = function()
     for i = 1 , #GRM_GuildMemberHistory_Save do                         -- Horde and Alliance
         for j = 2 , #GRM_GuildMemberHistory_Save[i] do                  -- The guilds in each faction
-            for r = 2 , #GRM_GuildMebmerHistory_Save[i][j] do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+            for r = 2 , #GRM_GuildMemberHistory_Save[i][j] do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
                 if #GRM_GuildMemberHistory_Save[i][j][r] == 39 then
                     table.insert ( GRM_GuildMemberHistory_Save[i][j][r] , false );      -- isUnknown join
                     table.insert ( GRM_GuildMemberHistory_Save[i][j][r] , false );      -- isUnknown promo
