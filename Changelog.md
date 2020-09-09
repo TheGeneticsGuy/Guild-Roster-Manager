@@ -3,6 +3,15 @@
 _______________________
 
 
+**VERSION R1.892: Sep 8th, 2020**
+
+***BUG FIXES***
+
+* Fixed a bug that cuased the patches to fail if you haven't loaded GRM in a very long time due to just a simple variable typo
+
+* Setting a new ban would cause an error on other's GRM versions in the guild as it had a parsing error on the comm message. Normal sync would work. This would only affect live changes.
+
+
 **VERSION R189 DATE: Sep 5th, 2020**
 
 

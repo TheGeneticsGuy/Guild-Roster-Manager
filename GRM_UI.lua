@@ -12844,6 +12844,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     memberInfoToAdd.officerNote = nil; -- Set Officer note to nil if needed due to memberInfoToAdd not being able to view. - If it is set to "" then memberInfoToAdd will think it is changing.
                 end
                 memberInfoToAdd.class = string.upper ( GRM_G.tempAddBanClass );                                   -- 7
+                originalClass = memberInfoToAdd.class;
                 memberInfoToAdd.lastOnline = 1;                                         -- 8 Time since they last logged in in hours.
                 memberInfoToAdd.zone = "";                                              -- 9
                 memberInfoToAdd.achievementPoints = 100;                                -- 10    
@@ -12963,6 +12964,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         end
         -- Build the frames...
         GRM.RefreshBanListFrames();
+        GRM_Patch.BuildGUIDProfilesForAllNoLongerInGuild(); -- One Time
         
     end);
 

@@ -32,8 +32,8 @@ GRM_G = {};
 
 -- Addon Details:
 GRM_G.Version = "8.3.0R1.892";
-GRM_G.PatchDay = 1599496245;             -- In Epoch Time
-GRM_G.PatchDayString = "1599496245";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.PatchDay = 1599633301;             -- In Epoch Time
+GRM_G.PatchDayString = "1599633301";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "8.3.0";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -2395,7 +2395,7 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
         result = true;
     end
     -- Re-evaluate message controls
-    GRM.SystemMessageHookControl()
+    GRM.SystemMessageHookControl();
 
     return result , msg , ... ;
 end
@@ -3349,6 +3349,7 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
             GRM_G.MsgFilterEnabled = true;
             ChatFrame_AddMessageEventFilter ( "CHAT_MSG_SYSTEM" , GRM.SetSystemMessageFilter );
         end
+        GRM_G.TempBanSystemMessage = true;
 
         if C_FriendList.GetNumFriends() < 100 then
             -- Add the names!!!
@@ -3435,6 +3436,7 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
                 else
                     GRM_G.CheckingGUIDThroughFriendsList = false;
                     C_Timer.After ( 2 , function()
+                        GRM_G.TempBanSystemMessage = false;
                         GRM_G.MsgFilterDelay2 = false;
                     end);
                     -- FINISHED!!!
@@ -3445,6 +3447,7 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
         else
             C_Timer.After ( 2 , function()
                 GRM_G.MsgFilterDelay2 = false;
+                GRM_G.TempBanSystemMessage = false;
             end);
             if not GRM_G.TooManyFriendsWarning then
                 GRM_G.TooManyFriendsWarning = true;
@@ -8233,6 +8236,10 @@ GRM.AddMemberToLeftPlayers = function ( memberInfo , leftGuildMeta , oldJoinDate
         -- Adding to LeftGuild Player history library
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][memberInfo.name] = {};
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][memberInfo.name] = GRM.DeepCopyArray ( player );
+
+        if player.GUID == "" or player.class == "UNKNOWN" then
+            C_Timer.After ( 5 , GRM_Patch.BuildGUIDProfilesForAllNoLongerInGuild );
+        end
     end
 
     -- Now need to remove it
@@ -25085,6 +25092,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 
 -- ElvUI AddOnSkins: - GRM_KickEvenIfActiveTimeSelected , GRM_KickEvenIfActiveTimeMenu
+
 
 -- Ability to rearrange the order of the rules.
 
