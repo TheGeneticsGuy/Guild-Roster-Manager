@@ -3,6 +3,11 @@
 _______________________
 
 
+**VERSION R1.893: Sep 10th, 2020**
+
+* Found an issue with the recent mass server merges where the server keeps firing a player has joined the guild, yet they are already in the guild. This is a hidden "system message" but the GRM addon is picking it up and assuming it is someone joining the guild live. This now accounts for that possibility. I wanted to get this out asap as it can mess up join dates for people and it got reported early. It's happening when people log in on that toon for the first time.
+
+
 **VERSION R1.892: Sep 8th, 2020**
 
 ***BUG FIXES***
@@ -10,6 +15,7 @@ _______________________
 * Fixed a bug that cuased the patches to fail if you haven't loaded GRM in a very long time due to just a simple variable typo
 
 * Setting a new ban would cause an error on other's GRM versions in the guild as it had a parsing error on the comm message. Normal sync would work. This would only affect live changes.
+
 
 
 **VERSION R189 DATE: Sep 5th, 2020**
