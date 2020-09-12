@@ -31,9 +31,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "8.3.0R1.893";
-GRM_G.PatchDay = 1599770060;             -- In Epoch Time
-GRM_G.PatchDayString = "1599770060";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "8.3.0R1.894";
+GRM_G.PatchDay = 1599862751;             -- In Epoch Time
+GRM_G.PatchDayString = "1599862751";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "8.3.0";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -18420,13 +18420,14 @@ GRM.CheckForNewPlayer = function( clubID , memberID )
 
     if C_Club.GetMemberInfo ( clubID , memberID ).name ~= nil then           -- This means it shows successfully 1 found player...
 
+        local memberInfo = C_Club.GetMemberInfo ( clubID , memberID );
+
         -- This means a system message fired erroneously. This is an edge case that can happen when servers merge.
         if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][memberInfo.name] ~= nil then
             GRM_G.RejoinControlCheck = 0;
             return;
         end
 
-        local memberInfo = C_Club.GetMemberInfo ( clubID , memberID );
         local rosterName = GRM.FormatNameWithPlayerServer ( memberInfo.name )
         local note = memberInfo.memberNote or "";
         local guildRank = memberInfo.guildRank or GuildControlGetRankName ( GuildControlGetNumRanks() );
@@ -25096,6 +25097,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 --/GRMerror - disable all addons but GRM
 
+-- Language selection does not refresh the text of the language selected.
 
 
 
