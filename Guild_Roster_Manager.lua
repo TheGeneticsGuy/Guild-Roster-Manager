@@ -25097,7 +25097,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 --/GRMerror - disable all addons but GRM
 
--- Language selection does not refresh the text of the language selected.
 
 
 

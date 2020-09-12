@@ -2,6 +2,10 @@
 
 _______________________
 
+**VERSION R1.893: Sep 11th, 2020**
+
+* Fixed a bug in relation to previous release... the rush out was a bad idea as I placed the code *before* the variable was set when calling to it. Whoops! Your addon should now properly pick up when people Live join the guild without erroring.
+
 
 **VERSION R1.893: Sep 10th, 2020**
 
