@@ -2,6 +2,10 @@
 
 _______________________
 
+**VERSION R1.895: Sep 12th, 2020**
+
+* Final issue found to resolve issue when Blizz does massive new server merge.
+
 **VERSION R1.894: Sep 11th, 2020**
 
 * Fixed a bug in relation to previous release... the rush out was a bad idea as I placed the code *before* the variable was set when calling to it. Whoops! Your addon should now properly pick up when people Live join the guild without erroring.
