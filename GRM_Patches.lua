@@ -801,6 +801,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         if loopCheck ( 1.89 ) then
             return;
         end
+
+        
+    end
+
+    if numericV < 1.90 and baseValue < 1.90 then
+        GRM_Patch.AddPlayerSetting ( "syncDelay" , 60 );
+        GRM_Patch.AddPlayerSetting ( "autoTriggerSync" , true );
+        GRM_Patch.AddPlayerSetting ( "syncCompatibilityMsg" , true );
+
+        if loopCheck ( 1.90 ) then
+            return;
+        end
     end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
@@ -2197,7 +2209,7 @@ end
 GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
     -- No need to do the work if you can't!
     local result = "";
-    if CanEditOfficerNote() then
+    if C_GuildInfo.CanEditOfficerNote() then
         local g1 = false;
         local g2 = false;
 

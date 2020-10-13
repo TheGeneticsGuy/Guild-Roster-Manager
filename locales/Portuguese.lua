@@ -1500,4 +1500,15 @@ GRML.Portuguese = function()
     GRM_L["Addon restrictions require manual selection of guild rank"] = true
     GRM_L["Shift Rank Down"] = true
 
+    -- R1.90
+    GRM_L["Promotion and demotion mass macros are not yet implemented"] = true
+    GRM_L["Suggestions on kick filters? Submit to Discord"] = true
+    GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = true
+    GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true      -- if sync is triggered after logon too soon
+    GRM_L["Type '/grm sync' to initiate a one-time sync."] = true
+    -- Due to language differences on the edit box, this is to explain where to put the edit box. In Englist it will appear: "Auto Trigger Sync [ 30 ] Seconds After Logging On" - Please place the edit box in the appropriate position for your translation.
+    GRM_L["Before Auto Trigger"] = "Auto Trigger Sync"                  
+    GRM_L["After Auto Trigger"] = "Seconds After Logging On"
+    GRM_L["Report When Other Members Have Outdated Versions"] = true
+    
 end

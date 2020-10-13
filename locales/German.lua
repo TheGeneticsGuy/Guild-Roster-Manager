@@ -130,7 +130,7 @@
         GRM_L["{name} INVITED {name2} to the guild."] = "{name} hat {name2} in die Gilde eingeladen"
         GRM_L["{name} has BANNED {name2} and all linked alts from the guild!"] = "{name} hat {name2} und alle verbundenen Twinks aus der Gilde VERBANNT!"
         GRM_L["{name} has BANNED {name2} from the guild!"] = "{name} hat {name2} aus der Gilde VERBANNT!"
-        GRM_L["Reason Banned:"] = "Bann-Grund"
+        GRM_L["Reason Banned:"] = "Bann-Grund:"
         GRM_L["has Left the guild"] = "hat die Gilde verlassen"                                      -- Context: PlayerName "has left the guild"
         GRM_L["ALTS IN GUILD:"] = "Twinks in der Gilde:"                                          -- Context: This appears If a person leaves the guild and there are still alts in the guild. It is like - "ALTS IN GUILD: Arkaan, Chris, Matt, and 4 others.""
         GRM_L["Player no longer on Server"] = "Spieler ist nicht mehr auf dem Server"
@@ -1507,7 +1507,19 @@
         GRM_L["Addon restrictions require manual selection of guild rank"] = true
         GRM_L["Shift Rank Down"] = true
 
-    
+        -- R1.90
+        GRM_L["Promotion and demotion mass macros are not yet implemented"] = true
+        GRM_L["Suggestions on kick filters? Submit to Discord"] = true
+        GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = true
+        GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true      -- if sync is triggered after logon too soon
+        GRM_L["Type '/grm sync' to initiate a one-time sync."] = true
+        -- Due to language differences on the edit box, this is to explain where to put the edit box. In Englist it will appear: "Auto Trigger Sync [ 30 ] Seconds After Logging On" - Please place the edit box in the appropriate position for your translation.
+        GRM_L["Before Auto Trigger"] = "Auto Trigger Sync"                  
+        GRM_L["After Auto Trigger"] = "Seconds After Logging On"
+        GRM_L["Report When Other Members Have Outdated Versions"] = true
+
+
+        
     end
     
     -- THANK YOU @Nehry for this full translation up to R1.20
