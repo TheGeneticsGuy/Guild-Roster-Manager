@@ -3,7 +3,9 @@
 _______________________
 
 
-**VERSION R1.90 BETA - Sep 11th, 2020**
+**VERSION R1.91 RELEASE -- October 13th, 2020**
+
+* Minor fix with the player level filter range. If you were filtering levels > 60, it would error. Latest update resolves that.
 
 ***MASSIVE UPDATE FOR 9.0 Shadowlands launch!***
 

@@ -814,6 +814,14 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    if numericV < 1.91 and baseValue < 1.91 then
+        GRM_Patch.ModifyPlayerSetting ( "levelReportMin" , GRM_Patch.AdjustLevelCapDueToSquish );
+
+        if loopCheck ( 1.91 ) then
+            return;
+        end
+    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -5036,4 +5044,15 @@ GRM_Patch.AddKickRule = function ( kickRules )
 
     end
     return kickRules
+end
+
+-- 1.91
+-- Method:          GRM_Patch.AdjustLevelCapDueToSquish()
+-- What it Does:    Adjusts the level filtering to below 60 to remove potential errors
+-- Purpose:         Adapt to 9.0 launch
+GRM_Patch.AdjustLevelCapDueToSquish = function ( levelReportMin )
+    if levelReportMin > 60 then
+        levelReportMin = 50;    -- Set it to current cap
+    end
+    return levelReportMin;
 end
