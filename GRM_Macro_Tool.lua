@@ -125,6 +125,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_CustomRuleAddButton.GRM_CustomRuleAddButtonText = G
 
 -- Custom Rules Popup Frame
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame = CreateFrame ( "Frame" , "GRM_ToolCustomRulesFrame" , GRM_UI.GRM_ToolCoreFrame , "TranslucentFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
 
 -- Rank Custom Rules
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1 = CreateFrame ( "CheckButton" , "GRM_ToolRulesRankRadialButton1" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "UIRadioButtonTemplate" );
@@ -167,9 +168,9 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButt
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox = CreateFrame( "EditBox" , "GRM_RosterKickRecommendEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "InputBoxTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:ClearFocus();
 -- Day or Month selection
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected = CreateFrame ( "Frame" , "GRM_TimeScaleSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected = CreateFrame ( "Frame" , "GRM_TimeScaleSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:CreateFontString ( "GRM_TimeScaleSelectedText" , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu = CreateFrame ( "Frame" , "GRM_TimeScaleDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu = CreateFrame ( "Frame" , "GRM_TimeScaleDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu:Hide();
 -- Alts control filter
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed = CreateFrame ( "CheckButton" , "GRM_ToolAltsOfflineTimed" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "OptionsSmallCheckButtonTemplate" );
@@ -190,13 +191,13 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox = CreateFrame( "EditBox" , "GRM_KickEvenIfActiveEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "InputBoxTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:ClearFocus();
 -- Day or Month selection even if active
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected = CreateFrame ( "Frame" , "GRM_KickEvenIfActiveTimeSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected = CreateFrame ( "Frame" , "GRM_KickEvenIfActiveTimeSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:CreateFontString ( "GRM_KickEvenIfActiveTimeSelectedText" , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu = CreateFrame ( "Frame" , "GRM_KickEvenIfActiveTimeMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu = CreateFrame ( "Frame" , "GRM_KickEvenIfActiveTimeMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
 
 -- General use Right click button
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu = CreateFrame ( "Frame" , "GRM_ToolContextMenu" , GRM_UI.GRM_ToolCoreFrame );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu = CreateFrame ( "Frame" , "GRM_ToolContextMenu" , GRM_UI.GRM_ToolCoreFrame , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:CreateFontString ( "GRM_ToolContextMenuText" , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuDividerText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:CreateFontString ( "GRM_ToolContextMenuDividerText" , "OVERLAY" , "GameFontWhiteTiny" );
@@ -227,23 +228,23 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton = 
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:CreateFontString ( "GRM_GuildRepRuleCheckButtonText" , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:CreateFontString ( "GRM_GuildRepRuleCheckButtonTextRetailOnlyText" , "OVERLAY" , "GameFontNormalSmall" );
 -- Operator Selection
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected = CreateFrame ( "Frame" , "GRM_GuildRepSymbolSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected = CreateFrame ( "Frame" , "GRM_GuildRepSymbolSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:CreateFontString ( "GRM_GuildRepSymbolSelectedText" , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu = CreateFrame ( "Frame" , "GRM_GuildRepSymbolDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu = CreateFrame ( "Frame" , "GRM_GuildRepSymbolDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
 -- Reputation Selection
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected = CreateFrame ( "Frame" , "GRM_GuildRepRanksSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected = CreateFrame ( "Frame" , "GRM_GuildRepRanksSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:CreateFontString ( "GRM_GuildRepRanksSelectedText" , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu = CreateFrame ( "Frame" , "GRM_GuildRepRanksDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected , "InsetFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu = CreateFrame ( "Frame" , "GRM_GuildRepRanksDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
 
 -- Log Custom Message
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton = CreateFrame ( "CheckButton" , "GRM_CustomLogMessageButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "OptionsSmallCheckButtonTemplate" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame = CreateFrame ( "Frame" , "GRM_CustomLogMessageEditBoxFrame" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame = CreateFrame ( "Frame" , "GRM_CustomLogMessageEditBoxFrame" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:CreateFontString ( "GRM_CustomLogMessageButtonText" , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxCount = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:CreateFontString ( "GRM_CustomLogMessageEditBoxCount" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:CreateFontString ( "GRM_CustomLogMessageEditBoxTip" , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox = CreateFrame( "EditBox" , "GRM_CustomLogMessageEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox = CreateFrame( "EditBox" , "GRM_CustomLogMessageEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:ClearFocus();
 
 -- Suggestion String
@@ -254,7 +255,6 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText = GRM
 -----------------------------
 
 -- Global Locals
-local repList = { GRM.GetReputationTextLevel ( 4 , true ) , GRM.GetReputationTextLevel ( 5 , true ) , GRM.GetReputationTextLevel ( 6 , true ) , GRM.GetReputationTextLevel ( 7 , true ) , GRM.GetReputationTextLevel ( 8 , true ) };
 local repOperators = { "<" , "=" , ">" };
 
 -- INITIALIZING FRAME VALUES
@@ -361,7 +361,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM.BuildMacrodScrollFrame ( true , true );
 
                     GRM_G.timeDelayValue = time(); -- resetting delay
-                    GuildRoster();
+
+                    GRM.GuildRoster();
 
                     if not AuditWindowRefresh and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                         AuditWindowRefresh = true;
@@ -430,18 +431,16 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "TOP" , 0 , 2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetWidth ( 300 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetSpacing ( 1 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetText ( "|cffff0000PENDING FEATURE|r\nPromotion and demotion mass macros are not yet implemented" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:Hide();
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMLEFT" , -10 , -35 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMLEFT" , -20 , -35 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 10 , -35 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 18 , -35 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2:SetJustifyH ( "LEFT" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText , "BOTTOMLEFT" , 0 , -2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 10 , -49 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 18 , -49 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetJustifyH ( "LEFT" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton , "BOTTOM" , 0 , -12 );
@@ -711,13 +710,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         -- Buttons
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "BOTTOM" , 0 , -5 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:SetSize ( 200 , 25 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:SetSize ( 200 , 30 );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetWidth ( 195 )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetWordWrap ( true );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetSpacing ( 1 );
         
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSettingsButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_CustomRuleAddButton , "BOTTOM" , 0 , -4 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSettingsButton:SetSize ( 130 , 25 );
@@ -791,14 +789,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -95 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 130 , 25 );
-
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetWidth ( 105 )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetWordWrap ( true );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetSpacing ( 1 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetSpacing ( 0.5 );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
@@ -1205,6 +1200,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetText( GRM.L ( "Queued Actions" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetText( GRM.L ( "Current Actions" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetText ( "|cffff0000" .. string.upper ( GRM.L ( "Pending Feature" ) ) .. "|r\n" .. GRM.L ( "Promotion and demotion mass macros are not yet implemented" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetText( GRM.L ( "Players the same rank or higher will not be shown" ) );
 
@@ -1234,6 +1231,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
     -- Button Text
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    if #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > 0 then
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetText( GRM.L ( "Click to Build Macro" ) );
+    else
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetText( GRM.L ( "No Current Names to Add" ) );
+    end
+    GRM.SetMacroButtonText();
+
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton.GRM_ToolResetSelectedMacroNamesButtonText:SetText ( GRM.L ( "Clear Selection" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton.GRM_ToolResetSelectedMacroNamesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolClearSelectedMacrodNamesButton.GRM_ToolClearSelectedMacrodNamesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
@@ -1260,8 +1264,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_KickTabText:SetText ( GRM.L ( "Kick" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_PromoTabText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_PromoTabText:SetText ( GRM.L ( "Promote" ) );
+    GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:GetWidth() , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTabText , 3 );
     GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText:SetText ( GRM.L ( "Demote" ) );
+    GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:GetWidth() , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText , 3 );
 
     -- Settings Reset
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSettingsButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -1903,7 +1909,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.DisableNoteEditBox();
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton:SetChecked ( false );
-                    GRM_UI.EnableNoteEditBox();
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
+                        GRM_UI.EnableNoteEditBox();
+                    end
                 end
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.notesToCheck[1] then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton:SetChecked ( true );
@@ -2049,14 +2057,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- What it Does:    Configures the values of all the buttons on the custom rules creation window
         -- Purpose:         Keep rules settings displayed properly.
         GRM_UI.ConfigureCustomRulePromoteFrame = function ( isEdit , ruleName )
-            print("Pending Feature")
+            print( GRM.L ( "Pending Feature" ) );
         end
 
         -- Method:          GRM_UI.ConfigureCustomRuleDemoteFrame ( bool , string )
         -- What it Does:    Configures the values of all the buttons on the custom rules creation window
         -- Purpose:         Keep rules settings displayed properly.
         GRM_UI.ConfigureCustomRuleDemoteFrame = function ( isEdit , ruleName )
-            print("Pending Feature")
+            print( GRM.L ( "Pending Feature" ) );
         end
 
         -- INACTIVITY CUSTOM RULES
@@ -2675,6 +2683,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:SetScript ( "OnMouseDown" , function( self , button )
             if button == "LeftButton" then
+                local repList = { GRM.GetReputationTextLevel ( 4 , true ) , GRM.GetReputationTextLevel ( 5 , true ) , GRM.GetReputationTextLevel ( 6 , true ) , GRM.GetReputationTextLevel ( 7 , true ) , GRM.GetReputationTextLevel ( 8 , true ) };
                 if  GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:IsVisible() then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
                 else
@@ -2779,7 +2788,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButtonText , "RIGHT" , 8 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetScript ( "OnClick" , function( self )
             if self:GetChecked() then
@@ -2874,7 +2882,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         -- CUSTOM REP
         
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -5 );
+        
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetScript ( "OnClick" , function( self )
             if self:GetChecked() then
@@ -2982,15 +2990,15 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame:EnableMouse ( false );
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetPoint( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "BOTTOM" , 0 , 40 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetPoint( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "BOTTOM" , 0 , 45 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetWidth ( 200 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetWidth ( 290 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetSpacing ( 1 );
     
     end
 
     -- Custom Rules Fontstrings
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetText ( "(" .. GRM.L ( "Edit" ) .. ")" );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton.GRM_ToolCustomRulesConfirmButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -3043,9 +3051,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButtonText:SetText ( GRM.L ( "Custom Note" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButtonText );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetText ( "Suggestions on Kick Filters? Submit to Discord!" );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetText ( GRM.L ( "Suggestions on kick filters? Submit to Discord" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:SetText ( "(Disabled in Classic)" );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:SetText ( GRM.L ( "(Disabled in Classic)" ) );
 
     -- Updated Rules
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -3068,6 +3076,26 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxCount:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip:SetText ( GRM.L ( "Press ENTER to Save" ) );
+
+    -- Localization adjustments
+    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -6 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , "BOTTOMLEFT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:ClearAllPoints();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -65 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 65 );
+    else
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButtonText , "RIGHT" , 8 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:ClearAllPoints();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -95 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 25 );
+    end
+
 end
 
 -----------------------------
@@ -4693,6 +4721,7 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
     result.rankSpecialNumDaysOrMonths = 12;
     
     result.repFilter = false;
+    result.repOperator = 2
     result.rep = 4;            -- 4 = neutral
 
     result.customlog = false;

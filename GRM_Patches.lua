@@ -801,6 +801,34 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         if loopCheck ( 1.89 ) then
             return;
         end
+
+        
+    end
+
+    if numericV < 1.90 and baseValue < 1.90 then
+        GRM_Patch.AddPlayerSetting ( "syncDelay" , 60 );
+        GRM_Patch.AddPlayerSetting ( "autoTriggerSync" , true );
+        GRM_Patch.AddPlayerSetting ( "syncCompatibilityMsg" , true );
+
+        if loopCheck ( 1.90 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.91 and baseValue < 1.91 then
+        GRM_Patch.ModifyPlayerSetting ( "levelReportMin" , GRM_Patch.AdjustLevelCapDueToSquish );
+
+        if loopCheck ( 1.91 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.912 and baseValue < 1.912 then
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRuleOperator );
+
+        if loopCheck ( 1.912 ) then
+            return;
+        end
     end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
@@ -2197,7 +2225,7 @@ end
 GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
     -- No need to do the work if you can't!
     local result = "";
-    if CanEditOfficerNote() then
+    if C_GuildInfo.CanEditOfficerNote() then
         local g1 = false;
         local g2 = false;
 
@@ -5022,6 +5050,30 @@ GRM_Patch.AddKickRule = function ( kickRules )
             kickRules[name].customLog = false;
         end
 
+    end
+    return kickRules
+end
+
+-- 1.91
+-- Method:          GRM_Patch.AdjustLevelCapDueToSquish()
+-- What it Does:    Adjusts the level filtering to below 60 to remove potential errors
+-- Purpose:         Adapt to 9.0 launch
+GRM_Patch.AdjustLevelCapDueToSquish = function ( levelReportMin )
+    if levelReportMin > 60 then
+        levelReportMin = 50;    -- Set it to current cap
+    end
+    return levelReportMin;
+end
+
+-- 1.912
+-- Method:          GRM_Patch.AddKickRuleOperator()
+-- What it Does:    Adds a new kickRuleOption
+-- Purpose:         AddMoreFilters
+GRM_Patch.AddKickRuleOperator = function ( kickRules )
+    for name in pairs ( kickRules ) do 
+        if not kickRules[name].repOperator then
+            kickRules[name].repOperator = 2;        -- lesser, equals, greater  2 is equals
+        end
     end
     return kickRules
 end

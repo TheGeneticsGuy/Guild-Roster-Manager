@@ -2,6 +2,93 @@
 
 _______________________
 
+**VERSION R1.913 RELEASE - October 18th, 2020**
+
+***BUG FIXES***
+
+* Exporting only the alts should now work. Before it would always just show the mains even if you selected it to filter to only the alts.
+
+* Fixed a bug where scanning for changes was causing a lua error when detecting level changes within a certain range (new bug from last update, minor oversight)
+
+* Fixed an issue where if you were trying to export your guild roster it would error due to a 1 index overflow error of the array. I had modified the array to be more efficient for sync purposes, but forgot I used the same system on the export data and I had eliminated an index of the array that was not necessary, but now it causes the data to shift by 1. This shouldn't happen anymore.
+
+***MISC***
+
+* Building some custom function wrappers for Blizzard API to make a single codebase easier to deal with in the future since it doesn't seem Blizz is bringing the underlying 9.0 API to Classic anytime soon. The Naxx Classic PTR build does not have any of the 9.0 changes so just prepping adaptation.
+
+
+**VERSION R1.912 RELEASE - October 18th, 2020**
+
+***BUG FIXES***
+
+- Fixed an issue where in some cases where if someone syncs data to a player through custom Note, it would update it, even if their rank was too low. This shouldn't happen anymore. Also noticed in some cases the cusotm notes were only going one direction. If the person initiating the sync had them, then the other could get them, but if they didn't they weren't getting them unless the other person initiated sync. Oops! Now it will properly work both sides.
+
+* Minor oversight on the level squish. The log will no longer report that people leveled to a negative number...
+
+* I noticed that in retail the /grm scan was taking a while to complete as it was not querying the Guild Event Log to process, it was doing the "classic" method, so there is now a condition for the build version and a manual /scan should now only take a few seconds to complete.
+
+* The full proper sync file is attached now - uploaded an incomplete build one last time as I hadn't pushed changes to my "release" folder yet. Oops!
+
+
+**VERSION R1.91 RELEASE -- October 13th, 2020**
+
+* Minor fix with the player level filter range. If you were filtering levels > 60, it would error. Latest update resolves that.
+
+***MASSIVE UPDATE FOR 9.0 Shadowlands launch!***
+
+*The addon is now fully compatible with the new expansion and all of the underlying code and UI changes that came with it. You will find MANY of your old addons that have long worked for many years, even though they have not been updated, stop working this expansion. GRM should be working day 1. Hurray!*
+
+
+***QUALITY OF LIFE***
+
+
+* The Options for level filtering has been updated to match the new expansion in the GRM > Options > Scan tab
+
+* If you choose 24hr or 12hr timing, the log will now reprocess the strings and update the timestamps to reflect the new formatting. This also applies if you change the timestamp format to a different one.
+
+* Birthdays being included in the audit will be turned off by default now since most don't use the feature. This only applies to NEW GRM users, so veteran GRM users I have not undone any of your settings already in place.
+
+* SYNC changes:
+
+* * Data on the back end is now significantly more efficient and breaks down the entire database in a pre-sync comparison check on every piece of the data. Before, I broke it into blocks of 40 chunks of data for comparison, and if any pieces of info in that 40 was not the same it would compare all 40 between the 2 players just to find the 1 change. The concept finally has been expanded and now I do an exact 1:1 data point comparison pre-check between players before initiating a sync which ultimately makes it significantly more efficient, though it might add 2 to 4 seconds in pre-check sync time in very large guilds. The overall efficiency should cancel that out, however.
+
+* * New option to delay when sync occurs after logging or, or to deactivate the auto-trigger altogether. You can now set the sync to trigger any period time after logging in from 10 seconds after and onward. For people that may have lots and lots of addons, or possibly are playing on older hardware, or maybe a netbook or something that might take longer, they can adjust it so the addon will restric any sync attempts until after the input number of seconds. The default will be 60 seconds after logging in, but some may wish to push earlier and some may want later. I personally set it to 15 seconds. I know one person would prefer it only loaded after 2 minutes. The choice is all yours now.
+
+* * GRM will now go out of its way to prioritize other addons' data use on the comm channels. GRM data is not really that necessary to be needed instantly at all times, unlike many other addons, like say, DBM. So, with the server throttle limit, the last thing I want is GRM to clog up the channels, especially in a super large guild, and force them to the back of the que. As such, the sync algorithm has been updated that if any other data from other addons gets qued up GRM will delay its own sync data, allowing the others to pass through, then continue back on. This should eliminate any delays with other addons and hopefully eliminate any issues that might occur with addons clogging up the channels together and thus causing the throttle cap to be broken and in some cases, disconnects to occur. While I have not heard of any reports of disconnects in retail, there does seem to be some conflict with a couple of CLASSIC addons as to make this a possibility.
+
+* Russian Language is now fully translated with the exception of just a couple of brand new lines I snuck in at the last minute. I also spent significant effort to ensure universally compatible UI formatting so no text was overlapping off frames and fit in buttons and so on.  TY @Максим on Discord for the translation work
+
+* Global controls were previously restricted that once set, only the guild leader could edit them, unless an officer manually removed the global control settings tring in the Guild Info. This restriction has been loosened so that any officer in a guild that has access to edit the guild info can now change the GRM settings that are "Global Controls." If the string of control tags is already exported to the Guild Info then they will automatically be updated as you make changes to your global settings. Be aware that it can take up to 60 seconds for the guild Info to refresh for other players in Classic, if they are not directly looking at the screen, so other players may not immediately receive the global control changes, but they will shortly. Retail it can update within 10 seconds or less and GRM sends out a call to other players informing them that a change has been made and to re-check the global control string for quicker updating.
+
+* I noticed that on the public/officer note Blizz has some algorithm that actually changes note fonts on the fly. It detects if you are using cyrillic characters, Asian, or a combination, and then it sets the note font to an appropriate compatible one. It ONLY uses the horrible looking unversally compatible font if you give it a mess of various characters to screw with it, otherwise it sticks to the FrizQT fonts and the Cyrillic compatible one and so on. GRM's custom, officer, public note fonts will now mirror whatever font Blizz is using in that moment for compatibility. In the future I will likely give you the option to ignore this and just use the custom font, but for now I've been getting too many people who have mentioned some guildies with "???" in their notes, indicating incompatible font.
+
+* Players now have the ability to disable the message "PLAYERNAME tried to sync with you but their addon is outdated. Remind them to update!" -- While useful, there are some cases where a player just doesn't upgrade and rather than spamming you once per session day after day, you can disable the notification to chat.
+
+
+
+***BUG FIXES***
+
+* Fixed a weird edge case where if you invited a new alt to a guild and immediately promoted to guild master, it could cause your next session not to load properly.
+
+* Reprocessing the log when changing languages was causing an error due to processing the new log rules message in a new way - this has been fixed
+
+* Fixed a Lua error that could occur if player performed a hardreset to do the on logoff handler.
+
+* Fixed an issue with the Advanced Join Date tool where if you had a format where the month > 12 it would error out on parsing as it was not doing a proper boolean check that the month integer was valid and between 1-12 when passing through the enum.
+
+* Fixed an issue where if you create a new toon, and before joining a guild, you logoff, then when you log back on and join a guild, it now overwrites your settings on all alts for that guild. This should no longer occur.
+
+* "Add Join Date to:" should now properly translate in the Officer Options tab if you use a language other than English (and the accompanying translation has been made
+
+* Added several missing localizations to the localization files - they were all just in the raw English and not being wrapped by my localization function.
+
+* When swapping between languages I noticed some of the options dropdown menus were not updating to new language properly. They now should properly localize with the rest.
+
+* (CLASSIC ONLY) - The roster class coloring was not working when you changed it to player status. It now works on both roster view options! Oops!
+
+
+
+
 **VERSION R1.895: Sep 12th, 2020**
 
 * Final issue found to resolve issue when Blizz does massive new server merge.
@@ -9,6 +96,7 @@ _______________________
 **VERSION R1.894: Sep 11th, 2020**
 
 * Fixed a bug in relation to previous release... the rush out was a bad idea as I placed the code *before* the variable was set when calling to it. Whoops! Your addon should now properly pick up when people Live join the guild without erroring.
+
 
 **VERSION R1.893: Sep 10th, 2020**
 
@@ -22,7 +110,6 @@ _______________________
 * Fixed a bug that cuased the patches to fail if you haven't loaded GRM in a very long time due to just a simple variable typo
 
 * Setting a new ban would cause an error on other's GRM versions in the guild as it had a parsing error on the comm message. Normal sync would work. This would only affect live changes.
-
 
 
 **VERSION R189 DATE: Sep 5th, 2020**
