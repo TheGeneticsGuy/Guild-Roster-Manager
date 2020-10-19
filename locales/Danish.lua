@@ -80,8 +80,6 @@ GRML.Danish = function()
     GRM_L["Edit Promo Date"] = true
     GRM_L["Edit Join Date"] = true
     GRM_L["Set Promo Date"] = true
-    GRM_L["In Group"] = true                            -- Context: "Player is already In Group with you"
-    GRM_L["Group Invite"] = true
     GRM_L["No Invite"] = true
     GRM_L["Group Invite"] = true
     GRM_L["Date Promoted?"] = true
@@ -94,7 +92,6 @@ GRML.Danish = function()
     GRM_L["Player Alts"] = true
     GRM_L["Add Alt"] = true
     GRM_L["Choose Alt"] = true
-    GRM_L["Shift-Mouseover Name On Roster Also Works"] = true
     GRM_L["Guild Log"] = true
     GRM_L["Guild"] = true
 
@@ -116,19 +113,15 @@ GRML.Danish = function()
     GRM_L["Edit Date"] = true
     GRM_L["Clear History"] = true
     GRM_L["Options"] = true
-    GRM_L["Cancel"] = true
             
     -- LOG
     GRM_L["LOG"] = true                                                     -- Context - The guild Log shorthand for the tab
     GRM_L["Guild Roster Event Log"] = true
     GRM_L["Clear Log"] = true
     GRM_L["Really Clear the Guild Log?"] = true
-    GRM_L["{name} DEMOTED {name2}"] = true
-    GRM_L["{name} PROMOTED {name2}"] = true
     GRM_L["{name} KICKED {name2} from the Guild!"] = true
     GRM_L["kicked"] = true
     GRM_L["{name} has Left the guild"] = true
-    GRM_L["{name} INVITED {name2} to the guild."] = true
     GRM_L["{name} has BANNED {name2} and all linked alts from the guild!"] = true
     GRM_L["{name} has BANNED {name2} from the guild!"] = true
     GRM_L["Reason Banned:"] = true
@@ -150,7 +143,6 @@ GRML.Danish = function()
     GRM_L["Date of Ban:"] = true
     GRM_L["Date Originally Joined:"] = true
     GRM_L["Old Guild Rank:"] = true
-    GRM_L["Reason:"] = true
     GRM_L["Additional Notes:"] = true
     GRM_L["{name} has REINVITED {name2} to the guild"] = true
     GRM_L["(LVL: {num})"] = true                                            -- Context: LVL means Player Level - so Ex: (LVL: 110)
@@ -158,7 +150,6 @@ GRML.Danish = function()
     GRM_L["{name} has JOINED the guild!"] = true
     GRM_L["Date Left:"] = true
     GRM_L["{name} has Leveled to {num}"] = true
-    GRM_L["Leveled to"] = true                                             -- For parsing the message, please include the string found in previous "has leveled to" message
     GRM_L["(+{num} levels)"] = true                                         -- Context: Person gained more than one level, hence the plural
     GRM_L["(+{num} level)"] = true                                          -- Context: Person gains a level, just one level.
     GRM_L["{name}'s PUBLIC Note: \"{custom1}\" was Added"] = true           -- Of note, the \" in the text here will just appear as " in-game. The \" notation is telling the program not to end the string, but to include quotation
@@ -170,13 +161,9 @@ GRML.Danish = function()
     GRM_L["Guild Rank Renamed from {custom1} to {custom2}"] = true
     GRM_L["{name} has Name-Changed to {name2}"] = true
     GRM_L["{name} has Come ONLINE after being INACTIVE for {num}"] = true
-    GRM_L["{name } Seems to Have Name-Changed, but their New Name was Hard to Determine"] = true
-    GRM_L["It Could Be One of the Following:"] = true
     GRM_L["{name} has been OFFLINE for {num}. Kick Recommended!"] = true
     GRM_L["({num} ago)"] = true                                             -- Context: (5 minutes ago) or (5 months 24 days ago) -- the {num} will automatically include the time-passed date.
     GRM_L["{name}'s Guild has Name-Changed to \"{name2}\""] = true
-    GRM_L["{name} will be celebrating {num} year in the Guild! ( {custom1} )"] = true            -- {custom1} will reference the DATE. Ex: "Arkaan will be celebrating 1 year in the Guild! ( 1 May )" - SINGULAR
-    GRM_L["{name} will be celebrating {num} years in the Guild! ( {custom1} )"] = true           -- Same thing but PLURAL - "years" in stead of "year"
     GRM_L["Promotions"] = true
     GRM_L["Demotions"] = true
 
@@ -184,7 +171,6 @@ GRML.Danish = function()
     GRM_L["EVENTS"] = true                                          -- Events tab
     GRM_L["{name}'s Anniversary!"] = true
     GRM_L["{name}'s Birthday!"] = true
-    GRM_L["Please Select Event to Add to Calendar"] = true
     GRM_L["No Calendar Events to Add"] = true
     GRM_L["Event Calendar Manager"] = true
     GRM_L["Event:"] = true
@@ -208,7 +194,6 @@ GRML.Danish = function()
     GRM_L["{name}(Still in Guild)"] = true
     GRM_L["(Still in Guild)"] = true                                -- same as previous, just formatting simplicity...
     GRM_L["No Ban Reason Given"] = true
-    GRM_L["Reason:"] = true                                         -- Context: As in, "Reason Banned"
     GRM_L["Total Banned:"] = true
     GRM_L["Rank"] = true
     GRM_L["Ban Date"] = true
@@ -249,7 +234,6 @@ GRML.Danish = function()
     GRM_L["Your Sync is Currently Disabled"] = true
 
     -- OPTIONS WINDOW
-    GRM_L["Public Note"] = true
     GRM_L["Scanning Roster:"] = true
     GRM_L["Guild Rank Restricted:"] = true
     GRM_L["Sync:"] = true
@@ -291,13 +275,10 @@ GRML.Danish = function()
     GRM_L["Deactivating Data SYNC with Guildies..."] = true
     GRM_L["Display Sync Update Messages"] = true
     GRM_L["Only Sync With Up-to-Date Addon Users"] = true
-    GRM_L["Only Announce Anniversaries if Listed as 'Main'"] = true
     GRM_L["Leveled"] = true
-    GRM_L["Min:"] = true                                    -- Context: As in, the Minimum level to report or announce when player levels up
     GRM_L["Inactive Return"] = true
     GRM_L["resetall"] = true
     GRM_L["resetguild"] = true
-    GRM_L["Notify When Players Request to Join the Guild"] = true
     --Side chat/log controls - Of note, limited spacing
     GRM_L["Name Change"] = true
     GRM_L["Rank Renamed"] = true
@@ -330,7 +311,6 @@ GRML.Danish = function()
     GRM_L["Join Date"] = true
     GRM_L["Promo Date"] = true
     GRM_L["Main/Alt"] = true
-    GRM_L["Click Player to Edit"] = true
     GRM_L["Only Show Incomplete Guildies"] = true
 
     -- ADDON SYSTEM MESSAGES
@@ -339,8 +319,6 @@ GRML.Danish = function()
     GRM_L["(Ver:"] = true                                                               -- Ver: is short for Version:
     GRM_L["GRM Updated:"] = true
     GRM_L["Configuring Guild Roster Manager for {name} for the first time."] = true
-    GRM_L["Reactivating Auto SCAN for Guild Member Changes..."] = true
-    GRM_L["Reactivating Data Sync..."] = true
     GRM_L["Notification Set:"] = true
     GRM_L["Report When {name} is ACTIVE Again!"] = true
     GRM_L["Report When {name} Comes Online!"] = true
@@ -350,10 +328,6 @@ GRML.Danish = function()
     GRM_L["Player Does Not Have a Time Machine!"] = true
     GRM_L["Please choose a valid DAY"] = true
     GRM_L["{name} has been Removed from the Ban List."] = true
-    GRM_L["{num} Players Have Requested to Join the Guild."] = true
-    GRM_L["A Player Has Requested to Join the Guild."] = true
-    GRM_L["Click Link to Open Recruiting Window:"] = true
-    GRM_L["Guild Recruits"] = true
     GRM_L["Scanning for Guild Changes Now. One Moment..."] = true
     GRM_L["Breaking current Sync with {name}."] = true
     GRM_L["Breaking current Sync with the Guild..."] = true
@@ -361,8 +335,6 @@ GRML.Danish = function()
     GRM_L["No Players Currently Online to Sync With..."] = true
     GRM_L["No Addon Users Currently Compatible for FULL Sync."] = true
     GRM_L["SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted."] = true
-    GRM_L["There are No Current Applicants Requesting to Join the Guild."] = true
-    GRM_L["The Applicant List is Unavailable Without Having Invite Privileges."] = true
     GRM_L["Manual Scan Complete"] = true
     GRM_L["Analyzing guild for the first time..."] = true
     GRM_L["Building Profiles on ALL \"{name}\" members"] = true                 -- {name} will be the Guild Name, for context
@@ -371,11 +343,6 @@ GRML.Danish = function()
     GRM_L["{name} is now OFFLINE!"] = true
     GRM_L["{name} is No Longer AFK or Busy!"] = true
     GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = true
-    GRM_L["{name} is Already in Your Group!"] = true
-    GRM_L["GROUP NOTIFICATION:"] = true
-    GRM_L["Players Offline:"] = true
-    GRM_L["Players AFK:"] = true
-    GRM_L["40 players have already been invited to this Raid!"] = true
     GRM_L["Player should try to obtain group invite privileges."] = true
     GRM_L["{name}'s saved data has been wiped!"] = true
     GRM_L["Re-Syncing {name}'s Guild Data..."] = true
@@ -395,7 +362,6 @@ GRML.Danish = function()
     GRM_L["Triggers manual re-sync if sync is enabled"] = true
     GRM_L["Does a one-time manual scan for changes"] = true
     GRM_L["Displays current Addon version"] = true
-    GRM_L["Opens Guild Recruitment Window"] = true
     GRM_L["WARNING! complete hard wipe, including settings, as if addon was just installed."] = true;
 
     -- General Misc UI
@@ -463,8 +429,6 @@ GRML.Danish = function()
     GRM_L["center"] = true                          -- Context: "center" the movable addon window back to center of screen
     GRM_L["sync"] = true                            -- Context: "sync" the data between players one time now.
     GRM_L["scan"] = true                            -- Context: "scan" for guild roster changes one time now.
-    GRM_L["clearall"] = true                        -- Context: In regards, "Clear All" saved data
-    GRM_L["recruit"] = true                         -- Context: Open the roster "recruit" window where people request to join guild
 
     -- CLASSES
     GRM_L["Deathknight"] = true
@@ -487,7 +451,6 @@ GRML.Danish = function()
     GRM_L["February"] = true
     GRM_L["March"] = true
     GRM_L["April"] = true
-    GRM_L["May"] = true
     GRM_L["June"] = true
     GRM_L["July"] = true
     GRM_L["August"] = true
@@ -560,7 +523,6 @@ GRML.Danish = function()
     GRM_L["Player is Not Currently in a Guild"] = true
     -- tooltips
     GRM_L["|CFFE6CC7FClick|r to open GRM"] = true                           -- Please maintain the color coding
-    GRM_L["|CFFE6CC7FRight-Click|r and drag to move this button."] = true   -- Likewise, maintain color coding
     GRM_L["|CFFE6CC7FRight-Click|r to Reset to 100%"] = true                -- for the Options slider tooltip
     GRM_L["|CFFE6CC7FRight-Click|r to Sync Join Date with Alts"] = true
     GRM_L["|CFFE6CC7FRight-Click|r to Set Notification of Status Change"] = true
@@ -611,7 +573,6 @@ GRML.Danish = function()
     GRM_L["{name} has been removed from the database."] = true              -- The Guild Name has been removed from the database
 
     -- update 1.141
-    GRM_L["You will still share your data with the guild, but you are currently only accepting incoming changes from rank \"{name}\" or higher"] = true    -- Reminder, the backslash before a quotation denotes the string NOT to close, but to include the quotation in display txt
     GRM_L["Only Restrict Incoming Player Data to Rank Threshold, not Outgoing"] = true
     GRM_L["Total Entries: {num}"] = true
     GRM_L["Search Filter"] = true
@@ -643,9 +604,6 @@ GRML.Danish = function()
 
     -- update 1.145
     GRM_L["You currently are at {num} non-Battletag friends. To fully take advantage of all of GRM features, please consider clearing some room."] = true
-    GRM_L["Clear Space on Friends List to Find Online Status"] = true
-    GRM_L["Offline"] = true
-    GRM_L["{name} has requested to join the guild and is currently ONLINE!"] = true
 
     -- Update 1.146
     GRM_L["Really Clear line {num}?"] = true
@@ -656,7 +614,6 @@ GRML.Danish = function()
     GRM_L["Right-Click to Reset to 100%"] = true
 
     -- Update 1.147
-    GRM_L["|CFFE6CC7FClick|r to open Player Window"] = true
     GRM_L["|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player"] = true
 
     -- Update 1.1480
@@ -670,20 +627,15 @@ GRML.Danish = function()
     GRM_L["Sync Custom Notes"] = true
     GRM_L["Default Custom Note Rank Minimum"] = true
     GRM_L["Reset Default Custom Note Restrictions for ALL Guildies"] = true
-    GRM_L["Reset to Default"] = true
     GRM_L["Reset"] = true
     GRM_L["|CFF00CCFFDefault Selection For All Players"] = true
-    GRM_L["If sync was manually disabled for specific guildies, this does NOT enabled it."] = true
-    GRM_L["Custom note Sync has been reset to default"] = true
     GRM_L["Click here to set Custom Notes"] = true
     GRM_L["|CFF00CCFFCustom Note Defaults:"] = true
     GRM_L["|CFFE6CC7FLeft-Click|r to re-enable custom note sync for all"] = true
-    GRM_L["Custom Note Sync Disabled in Settings"] = true
     GRM_L["{name} modified {name2}'s CUSTOM Note: \"{custom1}\" was Added"] = true
     GRM_L["{name} modified {name2}'s CUSTOM Note: \"{custom1}\" was Removed"] = true
     GRM_L["{name} modified {name2}'s CUSTOM Note: \"{custom1}\" to \"{custom2}\""] = true
     GRM_L["Custom Note"] = true
-    GRM_L["Syncing Outgoing Data."] = true
     GRM_L["|CFFE6CC7FClick|r to Change Rank Restriction"] = true
     GRM_L["|CFFE6CC7FClick|r to Change Day"] = true
     GRM_L["|CFFE6CC7FClick|r to Change Month"] = true;
@@ -703,10 +655,6 @@ GRML.Danish = function()
     GRM_L["|CFFE6CC7FLeft-Click|r to Change the Language"] = true
     GRM_L["|CFFE6CC7FLeft-Click|r to Change Display Format"] = true
     GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = true
-    GRM_L["Unfortunately each player's data will need to be manually reconfigured."] = true
-    GRM_L["{num} custom {custom1} removed that matched text:"] = true                           -- custom1 = "note" or the plural "notes"
-    GRM_L["notes"] = true
-    GRM_L["Please add specific text, in quotations, to match"] = true
 
     -- R1.1490
     GRM_L["You will still share some outgoing data with the guild"] = true
@@ -716,8 +664,6 @@ GRML.Danish = function()
     GRM_L["It's almost time to celebrate {name}'s Birthday!"] = true          -- Custom1 is the actual date.  Like "1 Mar '18"
     GRM_L["Unique accounts pull from the server is known to be faulty"] = true
     GRM_L["Use only as an estimate. Hopefully Blizz fixes this soon"] = true
-    GRM_L["Guild member for over {num} year"] = true
-    GRM_L["Guild member for over {num} years"] = true   -- the plural version!
     GRM_L["Add Upcoming Events to the Calendar"] = true
     GRM_L["Player rank unable to add events to calendar"] = true
     GRM_L["Anniversaries, Birthdays, and Other Events can be added with permission"] = true
@@ -726,7 +672,6 @@ GRML.Danish = function()
     GRM_L["Check the \"Sync Users\" tab to find out why!"] = true
     GRM_L["Time as Member:"] = true
     GRM_L["|CFFE6CC7FClick|r to select player event"] = true
-    GRM_L["|CFFE6CC7FClick Again|r to open Player Window"] = true
     GRM_L["Timestamp Format:"] = true
     GRM_L["Hour Format:"] = true
     GRM_L["24 Hour"] = true
@@ -760,31 +705,16 @@ GRML.Danish = function()
     GRM_L["|CFFE6CC7FClick|r to sort Promotion Dates by Oldest"] = true
     GRM_L["|CFFE6CC7FClick|r to sort all Mains first"] = true
     GRM_L["|CFFE6CC7FClick|r to sort all Alts first."] = true
-    GRM_L["{name}'s Profile is Being Built. One Moment..."] = true
-    GRM_L["There are {num} players requesting to join your guild. You only have room for {custom1} more friends. Please consider cleaning up your friend and recruitment lists."] = true;
     GRM_L["{name}'s Alts"] = true                                   -- Like "Arkaan's Alts"
-    GRM_L["Online:  {num}/{custom1}"] = true                         -- As in "Online: 3/59"
-    GRM_L["Next"] = true                                            -- This means to Advance forward to the "next" one. It is used on recruitment window to move to NEXT online player.
-    GRM_L["Previous"] = true                                        -- Same context as the "next" except this one goes back to the one before.
-    GRM_L["There are currently no ONLINE recruits."] = true
-    GRM_L["There are currently no more players in that direction."] = true
-    GRM_L["You have reached the end of the list"] = true
-    GRM_L["You have reached the top of the list"] = true
-    GRM_L["Auto Open Window"] = true
-    GRM_L["Only if a player is online and you are not in combat"] = true
-    GRM_L["Recruit window will open when combat ends."] = true
     GRM_L["GRM window will open when combat ends."] = true
 
     -- R1.24
     GRM_L["This also will change the <Alt> format to match"] = true
     GRM_L["M"] = true                                           -- Of note, the "M" is short for "Main" and this is the reference to the main tag on alts in guild chat. For use in the Main tagging <M> (M) etc...
     GRM_L["A"] = true           
-    GRM_L["<M>"] = true                                         -- <M> appears for "Main"
-    GRM_L["<A>"] = true                                         -- This is the "Alt" tag on the Add Alt side window. For use in the Alt tagging <A> (A) etc...
 
     -- R1.25
     GRM_L["Include \"Joined:\" tag with the date."] = true                                          -- the \" is so you include the qutoations in the actual text. You need them or it closes the phrase.
-    GRM_L["Joined: {name}"] = true                                                                  -- {name} is actually in reference to the Data Format... So "Joined: 22 May '18"   {name} = "22 May '18"
     GRM_L["GRM Auto-Detect! {name} has joined the guild and will be set as Main"] = true            -- Main auto-detect message
 
     -- R1.26
@@ -803,30 +733,15 @@ GRML.Danish = function()
     GRM_L["Show Public, Officer, and Custom Notes on Log Entries of Left Players"] = true
     GRM_L["Hard Reset"] = true
     GRM_L["Hard reset of ALL GRM data, account-wide. Game will reload!"] = true
-    GRM_L["Reject\nAll"] = true                     -- This is the same as "Reject All" it just forces the 2 words to be on 2 separate lines without me adjusting the text width
-    GRM_L["{num} Applicants to the Guild have been denied"] = true
-    GRM_L["Do you really want to reject all applicants?"] = true
     GRM_L["Only recommend to kick if all player linked alts exceed max time"] = true
     GRM_L["Your Guild Leader Has Set Sync Restrictions to {name} or Higher"] = true
     GRM_L["Unable to Change Rank. Guild Leader has set restriction to {name} or higher"] = true     -- Like Initiate or higher
     GRM_L["Unable to Change Rank. Guild Leader has set restriction level."] = true
-    GRM_L["Unify Control Settings for all guildies with 'g#^X' commands"] = true
-    GRM_L["CONTROL TAGS:"] = true
     GRM_L["Force Settings with Guild Info Tags"] = true
-    GRM_L["X = index of minimum rank. Example: 0 = {name} and {num} = {name2}"] = true
-    GRM_L["'g2^X' - Establish minimum sync rank restriction for player details"] = true
-    GRM_L["'g3^X' - Establish minimum sync rank restriction for BAN info"] = true
-    GRM_L["'g4^X' - Establish minimum sync rank restriction for Custom Note info"] = true
     GRM_L["Warning! System messages are disabled! GRM cannot function fully without them. You must re-enable them in the chat settings."] = true
     GRM_L["Database Still Loading. GRM will open automatically when finished."] = true
 
     -- R1.29
-    GRM_L["Do you really want to invite all applicants?"] = true
-    GRM_L["There are currently 0 players online to invite."] = true
-    GRM_L["It appears all players are now offline."] = true
-    GRM_L["Invite\nAll"] = true                             -- Just makes it 2 lines - they \n is the line break. You can remove if not necessary, or include.
-    GRM_L["Include Message When Sending Invite"] = true
-    GRM_L["Click here to set custom invite message. Press Enter to save before sending invite!"] = true
     GRM_L["The highlighted character is not valid for messages. Please remove."] = true
     GRM_L["Not all characters are valid. Please remove any non-text characters."] = true
     GRM_L["Kick macro created. Press \"CTRL-SHIFT-K\" to kick all of {name}'s alts"] = true
@@ -837,7 +752,6 @@ GRML.Danish = function()
 
     -- R1.30
     GRM_L["Sync With {name} is Complete..."] = true
-    GRM_L["Database Still Loading. Please Wait..."] = true
     GRM_L["|CFFE6CC7FLeft-Click|r and drag to move this button."] = true
     GRM_L["|CFFE6CC7FCtrl-Left-Click|r and drag to move this button anywhere."] = true
     GRM_L["MOTD:"] = true       -- Message Of The Day = M.O.T.D = MOTD - 
@@ -847,17 +761,13 @@ GRML.Danish = function()
     GRM_L["Show 'Main' Tag on both Mains and Alts in Chat"] = true
 
     -- R1.32
-    GRM_L["Invites Currently Being Sent..."] = true
     GRM_L["GRM has moved the Guild Leader setting restriction codes to the Guild Info tab."] = true
     GRM_L["Please make room for them and re-add."] = true
-    GRM_L["Your Guild Leader has pushed a reset of your data."] = true;
     GRM_L["Your Guild Leader Has Set BAN Sync Restrictions to {name} or Higher"] = true
     GRM_L["Your Guild Leader Has Set CUSTOM NOTE Sync Restrictions to {name} or Higher"] = true
 
     -- R1.33
-    GRM_L["Invite all macro created. Press \"CTRL-SHIFT-K\" to invite all online recruits."] = true
     GRM_L["Macro will auto-remove after {num} seconds."] = true
-    GRM_L["UI"] = true
     GRM_L["UI Controls"] = true
     GRM_L["UI Configuration:"] = true
     GRM_L["Show Character Guild Reputation"] = true
@@ -921,12 +831,10 @@ GRML.Danish = function()
     -- R1.41
     GRM_L["{num} metadata profiles are being built for people previously in the guild. The data is being requested, but this may take some time."] = true                   -- PLURAL
     GRM_L["One metadata profile is being built for a player previously in the guild. The data is being requested, but this may take some time."] = true           -- SINGULAR, same line.
-    GRM_L["Sync will re-trigger one time, in a moment, to collect final data on these profiles."] = true
     GRM_L["Auto-Focus the search box"] = true
     GRM_L["This will skip the first time if set to load on logon"] = true  -- Referring to the auto-focusing on the search box, this is a tooltip helper
     GRM_L["Please enter a valid level between 1 and {num}"] = true
     GRM_L["Player's Main: {name}"] = true
-    GRM_L["Player's main no longer in the guild: {name}"] = true
 
     -- R1.43
     GRM_L["One moment, requesting additional details on {name} from the server. Ban List will soon update."] = true
@@ -962,7 +870,6 @@ GRML.Danish = function()
 
     -- 1.56
     -- More slash commands
-    GRM_L["recruits"] = true 
     GRM_L["kick"] = true
     GRM_L["ban"] = true
     GRM_L["audit"] = true
@@ -1000,7 +907,6 @@ GRML.Danish = function()
     GRM_L["|CFFE6CC7FShift-Click|r Second Button to Select All In-Between"] = true
     GRM_L["|CFFE6CC7FClick|r to select player"] = true
     GRM_L["|CFFE6CC7FCtrl-Click|r to open Player Window"] = true
-    GRM_L["Please manually select your guild in the Community Window for this feature to work"] = true
     GRM_L["Only Show Players With Incomplete Status"] = true
     GRM_L["{num} Join Dates Need Attention"] = true             -- In other words, "155 join dates need attention" as an example
     GRM_L["Do you really want to remove the join dates from notes other than the {name}?"] = true
@@ -1040,16 +946,12 @@ GRML.Danish = function()
 
     -- 1.57
     GRM_L["Full Log Message:"] = true
-    GRM_L["Public Notes"] = true
-    GRM_L["Officer Notes"] = true
-    GRM_L["Custom Notes"] = true
     GRM_L["Log Entry Tooltip"] = true
     GRM_L["1 entry has been removed from the log"] = true
     GRM_L["{num} entries have been removed from the log"] = true
 
     -- 1.58
     GRM_L["|CFFE6CC7FCtrl-Click|r to open the Old Guild Roster Window"] = true
-    GRM_L["Using the Old Guild Roster Interface instead"] = true
 
     -- 1.59
     GRM_L["Adding the Join Date cannot be disabled due to the global setting"] = true
@@ -1102,8 +1004,6 @@ GRML.Danish = function()
     GRM_L["No Current Names to Add"] = true
     GRM_L["No Names to Add to the Macro"] = true
     GRM_L["Hot Key: {name}"] = true
-    GRM_L["Press the Hot-key 1 time to complete all actions"] = true
-    GRM_L["Press the Hot-key {num} times to complete all actions"] = true
     GRM_L["Permissions"] = true
     GRM_L["Player rank change detected, re-checking permissions and rebuilding GRM Macro Tool."] = true
     GRM_L["Click to remove selected names from the macro"] = true           -- Plural form of statement
@@ -1166,7 +1066,6 @@ GRML.Danish = function()
     -- CLASSIC
     GRM_L["Social"] = true
     GRM_L["Roster"] = true
-    GRM_L["|CFFE6CC7FCtrl-Click|r to open the Guild Roster Window"] = true
     GRM_L["Feature is disabled in WoW Classic"] = true
     GRM_L["Feature is disabled in TBC Classic"] = true          -- Just laying groundwork now in case Blizz ever releases it. Calendar was not added until WOTLK
     GRM_L["There is no calendar to add events to"] = true
@@ -1207,9 +1106,7 @@ GRML.Danish = function()
     GRM_L["!note"] = true               -- !note in English will always work. This gives you the option of creating your own key to register a public note.
     GRM_L["No officer online to set {name}'s note"] = true
     GRM_L["No officer is currently online to update your note"] = true
-    GRM_L["Note updated by @{name}"] = true              -- As in "Note updated by @Arkaan"
     GRM_L["Allow Guild Members to Type \"!note\" to Set Their Own Public Note"] = true
-    GRM_L["'!note' trigger has been globally enabled"] = true
     GRM_L["Enabled"] = true         -- As in, the opposite of Disabled
     GRM_L["'!note' trigger has been globally ENABLED"] = true
     GRM_L["'!note' trigger has been globally DISABLED"] = true
@@ -1240,7 +1137,6 @@ GRML.Danish = function()
     GRM_L["*Max Export is 500 Log Entries at a Time"] = true
     GRM_L["*Max Export is 500 Members at a Time"] = true
     GRM_L["*Max Export is 500 Former Members at a Time"] = true
-    GRM_L["Log export follows the search and display settings"] = true
     GRM_L["*Export obeys the current log display filters"] = true
     GRM_L["Select Line Range:"] = true
     GRM_L["Select Member Range:"] = true
@@ -1260,7 +1156,6 @@ GRML.Danish = function()
     GRM_L["Clearing Log Export. A filter setting has been changed."] = true             -- If the filter settings have been modified, the export string should be cleared and re-done
     GRM_L["No Tag"] = true                                                              -- Main Tag
     GRM_L["Delimiter:"] = true                                                          -- Delimiter selection for Export window
-    GRM_L["|CFFE6CC7FClick|r to view more alt details."] = true                         -- Calendar tooltip
     GRM_L["|CFFE6CC7FRight-Click|r for additional options."] = true                     -- Also Calendar tooltip
     GRM_L["The selected delimiter will be removed from all notes on export"] = true
     GRM_L["Choose thoughtfully"] = true
@@ -1311,7 +1206,6 @@ GRML.Danish = function()
 
     -- 1.84
     GRM_L["The note is too long. Only the first {num} characters will be set."] = true
-    GRM_L["{name} Rule {num}"] = true
     GRM_L["Apply Only to Selected Ranks"] = true
     GRM_L["Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat."] = true
     GRM_L["No player data found, recommend full removal."] = true
@@ -1334,7 +1228,6 @@ GRML.Danish = function()
     GRM_L["Join Header"] = true;
     GRM_L["ReJoin Header"] = true;
     GRM_L["!note Control"] = true
-    GRM_L["(default)"] = true           -- as in, this setting is the DEFAULT setting.  Setting (default)
     GRM_L["You need to clear {num} characters to fit the control tags"] = true
     GRM_L["A new format exists for global settings controls."] = true
     GRM_L["Go to GRM window > Options > Officer Tab > \"Set Global Controls\""] = true
@@ -1365,7 +1258,6 @@ GRML.Danish = function()
 
     -- R1.87
     GRM_L["Kick Rule {num}"] = true         -- Exampe: Kick Rule 1
-    GRM_L["Edit Custom Rule"] = true
     GRM_L["|CFFE6CC7FLeft-Click|r to Disable Rule"] = true
     GRM_L["|CFFE6CC7FLeft-Click|r to Enable Rule"] = true
     GRM_L["Edit"] = true
@@ -1391,43 +1283,11 @@ GRML.Danish = function()
     GRM_L["Note match: {name}"] = true                                  -- Same
     GRM_L["Matching Rank"] = true                                       -- ''
     GRM_L["Right-Click|r to Edit or Remove custom rule"] = true         -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
-    GRM_L["{name} matches the paramaters of {num} of your macro tool rules. Kick Recommended!"] = true
     GRM_L["|CFFE6CC7FClick|r to Change"] = true
     GRM_L["(Applies Only to Classic)"] = true           -- For the Options... rather than removing them all
     
     -- R1.872
     -- Group Info Module
-    GRM_L["GRM Info"] = true
-    GRM_L["GRM Group Info"] = true
-    GRM_L["Group Info"] = true
-    GRM_L["Click to Lock Info Window"] = true
-    GRM_L["Total in Group: {num}"] = true
-    GRM_L["Guildies: {num}"] = true
-    GRM_L["Former Guildies: {num}"] = true
-    GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
-    GRM_L["Other Connected Realm Members: {num}"] = true
-    GRM_L["Total in Group: {num}"] = true
-    GRM_L["Date Left"] = true
-    GRM_L["1 Alt Still in Guild"] = true
-    GRM_L["{num} Alts Still in Guild"] = true
-    GRM_L["Known Alts:"] = true
-    GRM_L["Close Enough to Trade"] = true
-    GRM_L["Plugins"] = true         -- plural
-    GRM_L["Plugin"] = true          -- Singular
-    GRM_L["Module"] = true
-    GRM_L["GRM Optional Modules"] = true
-    GRM_L["Enable Module"] = true
-    GRM_L["Show Interactable Distance Indicator"] = true
-    GRM_L["No GRM Modules Currently Installed"] = true
-    GRM_L["Recruitment"] = true
-    GRM_L["Pending Feature"] = true
-    GRM_L["Custom Color"] = true
-    GRM_L["{name} is listed as the Main"] = true
-    GRM_L["Kick Banned in Guild"] = true
-    GRM_L["Kick macro created. Press Hotkey to Remove Banned Players Still in Guild"] = true
-    GRM_L["Easily remove all Banned players still in the Guild with the Macro Tool"] = true
-    GRM_L["GRM will automatically send messages to the \"{name}\" window if you remove all custom channels."] = true
-    GRM_L["Multi-Channel support. Just separate with commas"] = true
 
     -- R1.88
     -- Group Info Module
@@ -1435,7 +1295,6 @@ GRML.Danish = function()
     GRM_L["GRM Group Info"] = true
     GRM_L["Group Info"] = true
     GRM_L["Click to Lock Info Window"] = true
-    GRM_L["Total in Group: {num}"] = true
     GRM_L["Guildies: {num}"] = true
     GRM_L["Former Guildies: {num}"] = true
     GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
@@ -1453,7 +1312,6 @@ GRML.Danish = function()
     GRM_L["Enable Module"] = true
     GRM_L["Show Interactable Distance Indicator"] = true
     GRM_L["No GRM Modules Currently Installed"] = true
-    GRM_L["Recruitment"] = true
     GRM_L["Pending Feature"] = true
     GRM_L["Custom Color"] = true
     GRM_L["{name} is listed as the Main"] = true
@@ -1514,7 +1372,6 @@ GRML.Danish = function()
     GRM_L["Notify if at Rank for {num} {name}"] = true      -- "Notify if at Rank for 30 Days" or "Notify if at Rank for 12 Months" 
     GRM_L["Player Guild Rep is"] = true         -- Ex: "Player Guild Rep is < Honored" or "Player Guild Rep is = Neutral"  -- Dropdown selection options immediately follow this line. If ordering of boxes before the line would be better, please inform me and I can accomadate your localization efforts
     GRM_L["|CFFE6CC7FClick|r to Change Rep"] = true
-    GRM_L["Guild Rep: {name}"] = true
     GRM_L["Guild Rep:"] = true
     GRM_L["Guild Rep lower than {name}"] = true
     GRM_L["Guild Rep equal to {name}"] = true
@@ -1526,7 +1383,6 @@ GRML.Danish = function()
     GRM_L["{name} matches {num} macro tool rule. Kick Recommended!"] = true
     -- Classic Only
     GRM_L["Shift Rank Up"] = true
-    GRM_L["Shift Rank Down"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted up from rank {num} to {custom1}"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted lower from rank {num} to {custom1}"] = true
     GRM_L["After shifting the rank up by 1, the window will automatically close"] = true
@@ -1534,6 +1390,15 @@ GRML.Danish = function()
     GRM_L["Addon restrictions require manual selection of guild rank"] = true
     GRM_L["Shift Rank Down"] = true
 
-
+        -- R1.90
+    GRM_L["Promotion and demotion mass macros are not yet implemented"] = true
+    GRM_L["Suggestions on kick filters? Submit to Discord"] = true
+    GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = true
+    GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true      -- if sync is triggered after logon too soon
+    GRM_L["Type '/grm sync' to initiate a one-time sync."] = true
+    -- Due to language differences on the edit box, this is to explain where to put the edit box. In Englist it will appear: "Auto Trigger Sync [ 30 ] Seconds After Logging On" - Please place the edit box in the appropriate position for your translation.
+    GRM_L["Before Auto Trigger"] = "Auto Trigger Sync"                  
+    GRM_L["After Auto Trigger"] = "Seconds After Logging On"
+    GRM_L["Report When Other Members Have Outdated Versions"] = true
     
 end
