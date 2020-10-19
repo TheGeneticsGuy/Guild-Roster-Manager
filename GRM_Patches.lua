@@ -822,14 +822,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-
-    if numericV < 1.912 and baseValue < 1.912 then
-        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRuleOperator );
-
-        if loopCheck ( 1.912 ) then
-            return;
-        end
-    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -5063,17 +5055,4 @@ GRM_Patch.AdjustLevelCapDueToSquish = function ( levelReportMin )
         levelReportMin = 50;    -- Set it to current cap
     end
     return levelReportMin;
-end
-
--- 1.912
--- Method:          GRM_Patch.AddKickRuleOperator()
--- What it Does:    Adds a new kickRuleOption
--- Purpose:         AddMoreFilters
-GRM_Patch.AddKickRuleOperator = function ( kickRules )
-    for name in pairs ( kickRules ) do 
-        if not kickRules[name].repOperator then
-            kickRules[name].repOperator = 2;        -- lesser, equals, greater  2 is equals
-        end
-    end
-    return kickRules
 end

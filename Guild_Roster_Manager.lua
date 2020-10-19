@@ -29,9 +29,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "9.0R1.913";
-GRM_G.PatchDay = 1603044995;             -- In Epoch Time
-GRM_G.PatchDayString = "1603044995";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "9.0R1.91";
+GRM_G.PatchDay = 1602641323;             -- In Epoch Time
+GRM_G.PatchDayString = "1602641323";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "9.0.1";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -1022,60 +1022,6 @@ GRM.FinalSettingsConfigurations = function()
 
     
 end
-
--------------------------------------
--------- BUILD COMPATIBILITY --------
--------------------------------------
-
--- ALL these functions are to deal with possibility of Retail and Classic backend APIs no longer being sync'd the same. When 9.0 launched October 2020 the underlying API was changed for many things, but Classic did not receive those updates. It is assumed those will eventually be made the same again in future updates for Classic. By Wrapping them in a GRM function it can be easy to control by just needing to update them here rather than addon-wide.
-
-GRM.CanViewOfficerNote = function()
-    if C_GuildInfo.CanViewOfficerNote then
-        return C_GuildInfo.CanViewOfficerNote();
-    else
-        return CanViewOfficerNote();
-    end
-end
-
-GRM.CanEditOfficerNote = function()
-    if C_GuildInfo.CanEditOfficerNote then
-        return C_GuildInfo.CanEditOfficerNote();
-    else
-        return CanEditOfficerNote();
-    end
-end
-
-GRM.GuildRoster = function()
-    if C_GuildInfo.GuildRoster then
-        C_GuildInfo.GuildRoster();
-    else
-        GuildRoster();
-    end
-end
-
-GRM.GetTodaysDate = function()
-    local calendarTime;
-
-    if C_DateAndTime.GetCurrentCalendarTime then
-        calendarTime = C_DateAndTime.GetCurrentCalendarTime();
-        return calendarTime.weekday, calendarTime.month, calendarTime.monthDay, calendarTime.year;
-    else
-        calendarTime = C_DateAndTime.GetTodaysDate();
-        return calendarTime.weekDay, calendarTime.month, calendarTime.day, calendarTime.year;
-    end
-end
-
-GRM.GetCurrentCalendarTime = function()
-    if C_DateAndTime.GetCurrentCalendarTime then
-        return C_DateAndTime.GetCurrentCalendarTime();
-    else
-        return C_DateAndTime.GetTodaysDate();
-    end
-end
-
----------------------------------------
------ END OF BUILD COMPAT... ----------
----------------------------------------
 
 -- What it Deos:    Initializes chat coloring controls for classic
 -- Purpose:         Quality of life control
@@ -2608,7 +2554,7 @@ end
 -- Purpose:         Group management info and reporting. Pretty much some UI features, but possibly will be expanded upon.
 GRM.GetAllGuildiesOnline = function( fullNameNeeded )
     if not GRM.IsCalendarEventEditOpen() then
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
     end
     local listOfNames = {};
     for i = 1 , GRM.GetNumGuildies() do
@@ -2723,7 +2669,7 @@ end
 -- Purpose:         Useful to have an alphabetized list of guildies :)
  GRM.GetAllGuildiesInOrder = function( fullNameNeeded , fromAtoZ )
     if not GRM.IsCalendarEventEditOpen() then
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
     end
     local listOfGuildies = {};
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
@@ -3187,7 +3133,7 @@ end
 -- Purpose:         If guild chat channel is restricted then sync cannot be enabled either...
 GRM.RegisterGuildChatPermission = function()
     GRM_G.HasAccessToGuildChat = C_GuildInfo.CanSpeakInGuildChat();
-    if GRM.CanEditOfficerNote() then
+    if C_GuildInfo.CanEditOfficerNote() then
         GRM_G.HasAccessToOfficerChat = true;
     end
 end
@@ -3243,7 +3189,7 @@ end
 -- Purpose:         It is useful to save resources and for knowledge to know if a player is currently online or not. No need to scan certain things wastefully if they are offline.
 GRM.IsGuildieOnline = function ( name )
     if not GRM.IsCalendarEventEditOpen() then
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
     end
     local result = false;
     for i = 1 , GRM.GetNumGuildies() do
@@ -4437,7 +4383,9 @@ end
 ------------------------------------
 
 GRM.CalendarGetDate = function()
-    return GRM.GetTodaysDate();
+	local calendarTime = C_DateAndTime.GetCurrentCalendarTime();
+
+    return calendarTime.weekday, calendarTime.month, calendarTime.monthDay, calendarTime.year;
 end
 
 -- Method:          GRM.IsLeapYear(int)
@@ -6251,7 +6199,7 @@ GRM.CopyFromPromoDate = function()
                         noteDate = t;
                     end
 
-                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and C_GuildInfo.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                         noteDestination = "officer";
                         GuildRosterSetOfficerNote( h , noteDate );
                         GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( noteDate );
@@ -12008,7 +11956,7 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
             if ( player.note ~= nil and player.note ~= "" ) then
                 p = player.note;                
             end
-            if ( player.officerNote ~= nil and player.officerNote ~= "" and GRM.CanViewOfficerNote() ) then
+            if ( player.officerNote ~= nil and player.officerNote ~= "" and C_GuildInfo.CanViewOfficerNote() ) then
                 o = player.officerNote;
             end
         end
@@ -12044,7 +11992,7 @@ GRM.RecordLeftGuildChanges = function ( unitName , dateArray , isLiveDetection )
             if ( player.note ~= nil and player.note ~= "" ) then
                 p = player.note;                
             end
-            if ( player.officerNote ~= nil and player.officerNote ~= "" and GRM.CanViewOfficerNote() ) then
+            if ( player.officerNote ~= nil and player.officerNote ~= "" and C_GuildInfo.CanViewOfficerNote() ) then
                 o = player.officerNote;
             end
             if player.customNote[6] ~= "" then
@@ -12277,7 +12225,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                                 noteToSet = t;
                             end
 
-                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and  GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
+                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and  C_GuildInfo.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                                 officerNoteIsSet = true;
                                 GuildRosterSetOfficerNote( member.rosterSelection , noteToSet );
                             elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 and CanEditPublicNote() and ( note == "" or note == nil ) then
@@ -12446,7 +12394,7 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
         if added and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote and ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 ) then
             local name ,_,_,_,_,_, note , oNote = GetGuildRosterInfo ( member.rosterSelection );
             if name == member.name then
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
+                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and C_GuildInfo.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                     GuildRosterSetOfficerNote( member.rosterSelection , finalTStamp );
                     officerNoteIsSet = true
                     if scanUpdate then
@@ -12557,7 +12505,7 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
             if not scanUpdate and added then
                 if currentOfficerNote == nil or currentOfficerNote == "" then
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote then
-                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( player.officerNote == "" or player.officerNote == nil ) then
+                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and C_GuildInfo.CanEditOfficerNote() and ( player.officerNote == "" or player.officerNote == nil ) then
                             player.officerNote = finalTStamp;
                         elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 and CanEditPublicNote() and ( player.note == "" or player.note == nil ) then
                             player.note = finalTStamp;
@@ -12568,7 +12516,7 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
 
                 elseif currentOfficerNote ~= nil and currentOfficerNote ~= "" then
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote then
-                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( player.officerNote == "" or player.officerNote == nil ) then
+                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and C_GuildInfo.CanEditOfficerNote() and ( player.officerNote == "" or player.officerNote == nil ) then
                             player.officerNote = currentOfficerNote;
                         elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 and CanEditPublicNote() and ( player.note == "" or player.note == nil ) then
                             player.note = currentPublicNote;
@@ -13087,7 +13035,7 @@ GRM.CheckPlayerChanges = function ( roster )
                 -- No need to do any of this if they haven't logged in... the only potential change necessary to check would be public/officer note as that is the only thing that can change when offline.
                 -- This boolean is all about massive resource saving
                 -- if online, or hours since last logged is different or public note is different or officer note is different and you can read it.
-                if roster[x].isOnline or roster[x].rankName ~= player.rankName or roster[x].rankIndex ~= player.rankIndex or roster[x].level ~= player.level or roster[x].note ~= player.note or roster[x].class ~= player.class or ( roster[x].officerNote ~= player.officerNote and GRM.CanViewOfficerNote() ) then
+                if roster[x].isOnline or roster[x].rankName ~= player.rankName or roster[x].rankIndex ~= player.rankIndex or roster[x].level ~= player.level or roster[x].note ~= player.note or roster[x].class ~= player.class or ( roster[x].officerNote ~= player.officerNote and C_GuildInfo.CanViewOfficerNote() ) then
 
                     for k = 2 , 7 do
                         if k < 7 then -- CHANGE FOUND! New info and old info are not equal!
@@ -13177,15 +13125,15 @@ GRM.CheckPlayerChanges = function ( roster )
 
                             -- Level
                             elseif k == 4 and roster[x].level ~= player.level then
-                                if roster[x].level > player.level and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].recordLevelUp then
+                                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].recordLevelUp then
                                     local needsToRecord = false;
-                                    local mileStones = { 10 , 20 , 30 , 40 , 50 };
+                                    local mileStones = { 60 , 70 , 80 , 85 , 90 , 100 , 110 };
                                     local level = 0;
 
                                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].levelReportMin <= roster[x].level then
                                         needsToRecord = true
                                     else
-                                        for i = ( #mileStones ) , 1 , -1 do
+                                        for i = ( #GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].levelFilters - 1 ) , 1 , -1 do
                                             if roster[x].level >= mileStones[i] and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].levelFilters[i] and player.level < mileStones[i] then
                                                 needsToRecord = true;
                                                 level = mileStones[i];
@@ -13236,7 +13184,7 @@ GRM.CheckPlayerChanges = function ( roster )
                                 end
 
                             -- Officer Note
-                            elseif k == 6 and GRM.CanViewOfficerNote() then
+                            elseif k == 6 and C_GuildInfo.CanViewOfficerNote() then
                                 if roster[x].officerNote == nil or player.officerNote == nil then
                                     player.officerNote = roster[x].officerNote;
                                 else
@@ -13263,7 +13211,7 @@ GRM.CheckPlayerChanges = function ( roster )
                                 end
                                 if GRM_UI.GRM_MemberDetailroster ~= nil and GRM_UI.GRM_MemberDetailroster:IsVisible() and GRM_G.currentName == roster[x].name then
                                     if roster[x].officerNote == "" then
-                                        if GRM.CanEditOfficerNote() then
+                                        if C_GuildInfo.CanEditOfficerNote() then
                                             GRM_UI.GRM_MemberDetailroster[x].GRM_noteFontString2:SetText ( GRM.L ( "Click here to set an Officer's Note" ) );
                                         else
                                             GRM_UI.GRM_MemberDetailroster[x].GRM_noteFontString2:SetText ( GRM.L ( "Unable to Edit Officer Note at Rank" ) );
@@ -13360,7 +13308,7 @@ GRM.CheckPlayerChanges = function ( roster )
                     return;
                 end
 
-                -- Final check on players that left the guild to see if they are namechanges.GRM.CanViewOfficerNote
+                -- Final check on players that left the guild to see if they are namechanges.C_GuildInfo.CanViewOfficerNote
                 local playerNotMatched = true;
                 if #GRM_G.leavingPlayers > 0 and #GRM_G.newPlayers > 0 then
                     for k = 1 , #GRM_G.leavingPlayers do
@@ -13584,7 +13532,7 @@ GRM.BuildNewRoster = function()
         roster[name].rankIndex = rankInd;                           -- 3
         roster[name].level = level;                                 -- 4
         roster[name].note = note;                                   -- 5
-        if GRM.CanViewOfficerNote() then -- Officer Note permission to view.
+        if C_GuildInfo.CanViewOfficerNote() then -- Officer Note permission to view.
             roster[name].officerNote = officerNote;                 -- 6
         else
             roster[name].officerNote = nil; -- Set Officer note to nil if needed due to player not being able to view. - If it is set to "" then player will think it is changing.
@@ -13786,7 +13734,7 @@ GRM.NotificationIndependentChecker = function()
         end
 
         C_Timer.After ( timer , function()     -- Guild Roster only updates once per 10 seconds
-            GRM.GuildRoster();
+            C_GuildInfo.GuildRoster();
             C_Timer.After ( 1 , function()
                 GRM.NotificationIndependentChecker();
             end);
@@ -14137,7 +14085,7 @@ end
 --                  This takes the player's event month, substracts the current month, thus finding the index you want to place the month (Example, August is month index 1, since it is +1 of this month)
 -- Purpose:         For event tracking for the calendar event add buttons
 GRM.ConvertMonthToSelectedCalendarMonth = function ( monthIndex )
-    return monthIndex - GRM.GetCurrentCalendarTime().month;
+    return monthIndex - C_DateAndTime.GetCurrentCalendarTime().month;
 end
 
 -- Method:          GRM.IsCalendarEventAlreadyAdded ( string , int , int , int )
@@ -15182,14 +15130,14 @@ GRM.convertToArrayFormat = function()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local i = 1;
 
-    for x , player in pairs ( guildData ) do
+    for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             GRMsyncGlobals.guildData[i] = player;
             i = i + 1;
         end
     end
     sort ( GRMsyncGlobals.guildData , function ( a , b ) return a.name < b.name end );
-    -- table.insert ( GRMsyncGlobals.guildData , 1 , { GRM_G.guildName } );
+    table.insert ( GRMsyncGlobals.guildData , 1 , { GRM_G.guildName } );
 
     guildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
 
@@ -15201,7 +15149,7 @@ GRM.convertToArrayFormat = function()
         end
     end
     sort ( GRMsyncGlobals.formerGuildData , function ( a , b ) return a.name < b.name end );
-    -- table.insert ( GRMsyncGlobals.formerGuildData , 1 , { GRM_G.guildName } );
+    table.insert ( GRMsyncGlobals.formerGuildData , 1 , { GRM_G.guildName } );
 end
 
 -- Method:          GRM.BuildExportMemberDetails( int )
@@ -15231,17 +15179,17 @@ GRM.BuildExportMemberDetails = function( currentMembers )
         roster = GRMsyncGlobals.formerGuildData;
     end
 
-    local num1 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
-    local num2 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
+    local num1 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() ) + 1;
+    local num2 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() ) + 1;
     GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( "" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetSize ( scrollWidth , 12 );   -- Default Size at one line
 
     local mainOnly , altOnly = false , false;
 
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[17] then
-        mainOnly = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[19];
+        mainOnly = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[18];
 
-        if not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[19] then
+        if not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[18] then
             altOnly = true;
         end
     end
@@ -15277,176 +15225,178 @@ GRM.BuildExportMemberDetails = function( currentMembers )
         completeString = GRM.ExportMemberDetailsHeaders ( true ) .. "\n";
     end
 
-    for i = num1 , num2 do
-        playerDetails = "";
-        sex = "";
-        if num1 <= #roster then
-            
-            if isValid ( roster[i] ) then
+    if num1 > 1 and num2 > 1 then
+        for i = num1 , num2 do
+            playerDetails = "";
+            sex = "";
+            if num1 <= #roster then
+                
+                if isValid ( roster[i] ) then
 
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[1] then
-                    if isMergedRealm then
-                        playerDetails = playerDetails .. roster[i].name .. delimiter;                                   -- name
-                    else
-                        playerDetails = playerDetails .. GRM.SlimName ( roster[i].name ) .. delimiter;                  -- name
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[2] then
-                    playerDetails = playerDetails .. roster[i].rankName .. delimiter;                                   -- rank
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[3] then
-                    playerDetails = playerDetails .. roster[i].level .. delimiter;                                      -- level
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[4] then
-                    playerDetails = playerDetails .. C_CreatureInfo.GetClassInfo ( classFileIDEnum[roster[i].class] ).className .. delimiter;   -- class
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[15] then
-                    if roster[i].race ~= "" then 
-                        playerDetails = playerDetails .. C_CreatureInfo.GetRaceInfo ( raceIDEnum[roster[i].race] ).raceName .. delimiter;   -- Race
-                    else
-                        playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[16] then
-                    if roster[i].sex ~= 1 then
-                        sex = GRM.GetSex ( roster[i].sex );
-                        playerDetails = playerDetails .. sex .. delimiter;   -- Sex
-                    else
-                        playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[5] then
-                    if roster[i].lastOnline < 24 then
-                        playerDetails = playerDetails .. GRM.Round ( roster[i].lastOnline / 24 , 2 ) .. delimiter;         -- Last Online  (in days, round to 2)
-                    else
-                        playerDetails = playerDetails .. math.floor ( ( roster[i].lastOnline / 24 ) + 0.5 ) .. delimiter;  -- keep it rounded to the nearest integer
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[6] then                                   -- Main or Alt
-                    if roster[i].isMain then
-                        playerDetails = playerDetails .. GRM.L ( "Main" ) .. delimiter;
-                    else
-
-                        if isAnAlt ( roster[i] ) then
-                            playerDetails = playerDetails .. GRM.L ( "Alt" ) .. delimiter;
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[1] then
+                        if isMergedRealm then
+                            playerDetails = playerDetails .. roster[i].name .. delimiter;                                   -- name
                         else
-                            playerDetails = playerDetails .. delimiter;
+                            playerDetails = playerDetails .. GRM.SlimName ( roster[i].name ) .. delimiter;                  -- name
                         end
                     end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[14] then                                  -- Player Alts
-                    if #roster[i].alts > 0 then
-                        altList = {};
-                        altString = "";
-
-                        for j = 1 , #roster[i].alts do
-                            table.insert ( altList , roster[i].alts[j][1] );
-                            if roster[i].alts[j][5] then
-                                altList[#altList] = altList[#altList] .. GRM.L ( "(main)" );
-                            end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[2] then
+                        playerDetails = playerDetails .. roster[i].rankName .. delimiter;                                   -- rank
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[3] then
+                        playerDetails = playerDetails .. roster[i].level .. delimiter;                                      -- level
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[4] then
+                        playerDetails = playerDetails .. C_CreatureInfo.GetClassInfo ( classFileIDEnum[roster[i].class] ).className .. delimiter;   -- class
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[15] then
+                        if roster[i].race ~= "" then 
+                            playerDetails = playerDetails .. C_CreatureInfo.GetRaceInfo ( raceIDEnum[roster[i].race] ).raceName .. delimiter;   -- Race
+                        else
+                            playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
                         end
-                        sort ( altList );
-                        
-                        for j = 1 , #altList do
-                            if j < #altList then
-                                altString = altString .. altList[j] .. separator;
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[16] then
+                        if roster[i].sex ~= 1 then
+                            sex = GRM.GetSex ( roster[i].sex );
+                            playerDetails = playerDetails .. sex .. delimiter;   -- Sex
+                        else
+                            playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
+                        end
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[5] then
+                        if roster[i].lastOnline < 24 then
+                            playerDetails = playerDetails .. GRM.Round ( roster[i].lastOnline / 24 , 2 ) .. delimiter;         -- Last Online  (in days, round to 2)
+                        else
+                            playerDetails = playerDetails .. math.floor ( ( roster[i].lastOnline / 24 ) + 0.5 ) .. delimiter;  -- keep it rounded to the nearest integer
+                        end
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[6] then                                   -- Main or Alt
+                        if roster[i].isMain then
+                            playerDetails = playerDetails .. GRM.L ( "Main" ) .. delimiter;
+                        else
+
+                            if isAnAlt ( roster[i] ) then
+                                playerDetails = playerDetails .. GRM.L ( "Alt" ) .. delimiter;
                             else
-                                altString = altString .. altList[j];            -- No need to add a comma at the end of the list
+                                playerDetails = playerDetails .. delimiter;
                             end
                         end
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[14] then                                  -- Player Alts
+                        if #roster[i].alts > 0 then
+                            altList = {};
+                            altString = "";
 
-                        playerDetails = playerDetails .. altString .. delimiter;
-                    else
-                        playerDetails = playerDetails .. delimiter;
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[7] then                                   -- Join Date
-                    if roster[i].joinDateUnknown then
-                        playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
-                    else
-                        if #roster[i].joinDate == 0 then
-                            playerDetails = playerDetails .. delimiter;
-                        else
-                            playerDetails = playerDetails .. ( GRM.DateUntrustedTag ( roster[i].verifiedJoinDate ) .. GRM.FormatTimeStamp ( roster[i].joinDate[#roster[i].joinDate] , false ) ) .. delimiter;
-                        end
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[8] then                                   -- Promo Date
-                    if roster[i].promoteDateUnknown then
-                        playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
-                    else
-                        if roster[i].verifiedPromoteDate[1] == "" then      --- Promotion has never been recorded!
-                            playerDetails = playerDetails .. delimiter;
-                        else
-                            playerDetails = playerDetails .. ( GRM.DateUntrustedTag ( roster[i].verifiedPromoteDate ) .. GRM.FormatTimeStamp ( roster[i].verifiedPromoteDate[1] , false ) ) .. delimiter;
-                        end
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[18] then                                   -- Rank History
-                    rankHistory = GRM.GetRankHistory ( roster[i] , delimiter );
-                    if #rankHistory == 0 then
-                        playerDetails = playerDetails .. delimiter
-                    else
-                        playerDetails = playerDetails .. rankHistory .. delimiter;
-                    end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[9] then                                   -- Birthday
-                    if roster[i].birthdayUnknown then
-                        playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
-                    else
-                        -- Checking button vs text
-                        if roster[i].events[2][1][1] ~= 0 then
-                            playerDetails = playerDetails .. GRM.FormatTimeStamp ( roster[i].events[2][3] , false , true ) .. delimiter;
+                            for j = 1 , #roster[i].alts do
+                                table.insert ( altList , roster[i].alts[j][1] );
+                                if roster[i].alts[j][5] then
+                                    altList[#altList] = altList[#altList] .. GRM.L ( "(main)" );
+                                end
+                            end
+                            sort ( altList );
+                            
+                            for j = 1 , #altList do
+                                if j < #altList then
+                                    altString = altString .. altList[j] .. separator;
+                                else
+                                    altString = altString .. altList[j];            -- No need to add a comma at the end of the list
+                                end
+                            end
+
+                            playerDetails = playerDetails .. altString .. delimiter;
                         else
                             playerDetails = playerDetails .. delimiter;
                         end
                     end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[10] then
-                    if GRM_G.BuildVersion >= 40000 then                                                             -- Reputation (Cataclysm or higher)
-                        playerDetails = playerDetails .. GRM.GetReputationTextLevel ( roster[i].guildRep , false ) .. delimiter;
-                    else
-                        playerDetails = playerDetails .. delimiter;
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[7] then                                   -- Join Date
+                        if roster[i].joinDateUnknown then
+                            playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
+                        else
+                            if #roster[i].joinDate == 0 then
+                                playerDetails = playerDetails .. delimiter;
+                            else
+                                playerDetails = playerDetails .. ( GRM.DateUntrustedTag ( roster[i].verifiedJoinDate ) .. GRM.FormatTimeStamp ( roster[i].joinDate[#roster[i].joinDate] , false ) ) .. delimiter;
+                            end
+                        end
                     end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[11] then                                  -- Public Note
-                    if roster[i].note ~= nil and roster[i].note ~= "" then
-                        playerDetails = playerDetails .. string.gsub ( roster[i].note , delimiter , "" ) .. delimiter;
-                    else
-                        playerDetails = playerDetails .. delimiter;
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[8] then                                   -- Promo Date
+                        if roster[i].promoteDateUnknown then
+                            playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
+                        else
+                            if roster[i].verifiedPromoteDate[1] == "" then      --- Promotion has never been recorded!
+                                playerDetails = playerDetails .. delimiter;
+                            else
+                                playerDetails = playerDetails .. ( GRM.DateUntrustedTag ( roster[i].verifiedPromoteDate ) .. GRM.FormatTimeStamp ( roster[i].verifiedPromoteDate[1] , false ) ) .. delimiter;
+                            end
+                        end
                     end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[12] then                                  -- Officer Note
-                    if GRM.CanViewOfficerNote() and roster[i].officerNote ~= nil and roster[i].officerNote ~= "" then
-                        playerDetails = playerDetails .. string.gsub ( roster[i].officerNote , delimiter , "" ) .. delimiter;
-                    else
-                        playerDetails = playerDetails .. delimiter;
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[18] then                                   -- Rank History
+                        rankHistory = GRM.GetRankHistory ( roster[i] , delimiter );
+                        if #rankHistory == 0 then
+                            playerDetails = playerDetails .. delimiter
+                        else
+                            playerDetails = playerDetails .. rankHistory .. delimiter;
+                        end
                     end
-                end
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[13] then                                  -- Custom Note
-                    if roster[i].customNote[6] ~= "" then
-                        playerDetails = playerDetails .. string.gsub ( string.gsub ( roster[i].customNote[6] , "\n" , separator ) , delimiter , "" ) .. delimiter;
-                    else 
-                        playerDetails = playerDetails .. delimiter;
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[9] then                                   -- Birthday
+                        if roster[i].birthdayUnknown then
+                            playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
+                        else
+                            -- Checking button vs text
+                            if roster[i].events[2][1][1] ~= 0 then
+                                playerDetails = playerDetails .. GRM.FormatTimeStamp ( roster[i].events[2][3] , false , true ) .. delimiter;
+                            else
+                                playerDetails = playerDetails .. delimiter;
+                            end
+                        end
                     end
-                end                    
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[10] then
+                        if GRM_G.BuildVersion >= 40000 then                                                             -- Reputation (Cataclysm or higher)
+                            playerDetails = playerDetails .. GRM.GetReputationTextLevel ( roster[i].guildRep , false ) .. delimiter;
+                        else
+                            playerDetails = playerDetails .. delimiter;
+                        end
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[11] then                                  -- Public Note
+                        if roster[i].note ~= nil and roster[i].note ~= "" then
+                            playerDetails = playerDetails .. string.gsub ( roster[i].note , delimiter , "" ) .. delimiter;
+                        else
+                            playerDetails = playerDetails .. delimiter;
+                        end
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[12] then                                  -- Officer Note
+                        if C_GuildInfo.CanViewOfficerNote() and roster[i].officerNote ~= nil and roster[i].officerNote ~= "" then
+                            playerDetails = playerDetails .. string.gsub ( roster[i].officerNote , delimiter , "" ) .. delimiter;
+                        else
+                            playerDetails = playerDetails .. delimiter;
+                        end
+                    end
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[13] then                                  -- Custom Note
+                        if roster[i].customNote[6] ~= "" then
+                            playerDetails = playerDetails .. string.gsub ( string.gsub ( roster[i].customNote[6] , "\n" , separator ) , delimiter , "" ) .. delimiter;
+                        else 
+                            playerDetails = playerDetails .. delimiter;
+                        end
+                    end                    
 
-                if #playerDetails > 0 then
-                    local modifier = 1;
+                    if #playerDetails > 0 then
+                        local modifier = 1;
 
-                    if delimiter == "||" or delimiter == "\\t" or delimiter == "::" then
-                        modifier = 2;
+                        if delimiter == "||" or delimiter == "\\t" or delimiter == "::" then
+                            modifier = 2;
+                        end
+                        playerDetails = string.sub ( playerDetails , 1 , #playerDetails - modifier );  -- eliminate the last delimiter
+                        if i < num2 then
+                            completeString = completeString .. playerDetails .. "\n";
+                        else
+                            completeString = completeString .. playerDetails;               -- Don't need to add the line break at the end.
+                        end 
                     end
-                    playerDetails = string.sub ( playerDetails , 1 , #playerDetails - modifier );  -- eliminate the last delimiter
-                    if i < num2 then
-                        completeString = completeString .. playerDetails .. "\n";
-                    else
-                        completeString = completeString .. playerDetails;               -- Don't need to add the line break at the end.
-                    end 
                 end
+            else
+                break;
             end
-        else
-            break;
         end
     end
 
@@ -16042,7 +15992,7 @@ GRM.SetJoinDate = function ()
                             noteDate = t;
                         end
 
-                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
+                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and C_GuildInfo.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                             noteDestination = "officer";
                             GuildRosterSetOfficerNote( h , noteDate );
                             GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( noteDate );
@@ -16173,7 +16123,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
 
                 -- Let's set those officer/public notes as well!
                 local noteDestination = "none";
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote and ( GRM.CanEditOfficerNote() or CanEditPublicNote() ) then
+                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote and ( C_GuildInfo.CanEditOfficerNote() or CanEditPublicNote() ) then
                     for h = 1 , GRM.GetNumGuildies() do
                         local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( h );
                         if tempAlt.name == guildieName then
@@ -16185,7 +16135,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                                 noteDate = t;
                             end
                             
-                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
+                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and C_GuildInfo.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                                 noteDestination = "officer";
                                 GuildRosterSetOfficerNote( h , noteDate );
                             elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 and CanEditPublicNote() and ( note == "" or note == nil ) then
@@ -18222,7 +18172,7 @@ GRM.ResetPlayerMetaData = function ( playerName )
         local classedName = GRM.GetStringClassColorByName ( playerName ) .. GRM.SlimName ( playerName ) .. "|r";
         GRM.Report ( GRM.L ( "{name}'s saved data has been wiped!" , classedName ) );
 
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
 
         local member = {};
         for i = 1 , GRM.GetNumGuildies() do
@@ -18522,7 +18472,7 @@ GRM.CheckForNewPlayer = function( clubID , memberID )
         player.rankIndex = ( rankOrder - 1 );                       -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
         player.level = level;                                       -- 4
         player.note = note;                                         -- 5
-        if GRM.CanViewOfficerNote() then -- Officer Note permission to view.
+        if C_GuildInfo.CanViewOfficerNote() then -- Officer Note permission to view.
             player.officerNote = oNote;                             -- 6
         else
             player.officerNote = nil; -- Set Officer note to nil if needed due to player not being able to view. - If it is set to "" then player will think it is changing.
@@ -18625,7 +18575,7 @@ GRM.CheckForLeftOrKickedPlayer = function ( clubID , memberID )
         player.rankIndex = ( rankOrder - 1 );                       -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
         player.level = level;                                       -- 4
         player.note = note;                                         -- 5
-        if GRM.CanViewOfficerNote() then -- Officer Note permission to view.
+        if C_GuildInfo.CanViewOfficerNote() then -- Officer Note permission to view.
             player.officerNote = oNote;                             -- 6
         else
             player.officerNote = nil; -- Set Officer note to nil if needed due to player not being able to view. - If it is set to "" then player will think it is changing.
@@ -18974,12 +18924,12 @@ GRM.KickPromoteOrJoinPlayer = function ( _ , msg , text , clubMemberID )
             -- player rank change
             if string.find ( text , GRM.L ( "has promoted" ) ) ~= nil and not GRM_UI.GRM_ToolCoreFrame:IsVisible() then
                 GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
+                C_GuildInfo.GuildRoster();
                 GRM.LivePromoteOrDemoteDetection ( text , true );
                 
             elseif string.find ( text , GRM.L ( "has demoted" ) ) ~= nil and not GRM_UI.GRM_ToolCoreFrame:IsVisible() then
                 GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
+                C_GuildInfo.GuildRoster();
                 GRM.LivePromoteOrDemoteDetection ( text , false );
 
             -- Player joins the guild
@@ -18989,7 +18939,7 @@ GRM.KickPromoteOrJoinPlayer = function ( _ , msg , text , clubMemberID )
                         QueryGuildEventLog();
                     end
                     GRM_G.changeHappenedExitScan = true;
-                    GRM.GuildRoster();
+                    C_GuildInfo.GuildRoster();
 
                     if FriendsFrame and not FriendsFrame:IsVisible() then
                         FriendsFrame:Show();
@@ -19014,13 +18964,13 @@ GRM.KickPromoteOrJoinPlayer = function ( _ , msg , text , clubMemberID )
             -- player left on their own and was not kicked
             elseif string.find ( text , GRM.L ( "left the guild." ) ) ~= nil then
                 GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
+                C_GuildInfo.GuildRoster();
                 GRM.LiveLeaveDetection( text );
 
                 -- Removal from the guild by officer, either yourself or another
             elseif string.find ( text , GRM.L ( "has been kicked" ) ) ~= nil and not GRM_UI.GRM_ToolCoreFrame:IsVisible() then      -- you do not want to trigger this live action when macro tool is being used.
                 GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
+                C_GuildInfo.GuildRoster();
                 GRM.LiveKickDetection ( text );
                                
             end
@@ -19361,11 +19311,11 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
                 end
 
                 -- Set O Note
-                if GRM.CanViewOfficerNote() == true then
+                if C_GuildInfo.CanViewOfficerNote() == true then
                     if player.officerNote ~= nil and player.officerNote ~= "" then
                         finalONote = player.officerNote;
                     end
-                    if finalONote == GRM.L ( "Click here to set an Officer's Note" ) and GRM.CanEditOfficerNote() ~= true then
+                    if finalONote == GRM.L ( "Click here to set an Officer's Note" ) and C_GuildInfo.CanEditOfficerNote() ~= true then
                         finalONote = GRM.L ( "Unable to Edit Officer Note at Rank" );
                     end
                     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( finalONote );
@@ -21402,7 +21352,7 @@ end
 -- Purpose:         To manage the extremely complicated parsing of the notes to properly display note data...
 GRM.CheckAllDates = function( showAll )
     local result;
-    local canReadOfficer = GRM.CanEditOfficerNote();    -- No need to call for it over and over
+    local canReadOfficer = C_GuildInfo.CanEditOfficerNote();    -- No need to call for it over and over
     local collectNamesThatMisMatched = {};
     local noteLocation = 0;     -- 1 = officer, 2 = public, 3 = custom, 4 = multipleLocations
     local noteStatus = 0; -- 1 = doNotMatch , 2 = noteInWrongNote , 3 = NoNoteExists , 4 = doNotMatch && noteInWrongNote , 5 = doNotMatch && correctLocation && dateInMultipleNotes , 6 = doNotMatch && noteInWrongNote && dateInMultipleNotes
@@ -21523,7 +21473,7 @@ GRM.IsDateInOtherNotes = function ( name , noteLocation )
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][GRM_G.guildName][name];
 
     -- Check officer first
-    if noteLocation ~= 1 and GRM.CanEditOfficerNote() then
+    if noteLocation ~= 1 and C_GuildInfo.CanEditOfficerNote() then
         if GRM.GetParsedDate ( player.officerNote ) ~= nil then
             result = true;
         end
@@ -21614,7 +21564,7 @@ end
 -- Purpose:         Easy reusable check when parsing dates in the notes.
 GRM.IsValidYear = function ( year )
     local result = false;
-    if year ~= nil and type ( year ) == "number" and year > 3 and year <= ( GRM.GetCurrentCalendarTime().year - 2000 ) then
+    if year ~= nil and type ( year ) == "number" and year > 3 and year <= ( C_DateAndTime.GetCurrentCalendarTime().year - 2000 ) then
         result = true;
     end
     return result;
@@ -22112,7 +22062,7 @@ GRM.RefreshJDAuditToolsTextFrames = function( showAll )
         GRM_UI.GRM_AuditJDTool.GRM_AuditToolText6:SetTextColor ( 0 , 0.8 , 1.0 );
     end
 
-    if GRM.CanEditOfficerNote() then
+    if C_GuildInfo.CanEditOfficerNote() then
         GRM_UI.GRM_AuditJDTool.GRM_AuditToolText7:Hide();
     else
         GRM_UI.GRM_AuditJDTool.GRM_AuditToolText7:Show();
@@ -22651,7 +22601,7 @@ GRM.EditSavedNoteDateManually = function ( member )
 
         -- Modify the notes
         if member[3] == 4 then       -- if true, multiple locations
-            if GRM.CanViewOfficerNote() then
+            if C_GuildInfo.CanViewOfficerNote() then
                 tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
                 if success then
                     -- yes, it was modified
@@ -22669,7 +22619,7 @@ GRM.EditSavedNoteDateManually = function ( member )
                     success = false;
                 end
             end
-            if ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
+            if ( C_GuildInfo.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
                 tempNote , success = GRM.RemoveDateFromNote ( player.note );
                 if success then
                     -- yes, it was modified
@@ -22700,7 +22650,7 @@ GRM.EditSavedNoteDateManually = function ( member )
                 success = false;
             end
         else
-            if member[3] == 1 and GRM.CanViewOfficerNote()  then
+            if member[3] == 1 and C_GuildInfo.CanViewOfficerNote()  then
                 tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
                 if success then
                     -- yes, it was modified
@@ -22717,7 +22667,7 @@ GRM.EditSavedNoteDateManually = function ( member )
                     end
                     success = false;
                 end
-            elseif member[3] == 2 and ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
+            elseif member[3] == 2 and ( C_GuildInfo.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
                 tempNote , success = GRM.RemoveDateFromNote ( player.note );
                 if success then
                     -- yes, it was modified
@@ -22835,7 +22785,7 @@ GRM.AddDateTagToDefaultNote = function ( member , getCount )
         -- Set the repeated note formatting to be added to note.
         finalNote = noteHeader .. " " .. GRM.FormatTimeStamp ( player.joinDate[#player.joinDate] , false , false );
 
-        if GRM.CanViewOfficerNote() then
+        if C_GuildInfo.CanViewOfficerNote() then
             -- Public and officer
             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 then
                 -- Officer is default.
@@ -22952,7 +22902,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function( member )
             end
         end
 
-        if GRM.CanViewOfficerNote() and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination ~= 1 then
+        if C_GuildInfo.CanViewOfficerNote() and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination ~= 1 then
             tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
             if success then
                 -- yes, it was modified
@@ -22964,7 +22914,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function( member )
                 success = false;
             end
         end
-        if ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination ~= 2 then
+        if ( C_GuildInfo.CanViewOfficerNote() or player.name == GRM_G.addonUser ) and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination ~= 2 then
             tempNote , success = GRM.RemoveDateFromNote ( player.note );
             if success then
                 -- yes, it was modified
@@ -23541,7 +23491,7 @@ GRM.GlobalSettingsLoopCheck = function( epochTime , first )
             GRM.UpdateGuildLeaderPermissions ( false , true );
             GRM.GRM_FrameChatTest.IsInLoop = false;
         else
-            GRM.GuildRoster();
+            C_GuildInfo.GuildRoster();
             C_Timer.After ( 1 , function()
                 GRM.GlobalSettingsLoopCheck ( timer , false );
                 return;
@@ -23582,7 +23532,7 @@ GRM.TriggerPlayerNote = function ( player , msg )
 
             if #note > 0 then
                 -- Note is good, let's trigger the boolean...
-                if ( GRM_G.BuildVersion >= 80000 and CanEditPublicNote() and ( GRM.CanEditOfficerNote() or GRM_G.addonUser == player ) ) or ( GRM_G.BuildVersion < 80000 and CanEditPublicNote() ) then             -- Don't need to write your own public note.
+                if ( GRM_G.BuildVersion >= 80000 and CanEditPublicNote() and ( C_GuildInfo.CanEditOfficerNote() or GRM_G.addonUser == player ) ) or ( GRM_G.BuildVersion < 80000 and CanEditPublicNote() ) then             -- Don't need to write your own public note.
                     GRM.UpdateNoteFromChat ( player , note );
                 else
  
@@ -23917,7 +23867,7 @@ GRM.TriggerTrackingCheck = function()
         if GRM_G.BuildVersion < 80000 and not GRM_G.IntegrityTackingEnabled then
             GRM.TrackingIntegrityCheck();
         end
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
         if GRM_G.BuildVersion >= 40000 then
             QueryGuildEventLog();
         end
@@ -23933,7 +23883,7 @@ GRM.TrackingIntegrityCheck = function( isLoop )
         if isLoop or not GRM_G.IntegrityTackingEnabled then
             GRM_G.IntegrityTackingEnabled = true;
             if ( time() - GRM_G.ClassicSyncControl ) > ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].scanDelay + 6 ) then
-                GRM.GuildRoster();
+                C_GuildInfo.GuildRoster();
             end
 
             C_Timer.After ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].scanDelay , function()
@@ -23966,10 +23916,7 @@ end
 GRM.SlashCommandScan = function()
     GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Scanning for Guild Changes Now. One Moment..." ) );
     GRM_G.ManualScanEnabled = true;
-    GRM.GuildRoster();
-    if GRM_G.BuildVersion >= 40000 then
-        QueryGuildEventLog();
-    end
+    C_GuildInfo.GuildRoster();
     C_Timer.After ( 5 , GRM.TriggerTrackingCheck );
 end
 
@@ -24744,7 +24691,7 @@ end
 GRM.ScanIntegrityCheck = function()
     if IsInGuild() and ( time() - GRM_G.TimeAtCompletion ) > GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].scanDelay then
         if GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventEditOpen() ) then
-            GRM.GuildRoster();
+            C_GuildInfo.GuildRoster();
             if GRM_G.BuildVersion >= 40000 then
                 QueryGuildEventLog();
             end
@@ -24763,7 +24710,7 @@ GRM.DelayForGuildInfoCallback = function()
             GRM.SystemMessageEnabledCheck();
         end
         GRM.SetGuildInfoDetails();
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
         C_Timer.After ( 1 , GRM.DelayForGuildInfoCallback );
     elseif GRM_G.NumberOfHoursTilRecommend["kick"] == nil or GRM_G.NumberOfHoursTilRecommend["kickActive"] == nil then
         GRM.RefreshNumberOfHoursTilRecommend();
@@ -24912,10 +24859,10 @@ GRM.finalLoadSteps = function()
     end
 
     if GRM_G.BuildVersion >= 40000 then
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
         QueryGuildEventLog();
     else
-        GRM.GuildRoster();
+        C_GuildInfo.GuildRoster();
         GRM.Tracking();
     end
 
@@ -24955,7 +24902,7 @@ GRM.ReactivateAddon = function()
     C_Timer.After ( 5 , GRM.RegisterGuildChatPermission );
 
     GRM.SetGuildInfoDetails();
-    GRM.GuildRoster();
+    C_GuildInfo.GuildRoster();
     if GRM_G.BuildVersion >= 40000 then
         QueryGuildEventLog();
     end
@@ -25070,7 +25017,7 @@ end
 -- What it Does:    It checks if the calendar and date info is available from the server yet and if not, it recursively reloads
 -- Purpose:         To prevent certain errors due to the server returning this information slowly as of patch 8.1.5 for some reason.
 GRM.DataLoadDelayProtection = function()
-    if GRM.GetCurrentCalendarTime().month ~= 0 and GRM.GetCurrentCalendarTime().month ~= nil then       -- Critical to be receiving data properly from the server...
+    if C_DateAndTime.GetCurrentCalendarTime().month ~= 0 and C_DateAndTime.GetCurrentCalendarTime().month ~= nil then       -- Critical to be receiving data properly from the server...
         GRM.LoadSettings();
     else
         C_Timer.After ( 0.2 , GRM.DataLoadDelayProtection );
@@ -25098,7 +25045,7 @@ GRM.SettingsLoadedFinishDataLoad = function()
 
     if IsInGuild() then
         Initialization:UnregisterEvent ("PLAYER_ENTERING_WORLD");
-        GRM.GuildRoster();                                       -- Initial queries...
+        C_GuildInfo.GuildRoster();                                       -- Initial queries...
         if GRM_G.BuildVersion >= 40000 then
             QueryGuildEventLog();
         end
@@ -25149,6 +25096,9 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- -- ***BUSY WORK***
 
 -- Add an option to swap the languages for the notes
+
+-- Add AddonUsers tab option to disable the addon not updated message @Glowsome 
+
 
 -- EXPORT: 'Excel: Paste data into Excel, Click the Data Tab, Click "Text to Columns" '
 -- 'Google Sheets: Paste data into Google Sheets, Click the Data Tab, Click Split "text to columns" ' 
