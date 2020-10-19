@@ -79,7 +79,6 @@ GRML.Korean = function()
     GRM_L["Edit Promo Date"] = true
     GRM_L["Edit Join Date"] = true
     GRM_L["Set Promo Date"] = true
-    GRM_L["Group Invite"] = true
     GRM_L["No Invite"] = true
     GRM_L["Group Invite"] = true
     GRM_L["Date Promoted?"] = true
@@ -113,7 +112,6 @@ GRML.Korean = function()
     GRM_L["Edit Date"] = true
     GRM_L["Clear History"] = true
     GRM_L["Options"] = true
-    GRM_L["Cancel"] = true
             
     -- LOG
     GRM_L["LOG"] = true                                                     -- Context - The guild Log shorthand for the tab
@@ -144,7 +142,6 @@ GRML.Korean = function()
     GRM_L["Date of Ban:"] = true
     GRM_L["Date Originally Joined:"] = true
     GRM_L["Old Guild Rank:"] = true
-    GRM_L["Reason:"] = true
     GRM_L["Additional Notes:"] = true
     GRM_L["{name} has REINVITED {name2} to the guild"] = true
     GRM_L["(LVL: {num})"] = true                                            -- Context: LVL means Player Level - so Ex: (LVL: 110)
@@ -171,10 +168,6 @@ GRML.Korean = function()
 
     -- EVENTS WINDOW
     GRM_L["EVENTS"] = true                                          -- Events tab
-    GRM_L["{name}'s Anniversary!"] = true
-    GRM_L["{name}'s Birthday!"] = true
-    GRM_L["Please Select Event to Add to Calendar"] = true
-    GRM_L["No Calendar Events to Add"] = true
     GRM_L["Event Calendar Manager"] = true
     GRM_L["Event:"] = true
     GRM_L["Description:"] = true
@@ -198,7 +191,6 @@ GRML.Korean = function()
     GRM_L["{name}(Still in Guild)"] = true
     GRM_L["(Still in Guild)"] = true
     GRM_L["No Ban Reason Given"] = true
-    GRM_L["Reason:"] = true                                         -- Context: As in, "Reason Banned"
     GRM_L["Total Banned:"] = true
     GRM_L["Rank"] = true
     GRM_L["Ban Date"] = true
@@ -239,7 +231,6 @@ GRML.Korean = function()
     GRM_L["Your Sync is Currently Disabled"] = true
 
     -- OPTIONS WINDOW
-    GRM_L["Public Note"] = true
     GRM_L["Scanning Roster:"] = true
     GRM_L["Guild Rank Restricted:"] = true
     GRM_L["Sync:"] = true
@@ -435,7 +426,6 @@ GRML.Korean = function()
     GRM_L["center"] = true                          -- Context: "center" the movable addon window back to center of screen
     GRM_L["sync"] = true                            -- Context: "sync" the data between players one time now.
     GRM_L["scan"] = true                            -- Context: "scan" for guild roster changes one time now.
-    GRM_L["clearall"] = true                        -- Context: In regards, "Clear All" saved data
 
     -- CLASSES
     GRM_L["Deathknight"] = "죽음의 기사"
@@ -458,7 +448,6 @@ GRML.Korean = function()
     GRM_L["February"] = "이월"
     GRM_L["March"] = "삼월"
     GRM_L["April"] = "사월"
-    GRM_L["May"] = "오월"
     GRM_L["June"] = "유월"
     GRM_L["July"] = "칠월"
     GRM_L["August"] = "팔월"
@@ -778,7 +767,6 @@ GRML.Korean = function()
 
     -- R1.33
     GRM_L["Macro will auto-remove after {num} seconds."] = true
-    GRM_L["UI"] = true
     GRM_L["UI Controls"] = true
     GRM_L["UI Configuration:"] = true
     GRM_L["Show Character Guild Reputation"] = true
@@ -1306,7 +1294,6 @@ GRML.Korean = function()
     GRM_L["GRM Group Info"] = true
     GRM_L["Group Info"] = true
     GRM_L["Click to Lock Info Window"] = true
-    GRM_L["Total in Group: {num}"] = true
     GRM_L["Guildies: {num}"] = true
     GRM_L["Former Guildies: {num}"] = true
     GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
@@ -1395,7 +1382,6 @@ GRML.Korean = function()
     GRM_L["{name} matches {num} macro tool rule. Kick Recommended!"] = true
     -- Classic Only
     GRM_L["Shift Rank Up"] = true
-    GRM_L["Shift Rank Down"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted up from rank {num} to {custom1}"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted lower from rank {num} to {custom1}"] = true
     GRM_L["After shifting the rank up by 1, the window will automatically close"] = true

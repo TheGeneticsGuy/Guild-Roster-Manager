@@ -79,7 +79,6 @@ GRML.Russian = function()
     GRM_L["Edit Promo Date"] = "Редактировать дату"
     GRM_L["Edit Join Date"] = "Редактировать дату"
     GRM_L["Set Promo Date"] = "Уст. дату"
-    GRM_L["Group Invite"] = "Пригласить в группу"
     GRM_L["No Invite"] = "Не пригласть :("
     GRM_L["Group Invite"] = "Пригласить в группу"
     GRM_L["Date Promoted?"] = "Дата повышения?"
@@ -113,7 +112,6 @@ GRML.Russian = function()
     GRM_L["Edit Date"] = "Изменить дату"
     GRM_L["Clear History"] = "Отчистить историю"
     GRM_L["Options"] = "Опции"
-    GRM_L["Cancel"] = "Отмена"
             
      -- LOG
     GRM_L["LOG"] = "Журнал"                -- Context - The guild Log shorthand for the tab
@@ -144,7 +142,6 @@ GRML.Russian = function()
     GRM_L["Date of Ban:"] = "Дата БАНа:"
     GRM_L["Date Originally Joined:"] = "Дата первого вступления:"
     GRM_L["Old Guild Rank:"] = "Старое звание:"
-    GRM_L["Reason:"] = "Причина:"
     GRM_L["Additional Notes:"] = "Дополнительные заметки"
     GRM_L["{name} has REINVITED {name2} to the guild"] = "{name} был повротно приглашен игроком {name} в гильдию"
     GRM_L["(LVL: {num})"] = "(УРОВЕНЬ: {num})"     -- Context: LVL means Player Level - so Ex: (LVL: 110)
@@ -198,7 +195,6 @@ GRML.Russian = function()
     GRM_L["{name}(Still in Guild)"] = "{name}(еще в гильдии)"
     GRM_L["(Still in Guild)"] = "(еще в гильдии)"
     GRM_L["No Ban Reason Given"] = "Забанен без причины"
-    GRM_L["Reason:"] = "Причина:"                                         -- Context: As in, "Reason Banned"
     GRM_L["Total Banned:"] = "Всего забанено:"
     GRM_L["Rank"] = "Звание"
     GRM_L["Ban Date"] = "Дата Бана"
@@ -239,7 +235,6 @@ GRML.Russian = function()
     GRM_L["Your Sync is Currently Disabled"] = "Ваша синхронизация в настоящее время отключена"
 
     -- OPTIONS WINDOW
-    GRM_L["Public Note"] = "Публичная заметка"
     GRM_L["Scanning Roster:"] = "Сканирование журнала"
     GRM_L["Guild Rank Restricted:"] = "Только для офицеров:"
     GRM_L["Sync:"] = "Синхонизация:"
@@ -435,7 +430,6 @@ GRML.Russian = function()
     GRM_L["center"] = "Центр"                          -- Context: "center" the movable addon window back to center of screen
     GRM_L["sync"] = "Синх"                            -- Context: "sync" the data between players one time now.
     GRM_L["scan"] = "Скан"                            -- Context: "scan" for guild roster changes one time now.
-    GRM_L["clearall"] = "Сброс Все"                        -- Context: In regards, "Clear All" saved data
 
       -- CLASSES
     GRM_L["Deathknight"] = "Рыцарь смерти"
@@ -779,7 +773,6 @@ GRML.Russian = function()
 
     -- R1.33
     GRM_L["Macro will auto-remove after {num} seconds."] = "Макрос будет автоматически удален через {num} секунд."
-    GRM_L["UI"] = "UI"
     GRM_L["UI Controls"] = "Управление интерфейсом"
     GRM_L["UI Configuration:"] = "Конфигурация интерфейса:"
     GRM_L["Show Character Guild Reputation"] = "Показать репутацию персонажа в гильдии"
@@ -1307,7 +1300,6 @@ GRML.Russian = function()
     GRM_L["GRM Group Info"] = "ГРМ Информация о группе"
     GRM_L["Group Info"] = "Информация о группе"
     GRM_L["Click to Lock Info Window"] = "Нажмите, чтобы заблокировать информационное окно"
-    GRM_L["Total in Group: {num}"] = "Всего в группе: {num}"
     GRM_L["Guildies: {num}"] = "Гильдии: {num}"
     GRM_L["Former Guildies: {num}"] = "Бывшие гильдии: {num}"
     GRM_L["Other {name} Members: {num}"] = "Другие {name} Участники: {num}"           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
@@ -1396,7 +1388,6 @@ GRML.Russian = function()
     GRM_L["{name} matches {num} macro tool rule. Kick Recommended!"] = "{name} соответствует правилу макротулза {num}. Исключение рекомендуется!"
     -- Classic Only
     GRM_L["Shift Rank Up"] = "Сдвинуть ранг вверх"
-    GRM_L["Shift Rank Down"] = "Сдвинуть ранг вниз"
     GRM_L["The Guild Rank \"{name}\" has Shifted up from rank {num} to {custom1}"] = "Ранг гильдии \"{name}\" поднялся с ранга {num} на {custom1}"
     GRM_L["The Guild Rank \"{name}\" has Shifted lower from rank {num} to {custom1}"] = "Ранг гильдии \"{name}\" сдвинулся с ранга {num} на {custom1}."
     GRM_L["After shifting the rank up by 1, the window will automatically close"] = "После сдвига звания на 1, окно автоматически закроется."

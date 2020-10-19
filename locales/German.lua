@@ -79,7 +79,6 @@
         GRM_L["Edit Promo Date"] = "Beförderungsdatum\nändern"
         GRM_L["Edit Join Date"] = "Beitrittsdatum\nändern"
         GRM_L["Set Promo Date"] = "Beförderungsdatum\nsetzen"
-        GRM_L["Group Invite"] = "Gruppeneinladung"
         GRM_L["No Invite"] = "Keine Einladung"
         GRM_L["Group Invite"] = "Gruppeneinladung"
         GRM_L["Date Promoted?"] = "Beförderungsdatum?"
@@ -113,7 +112,6 @@
         GRM_L["Edit Date"] = "Datum ändern"
         GRM_L["Clear History"] = "Verlauf löschen"
         GRM_L["Options"] = "Optionen"
-        GRM_L["Cancel"] = "Abbrechen"
                 
         -- LOG
         GRM_L["LOG"] = "LOG"                                                     -- Context - The guild Log shorthand for the tab
@@ -144,7 +142,6 @@
         GRM_L["Date of Ban:"] = "Bann-Datum"
         GRM_L["Date Originally Joined:"] = "Datum des ersten Beitritts:"
         GRM_L["Old Guild Rank:"] = "Alter Gildenrang:"
-        GRM_L["Reason:"] = "Grund:"
         GRM_L["Additional Notes:"] = "zusätzliche Notizen:"
         GRM_L["{name} has REINVITED {name2} to the guild"] = "{name} hat {name2} WIEDER in die Gilde EINGELADEN"
         GRM_L["(LVL: {num})"] = "(Lvl: {num})"                                            -- Context: LVL means Player Level - so Ex: (LVL: 110)
@@ -173,8 +170,6 @@
         GRM_L["EVENTS"] = "EREIGNISSE"                                          -- Events tab
         GRM_L["{name}'s Anniversary!"] = "{name} hat Jahrestag!"
         GRM_L["{name}'s Birthday!"] = "{name} hat Geburtstag!"
-        GRM_L["Please Select Event to Add to Calendar"] = "Wähle ein Ereignis aus, um einen Kalendereintrag zu erstellen"
-        GRM_L["No Calendar Events to Add"] = "Keine Ereignisse zum Erstellen"
         GRM_L["Event Calendar Manager"] = "Ereignis Kalender Manager"
         GRM_L["Event:"] = "Ereignis:"
         GRM_L["Description:"] = "Beschreibung:"
@@ -198,7 +193,6 @@
         GRM_L["{name}(Still in Guild)"] = "{name} (in der Gilde)"
         GRM_L["(Still in Guild)"] = "(in der Gilde)"
         GRM_L["No Ban Reason Given"] = "Kein Grund angegeben"
-        GRM_L["Reason:"] = "Grund:"                                         -- Context: As in, "Reason Banned"
         GRM_L["Total Banned:"] = "Gebannte Spieler:"
         GRM_L["Rank"] = "Rang"
         GRM_L["Ban Date"] = "Datum"
@@ -434,7 +428,6 @@
         GRM_L["center"] = "zentrieren"                         -- Context: "center" the movable addon window back to center of screen
         GRM_L["sync"] = "sync"                                 -- Context: "sync" the data between players one time now.
         GRM_L["scan"] = "scan"                                 -- Context: "scan" for guild roster changes one time now.
-        GRM_L["clearall"] = "clearall"                         -- Context: In regards, "Clear All" saved data
     
         -- CLASSES
         GRM_L["Deathknight"] = "Todesritter"
@@ -457,7 +450,6 @@
         GRM_L["February"] = "Februar"
         GRM_L["March"] = "März"
         GRM_L["April"] = "April"
-        GRM_L["May"] = "Mai"
         GRM_L["June"] = "Juni" 
         GRM_L["July"] = "Juli"
         GRM_L["August"] = "August"
@@ -1307,7 +1299,6 @@
         GRM_L["GRM Group Info"] = true
         GRM_L["Group Info"] = true
         GRM_L["Click to Lock Info Window"] = true
-        GRM_L["Total in Group: {num}"] = true
         GRM_L["Guildies: {num}"] = true
         GRM_L["Former Guildies: {num}"] = true
         GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
@@ -1399,7 +1390,6 @@
         GRM_L["{name} matches {num} macro tool rule. Kick Recommended!"] = true
         -- Classic Only
         GRM_L["Shift Rank Up"] = true
-        GRM_L["Shift Rank Down"] = true
         GRM_L["The Guild Rank \"{name}\" has Shifted up from rank {num} to {custom1}"] = true
         GRM_L["The Guild Rank \"{name}\" has Shifted lower from rank {num} to {custom1}"] = true
         GRM_L["After shifting the rank up by 1, the window will automatically close"] = true

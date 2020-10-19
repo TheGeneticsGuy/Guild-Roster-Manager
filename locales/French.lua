@@ -79,7 +79,6 @@ GRML.French = function()
     GRM_L["Edit Promo Date"] = "Éditer date"
     GRM_L["Edit Join Date"] = "Éditer date d'entrée"
     GRM_L["Set Promo Date"] = "Définir"
-    GRM_L["Group Invite"] = "Invitation de groupe"
     GRM_L["No Invite"] = "Pas d'invitation"
     GRM_L["Group Invite"] = "Invitation de groupe"
     GRM_L["Date Promoted?"] = "Date promotion ?"
@@ -113,7 +112,6 @@ GRML.French = function()
     GRM_L["Edit Date"] = "Éditer date"
     GRM_L["Clear History"] = "Nettoyer l'historique"
     GRM_L["Options"] = "Options"
-    GRM_L["Cancel"] = "Annuler"
             
     -- LOG
     GRM_L["LOG"] = "JOURNAL"                                                     -- Context - The guild Log shorthand for the tab
@@ -144,7 +142,6 @@ GRML.French = function()
     GRM_L["Date of Ban:"] = "Date du ban :"
     GRM_L["Date Originally Joined:"] = "Première date d'entrée :"
     GRM_L["Old Guild Rank:"] = "Ancien grade de guilde :"
-    GRM_L["Reason:"] = "Raison :"
     GRM_L["Additional Notes:"] = "Notes additionnelles :"
     GRM_L["{name} has REINVITED {name2} to the guild"] = "{name} a réinvité {name2} dans la guilde"
     GRM_L["(LVL: {num})"] = "(NIV: {num})"                                            -- Context: LVL means Player Level - so Ex: (LVL: 110)
@@ -173,8 +170,6 @@ GRML.French = function()
     GRM_L["EVENTS"] = "ÉVÉNEMENTS"                                          -- Events tab
     GRM_L["{name}'s Anniversary!"] = "Anniversaire de guilde de {name}"
     GRM_L["{name}'s Birthday!"] = "Date de naissance de {name} !"
-    GRM_L["Please Select Event to Add to Calendar"] = "Sélectionner un événement à ajouter au calendrier"
-    GRM_L["No Calendar Events to Add"] = "Aucun événement à ajouter"
     GRM_L["Event Calendar Manager"] = "Gestionnaire d'événements"
     GRM_L["Event:"] = "Événement : "
     GRM_L["Description:"] = "Description :"
@@ -197,7 +192,6 @@ GRML.French = function()
     GRM_L["Player Selected"] = "Joueur sélectionné"
     GRM_L["{name}(Still in Guild)"] = "{name}(Toujours en guilde)"
     GRM_L["No Ban Reason Given"] = "Aucune raison de ban donnée"
-    GRM_L["Reason:"] = "Raison :"                                         -- Context: As in, "Reason Banned"
     GRM_L["Total Banned:"] = "Total Banni(s) :"
     GRM_L["Rank"] = "Grade"
     GRM_L["Ban Date"] = "Date du ban"
@@ -239,7 +233,6 @@ GRML.French = function()
 
     -- OPTIONS WINDOW
     -- R1.86
-    GRM_L["Public Note"] = "Note publique"
     GRM_L["Scanning Roster:"] = "Scan de la guilde :"
     GRM_L["Guild Rank Restricted:"] = "Réglages restreints par le grade : "
     GRM_L["Sync:"] = "Synchronisation :"
@@ -434,7 +427,6 @@ GRML.French = function()
     GRM_L["center"] = "center"                          -- Context: "center" the movable addon window back to center of screen
     GRM_L["sync"] = "sync"                            -- Context: "sync" the data between players one time now.
     GRM_L["scan"] = "scan"                            -- Context: "scan" for guild roster changes one time now.
-    GRM_L["clearall"] = "clearall"                        -- Context: In regards, "Clear All" saved data
 
     -- CLASSES
     GRM_L["Deathknight"] = "Chevalier de la mort"
@@ -457,7 +449,6 @@ GRML.French = function()
     GRM_L["February"] = "février"
     GRM_L["March"] = "mars"
     GRM_L["April"] = "avril"
-    GRM_L["May"] = "mai"
     GRM_L["June"] = "juin"
     GRM_L["July"] = "juillet"
     GRM_L["August"] = "août"
@@ -1302,7 +1293,6 @@ GRML.French = function()
     GRM_L["GRM Group Info"] = true
     GRM_L["Group Info"] = true
     GRM_L["Click to Lock Info Window"] = true
-    GRM_L["Total in Group: {num}"] = true
     GRM_L["Guildies: {num}"] = true
     GRM_L["Former Guildies: {num}"] = true
     GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
@@ -1391,7 +1381,6 @@ GRML.French = function()
     GRM_L["{name} matches {num} macro tool rule. Kick Recommended!"] = true
     -- Classic Only
     GRM_L["Shift Rank Up"] = true
-    GRM_L["Shift Rank Down"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted up from rank {num} to {custom1}"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted lower from rank {num} to {custom1}"] = true
     GRM_L["After shifting the rank up by 1, the window will automatically close"] = true

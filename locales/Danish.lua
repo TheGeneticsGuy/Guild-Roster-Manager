@@ -80,7 +80,6 @@ GRML.Danish = function()
     GRM_L["Edit Promo Date"] = true
     GRM_L["Edit Join Date"] = true
     GRM_L["Set Promo Date"] = true
-    GRM_L["Group Invite"] = true
     GRM_L["No Invite"] = true
     GRM_L["Group Invite"] = true
     GRM_L["Date Promoted?"] = true
@@ -114,7 +113,6 @@ GRML.Danish = function()
     GRM_L["Edit Date"] = true
     GRM_L["Clear History"] = true
     GRM_L["Options"] = true
-    GRM_L["Cancel"] = true
             
     -- LOG
     GRM_L["LOG"] = true                                                     -- Context - The guild Log shorthand for the tab
@@ -145,7 +143,6 @@ GRML.Danish = function()
     GRM_L["Date of Ban:"] = true
     GRM_L["Date Originally Joined:"] = true
     GRM_L["Old Guild Rank:"] = true
-    GRM_L["Reason:"] = true
     GRM_L["Additional Notes:"] = true
     GRM_L["{name} has REINVITED {name2} to the guild"] = true
     GRM_L["(LVL: {num})"] = true                                            -- Context: LVL means Player Level - so Ex: (LVL: 110)
@@ -174,7 +171,6 @@ GRML.Danish = function()
     GRM_L["EVENTS"] = true                                          -- Events tab
     GRM_L["{name}'s Anniversary!"] = true
     GRM_L["{name}'s Birthday!"] = true
-    GRM_L["Please Select Event to Add to Calendar"] = true
     GRM_L["No Calendar Events to Add"] = true
     GRM_L["Event Calendar Manager"] = true
     GRM_L["Event:"] = true
@@ -198,7 +194,6 @@ GRML.Danish = function()
     GRM_L["{name}(Still in Guild)"] = true
     GRM_L["(Still in Guild)"] = true                                -- same as previous, just formatting simplicity...
     GRM_L["No Ban Reason Given"] = true
-    GRM_L["Reason:"] = true                                         -- Context: As in, "Reason Banned"
     GRM_L["Total Banned:"] = true
     GRM_L["Rank"] = true
     GRM_L["Ban Date"] = true
@@ -239,7 +234,6 @@ GRML.Danish = function()
     GRM_L["Your Sync is Currently Disabled"] = true
 
     -- OPTIONS WINDOW
-    GRM_L["Public Note"] = true
     GRM_L["Scanning Roster:"] = true
     GRM_L["Guild Rank Restricted:"] = true
     GRM_L["Sync:"] = true
@@ -435,7 +429,6 @@ GRML.Danish = function()
     GRM_L["center"] = true                          -- Context: "center" the movable addon window back to center of screen
     GRM_L["sync"] = true                            -- Context: "sync" the data between players one time now.
     GRM_L["scan"] = true                            -- Context: "scan" for guild roster changes one time now.
-    GRM_L["clearall"] = true                        -- Context: In regards, "Clear All" saved data
 
     -- CLASSES
     GRM_L["Deathknight"] = true
@@ -458,7 +451,6 @@ GRML.Danish = function()
     GRM_L["February"] = true
     GRM_L["March"] = true
     GRM_L["April"] = true
-    GRM_L["May"] = true
     GRM_L["June"] = true
     GRM_L["July"] = true
     GRM_L["August"] = true
@@ -776,7 +768,6 @@ GRML.Danish = function()
 
     -- R1.33
     GRM_L["Macro will auto-remove after {num} seconds."] = true
-    GRM_L["UI"] = true
     GRM_L["UI Controls"] = true
     GRM_L["UI Configuration:"] = true
     GRM_L["Show Character Guild Reputation"] = true
@@ -1165,7 +1156,6 @@ GRML.Danish = function()
     GRM_L["Clearing Log Export. A filter setting has been changed."] = true             -- If the filter settings have been modified, the export string should be cleared and re-done
     GRM_L["No Tag"] = true                                                              -- Main Tag
     GRM_L["Delimiter:"] = true                                                          -- Delimiter selection for Export window
-    GRM_L["|CFFE6CC7FClick|r to view more alt details."] = true                         -- Calendar tooltip
     GRM_L["|CFFE6CC7FRight-Click|r for additional options."] = true                     -- Also Calendar tooltip
     GRM_L["The selected delimiter will be removed from all notes on export"] = true
     GRM_L["Choose thoughtfully"] = true
@@ -1298,36 +1288,6 @@ GRML.Danish = function()
     
     -- R1.872
     -- Group Info Module
-    GRM_L["GRM Info"] = true
-    GRM_L["GRM Group Info"] = true
-    GRM_L["Group Info"] = true
-    GRM_L["Click to Lock Info Window"] = true
-    GRM_L["Total in Group: {num}"] = true
-    GRM_L["Guildies: {num}"] = true
-    GRM_L["Former Guildies: {num}"] = true
-    GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
-    GRM_L["Other Connected Realm Members: {num}"] = true
-    GRM_L["Total in Group: {num}"] = true
-    GRM_L["Date Left"] = true
-    GRM_L["1 Alt Still in Guild"] = true
-    GRM_L["{num} Alts Still in Guild"] = true
-    GRM_L["Known Alts:"] = true
-    GRM_L["Close Enough to Trade"] = true
-    GRM_L["Plugins"] = true         -- plural
-    GRM_L["Plugin"] = true          -- Singular
-    GRM_L["Module"] = true
-    GRM_L["GRM Optional Modules"] = true
-    GRM_L["Enable Module"] = true
-    GRM_L["Show Interactable Distance Indicator"] = true
-    GRM_L["No GRM Modules Currently Installed"] = true
-    GRM_L["Pending Feature"] = true
-    GRM_L["Custom Color"] = true
-    GRM_L["{name} is listed as the Main"] = true
-    GRM_L["Kick Banned in Guild"] = true
-    GRM_L["Kick macro created. Press Hotkey to Remove Banned Players Still in Guild"] = true
-    GRM_L["Easily remove all Banned players still in the Guild with the Macro Tool"] = true
-    GRM_L["GRM will automatically send messages to the \"{name}\" window if you remove all custom channels."] = true
-    GRM_L["Multi-Channel support. Just separate with commas"] = true
 
     -- R1.88
     -- Group Info Module
@@ -1335,7 +1295,6 @@ GRML.Danish = function()
     GRM_L["GRM Group Info"] = true
     GRM_L["Group Info"] = true
     GRM_L["Click to Lock Info Window"] = true
-    GRM_L["Total in Group: {num}"] = true
     GRM_L["Guildies: {num}"] = true
     GRM_L["Former Guildies: {num}"] = true
     GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
@@ -1424,7 +1383,6 @@ GRML.Danish = function()
     GRM_L["{name} matches {num} macro tool rule. Kick Recommended!"] = true
     -- Classic Only
     GRM_L["Shift Rank Up"] = true
-    GRM_L["Shift Rank Down"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted up from rank {num} to {custom1}"] = true
     GRM_L["The Guild Rank \"{name}\" has Shifted lower from rank {num} to {custom1}"] = true
     GRM_L["After shifting the rank up by 1, the window will automatically close"] = true
