@@ -2,6 +2,33 @@
 
 _______________________
 
+**VERSION R1.913 RELEASE - October 18th, 2020**
+
+***BUG FIXES***
+
+* Exporting only the alts should now work. Before it would always just show the mains even if you selected it to filter to only the alts.
+
+* Fixed a bug where scanning for changes was causing a lua error when detecting level changes within a certain range (new bug from last update, minor oversight)
+
+* Fixed an issue where if you were trying to export your guild roster it would error due to a 1 index overflow error of the array. I had modified the array to be more efficient for sync purposes, but forgot I used the same system on the export data and I had eliminated an index of the array that was not necessary, but now it causes the data to shift by 1. This shouldn't happen anymore.
+
+***MISC***
+
+* Building some custom function wrappers for Blizzard API to make a single codebase easier to deal with in the future since it doesn't seem Blizz is bringing the underlying 9.0 API to Classic anytime soon. The Naxx Classic PTR build does not have any of the 9.0 changes so just prepping adaptation.
+
+
+**VERSION R1.912 RELEASE - October 18th, 2020**
+
+***BUG FIXES***
+
+- Fixed an issue where in some cases where if someone syncs data to a player through custom Note, it would update it, even if their rank was too low. This shouldn't happen anymore. Also noticed in some cases the cusotm notes were only going one direction. If the person initiating the sync had them, then the other could get them, but if they didn't they weren't getting them unless the other person initiated sync. Oops! Now it will properly work both sides.
+
+* Minor oversight on the level squish. The log will no longer report that people leveled to a negative number...
+
+* I noticed that in retail the /grm scan was taking a while to complete as it was not querying the Guild Event Log to process, it was doing the "classic" method, so there is now a condition for the build version and a manual /scan should now only take a few seconds to complete.
+
+* The full proper sync file is attached now - uploaded an incomplete build one last time as I hadn't pushed changes to my "release" folder yet. Oops!
+
 
 **VERSION R1.91 RELEASE -- October 13th, 2020**
 
@@ -58,8 +85,6 @@ _______________________
 * When swapping between languages I noticed some of the options dropdown menus were not updating to new language properly. They now should properly localize with the rest.
 
 * (CLASSIC ONLY) - The roster class coloring was not working when you changed it to player status. It now works on both roster view options! Oops!
-
-
 
 
 
