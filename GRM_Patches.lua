@@ -791,7 +791,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.FixMemberDataError ( GRM_Patch.FixMainTimestampError , true , true , false );
         GRM_Patch.ModifyPlayerSetting ( "exportFilters" , GRM_Patch.AddExportOptions );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRule );
-        GRM_Patch.ModifyPlayerSetting ( "removedAlts" , {} );   -- Clear these out - can I remove this feature?
         GRM_Patch.AddPlayerSetting ( "defaultTabSelection" , { false , 1 } );
 
         if GRM_G.BuildVersion < 20000 then
@@ -827,6 +826,43 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRuleOperator );
 
         if loopCheck ( 1.912 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.915 and baseValue < 1.915 then
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRuleValue );
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.ModifyKickRuleMaxLevel );
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.ModifyKickRuleLogic );
+        GRM_Patch.AddPlayerSetting ( "disableMacroToolLogSpam" , true );
+        if loopCheck ( 1.915 ) then
+            return;
+        end
+    end
+    
+    if numericV < 1.916 and baseValue < 1.916 then
+        GRM_Patch.FixLogChangeRankEntries();
+
+        if loopCheck ( 1.916 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.917 and baseValue < 1.917 then
+        GRM_Patch.FixMemberDataError ( GRM_Patch.fixAltGroups , true , false , true );
+        
+        if loopCheck ( 1.917 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.918 and baseValue < 1.918 then
+        GRM_Patch.FixMemberDataError ( GRM_Patch.FixMemberRemovePlayerData , true , true , false );   -- Clear these out - can I remove this feature?
+        GRM_Patch.FixMemberDataError ( GRM_Patch.FixRankHistoryEpochDates , true , true , false );
+        GRM_Patch.AddMemberMetaData ( "recommendToDemote" , false );
+        GRM_Patch.AddMemberMetaData ( "recommendToPromote" , false );
+
+        if loopCheck ( 1.918 ) then
             return;
         end
     end
@@ -2225,7 +2261,7 @@ end
 GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
     -- No need to do the work if you can't!
     local result = "";
-    if C_GuildInfo.CanEditOfficerNote() then
+    if GRM.CanEditOfficerNote() then
         local g1 = false;
         local g2 = false;
 
@@ -4427,13 +4463,13 @@ GRM_Patch.ConvertPlayerMetaDataDB = function( database , version )
                         member["status"] = tempUI[i][j][s][34];                        
                         member["verifiedJoinDate"] = tempUI[i][j][s][35];
 
-                        if member["verifiedJoinDate"][1] == "1 Jan '01 12:01am" or member["verifiedJoinDate"][1] == defaultDate then
+                        if member["verifiedJoinDate"][1] == "1 Jan '01 12:01am" or member["verifiedJoinDate"][1] == defaultDate or member["verifiedJoinDate"][1] == nil then
                             member["verifiedJoinDate"] = { "" , 0 };
                         end
 
                         member["verifiedPromoteDate"] = tempUI[i][j][s][36];
 
-                        if member["verifiedPromoteDate"][1] == "1 Jan '01 12:01am" or member["verifiedPromoteDate"][1] == defaultDate then
+                        if member["verifiedPromoteDate"][1] == "1 Jan '01 12:01am" or member["verifiedPromoteDate"][1] == defaultDate or member["verifiedPromoteDate"][1] == nil then
                             member["verifiedPromoteDate"] = { "" , 0 };
                         end
 
@@ -4556,13 +4592,13 @@ GRM_Patch.ConvertBackupPlayerData = function ( playerData , guildName , creation
         member["status"] = tempUI[s][34];
         member["verifiedJoinDate"] = tempUI[s][35];
 
-        if member["verifiedJoinDate"][1] == "1 Jan '01 12:01am" or member["verifiedJoinDate"][1] == defaultDate then
+        if member["verifiedJoinDate"][1] == "1 Jan '01 12:01am" or member["verifiedJoinDate"][1] == defaultDate or member["verifiedJoinDate"][1] == nil then
             member["verifiedJoinDate"] = { "" , 0 };
         end
 
         member["verifiedPromoteDate"] = tempUI[s][36];
 
-        if member["verifiedPromoteDate"][1] == "1 Jan '01 12:01am" or member["verifiedPromoteDate"][1] == defaultDate then
+        if member["verifiedPromoteDate"][1] == "1 Jan '01 12:01am" or member["verifiedPromoteDate"][1] == defaultDate or member["verifiedPromoteDate"][1] == nil then
             member["verifiedPromoteDate"] = { "" , 0 };
         end
         
@@ -4679,6 +4715,60 @@ GRM_Patch.FixMemberDataError = function ( databaseChangeFunction , editCurrentPl
                                         else
                                             GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]][name] = databaseChangeFunction ( player );
                                         end
+                                    end
+                                end
+                            end
+                        end
+                    end
+
+                end
+            end
+        end
+    end
+end
+
+-- 1.92
+-- Method:          GRM_Patch.AddMemberMetaData ( string , variable )
+-- What it Does:    Goes through the entire account wide database and adds the player's metadata a new setting
+-- Purpose:         Reusable function for error work and to avoid on code bloat spam.
+GRM_Patch.AddMemberMetaData = function ( settingName , value )
+    for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+        for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+            for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild
+                if type ( player ) == "table" then 
+                    player[settingName] = value;
+                end
+            end
+        end
+    end
+
+    -- Former memebrs
+    for F in pairs ( GRM_PlayersThatLeftHistory_Save ) do                         -- Horde and Alliance
+        for guildName in pairs ( GRM_PlayersThatLeftHistory_Save[F] ) do                  -- The guilds in each faction
+            for name , player in pairs ( GRM_PlayersThatLeftHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                if type ( player ) == "table" then 
+                    player[settingName] = value;
+                end
+            end
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "Auto" , "Manual" , "members" , "formerMembers" };
+    for F in pairs ( GRM_GuildDataBackup_Save ) do
+        for guildName in pairs ( GRM_GuildDataBackup_Save[F] ) do
+            for i = 1 , 2 do            -- Auto vs Manual
+                if #GRM_GuildDataBackup_Save[F][guildName][backup[i]] > 0 then
+
+                    for j = 3 , 4 do        -- Member vs formerMember
+
+                        if ( j == 3 and editCurrentPlayers ) or ( j == 4 and editLeftPlayers ) then
+                            if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] > 0 then
+                                GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
+                            else
+                                for name , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] ) do
+                                    if type ( player ) == "table" then 
+                                        player[settingName] = value;
                                     end
                                 end
                             end
@@ -5076,4 +5166,92 @@ GRM_Patch.AddKickRuleOperator = function ( kickRules )
         end
     end
     return kickRules
+end
+
+-- 1.92
+-- Method:          GRM_Patch.AddKickRuleValue()
+-- What it Does:    Add a way to sort the rules by index
+-- Purpose:         Player rule customization
+GRM_Patch.AddKickRuleValue = function ( kickRules )
+    local c = 1;
+    for name in pairs ( kickRules ) do 
+        kickRules[name].ruleIndex = c;
+        c = c + 1;
+    end
+    return kickRules;
+end
+
+-- 1.92
+-- Method:          GRM_Patch.AddKickRuleValue()
+-- What it Does:    Add a way to sort the rules by index
+-- Purpose:         Player rule customization
+GRM_Patch.ModifyKickRuleMaxLevel = function ( kickRules )
+
+    for name in pairs ( kickRules ) do 
+        if kickRules[name].levelRange == GRM_G.LvlCap then
+            kickRules[name].levelRange = 999;
+        end
+    end
+    return kickRules;
+end
+
+-- 1.92
+-- Method:          GRM_Patch.ModifyKickRuleLogic ( table )
+-- What it Does:    If the player is looking for activity, this adjusts the rules to account for that so that the kick recommendations aren't overriden by secondary settings
+-- Purpose:         Correction to a logic flow flaw in the settings.
+GRM_Patch.ModifyKickRuleLogic = function ( kickRules )
+    for name in pairs ( kickRules ) do 
+        if kickRules[name].activityFilter then
+            kickRules[name].applyEvenIfActiive = false;
+        end
+    end
+    return kickRules;
+
+end
+
+-- 1.92
+-- Method:          GRM_Patch.FixLogChangeRankEntries()
+-- What it Does:    Goes into every log entry for "rank changes" and checks if the "old rank" is nil or empty, implying it never saved right and then removes it  from the log.
+-- Purpose:         A bug was found where this could occur, so the bug has been fixed, but we need to now cleanup the log from bad entries, especially if they ever reprocess the strings.
+GRM_Patch.FixLogChangeRankEntries = function()
+    for faction in pairs ( GRM_LogReport_Save ) do
+        for guildName in pairs ( GRM_LogReport_Save[faction] ) do
+            for i = #GRM_LogReport_Save[faction][guildName] , 1 , -1 do
+                if GRM_LogReport_Save[faction][guildName][i][1] == 6 and GRM_LogReport_Save[faction][guildName][i][4] == "" or GRM_LogReport_Save[faction][guildName][i][4] == nil then
+                    table.remove ( GRM_LogReport_Save[faction][guildName] , i );
+                end
+            end
+        end
+    end
+end
+
+-- 1.92
+-- Method:          GRM_Patch.FixMemberRemovePlayerData ( playerObject )
+-- What it Does:    Sets the removed Alts table to nil to remove the errors now that that bug no longer exists.
+-- Purpose:         To fix issue with mismatching alt groupings.
+GRM_Patch.FixMemberRemovePlayerData = function ( player )
+    player.removedAlts = {};
+    return player;
+end
+
+-- 1.92
+-- Method:          GRM_Patch.FixRankHistoryEpochDates ( playerObject )
+-- What it Does:    fixes any issues with the rankHistory
+-- Purpose:         With the release of the macro tool for promotions and demotions it was necessary to check these to ensure they were valid and there was some logic flaws found in how the epoch stamps were saved. That was fixed, but now they need to be retroactively fixed.
+GRM_Patch.FixRankHistoryEpochDates = function ( player )
+
+    player = GRM.ValidateUnverifiedDate ( player , "verifiedPromoteDate" );
+
+    for i = 1 , #player.rankHistory do
+        if player.rankHistory[i][2] ~= "" then
+            if not player.rankHistory[i][2] then
+                print(player.rankHistory[i][2])
+            end
+
+            player.rankHistory[i][3] = GRM.TimeStampToEpoch ( player.rankHistory[i][2] , true );
+
+        end
+    end
+
+    return player;
 end

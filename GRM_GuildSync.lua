@@ -171,8 +171,8 @@ InstanceManager.isFirstLoad = true;
 InstanceManager:RegisterEvent ( "ZONE_CHANGED_NEW_AREA" );
 InstanceManager:SetScript ( "OnEvent" , function()
     if not InstanceManager.isFirstLoad then
-        GRMsyncGlobals.ThrottleCap = 500;     -- Throttle it down to about 1/10th the base speed for 5 seconds on entering a new zone, lest it can kick you
-        C_Timer.After ( 5 , function()
+        GRMsyncGlobals.ThrottleCap = 500;     -- Throttle it down to about 1/10th the base speed for 30 seconds on entering a new zone, lest it can kick you
+        C_Timer.After ( 30 , function()
             if InstanceManager.StatusFlip == 2 then
                 GRMsyncGlobals.ThrottleCap = ( GRMsyncGlobals.normalMessage * 0.5 );
             else
@@ -346,7 +346,7 @@ GRMsync.InquireLeader = function()
     end
 
     -- Check for number of leaders after 3 sec.
-    C_Timer.After ( 3 , function()
+    C_Timer.After ( 4.1 , function()
         if #GRMsyncGlobals.AllLeadersNeutral > 0 then
             if #GRMsyncGlobals.AllLeadersNeutral == 1 then
                 GRMsync.SetLeader ( GRMsyncGlobals.AllLeadersNeutral[1] );
@@ -385,7 +385,7 @@ GRMsync.InquireLeaderRespond = function ()
         GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_IAMLEADER?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. "" , GRMsyncGlobals.channelName );
     end
     if not GRMsyncGlobals.reloadControl then
-        C_Timer.After ( 3 , GRMsync.InitiateDataSync );
+        C_Timer.After ( 4.1 , GRMsync.InitiateDataSync );
     else
         GRMsyncGlobals.reloadControl = false;
     end
@@ -463,7 +463,7 @@ GRMsync.RequestElection = function()
         GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_ELECT?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. "" , GRMsyncGlobals.channelName );
     end
     -- Let's give it a time delay to receive responses. 3 seconds.
-    C_Timer.After ( 1.5 , GRMsync.ReviewElectResponses );
+    C_Timer.After ( 4.1 , GRMsync.ReviewElectResponses );
 end
 
 
@@ -1799,8 +1799,9 @@ GRMsync.GetCustomPseudoHash = function()
         guidVal = getGUIDVal ( player.GUID );
 
         -- JD data
-        if not player.joinDateUnknown and #player.joinDate > 0 and player.verifiedJoinDate[1] ~= "" and player.verifiedJoinDate[2] ~= 978375660 then
+        if not player.joinDateUnknown and #player.joinDate > 0 and player.verifiedJoinDate[1] ~= "" and player.verifiedJoinDate[1] == nil and player.verifiedJoinDate[2] ~= 978375660 then
             date = player.verifiedJoinDate[1];
+            
             day = tonumber ( string.sub ( date , 1 , string.find ( date , " " ) - 1 ) );
             month = monthEnum[string.sub ( date , string.find ( date , " " ) + 1 , string.find ( date , " " ) + 3 ) ];
             year = tonumber ( string.sub ( date , string.find ( date , "'" ) + 1 , string.find ( date , "'" ) + 2 ) );
@@ -1810,8 +1811,9 @@ GRMsync.GetCustomPseudoHash = function()
         jd1 , jd2 = getHashPrecision ( jd1 , jd2 );
 
         -- PD data
-        if not player.promoteDateUnknown and player.verifiedPromoteDate[1] ~= "" and player.verifiedPromoteDate[2] ~= 978375660 then
+        if not player.promoteDateUnknown and player.verifiedPromoteDate[1] ~= "" and player.verifiedPromoteDate[1] == nil and player.verifiedPromoteDate[2] ~= 978375660 then
             date = player.verifiedPromoteDate[1];
+
             day = tonumber ( string.sub ( date , 1 , string.find ( date , " " ) - 1 ) );
             month = monthEnum[string.sub ( date , string.find ( date , " " ) + 1 , string.find ( date , " " ) + 3 ) ];
             year = tonumber ( string.sub ( date , string.find ( date , "'" ) + 1 , string.find ( date , "'" ) + 2 ) );
@@ -1965,6 +1967,7 @@ end
 -- What it Does:    Builds the strings and sends them for the sync leader to compare
 -- Purpose:         No need for the leader to process everything in terms of database block markers when you already have. Just sends the results.
 GRMsync.SendLeaderDatabaseMarkers = function( markers )
+    GRMsyncGlobals.TimeSinceLastSyncAction = time();
     local databaseMarkers = markers or GRMsync.BuildLeaderPreCheckString();
     for i = GRMsyncGlobals.preCheckControl[1] , #databaseMarkers do
         for j = GRMsyncGlobals.preCheckControl[2] , #databaseMarkers[i] do
@@ -1995,6 +1998,7 @@ end
 -- What it Does:    Builds the strings and sends them for the non sync leader to compare
 -- Purpose:         Efficiency
 GRMsync.SendNonLeaderDatabaseMarkers = function ( markers )
+    GRMsyncGlobals.TimeSinceLastSyncAction = time();
     local databaseMarkers = markers or GRMsync.BuildMessagePreCheck();
     for i = GRMsyncGlobals.preCheckControl[1] , #databaseMarkers do
         for j = GRMsyncGlobals.preCheckControl[2] , #databaseMarkers[i] do
@@ -2051,6 +2055,7 @@ end
 -- What it Does:    Converts the received sendAddonMessage string to an array of the values
 -- Purpose:         For easier comparison of own database to received.
 GRMsync.SetReceivedHashValue = function ( hashReceived )
+    GRMsyncGlobals.TimeSinceLastSyncAction = time();
     local resultReceived = {};
     local tagEnum = { JD = 1 , PD = 2 , ALT = 3 , MAIN = 4 , BAN = 5 , CUST = 6 , BDAY = 7 };
     local index = tagEnum [ string.sub ( hashReceived , 1 , string.find ( hashReceived , "?" ) - 1 ) ];
@@ -2216,6 +2221,7 @@ end
 -- What it Does:    Builds a message to be sent to the sync Leader which states the player is done sending data, and it sends which types it sent over, thus keeping the analysis lean
 -- Purpose:         Speed speed SPEED!!!
 GRMsync.SendCompletionMsg = function()
+    GRMsyncGlobals.TimeSinceLastSyncAction = time();
     -- This string is reordered for legacy code reasons in change 1.50 that I just do not wish to have to restructure. Minor adaptation
     local result = tostring ( GRMsyncGlobals.SyncProgress[1] ) .. "?" .. tostring ( GRMsyncGlobals.SyncProgress[2] ) .. "?" .. tostring ( GRMsyncGlobals.SyncProgress[5] ) .. "?" .. tostring ( GRMsyncGlobals.SyncProgress[4] ) .. "?" .. tostring ( GRMsyncGlobals.SyncProgress[3] ) .. "?" .. tostring ( GRMsyncGlobals.SyncProgress[6] ) .. "?" .. tostring ( GRMsyncGlobals.SyncProgress[7] ) .. "?";
     GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_STOP?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. result  , GRMsyncGlobals.channelName );
@@ -3201,7 +3207,7 @@ GRMsync.ErrorCheck = function()
                     
                     if #GRMsyncGlobals.SyncQue > 0 then
                         GRM.RegisterGuildAddonUsersRefresh();
-                        C_Timer.After ( 2 , function()
+                        C_Timer.After ( 4.1 , function()
                             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
                                 if GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline() then
                                     GRM.Report ( msg .. "\n" .. GRM.L ( "Initiating Sync with {name} Instead!" , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
@@ -3263,8 +3269,8 @@ GRMsync.ErrorCheck = function()
                     GRMsyncGlobals.numSyncAttempts = GRMsyncGlobals.numSyncAttempts + 1;
                 end
                 GRMsync.TriggerFullReset();
-                -- Now, let's add a brief delay, 11,1 seconds, to trigger sync again
-                C_Timer.After ( 11.1 , function()
+                -- Now, let's add a brief delay, 15 seconds, to trigger sync again
+                C_Timer.After ( 15 , function()
                     if not GRMsyncGlobals.currentlySyncing then
                         GRMsync.Initialize();
                     end
@@ -3277,8 +3283,8 @@ GRMsync.ErrorCheck = function()
                         end
                     end
                     GRMsync.TriggerFullReset();
-                    -- Now, let's add a brief delay, 11,1 seconds, to trigger sync again
-                    C_Timer.After ( 11.1 , function()
+                    -- Now, let's add a brief delay, 15 seconds, to trigger sync again
+                    C_Timer.After ( 15 , function()
                         if not GRMsyncGlobals.currentlySyncing then
                             GRMsync.Initialize();
                         end
@@ -3309,8 +3315,9 @@ GRMsync.ErrorCheck = function()
                 end
                 GRMsync.TriggerFullReset();
                 -- Now, let's add a brief delay, 11,1 seconds, to trigger sync again
-                C_Timer.After ( 11.1 , function()
+                C_Timer.After ( 15 , function()
                     if not GRMsyncGlobals.currentlySyncing then
+                        GRMsync.TriggerFullReset();
                         GRMsync.Initialize();
                     end
                 end);
@@ -5695,7 +5702,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                             end
                         
                             -- Redundancies... for some cleanup of edge cases where leader sync failed, or got trapped.
-                            C_Timer.After ( 12.5 , function()
+                            C_Timer.After ( 15 , function()
                                 if ( GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.TimeSinceLastSyncAction ) >= 12.5 ) or ( not GRMsyncGlobals.currentlySyncing and #GRMsyncGlobals.SyncQue > 0 ) then
                                     GRMsyncGlobals.currentlySyncing = false;
                                     GRMsyncGlobals.errorCheckEnabled = false;
@@ -5875,7 +5882,7 @@ GRMsync.BuildSyncNetwork = function()
                 GRMsync.EstablishLeader();
                 -- Reset the reload control blocker...
                 if GRMsyncGlobals.reloadControl then
-                    C_Timer.After ( 5 , function()
+                    C_Timer.After ( 10 , function()
                         GRMsyncGlobals.reloadControl = false;
                     end);
                 end

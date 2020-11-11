@@ -125,6 +125,7 @@ GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollF
 -- Populating Frames with FontStrings
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailNameText = GRM_UI.GRM_MemberDetailMetaData:CreateFontString ( "GRM_MemberDetailNameText" , "OVERLAY" , "GameFontNormalLarge" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText = GRM_UI.GRM_MemberDetailMetaData:CreateFontString ( "GRM_MemberDetailMainText" , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText = GRM_UI.GRM_MemberDetailMetaData:CreateFontString ( "GRM_MemberDetailAltText" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLevel = GRM_UI.GRM_MemberDetailMetaData:CreateFontString ( "GRM_MemberDetailLevel" , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt = GRM_UI.GRM_MemberDetailMetaData:CreateFontString ( "GRM_MemberDetailRankTxt" , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt = GRM_UI.GRM_MemberDetailMetaData:CreateFontString ( "GRM_MemberDetailRankDateTxt" , "OVERLAY" , "GameFontNormalSmall" );
@@ -2160,6 +2161,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:SetText ( GRM.L ( "( Main )" ) );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:SetTextColor ( 1.0 , 0.0 , 0.0 , 1.0 );
+    
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData , 0 , -12 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:SetText ( "( " .. GRM.L ( "Alt" ) .. " )" );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:SetTextColor ( 1.0 , 0.5 , 0.5 , 1.0 );
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:SetTextColor ( 1 , 1 , 1 , 1.0 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt , "BOTTOM" , 0 , -4 );
@@ -2607,17 +2613,19 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     GRM_UI.SetIgnoreCheckButtonTooltip = function()
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton , "ANCHOR_CURSOR" );
-        if #GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].alts > 0 then
-            if GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:GetChecked() then 
-                GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to also REMOVE all alts from the ignore list" ) );
-            else
-                GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to also ADD all alts to the ignore list" ) );
+        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName] ~= nil and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].alts ~= nil then
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton , "ANCHOR_CURSOR" );
+            if #GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].alts > 0 then
+                if GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:GetChecked() then 
+                    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to also REMOVE all alts from the ignore list" ) );
+                else
+                    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to also ADD all alts to the ignore list" ) );
+                end
             end
+            GameTooltip:AddLine( GRM.L ( "Type \"/grm tool\" to Bring Up Macro Tool" ) );
+            GameTooltip:Show();
         end
-        GameTooltip:AddLine( GRM.L ( "Type \"/grm tool\" to Bring Up Macro Tool" ) );
-        GameTooltip:Show();
     end
 
     -- To enable or disable the ignore list for all alts...
@@ -3689,11 +3697,12 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     GRM_UI.ConfirmPromoDate = function()
         local name = GRM_G.currentName;
         local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
-    
+        player = GRM.ValidateUnverifiedDate ( player , "verifiedPromoteDate" );
+
         if player ~= nil then
             -- For SYNC
             player.verifiedPromoteDate[1] = player.rankHistory[#player.rankHistory][2];
-            player.verifiedPromoteDate[2] = player.rankHistory[#player.rankHistory][3];
+            player.verifiedPromoteDate[2] = time();
             
             -- If player had it set to "unknown before"
             player.promoteDateUnknown = false;
@@ -3715,7 +3724,6 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
             GRM.RefreshAuditFrames ( true , true );
         end    
     end
-
     -- Method:          GRM_UI.ConfirmJoinDate()
     -- What it Does:    Confirms the current date and adds it.
     -- Purpose:         Easier UX for confirming dates, especially in Classic
@@ -3724,10 +3732,9 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
         local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
 
         if player ~= nil then
-                
             -- For SYNC
             player.verifiedJoinDate[1] = player.joinDate[#player.joinDate];
-            player.verifiedJoinDate[2] = player.joinDateEpoch[#player.joinDateEpoch]
+            player.verifiedJoinDate[2] = time();
             
             -- If player had it set to "unknown before"
             player.joinDateUnknown = false;
@@ -3817,6 +3824,8 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     GRM_UI.GRM_LoadToolButton:SetSize ( 90 , 11 );
     GRM_UI.GRM_LoadToolButton:SetPoint ( "RIGHT" , GRM_UI.GRM_LoadLogButton , "LEFT" , 0 , 0 );
     GRM_UI.GRM_LoadToolButton.Timer = 0;
+    GRM_UI.GRM_LoadToolButton.count = 0;
+    GRM_UI.GRM_LoadToolButton.total = 0;
     GRM_UI.GRM_LoadToolButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_LoadToolButton );
     GRM_UI.GRM_LoadToolButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
     GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
@@ -3839,6 +3848,22 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
         end
     end);
 
+    GRM_UI.GRM_LoadToolButton:SetScript ( "OnEnter" , function ( self )
+        if GRM_UI.GRM_LoadToolButton.total > 0 then
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine ( GRM.L ( "Macro Tool" ) , 0 , 0.8 , 1 );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Kick:" ) , GRM_UI.GRM_LoadToolButton.count[1] );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Promote:" ) , GRM_UI.GRM_LoadToolButton.count[2] );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Demote:" ) , GRM_UI.GRM_LoadToolButton.count[3] );
+            GameTooltip:Show();
+        end
+    end);
+
+    GRM_UI.GRM_LoadToolButton:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip();
+    end);
+
     -- BUTTONS
     if GRM_G.BuildVersion < 80000 then
         GRM_UI.GRM_LoadToolOldRosterButton:SetSize ( 90 , 20 );
@@ -3849,6 +3874,8 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     end
     GRM_UI.GRM_LoadToolOldRosterButton:SetPoint ( "RIGHT" , GRM_UI.GRM_LoadLogOldRosterButton , "LEFT" , 0 , 0 );
     GRM_UI.GRM_LoadToolOldRosterButton.Timer = 0;
+    GRM_UI.GRM_LoadToolOldRosterButton.count = 0;
+    GRM_UI.GRM_LoadToolOldRosterButton.total = 0;
     GRM_UI.GRM_LoadToolOldRosterButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_LoadToolOldRosterButton );
     GRM_UI.GRM_LoadToolOldRosterButtonText:SetText ( GRM.L ( "Macro Tool" ) );
 
@@ -3870,6 +3897,22 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
                 self.Timer = 0;
             end
         end
+    end);
+
+    GRM_UI.GRM_LoadToolOldRosterButton:SetScript ( "OnEnter" , function ( self )
+        if GRM_UI.GRM_LoadToolOldRosterButton.total > 0 then
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine ( GRM.L ( "Macro Tool" ) );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Kick:" ) , GRM_UI.GRM_LoadToolOldRosterButton.count[1] );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Promote:" ) , GRM_UI.GRM_LoadToolOldRosterButton.count[2] );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Demote:" ) , GRM_UI.GRM_LoadToolOldRosterButton.count[3] );
+            GameTooltip:Show();
+        end
+    end);
+
+    GRM_UI.GRM_LoadToolOldRosterButton:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip();
     end);
     
 end
@@ -4176,7 +4219,7 @@ GRM_UI.PreAddonLoadUI = function()
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             if count > 1 then
-                GameTooltip:AddLine( GRM.L ( "{num} guild members have incomeplete info." , nil , nil , count ) );
+                GameTooltip:AddLine( GRM.L ( "{num} guild members have incomplete info." , nil , nil , count ) );
             elseif count == 1 then
                 GameTooltip:AddLine( GRM.L ( "Just 1 guild member still has incomplete info. Great job!" ) );
             else
@@ -4433,19 +4476,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:SetText ( GRM.L ( "AUDIT" ) );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersTab:SetText ( GRM.L ( "SYNC USERS" ) );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:SetText ( string.upper ( GRM.L ( "Options" ) ) );
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( "|cffff0000" .. GRM.L ( "Officer Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( GRM.L ( "Public Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( GRM.L ( "Custom Note" ) );
-        elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( GRM.L ( "Officer Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( "|cffff0000" .. GRM.L ( "Public Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( GRM.L ( "Custom Note" ) );
-        elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 3 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( GRM.L ( "Officer Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( GRM.L ( "Public Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( "|cffff0000" .. GRM.L ( "Custom Note" ) );
-        end
+        GRM_UI.AdjustTextColoring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination );
     end
 
     -- Popup window to confirm!
@@ -5389,7 +5420,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GameTooltip:Show();
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
+        GRM.RestoreTooltip();
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportFilter1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton , "BOTTOMLEFT" , 0 , -10 );
@@ -8614,6 +8645,35 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText4:SetText ( "(" .. GRM.L ( "GC" ) .. ")" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText4:SetTextColor ( 0 , 0.8 , 1 );
 
+    GRM_UI.DisableNoteDestinationButtons = function()
+        GRM_UI.AdjustTextColoring ( 4 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:Disable();
+    end
+
+    GRM_UI.EnableNoteDestinationButtons = function()
+        GRM_UI.AdjustTextColoring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:Enable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:Enable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:Enable();
+    end
+
+    GRM_UI.AdjustTextColoring = function ( indexToRed )
+        local names = { GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3 };
+
+        for i = 1 , #names do 
+
+            if indexToRed == 4 then
+                names[i]:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            elseif i == indexToRed then
+                names[i]:SetTextColor ( 1 , 0 , 0 );
+            else
+                names[i]:SetTextColor ( 1 , 0.82 , 0 );
+            end
+        end
+
+    end
     
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButton:SetScript ( "OnClick", function( self , button )              
         if button == "LeftButton" and not GRM_G.GlobalControl4 then
@@ -8621,20 +8681,24 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote = true;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_AddJoinedTagButton:Enable();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_AddJoinedTagButtonText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
+                GRM_UI.EnableNoteDestinationButtons();
 
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 0 then
                     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination = 1;
                     GRM.UpdateGuildInfoWithNewValue ( 5 , 1 );
                 end
+                
             else
                 GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_AddJoinedTagButton:Disable();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_AddJoinedTagButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
+                GRM_UI.DisableNoteDestinationButtons();
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination > 0 then
                     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination = 0;
                     GRM.UpdateGuildInfoWithNewValue ( 5 , 0 );
                 end
             end
+            GRM_UI.ConfigureJoinDateLocation();
             GRM.SyncSettings();
         elseif GRM_G.GlobalControl4 then
             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote then
@@ -8712,9 +8776,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetScript ( "OnClick" , function( self , button )
         if button == "LeftButton" and not GRM_G.GlobalControl4 then
             GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination = 1;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( "|cffff0000" .. GRM.L ( "Officer Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( GRM.L ( "Public Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( GRM.L ( "Custom Note" ) );
+            GRM_UI.AdjustTextColoring ( 1 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
             GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText );
@@ -8738,9 +8800,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetScript ( "OnClick" , function( self , button )
         if button == "LeftButton" and not GRM_G.GlobalControl4 then
             GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination = 2;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( GRM.L ( "Officer Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( "|cffff0000" .. GRM.L ( "Public Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( GRM.L ( "Custom Note" ) );
+            GRM_UI.AdjustTextColoring ( 2 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
             if not GRM.CanEditOfficerNote() then
@@ -8762,9 +8822,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" and not GRM_G.GlobalControl4 then
             GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination = 3;
             GRM.SyncSettings();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( GRM.L ( "Officer Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( GRM.L ( "Public Note" ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( "|cffff0000" .. GRM.L ( "Custom Note" ) );
+            GRM_UI.AdjustTextColoring ( 3 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
             GRM.UpdateGuildInfoWithNewValue ( 5 , 3 );
@@ -13967,7 +14025,6 @@ GRM_UI.BuildLogFilterSideFrame = function()
     GRM_UI.ConfigureSelectAllCheckButtons();
 end
 
-
 -- Method:          GRM_UI.ConfigureJoinDateLocation()
 -- What it Does:    Configures the front-end UI in the options, including enabling/disabling if you have officer permissions, and basing the selection properly
 -- Purpose:         UI Configuration on load.
@@ -13976,29 +14033,29 @@ GRM_UI.ConfigureJoinDateLocation = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( true );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( "|cffff0000" .. GRM.L ( "Officer Note" ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( GRM.L ( "Public Note" ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( GRM.L ( "Custom Note" ) );
+
     elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( true );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( GRM.L ( "Officer Note" ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( "|cffff0000" .. GRM.L ( "Public Note" ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( GRM.L ( "Custom Note" ) );
+
     elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 3 then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( true );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText:SetText ( GRM.L ( "Officer Note" ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2:SetText ( GRM.L ( "Public Note" ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3:SetText ( "|cffff0000" .. GRM.L ( "Custom Note" ) );
     end
+
+    GRM_UI.AdjustTextColoring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination );
 
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote and not ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 0 ) then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButton:SetChecked ( true );
+        GRM_UI.EnableNoteDestinationButtons();
     else
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButton:SetChecked ( false );
+    end
+
+    if not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote then
+        GRM_UI.DisableNoteDestinationButtons();
     end
 
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].includeTag then
@@ -15210,10 +15267,7 @@ GRM_UI.InitalizeGuildFrame = function()
         
         CommunitiesFrame:HookScript ( "OnShow" , function()
             GRM_UI.CommunitesFrame_OnShow();
-            C_Timer.After ( 1 , GRM.TempFixPatchEightPointThreeRecruitmentDisconnect );
         end);
-
-        GRM.TempFixPatchEightPointThreeRecruitmentDisconnect();
 
     end
 

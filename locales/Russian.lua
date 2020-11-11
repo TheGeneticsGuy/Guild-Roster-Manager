@@ -300,7 +300,7 @@ GRML.Russian = function()
     GRM_L["Main"] = "Мейн"
     GRM_L["Main or Alt?"] = "Мейн или Твинк?"
     GRM_L["Alt"] = "Твинк"
-    GRM_L["Total Incomplete: {num} / {custom1}"] = "Всего незаполненых: {num} / {custom1}" -- Context: Total Incomeplete: 50 / 100    (50 out of 100)
+    GRM_L["Total Incomplete: {num} / {custom1}"] = "Всего незаполненых: {num} / {custom1}" -- Context: Total incomplete: 50 / 100    (50 out of 100)
     GRM_L["Mains:\n{num}"] = "Мейнов:\n{num}"        -- Context: Number of "main" toons
     GRM_L["Unique Accounts:\n{num}"] = "Уникальных акк-ов:\n{num}"
     GRM_L["All Complete"] = "Все заполнено"                                       -- Context: ц
@@ -1030,10 +1030,6 @@ GRML.Russian = function()
     GRM_L["There are currently no names to remove"] = "В настоящее время нет имен для удаления"
     GRM_L["Rules"] = "Правила"
     GRM_L["Please choose a day between 1 and 99"] = "Пожалуйста, выберите от 1 до 99 дней"
-    GRM_L["Time before recommending to kick has been set to 99 Days. For a longer time period, use the months instead."] = "Время до рекомендации кикнуть было установлено на 99 дней. Для более длительного периода времени используйте месяцы."
-    GRM_L["Time before recommending to kick has been set to the default period of 12 Months."] = "Время до того, как будет рекомендовано кикнуть, по умолчанию установлено в 12 месяцев."
-    GRM_L["Time before recommending to kick has been set to {num} Months."] = "Время до того, как будет рекомендовано кикнуть, установлено на {num} месяцев."
-    GRM_L["Time before recommending to kick has been set to {num} Days."] = "Время до рекомендации кикнуть было установлено на {число} дней."
     GRM_L["Pressing the ESC key will also clear all lines"] = "Нажатие клавиши ESC также очищает все строки"
     GRM_L["Player's rank does not have permission to remove others from the guild"] = "Ранг игрока не позволяет удалять других из гильдии"
     GRM_L["Player's rank does not have permission to promote others in the guild"] = "Ранг игрока не позволяет повышать других игроков в гильдии"
@@ -1349,7 +1345,7 @@ GRML.Russian = function()
     GRM_L["Custom Notes can be Restricted Further Below"] = "Пользовательские заметки могут быть ограничены ниже"
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = "Все звания получат исходящие данные игрока. Только игроки с выбранным званием или выше могут изменять эти данные и делиться ими."
     GRM_L["Always open to selected tab:"] = "Всегда открывать на выбранной вкладке:"
-    GRM_L["{num} guild members have incomeplete info."] = "{num} членов гильдии не имеют полной информации."
+    GRM_L["{num} guild members have incomplete info."] = "{num} членов гильдии не имеют полной информации."
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = "Только 1 член гильдии все еще не имеет полной информации. Прекрасная работа!"
     GRM_L["No Audit Necessary! Great Work!"] = "Аудит не требуется! Отличная работа!"
     GRM_L["GRM Audit Report:"] = "Отчет об аудите:"                                                               -- Appears after the player's first sync that game secssion.
@@ -1396,7 +1392,6 @@ GRML.Russian = function()
     GRM_L["Shift Rank Down"] = "Сдвинуть ранг вниз"
     
     -- R1.90
-    GRM_L["Promotion and demotion mass macros are not yet implemented"] = "Функция макро-тулза на массовые повышения и понижения пока не реализована"
     GRM_L["Suggestions on kick filters? Submit to Discord"] = "Предложение по кик-фильтрам? Поделись этим в нашем Discord канале."
     GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = "ГРМ Внимание!!! Ошибка загрузки этого ключа: {name}\nПожалуйста сообщите об этом разработчику аддона! Спасибо!"
     GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true      -- if sync is triggered after logon too soon
@@ -1406,7 +1401,59 @@ GRML.Russian = function()
     GRM_L["After Auto Trigger"] = "Seconds After Logging On"
     GRM_L["Report When Other Members Have Outdated Versions"] = true
 
+    -- Macro Tool update promote/demote
+    -- R1.92
+    GRM_L["Inactive"] = true
+    GRM_L["Promote Rule {num}" ] = true
+    GRM_L["Demote Rule {num}" ] = true
+    GRM_L["Promote Player if at Rank for"] = true
+    GRM_L["Demote Player if Inactive for"] = true
+    GRM_L["Apply Promotions Regardless of Activity"] = true
+    GRM_L["Apply Only to Active Players"] = true
+    GRM_L["Player is considered inactive if offline for"] = true
+    GRM_L["Ignore inactivity if at least one player linked alt is active"] = true
+    GRM_L["Promote to Rank:"] = true
+    GRM_L["Demote to Rank:"] = true
+    GRM_L["Only recommend to Demote if all player linked alts exceed max time"] = true
+    GRM_L["Suggestions on promote filters? Submit to Discord"] = true                                                                       -- promote
+    GRM_L["Suggestions on demote filters? Submit to Discord"] = true                                                                        -- demote
+    GRM_L["Unable to promote players to this rank"] = true                                                                                  -- etc...
+    GRM_L["Unable to demote players to this rank"] = true
+    GRM_L["Unable to promote players at this rank."] = true
+    GRM_L["Unable to demote players from this rank."] = true
+    GRM_L["Unable to kick players at this rank"] = true
+    GRM_L["Unable to promote players at this rank to \"{name}\""] = true
+    GRM_L["Unable to demote players at this rank to \"{name}\""] = true
+    GRM_L["Disable chat log spam while using the Macro Tool"] = true
+    GRM_L["When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions"] = true           -- Similar entries demote/promote plura/singular versions
+    GRM_L["When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions"] = true                -- ''
+    GRM_L["When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions"] = true         -- ''
+    GRM_L["When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions"] = true          -- ''
+
+    -- Mouseover tooltip on the macro button on the roster
+    GRM_L["Players to Kick:"] = true
+    GRM_L["Players to Promote:"] = true
+    GRM_L["Players to Demote:"] = true
+
+    GRM_L["Hello {custom1}"] = true
+
+    -- Consideration for plural/singular
+    GRM_L["Player has been at rank for more than {num} Day"] = true
+    GRM_L["Player has been at rank for more than {num} Days"] = true
+    GRM_L["Player has been at rank for more than {num} Month"] = true
+    GRM_L["Player has been at rank for more than {num} Months"] = true
+
+    -- Promote?Demote tooltup updates on the rules
+    GRM_L["Time at Rank:"] = true
+    GRM_L["Destination Rank:"] = true
+    GRM_L["# Moves:"] = true        -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
+    GRM_L["Notify if at current rank for {num} {name}" ] = true
     
+    -- Macro Tool Log reporting
+    GRM_L["{name} matches {num} macro tool rules. Promotion Recommended!"] = true     -- I know, a little redundancy here, but I don't want to go back to the kick rules above and modify for all. Just copy/paste the first sentence for each singular/plural.
+    GRM_L["{name} matches {num} macro tool rule. Promotion Recommended!"] = true
+    GRM_L["{name} matches {num} macro tool rules. Demotion Recommended!"] = true
+    GRM_L["{name} matches {num} macro tool rule. Demotion Recommended!"] = true
 
 
 

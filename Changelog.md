@@ -2,6 +2,64 @@
 
 _______________________
 
+**VERSION R1.92 RELEASE - November 10th, 2020**
+
+***NEW FEATURE - MACRO TOOL UPGRADE***
+
+**Promotions and Demotion Rules Added!**
+
+*This has been a long time coming. While it may not seem that complicated, there were a lot of pieces under the hood that needed to come together to make this work, coupled with the less time I was able to spend on the addon this year due to RL obligations with work and increased time with the kids around due to schools being closed. I have to say, my vision for GRM has always been centered on a single principle, however. Does it make your life as an officer or a leader easier? Does it save you time? Yes? Then I want...* 
+
+*I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that grinds and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it."
+
+**NOTABLE FEATURE ABSENT FROM MACRO TOOL**
+
+* Rule sharing among officers. You cannot yet sync the rules to all the leadership in a guild. This is planned and coming very soon. I wanted to get this released first!
+
+***NOTE*** - Please report to discord any errors you encounter, bugs, or recommendations for filters. There is a lot of overlap between the rules, but I did center the promotions to prioritize time at rank with demotions prioritizing inactivity, though you can customize your rules however you please.
+
+
+***BUG FIXES***
+
+* On exporting players, the column "headers" were not showing even if checked. This is now resolved.
+
+* Issue with the verified promote date in some weird edge case getting set to nil after a sync, which then breaks future syncs. This shouldn't occur now.
+
+* The new sync process, while much more efficient, can have a slightly longer behind the scenes "pre-check" of the data before identifying what needs to be sync'd. This time delay was not taken into consideration for so an error check was being triggered too soon, not to account for the change, causing sync to error in large guilds, whilst work perfectly fine in smaller. This should no longer happen.
+
+* Fixed an issue if people had certain regex code in their player notes it now properly parses in consideration of the escape char so it doesn't fail in localizing log entries.
+
+* Fixed a bit of a logic flow issue in the macro tool for kicking players if you were using the option under the rank selections to kick a player even if they were active, but still at a rank after X amount of time. It was overriding the main kick for inactivity and it doesn't seem to make sense to have both enabled, so now it is just one or the other. Furthermore, there was an issue where the actual epoch stamp was being set as the server time, not the actual date, so I fixed the logic issue, then in the "patches" the addon parses the entire databse and rebuilds the epoch stamp for all the rankHistory points by converting the string (text) timestamp to the actual epoch date in seconds. This may cause the patching process on updating the addon to the latest version to add a couple of seconds to the process.
+
+* Fixed a bug that could occur where if you have global control set to NOT add the Join date to a player's note, but then you manually change the destination, like custom note instead of default officer... it was re-enabling it globally, but disabling locally. This is now resolved. It will only affect a small number of people as this was only first reporeted recently and it has been a long-existent bug,
+
+* Fixed an issue where the rank being renamed was not reporting correctly. The addon will also detect the rank changes more easily, even if a rank was renamed that had no players in that rank. Before it was detecting a rank change if an existing player in that rank no longer had a matching rank name, yet the underlying rank index had not changed. Well, this could create some potential for oddities, like if a rank name was changed and no toons were currently members of that rank, GRM wouldn't notice. Another is that what if you changed the "new member" lowest rank name, then they joined the guild, well the addon didn't know how to handle that properly since the new member shows new current rank, but doesn't have a previous rank name to compare against. So, I rewrote the whole logic to be just a bit better and reliable in all instances of name change detection.
+
+* The "Group Invite" button on the GRM mouseover window should now work with the new 9.0 API changes
+
+* Fixed a bug with the macro tool setting the rules where you could uncheck all 3 of the radio buttons at the top for "all, alts only , mains only" - This should no longer be possible.
+
+* Fixed a typo on the audit tab mouseover tooltip.
+
+* Fixed an issue where if a player was holding on to a guild name with say an alt, so they could namechange a guild to it later, then they disbanded that guild then renamed their main guild with the name of that guild you just disbanded, then GRM was failing to detect the namechange as it was still finding the name in the database. GRM now properly compares against the guild GUID (the clubID) so this error should no longer occur.
+
+
+***QUALITY OF LIFE***
+
+* No longer is just the "(Main)" title showing on players windows, but it now also shows the Alt title, though a slightly different chromatic shade.
+
+* Huge cleanup of no longer used or duplicate strings from the language locale files. Special shoutout to @Mythos#7392 (Discord) for this huge cleanup (as well as some updated German translation work!)
+
+* Macro tool - Cleaned up some of the rank selection, added some tooltips as well for the kick. Basically if the rank is equal to you or above you, it is now red indicated you cannot kick players from that rank, to prevent any confusion as to why they are not showing up in the list.
+
+* Patch 8.3 introduced a bug that was causing disconnects of players, but not due to GRM, because of an error in coding on Blizz's end. However, the bug was very niche in who it targeted. It literally ONLY affected players in a guild who were officers with access to the new guild recruitment system. You see, it was firing a call to the server for information, and you were getting the event firing "CLUB_FINDER_RECRUITMENT_POST_RETURNED" - Well, if you kept the community frame window open the calls to the server snowballed to the point of sending hundreds and even thousands of calls a second, eventually causing the server to boot you offline. It was largely looked over because it only affected the unique situation of an officer who had his community window open to the guild page for 5-10+ minutes. So, as you can see, leadership in the guild could easily find themselves getting bumped, but it was a non-issue to most players. @Xulu on discord re-investigaed this bug to see if Blizz had resolved it in 9.0, which they have, so the temporary fix that I implemented to protect against these disconnects for GRM users is no longer necessary and it appears that Blizz has finally addressed the underlying code. That code is no longer necessary.
+
+* The macro tool macros can now be spammed without risk of double spamming it. I added a protection against it by clearing the macro immediately after use so that you cannot spam click the macro again as you wait for it to be rebuilt. Current PCs it should rebuild the next macro within 0.025 seconds of clicking it, but there are people that like to mousehweel-hotkey their macros, like myself, and with the Logitech free-spinning stuff, I can punch out like 100 clicks a second, easily. So, now you have protections in place against it. This was probably a non-issue for most people.
+
+* Removed some of the logic I added to the days/months selection in the macro tool. I realized how much I hated it auto-changing the date to a bigger number if I swapped back and forth on month and day. It was supposed to help be more convenient, but my guess is I coded it in a half stuper of sleep originally and my brain thought at the time, probably 2 or 3am, that it was a good idea. Ya... it wasn't. I purged all that logic now.
+
+
+
 **VERSION R1.913 RELEASE - October 18th, 2020**
 
 ***BUG FIXES***
