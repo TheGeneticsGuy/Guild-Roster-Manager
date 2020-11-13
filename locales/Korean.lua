@@ -478,8 +478,6 @@ GRML.Korean = function()
     GRM_L["Day"] = true
     GRM_L["Months"] = true
     GRM_L["Month"] = true
-    GRM_L["Years"] = true
-    GRM_L["Year"] = true
     GRM_L["HourBreak"] = ":"            -- Context, in English, and many languages, 11am = 11:00 -- or in French, 11h00   - the hour break is the ":" or the "h" 
 
     GRM_L["am"] = true
@@ -1306,7 +1304,6 @@ GRML.Korean = function()
     GRM_L["Enable Module"] = true
     GRM_L["Show Interactable Distance Indicator"] = true
     GRM_L["No GRM Modules Currently Installed"] = true
-    GRM_L["Pending Feature"] = true
     GRM_L["Custom Color"] = true
     GRM_L["{name} is listed as the Main"] = true
     GRM_L["Kick Banned in Guild"] = true

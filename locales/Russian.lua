@@ -484,8 +484,6 @@ GRML.Russian = function()
     GRM_L["Day"] = "День"
     GRM_L["Months"] = "Месяцев"
     GRM_L["Month"] = "Месяц"
-    GRM_L["Years"] = "Лет"
-    GRM_L["Year"] = "Год"
     GRM_L["HourBreak"] = ":"            -- Context, in English, and many languages, 11am = 11:00 -- or in French, 11h00   - the hour break is the ":" or the "h" 
 
     GRM_L["am"] = "am"
@@ -1310,7 +1308,6 @@ GRML.Russian = function()
     GRM_L["Enable Module"] = "Включить модуль"
     GRM_L["Show Interactable Distance Indicator"] = "Показать интерактивный индикатор расстояния"
     GRM_L["No GRM Modules Currently Installed"] = "В настоящее время модули для ГРМ не установлены"
-    GRM_L["Pending Feature"] = "Будущая функция" 
     GRM_L["Custom Color"] = "Пользовательский цвет"
     GRM_L["{name} is listed as the Main"] = "{name} указан как Мейн"
     GRM_L["Kick Banned in Guild"] = "Исключить забаненного в гильдии"

@@ -486,8 +486,6 @@
         GRM_L["Day"] = "Tag"
         GRM_L["Months"] = "Monate"
         GRM_L["Month"] = "Monat"
-        GRM_L["Years"] = "Jahre"
-        GRM_L["Year"] = "Jahr"
         GRM_L["HourBreak"] = ":"
     
         GRM_L["am"] = "am"
@@ -1312,7 +1310,6 @@
         GRM_L["Enable Module"] = true
         GRM_L["Show Interactable Distance Indicator"] = true
         GRM_L["No GRM Modules Currently Installed"] = true
-        GRM_L["Pending Feature"] = true
         GRM_L["Custom Color"] = true
         GRM_L["{name} is listed as the Main"] = true
         GRM_L["Kick Banned in Guild"] = true
