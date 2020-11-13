@@ -766,7 +766,6 @@ GRML.French = function()
 
     -- R1.33
     GRM_L["Macro will auto-remove after {num} seconds."] = "Auto-suppression dans {num} secondes."
-    GRM_L["UI"] = "UI"
     GRM_L["UI Controls"] = "Réglages UI"
     GRM_L["UI Configuration:"] = "Configuration Interface Utilisateur"
     GRM_L["Show Character Guild Reputation"] = "Afficher la réputation du personnage"
@@ -1152,7 +1151,6 @@ GRML.French = function()
     GRM_L["Clearing Log Export. A filter setting has been changed."] = true             -- If the filter settings have been modified, the export string should be cleared and re-done
     GRM_L["No Tag"] = true                                                              -- Main Tag
     GRM_L["Delimiter:"] = true                                                          -- Delimiter selection for Export window
-    GRM_L["|CFFE6CC7FClick|r to view more alt details."] = true                         -- Calendar tooltip
     GRM_L["|CFFE6CC7FRight-Click|r for additional options."] = true                     -- Also Calendar tooltip
     GRM_L["The selected delimiter will be removed from all notes on export"] = true
     GRM_L["Choose thoughtfully"] = true
@@ -1437,7 +1435,6 @@ GRML.French = function()
     GRM_L["Player has been at rank for more than {num} Months"] = true
 
     -- Promote?Demote tooltup updates on the rules
-    GRM_L["Time at Rank:"] = true
     GRM_L["Destination Rank:"] = true
     GRM_L["# Moves:"] = true        -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
     GRM_L["Notify if at current rank for {num} {name}" ] = true

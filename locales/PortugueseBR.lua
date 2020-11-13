@@ -427,7 +427,6 @@ GRML.PortugueseBR = function()
     GRM_L["center"] = "centralizar"                          -- Context: "center" the movable addon window back to center of screen
     GRM_L["sync"] = "sincronizar"                            -- Context: "sync" the data between players one time now.
     GRM_L["scan"] = true                            -- Context: "scan" for guild roster changes one time now.
-    GRM_L["clearall"] = "limpardados"                        -- Context: In regards, "Clear All" saved data
 
     -- CLASSES
     GRM_L["Deathknight"] = "Cavaleiro da Morte"
@@ -659,8 +658,6 @@ GRML.PortugueseBR = function()
     GRM_L["It's almost time to celebrate {name}'s Birthday!"] = "Está quase na hora de celebrar o Aniversário de/a {name}!"         -- Custom1 is the actual date.  Like "1 Mar '18"
     GRM_L["Unique accounts pull from the server is known to be faulty"] = "Puxar contas únicas do servidor é conhecido por ter falhas"
     GRM_L["Use only as an estimate. Hopefully Blizz fixes this soon"] = "Use apenas como uma estimativa. Espero que a Blizz conserte isso em breve"
-    GRM_L["{name}'s Anniversary!"] = "Aniversário de/a {name}!"
-    GRM_L["{name}'s Birthday!"] = "Aniversário de/a {name}!"
     GRM_L["Add Upcoming Events to the Calendar"] = "Adicionar Próximos Eventos ao Calendário"
     GRM_L["Player rank unable to add events to calendar"] = "Cargo de Jogador incapaz de adicionar eventos ao calendário"
     GRM_L["Anniversaries, Birthdays, and Other Events can be added with permission"] = "Aniversários e Outros Eventos podem ser adicionados com permissão"
@@ -725,7 +722,6 @@ GRML.PortugueseBR = function()
     -- R1.28
     GRM_L["Public Note:"] = "Nota Pública:"
     GRM_L["Officer Note:"] = "Nota Oficial:"
-    GRM_L["Public Note"] = "Nota Pública"
     GRM_L["Officer Note"] = "Nota Oficial"
     GRM_L["Show Public, Officer, and Custom Notes on Log Entries of Left Players"] = true
     GRM_L["Hard Reset"] = "Reset Total"
@@ -1435,7 +1431,6 @@ GRML.PortugueseBR = function()
     GRM_L["Player has been at rank for more than {num} Months"] = true
 
     -- Promote?Demote tooltup updates on the rules
-    GRM_L["Time at Rank:"] = true
     GRM_L["Destination Rank:"] = true
     GRM_L["# Moves:"] = true        -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
     GRM_L["Notify if at current rank for {num} {name}" ] = true

@@ -96,7 +96,6 @@ GRML.SpanishEU = function()
 
     -- TOOLTIPS
     GRM_L["Rank History"] = true 
-    GRM_L["Time at Rank:"] = true
     GRM_L["Right-Click to Edit"] = true
     GRM_L["Left Guild"] = true
     GRM_L["Membership History"] = true

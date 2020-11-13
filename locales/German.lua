@@ -668,8 +668,6 @@
         GRM_L["It's almost time to celebrate {name}'s Birthday!"] = "Es ist fast soweit, um den Geburtstag von {name} zu feiern!"          -- Custom1 is the actual date.  Like "1 Mar '18"
         GRM_L["Unique accounts pull from the server is known to be faulty"] = "Serverabfrage für die Accounts ist fehlerhaft"
         GRM_L["Use only as an estimate. Hopefully Blizz fixes this soon"] = "Nutze diese Zahl nur als Schätzung. Wir hoffen auf einen Fix von Blizz"
-        GRM_L["{name}'s Anniversary!"] = "Jahrestag von {name}!"
-        GRM_L["{name}'s Birthday!"] = "Geburtstag von {name}!"
         GRM_L["Add Upcoming Events to the Calendar"] = "Füge anstehende Ereignisse dem Kalender hinzu"
         GRM_L["Player rank unable to add events to calendar"] = "Gildenrang zu niedrig, um Ereignisse im Kalender anzulegen"
         GRM_L["Anniversaries, Birthdays, and Other Events can be added with permission"] = "Jahrestage, Geburtstage und andere Ereignisse können mit Erlaubnis angelegt werden"
@@ -734,7 +732,6 @@
         -- R1.28
         GRM_L["Public Note:"] = true
         GRM_L["Officer Note:"] = true
-        GRM_L["Public Note"] = true
         GRM_L["Officer Note"] = true
         GRM_L["Show Public, Officer, and Custom Notes on Log Entries of Left Players"] = true
         GRM_L["Hard Reset"] = true
@@ -774,7 +771,6 @@
     
         -- R1.33
         GRM_L["Macro will auto-remove after {num} seconds."] = true
-        GRM_L["UI"] = true
         GRM_L["UI Controls"] = true
         GRM_L["UI Configuration:"] = true
         GRM_L["Show Character Guild Reputation"] = true
@@ -1163,7 +1159,6 @@
         GRM_L["Clearing Log Export. A filter setting has been changed."] = true             -- If the filter settings have been modified, the export string should be cleared and re-done
         GRM_L["No Tag"] = true                                                              -- Main Tag
         GRM_L["Delimiter:"] = true                                                          -- Delimiter selection for Export window
-        GRM_L["|CFFE6CC7FClick|r to view more alt details."] = true                         -- Calendar tooltip
         GRM_L["|CFFE6CC7FRight-Click|r for additional options."] = true                     -- Also Calendar tooltip
         GRM_L["The selected delimiter will be removed from all notes on export"] = true
         GRM_L["Choose thoughtfully"] = true
@@ -1347,7 +1342,6 @@
         GRM_L["Unable to promote players within the guild at current rank."] = true
         GRM_L["Unable to demote players within the guild at current rank."] = true
         GRM_L["Feature disabled."] = true
-        GRM_L["Does NOT apply to Ban List"] = true
         GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
         GRM_L["Custom Notes can be Restricted Further Below"] = true
         GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
@@ -1451,7 +1445,6 @@
         GRM_L["Player has been at rank for more than {num} Months"] = true
 
         -- Promote?Demote tooltup updates on the rules
-        GRM_L["Time at Rank:"] = true
         GRM_L["Destination Rank:"] = true
         GRM_L["# Moves:"] = true        -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
         GRM_L["Notify if at current rank for {num} {name}" ] = true
