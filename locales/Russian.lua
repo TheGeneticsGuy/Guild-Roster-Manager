@@ -484,8 +484,6 @@ GRML.Russian = function()
     GRM_L["Day"] = "День"
     GRM_L["Months"] = "Месяцев"
     GRM_L["Month"] = "Месяц"
-    GRM_L["Years"] = "Лет"
-    GRM_L["Year"] = "Год"
     GRM_L["HourBreak"] = ":"            -- Context, in English, and many languages, 11am = 11:00 -- or in French, 11h00   - the hour break is the ":" or the "h" 
 
     GRM_L["am"] = "am"
@@ -667,8 +665,6 @@ GRML.Russian = function()
     GRM_L["It's almost time to celebrate {name}'s Birthday!"] = "Пора отпраздновать День Рождения {name}!"          -- Custom1 is the actual date.  Like "1 Mar '18"
     GRM_L["Unique accounts pull from the server is known to be faulty"] = "Известно, что получение уникальных учетных записей с сервера ошибочно"
     GRM_L["Use only as an estimate. Hopefully Blizz fixes this soon"] = "Используйте только как оценку. Надеюсь, Blizz скоро это исправит"
-    GRM_L["{name}'s Anniversary!"] = "Сегодня годовщина у {name}!"
-    GRM_L["{name}'s Birthday!"] = "Сегодня День Рождения у {name}!"
     GRM_L["Add Upcoming Events to the Calendar"] = "Добавить предстоящие события в календарь"
     GRM_L["Player rank unable to add events to calendar"] = "Звание игрока не достаточно что-бы добавлять события в календарь"
     GRM_L["Anniversaries, Birthdays, and Other Events can be added with permission"] = "Годовщины, дни рождения и другие события могут быть добавлены с разрешения"
@@ -715,7 +711,6 @@ GRML.Russian = function()
 	
     -- R1.24
     GRM_L["This also will change the <Alt> format to match"] = "Это также изменит формат <Твинк> для соответствия"
-    GRM_L["M"] = "М"                                           -- Of note, the "M" is short for "Main" and this is the reference to the main tag on alts in guild chat. For use in the Main tagging <M> (M) etc...
     GRM_L["A"] = "Тв"           
 
     -- R1.25
@@ -1313,7 +1308,6 @@ GRML.Russian = function()
     GRM_L["Enable Module"] = "Включить модуль"
     GRM_L["Show Interactable Distance Indicator"] = "Показать интерактивный индикатор расстояния"
     GRM_L["No GRM Modules Currently Installed"] = "В настоящее время модули для ГРМ не установлены"
-    GRM_L["Pending Feature"] = "Будущая функция" 
     GRM_L["Custom Color"] = "Пользовательский цвет"
     GRM_L["{name} is listed as the Main"] = "{name} указан как Мейн"
     GRM_L["Kick Banned in Guild"] = "Исключить забаненного в гильдии"
@@ -1444,7 +1438,6 @@ GRML.Russian = function()
     GRM_L["Player has been at rank for more than {num} Months"] = true
 
     -- Promote?Demote tooltup updates on the rules
-    GRM_L["Time at Rank:"] = true
     GRM_L["Destination Rank:"] = true
     GRM_L["# Moves:"] = true        -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
     GRM_L["Notify if at current rank for {num} {name}" ] = true
