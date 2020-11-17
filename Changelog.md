@@ -2,19 +2,23 @@
 
 _______________________
 
-**VERSION R1.92 RELEASE - November 10th, 2020**
+
+
+**VERSION R1.921 RELEASE - November 10th, 2020**
 
 ***NEW FEATURE - MACRO TOOL UPGRADE***
 
 **Promotions and Demotion Rules Added!**
 
-*This has been a long time coming. While it may not seem that complicated, there were a lot of pieces under the hood that needed to come together to make this work, coupled with the less time I was able to spend on the addon this year due to RL obligations with work and increased time with the kids around due to schools being closed. I have to say, my vision for GRM has always been centered on a single principle, however. Does it make your life as an officer or a leader easier? Does it save you time? Yes? Then I want...* 
+*This has been a long time coming. While it may not seem that complicated, there were a lot of pieces under the hood that needed to come together to make this work, coupled with the less time I was able to spend on the addon this year due to RL obligations with work and increased time with the kids around due to schools being closed. I have to say, my vision for GRM has always been centered on a single principle, however. Does it make your life as an officer or a leader easier? Does it save you time? If so, I want it...* 
 
-*I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that grinds and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it."
+*I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that hustles and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. That's the main reason I do it. I get to build my guild and shape it with the culture I wish to have. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it."
 
 **NOTABLE FEATURE ABSENT FROM MACRO TOOL**
 
 * Rule sharing among officers. You cannot yet sync the rules to all the leadership in a guild. This is planned and coming very soon. I wanted to get this released first!
+
+* THERE IS A MAJOR LIMITATION HERE IN MERGED REALM GUILDS!!! The DEMOTE macro cannot work for people on other realms than your own. I know, this is lame. It seems like a bug, so if you can please report this it would be great. But, ```/gdemote name``` works just fine, but ```/gdemote name-server``` will not work. You NEED to the server appended to demote people from other realms than your own. So, for demotions, you will be greatly limited. There IS a solution, however. Make an alt officer toon on each realm in your guild to compensate for this, at least for now, or at least just have other officers handle it that are on those realms. It is a pain for now, I know, but it is just current limitation until Blizz remedies this bug.
 
 ***NOTE*** - Please report to discord any errors you encounter, bugs, or recommendations for filters. There is a lot of overlap between the rules, but I did center the promotions to prioritize time at rank with demotions prioritizing inactivity, though you can customize your rules however you please.
 
@@ -43,6 +47,22 @@ _______________________
 
 * Fixed an issue where if a player was holding on to a guild name with say an alt, so they could namechange a guild to it later, then they disbanded that guild then renamed their main guild with the name of that guild you just disbanded, then GRM was failing to detect the namechange as it was still finding the name in the database. GRM now properly compares against the guild GUID (the clubID) so this error should no longer occur.
 
+**POST BETA BUG FIXES TO LIVE**
+
+* Previous BETA update there was a fix needed to an old flaw that was found in how some epoch dates were stored in the rank history. This fixes that Beta bug for people who were using Macro Tool in beta. So, all the epoch stamps were reformatted and rebuilt to be sure they were all accurate using a Text string to integer epoch stamp formatter I wrote. However, if the string date was determined to be invalid I placed just an empty value there in the rank history as it was a sign of the old bug. Well, this is a problem for nested ranks in the array. If it was just the first rank ever, no biggie because it would just show the mouseover window for a player to set the promotion date, as if it was never set. However, if it was a later change, now I have an empty value which breaks some of the later logic. This update goes and recorrects this oversights and fixes those promotion date errors where you might see just an "!!" and nothing else there.
+
+* Player Status should now properly show on the mouseover window. Anyone know how long this was not showing? I don't know when I broke this lol
+
+* Fixed some behavior on the macro tool rules as it was not consistently disabling and enabling certain rule filter options when editing them.
+
+* Fixed a BETA only bug where the timestamp formats were not showing correctly.
+
+* Full "Kick Banned Players Still in Guild" is now fully working. If you a ban a player, or ban all of their alts, the main GRM window's BAN tab will show you all of the players who are banned but not yet removed from theh guild. In this case a button will appear giving you the option to kick all banned players. This will automatically bring up the macro tool and be ready to go.
+
+* Fixed a bug where the "zone" and "time in zone" info was not disappearing underneath when editing or adding join/promo/birthdates. It would disappear and immediately reappear. It should now properly hide and reappear when completed.
+
+* The text indicating how many times you need to press the macro key now reflects properly, including all the extra times as necessary if a player must be moved multiple ranks.
+
 
 ***QUALITY OF LIFE***
 
@@ -57,6 +77,10 @@ _______________________
 * The macro tool macros can now be spammed without risk of double spamming it. I added a protection against it by clearing the macro immediately after use so that you cannot spam click the macro again as you wait for it to be rebuilt. Current PCs it should rebuild the next macro within 0.025 seconds of clicking it, but there are people that like to mousehweel-hotkey their macros, like myself, and with the Logitech free-spinning stuff, I can punch out like 100 clicks a second, easily. So, now you have protections in place against it. This was probably a non-issue for most people.
 
 * Removed some of the logic I added to the days/months selection in the macro tool. I realized how much I hated it auto-changing the date to a bigger number if I swapped back and forth on month and day. It was supposed to help be more convenient, but my guess is I coded it in a half stuper of sleep originally and my brain thought at the time, probably 2 or 3am, that it was a good idea. Ya... it wasn't. I purged all that logic now.
+
+* The "safe list" you could put players on to ignore kick macro rules hav now been expanded to support promotion and demotions as well. Furthermore, you can also create a custom "extension" period of time where they will be removed from this list after X days expire.
+
+
 
 
 

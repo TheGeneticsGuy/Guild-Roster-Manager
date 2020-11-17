@@ -74,6 +74,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText3 = 
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText4 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:CreateFontString ( "GRM_ToolCoreIgnoreFrameText4" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton = CreateFrame ( "CheckButton" , "GRM_ToolCoreIgnoreCheckButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "OptionsSmallCheckButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:CreateFontString ( "GRM_ToolCoreIgnoreCheckButtonText" , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:CreateFontString ( "GRM_IgnoreListRuleTypeText" , "OVERLAY" , "GameFontNormalSmall" );
 
 -- Tabs
 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab = CreateFrame ( "Button" , "GRM_KickTab" , GRM_UI.GRM_ToolCoreFrame , "TabButtonTemplate" );
@@ -534,6 +535,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText4:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "TOPLEFT" , 15 , -15 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetTextColor ( 1 , 0 , 0 );
+
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "BOTTOMLEFT" , 13 , 13 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetScript ( "OnClick", function()
@@ -933,6 +937,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if needsFullRefresh then
                     GRM_UI.FullMacroToolRefresh();
                 end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                    GRM.TriggerIgnoredQueuedWindowRefresh();
+                end
             end
         end);
 
@@ -967,6 +974,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 -- Load Lock window
                 if needsFullRefresh then
                     GRM_UI.FullMacroToolRefresh();
+                end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                    GRM.TriggerIgnoredQueuedWindowRefresh();
                 end
             end
         end);
@@ -1004,6 +1014,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if needsFullRefresh then
                     GRM_UI.FullMacroToolRefresh();
                 end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                    GRM.TriggerIgnoredQueuedWindowRefresh();
+                end
             end
         end);
 
@@ -1033,27 +1046,18 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:Show();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:Show();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:Show();
 
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:Hide();
 
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:Hide();
             end
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
         end
@@ -1269,6 +1273,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText2:SetText ( GRM.L ( "Ignored Action:" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText3:SetText ( GRM.L ( "Ignored Players Safe From Action" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText:SetText ( GRM.L ( "Only show players with ignored action" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton.GRM_ToolIgnoreResetSelectedNamesButtonText:SetText ( GRM.L ( "Clear Selection" ) );
@@ -1771,7 +1776,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter = true;
             end
             GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
-            if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+            if not GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
                 GRM_UI.EnableEvenIfActiveButton();
             end
         end
@@ -2275,6 +2280,27 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetTextColor ( 1 , 1 , 1 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Enable();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 1 , 0 , 0 );
+
+                    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlessOfActivity then
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                            GRM_UI.DisableRankActivityFrames();
+                        else
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
+                            GRM_UI.EnableRankActivityFrames();
+                        end
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Enable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Enable();
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
+
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
+                            GRM_UI.DisableEvenIfActiveButton();
+                        end
+                    end
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetChecked ( false );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:EnableMouse ( false );
@@ -2282,22 +2308,41 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Disable();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu:Hide();
+    
+                    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        GRM_UI.DisableRankActivityFrames();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Disable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Disable();
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Disable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+    
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
+                            GRM_UI.EnableEvenIfActiveButton();
+                        end
+                    end
                 end
 
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlessOfActivity then
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlesOsfActivity then
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( true );
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0 , 0 ); 
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( false );
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
-                        GRM_UI.DisableRankActivityFrames();
+                        
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                        end
                         
                     else
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( false );
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( true );
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 ); 
-                        GRM_UI.EnableRankActivityFrames();
+                        
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 ); 
+                        end
                     end
                 end
 
@@ -2466,6 +2511,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
 
             else
+                -- NOT AN EDIT
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.BuildNewPromoteOrDemoteRuleTemplate();
 
@@ -3400,6 +3446,17 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLog = false;
                 GRM_UI.DisableCustomLogEntry();
             end
+            GRM.RestoreTooltip();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetScript ( "OnEnter" , function( self )
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine ( GRM.L ( "This note will appear with the log notification when a player meets this rule's conditions." ) );
+            GameTooltip:Show();
+        end);
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
         end);
 
         GRM_UI.EnableCustomLogEntry = function()
@@ -3888,7 +3945,7 @@ GRM.GetQueuedEntries = function ()
         if CanGuildRemove() then
             result = GRM.GetKickNamesByFilterRules();
         end
-    elseif ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() )then
+    elseif ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() ) then
         result = GRM.GetNamesByFilterRules ( GRM_UI.GRM_ToolCoreFrame.TabPosition );
     end
 
@@ -4308,6 +4365,7 @@ GRM.GetMacroEntries = function ()
     local count2 = 0;
     local i = 1;
     local entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
+
     local macroSet = false;
     
     -- Create the macro
@@ -4365,6 +4423,98 @@ GRM.GetMacroEntries = function ()
     end
 
     return result , count2 , finalCount;
+end
+
+-- Method:          GRM.GetMacroCountForPromoteAndDemote()
+-- What it Does:    Returns the count of the number of times a macro needs to be hit
+-- Purpose:         To inform the player how many times macro must be hit.
+GRM.GetMacroCountForPromoteAndDemote = function()
+    local macroTxt = "";
+    local tempText = "";
+    local count = 0;
+    local count2 = 0;
+    local i = 1;
+    local entries = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
+    local listOfNames = {};
+    
+    -- Create the macro
+    while i <= #entries do
+        if not GRM.IsNameBlacklisted ( entries[i].name ) then
+            tempText = macroTxt;
+            -- Save room on the macro if player is on the same server as you
+            if count == 0 then
+                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name );
+                count = 1;
+            else
+                tempText = tempText .. "\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name );
+            end
+
+            -- Macro still not full and we are still on the first set
+            if #tempText < 256 and count2 == 0 then
+                macroTxt = tempText;
+
+                if entries[i].numRankJumps > 1 then
+                    entries[i].numRankJumps = entries[i].numRankJumps - 1;
+                    table.insert ( listOfNames , entries[i] );
+                end
+                i = i + 1;
+
+            -- Macro Still not full and we are on the 2nd loop that is not being used to be built
+            elseif #tempText < 256 and count2 > 0 then
+                macroTxt = tempText;
+
+                if entries[i].numRankJumps > 1 then
+                    entries[i].numRankJumps = entries[i].numRankJumps - 1;
+                    table.insert ( listOfNames , entries[i] );
+                end
+                i = i + 1;
+
+            -- Macro IS full, and we are still on the first set.
+            elseif count2 == 0 and ( #tempText > 255 or ( i == #entries and #listOfNames > 0 ) ) then
+                count = 0;
+                count2 = count2 + 1;
+                macroTxt = "";
+                tempText = "";
+                if #listOfNames > 0 then
+                    for j = 1 , #listOfNames do
+                        table.insert ( entries , listOfNames[j] );
+                    end
+                    listOfNames = {};
+                end
+
+            -- Macro IS full, and we are on the subsequent sets.
+            elseif count2 > 0 and ( #tempText > 255 or ( i == #entries and #listOfNames > 0 ) ) then
+                count = 0;
+                count2 = count2 + 1;
+                macroTxt = "";
+                if #listOfNames > 0 then
+                    for j = 1 , #listOfNames do
+                        table.insert ( entries , listOfNames[j] );
+                    end
+                    listOfNames = {};
+                end
+            end
+
+        else
+            i = i + 1;      -- Name was blacklisted, moving on.
+        end
+
+        if i > #entries then
+            count2 = count2 + 1;
+        
+            if #listOfNames > 0 then
+                count = 0;
+                macroTxt = "";
+                tempText = "";
+                for j = 1 , #listOfNames do
+                    table.insert ( entries , listOfNames[j] );
+                end
+                listOfNames = {};
+            end
+        end
+    end
+
+    return count2;
 end
 
 -- Method:          GRM.PurgeMacrodNames()
@@ -4585,7 +4735,13 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
     GRM.ResetToolMacrodHighlights();
     
     if ( showAll and fullRefresh ) or ( not showAll and not fullRefresh ) then
+
         GRM_UI.GRM_ToolCoreFrame.MacroEntries , count , size = GRM.GetMacroEntries();
+
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+            count = GRM.GetMacroCountForPromoteAndDemote();     -- Specialized count for multi-hit promotions/demotions
+        end
+
     elseif not fullRefresh then
         GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );    -- Clear the macro
     end
@@ -4676,6 +4832,7 @@ end
 -- What it Does:    Gets the proper hotkey message to the player based on the type of macro action, and if plural or singular form
 -- Purpose:         Quality of life and properly grammatic messaging.
 GRM.GetHotKeyRecommendationScript = function ( count )
+    count = "|CFFFF0000" .. count .. "|r";
     local singularEnum = { [1] = GRM.L ( "When you are ready to remove the players, press the Hot-Key {name} 1 time to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" ) , [2] = GRM.L ( "When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" ) , [3] = GRM.L ( "When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" ) }
     local pluralEnum = { [1] = GRM.L ( "When you are ready to remove the players, press the Hot-Key {name} {num} times to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" , nil , count ) , [2] = GRM.L ( "When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" , nil , count ) , [3] = GRM.L ( "When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" , nil , count ) }
 
@@ -4798,6 +4955,21 @@ end
 -- Ignored List Window --
 -------------------------
 
+-- Method:          GRM.HowManySafeListsIsPlayerOn ( player )
+-- What it Does:    Returns true of the player is on the safe list of
+-- Purpose:         UI control on the mouseover button tooltip 
+GRM.HowManySafeListsIsPlayerOn = function ( player )
+    local c = 0;
+
+    for _ , safeList in pairs ( player.safeList ) do
+        if safeList[1] then
+            c = c + 1;
+        end
+    end
+
+    return c;
+end
+
 -- Method:          GRM.IsAnyIgnoredHighlighted()
 -- What it Does:    It scans through the Ignored List and reports true if any are selected and the number of selected
 -- Purpose:         To adjust the text statement of the button.
@@ -4893,6 +5065,7 @@ end
 GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local player;
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
     -- We need to scan and find all the entries, then find them in the guild
     for i = #GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , 1 , -1 do
@@ -4903,7 +5076,7 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
             -- Now scan through the roster and update.
             player = guildData[ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries[i].name ];
             if player ~= nil then
-                player.safeList = false;
+                player.safeList[rule][1] = false;
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , i );
 
                 -- Rebuild the mouseover frame in case it is open
@@ -4931,12 +5104,13 @@ end
 -- Purpose:         Ease of allowing the player to easily remove all from the ignore list.
 GRM.ClearAllPlayersFromIgnoreList = function()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local count = 0;
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList then
-                player.safeList = false;
+            if player.safeList[rule][1] then
+                player.safeList[rule][1] = false;
                 count = count + 1;
             end
         end
@@ -4960,7 +5134,7 @@ GRM.ClearAllPlayersFromIgnoreList = function()
         end
         
         if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetChecked ( false );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetChecked ( false );
         end
     end
 end
@@ -4970,11 +5144,12 @@ end
 -- Purpose:         To determine the number ignored for UI purposes.
 GRM.GetNumIgnored = function()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local count = 0;
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList then
+            if player.safeList[rule][1] then
                 count = count + 1;
             end
         end
@@ -4988,11 +5163,12 @@ end
 -- Purpose:         UX
 GRM.IsAnyIgnored = function()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local result = false;
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList then
+            if player.safeList[rule][1] then
                 result = true;
                 break;
             end
@@ -5214,7 +5390,9 @@ GRM.TriggerIgnoredQueuedWindowRefresh = function()
     
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter then
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetChecked( true );
-    end        
+    end
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetText ( GRM_UI.ruleTypeEnum3[GRM_UI.GRM_ToolCoreFrame.TabPosition] );
 
     GRM.BuildIgnoredScrollFrame ( true , true );
     GRM.SetIgnoredButtonText();
@@ -6458,28 +6636,46 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                             if ruleConfirmedCheck then
 
                                 -- RULE IS GOOD - ADD PLAYER
-                                local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
 
-                                if index == nil then
-                                    table.insert ( listOfPlayers , {} );
-                                    index = #listOfPlayers;
-                                    listOfPlayers[index].name = player.name;
-                                    listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
-                                    listOfPlayers[index].lastOnline = player.lastOnline;
-                                    listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[rule.ruleType];
-                                    listOfPlayers[index].macro = macroAction[rule.ruleType];
-                                    listOfPlayers[index].isHighlighted = false;
+                                if not player.safeList[GRM_UI.ruleTypeEnum2[rule.ruleType]][1] then      -- Ignore for scanning... but I still want a count of the ignored.
 
-                                    if rule.ruleType == 2 then
-                                        listOfPlayers[index].numRankJumps = player.rankIndex - ( rule.destinationRank - 1 );
-                                    else
-                                        listOfPlayers[index].numRankJumps = ( rule.destinationRank - 1 ) - player.rankIndex;
+                                    local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
+
+                                    if index == nil then
+                                        table.insert ( listOfPlayers , {} );
+                                        index = #listOfPlayers;
+                                        listOfPlayers[index].name = player.name;
+                                        listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
+                                        listOfPlayers[index].lastOnline = player.lastOnline;
+                                        listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[rule.ruleType];
+                                        listOfPlayers[index].macro = macroAction[rule.ruleType];
+                                        listOfPlayers[index].isHighlighted = false;
+
+                                        if rule.ruleType == 2 then
+                                            listOfPlayers[index].numRankJumps = player.rankIndex - ( rule.destinationRank - 1 );
+                                        else
+                                            listOfPlayers[index].numRankJumps = ( rule.destinationRank - 1 ) - player.rankIndex;
+                                        end
+
+                                        table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
+                                    end
+
+                                else
+                                    local index = GRM.GetIndexOfPlayerOnList ( GRM_UI.GRM_ToolCoreFrame.Safe , player.name );
+    
+                                    if index == nil and player.name ~= GRM_G.addonUser then
+                                        table.insert ( GRM_UI.GRM_ToolCoreFrame.Safe , {} );
+                                        index = #GRM_UI.GRM_ToolCoreFrame.Safe;
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].name = player.name
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].rankIndex = player.rankIndex;
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].class = GRM.GetClassColorRGB ( player.class );
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].reason = GRM_UI.ruleTypeEnum3[rule.ruleType];
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].lastOnline = player.lastOnline;
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].isHighlighted = false;
                                     end
                                 end
                                 
-                                table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
                             end
-
                         end
                     end
                 end
@@ -6529,7 +6725,7 @@ end
 
 -- Method:          GRM.GetKickNamesByFilterRules ()
 -- What it Does:    Gets the names that adhere to the given rules
--- Purpose:         UX
+-- Purpose:         To populate the macro tool
 GRM.GetKickNamesByFilterRules = function()
     local listOfPlayers = {};
     GRM_G.countAction[1] = time();
@@ -6701,7 +6897,7 @@ GRM.GetKickNamesByFilterRules = function()
                         if ruleConfirmedCheck then
                             -- RULE IS GOOD - ADD PLAYER
                             -- Check safe list too
-                            if not player.safeList then      -- Ignore for scanning... but I still want a count of the ignored.
+                            if not player.safeList.kick[1] then      -- Ignore for scanning... but I still want a count of the ignored.
                                 local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
 
                                 if index == nil then
@@ -6777,9 +6973,10 @@ GRM.GetSafePlayers = function( getCountAndPlayers )
     local count = 0;
     local names = {};
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
         for _ , player in pairs ( guildData ) do
-            if type ( player ) == "table" and player.safeList and player.name ~= GRM_G.addonuser then
+            if type ( player ) == "table" and player.safeList[rule][1] and player.name ~= GRM_G.addonuser then
 
                 count = count + 1;
                 -- Default just gets the count - otherwise it returns the list of players as well.
@@ -6921,6 +7118,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild )
     end
     GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
+    GRM_UI.GRM_ToolCoreFrame.Safe = {}; -- reset this list to rebuild
     GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild );
     -- On reshow, always reset the macro
     GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};

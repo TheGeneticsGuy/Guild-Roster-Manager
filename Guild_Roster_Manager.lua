@@ -203,6 +203,7 @@ GRM_G.kickSafetyRedundancyCheck = 0;                  -- prevent double reportin
 -- Scanning
 GRM_G.ScanIntegrityCheckInitialized = false;
 GRM_G.TimeAtCompletion = 0;
+GRM_G.SafeListExpirationChecking = false;
 
 -- Export controls
 GRM_G.ExportCap = 500;                      -- On exporting guild player details and exporting the guild log, max lines.
@@ -363,6 +364,7 @@ GRM_G.GlobalControlPermissionPattern = nil;
 GRM_G.HK = false;
 GRM_G.AuditWindowRefresh = false;
 GRM_G.MacroHotKey = "CTRL-SHIFT-K";
+GRM_G.ruleListQueuedForCount = {};
 
 -- Configuration
 GRM_G.AddonIsFullyConfigured = false;
@@ -616,7 +618,7 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         player["minimapCustomPos"] = { "" , "" };                           -- 64 The setpoints of the custom minimap position
         player["CoreWindowPos"] = { "" , "" , 0 , 0 };                      -- 72 Coordinates for core GRM window
         player["macroToolCoordinates"] = { "" , "" , 0 , 0 };               -- 74 Coordinates for Macrol tool Window
-        player["disableMacroToolLogSpam"] = true                            -- Macro Tool checkbox on disabling chat spam while using macro tool
+        player["disableMacroToolLogSpam"] = false                           -- Macro Tool checkbox on disabling chat spam while using macro tool
         
         -- No reset needed
         player["JDAuditToolFilter"] = false                                 -- 69 Only show players with JD needing updating in JD Audit Tool
@@ -4717,11 +4719,15 @@ GRM.GetTimestamp = function()
     return time , array;
 end
 
--- Method:          GRM.GetTimePassedInZone ( oldTimestamp )
+-- Method:          GRM.GetTimePassedInZone ( oldTimestamp , int , bool )
 -- What it Does:    Reports back how many days, hours, minutes, or seconds has passed since player has been in a zone (days is unrealistic I know but some people might put in a 24hr+ session, so you never know.)
 -- Purpose:         Time tracking to keep track of elapsed time in a zone.
-GRM.GetTimePassedInZone = function ( oldTimestamp )
-    local totalSeconds = time() - oldTimestamp;
+GRM.GetTimePassedInZone = function ( oldTimestamp , exactSeconds , includeAll )
+    local totalSeconds = exactSeconds or ( time() - oldTimestamp );
+    local year = math.floor ( totalSeconds / 31536000 ); -- seconds in a year
+    local yearTag = GRM.L ( "Year" );
+    local month = math.floor ( ( totalSeconds % 31536000 ) / 2592000 ); -- etc. 
+    local monthTag = GRM.L ( "Month" );
     local days = math.floor ( ( totalSeconds % 2592000) / 86400 );
     local dayTag = GRM.L ( "Day" );
     local hours = math.floor ( ( totalSeconds % 86400 ) / 3600 );
@@ -4732,6 +4738,12 @@ GRM.GetTimePassedInZone = function ( oldTimestamp )
     local secondsTag = GRM.L ( "Second" );
     
     local timestamp = "";
+    if year > 1 then
+        yearTag = GRM.L ( "Years" );
+    end
+    if month > 1 then
+        monthTag = GRM.L ( "Months" );
+    end
     if days > 1 then
         dayTag = GRM.L ( "Days" );
     end
@@ -4741,17 +4753,24 @@ GRM.GetTimePassedInZone = function ( oldTimestamp )
     if minutes > 1 then
         minutesTag = GRM.L ( "Minutes" );
     end
-    if seconds > 1 then
+    if seconds ~= 1 then
         secondsTag = GRM.L ( "Seconds" );
     end
 
-    if days > 0 then
+    if year > 0 or month > 0 or days > 0 then
+
+        if year > 0 then
+            timestamp = ( GRM.L ( "{num} {custom1}" , nil , nil , year , yearTag ) );
+        end
+        if month > 0 then
+            timestamp = ( timestamp .. " " .. GRM.L ( "{num} {custom1}" , nil , nil , month , monthTag ) );
+        end
         if days > 0 then
             timestamp = ( timestamp .. " " .. GRM.L ( "{num} {custom1}" , nil , nil , days , dayTag ) );
-        else
-            timestamp = ( timestamp .. " " .. GRM.L ( "{num} {custom1}" , nil , nil , days , string.lower ( GRM.L ( "Days" ) ) ) ); -- exception to put zero days since it seems smoother, aesthetically.
         end
-    else
+    end
+
+    if ( year == 0 and month == 0 and days == 0 ) or includeAll then
         if hours > 0 or minutes > 0 then
             if hours > 0 then
                 timestamp = ( timestamp .. " " .. GRM.L ( "{num} {custom1}" , nil , nil , hours , hoursTag ) );
@@ -4759,8 +4778,13 @@ GRM.GetTimePassedInZone = function ( oldTimestamp )
             if minutes > 0 then
                 timestamp = ( timestamp .. " " .. GRM.L ( "{num} {custom1}" , nil , nil , minutes , minutesTag ) );
             end
-        else
-            timestamp = ( GRM.L ( "{num} {custom1}" , nil , nil , seconds , secondsTag ) );
+        end
+        if ( hours == 0 and minutes == 0 ) or includeAll then
+            if not includeAll or #timestamp == 0 then
+                timestamp = ( GRM.L ( "{num} {custom1}" , nil , nil , seconds , secondsTag ) );
+            else
+                timestamp = ( timestamp .. " " .. GRM.L ( "{num} {custom1}" , nil , nil , seconds , secondsTag ) );
+            end
         end
     end
     
@@ -4781,9 +4805,23 @@ GRM.EpochToDateFormat = function ( epochstamp )
     return ( day .. " " .. month .. " '" .. year );
 end
 
+-- Method:          GRM.EpochToDateConvertedForm( int )
+-- What it Does:    It takes an epoch timestamp and converts it into a string format as desired, but also transformed into the timstamp format of the player's settings
+-- Purpose:         Epoch is very exact, to the second. It is nice to store that info than hard to interpret, non-mathematical text, for a computer. \
+--                  This is just easy formatting for human consumption
+GRM.EpochToDateConvertedForm = function ( epochstamp )
+    
+    local timeTable = date( "*t" , epochstamp );
+    local day = timeTable.day
+    local month = timeTable.month
+    local year = ( timeTable.year - 2000 ) -- only need last 2 numbers 
+
+    return GRM.FormatTimeStamp ( { day , month , year } , false , false );
+end
+
 -- Method:          GRM.GetFullDate ( int , int , int , int )
 -- What it Does:    Returns the properly formatted date by Blizz
--- Purpose:         
+-- Purpose:         Useful to get the full date for many obvious reasons I'd think
 GRM.GetFullDate = function ( weekday , month , day , year )
 	local weekdayName = CALENDAR_WEEKDAY_NAMES[weekday];
 	local monthName = CALENDAR_FULLDATE_MONTH_NAMES[month];
@@ -4936,16 +4974,20 @@ end
 -- Method:          GRM.HoursReport(int)
 -- What it Does:    Reports as a string the time passed since player last logged on.
 -- Purpose:         Cleaner reporting to the log, and it just reports the lesser info, no seconds and so on.
-GRM.HoursReport = function ( hours )
+GRM.HoursReport = function ( hours , totalSeconds )
     local result = ""
 
     if hours ~= nil then
-        local years = math.floor ( hours / 8766 );
-        local months = math.floor ( ( hours % 8766 ) / 730 );
+        local years = math.floor ( hours / 8760 );
+        local months = math.floor ( ( hours % 8760 ) / 730 );
         local days = math.floor ( ( hours % 730 ) / 24 );
+        local minutes , seconds;
 
         -- Continue calculations.
         local hours = math.floor ( ( ( hours % 8760 ) % 730 ) % 24 );
+        if totalSeconds then
+            minutes = ( totalSeconds % 3600 )
+        end
         
         if years >= 1 then
             if years > 1 then
@@ -5118,12 +5160,12 @@ GRM.GetTimestampBasedOnTimePassed = function ( dateInfo )
     local arrayFormat = { day , month , year , hour , minutes };
     return { timestamp .. " " .. time , GRM.TimeStampToEpoch ( " " .. timestamp , true )  , arrayFormat };
 end
-
+ 
 -- Method:          GRM.FormatTimeStamp( string , int )
 -- What it Does:    Returns the timestamp in a format designated by the player
 -- purpose:         Give player proper timestamp format options.
 GRM.FormatTimeStamp = function ( timestamp , includeHour , removeYear )
-    
+
     local day = 0;
     local monthNum = 0;
     local year = 0;
@@ -5131,17 +5173,18 @@ GRM.FormatTimeStamp = function ( timestamp , includeHour , removeYear )
     local month = "";
 
     if type ( timestamp ) == "string" then
+        timestamp = GRM.GetCleanTimestamp ( timestamp ); -- ensure proper formatting
         -- Default format = 12 Mar '18
-        day = string.sub ( timestamp , 1 , string.find ( timestamp , " " ) - 1 );
+        day = string.match ( timestamp , "%d+" );
         if #day == 1 then
             day = "0" .. day;
         end
-        month = string.sub ( timestamp , string.find ( timestamp , " " ) + 1 , string.find ( timestamp , "'" ) -2 );
-        monthNum = tostring ( monthEnum[month] )
+        month = GRM.GetEventMonth ( timestamp );
+        monthNum = tostring ( monthEnum [ month ] ); 
         if #monthNum == 1 then
             monthNum = "0" .. monthNum;
         end
-        year = string.sub ( timestamp , string.find ( timestamp , "'" ) + 1 , string.find ( timestamp , "'" ) + 2 );
+        year = string.sub ( string.match ( timestamp , "'%d%d" ) , 2 );
 
     elseif type ( timestamp ) == "table" then
 
@@ -6114,17 +6157,40 @@ GRM.RosterFrame = function()
 
         if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName] ~= nil then
 
+            -- updates zone change info on the fly, as well as online status.
+            if ( time() - GRM.GRM_CoreUpdateFrameCommunities.timer2 ) > 5 then
+                local fullName , zone , isOnline;
+
+                for i = 1 , GRM.GetNumGuildies() do
+                    fullName, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo ( i );
+                    if fullName == handle then
+                        GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].isOnline = isOnline;
+
+                        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].zone ~= zone then
+                            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].zone = zone;
+                            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].timeEnteredZone = time();    -- Resets the time
+                        end
+
+                        break;
+                    end
+                end
+
+                GRM.GRM_CoreUpdateFrameCommunities.timer2 = time();
+            end
+
             -- Keep this data onUpdate handled...
             if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].isOnline or GRM_G.currentName == GRM_G.addonUser then
 
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].zone ~= nil then
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoZoneText:SetText ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].zone );
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:SetText ( GRM.GetTimePassedInZone ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].timeEnteredZone ) );
+                if not GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() then
+                    if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].zone ~= nil then
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoZoneText:SetText ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].zone );
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:SetText ( GRM.GetTimePassedInZone ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].timeEnteredZone ) );
+                    end
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoText:Show();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoZoneText:Show();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText1:Show();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:Show();
                 end
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoText:Show();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoZoneText:Show();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText1:Show();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:Show();
 
 
                 if GRM_G.currentName == GRM_G.addonUser or GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].status == 0 then
@@ -6621,7 +6687,7 @@ GRM.PopulateAltFrames = function ( playerName )
 
     if numAlts > 12 then
         if GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:IsVisible() then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton , "RIGHT" , 5 , 0 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton , "RIGHT" , 5 , 0 );
         end
     end
 
@@ -8114,6 +8180,7 @@ GRM.KickAllAlts = function ( playerName )
                 -- Bring popup reminder to select it...
                 GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Kick macro created. Press \"CTRL-SHIFT-K\" to kick all of {name}'s alts" , GRM.SlimName ( playerName ) ) );
                 GRM_G.KickAltControl = true;
+                GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;
                 if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
                     GRM_UI.GRM_ToolCoreFrame:Show();
                 elseif GRM_UI.GRM_ToolCoreFrame:IsVisible() then
@@ -8156,6 +8223,7 @@ GRM.KickAllBanned = function()
         -- Bring popup reminder to select it...
         GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Kick macro created. Press Hotkey to Remove Banned Players Still in Guild" ) );
         GRM_G.kickBannedControl = true;
+        GRM_UI.GRM_ToolCoreFrame.TabPosition = 1; -- Since we are removing players it will now function by setting it to default kick tab
         if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
             GRM_UI.GRM_ToolCoreFrame:Show();
         elseif GRM_UI.GRM_ToolCoreFrame:IsVisible() then
@@ -8327,7 +8395,6 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][name] = {};
     local member = GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][name];
 
-    -- Removed indexes: 2 , 3 , 12 , 13 , 26 , 38
     member["name"] = memberInfo.name;                       -- 1
     member["rankName"] = memberInfo.rankName;               -- 4
     member["rankIndex"] = memberInfo.rankIndex;             -- 5
@@ -8369,7 +8436,10 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["GUID"] = memberInfo.GUID;                       -- 42
     member["isUnknown"] = false;                            -- 43
     member["birthdayUnknown"] = false;                      -- 44
-    member["safeList"] = false;                             -- 45
+    member["safeList"] = {}                                 -- Updated R1.92    - Kick , promote , demote
+    member.safeList["kick"] = { false , false , 0 , 0 };    -- Macro Tool monitoring protection
+    member.safeList["promote"] = { false , false , 0 , 0 };
+    member.safeList["demote"] = { false , false , 0 , 0 };
     member["race"] = memberInfo.race;                       -- 46
     member["sex"] = memberInfo.sex;                         -- 47                                                                
     
@@ -13018,7 +13088,7 @@ GRM.RecordCustomNoteChanges = function( newNote , oldNote , editorName , editedN
         GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteTextCount:Hide();
         
         if GRM_G.currentName ~= GRM_G.addonUser then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:Show();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Show();
             local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
             if player ~= nil then
                 if player.isOnline then
@@ -13623,7 +13693,7 @@ GRM.CheckPlayerChanges = function ( roster )
                 end
 
                 -- Just straight update these everytime... No need for change check
-                if ( roster[x].isOnline and player.zone ~= roster[x].zone ) or GRM_G.OnFirstLoad then     
+                if ( roster[x].isOnline and player.zone ~= roster[x].zone ) or GRM_G.OnFirstLoad then
                     player.timeEnteredZone = time();   -- Resetting the time on hitting this zone.
                 end
                 player.zone = roster[x].zone;                               -- zone
@@ -19620,11 +19690,22 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
                     end
 
                 end
-            else
+            elseif GRM_G.RosterSelection ~= 0 then
                 zone, _, _, isOnline = select ( 6 , GetGuildRosterInfo ( GRM_G.RosterSelection ) );
+            else
+                for i = 1 , GRM.GetNumGuildies() do
+                    fullName, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo ( i );
+                    if fullName == handle then
+                        found = true;
+                        break;
+                    end
+                end
+                if not found then
+                    zone = nil;
+                end
             end
 
-            if zone ~= nil then
+            if zone ~= nil and zone ~= "" then
                 player.isOnline = isOnline;
                 if player.zone ~= zone then
                     player.timeEnteredZone = time();    -- Resets the time
@@ -19835,30 +19916,23 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
             if player.isOnline and handle ~= GRM_G.addonUser and not GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
                 GRM.SetGroupInviteButton ( handle );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:Show();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:ClearAllPoints();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:ClearAllPoints();
                 if #player.alts == 12 then
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton , "RIGHT" , 5 , -6 );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton , "RIGHT" , 5 , -6 );
                 else
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton , "RIGHT" , 5 , 0 );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton , "RIGHT" , 5 , 0 );
                 end
-                GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Show();
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:Hide();
 
                 if handle ~= GRM_G.addonUser then
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:ClearAllPoints();
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_MemberDetailMetaData , "BOTTOMLEFT" , 15 , 10.5 );
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:Show();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:ClearAllPoints();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_MemberDetailMetaData , "BOTTOMLEFT" , 15 , 11 );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Show();
                 else
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:Hide();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Hide();
                 end
-            end
-
-            -- Safe Filter Check Button
-            if player.safeList then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetChecked ( true );
-            else
-                GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetChecked ( false );
             end
 
             -- IF PLAYER WAS PREVIOUSLY BANNED AND REJOINED
@@ -19924,6 +19998,7 @@ GRM.ClearAllFrames = function( includingMeta )
     GRM_UI.GRM_OfficerNoteTooltip:Hide();
     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:Hide();
     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:Hide();
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:Hide();
 end
 
 -- Method:          GRM.ClearResetFramesOnTabChange()
@@ -19952,6 +20027,9 @@ GRM.SubFrameCheck = function()
     end
     if GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:IsVisible() then
         GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
+    end
+    if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:IsVisible() then
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:Hide();
     end
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:ClearFocus();
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:ClearFocus();
@@ -21071,6 +21149,7 @@ GRM.GetGlobalControlValue = function ( index )
 
     return result;
 end
+
 
 -- Method:          GRM.UpdateGuildLeaderPermissions( bool , bool )
 -- What it Does:    Scans the guild leader note for special tags and controls, pushes them to addon player setting - Rechecks every 60 seconds...
@@ -24373,6 +24452,66 @@ GRM.IsCalendarEventEditOpen = function()
 end
 
 ---------------------------------------------
+-------- BACKGROUND SCANNING ----------------
+---------------------------------------------
+
+-- Method:          GRM.UpdateMacroToolSafeListExpirations()
+-- What it Does:    It rechecks the roster to see if any of the players are on the ignore lists from the macro tool and removes them if the time has expired.
+-- Purpose:         To be able to auto remove players from the ignore lists as time expires. Quality of life tool
+GRM.UpdateMacroToolSafeListExpirations = function()
+    if IsInGuild() then
+        if not GRM_G.SafeListExpirationChecking then
+            GRM_G.SafeListExpirationChecking = true;
+
+            for _ , player in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
+                if type ( player ) == "table" then
+                    GRM.ValidateIgnoreExpireDates ( player );
+                end
+            end
+                
+            C_Timer.After ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].scanDelay + 5 , function()     -- +5 is to ensure they don't end up ont he same parallel track dual scanning every time.
+                GRM_G.SafeListExpirationChecking = false;
+                GRM.UpdateMacroToolSafeListExpirations();
+            end);
+        end
+    else
+        GRM_G.SafeListExpirationChecking = false;
+    end
+end
+
+-- Method:          GRM.ValidateIgnoreExpireDates ( table )
+-- What it Does:    It checks to see if their safeListSetting has expired, and if their time HAS expired, they are removed from the list.
+-- Purpose:         This is the check that will be done to ensure rules are being monitored.
+GRM.ValidateIgnoreExpireDates = function( player )
+
+    if player then
+        local time = time();
+
+        for type , safeListSetting in pairs ( player.safeList ) do
+            if safeListSetting[4] ~= 0 and safeListSetting[4] <= time then
+                -- we know this is no longer valid and time has expired...
+                
+                if safeListSetting[2] then
+                    if type == "kick" then
+                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "{name} is now being monitored by the kick macro rules after being on the ignore list for {num} days." , GRM.GetClassifiedName ( player.name , false ) , nil , safeListSetting[3] ) );
+                    elseif type == "promote" then
+                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "{name} is now being monitored by the promote macro rules after being on the ignore list for {num} days." , GRM.GetClassifiedName ( player.name , false ) , nil , safeListSetting[3] ) );
+                    elseif type == "demote" then
+                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "{name} is now being monitored by the demote macro rules after being on the ignore list for {num} days." , GRM.GetClassifiedName ( player.name , false ) , nil , safeListSetting[3] ) );
+                    end
+                end
+
+                player.safeList[type] = { false , false , 0 , 0 };
+
+                if player.name == GRM_G.currentName and GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:IsVisible() then
+                    GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
+                end
+            end
+        end
+    end
+end
+
+---------------------------------------------
 -------- SLASH COMMAND FUNCTIONS ------------
 ---------------------------------------------
 
@@ -25110,9 +25249,13 @@ GRM.Tracking = function()
             -- On first load, bring up window.
             if GRM_G.OnFirstLoad then
 
+                GRM.ConfigureOnlineStatusText();
+
                 GRM.ScanRecommendationsList();
 
                 GRM.UpdateGuildLeaderPermissions( false , false );
+
+                GRM.UpdateMacroToolSafeListExpirations();
 
                 -- Determine if player has access to guild chat or is in restricted chat rank
                 GRM.RegisterGuildChatPermission();
@@ -25553,21 +25696,65 @@ end
 Initialization:RegisterEvent ( "ADDON_LOADED" );
 Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
+
+-- REDO all of the "CLICK" localizations
+
+-- Make a video guide for macro tool
+
+-- Redo current #news global controls video explaining the guild Info tag in more detail
+
+-- Update the ##ReadMe with the new details on macro tool
+
+-- full Slash Command List
+
+
+
+-- MUST BE DONE BEFORE RELEASE
+-- Explanation on demote not working if a player has a full name with server... suggestion to mak an officer alt on that server to complete the task.
+
+-- Note somewhere that GRM can only promote/demote 1 rank at a time.
+
+-- Fix the Player has come online and offline text coloring - The offline is not quite right..
+
+-- Players without permissions need to be limited on the macro tool... and the rule filters
+
+
+
+-- "Move all alts of 'ThisRank'  to 'Specific Rank Name'" (maybe)
+
+
+
+-- Radio button for the "Send outgoing data"
+
+-- 1) Receive changes from selected rank and above, send changes to everyone.
+-- 2) Receive and Send changes to and from the selected rank and above only.
+
+
+
+-- Auto set verified join date when you self join a guild.
+
+-- Add expiration of Ignore date option - "Remove ignore from player if they have been offline for X days/months"
+
+
+-- Join Date tool
+-- https://media.discordapp.net/attachments/418471113023029248/778219268995153930/unknown.png
+-- For rejoins - the mismatch date is showing because the tool is looking at the date FIRST in the history of join dates tree, not the last.
+
+-- "I changed an alt to a main through right click menu on the player's name here, and resulted in an artifact ( Alt ) covered by ( Main ) - though it cleaned it'self up now that I'm looking at it as I'm typing this."
+
+
+
+
+
+
+
+
+
+
+
+
+-- NOT TRANSLATED: "Unable to create hotkey macro"
 -- Auto add join date based on main's - Use Main's join date as newly added Alt Join date - only works on verified...
-
--- Count needs to be updated.
-
--- CHECK GUILD NAMECHANGE ISSUE
--- oh so you had an alt holding the guild name?
--- TheBrohmanToday at 11:40 AM
--- Yeah
--- Arkaan (GRM Author)Today at 11:40 AM
--- ooo interesting
--- I bet the logic flaw is somewhere in there - Interesting angle I didn't think of
--- so you disbanded the guild holding the name right before namechange right?
--- TheBrohmanToday at 11:41 AM
--- Yeah
--- --
 
 -- Use Main's join date as newly added Alt Join date
 
@@ -25576,34 +25763,26 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- Auto select the proper font when adjusting the language.
 
--- Delay the scanning of rules while in the macro tool as it is wiping that it has been recorded
+-- In audit show who invited who - start Trackign who invited the player
 
--- GRM_G.LvlCap -- change it to 50 til SL launch, but not the actual value, just the log reporting so they get proper message about hitting top level
-
--- Only recommend to promote if player is currently active.
-
--- In audit show who invited who.
-
--- Activity:
--- Consider player inactive after X Days/months
--- Only if Active OR At least one player
--- linked alt is active
--- Always recommend to promote
-
--- Guild Rep Reaches
-
--- Destination Rank -- cannot promote someone to your own or higher rank  -- Needs to auto adjust if ranks are changed, as in added or deleted.
+-- Move all players in a grouping to the same rank as main
 
 -- SYNC rules to other officers...
 
 --I'm not sure if this behavior already exists cause it seems like it'd be a pretty niche scenario, but it might be useful to have GRM throw a warning if an "alt" and its "main" are online at the same time, since that'd mean (unless they're using more than one account)  there's an error with the way you've tagged someone.
 -- Maybe just a non-obtrusive log entry WARN: $playername is listed as an alt of $mainname, but both are online at the same tim
 
+-- Add an ignore all to events tab
+
+
+-- I might suggest adding a line between the Changes & Old Log line that's only displayed when there's something to show but can't because the To Log portion isn't selected.
+-- (bascally where there are unchecked lines so it says "New Lines" and "Old Lines")
+
+-- Add message indicating that ranks can only move 1, due to macro limitations by Blizz.
+
 
 
 -- -- ***BUSY WORK***
-
--- Checkbox to disable chat spam when Macro Tool is open
 
 -- Something like:
 -- GRM: $playername is online. They have incomplete entries!
@@ -25626,36 +25805,29 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- Ability to import alt from the notes
 
--- Add an ignore all to events tab
 
 
--- I might suggest adding a line between the Changes & Old Log line that's only displayed when there's something to show but can't because the To Log portion isn't selected.
--- (bascally where there are unchecked lines so it says "New Lines" and "Old Lines")
+
 
 -- Unable to exxport cert note formats. (unable to recreate)
 
 -- Advance join date tool date format not being detected.
 
--- On editing a cusotm note it seemed to still keep the name of the original person that modified it.0  -- Unable to recreate this...
 
 -- Store why the person left, kicked, inactive, removed and so on and report that in the log when they rejoin,.
 
 -- Export have a dropdown selection of all guilds in DB
 
 
---/GRMerror - disable all addons but GRM
+--/GRM error - disable all addons but GRM
 
 
--- Add an export of just a specific player
+-- Add an export of just a specific player (possibly right click option on player name)
 
--- Add ability to edit this coloring...
 
--- ChatThrottleLib - prioritize their traffic first.
 
 -- https://github.com/rossnichols/LibSerialize
 
-
--- ElvUI AddOnSkins: - GRM_KickEvenIfActiveTimeSelected , GRM_KickEvenIfActiveTimeMenu
 
 
 -- Ability to rearrange the order of the rules.
@@ -25693,7 +25865,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- Change how all the Log reporting is... show the fullName on merged realms and show 
 
--- Add expiration of Ignore date option - "Remove ignore from player if they have been offline for X days/months"
+
 
 -- Statistics Panel And Module
 --  -- Different Graph formats, to list to a histogram
@@ -25728,6 +25900,8 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- Option to extend the guild Info.
 
 -- Syncing ranks of alt grouping to same rank
+
+-- Right click options on the log, like BANNING a player if they leave the guild
 
 
 -------------------------------------

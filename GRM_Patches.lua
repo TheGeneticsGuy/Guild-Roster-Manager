@@ -752,7 +752,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     if numericV < 1.865 and baseValue < 1.865 then
-        GRM_Patch.FixMemberDataError ( GRM_Patch.AddVerifiedPromotionDatesToHistory , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.AddVerifiedPromotionDatesToHistory , true , true , false );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.updateKickRules );
         GRM_Patch.ModifyPlayerSetting ( "promoteRules" , {} );
         GRM_Patch.ModifyPlayerSetting ( "demoteRules" , {} );
@@ -774,7 +774,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.88 and baseValue < 1.88 then
         GRM_Patch.ModifyPlayerSetting ( "exportFilters" , nil , "class" );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , nil , "allAltsApplyToKick" );
-        GRM_Patch.FixMemberDataError ( GRM_Patch.fixAltGroups , true , false , true );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.fixAltGroups , true , false , true );
         GRM_Patch.FixManualBackupsFromDBLoad();
         GRM_Patch.AddGroupInfoModuleSettings();
         GRM_Patch.AddPlayerSetting ( "useFullName" , false );
@@ -787,8 +787,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     if numericV < 1.89 and baseValue < 1.89 then
-        GRM_Patch.FixMemberDataError ( GRM_Patch.RemoveInvalidIndex , true , true , false );
-        GRM_Patch.FixMemberDataError ( GRM_Patch.FixMainTimestampError , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.RemoveInvalidIndex , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixMainTimestampError , true , true , false );
         GRM_Patch.ModifyPlayerSetting ( "exportFilters" , GRM_Patch.AddExportOptions );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRule );
         GRM_Patch.AddPlayerSetting ( "defaultTabSelection" , { false , 1 } );
@@ -834,7 +834,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRuleValue );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.ModifyKickRuleMaxLevel );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.ModifyKickRuleLogic );
-        GRM_Patch.AddPlayerSetting ( "disableMacroToolLogSpam" , true );
+        GRM_Patch.AddPlayerSetting ( "disableMacroToolLogSpam" , false );
         if loopCheck ( 1.915 ) then
             return;
         end
@@ -849,7 +849,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     if numericV < 1.917 and baseValue < 1.917 then
-        GRM_Patch.FixMemberDataError ( GRM_Patch.fixAltGroups , true , false , true );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.fixAltGroups , true , false , true );
         
         if loopCheck ( 1.917 ) then
             return;
@@ -857,12 +857,22 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     if numericV < 1.918 and baseValue < 1.918 then
-        GRM_Patch.FixMemberDataError ( GRM_Patch.FixMemberRemovePlayerData , true , true , false );   -- Clear these out - can I remove this feature?
-        GRM_Patch.FixMemberDataError ( GRM_Patch.FixRankHistoryEpochDates , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixMemberRemovePlayerData , true , true , false );   -- Clear these out - can I remove this feature?
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistoryEpochDates , true , true , false );
         GRM_Patch.AddMemberMetaData ( "recommendToDemote" , false );
         GRM_Patch.AddMemberMetaData ( "recommendToPromote" , false );
 
         if loopCheck ( 1.918 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.921 and baseValue < 1.921 then
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistory , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.UpdateSafeListValue , true , true , false );
+        
+
+        if loopCheck ( 1.921 ) then
             return;
         end
     end
@@ -4658,10 +4668,10 @@ GRM_Patch.FixNameChangePreReleaseBug = function()
 end
 
 -- 1.87
--- Method:          GRM_Patch.FixMemberDataError ( function , bool , bool , bool )
+-- Method:          GRM_Patch.ModifyMemberData ( function , bool , bool , bool )
 -- What it Does:    Goes through the entire account wide database and modifies a player's or guild's metadata based on the actions of the given function
 -- Purpose:         Reusable function for error work and to avoid on code bloat spam.
-GRM_Patch.FixMemberDataError = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData )
+GRM_Patch.ModifyMemberData = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData )
     if editCurrentPlayers then
         for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
             for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
@@ -5252,6 +5262,36 @@ GRM_Patch.FixRankHistoryEpochDates = function ( player )
 
         end
     end
+
+    return player;
+end
+
+
+-- 1.921
+-- Method:          GRM_Patch.FixRankHistory ( player )
+-- What it Does:    Purges bad dates that could not be fixed as they are showing empty still
+-- Purpose:         Eliminate the remnants of an old bug from the cloanup of the epoch stamps on the rank history. Subsequent rank changes in the history are not needed to be kept if they are empty from the previous fix.
+GRM_Patch.FixRankHistory = function ( player )
+    for i = #player.rankHistory , 2 , -1 do
+        if player.rankHistory[i][1] == "" then
+            table.remove ( player.rankHistory , i );
+        end
+    end
+
+    return player;
+end
+
+-- 1.921
+-- Method:          GRM_Patch.UpdateSafeListValue ( player )
+-- What it Does:    Changes the safeList from a strictly boolean value, for kicks, and adds an array so individual settings can be made for each of the macro tool types
+-- Purpose:         Expand customizability and flexibility for players with the macro tool settings and use
+GRM_Patch.UpdateSafeListValue = function ( player )
+    -- local currentValue = player.safeList;
+
+    player.safeList = {};
+    player.safeList.kick = { false , false , 0 , 0 };    -- IsEnabled , isExpireEnabled, how many days, EpochTimeOfExpiration
+    player.safeList.promote = { false , false , 0 , 0 };
+    player.safeList.demote = { false , false , 0 , 0 };
 
     return player;
 end
