@@ -2663,6 +2663,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     -- Rebuild the checkbox frame here...
     GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow = function()
         local ruleEnum = { [false] = "|CFF00CCFF" .. GRM.L ( "Monitoring" ) .. "|r" , [true] = "|CFFFF0000" .. GRM.L ( "Ignoring" ) .. "|r" };
+        local disabled = "|CFFFF0000" .. GRM.L ( "Disabled at Current Rank" ) .. "|r"; 
         local color1 , color2 , color3 = "" , "" , "";
         local baseHeight = 184;
 
@@ -2805,9 +2806,29 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         end
              
         -- Monitoring/Ignored text
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetText ( ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[1]] );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetText ( ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[1]] );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetText ( ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1]] );
+        local kickMsg , promoteMsg, demoteMsg = "" , "" , "";
+
+        if CanGuildRemove() then
+            kickMsg = ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[1]];
+        else
+            kickMsg = disabled;
+        end
+
+        if CanGuildPromote() then
+            promoteMsg = ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[1]];
+        else
+            promoteMsg = disabled;
+        end
+
+        if CanGuildDemote() then
+            demoteMsg = ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1]];
+        else
+            demoteMsg = disabled;
+        end
+
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetText ( kickMsg );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetText ( promoteMsg );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetText ( demoteMsg );
 
         -- Expire checkboxs
         GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireEditBox:SetText ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[3] );
@@ -2890,8 +2911,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText:SetText ( GRM.L ( "Kick Rules" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBox , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBox , "RIGHT" , 190 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetPoint ( "RIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBox , "RIGHT" , 253 , 0 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetJustifyH ( "RIGHT" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBox:SetScript ( "OnClick" , function ( self , button )
@@ -2988,8 +3009,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText:SetText ( GRM.L ( "Promote Rules" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox , "RIGHT" , 190 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetPoint ( "RIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox , "RIGHT" , 253 , 0 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetJustifyH ( "RIGHT" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox:SetScript ( "OnClick" , function ( self , button )
@@ -3086,8 +3107,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText:SetText ( GRM.L ( "Demote Rules" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox , "RIGHT" , 190 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetPoint ( "RIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox , "RIGHT" , 253 , 0 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetJustifyH ( "RIGHT" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:SetScript ( "OnClick" , function ( self , button )
@@ -3228,13 +3249,36 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
             local ruleEnum = { [false] = "|CFF00CCFF" .. GRM.L ( "Monitoring" ) .. "|r" , [true] = "|CFFFF0000" .. GRM.L ( "Ignoring" ) .. "|r" }
             local numSafeLists = GRM.HowManySafeListsIsPlayerOn ( player );
+            local disabled = "|CFFFF0000" .. GRM.L ( "Disabled at Current Rank" ) .. "|r"; 
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton , "ANCHOR_CURSOR" );
 
+            -- Set Permissions.
+
+            local kickMsg , promoteMsg, demoteMsg = "" , "" , "";
+
+            if CanGuildRemove() then
+                kickMsg = ruleEnum [player.safeList.kick[1]];
+            else
+                kickMsg = disabled;
+            end
+
+            if CanGuildPromote() then
+                promoteMsg = ruleEnum [player.safeList.kick[1]];
+            else
+                promoteMsg = disabled;
+            end
+
+            if CanGuildDemote() then
+                demoteMsg = ruleEnum [player.safeList.kick[1]];
+            else
+                demoteMsg = disabled;
+            end
+
             GameTooltip:AddLine ( GRM.L ( "Macro Tool:" ) );
-            GameTooltip:AddDoubleLine ( GRM.L ( "Kick Rules" ) , ruleEnum [player.safeList.kick[1]] );
-            GameTooltip:AddDoubleLine ( GRM.L ( "Promote Rules" ) , ruleEnum [player.safeList.promote[1]] );
-            GameTooltip:AddDoubleLine ( GRM.L ( "Demote Rules" ) , ruleEnum [player.safeList.demote[1]] );
+            GameTooltip:AddDoubleLine ( GRM.L ( "Kick Rules" ) , kickMsg );
+            GameTooltip:AddDoubleLine ( GRM.L ( "Promote Rules" ) , promoteMsg );
+            GameTooltip:AddDoubleLine ( GRM.L ( "Demote Rules" ) , demoteMsg );
             GameTooltip:AddLine ( " " );
 
             if numSafeLists < 3 then
@@ -15596,7 +15640,6 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
         if GRM_G.BuildVersion >= 80000 then
             GRM.GRM_CoreUpdateFrameCommunities = CreateFrame ( "Frame" , nil , CommunitiesFrame );
             GRM.GRM_CoreUpdateFrameCommunities.timer = 0;
-            GRM.GRM_CoreUpdateFrameCommunities.timer2 = 0;
             
             -- Method:          GRM.FrameUpdateCommunities ( self , int )
             -- What it Does:    On_Update handler for the frames when Communities is open.

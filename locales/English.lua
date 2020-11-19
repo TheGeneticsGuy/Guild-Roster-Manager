@@ -33,7 +33,7 @@ GRML.English = function()
     GRM_L["Friend"] = FRIEND;
 
     -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-    GRM_L["/XXXX"] = true            -- /grm will always work, now you can make your own acronym that fits your language.
+    GRM_L["/XXXX"] = true                           -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
 
     GRM_L["German"] = true
 	GRM_L["English"] = true
@@ -1051,8 +1051,6 @@ GRML.English = function()
     GRM_L["There are currently no players on the Ignore List"] = true
     GRM_L["Remove all players from Ignore List"] = true
     GRM_L["Ignored Players: {num}"] = true
-    GRM_L["Ignore Macro Tool Filters"] = true
-    GRM_L["Type \"/grm tool\" to Bring Up Macro Tool"] = true       -- Of note, the /grm tool will ALWAYS work, regardless of the language. Feel free to create your own word to coordinate for a slash command. It will match the next line
     GRM_L["Tool"] = true                                            -- /grm tool
     GRM_L["Macro Tool"] = true
     GRM_L["Macro Tool: {num}"] = true
@@ -1085,8 +1083,6 @@ GRML.English = function()
     GRM_L["Applying update patches... one moment."] = true
     GRM_L["Update Complete... {num} patches applied."] = true   -- Plural
     GRM_L["Update Complete... 1 patch applied."] = true         -- Singular version
-    GRM_L["|CFFE6CC7FCtrl-Click|r to also REMOVE all alts from the ignore list"] = true     -- Safe/ignore filters list checkButton tooltip (bottom left mouseover window)
-    GRM_L["|CFFE6CC7FCtrl-Click|r to also ADD all alts to the ignore list"] = true          -- Same
     GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = true       -- Enable/disable birthday chekbox on UI Options and the Audit windoppw
     GRM_L["To avoid addon taint/blocking errors in Classic, the player must manually open the Guild Roster tab the first time."] = true          -- Classic only message for players explaining why window cannot open automatically.
     GRM_L["Confirm Date"] = true
@@ -1444,7 +1440,6 @@ GRML.English = function()
     GRM_L["{name} matches {num} macro tool rules. Demotion Recommended!"] = true
     GRM_L["{name} matches {num} macro tool rule. Demotion Recommended!"] = true
 
-
     -- 1.921
     -- These are going to be used to cleanup some of the string formatting in the future
     GRM_L["Click"] = true                   -- Referencing a mouse click
@@ -1480,7 +1475,9 @@ GRML.English = function()
     GRM_L["Year"] = true
     GRM_L["Years"] = true
     GRM_L["This note will appear with the log notification when a player meets this rule's conditions."] = true
-
+    GRM_L["Demotion Macro Limitation!!! Unable to demote {name} due to multiple players in the guild with the same name, though different realms. Please demote manually."] = true
+    GRM_L["Due to limitations with macros a player can only move 1 rank at a time."] = true
+    GRM_L["Disabled at Current Rank"] = true
 
 
 

@@ -31,7 +31,7 @@
         GRM_L["Friend"] = FRIEND;
         
         -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-        GRM_L["/XXXX"] = true            -- /grm will always work, now you can make your own acronym that fits your language.
+        GRM_L["/XXXX"] = true                           -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
     
         GRM_L["German"] = "Deutsch"
         GRM_L["English"] = "Englisch"
@@ -1055,8 +1055,6 @@
         GRM_L["There are currently no players on the Ignore List"] = true
         GRM_L["Remove all players from Ignore List"] = true
         GRM_L["Ignored Players: {num}"] = true
-        GRM_L["Ignore Macro Tool Filters"] = true
-        GRM_L["Type \"/grm tool\" to Bring Up Macro Tool"] = true       -- Of note, the /grm tool will ALWAYS work, regardless of the language. Feel free to create your own word to coordinate for a slash command. It will match the next line
         GRM_L["Tool"] = true                                            -- /grm tool
         GRM_L["Macro Tool"] = true
         GRM_L["Macro Tool: {num}"] = true
@@ -1091,8 +1089,6 @@
         GRM_L["Applying update patches... one moment."] = true
         GRM_L["Update Complete... {num} patches applied."] = true   -- Plural
         GRM_L["Update Complete... 1 patch applied."] = true         -- Singular version
-        GRM_L["|CFFE6CC7FCtrl-Click|r to also REMOVE all alts from the ignore list"] = true     -- Safe/ignore filters list checkButton tooltip (bottom left mouseover window)
-        GRM_L["|CFFE6CC7FCtrl-Click|r to also ADD all alts to the ignore list"] = true          -- Same
         GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = true       -- Enable/disable birthday chekbox on UI Options and the Audit windoppw
         GRM_L["To avoid addon taint/blocking errors in Classic, the player must manually open the Guild Roster tab the first time."] = true          -- Classic only message for players explaining why window cannot open automatically.
         GRM_L["Confirm Date"] = true
@@ -1451,6 +1447,45 @@
         GRM_L["{name} matches {num} macro tool rule. Promotion Recommended!"] = true
         GRM_L["{name} matches {num} macro tool rules. Demotion Recommended!"] = true
         GRM_L["{name} matches {num} macro tool rule. Demotion Recommended!"] = true
+        
+        -- 1.921
+        -- These are going to be used to cleanup some of the string formatting in the future
+        GRM_L["Click"] = true                   -- Referencing a mouse click
+        GRM_L["Ctrl-Click"] = true              -- Ctrl = Control
+        GRM_L["Alt-Click"] = true
+        GRM_L["Shift-Click"] = true
+        GRM_L["Ctrl-Shift-Click"] = true
+        GRM_L["Alt-Shiift-Click"] = true
+        
+        GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action
+        GRM_L["{custom1} to remove player from all 3 macro tool ignore lists"] = true
+        GRM_L["{custom1} to push ignore list settings to {name}'s alts"] = true
+        GRM_L["Type \"{name} {name2}\" to Bring Up Macro Tool. {custom1} also work."] = true         -- This is how it looks in final form in English - "Type "/grm macro" to Bring Up Macro Tool (tool, kick, promote, demote also work)""
+        GRM_L["Kick Rules"] = true
+        GRM_L["Promote Rules"] = true
+        GRM_L["Demote Rules"] = true
+        GRM_L["Macro Rule Ignore Lists"] = true
+        GRM_L["Select categories you wish the player to be ignored"] = true
+        GRM_L["Ignoring"] = true
+        GRM_L["Monitoring"] = true
+        GRM_L["Macro Rules"] = true
+        GRM_L["{name}'s alts now share the same macro rule ignore settings."] = true
+        GRM_L["{name} or Press ESC"] = true
+        GRM_L["Please choose a day between {num} and {custom1}"] = true         -- Example: "Please choose a day between 1 and 999"
+        GRM_L["Reactivate monitoring after {num} days."] = true
+        GRM_L["Set Days:"] = true
+        GRM_L["Configured: {custom1}"] = true
+        GRM_L["Time Left: {custom1}"] = true
+        GRM_L["{name} is now being monitored by the kick macro rules after being on the ignore list for {num} days."] = true
+        GRM_L["{name} is now being monitored by the promote macro rules after being on the ignore list for {num} days."] = true
+        GRM_L["{name} is now being monitored by the demote macro rules after being on the ignore list for {num} days."] = true
+        GRM_L["WARNING! Unchecking this setting will reset the timer upon re-enabling."] = true
+        GRM_L["Year"] = true
+        GRM_L["Years"] = true
+        GRM_L["This note will appear with the log notification when a player meets this rule's conditions."] = true
+        GRM_L["Demotion Macro Limitation!!! Unable to demote {name} due to multiple players in the guild with the same name, though different realms. Please demote manually."] = true
+        GRM_L["Due to limitations with macros a player can only move 1 rank at a time."] = true
+        GRM_L["Disabled at Current Rank"] = true
         
     end
     

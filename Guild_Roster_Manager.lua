@@ -29,10 +29,10 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "9.0R1.92";
-GRM_G.PatchDay = 1605053138;             -- In Epoch Time
-GRM_G.PatchDayString = "1605053138";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
-GRM_G.Patch = "9.0.1";
+GRM_G.Version = "9.0R1.921";
+GRM_G.PatchDay = 1605771960;             -- In Epoch Time
+GRM_G.PatchDayString = "1605771960";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Patch = "9.0.2";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -146,7 +146,8 @@ GRM_G.backupTimer = 0;                   -- For updating the backup frames for t
 GRM_G.auditTimer = 0;                    -- For the tooltip on the auditframe
 GRM_G.logTimer = 0;                      -- to prevent the filtering when you type from searching too fast... lest it will crash
 GRM_G.refreshAddonUserDelay = 0;         -- For rechecking the users online with addon installed
-GRM_G.SystemMsgThrottle = 0;                -- To prevent repeat scanning of the system message parsing needlessly.
+GRM_G.SystemMsgThrottle = 0;             -- To prevent repeat scanning of the system message parsing needlessly.
+GRM_G.CommunitiesUpdateTimer = 0;        -- Helps control Zone timer on mouseover window easier.
 
 -- MISC argument resource saving globals.
 GRM_G.CurrentlyScanning = false;
@@ -3209,6 +3210,27 @@ GRM.GetAllGuildiesByBirthdayDateOrder = function ( fullNameNeeded , newFirst )
     return result , isComplete;
 end
 
+-- Method:          GRM.GetListOfGuildies( bool )
+-- What it Does:    Returns a list of all current members of the guild in alphabetical order
+-- Purpose:         Occasionally you want a list of guild members.
+GRM.GetListOfGuildies = function( slimName )
+    local list = {};
+    local name;
+
+    for i = 1 , GetNumGuildMembers() do
+        name = GetGuildRosterInfo ( i );
+
+        if slimName then
+            name = GRM.SlimName ( name );
+        end
+
+        table.insert ( list , name );
+    end
+    sort ( list );
+
+    return list;
+end
+
 -- Method:          GRM.GetAllCurrentAndFormerGuildies()
 -- What it Does:    Collects the names and class of every player currently in the guild, formerly in the guild in database, and sorts the 2D array alphabetically
 -- Purpose:         This will be useful when adding people manually to ban list for auto-complete
@@ -3820,7 +3842,7 @@ GRM.GetNameWithMainTags = function( name , slimName , includeMainOnAlts , includ
                             end
                             if includeMainOnAlts then
                                 local hexColorName = GRM.GetStringClassColorByName ( listOfAlts[r][1] , false );
-                                name = name .. " " .. hexColorName .. par1 .. GRM.GetClassifiedName ( listOfAlts[r][1] , slimName ) .. hexColorName .. par2 .. " " .. hexCode .. mainDisplay .. "|r";
+                                name = name .. " " .. par1 .. GRM.GetClassifiedName ( listOfAlts[r][1] , slimName ) .. par2 .. " " .. hexCode .. mainDisplay .. "|r";
                             end
                             break;
                         end
@@ -6158,7 +6180,7 @@ GRM.RosterFrame = function()
         if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName] ~= nil then
 
             -- updates zone change info on the fly, as well as online status.
-            if ( time() - GRM.GRM_CoreUpdateFrameCommunities.timer2 ) > 5 then
+            if ( time() - GRM_G.CommunitiesUpdateTimer ) > 5 then
                 local fullName , zone , isOnline;
 
                 for i = 1 , GRM.GetNumGuildies() do
@@ -6175,7 +6197,7 @@ GRM.RosterFrame = function()
                     end
                 end
 
-                GRM.GRM_CoreUpdateFrameCommunities.timer2 = time();
+                GRM_G.CommunitiesUpdateTimer = time();
             end
 
             -- Keep this data onUpdate handled...
@@ -7159,10 +7181,12 @@ GRM.SetAltAsMainDropDownMenuLogic = function ( altDetails )
             -- Now send Comm to sync details.
             
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Show();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
         end
     end
     if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:IsVisible() and GRM_G.currentName ~= altDetails[2] then
         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
     end                
     if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
         GRM.RefreshAuditFrames ( true , true );
@@ -8455,8 +8479,6 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
             member.events = oldMemberInfo.events;
             member.customNote = oldMemberInfo.customNote;
             member.rankHistory = oldMemberInfo.rankHistory;
-            member.verifiedJoinDate = oldMemberInfo.verifiedJoinDate;
-            member.verifiedPromoteDate = oldMemberInfo.verifiedPromoteDate;
             member.race = oldMemberInfo.race;
             member.sex = oldMemberInfo.sex;
         end
@@ -12917,7 +12939,7 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
                 player.events[1][1][2] = date[2];
                 player.events[1][1][3] = date[3];
             end
-
+            
             if added then 
                 -- For SYNC
                 -- Join Date
@@ -15676,7 +15698,6 @@ GRM.convertToArrayFormat = function()
         end
     end
     sort ( GRMsyncGlobals.guildData , function ( a , b ) return a.name < b.name end );
-    -- table.insert ( GRMsyncGlobals.guildData , 1 , { GRM_G.guildName } );
 
     guildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
 
@@ -24492,11 +24513,11 @@ GRM.ValidateIgnoreExpireDates = function( player )
                 -- we know this is no longer valid and time has expired...
                 
                 if safeListSetting[2] then
-                    if type == "kick" then
+                    if type == "kick" and CanGuildRemove() then
                         GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "{name} is now being monitored by the kick macro rules after being on the ignore list for {num} days." , GRM.GetClassifiedName ( player.name , false ) , nil , safeListSetting[3] ) );
-                    elseif type == "promote" then
+                    elseif type == "promote" and CanGuildPromote() then
                         GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "{name} is now being monitored by the promote macro rules after being on the ignore list for {num} days." , GRM.GetClassifiedName ( player.name , false ) , nil , safeListSetting[3] ) );
-                    elseif type == "demote" then
+                    elseif type == "demote" and CanGuildDemote() then
                         GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "{name} is now being monitored by the demote macro rules after being on the ignore list for {num} days." , GRM.GetClassifiedName ( player.name , false ) , nil , safeListSetting[3] ) );
                     end
                 end
@@ -25710,17 +25731,13 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 
 -- MUST BE DONE BEFORE RELEASE
--- Explanation on demote not working if a player has a full name with server... suggestion to mak an officer alt on that server to complete the task.
-
--- Note somewhere that GRM can only promote/demote 1 rank at a time.
 
 -- Fix the Player has come online and offline text coloring - The offline is not quite right..
 
--- Players without permissions need to be limited on the macro tool... and the rule filters
 
 
 
--- "Move all alts of 'ThisRank'  to 'Specific Rank Name'" (maybe)
+
 
 
 
@@ -25730,17 +25747,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- 2) Receive and Send changes to and from the selected rank and above only.
 
 
-
 -- Auto set verified join date when you self join a guild.
-
--- Add expiration of Ignore date option - "Remove ignore from player if they have been offline for X days/months"
-
-
--- Join Date tool
--- https://media.discordapp.net/attachments/418471113023029248/778219268995153930/unknown.png
--- For rejoins - the mismatch date is showing because the tool is looking at the date FIRST in the history of join dates tree, not the last.
-
--- "I changed an alt to a main through right click menu on the player's name here, and resulted in an artifact ( Alt ) covered by ( Main ) - though it cleaned it'self up now that I'm looking at it as I'm typing this."
 
 
 

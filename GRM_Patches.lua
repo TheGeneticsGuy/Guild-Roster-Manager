@@ -870,6 +870,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.921 and baseValue < 1.921 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistory , true , true , false );
         GRM_Patch.ModifyMemberData ( GRM_Patch.UpdateSafeListValue , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixVerifiedDatesForRejoins , true , true , false );
         
 
         if loopCheck ( 1.921 ) then
@@ -5286,12 +5287,33 @@ end
 -- What it Does:    Changes the safeList from a strictly boolean value, for kicks, and adds an array so individual settings can be made for each of the macro tool types
 -- Purpose:         Expand customizability and flexibility for players with the macro tool settings and use
 GRM_Patch.UpdateSafeListValue = function ( player )
-    -- local currentValue = player.safeList;
+    local currentValue = player.safeList;
 
     player.safeList = {};
-    player.safeList.kick = { false , false , 0 , 0 };    -- IsEnabled , isExpireEnabled, how many days, EpochTimeOfExpiration
+    player.safeList.kick = { currentValue , false , 0 , 0 };    -- IsEnabled , isExpireEnabled, how many days, EpochTimeOfExpiration
     player.safeList.promote = { false , false , 0 , 0 };
     player.safeList.demote = { false , false , 0 , 0 };
 
     return player;
 end
+
+-- 1.921
+-- Method:          GRM_Patch.FixVerifiedDatesForRejoins ( player )
+-- What it Does:    Checks if the rank and join histories match up with the verified date. If they don't, it wipes the verified.
+-- Purpose:         Found a flaw with rejoins - if a player rejoined but date was NOT verified, it kept the original verified join date from their previous membership time, which was wrong
+GRM_Patch.FixVerifiedDatesForRejoins = function ( player )
+    if #player.verifiedJoinDate[1] > 0 and #player.joinDate > 0 then
+        if GRM.GetCleanTimestamp ( player.verifiedJoinDate[1] ) ~= GRM.GetCleanTimestamp ( player.joinDate[#player.joinDate] ) then
+            player.verifiedJoinDate = { "" , 0 };       -- Not a match, wiping.
+        end
+       
+    end
+    if #player.verifiedPromoteDate[1] > 0 and #player.rankHistory > 0 then
+        if GRM.GetCleanTimestamp ( player.verifiedPromoteDate[1] ) ~= GRM.GetCleanTimestamp ( player.rankHistory[#player.rankHistory][2] ) then
+            player.verifiedPromoteDate = { "" , 0 };       -- Not a match, wiping.
+        end
+    end
+
+    return player;
+end
+

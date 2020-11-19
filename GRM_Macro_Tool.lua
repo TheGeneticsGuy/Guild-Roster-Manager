@@ -62,6 +62,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText = GRM_UI.GRM
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameKickQueText" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFramePromoteQueText" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameDemoteQueText" , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_TooCoreFrameLimitationText" , "OVERLAY" , "GameFontNormalTiny" );
 
 -- Optional spam control
 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton = CreateFrame ( "CheckButton" , "GRM_MacroToolDisableLogSpamCheckbutton" , GRM_UI.GRM_ToolCoreFrame , "OptionsSmallCheckButtonTemplate" );
@@ -283,7 +284,7 @@ GRM_G.counts = { 0 , 0 , 0 };       -- count values of each
 GRM_UI.GRM_ToolCoreFrame:ClearAllPoints();
 GRM_UI.GRM_ToolCoreFrame:SetPoint ( "CENTER" , UIParent );
 GRM_UI.GRM_ToolCoreFrame:SetFrameStrata ( "MEDIUM" );
-GRM_UI.GRM_ToolCoreFrame:SetSize ( 1200 , 470 );
+GRM_UI.GRM_ToolCoreFrame:SetSize ( 1200 , 485 );
 GRM_UI.GRM_ToolCoreFrame:EnableMouse ( true );
 GRM_UI.GRM_ToolCoreFrame:SetMovable ( true );
 GRM_UI.GRM_ToolCoreFrame:SetToplevel ( true );
@@ -448,11 +449,17 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetJustifyH ( "LEFT" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOM" , 0 , -16 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOM" , 0 , -20 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWidth (320);
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWidth ( 320 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWordWrap ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetSpacing ( 1 )
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPRIGHT" , 2 , -19 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWidth ( 160 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWordWrap ( true );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetSpacing ( 1 )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOP" , 0 , 17 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetJustifyH ( "CENTER" );
@@ -1256,6 +1263,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetText( GRM.L ( "Current Actions" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetText( GRM.L ( "Players the same rank or higher will not be shown" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetText ( GRM.L ( "Due to limitations with macros a player can only move 1 rank at a time." ))
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetText ( GRM.L ( "Permissions" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
@@ -4353,6 +4362,61 @@ GRM.IsNameBlacklisted = function ( name )
     return result;
 end
 
+-- Method:          GRM.AdjustForDemoteMacroLimitation ( table )
+-- What it Does:    Checks for duplicates in the list and purges all of them. This implies there are multiple players with the same name.
+-- Purpose:         The /gdemote macro command has a limitation on merged realm guilds. You cannot get the macro to work (as of patch 9.0.2) if the server is appended
+--                  This ultimately creates a point of flaw where in a merged realm you can have multiple characters with the same name, but from different realms. As such, for the addon to compensate,
+--                  what happens is GRM decides to just purge the names of the players with the SAME name and instead gives a notification for the player to do those demotions manually, in the rare, edge case scenario
+--                  this this might occur. Hopefully Blizzard revises this macro at some point in the future.
+GRM.AdjustForDemoteMacroLimitation = function ( entries )
+    local names = {};
+    local count , num = 0 , 0;
+    local name = {};
+    local listOfMembers = GRM.GetListOfGuildies( true );
+
+    for i = #entries , 1 , -1 do
+        num = 0;
+        name = GRM.SlimName ( entries[i].name );        -- Next name
+        
+        for j = 1 , #listOfMembers do                   -- Let's compare to existing guild. If this person on the list has 2 copies of a member in the guild with the same name we are in trouble.
+
+            if name == listOfMembers[j] then
+                -- name match!!!
+                num = num + 1;
+
+                if num > 1 then                         -- sign of 2 copies!!!
+                    if not names[name] then             -- don't need to add more than once.
+                        names[name] = entries[i].name;  -- Add the full name for report to chat
+                        count = count + 1;
+                    end
+                    table.remove ( entries , i ); -- purge repeats
+                end
+                break;
+
+            end
+        end
+
+    end
+
+    -- Now, we remove the purged names
+    for n in pairs ( names ) do
+        for i = #entries , 1 , -1 do
+            if GRM.SlimName ( entries[i].name ) == n then
+                table.remove ( entries , i);
+                break;
+            end
+        end
+    end
+
+    if count > 0 then
+        for _ , fullName in pairs ( names ) do
+            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Demotion Macro Limitation!!! Unable to demote {name} due to multiple players in the guild with the same name, though different realms. Please demote manually." , fullName ) );
+        end
+    end
+    
+    return entries;
+end
+
 -- Method:          GRM.GetMacroEntries ()
 -- What it Does:    Determines which grouping to import
 -- Purpose:         Proper sorting of players in the guild to be added to the mass kick tool
@@ -4364,8 +4428,12 @@ GRM.GetMacroEntries = function ()
     local count = 0;
     local count2 = 0;
     local i = 1;
-    local entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
 
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+        GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.AdjustForDemoteMacroLimitation ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
+    end
+
+    local entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
     local macroSet = false;
     
     -- Create the macro
@@ -4817,9 +4885,19 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetText ( GRM.GetHotKeyRecommendationScript ( count ) );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:Show();
+
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Show();
+        end
     else
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:Hide();
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:Hide();
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Hide();
+    end
+
+    -- Not relevant for kicks, only macros and demotions - kicks == 1
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Hide();
     end
 
     -- Permissions Text
@@ -5935,14 +6013,38 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
 
                 -- Set the Button Logic
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton1:SetScript ( "OnClick" , function()
+                    local validToOpen = true;
 
                     if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
-                        GRM_UI.ConfigureCustomRuleKickFrame ( true , ruleName );
-                    else
-                        GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName );
+
+                        if not CanGuildRemove() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to remove players from the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRuleKickFrame ( true , ruleName );
+                        end
+    
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        if not CanGuildPromote() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to promote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName );
+                        end
+                        
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                        if not CanGuildDemote() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName );
+                        end
+    
                     end
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Show();
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
+                    if validToOpen then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Show();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
+                    end
                 end);
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2:SetScript ( "OnClick" , function()
                     GRM.RemoveRuleButtonLogic ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , ruleName );
@@ -6698,7 +6800,7 @@ end
 -- Purpose:         If a player is on the same server as you, you don't need to add their server, thus you can remove it and allow more space in the macro tool
 GRM.GetMacroFormattedName = function ( name )
     local result = "";
-    if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 2 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil then      -- If the player has the same realm name as me than it can be shortened.
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
         result = GRM.SlimName ( name );
     else
         result = name;
