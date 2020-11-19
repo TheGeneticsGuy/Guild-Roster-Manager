@@ -104,7 +104,7 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 * These will show on all guildies in guild chat, whispers, party, raid, instance chat.
 
-**MACRO TOOL **
+**MACRO TOOL**
 
 *In patch 7.3 Blizzard removed the ability of addons from being able to remove, demote, or promote players from the guild. There is no way around this, you **HAVE** to manually implement this action in-game. So, GRM has attempted to adapt to these changes, and while not as simple as pre-7.3, it is still far easier to deal with. By creating a list of players you wish to kick and then using the addon to auto-create a macro to remove them, the player only then needs to activate the "hot-key combo" to trigger the macro, and the addon will automatically rebuild the macro with the next set of names to be removed after each trigger of the macro.*
 
