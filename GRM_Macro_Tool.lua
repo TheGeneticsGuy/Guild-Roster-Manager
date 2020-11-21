@@ -312,9 +312,11 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
 GRM_UI.GRM_ToolCoreFrame.IsInitialized = false;
 GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
 GRM_UI.GRM_ToolCoreFrame.QueuedEntries = {};
+GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
 GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;           -- 1 = kick , 2 = promote , 3 = demote
 GRM_UI.GRM_ToolCoreFrame.Timer = 0;
 GRM_UI.GRM_ToolCoreFrame.Safe = {};                 -- List of safe people for whatever the reason.
+GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;       -- For manually scanning roster when validating macro success
 
 -- Mass Kick, Promote, and Demote tool
 GRM_UI.ruleTypeEnum = { [1] = "kickRules" , [2] = "promoteRules" , [3] = "demoteRules" };
@@ -375,7 +377,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.TriggerIgnoredQueuedWindowRefresh();
         end);
 
-        GRM_G.AuditWindowRefresh = false;
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
             self.Timer = self.Timer + elapsed;
             if self.Timer >= 0.025 then
@@ -385,11 +386,15 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
                     GRM_G.HK = false;
                     GRM.PurgeMacrodNames();
+
+                    -- Need to validate the names are update now...
+                    if GRM.IsMacroActionComplete() then
+                        C_Timer.After ( 1 , GRM.ValidateMacroRecordingSuccess );
+                    end
+                    
                     GRM.BuildQueuedScrollFrame ( true , false , false );
                     GRM.BuildMacrodScrollFrame ( true , true );
-
                     GRM_G.timeDelayValue = time(); -- resetting delay
-
                     GRM.GuildRoster();
 
                     if not GRM_G.AuditWindowRefresh and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
@@ -459,7 +464,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWidth ( 160 );
         GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWordWrap ( true );
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetSpacing ( 1 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetSpacing ( 1 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetTextColor ( 1 , 0 , 0 );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOP" , 0 , 17 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetJustifyH ( "CENTER" );
@@ -3148,11 +3154,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu.Buttons[3][2]:SetTextColor ( 1 , 1 , 1 );
             end
 
-            return result;
         end
 
-        GRM.SetRepSymbolSelection = function ( button , buttonNumber , buttonText )
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
+        GRM.SetRepSymbolSelection = function ( _ , buttonNumber )
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuidlRepSymbolDropDownMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repOperator = buttonNumber;  -- + 3 is to deal with reputation at neutral is index 4
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetText ( repOperators[buttonNumber] );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:Show();
@@ -3214,7 +3219,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end
 
-        GRM.SetGuildRepSelection = function ( button , buttonNumber , buttonText )
+        GRM.SetGuildRepSelection = function ( _ , buttonNumber , buttonText )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep = buttonNumber + 3;  -- + 3 is to deal with reputation at neutral is index 4
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( buttonText:GetText() );
@@ -3393,6 +3398,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.EnableNoteEditBox = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:Enable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:SetTextColor ( 1 , 1 , 1 );
+            local matchString = GRM.L ( "Click to Set" );
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.matchingString == "" then
                     matchString = GRM.L ( "Click to Set" );
@@ -4091,7 +4097,6 @@ end
 GRM.UpdateQueuedTooltip = function ( ind )
 
     local playerName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText();
-    local reason = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][3]:GetText();
     local details;
 
     GRM_UI.SetTooltipScale();
@@ -4115,7 +4120,6 @@ GRM.UpdateQueuedTooltip = function ( ind )
         end
     end
 
-    
     GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to open Player Window" ) );
     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
     GameTooltip:Show();
@@ -4141,6 +4145,7 @@ GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , b
     local scrollHeight = 0;
     local buttonWidth = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame:GetWidth() - 5;
     if showAll and fullRefresh then
+        GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
         if not isBanAltList and not bannedInGuildList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries ( true );
         elseif isBanAltList then
@@ -4585,6 +4590,20 @@ GRM.GetMacroCountForPromoteAndDemote = function()
     return count2;
 end
 
+-- Method:          GRM.IsMacroActionComplete()
+-- What it Does:    Checks if any names on the qued list are not blacklist and if so, they are still going to be built into the macro list, thus we know it is not complete
+-- Purpose:         Useful to know when all macro actions have compelted to do a verification they reached destination ranks
+GRM.IsMacroActionComplete = function()
+    local result = true;
+    for i = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries do
+        if not GRM.IsNameBlacklisted ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name ) then
+            result = false;
+        end
+    end
+
+    return result;
+end
+
 -- Method:          GRM.PurgeMacrodNames()
 -- What it Does:    Removes the names just macro'd from the list
 -- Purpose:         Rebuild the macros ASAP!
@@ -4605,6 +4624,7 @@ GRM.PurgeMacrodNames = function()
                         table.remove ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries , j );
                     end
                 end
+                GRM_UI.GRM_ToolCoreFrame.ValidatedNames[GRM_UI.GRM_ToolCoreFrame.MacroEntries[i].name] = GRM_UI.GRM_ToolCoreFrame.MacroEntries[i].rankIndex;
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.MacroEntries , i );
                 break;
             end
@@ -4616,6 +4636,42 @@ GRM.PurgeMacrodNames = function()
             GRM.GetCountOfNamesBeingFiltered();
             GRM.RefreshSelectHybridFrames ( true , true , true , false );
         end);
+    end
+
+end
+
+-- Method:          GRM.ValidateMacroRecordingSuccess ( bool )
+-- What it Does:    Checks if all of the rank changes matched their destination rank, if not, rescans the roster for changes
+-- Purpose:         To ensure integrity of the roster
+GRM.ValidateMacroRecordingSuccess = function( isReScan )
+    local ranksAllMatching = true;
+    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+
+    for name , rankIndex in pairs ( GRM_UI.GRM_ToolCoreFrame.ValidatedNames ) do
+        if guildData[name].rankIndex ~= rankIndex then
+            ranksAllMatching = false;
+            break;
+        end
+    end
+
+    if not ranksAllMatching then
+        if not isReScan then        -- Only going to scan 1 time...
+            GRM.Report ( GRM.L ( "GRM:" ) .. " : " .. GRM.L ( "Not all macro changes validated. One moment..." ) );
+            GRM_G.ManualScanEnabled = true;
+            GRM_UI.GRM_ToolCoreFrame.MacroSuccess = false
+            GRM_G.changeHappenedExitScan = false;
+            C_Timer.After ( 1 , function()
+                GRM.BuildNewRoster();
+            end);
+        else
+            -- Not able to validate
+            GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;
+            GRM.Report ( GRM.L ( "Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further." ) );
+        end
+    else
+        GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;
+        GRM_G.changeHappenedExitScan = false;       -- This doesn't need to be set when using macro tool
+        GRM.Report ( GRM.L ( "Macro rank changes have been validated!" ) );
     end
 
 end
@@ -6538,7 +6594,6 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                         local canMove , numRankMoves = playerCanBeMoved ( player.rankIndex , ( rule.destinationRank - 1 ) , rule.ruleType );
 
                         if canMove then
-                            -- print*"MOVABLE: " .. player.name 
                             -- Need to at least insert the ruleName and number of jumps it needs to make to destination rank
                             table.insert ( tempRuleCollection , { rankDestination[rule.ruleType] , GuildControlGetRankName ( rule.destinationRank ) , numRankMoves } );
 
@@ -6752,6 +6807,7 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                                         listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[rule.ruleType];
                                         listOfPlayers[index].macro = macroAction[rule.ruleType];
                                         listOfPlayers[index].isHighlighted = false;
+                                        listOfPlayers[index].rankIndex = rule.destinationRank - 1;      -- Miinus 1 rank for it to match the player indexes
 
                                         if rule.ruleType == 2 then
                                             listOfPlayers[index].numRankJumps = player.rankIndex - ( rule.destinationRank - 1 );
@@ -6800,7 +6856,7 @@ end
 -- Purpose:         If a player is on the same server as you, you don't need to add their server, thus you can remove it and allow more space in the macro tool
 GRM.GetMacroFormattedName = function ( name )
     local result = "";
-    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
+    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and GRM_G.BuildVersion >= 90000 ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
         result = GRM.SlimName ( name );
     else
         result = name;

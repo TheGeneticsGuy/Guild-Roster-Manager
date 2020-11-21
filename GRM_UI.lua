@@ -2285,9 +2285,10 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     -- GROUP INVITE BUTTON
     GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_MemberDetailMetaData , 16, 13 )
-    GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:SetSize ( 88 , 19 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:SetSize ( 70 , 20 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton.GRM_GroupInviteButtonText:SetText ( GRM.L ( "Group Invite" ) );
     GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton.GRM_GroupInviteButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton.GRM_GroupInviteButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 9 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton.GRM_GroupInviteButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
 
     
     -- player note edit box and font string (31 characters)
@@ -2362,8 +2363,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         
         if GRM_G.BuildVersion >= 80000 and CommunitiesFrame and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText ~= nil then
             universalFont = CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:GetFont();
-        elseif GRM_G.BuildVersion < 80000 and GuildFrame and PersonalNoteTex then
-            universalFont = PersonalNoteTex:GetFont();
+        elseif GRM_G.BuildVersion < 80000 and GuildFrame and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText then
+            universalFont = CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:GetFont();
         end
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFont( universalFont , GRM_G.FontModifier + 9 );
         GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetFont ( universalFont , GRM_G.FontModifier + 9 );
@@ -2694,9 +2695,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1] then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:SetChecked( true );
             GRM_UI.ReEnableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox );
+            color3 = "|CFF00CCFF";
         else
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:SetChecked ( false );
             GRM_UI.DisableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox );
+            color3 = "|CFF7F7F7F";
         end
 
         -- Kick ignore list tiime expire config
@@ -2838,7 +2841,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color2 .. GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
         GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonText );
         GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox:SetText ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color2 .. GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color3 .. GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
         GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText );
 
         -- Frame positions and sizing
@@ -3205,7 +3208,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton.GRM_SafeFromRulesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton.GRM_SafeFromRulesButtonText:SetText ( GRM.L ( "Macro Rules" ) );
     GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:GetWidth() , GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton.GRM_SafeFromRulesButtonText , 2 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetScript ( "OnClick", function ( self , button )
+    GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetScript ( "OnClick", function ( _ , button )
         if button == "LeftButton" then
             local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName];
 
@@ -3264,13 +3267,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             end
 
             if CanGuildPromote() then
-                promoteMsg = ruleEnum [player.safeList.kick[1]];
+                promoteMsg = ruleEnum [player.safeList.promote[1]];
             else
                 promoteMsg = disabled;
             end
 
             if CanGuildDemote() then
-                demoteMsg = ruleEnum [player.safeList.kick[1]];
+                demoteMsg = ruleEnum [player.safeList.demote[1]];
             else
                 demoteMsg = disabled;
             end
@@ -15361,7 +15364,7 @@ GRM_UI.ConfigureClassicRankShiftButtons = function()
     GuildControlPopupFrame.GRM_ShiftUpButtonUp.GRM_ShiftUpButtonUpText:SetWidth ( 55 );
     GuildControlPopupFrame.GRM_ShiftUpButtonUp.GRM_ShiftUpButtonUpText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
     GuildControlPopupFrame.GRM_ShiftUpButtonUp.GRM_ShiftUpButtonUpText:SetText ( GRM.L ( "Shift Rank Up" ) );
-    GuildControlPopupFrame.GRM_ShiftUpButtonUp:SetScript ( "OnClick" , function ( self , button )
+    GuildControlPopupFrame.GRM_ShiftUpButtonUp:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
             local currentRankId = GRM_UI.GetCurrentSelectedControlRank();
             local currentRankName = GuildControlGetRankName ( currentRankId );
@@ -15397,7 +15400,7 @@ GRM_UI.ConfigureClassicRankShiftButtons = function()
     GuildControlPopupFrame.GRM_ShiftUpButtonDown.GRM_ShiftUpButtonDownText:SetWidth ( 55 );
     GuildControlPopupFrame.GRM_ShiftUpButtonDown.GRM_ShiftUpButtonDownText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
     GuildControlPopupFrame.GRM_ShiftUpButtonDown.GRM_ShiftUpButtonDownText:SetText ( GRM.L ( "Shift Rank Down" ) );
-    GuildControlPopupFrame.GRM_ShiftUpButtonDown:SetScript ( "OnClick" , function ( self , button )
+    GuildControlPopupFrame.GRM_ShiftUpButtonDown:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
             local currentRankId = GRM_UI.GetCurrentSelectedControlRank();
             local currentRankName = GuildControlGetRankName ( currentRankId );

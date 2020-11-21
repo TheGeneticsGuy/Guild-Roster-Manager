@@ -63,7 +63,7 @@ GRMsyncGlobals.CurrentLeaderRankID = -1;
 GRMsyncGlobals.firstSync = true;
 GRMsyncGlobals.currentlySyncing = false;
 GRMsyncGlobals.JDSyncComplete = false               
-GRMsyncGlobals.SyncCount7 = 2;
+GRMsyncGlobals.SyncCount7 = 1;
 GRMsyncGlobals.SyncCountBan = 2;              -- For the ban list sync.
 GRMsyncGlobals.timeOfLastSyncCompletion = 0;
 GRMsyncGlobals.AddLeftPlayerCount = 0;      -- Tracking how many manual adds there are.
@@ -1753,7 +1753,6 @@ end
 GRMsync.GetCustomPseudoHash = function()
     local guildData = GRMsyncGlobals.guildData;
     local leftData = GRMsyncGlobals.formerGuildData;
-    local numMembers = #GRMsyncGlobals.guildData;
     local monthEnum = { Jan = 1 , Feb = 2 , Mar = 3 , Apr = 4 , May = 5 , Jun = 6 , Jul = 7 , Aug = 8 , Sep = 9 , Oct = 10 , Nov = 11 , Dec = 12 };
     local jd1 , pd1 , alt1 , main1 , ban1 , cust1 , bday1 = 0 , 0 , 0 , 0 , 0 , 0 , 0;
     local jd2 , pd2 , alt2 , main2 , ban2 , cust2 , bday2 = {} , {} , {} , {} , {} , {} , {};
@@ -1799,7 +1798,7 @@ GRMsync.GetCustomPseudoHash = function()
         guidVal = getGUIDVal ( player.GUID );
 
         -- JD data
-        if not player.joinDateUnknown and #player.joinDate > 0 and player.verifiedJoinDate[1] ~= "" and player.verifiedJoinDate[1] == nil and player.verifiedJoinDate[2] ~= 978375660 then
+        if not player.joinDateUnknown and #player.joinDate > 0 and player.verifiedJoinDate[1] ~= "" and player.verifiedJoinDate[1] ~= nil and player.verifiedJoinDate[2] ~= 978375660 then
             date = player.verifiedJoinDate[1];
             
             day = tonumber ( string.sub ( date , 1 , string.find ( date , " " ) - 1 ) );
@@ -1811,7 +1810,7 @@ GRMsync.GetCustomPseudoHash = function()
         jd1 , jd2 = getHashPrecision ( jd1 , jd2 );
 
         -- PD data
-        if not player.promoteDateUnknown and player.verifiedPromoteDate[1] ~= "" and player.verifiedPromoteDate[1] == nil and player.verifiedPromoteDate[2] ~= 978375660 then
+        if not player.promoteDateUnknown and player.verifiedPromoteDate[1] ~= "" and player.verifiedPromoteDate[1] ~= nil and player.verifiedPromoteDate[2] ~= 978375660 then
             date = player.verifiedPromoteDate[1];
 
             day = tonumber ( string.sub ( date , 1 , string.find ( date , " " ) - 1 ) );
@@ -1882,7 +1881,6 @@ GRMsync.BuildMessagePreCheck = function()
     local temp = "";
     local preTemp = "";
     local commMsgHeader = GRM_G.PatchDayString .. "?GRM_PHASH?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.SyncQue[1] .. "?";
-    local tempMsg;
     local c;
 
     for i = 1 , #values do
@@ -1931,7 +1929,6 @@ GRMsync.BuildLeaderPreCheckString = function()
     local value = 0;
     local c;    -- count
     local commMsgHeader = GRM_G.PatchDayString .. "?GRM_PHASHL?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.DesignatedLeader .. "?";
-    local tempMsg
 
     for i = 1 , #GRMsyncGlobals.DatabaseMarkers do
         c = 1;  -- new Database item, let's reset the count
@@ -2547,8 +2544,6 @@ GRMsync.SendRemoveAltPackets = function ( syncRankFilter )
     end
 
     local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
-
-    local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
     if exactIndexes[3] == nil then
         exactIndexes[3] = {};
     end
@@ -2776,7 +2771,7 @@ GRMsync.SendBANPackets = function()
             local playerWhoBanned = "";
             local errorProtectionCount = 0;
             
-            for i = GRMsyncGlobals.SyncCountBan , 2 , -1 do
+            for i = GRMsyncGlobals.SyncCountBan , 1 , -1 do
                 messageReady = false;
 
                 timeStampOfBanChange = tostring ( leftGuildData[i].bannedInfo[2] );
@@ -2875,9 +2870,9 @@ GRMsync.SendBANPackets = function()
             syncMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC2?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
             tempMessage = "";
             -- if I get here... let's do the in-guild sync too!
-            for i = GRMsyncGlobals.SyncCount7 , 2 , -1 do
+            for i = GRMsyncGlobals.SyncCount7 , 1 , -1 do
                 messageReady = false;
-                
+
                 timeStampOfBanChange = tostring ( guildData[i].bannedInfo[2] );
                 msgTag = "ban";
                 -- Let's see if someone was unbanned.

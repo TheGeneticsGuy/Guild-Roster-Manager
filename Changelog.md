@@ -3,6 +3,28 @@
 _______________________
 
 
+**VERSION R1.922 RELEASE - November 19th, 2020**
+
+***BUG FIXES***
+
+* Found an issue where the addon would not configure properly for some people who had remnants of an old unresolved DB conversion bug. This likely affects very few people but it should self-resolve now.
+
+* Sync was crashing for many players with latest build due to a slight oversight in a change. This is now resolved.
+
+* Sync was skipping syncing join and promotion dates as well in many cases. This is now resolved. Oops!
+
+* Fixed the "Macro Rules" button tooltip on the mouseover window to now properly show status of of each macro rule category.
+
+* The macro Rules button on the mouseover should no longer pop back up when editing the custom note.
+
+* Demotions were not working in Classic. They are working now.
+
+***QUALITY OF LIFE***
+
+* The macro tool will now attempt to properly validate that the promotion and demotion changes occurred at the end. It will inform you if they have been validated, and if not, then it will also inform you.
+
+* Did a thorough cleanup of unused variables and global writes to ensure GRM isn't polluting the global space.
+
 
 **VERSION R1.921 RELEASE - November 19th, 2020**
 

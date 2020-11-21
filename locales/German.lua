@@ -1487,6 +1487,13 @@
         GRM_L["Due to limitations with macros a player can only move 1 rank at a time."] = true
         GRM_L["Disabled at Current Rank"] = true
         
+        -- 1.922
+        GRM_L["Verifying Macro Changes. One moment."] = true
+        GRM_L["Not all macro changes validated. One moment..."] = true
+        GRM_L["Macro rank changes have been validated!"] = true
+        GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = true
+
+
     end
     
     -- THANK YOU @Nehry for this full translation up to R1.20

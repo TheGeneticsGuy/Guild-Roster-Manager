@@ -1267,7 +1267,6 @@ GRM_Patch.CleanupLeftPlayersDatabaseOfRepeats = function()
             end
         end
     end
-    -- print("GRM Report: " .. repeatsRemoved .. " errors found in database that have been cleaned up!" );
 end
 
 -- R1.133
@@ -4043,7 +4042,6 @@ GRM_Patch.ConvertAddonSettings = function()
     end
 end
 
--- /run for x in pairs (DBGuildNames) do print(x);end
 
 GRM_Patch.CollectAllGuildNames = function()
     local result = {};
@@ -4745,7 +4743,7 @@ end
 GRM_Patch.AddMemberMetaData = function ( settingName , value )
     for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
         for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
-            for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild
+            for _ , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild
                 if type ( player ) == "table" then 
                     player[settingName] = value;
                 end
@@ -4756,7 +4754,7 @@ GRM_Patch.AddMemberMetaData = function ( settingName , value )
     -- Former memebrs
     for F in pairs ( GRM_PlayersThatLeftHistory_Save ) do                         -- Horde and Alliance
         for guildName in pairs ( GRM_PlayersThatLeftHistory_Save[F] ) do                  -- The guilds in each faction
-            for name , player in pairs ( GRM_PlayersThatLeftHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+            for _ , player in pairs ( GRM_PlayersThatLeftHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
                 if type ( player ) == "table" then 
                     player[settingName] = value;
                 end
@@ -4773,14 +4771,12 @@ GRM_Patch.AddMemberMetaData = function ( settingName , value )
 
                     for j = 3 , 4 do        -- Member vs formerMember
 
-                        if ( j == 3 and editCurrentPlayers ) or ( j == 4 and editLeftPlayers ) then
-                            if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] > 0 then
-                                GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
-                            else
-                                for name , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] ) do
-                                    if type ( player ) == "table" then 
-                                        player[settingName] = value;
-                                    end
+                        if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] > 0 then
+                            GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
+                        else
+                            for _ , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] ) do
+                                if type ( player ) == "table" then 
+                                    player[settingName] = value;
                                 end
                             end
                         end
@@ -5255,9 +5251,6 @@ GRM_Patch.FixRankHistoryEpochDates = function ( player )
 
     for i = 1 , #player.rankHistory do
         if player.rankHistory[i][2] ~= "" then
-            if not player.rankHistory[i][2] then
-                print(player.rankHistory[i][2])
-            end
 
             player.rankHistory[i][3] = GRM.TimeStampToEpoch ( player.rankHistory[i][2] , true );
 
