@@ -29,9 +29,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "9.0R1.922";
-GRM_G.PatchDay = 1605918291;             -- In Epoch Time
-GRM_G.PatchDayString = "1605918291";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "9.0R1.924";
+GRM_G.PatchDay = 1606088193;             -- In Epoch Time
+GRM_G.PatchDayString = "1606088193";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "9.0.2";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -4069,6 +4069,7 @@ GRM.VersionCheck = function( msg )
     -- If the versions are not equal and the received data is larger (more recent) than player's time, player should receive reminder to update!
     if version ~= GRM_G.Version then
         if not GRM_G.VersionChecked and time > GRM_G.PatchDay then
+            GRM_G.VersionChecked = true;
             -- Let's report the need to update to the player!
             GRM.Report ( "|cff00c8ff" .. GRM.L ( "GRM:" ) .. " |cffffffff" .. GRM.L ( "A new version of Guild Roster Manager is Available!" ) .. " |cffff0044" .. GRM.L ( "Please Upgrade!" ) );
             -- No need to send comm because he has the update, not you!
@@ -6356,11 +6357,11 @@ GRM.CopyFromJoinDate = function()
         -- Set it to rank history
         player.rankHistory[#player.rankHistory][1] = player.rankName;
         player.rankHistory[#player.rankHistory][2] = player.verifiedJoinDate[1];
-        player.rankHistory[#player.rankHistory][3] = player.verifiedJoinDate[2];
+        player.rankHistory[#player.rankHistory][3] = GRM.TimeStampToEpoch ( player.verifiedJoinDate[1] );
 
         -- Verify it!
         player.verifiedPromoteDate[1] = player.rankHistory[#player.rankHistory][2];
-        player.verifiedPromoteDate[2] = player.rankHistory[#player.rankHistory][3];
+        player.verifiedPromoteDate[2] = time();
 
         player.promoteDateUnknown = false;
 
@@ -6410,15 +6411,15 @@ GRM.CopyFromPromoDate = function()
     if player ~= nil then
         if #player.joinDate == 0 then
             table.insert ( player.joinDate , player.verifiedPromoteDate[1] );
-            table.insert ( player.joinDateEpoch , player.verifiedPromoteDate[2] );
+            table.insert ( player.joinDateEpoch , GRM.TimeStampToEpoch ( player.verifiedPromoteDate[1] ) );
         else
             player.joinDate[#player.joinDate] = player.verifiedPromoteDate[1];
-            player.joinDateEpoch[#player.joinDateEpoch] = player.verifiedPromoteDate[2];
+            player.joinDateEpoch[#player.joinDateEpoch] = GRM.TimeStampToEpoch ( player.verifiedPromoteDate[1] );
         end
 
         -- Verify it!
         player.verifiedJoinDate[1] = player.joinDate[#player.joinDate];
-        player.verifiedJoinDate[2] = player.joinDateEpoch[#player.joinDateEpoch];
+        player.verifiedJoinDate[2] = time();
 
         player.joinDateUnknown = false;
 
@@ -13946,7 +13947,8 @@ GRM.GuildNameChanged = function ( currentGuildName )
     end
     return result;
 end
-
+-- /run table.insert ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["Zanciro-Zul'jin"].rankHistory , 2 , { "Reinforcer" , "11 Nov '18" , GRM.TimeStampToEpoch("11 Nov '18",true) } )
+-- /run GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["Zanciro-Zul'jin"].rankHistory[2] = { "Reinforcer" , "11 Nov '18" , GRM.TimeStampToEpoch ( "11 Nov '18" ) }
 -- Method:          GRM_UI.ValidateUnverifiedDate ( table )
 -- What it Does:    Checks if formatting is valid, then if not it fixes it
 -- Purpose:         Cleanup some old formatting bugs with old data. Added redundency as well.
@@ -13977,8 +13979,6 @@ GRM.ValidateUnverifiedDate = function( player , dateVersion )
                     player.rankHistory[i][1] = player.rankName;
                     player.rankHistory[i][2] = GRM.GetCleanTimestamp ( player[dateVersion][1] );
                     player.rankHistory[i][3] = GRM.TimeStampToEpoch ( player.rankHistory[i][2] , true );
-                else
-                    player.rankHistory[i] = {  "" , "" , 0 };
                 end
             else
                 -- if one is errored they all are.
@@ -25746,6 +25746,9 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- Auto set verified join date when you self join a guild.
 
+-- Control-click player's name and chat to auto-open roster
+
+-- Ability to have it just show "AltName <A>" in chat, instead of including the main.
 
 
 

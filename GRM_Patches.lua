@@ -869,11 +869,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     if numericV < 1.921 and baseValue < 1.921 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistory , true , true , false );
-        GRM_Patch.ModifyMemberData ( GRM_Patch.UpdateSafeListValue , true , true , false );
-        GRM_Patch.ModifyMemberData ( GRM_Patch.FixVerifiedDatesForRejoins , true , true , false );
-        
+        GRM_Patch.ModifyMemberData ( GRM_Patch.UpdateSafeListValue , true , true , false );        
 
         if loopCheck ( 1.921 ) then
+            return;
+        end
+    end
+    
+    if numericV < 1.924 and baseValue < 1.924 then
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistory , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixVerifiedDatesForRejoins , true , true , false );  -- Re-fixing
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistoryEpochDates , true , true , false );
+
+        if loopCheck ( 1.924 ) then
             return;
         end
     end
@@ -5250,7 +5258,7 @@ GRM_Patch.FixRankHistoryEpochDates = function ( player )
     player = GRM.ValidateUnverifiedDate ( player , "verifiedPromoteDate" );
 
     for i = 1 , #player.rankHistory do
-        if player.rankHistory[i][2] ~= "" then
+        if player.rankHistory[i][3] ~= 0 and player.rankHistory[i][2] ~= "" then
 
             player.rankHistory[i][3] = GRM.TimeStampToEpoch ( player.rankHistory[i][2] , true );
 
@@ -5290,23 +5298,55 @@ GRM_Patch.UpdateSafeListValue = function ( player )
     return player;
 end
 
--- 1.921
+-- 1.923
 -- Method:          GRM_Patch.FixVerifiedDatesForRejoins ( player )
 -- What it Does:    Checks if the rank and join histories match up with the verified date. If they don't, it wipes the verified.
 -- Purpose:         Found a flaw with rejoins - if a player rejoined but date was NOT verified, it kept the original verified join date from their previous membership time, which was wrong
 GRM_Patch.FixVerifiedDatesForRejoins = function ( player )
+    -- Validate this the join date info
+    if not player.verifiedJoinDate or not player.verifiedJoinDate[1] or not player.joinDate then
+        if not player.verifiedJoinDate or not player.verifiedJoinDate[1] then
+            player.verifiedJoinDate = { "" , 0 };
+        end
+        if not player.joinDate then
+            player.joinDate = {};
+        end
+    end
+
     if #player.verifiedJoinDate[1] > 0 and #player.joinDate > 0 then
         if GRM.GetCleanTimestamp ( player.verifiedJoinDate[1] ) ~= GRM.GetCleanTimestamp ( player.joinDate[#player.joinDate] ) then
-            player.verifiedJoinDate = { "" , 0 };       -- Not a match, wiping.
+            player.joinDate[#player.joinDate] = GRM.GetCleanTimestamp ( player.verifiedJoinDate[1] );
+            player.joinDateEpoch[#player.joinDateEpoch] = GRM.TimeStampToEpoch ( player.joinDate[#player.joinDate] , true );
         end
-       
+    elseif #player.verifiedJoinDate[1] > 0 and #player.joinDate == 0 then
+        player.joinDate[1] = GRM.GetCleanTimestamp ( player.verifiedJoinDate[1] );
+        player.joinDateEpoch[1] = GRM.TimeStampToEpoch ( player.joinDate[1] , true );
     end
+
+    -- Validate f ormatting for all players first.
+    if not player.verifiedPromoteDate or not player.verifiedPromoteDate[1] or not player.rankHistory then
+        if not player.verifiedPromoteDate or not player.verifiedPromoteDate[1] then
+            player.verifiedPromoteDate = { "" , 0 };
+        end
+        if not player.rankHistory then
+            player.rankHistory = { { "" , "" , 0 } };
+        end
+    end
+
     if #player.verifiedPromoteDate[1] > 0 and #player.rankHistory > 0 then
         if GRM.GetCleanTimestamp ( player.verifiedPromoteDate[1] ) ~= GRM.GetCleanTimestamp ( player.rankHistory[#player.rankHistory][2] ) then
-            player.verifiedPromoteDate = { "" , 0 };       -- Not a match, wiping.
+            player.rankHistory[#player.rankHistory][1] = player.rankName;
+            player.rankHistory[#player.rankHistory][2] = GRM.GetCleanTimestamp ( player.verifiedPromoteDate[1] );
+            player.rankHistory[#player.rankHistory][3] = GRM.TimeStampToEpoch ( player.rankHistory[#player.rankHistory][2] , true );
         end
+    elseif #player.verifiedPromoteDate[1] > 0 and #player.rankHistory == 0 then
+        player.rankHistory[1][1] = player.rankName;
+        player.rankHistory[1][2] = GRM.GetCleanTimestamp ( player.verifiedPromoteDate[1] );
+        player.rankHistory[1][3] = GRM.TimeStampToEpoch ( player.rankHistory[1][2] , true );
     end
 
     return player;
 end
 
+-- Run this: GRM_Patch.FixVerifiedDatesForRejoins
+-- Copy date from one to another is not copying the epoch stamps properly

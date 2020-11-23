@@ -2,8 +2,18 @@
 
 _______________________
 
+**VERSION R1.924 RELEASE - November 21st, 2020**
 
-**VERSION R1.922 RELEASE - November 19th, 2020**
+* Fixed a lot of errors in relation to last update
+
+
+
+**VERSION R1.923 RELEASE - November 20th, 2020**
+
+* Minor bug fix that broke Classic
+
+
+**VERSION R1.922 RELEASE - November 20th, 2020**
 
 ***BUG FIXES***
 
@@ -18,6 +28,9 @@ _______________________
 * The macro Rules button on the mouseover should no longer pop back up when editing the custom note.
 
 * Demotions were not working in Classic. They are working now.
+
+* Fixed an issue where export was not working... again!
+
 
 ***QUALITY OF LIFE***
 
