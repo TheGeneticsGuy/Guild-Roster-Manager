@@ -1693,7 +1693,7 @@ GRMsync.BanManagementPlayersThatLeft = function ( msg , prefix , sender )
 end
 
 --------------------------------
----- Default Mesage Functions --
+--- Default Mewsage Functions --
 --------------------------------
 
 -- Method:          GRMsync.RegisterPrefix( string )

@@ -29,9 +29,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "9.0R1.924";
-GRM_G.PatchDay = 1606088193;             -- In Epoch Time
-GRM_G.PatchDayString = "1606088193";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "9.0R1.925";
+GRM_G.PatchDay = 1606282302;             -- In Epoch Time
+GRM_G.PatchDayString = "1606282302";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "9.0.2";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -1134,9 +1134,27 @@ GRM.RefreshNumberOfHoursTilRecommend = function()
     GRM_G.NumberOfHoursTilRecommend["promote"] = {};
     GRM_G.NumberOfHoursTilRecommend["demote"] = {};
 
+    local validateFormat = function ( exactRule , defaultMonths )
+        
+        if type ( exactRule.numDaysOrMonths ) ~= "number" then
+            exactRule.numDaysOrMonths = 12;
+            exactRule.isMonths = true;
+        end
+
+        if not exactRule.rankSpecialNumDaysOrMonths then
+            exactRule.rankSpecialNumDaysOrMonths = defaultMonths;
+        end
+
+        return exactRule;
+    end
+
     for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules ) do
+        
         if rule.activityFilter then                                               -- Only need to add if this part is enabled.
             GRM_G.NumberOfHoursTilRecommend["kick"][ruleName] = 0;
+
+            rule = validateFormat ( rule , 12 );
+
             if rule.isMonths then
                 GRM_G.NumberOfHoursTilRecommend["kick"][ruleName] = GRM.GetNumHoursTilRecommend ( rule.numDaysOrMonths );
             else
@@ -1157,6 +1175,9 @@ GRM.RefreshNumberOfHoursTilRecommend = function()
         if rule.activityFilter then                                               -- Only need to add if this part is enabled.
             GRM_G.NumberOfHoursTilRecommend["promote"][ruleName] = {};
             GRM_G.NumberOfHoursTilRecommend["promote"][ruleName].hours = 0;
+
+            rule = validateFormat ( rule , 3 );
+
             if rule.isMonths then
                 GRM_G.NumberOfHoursTilRecommend["promote"][ruleName].hours = GRM.GetNumHoursTilRecommend ( rule.numDaysOrMonths );
             else
@@ -1179,6 +1200,9 @@ GRM.RefreshNumberOfHoursTilRecommend = function()
         if rule.activityFilter then                                               -- Only need to add if this part is enabled.
             GRM_G.NumberOfHoursTilRecommend["demote"][ruleName] = {};
             GRM_G.NumberOfHoursTilRecommend["demote"][ruleName].hours = 0;
+
+            rule = validateFormat ( rule );
+
             if rule.isMonths then
                 GRM_G.NumberOfHoursTilRecommend["demote"][ruleName].hours = GRM.GetNumHoursTilRecommend ( rule.numDaysOrMonths );
             else
@@ -2397,9 +2421,11 @@ end
 -- Method:          GetListOfGuildRanks( bool )
 -- What it Does:    Gets a list of all rank names for dropdown menu
 -- Purpose:         For building the macro dropdown menu for destination rank
-GRM.GetListOfGuildRanks = function( includeLeader , descending , asString )
+GRM.GetListOfGuildRanks = function( includeLeader , descending , asString , test )
     local numRanks = GuildControlGetNumRanks(); -- minus 1 because we are not including the guild leader
     local result = {};
+    local delimiter = "||";
+
     local c = 1;
     if not includeLeader then
         c = 2;
@@ -2416,7 +2442,7 @@ GRM.GetListOfGuildRanks = function( includeLeader , descending , asString )
                 if i == numRanks then
                     result = result .. GuildControlGetRankName ( i );
                 else
-                    result = result .. GuildControlGetRankName ( i ) .. ",";
+                    result = result .. GuildControlGetRankName ( i ) .. delimiter;
                 end
             else
                 table.insert ( result , GuildControlGetRankName ( i ) );
@@ -2428,7 +2454,7 @@ GRM.GetListOfGuildRanks = function( includeLeader , descending , asString )
                 if i == c then
                     result = result .. GuildControlGetRankName ( i );
                 else
-                    result = result .. GuildControlGetRankName ( i ) .. ",";
+                    result = result .. GuildControlGetRankName ( i ) .. delimiter;
                 end
             else
                 table.insert ( result , GuildControlGetRankName ( i ) );
@@ -8287,7 +8313,7 @@ GRM.CreateMacro = function ( macroText , name , icon , keyBind , isLogOff )
         end
     elseif not isLogOff and GRM_G.inCombat then
         if not GRM_G.MacroDelay then
-            GRM.Report ( GRM.L ( "GRM:" .. " " .. GRM.L ( "Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat." ) ) );
+            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat." ) );
             GRM_G.MacroDelay = true;
         end
 
@@ -13470,7 +13496,6 @@ GRM.CheckPlayerChanges = function ( roster )
     end
 
     local newPlayerFound;
-    local guildRankIndexIfChanged = -1; -- Rank index must start below zero, as zero is Guild Leader.
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local player;
 
@@ -13563,11 +13588,6 @@ GRM.CheckPlayerChanges = function ( roster )
                                 end
 
                             elseif k == 2 and roster[x].rankName ~= player.rankName and roster[x].rankIndex == player.rankIndex then
-                                -- RANK RENAMED!
-                                if GRM_G.OnFirstLoad and guildRankIndexIfChanged ~= roster[x].rankIndex and player.rankName ~= "" and player.rankName ~= nil then -- If alrady been reported, no need to report it again.
-                                    GRM.RecordChanges ( 8 , roster[x] , player , nil , select ( 2 , GRM.GetTimestamp() ) );
-                                    guildRankIndexIfChanged = roster[x].rankIndex; -- Avoid repeat reporting for each member of that rank upon a namechange.
-                                end
 
                                 player.rankName = roster[x].rankName; -- Saving new Info
                                 if player.rankHistory[1][3] > 0 then
@@ -13947,8 +13967,7 @@ GRM.GuildNameChanged = function ( currentGuildName )
     end
     return result;
 end
--- /run table.insert ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["Zanciro-Zul'jin"].rankHistory , 2 , { "Reinforcer" , "11 Nov '18" , GRM.TimeStampToEpoch("11 Nov '18",true) } )
--- /run GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["Zanciro-Zul'jin"].rankHistory[2] = { "Reinforcer" , "11 Nov '18" , GRM.TimeStampToEpoch ( "11 Nov '18" ) }
+
 -- Method:          GRM_UI.ValidateUnverifiedDate ( table )
 -- What it Does:    Checks if formatting is valid, then if not it fixes it
 -- Purpose:         Cleanup some old formatting bugs with old data. Added redundency as well.
@@ -14014,7 +14033,7 @@ end
 GRM.ParseGuildRanks = function()
     local ranks = {};
 
-    for rankName in string.gmatch ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].rankNames , "[^,]+" ) do
+    for rankName in string.gmatch ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks , "[^||]+" ) do
         table.insert ( ranks , rankName );
     end
     return ranks;
@@ -14026,7 +14045,7 @@ end
 GRM.CheckGuildRanks = function()
     -- If the ranks are set, let's check if they do not match now.
     local numRanks = GuildControlGetNumRanks();
-    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].rankNames = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].rankNames or GRM.GetListOfGuildRanks ( true , true , true );
+    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks or GRM.GetListOfGuildRanks ( true , true , true );
     
     GRM_G.guildRankNames = GRM_G.guildRankNames or GRM.ParseGuildRanks();
 
@@ -14052,7 +14071,7 @@ GRM.CheckGuildRanks = function()
             end
 
             if changeMade then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].rankNames = GRM.GetListOfGuildRanks ( true , true , true );
+                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks = GRM.GetListOfGuildRanks ( true , true , true );
                 GRM_G.guildRankNames = GRM.ParseGuildRanks();
             end
         end

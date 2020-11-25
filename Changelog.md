@@ -2,10 +2,21 @@
 
 _______________________
 
-**VERSION R1.924 RELEASE - November 21st, 2020**
+**VERSION R1.925 RELEASE - November 24th, 2020**
+
+***BUG FIXES***
+
+* Fixed a long time bug that was causing the addon not to load for a very small number of people, and was basically the remnants of a very old bug that finally is getting quashed.
+
+* Fixed an issue where a rank being renamed could spam the log more than 1 time before self-resolving...
+
+
+
+**VERSION R1.924 RELEASE - November 22nd, 2020**
 
 * Fixed a lot of errors in relation to last update
 
+* Also - no more spammy notifications of addon being outdated... this should only occur once per session. oops!
 
 
 **VERSION R1.923 RELEASE - November 20th, 2020**

@@ -885,9 +885,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    if numericV < 1.925 and baseValue < 1.925 then
+        GRM_Patch.ModifyGuildValue ( GRM_Patch.PurgeGuildRankNamesOldFormat );
+
+        if loopCheck ( 1.925 ) then
+            return;
+        end
+    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
+
+
 
 -- Final report is good to go!
 GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
@@ -4744,6 +4754,44 @@ GRM_Patch.ModifyMemberData = function ( databaseChangeFunction , editCurrentPlay
     end
 end
 
+-- 1.87
+-- Method:          GRM_Patch.ModifyGuildValue ( function )
+-- What it Does:    Goes through the entire account wide database and modifies a guild's metadata based on the actions of the given function
+-- Purpose:         Reusable function for error work and to avoid on code bloat spam.
+GRM_Patch.ModifyGuildValue = function ( databaseChangeFunction )
+    for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+        for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+            GRM_GuildMemberHistory_Save[F][guildName] = databaseChangeFunction ( GRM_GuildMemberHistory_Save[F][guildName] );
+        end
+    end
+
+    -- Former memebrs
+    for F in pairs ( GRM_PlayersThatLeftHistory_Save ) do                         -- Horde and Alliance
+        for guildName in pairs ( GRM_PlayersThatLeftHistory_Save[F] ) do                  -- The guilds in each faction
+            GRM_PlayersThatLeftHistory_Save[F][guildName] = databaseChangeFunction ( GRM_PlayersThatLeftHistory_Save[F][guildName] );
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "Auto" , "Manual" , "members" , "formerMembers" };
+    for F in pairs ( GRM_GuildDataBackup_Save ) do
+        for guildName in pairs ( GRM_GuildDataBackup_Save[F] ) do
+            for i = 1 , 2 do            -- Auto vs Manual
+                if #GRM_GuildDataBackup_Save[F][guildName][backup[i]] > 0 then
+                    for j = 3 , 4 do        -- Member vs formerMember
+                        if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] > 0 then
+                            GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
+                        else
+                            GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] = databaseChangeFunction ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[j]] );
+                        end
+                    end
+
+                end
+            end
+        end
+    end
+end
+
 -- 1.92
 -- Method:          GRM_Patch.AddMemberMetaData ( string , variable )
 -- What it Does:    Goes through the entire account wide database and adds the player's metadata a new setting
@@ -5348,5 +5396,13 @@ GRM_Patch.FixVerifiedDatesForRejoins = function ( player )
     return player;
 end
 
--- Run this: GRM_Patch.FixVerifiedDatesForRejoins
--- Copy date from one to another is not copying the epoch stamps properly
+-- 1.925
+-- Method:          GRM_Patch.PurgeGuildRankNamesOldFormat ( guild )
+-- What it Does:    Takes the old "rankNames" variable in the guild table and purges it by setting it to nil
+-- Purpose:         Due to an error in separating the names by commas, given you can name ranks with commas, the regex parsing was separating them by commas which breaks things. Instead of parsing and trying to decipher and replace, it just purges the old data and rebuilds it under a new variable name. Quick and easy fix.
+GRM_Patch.PurgeGuildRankNamesOldFormat = function ( guildData )
+    guildData.rankNames = nil;
+    return guildData;
+end
+
+
