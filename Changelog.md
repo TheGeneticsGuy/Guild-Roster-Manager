@@ -2,6 +2,15 @@
 
 _______________________
 
+**VERSION R1.926 RELEASE - November 27th, 2020**
+
+***BUG FIXES***
+
+* Pretty significant bug where some nested tables grew VERY large if you were experiencing a crash in a previous patch, so it built over and over. This cleans up the flaw and the database. Example, a 50MB database that experience this flaw would drop to roughly 10MB. It was a fairly big flaw, but it affected very few people it seems.
+
+* Fixed an issue with some players not being able to patch properly from the previous update. This should resolve it.
+
+
 **VERSION R1.925 RELEASE - November 24th, 2020**
 
 ***BUG FIXES***

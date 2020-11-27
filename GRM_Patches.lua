@@ -875,21 +875,22 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-    
-    if numericV < 1.924 and baseValue < 1.924 then
-        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistory , true , true , false );
-        GRM_Patch.ModifyMemberData ( GRM_Patch.FixVerifiedDatesForRejoins , true , true , false );  -- Re-fixing
-        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistoryEpochDates , true , true , false );
-
-        if loopCheck ( 1.924 ) then
-            return;
-        end
-    end
 
     if numericV < 1.925 and baseValue < 1.925 then
         GRM_Patch.ModifyGuildValue ( GRM_Patch.PurgeGuildRankNamesOldFormat );
 
         if loopCheck ( 1.925 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.926 and baseValue < 1.926 then
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistory , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixVerifiedDatesForRejoins , true , true , false );  -- Re-fixing
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistoryEpochDates , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.CleanupSafeLists , true , true , false );
+
+        if loopCheck ( 1.926 ) then
             return;
         end
     end
@@ -5336,7 +5337,15 @@ end
 -- What it Does:    Changes the safeList from a strictly boolean value, for kicks, and adds an array so individual settings can be made for each of the macro tool types
 -- Purpose:         Expand customizability and flexibility for players with the macro tool settings and use
 GRM_Patch.UpdateSafeListValue = function ( player )
-    local currentValue = player.safeList;
+    local currentValue;
+
+    if type( player.safeList ) == "boolean" then
+        currentValue = player.safeList;
+    elseif type ( player.safeList.kick[1] ) == "boolean" then
+        currentValue = player.safeList.kick[1]
+    else
+        currentValue = false;
+    end
 
     player.safeList = {};
     player.safeList.kick = { currentValue , false , 0 , 0 };    -- IsEnabled , isExpireEnabled, how many days, EpochTimeOfExpiration
@@ -5372,11 +5381,12 @@ GRM_Patch.FixVerifiedDatesForRejoins = function ( player )
     end
 
     -- Validate f ormatting for all players first.
-    if not player.verifiedPromoteDate or not player.verifiedPromoteDate[1] or not player.rankHistory then
-        if not player.verifiedPromoteDate or not player.verifiedPromoteDate[1] then
+    if not player.verifiedPromoteDate or not player.verifiedPromoteDate[1] or player.verifiedPromoteDate[1] == "nil" or not player.rankHistory or not player.rankHistory[#player.rankHistory][2] then
+        if not player.verifiedPromoteDate or not player.verifiedPromoteDate[1] or player.verifiedPromoteDate[1] == "nil" then
             player.verifiedPromoteDate = { "" , 0 };
         end
-        if not player.rankHistory then
+        if not player.rankHistory or not player.rankHistory[#player.rankHistory][2] then
+            player.rankHistory = nil;
             player.rankHistory = { { "" , "" , 0 } };
         end
     end
@@ -5405,4 +5415,27 @@ GRM_Patch.PurgeGuildRankNamesOldFormat = function ( guildData )
     return guildData;
 end
 
+-- 1.926
+-- Method:          GRM_Patch.CleanupSafeLists ( table )
+-- What it Does:    Due to a previous error if the addon crashed when patching you could end up with tons of nested variables. This cleans them up
+-- Purpose:         Fix a previous patching flaw
+GRM_Patch.CleanupSafeLists = function ( player )
 
+    -- Previous bug
+    local rule = player.safeList.kick;
+    if type ( rule[1] ) == "table" then
+    
+        while ( type ( rule[1] ) == "table" and rule[1].kick ) do
+            rule = rule[1].kick;
+        end
+
+        if type ( rule[1] ) == "boolean" then
+            player.safeList.kick = { rule[1] , rule[2] , rule[3] , rule[4] }
+        end
+        
+    end
+
+    return player;
+end
+
+-- /dump GRM_PlayersThatLeftHistory_Save["H"]["Bloodlines-Kurinnaxx"]["Lilqueefy-Kurinnaxx"].safeList
