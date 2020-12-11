@@ -5281,7 +5281,7 @@ GRM_Patch.FixLogChangeRankEntries = function()
     for faction in pairs ( GRM_LogReport_Save ) do
         for guildName in pairs ( GRM_LogReport_Save[faction] ) do
             for i = #GRM_LogReport_Save[faction][guildName] , 1 , -1 do
-                if GRM_LogReport_Save[faction][guildName][i][1] == 6 and GRM_LogReport_Save[faction][guildName][i][4] == "" or GRM_LogReport_Save[faction][guildName][i][4] == nil then
+                if GRM_LogReport_Save[faction][guildName][i][1] == 6 and ( GRM_LogReport_Save[faction][guildName][i][4] == "" or GRM_LogReport_Save[faction][guildName][i][4] == nil ) then
                     table.remove ( GRM_LogReport_Save[faction][guildName] , i );
                 end
             end
