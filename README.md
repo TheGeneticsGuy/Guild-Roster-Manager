@@ -3,7 +3,7 @@
 
 **JOIN-UP ON DISCORD**
 
-[Join Discord Here](https://discord.gg/xuECv9S6S3) or Copy This Link: https://discord.gg/xuECv9S6S3
+[Join Discord Here](https://discord.gg/9kYUMDHe7A) or Copy This Link: https://discord.gg/9kYUMDHe7A
 
 *Join up to discuss GRM, offer suggestions, report bugs, or even just chat about guild management related things. All help in this regard is greatly appreciated! I respond much faster to Discord posts than I do anywhere else and am more likely to respond faster to any issues you might be encountering.*
 
