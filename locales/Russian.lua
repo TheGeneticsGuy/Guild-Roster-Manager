@@ -183,7 +183,7 @@ GRML.Russian = function()
     GRM_L["No Calendar Events to Add"] = ("Нет событий для добавления")
     GRM_L["{name}'s event has already been added to the calendar!"] = ("Событие {name} уже добавлено в каленьдарь")
     GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = ("Подождите {num} секунд, чтобы добавить событие в календарь")
-    GRM_L["{name}'s Event Removed From the Que!"] =("{name} событие удалено")
+    GRM_L["{name}'s Event Removed From the Queue!"] =("{name} событие удалено")
     GRM_L["Full Description:"] = ("Полное описание:")
 
     -- BAN WINDOW

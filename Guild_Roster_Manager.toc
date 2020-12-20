@@ -6,9 +6,10 @@
 ## Notes: Manage Guild Roster Changes, Events, with Alt/Main tagging, for ALL guildies
 ## X-Website: https://www.curseforge.com/wow/addons/guild-roster-manager
 ## SavedVariables: GRM_PlayersThatLeftHistory_Save , GRM_GuildMemberHistory_Save , GRM_CalendarAddQue_Save , GRM_LogReport_Save , GRM_AddonSettings_Save , GRM_PlayerListOfAlts_Save , GRM_FullBackup_Save , GRM_GuildDataBackup_Save, GRM_Misc
-## SavedVariablesPerCharacter: GRM_DebugLog_Save
+## SavedVariablesPerCharacter: GRM_DebugLog_Save , GRM_Alts
 
-Guild_Roster_Manager.lua
+GRM_Core.lua
+GRM_AltManagement.lua
 GRM_GuildSync.lua
 
 locales\German.lua

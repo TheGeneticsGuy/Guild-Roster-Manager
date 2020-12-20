@@ -180,7 +180,7 @@ GRML.Italian = function()
 	GRM_L["No Calendar Events to Add"] = "Nessun Evento da aggiungere"
 	GRM_L["{name}'s event has already been added to the calendar!"] = "L'evento di {name} è già stato aggiunto al Calendario!"
 	GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = "Per favore, aspetta altri {num} per aggiungere l'Evento al Calendario"
-	GRM_L["{name}'s Event Removed From the Que!"] = "Evento di {name} rimosso dall'elenco"
+	GRM_L["{name}'s Event Removed From the Queue!"] = "Evento di {name} rimosso dall'elenco"
 	GRM_L["Full Description:"] = "Descirzione Completa"
 
 	-- BAN WINDOW

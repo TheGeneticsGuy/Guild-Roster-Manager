@@ -2,6 +2,35 @@
 
 _______________________
 
+**VERSION R1.93 RELEASE - December 24th, 2020**
+
+
+***BUG FIXES***
+
+
+
+* Fixed a typo with the word Que instead of Queue
+
+* Fixed an issue that could occur with the sync process...
+
+* Fixed an issue where the "custom message" using the macro tool would not report to the log properly and stay enabled.
+
+* Fixed some broken alt groups that would keep getting mixed everytime a player would sync with another. It is worth mentioning that in some cases it is impossible to know which of the toons is the real "main" as the affected alt groups could result in 2 different toons being linked as mains. Since I cannot know for certain your intention on who was who, the addon will auto-demote both and remove the main designation, and in some clases, if too broken, purge the alt group completely (*this is more more rare*). The good news is that with the restructuring of the alt database these issues should not return. 
+
+***QUALITY OF LIFE***
+
+* Complete Rebuild of the entire backend alt database - while this will not be obvious on the front end, when I initially wrote the alt logic I was basically building as a I went and the entire codebase at that point was less than 1000 lines of code. Fundamentally it was not built in the most efficient way, but I have built over its foundation since. As GRM has grown into tens of thousands of lines of code, with increasing complexity, and with the alt logic having its tentacles all over thhe place, it got to the point where a decision had to be made, do I keep building on the original "leaky" logic, that had a larger memory footprint, or do I finally get around to rebuilding the entire alt database and accompanying logic from scratch. Well, with no end in sight for the future of GRM, it just made sense to get it over with now. This will have the side effect of fixing some potential logic flow errors that could result in alt groups getting jumbled incorrectly during a sync.
+
+* Guild_Roster_Manager.lua file has been renamed to GRM_Core.lua - This is to prevent confusion with the SavedVariables which carry the same name as the addon.
+
+* Added some compatibility to mouseover function if a player
+
+
+**ERSION R1.927 RELEASE - December 10th, 2020**
+
+* Major bug fix for issue corrupting the log that has been overlooked since November 19th and can happen to anyone... BAD! Never before happened. If you have an in-game backup that predates this, or a windows backup, this can be fixed. It does not affect ALL people, but it effects enough to be a major issue.
+
+
 **VERSION R1.926 RELEASE - November 27th, 2020**
 
 ***BUG FIXES***

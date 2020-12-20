@@ -138,7 +138,7 @@ end
 -- Purpose:         Needed to unlock the highlights properly so it is not confusing who is selected.
 GRM.ClearRosterHighlights = function()
     SetGuildRosterSelection ( 0 );      -- If you do not clear the selection, it will just re-highlight the bar when it updates.
-    for i = 1 , 13 do
+    for i = 1 , GRM_UI.ContainerButtonCount do
         _G[ "GuildFrameButton" .. i ]:UnlockHighlight();
     end
 end

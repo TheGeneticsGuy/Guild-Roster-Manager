@@ -831,7 +831,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     if numericV < 1.915 and baseValue < 1.915 then
-        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddKickRuleValue );
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddRulesValue );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.ModifyKickRuleMaxLevel );
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.ModifyKickRuleLogic );
         GRM_Patch.AddPlayerSetting ( "disableMacroToolLogSpam" , false );
@@ -891,6 +891,41 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.ModifyMemberData ( GRM_Patch.CleanupSafeLists , true , true , false );
 
         if loopCheck ( 1.926 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.927 and baseValue < 1.927 then
+        GRM_Patch.ModifyMemberData ( GRM_Patch.fixAltGroups , true , false , true );
+        
+        if loopCheck ( 1.927 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.928 and baseValue < 1.928 then
+        GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddRulesValue );
+        GRM_Patch.ModifyPlayerSetting ( "promoteRules" , GRM_Patch.AddRulesValue );
+        GRM_Patch.ModifyPlayerSetting ( "demoteRules" , GRM_Patch.AddRulesValue );
+
+        if loopCheck ( 1.928 ) then
+            return;
+        end
+    end
+
+    if numericV < 1.93 and baseValue < 1.93 then
+        GRM_Patch.ConfigureNewAltGroups();
+        GRM_Patch.AddMemberMetaData ( "altGroup" , "" );
+        GRM_Patch.AddMemberMetaData ( "altGroupModified" , 0 );
+        GRM_Patch.AddMemberMetaData ( "mainAtTimeOfLeaving" , {} );
+        GRM_Patch.AddMemberMetaData ( "altsAtTimeOfLeaving" , {} );
+        
+        GRM_Patch.BuildNewAltLists();
+    
+
+        -- ONLY DO THIS IF PATCH HAS BEEN COMPLETELY SUCCESSFUL!!! If we get this far it has!
+        GRM_Patch.ModifyMemberData ( GRM_Patch.RemoveOldAltLists , true , true , false );
+        if loopCheck ( 1.93 ) then
             return;
         end
     end
@@ -4690,6 +4725,7 @@ end
 -- What it Does:    Goes through the entire account wide database and modifies a player's or guild's metadata based on the actions of the given function
 -- Purpose:         Reusable function for error work and to avoid on code bloat spam.
 GRM_Patch.ModifyMemberData = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData )
+
     if editCurrentPlayers then
         for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
             for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
@@ -4705,7 +4741,7 @@ GRM_Patch.ModifyMemberData = function ( databaseChangeFunction , editCurrentPlay
             end
         end
     end
-
+    
     -- Former memebrs
     if editLeftPlayers then
         for F in pairs ( GRM_PlayersThatLeftHistory_Save ) do                         -- Horde and Alliance
@@ -5233,20 +5269,31 @@ GRM_Patch.AddKickRuleOperator = function ( kickRules )
 end
 
 -- 1.92
--- Method:          GRM_Patch.AddKickRuleValue()
+-- Method:          GRM_Patch.AddRulesValue()
 -- What it Does:    Add a way to sort the rules by index
 -- Purpose:         Player rule customization
-GRM_Patch.AddKickRuleValue = function ( kickRules )
+GRM_Patch.AddRulesValue = function ( rules )
     local c = 1;
-    for name in pairs ( kickRules ) do 
-        kickRules[name].ruleIndex = c;
+
+    for name in pairs ( rules ) do 
+        rules[name].ruleIndex = c;
         c = c + 1;
+        
+        -- Fixing a typo variable error save on the custom log messaging.
+        if rules[name].customlog ~= nil then
+            if rules[name].customlog then
+                rules[name].customLog = true;
+            else
+                rules[name].customLog = false;
+            end
+        end
+        rules[name].customlog = nil;
     end
-    return kickRules;
+    return rules;
 end
 
 -- 1.92
--- Method:          GRM_Patch.AddKickRuleValue()
+-- Method:          GRM_Patch.ModifyKickRuleMaxLevel()
 -- What it Does:    Add a way to sort the rules by index
 -- Purpose:         Player rule customization
 GRM_Patch.ModifyKickRuleMaxLevel = function ( kickRules )
@@ -5438,4 +5485,257 @@ GRM_Patch.CleanupSafeLists = function ( player )
     return player;
 end
 
--- /dump GRM_PlayersThatLeftHistory_Save["H"]["Bloodlines-Kurinnaxx"]["Lilqueefy-Kurinnaxx"].safeList
+-- 1.93
+-- Method:          GRM_Patch.ConfigureNewAltGroups()
+-- What it Does:    It configures the new SavedVariable by establishing the guild names.
+-- Purpose:         Rebuilding the structure of alt groups for ease.
+GRM_Patch.ConfigureNewAltGroups = function()
+    for faction in pairs ( GRM_GuildMemberHistory_Save ) do
+        for guildName in pairs ( GRM_GuildMemberHistory_Save[faction] ) do
+            if not GRM_Alts [ guildName ] then
+                GRM_Alts[ guildName ] = {};
+            end
+        end
+    end
+end
+
+-- 1.93
+-- Method:          GRM_Patch.BuildNewAltLists()
+-- What it Does:    Modifies the guild into the new format.
+-- Purpose:         adapt the guild lists to the new system.
+GRM_Patch.BuildNewAltLists = function()
+    local alt;
+    local groupID;
+    local timeOfChange = 0;
+
+    -- Setting the most recent chan ge timestamp.
+    local getMostRecentTimeOfChange = function ( player )
+        local time = 0;
+
+        if #player.alts > 0 then
+
+            for i = 1 , #player.alts do
+                if player.alts[i][6] > time then
+                    time = player.alts[i][6];
+                end
+            end
+        else
+            time = player.mainStatusChangeTime;
+        end
+
+        return time;
+    end
+
+    for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+        for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+            for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                if type ( player ) == "table" then
+
+                    if player.altGroup == "" and player.alts and ( #player.alts > 0 or player.isMain ) then
+
+                        timeOfChange = getMostRecentTimeOfChange ( player );
+                        groupID = GRM.CreateNewAltGroupID ( guildName );
+
+                        player.altGroup = groupID;
+                        player.altGroupModified = timeOfChange;
+
+                        if GRM_Alts[guildName][ groupID ] then
+                            print("REPEATED ID: " .. player.name .. " : " .. GRM_Alts[guildName][ groupID ][1].name )
+                        end
+                        GRM_Alts[guildName][ groupID ] = {};
+                        GRM_Alts[guildName][ groupID ].main = "";
+                        GRM_Alts[guildName][ groupID ].timeOfChange = timeOfChange;
+
+                        GRM_Patch.AddAltForPatch ( "" , groupID , guildName , player , GRM_Alts[guildName][ groupID ].timeOfChange );
+
+                        if player.isMain then
+                            GRM_Alts[guildName][ groupID ].main = player.name;
+                        end
+
+                        -- Now, let's cycle through all of the alts.
+                        for i = 1 , #player.alts do
+                            alt = GRM_GuildMemberHistory_Save[F][guildName][player.alts[i][1]];
+                            if alt ~= nil then
+                                -- We know it is valid and toon is still in the guild
+                                alt.altGroup = groupID;
+
+                                if alt.isMain then
+                                    GRM_Alts[guildName][ groupID ].main = alt.name;
+                                end
+
+                                GRM_Patch.AddAltForPatch ( "" , groupID , guildName , alt , GRM_Alts[guildName][ groupID ].timeOfChange );
+                            end
+                        end
+                        -- Alphabetize them
+                        sort ( GRM_Alts[guildName][ groupID ] , function ( a , b ) return a.name < b.name end );
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- 1.93
+-- Method:          GRM_Patch.BuildNewAltListsBackupData()
+-- What it Does:    Modifies the guild into the new format.
+-- Purpose:         Since the other one writes to the saved file, and the backup data might be different from the current system, it needed
+--                  to be processed differently.
+GRM_Patch.BuildNewAltListsBackupData = function()
+    local altSave = {};
+    local alt;
+    local groupID;
+    local timeOfChange = 0;
+    local count = 1;
+
+    local getMostRecentTimeOfChange = function ( alts )
+        local time = 0;
+
+        for i = 1 , #alts do
+            if alts[i][6] > time then
+                time = alts[i][6];
+            end
+        end
+
+        return time;
+    end
+
+    for faction in pairs ( GRM_GuildMemberHistory_Save ) do
+        for guildName in pairs ( GRM_GuildMemberHistory_Save[faction] ) do
+            if not altSave [ guildName ] then
+                altSave[ guildName ] = {};
+            end
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "Auto" , "Manual" , "members" };
+    for F in pairs ( GRM_GuildDataBackup_Save ) do
+        for guildName in pairs ( GRM_GuildDataBackup_Save[F] ) do
+            for i = 1 , 2 do            -- Auto vs Manual
+                altSave = {};           -- Reset for each one.
+                if #GRM_GuildDataBackup_Save[F][guildName][backup[i]] > 0 then
+
+                    if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]] > 0 then
+                        GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
+                    else
+                        count = 1;
+                        for name , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]] ) do
+                            if type ( player ) == "table" then 
+
+                                if player.altGroup == "" and player.alts and ( #player.alts > 0 or player.isMain ) then
+                                    count = count + 1;
+
+                                    timeOfChange = getMostRecentTimeOfChange ( player );
+                                    groupID = tostring ( count );
+                            
+                                    player.altGroup = groupID;
+                                    player.altGroupModified = timeOfChange;
+
+                                    -- Ok, create the table and insert the player into it.
+                                    altSave[guildName][ groupID ] = {};
+                                    altSave[guildName][ groupID ].main = "";
+                                    altSave[guildName][ groupID ].timeOfChange = timeOfChange;
+
+                                    GRM_Patch.AddAltForPatch ( "" , groupID , player , altSave[guildName][ groupID ].timeOfChange );
+
+                                    if player.isMain then
+                                        altSave[guildName][ groupID ].main = player.name;
+                                    end
+
+                                    -- Now, let's cycle through all of the alts.
+                                    for i = 1 , #player.alts do
+                                        alt = GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]][player.alts[i][1]];
+                                        if alt ~= nil then
+                                            -- We know it is valid and toon is still in the guild
+                                            alt.altGroup = groupID;
+
+                                            if alt.isMain then
+                                                altSave[guildName][ groupID ].main = alt.name;
+                                            end
+
+                                            altSave = GRM_Patch.AddAltBackupPatch ( "" , groupID , guildName , alt , altSave[guildName][ groupID ].timeOfChange , altSave );
+                                        end
+                                    end
+
+                                    sort ( altSave[guildName][ groupID ] , function ( a , b ) return a.name < b.name end );
+
+                                end
+                            end
+                        end
+                    end
+                end
+
+                -- Store it in the backups now...
+
+
+            end
+        end
+    end
+end
+
+-- 1.93
+-- Method:          GRM_Patch.AddAltForPatch ( string , string , string , playerTable, string )
+-- What it Does:    Repeatable function to use for patching the player into the new data table
+-- Purpose:         Cleaaner code to strip this out.
+GRM_Patch.AddAltForPatch = function( oldGroupID , newGroupID , guildName , player , timeStamp )
+
+    -- First, let's handle the OLD group ID
+    if oldGroupID ~= "" then
+        player.altGroup = newGroupID;
+        GRM.RemoveAltFromGrouping ( oldGroupID , guildName , player );
+    end
+
+    -- Now we add to the new group.
+    local ind = #GRM_Alts[guildName][newGroupID] + 1;
+    GRM_Alts[guildName][newGroupID].timeOfChange = timeStamp or time();
+
+    GRM_Alts[guildName][newGroupID][ind] = {};
+    GRM_Alts[guildName][newGroupID][ind].name = player.name;
+    GRM_Alts[guildName][newGroupID][ind].class = player.class;
+
+    -- Handle the main logic here now.
+end
+
+-- 1.93
+-- Method:          GRM_Patch.AddAltBackupPatch ( string , string , string , playerTable, string , table )
+-- What it Does:    Repeatable function to use for patching the player into the new data table
+-- Purpose:         Cleaaner code to strip this out.
+GRM_Patch.AddAltBackupPatch = function( oldGroupID , newGroupID , guildName , player , timeStamp , altSave )
+
+    -- First, let's handle the OLD group ID
+    if oldGroupID ~= "" then
+        player.altGroup = newGroupID;
+        GRM.RemoveAltFromGrouping ( oldGroupID , guildName , player );
+    end
+
+    -- Now we add to the new group.
+    local ind = #altSave[newGroupID] + 1;
+    altSave[newGroupID].timeOfChange = timeStamp or time();
+
+    altSave[newGroupID][ind] = {};
+    altSave[newGroupID][ind].name = player.name;
+    altSave[newGroupID][ind].class = player.class;    
+
+    return altSave;
+end
+
+
+-- 1.93
+-- Method:          GRM_Patch.RemoveOldAltLists ( playerTable )
+-- What it Does:    Removes the alt information in the old format from the player
+-- Purpose:         
+GRM_Patch.RemoveOldAltLists = function ( player )
+    player.alts = nil;
+    return player;
+end
+
+
+-- Need to set each player to .altGroupModified = 
+
+GRM.AltTest = function()
+    GRM_Alts = {};
+    GRM_Patch.ConfigureNewAltGroups();
+    GRM_Patch.AddMemberMetaData ( "altGroup" , "" );
+    GRM_Patch.AddMemberMetaData ( "altGroupModified" , 0 );
+    GRM_Patch.BuildNewAltLists();
+end
