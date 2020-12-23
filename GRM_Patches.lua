@@ -895,20 +895,20 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
-    if numericV < 1.927 and baseValue < 1.927 then
+    if numericV < 1.928 and baseValue < 1.928 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.fixAltGroups , true , false , true );
         
-        if loopCheck ( 1.927 ) then
+        if loopCheck ( 1.928 ) then
             return;
         end
     end
 
-    if numericV < 1.928 and baseValue < 1.928 then
+    if numericV < 1.929 and baseValue < 1.929 then
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddRulesValue );
         GRM_Patch.ModifyPlayerSetting ( "promoteRules" , GRM_Patch.AddRulesValue );
         GRM_Patch.ModifyPlayerSetting ( "demoteRules" , GRM_Patch.AddRulesValue );
 
-        if loopCheck ( 1.928 ) then
+        if loopCheck ( 1.929 ) then
             return;
         end
     end
@@ -919,12 +919,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddMemberMetaData ( "altGroupModified" , 0 );
         GRM_Patch.AddMemberMetaData ( "mainAtTimeOfLeaving" , {} );
         GRM_Patch.AddMemberMetaData ( "altsAtTimeOfLeaving" , {} );
-        
         GRM_Patch.BuildNewAltLists();
     
 
         -- ONLY DO THIS IF PATCH HAS BEEN COMPLETELY SUCCESSFUL!!! If we get this far it has!
-        GRM_Patch.ModifyMemberData ( GRM_Patch.RemoveOldAltLists , true , true , false );
+        -- GRM_Patch.ModifyMemberData ( GRM_Patch.RemoveOldAltLists , true , true , false );
         if loopCheck ( 1.93 ) then
             return;
         end
@@ -5492,9 +5491,7 @@ end
 GRM_Patch.ConfigureNewAltGroups = function()
     for faction in pairs ( GRM_GuildMemberHistory_Save ) do
         for guildName in pairs ( GRM_GuildMemberHistory_Save[faction] ) do
-            if not GRM_Alts [ guildName ] then
-                GRM_Alts[ guildName ] = {};
-            end
+            GRM_Alts[ guildName ] = {};
         end
     end
 end

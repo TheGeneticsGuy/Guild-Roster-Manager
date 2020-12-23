@@ -4221,9 +4221,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
                         -- Refresh alt frames
                         -- Add the alt here, Hide the frame
                         GRM.AddAltTest ( GRM_G.currentName , self:GetText() , false , 0 );
-                        GRM.AddAlt ( GRM_G.currentName , self:GetText() , false , 0 );
                         GRM.SyncBirthdayWithNewAltTest ( self:GetText() );
-                        GRM.SyncBirthdayWithNewAlt ( self:GetText() );
 
                         if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                             GRM.RefreshAuditFrames ( true , true );
@@ -4317,7 +4315,6 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
 
             if buttonName == GRM.L ( "Remove" ) then
                 GRM.RemoveAltTest ( altDetails[2] , false , 0 );
-                GRM.RemoveAlt ( altDetails[1] , altDetails[2] , false , 0 , false );
                 -- Send comm out of the changes!
                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                     GRM.RefreshAuditFrames ( true , true );
@@ -13851,7 +13848,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 player = leftGuildData[ fullName ];
                 if player.bannedInfo[1] then
                     -- Player was previously banned! This is just an update!
-                    GRM.Report ( GRM.L ( "{name}'s Ban Info has Been Updated!" , GRM.GetStringClassColorByName ( fullName , true ) .. GRM.SlimName ( fullName ) .. "|r" ) );
+                    GRM.Report ( GRM.L ( "{name}'s Ban Info has Been Updated!" , GRM.GetStringClassColorByName ( fullName ) .. GRM.SlimName ( fullName ) .. "|r" ) );
                     isAnEdit = true;
                 else
                     player.bannedInfo[1] = true;

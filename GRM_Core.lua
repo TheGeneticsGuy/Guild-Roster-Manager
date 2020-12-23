@@ -30,9 +30,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "9.0R1.926";
-GRM_G.PatchDay = 1606461173;             -- In Epoch Time
-GRM_G.PatchDayString = "1606461173";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "9.0R1.93";
+GRM_G.PatchDay = 1608614907;             -- In Epoch Time
+GRM_G.PatchDayString = "1608614907";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.Patch = "9.0.2";
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
@@ -2623,7 +2623,7 @@ GRM.AddMainTagToComeOnlineSystemMessage = function( msg , isInGuild )
             end
             if includeMainTag then
                 mainName = GRM.GetMainName ( fullName , false );
-                mainColoring , hasAlts = GRM.GetStringClassColorByName ( mainName , false );
+                mainColoring , hasAlts = GRM.GetStringClassColorByName ( mainName );
                 mainDisplay = GRM.GetMainTags ( false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].mainTagIndex );
                 
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].useMainTag or hasAlts then
@@ -2635,7 +2635,7 @@ GRM.AddMainTagToComeOnlineSystemMessage = function( msg , isInGuild )
 
             -- Only color it if needed.
             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].colorizeNames then
-                hexCode , hasAlts = GRM.GetStringClassColorByName ( fullName , false );
+                hexCode , hasAlts = GRM.GetStringClassColorByName ( fullName );
             end        
 
             if mainName ~= "" and mainName ~= fullName then
@@ -2691,7 +2691,7 @@ GRM.AddMainTagToGoneOfflineSystemMessage = function ( msg )
     end
 
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].colorizeNames then
-        hexCode = GRM.GetStringClassColorByName ( fullName , false );
+        hexCode = GRM.GetStringClassColorByName ( fullName );
         necessaryTag = "|r";
     end
 
@@ -3901,21 +3901,20 @@ GRM.GetNameWithMainTags = function( name , slimName , includeMainOnAlts , includ
                 elseif GRM.PlayerHasAlts ( player ) then
                     hasAlts = true;
                     GRM_G.IsAltGrouping = true;
-                        if player.altGroup ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" then
-                            needsSlimming = false;
-                            -- Formatting...
-                            if slimName then
-                                name = GRM.SlimName ( name );  -- This player is not the main, but is part of a grouping with a player who is main
-                            end
-                            -- for alt tag to be added
-                            if includeAltTagIfMain then
-                                name = name .. " " .. hexCode .. altDisplay .. "|r"; 
-                            end
-                            if includeMainOnAlts then
-                                name = name .. " " .. par1 .. GRM.GetClassifiedName ( GRM_Alts[GRM_G.guildName][player.altGroup].main , slimName ) .. par2 .. " " .. hexCode .. mainDisplay .. "|r";
-                            end
-                            break;
+                    if player.altGroup ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" then
+                        needsSlimming = false;
+                        -- Formatting...
+                        if slimName then
+                            name = GRM.SlimName ( name );  -- This player is not the main, but is part of a grouping with a player who is main
                         end
+                        -- for alt tag to be added
+                        if includeAltTagIfMain then
+                            name = name .. " " .. hexCode .. altDisplay .. "|r"; 
+                        end
+                        if includeMainOnAlts then
+                            name = name .. " " .. par1 .. GRM.GetClassifiedName ( GRM_Alts[GRM_G.guildName][player.altGroup].main , slimName ) .. par2 .. " " .. hexCode .. mainDisplay .. "|r";
+                        end
+                    end
                 end
             end
 
@@ -3946,7 +3945,9 @@ GRM.GetMainName = function ( fullName , includeParentheses )
         if #player.altsAtTimeOfLeaving > 0 then
             playerHasAlts = true;
         end
-        main = player.mainAtTimeOfLeaving;
+        if #player.mainAtTimeOfLeaving > 0 then
+            main = player.mainAtTimeOfLeaving[1];
+        end
     else
         playerHasAlts = GRM.PlayerHasAlts ( player );
         if player.altGroup ~= "" then
@@ -3978,27 +3979,22 @@ GRM.AddMainToChat = function( _ , event , msg , sender , ... )
             if guildData ~= nil then
                 local player = guildData[sender];
 
-                if player ~= nil then
+                if player then
                     -- Let's see if they are the main. If they are, no need to do anything...
-                    if not player.isMain then
-                        if #player.alts > 0 then
-                            for j = 1 , #player.alts do
-                                if player.alts[j][5] then
-                                    local classColor = GRM.GetStringClassColorByName ( player.alts[j][1] , false );
-                                    if channelName ~= "Achievement" then
-                                        msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r(" .. classColor .. GRM.SlimName ( player.alts[j][1] ) .. "|r): " .. msg;
-                                    else
-                                        msg = classColor .. GRM.SlimName ( player.alts[j][1] ) .. "|r" .. GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
-                                    end
-                                    break;
-                                end
-                            end
-                        end
-                    else
+                    if player.isMain then
                         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].useMainTag then
                             -- Just add main tag...
                             msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
                         end
+                    elseif GRM.PlayerHasAlts ( player ) then
+                        local main = GRM.GetAltGroupMain ( player.altGroup );
+                        if main ~= "" then
+                            if channelName ~= "Achievement" then
+                                msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r(" .. GRM.GetStringClassColorByName ( main ) .. GRM.FormatName ( main ) .. "|r): " .. msg;
+                            else
+                                msg = GRM.GetStringClassColorByName ( main ) .. GRM.FormatName ( main ) .. "|r" .. GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
+                            end
+                        end    
                     end
                 end
             end
@@ -6598,204 +6594,6 @@ GRM.CopyFromPromoDate = function()
     GRM_UI.GRM_altDropDownOptions:Hide();
 end
 
--- -- Method:          GRM.PopulateAltFrames( string )
--- -- What it Does:    This generates the alt frames in the main addon metadata detail frame
--- -- Purpose:         Clean formatting of the alt frames.
--- GRM.PopulateAltFrames = function ( playerName )
---     -- let's start by prepping the frames.
---     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
---     local player = guildData[playerName];
---     local listOfAlts = player.alts;
---     local numAlts = #listOfAlts
-
---     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:Show();
---     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:Show();
---     local scrollHeight = 0;
---     local scrollWidth = 128;
---     local buffer = 1;
-
---     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons or {};  -- Create a table for the Buttons.
---     -- populating the window correctly.
---     for i = 1 , numAlts do
---         -- if font string is not created, do so.
---         if not GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] then
---             local tempButton = CreateFrame ( "Button" , "GRM_AltAdded" .. i , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame ); -- Names each Button 1 increment up
---             GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( "GRM_AltAddedText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) };
---         end
-
---         if i == numAlts and #GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons > numAlts then
---             for j = numAlts + 1 , #GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
---                 GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[j][1]:Hide();
---             end
---         end
-
---         local AltButtons = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1];
---         local AltButtonsText = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][2];
---         AltButtons:SetSize ( 65 , 15 );
---         AltButtons:RegisterForClicks( "RightButtonDown" , "LeftButtonDown" );
-
---         -- Check if main
---         local name = GRM.SlimName ( player.alts[i][1] );
---         if i == 1 then
---             if player.alts[i][5] == true then  --- this person is the main!
---                 name = name .. "\n|cffff0000" .. GRM.L ( "(main)" );
---                 AltButtonsText:SetWordWrap ( true );
---             end
---         else
---             AltButtonsText:SetWordWrap ( false );
---         end
---         AltButtonsText:SetText ( name );
---         AltButtonsText:SetTextColor ( player.alts[i][2] , player.alts[i][3] , player.alts[i][4] , 1.0 );
---         AltButtonsText:SetWidth ( 60 );
-
---         if i == 1 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].fontModifier > 0 and string.find ( name , GRM.L ( "(main)" ) ) ~= nil then
---             AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
---         else
---             AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
---         end
-        
---         AltButtonsText:SetPoint ( "CENTER" , AltButtons );
---         AltButtonsText:SetJustifyH ( "CENTER" );
-
---         -- Logic
---         AltButtons:SetScript ( "OnClick" , function ( self , button )
---             if button == "RightButton" then
---                 -- Parse the button number, so the alt position can be identified...
---                 local altNum;
---                 local isMain = false;
---                 local width = 70;
---                 local height = 85;
-                
---                 if tonumber ( string.sub ( self:GetName() , #self:GetName() - 1 ) ) ~= nil then
---                     altNum = tonumber ( string.sub ( self:GetName() , #self:GetName() - 1 ) );
---                 else
---                     altNum = tonumber ( string.sub ( self:GetName() , #self:GetName() ) );
---                 end
-
---                 -- Ok, populate the buttons properly...
---                 GRM_G.pause = true;
---                 GRM_UI.GRM_altDropDownOptions:ClearAllPoints();
---                 GRM_UI.GRM_altDropDownOptions:SetPoint( "TOPRIGHT" , self , "BOTTOM" );
-
---                 if string.find ( AltButtonsText:GetText() , GRM.L ( "(main)" ) ) == nil then
---                     GRM_UI.GRM_altSetMainButtonText:SetText ( GRM.L ( "Set as Main" ) );
---                     GRM_UI.GRM_altDropDownOptions.GRM_altOptionsText:SetText ( AltButtonsText:GetText() );
---                 else -- player IS the main... place option to Demote From Main rahter than set as main.
---                     GRM_UI.GRM_altSetMainButtonText:SetText ( GRM.L ( "Set as Alt" ) );
---                     isMain = true;
---                     GRM_UI.GRM_altDropDownOptions.GRM_altOptionsText:SetText ( string.sub ( AltButtonsText:GetText() , 1 , string.find ( AltButtonsText:GetText() , "\n" ) - 1 ) );
---                 end
-
---                 if GRM_UI.GRM_altDropDownOptions.GRM_altOptionsText:GetStringWidth() + 15 > width then       -- For scaling the frame based on size of player name.
---                     width = GRM_UI.GRM_altDropDownOptions.GRM_altOptionsText:GetStringWidth() + 15;
---                 end
---                 if GRM_UI.GRM_altSetMainButtonText:GetStringWidth() + 15 > width then
---                     width = GRM_UI.GRM_altSetMainButtonText:GetStringWidth() + 15;
---                 end
---                 if GRM_UI.GRM_altRemoveButtonText:GetStringWidth() + 15 > width then
---                     width = GRM_UI.GRM_altRemoveButtonText:GetStringWidth() + 15;
---                 end
-
---                 GRM_UI.GRM_altDropDownOptions:SetSize ( width , height );
---                 GRM_UI.GRM_altRemoveButton:SetSize ( 80 , 20 );
---                 GRM_UI.GRM_altSetMainButton:SetSize ( 80 , 20 );
---                 GRM_UI.DisableVerifyButton();
---                 GRM_UI.GRM_altRemoveButtonText:SetText ( GRM.L ( "Remove" ) );
---                 GRM_UI.GRM_ConfirmDropdownButton:Hide();
---                 GRM_UI.GRM_altDropDownOptions.GRM_MergeDateOverButton:Hide();
---                 GRM_UI.GRM_altRemoveButton:Show();
---                 GRM_UI.GRM_altDropDownOptions:Show();
-
---                 -- Set the Global info now!
---                 local currentPlayer = guildData[GRM_G.currentName];
---                 if currentPlayer ~= nil then
---                     GRM_G.selectedAlt = { GRM_G.currentName , currentPlayer.alts[altNum][1] , GRM_G.guildName , isMain };
---                 end
---             elseif button == "LeftButton" then
---                 if not IsShiftKeyDown() then
---                     if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailServerNameToolTip:IsVisible() and not GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailNameText:IsMouseOver ( 2 , -2 , -2 , 2 ) then
---                         -- This makes the main window the alt that was clicked on! TempAltName is saved when mouseover action occurs.
---                         if GRM_G.tempAltName ~= "" then
---                             GRM.SelectPlayerOnRoster ( GRM_G.tempAltName );
---                         end
---                     end
---                 else
---                     if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailNameText:IsMouseOver ( 2 , -2 , -2 , 2 ) then
---                         GRM_G.tempAltName = GRM_G.currentName;
---                     end
---                     if GRM_G.tempAltName ~= "" then
---                         GRM.GR_Roster_Click ( GRM_G.tempAltName );
---                         GRM_G.tempAltName = "";
---                     end
---                 end
---             end
---         end);
-        
---         -- Now let's pin it!
---         if i == 1 then
---             AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame , 0 , - 1 );
---             scrollHeight = scrollHeight + AltButtons:GetHeight();
---         elseif i == 2 then
---             AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 1][1] , "TOPRIGHT" , 1 , 0 );
---         else
---             AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 2][1] , "BOTTOMLEFT" , 0 , - buffer );
---             if i % 2 ~= 0 then
---                 scrollHeight = scrollHeight + AltButtons:GetHeight() + buffer;
---             end
---         end
---         AltButtons:Show();
---     end
-
---     -- Pin the button
---     if numAlts == 0 then
---         GRM_UI.GRM_AddAltButton2:ClearAllPoints();
---         GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame , "TOP" , 0 , - 1 );
---     elseif numAlts == 1 then
---         GRM_UI.GRM_AddAltButton2:ClearAllPoints();
---         GRM_UI.GRM_AddAltButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[1][1] , "TOPRIGHT" , 1 , 0 );
---     else
---         GRM_UI.GRM_AddAltButton2:ClearAllPoints();
---         GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1] , "BOTTOM" , 0 , - buffer);
---         if numAlts % 2 == 0 and numAlts > 12 then
---             scrollHeight = scrollHeight + GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer;
---         end
---     end
---     GRM_UI.GRM_AddAltButton2:Show();
-
---     if numAlts > 12 then
---         if GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:IsVisible() then
---             GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton , "RIGHT" , 5 , 0 );
---         end
---     end
-
---     -- Update the size -- it either grows or it shrinks!
---     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:SetSize ( scrollWidth , scrollHeight );
-
---     --Set Slider Parameters ( has to be done after the above details are placed )
---     local scrollMax = ( scrollHeight - GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:GetHeight() ) + ( buffer * .5 );
---     if scrollMax < 0 then
---         scrollMax = 0;
---     end
-    
---     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetMinMaxValues ( 0 , scrollMax );
---     -- Mousewheel Scrolling Logic
---     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:EnableMouseWheel( true );
---     GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:SetScript( "OnMouseWheel" , function( _ , delta )
---         local current = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:GetValue();
-        
---         if IsShiftKeyDown() and delta > 0 then
---             GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( 0 );
---         elseif IsShiftKeyDown() and delta < 0 then
---             GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( scrollMax );
---         elseif delta < 0 and current < scrollMax then
---             GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current + 20 );
---         elseif delta > 0 and current > 1 then
---             GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current - 20 );
---         end
---     end);
---     GRM_UI.GRM_CoreAltFrame:Show();
--- end
-
 -- Method:          GRM.GetPlayerClass ( string )
 -- What it Does:    Returns the string name of the class that is also region compatible
 -- Purpose:         Useful in UI design to pull the class so you can pull the class RGB colors, but there can be other uses too.
@@ -6803,13 +6601,10 @@ GRM.GetPlayerClass = function ( playerName )
     local class = "";
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
 
-    if player ~= nil then
+    if player then
         class = player.class;
-    else
-        player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName]
-        if player ~= nil then
-            class = player.class;
-        end
+    elseif GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName] then
+        class = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName].class;
     end
 
     return class;
@@ -6981,23 +6776,21 @@ GRM.GetStringClassColorByName = function ( name )
         name = name .. "-" .. GRM_G.realmName;
     end
     
-    if guildData ~= nil then
+    if guildData then
 
         player = guildData[name];
-        if player ~= nil then
+        if player then
             result = GRM.GetClassHex ( player.class );
-            if #player.alts > 0 then
+            if GRM.PlayerHasAlts ( player ) then
                 hasAlts = true;
             end
-        else
-            -- If note found maybe they have already left
-            player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
-            if player ~= nil then
-                result = GRM.GetClassHex ( player.class );
-                if #player.alts > 0 then
-                    hasAlts = true;
-                end
+        elseif GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] then
+
+            result = GRM.GetClassHex ( player.class );
+            if #player.altsAtTimeOfLeaving > 0 then
+                hasAlts = true;
             end
+
         end
     end
     return result , hasAlts;
@@ -7194,7 +6987,6 @@ end
 GRM.SetAltAsMainDropDownMenuLogic = function ( altDetails )
     if altDetails[1] ~= altDetails[2] then
         GRM.SetMainTest ( altDetails[2] , false , 0 );
-        GRM.SetMain ( altDetails[1] , altDetails[2] , false , 0 );
 
         -- Now send Comm to sync details.
         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
@@ -7207,26 +6999,25 @@ GRM.SetAltAsMainDropDownMenuLogic = function ( altDetails )
     else
         -- No need to set as main yet... let's set player to main here.
         local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altDetails[1]];
-        if player ~= nil then
-            if #player.alts > 0 then
-                GRM.SetMainTest ( altDetails[1] , false , 0 );
-                GRM.SetMain ( player.alts[1][1] , altDetails[1] , false , 0 );
-                if not GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously then
-                    GRM_UI.Unpause();
-                end
+        if player then
+
+            GRM.SetMainTest ( altDetails[1] , false , time() );
+            if not GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously then
+                GRM_UI.Unpause();
+            end
+
+            local alts = GRM.GetListOfAlts ( player );
+            if #alts > 0 then
+                
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
                     local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. player.alts[1][1] .. "?" .. altDetails[1] , "GUILD");
+                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. alts[1][1] .. "?" .. altDetails[1] , "GUILD");
                 end
             else
-                player.isMain = true;
-                player.mainStatusChangeTime = time();
-                if not GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously then
-                    GRM_UI.Unpause();
-                end
+
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
                     local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
@@ -7260,7 +7051,6 @@ end
 GRM.DemoteMainToAltDropDownMenuLogic = function ( altDetails )
     if altDetails[1] ~= altDetails[2] then
         GRM.DemoteFromMainTest ( altDetails[2] );
-        GRM.DemoteFromMain ( altDetails[1] , altDetails[2] , false , 0 );
 
         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
             local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
@@ -7272,26 +7062,24 @@ GRM.DemoteMainToAltDropDownMenuLogic = function ( altDetails )
     else
         -- No need to set as main yet... let's set player to main here.
         local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ altDetails[1] ];
-        if player ~= nil then
-            if #player.alts > 0 then
-                GRM.DemoteFromMainTest ( altDetails[1] );
-                GRM.DemoteFromMain ( player.alts[1][1] , altDetails[1] , false , 0 );
-                if not GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously then
-                    GRM_UI.Unpause();
-                end
+        if player then
+            GRM.DemoteFromMainTest ( altDetails[1] );
+            if not GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously then
+                GRM_UI.Unpause();
+            end
+
+            local alts = GRM.GetListOfAlts ( player );
+
+            if #alts > 0 then
+                
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
                     local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. player.alts[1][1] .. "?" .. altDetails[1] , "GUILD");
+                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. alts[1][1] .. "?" .. altDetails[1] , "GUILD");
                 end
             else
-                player.isMain = false;
-                player.mainStatusChangeTime = time();
-                if not GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously then
-                    GRM_UI.Unpause();
-                end
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
                     local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
@@ -7399,7 +7187,6 @@ GRM.RemoveAlt = function ( playerName , altName , isSync , syncTimeStamp , error
             if player == nil then
                 -- Erroenous data, abort...
                 GRM.RemoveAltTest ( playerName , isSync , syncTimeStamp );
-                GRM.RemoveAlt ( altName , playerName , isSync , syncTimeStamp , errorProtection , true );
                 return
             end
             -- For protections, in case the player is trying to send you bad data... 
@@ -7588,7 +7375,6 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp , recursiv
             -- If player is trying to add this toon to a list that is already on a list then it adds it in reverse
             if #alt.alts > 0 and #player.alts > 0 and not isFound then  -- Oh my! Both players have current lists!!! Remove the alt from his list, add to this new one.
                 GRM.RemoveAltTest ( alt.name , isSync , syncTimeStamp );
-                GRM.RemoveAlt ( alt.alts[1][1] , alt.name , isSync , syncTimeStamp , false );
             end
 
             -- Main Status check
@@ -7638,7 +7424,6 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp , recursiv
                             end
                             if isMain then
                                 GRM.DemoteFromMainTest ( playerName );
-                                GRM.DemoteFromMain ( playerName , playerName , false , 0 ) -- Can't just demote myself, I need to remove DemoteFromMain among all my alts as well, just in case..
                                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
                                 break;
                             end
@@ -7647,8 +7432,6 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp , recursiv
                     -- Just in case, let's remove MAIN status if needed.
                     GRM.AddAltTest ( altName , playerName , isSync , syncTimeStamp );
                     GRM.SyncBirthdayWithNewAltTest ( playerName );
-                    GRM.AddAlt ( altName , playerName , isSync , syncTimeStamp , true );
-                    GRM.SyncBirthdayWithNewAlt ( playerName );
                     return;
                 end
             else
@@ -7744,7 +7527,6 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp , recursiv
                                 end
                                 if #player.alts > 0 and alt.isMain then
                                     GRM.SetMainTest ( alt.name , false , 0 );
-                                    GRM.SetMain ( GRM_G.currentName , alt.name , false , 0 );
                                 end
                                 break;
                             end
@@ -7760,7 +7542,6 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp , recursiv
                         end
                         if #player.alts > 0 and alt.isMain then
                             GRM.SetMainTest ( alt.name , false , 0 );
-                            GRM.SetMain ( GRM_G.currentName , alt.name , false , 0 );
                         end
                     end
                 end
@@ -7807,8 +7588,6 @@ GRM.AddPlayerToOwnAltList = function()
                                 -- ADD ALT HERE!!!!!!
                                 GRM.AddAltTest ( altName , GRM_G.addonUser , false , 0 );
                                 GRM.SyncBirthdayWithNewAltTest ( GRM_G.addonUser );
-                                GRM.AddAlt ( altName , GRM_G.addonUser , false , 0 );
-                                GRM.SyncBirthdayWithNewAlt ( GRM_G.addonUser );
                                 isAdded = true;
                                 break;
                             end
@@ -7823,8 +7602,6 @@ GRM.AddPlayerToOwnAltList = function()
                         if altName ~= GRM_G.addonUser then
                             GRM.AddAltTest ( GRM_G.addonUser , altName , false , 0 );
                             GRM.SyncBirthdayWithNewAltTest ( altName );
-                            GRM.AddAlt ( GRM_G.addonUser , altName , false , 0 );
-                            GRM.SyncBirthdayWithNewAlt ( altName );
                             break;
                         end
                     end
@@ -8437,7 +8214,7 @@ GRM.BanSpecificPlayer = function ( playerName , isAlt , banReason , personWhoBan
             if player.bannedInfo[1] then
                 -- Player was previously banned! This is just an update!
                 if not isAlt then
-                    GRM.Report ( GRM.L ( "{name}'s Ban Info has Been Updated!" , GRM.GetStringClassColorByName ( playerName , true ) .. playerName .. "|r" ) );
+                    GRM.Report ( GRM.L ( "{name}'s Ban Info has Been Updated!" , GRM.GetStringClassColorByName ( playerName ) .. playerName .. "|r" ) );
                 end
             else
                 player.bannedInfo[1] = true;
@@ -8492,7 +8269,7 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["alts"] = {};                                    -- 11
     member["altGroup"] = "";
     member["altsAtTimeOfLeaving"] = {};                     -- Variable used when a player leaves the guild
-    member["mainAtTimeOfLeaving"] = "";                     -- Easy way to track who is their previous main when they returned to the guild.
+    member["mainAtTimeOfLeaving"] = {};                     -- Easy way to track who is their previous main when they returned to the guild.
     member["leftGuildDate"] = {};                           -- 15
     member["leftGuildEpoch"] = {};                          -- 16
     member["bannedInfo"] = { false , 0 , false , "" };      -- 17
@@ -11267,7 +11044,7 @@ GRM.GetLeveledString = function ( simpleName , milestoneLevel , level , numGaine
                 if #player.alts > 0 then
                     for j = 1 , #player.alts do
                         if player.alts[j][5] then
-                            simpleName = simpleName .. " " .. GRM_G.MainTagHexCode .. mainDisplay .. "|r (" .. GRM.GetStringClassColorByName ( player.alts[j][1] , false ) .. GRM.SlimName ( player.alts[j][1] ) .. "|r)";
+                            simpleName = simpleName .. " " .. GRM_G.MainTagHexCode .. mainDisplay .. "|r (" .. GRM.GetStringClassColorByName ( player.alts[j][1] ) .. GRM.SlimName ( player.alts[j][1] ) .. "|r)";
 
                             break;
                         end
@@ -12354,7 +12131,7 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
     if officerThatKicked ~= nil then
         added = true;
         local timeS , timeArray = GRM.GetTimestamp();
-        logEntryMetaData = { true , GRM.GetStringClassColorByName ( officerThatKicked ) .. GRM.SlimName ( officerThatKicked ) .. "|r" , ( classColorCode .. unitName .. "|r" ) , { timeS , time() , timeArray } };
+        logEntryMetaData = { true , GRM.GetStringClassColorByName ( officerThatKicked ) .. GRM.FormatName ( officerThatKicked ) .. "|r" , ( classColorCode .. unitName .. "|r" ) , { timeS , time() , timeArray } };
         timestamp = logEntryMetaData[4][1];
         timeEpoch = logEntryMetaData[4][2];
     -- Guild Event Log Detection
@@ -12403,22 +12180,34 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
         -- Adding to LeftGuild Player history library
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] = {};
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] = GRM.DeepCopyArray ( player );
+
+        local main , GUID = GRM.GetAltGroupMain ( player.altGroup , true );
+
+        -- I don't want to set the main history to be themselves because if they rejoin the guild later, with themselves set as main that could be irrelevant because things change...
+        if main ~= "" and main ~= unitName and GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] then
+            GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].mainAtTimeOfLeaving = { main , GUID };
+        end
         
         -- Removing it from the alt list
-        if #player.alts > 0 then
+        if GRM.PlayerHasAlts ( player ) then
 
             -- Let's add them to the end of the report
-            local countAlts = #player.alts;
+            local alts = GRM.GetListOfAlts ( player , true );
             local isFound = false;
 
-            for m = 1 , countAlts do
+            -- Ok, for lookup if they ever rejoin
+            if GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] then
+                GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].altsAtTimeOfLeaving = alts;
+            end
+
+            for m = 1 , #alts do
                 isFound = false;
 
                 -- Only do this if on a scan, not a live detection.
                 if officerThatKicked == nil then
                     -- Verify the alt is not on the kick list already;
                     for r = 1 , #GRM_G.TempLeftGuildPlaceholder do
-                        if GRM_G.TempLeftGuildPlaceholder[r][1] == player.alts[m][1] then
+                        if GRM_G.TempLeftGuildPlaceholder[r][1] == alts[m][1] then
                             isFound = true;
                             break;
                         end
@@ -12426,34 +12215,25 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
                 end
 
                 if not isFound then
-                    table.insert ( listOfAlts , GRM.GetClassifiedName ( player.alts[m][1] , true ) );
+                    table.insert ( listOfAlts , GRM.GetClassifiedName ( alts[m][1] , true ) );
                 end
             end
             
             -- Let's overwrite the listOfAts
-            local tempListOfAlts = GRM.DeepCopyArray ( player.alts );
             GRM.RemoveAltTest ( unitName , false , 0 );
-            GRM.RemoveAlt ( player.alts[1][1] , unitName , false , 0 , false );                 -- removes from the current guild alt list...
-
+            
             -- Set alt to main if it is only one left.
-
-            if #tempListOfAlts == 1 then
+            if GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].isMain and #alts == 1 then
                 local tempEpochTime = 0;
                 if added then
                     tempEpochTime = timeEpoch;
                 end
-                GRM.SetMainTest ( tempListOfAlts[1][1] , true , tempEpochTime );
-                GRM.SetMain ( tempListOfAlts[1][1] , tempListOfAlts[1][1] , true , tempEpochTime );
+                GRM.SetMainTest ( alts[1][1], true , tempEpochTime );
             end
             
             -- Remove them from the playersLists as well...
             GRM.RemoveNameFromAllREMAlts ( unitName );
 
-            -- Re-add the alt lists to the player now that they have left the guild...
-            player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName];
-            if player ~= nil then
-                player.alts = tempListOfAlts;         -- Stores the alt list in the left player databse. It will wipe on rejoin, but good to know...
-            end
         end
         -- removing from active member library
         GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][unitName] = nil;
@@ -12553,27 +12333,43 @@ GRM.RecordLeftGuildChanges = function ( unitName , dateArray , isLiveDetection )
         playerLevel = player.level;
 
         -- Adding to LeftGuild Player history library
-        GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] = player;
+        GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] = GRM.DeepCopyArray ( player );
+
+        local main , GUID = GRM.GetAltGroupMain ( player.altGroup , true );
+
+        -- I don't want to set the main history to be themselves because if they rejoin the guild later, with themselves set as main that could be irrelevant because things change...
+        if main ~= "" and main ~= unitName and GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] then
+            GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].mainAtTimeOfLeaving = { main , GUID };
+        end
 
         -- Removing it from the alt list
-        if #player.alts > 0 then
-            for m = 1 , #player.alts do
-                table.insert ( listOfAlts , GRM.GetClassifiedName ( player.alts[m][1] , true ) );
+        if GRM.PlayerHasAlts ( player ) then
+
+            -- Let's add them to the end of the report
+            local alts = GRM.GetListOfAlts ( player , true );
+
+            for m = 1 , #alts do
+                table.insert ( listOfAlts , GRM.GetClassifiedName ( alts[m][1] , true ) );
             end
 
-            -- Let's overwrite the listOfAts
-            local tempListOfAlts = GRM.DeepCopyArray ( player.alts );
+            if GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] then
+                GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].altsAtTimeOfLeaving = alts;
+            end
+
             GRM.RemoveAltTest ( player.name , false , 0 );
-            GRM.RemoveAlt ( player.alts[1][1] , player.name , false , 0 , false );                 -- removes from the current guild alt list...
+
+            -- Set alt to main if it is only one left.
+            if  GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName] and GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].isMain and #alts == 1 then
+                local tempEpochTime = 0;
+                if added then
+                    tempEpochTime = timeEpoch;
+                end
+                GRM.SetMainTest ( alts[1][1], true , tempEpochTime );
+            end
             
             -- Remove them from the playersLists as well...
             GRM.RemoveNameFromAllREMAlts ( player.name );
 
-            -- Re-add the alt lists to the player now that they have left the guild...
-            player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName];
-            if player ~= nil then
-                player.alts = tempListOfAlts;         -- Stores the alt list in the left player databse. It will wipe on rejoin, but good to know...
-            end
         end
         -- removing from active member library
         GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][unitName] = nil;
@@ -12616,7 +12412,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                 
                 -- Player has name-changed?
                 if member.name ~= player.name then
-                    local classColorString = GRM.GetStringClassColorByName ( player.name , true );
+                    local classColorString = GRM.GetStringClassColorByName ( player.name );
 
                     -- For the logging
                     tempJoinStorage[7] = ( classColorString .. GRM.SlimName ( player.name ) .. "|r" );
@@ -18832,7 +18628,6 @@ GRM.ResetPlayerMetaData = function ( playerName )
 
         if #player.alts > 0 then
             GRM.RemoveAltTest ( playerName , false , 0 );
-            GRM.RemoveAlt ( player.alts[1][1] , playerName , false , 0 , false );      -- Removing oneself from his alts list on clearing info so it clears him from them too.
         end
 
         GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName] = nil;         -- Remove the player!
@@ -19133,7 +18928,6 @@ GRM.CheckForNewPlayer = function( clubID , memberID )
         C_Timer.After ( 10 , function()               
             if GRM_G.DesignateMain then
                 GRM.SetMainTest ( rosterName , false , 0 );
-                GRM.SetMain ( rosterName , rosterName , false , 0 );
                 GRM.Report ( GRM.L ( "GRM Auto-Detect! {name} has joined the guild and will be set as Main" , GRM.GetClassifiedName ( rosterName , true ) ) );
                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                     GRM.RefreshAuditFrames ( true , true );
@@ -19229,7 +19023,6 @@ GRM.CheckForLeftOrKickedPlayer = function ( clubID , memberID )
         C_Timer.After ( 10 , function()               
             if GRM_G.DesignateMain then
                 GRM.SetMainTest ( rosterName , false , 0 );
-                GRM.SetMain ( rosterName , rosterName , false , 0 );
                 GRM.Report ( GRM.L ( "GRM Auto-Detect! {name} has joined the guild and will be set as Main" , GRM.GetClassifiedName ( rosterName , true ) ) );
                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                     GRM.RefreshAuditFrames ( true , true );
@@ -25797,6 +25590,11 @@ end
 Initialization:RegisterEvent ( "ADDON_LOADED" );
 Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
+-- "Has no alts" as a filter option for macro tool, at the top
+
+-- RIGHT CLICK RESET data, make sure to disassociate from alt group as well...
+
+-- Remove this function isAltAlreadyAdded
 -- altsAtTimeOfLeaving - In patch convert the .alts over to them before purging .alts on Left Players
 -- Same with "mainAtTimeOfLeaving"
 

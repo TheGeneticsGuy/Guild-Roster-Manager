@@ -1,3 +1,25 @@
+-- ALT MANAGEMENT FUNCTIONS IN A SINGLE CLASS
+-- This will function to organize alt management easier and quicker access to the alt functions.
+-- As GRM has grown, the core file has grown quite large. This will help me from trying to remember if a function exists and trying to seek it out, to instead putting it in a more compact file.
+
+
+-- Method:          GRM.GetAltGroupMain ( string )
+-- What it Does:    Returns the string name of the player who is listed as the main, and also the GUID if requested
+-- Purpose:         Easily get the player's main.
+GRM.GetAltGroupMain = function ( altGroup , includeGUID )
+    local main = "";
+    local GUID = "";
+
+    if altGroup ~= "" and GRM_Alts[GRM_G.guildName][altGroup] then
+        main = GRM_Alts[GRM_G.guildName][altGroup].main;
+
+        if includeGUID and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][main] then
+            GUID = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][main].GUID;
+        end
+    end
+
+    return main , GUID;
+end
 
 -- Method:          GRM.GetNumAltGroups ( string )
 -- What it Does:    Return the count of the number of alt groups in the guild
@@ -143,23 +165,6 @@ GRM.PlayerIsAnAltTest = function ( player )
     return result;
 end
 
--- Method:          GRM.isAltAlreadyAdded ( string , playerTable )
--- What it Does:    Checks if player has already been added, and if so, doesn't do anything.
--- Purpose:         Save a lot of resources and logic processing if it is determined this player has already been added.
-GRM.isAltAlreadyAddedTest = function ( altName , player )
-    local result = false;
-
-    if #player.altGroup > 0 then
-        for i = 1 , #GRM_Alts[GRM_G.guildName][player.altGroup] do
-            if GRM_Alts[GRM_G.guildName][player.altGroup][i].name == altName then
-                result = true;
-                break;
-            end
-        end
-    end
-    
-    return result;
-end
 
 -- Method:          GRM.PlayerHasAlts ( playerTable )
 -- What it Does:    Returns true if the player has alts
@@ -200,13 +205,17 @@ end
 -- Method:          GRM.GetListOfAlts ( playerTable )
 -- What it Does:    Returns the list of all of the alts from the alt Grouping, not including the player's own self, as well as their class Name
 -- Purpose:         Useful to UI function easy lookup
-GRM.GetListOfAlts = function ( player )
+GRM.GetListOfAlts = function ( player , includeGUID )
     local names = {};
 
     if player.altGroup ~= "" then
         for i = 1 , #GRM_Alts[GRM_G.guildName][player.altGroup] do
             if GRM_Alts[GRM_G.guildName][player.altGroup][i].name ~= player.name then
-                table.insert ( names , { GRM_Alts[GRM_G.guildName][player.altGroup][i].name , GRM_Alts[GRM_G.guildName][player.altGroup][i].class } );
+                if not includeGUID or ( includeGUID and not GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][i].name] ) then
+                    table.insert ( names , { GRM_Alts[GRM_G.guildName][player.altGroup][i].name , GRM_Alts[GRM_G.guildName][player.altGroup][i].class } );
+                else
+                    table.insert ( names , { GRM_Alts[GRM_G.guildName][player.altGroup][i].name , GRM_Alts[GRM_G.guildName][player.altGroup][i].class , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][i].name].GUID } );
+                end
             end
         end
 
@@ -247,7 +256,6 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
                 -- Since player is the main already, we are going to drop the alt's main status
                 memberToAdd.isMain = false;
                 memberToAdd.mainStatusChangeTime = timeOfChange;
-                GRM_Alts[GRM_G.guildName][memberToAdd.altGroup] = nil; -- Clear that alt grouping
 
                 if memberToAdd.name == GRM_G.currentName then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
@@ -255,6 +263,8 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
                 end
 
             end
+
+            GRM.RemoveAltTest ( memberToAdd.name , false , timeOfChange );
 
             -- Set new altGroup ID 
             memberToAdd.altGroup = groupID;
@@ -281,7 +291,7 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Failed to add alt for unknown reason. Try closing Roster window and retrying!" ) );
             return
         end
-        if player.altGroup == alt.altGroup or GRM.isAltAlreadyAdded ( altName , player ) then
+        if player.altGroup ~= "" and player.altGroup == alt.altGroup then
             if not isSync then
                 GRM.Report ( GRM.L ( "{name} is Already Listed as an Alt." , GRM.FormatName ( altName ) ) );
             end
@@ -299,12 +309,13 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
             
             -- Do both have agroups? Let's check the player
             if GRM.PlayerHasAlts ( player ) then
+
                 -- They both have alt groups it seems, so let's remove the alt from the group, and add to player's
                 -- First, remove from alt's own list.
                 -- Before we do that, remove any main status that might exist.
                 alt.isMain = false;
                 alt.mainStatusChangeTime = timeOfChange;
-                GRM.RemoveAltTest ( alt.name , isSync , timeOfChange )
+                GRM.RemoveAltTest ( alt.name , true , timeOfChange )
 
                 -- Then, we add to the new list and set the change times
                 alt.altGroup = player.altGroup;
@@ -319,7 +330,12 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
         
                 if alt.name == GRM_G.currentName then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
+
+                    if GRM_Alts[GRM_G.guildName][alt.altGroup].main ~= "" then
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
+                    else
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
+                    end
                 end
 
             else
@@ -331,10 +347,10 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
 
         elseif GRM.PlayerHasAlts ( player ) then
             -- Player has alts, alt does not, so let's add the alt to the player
-
             addToAltGroup( false );
         
         else
+            -- NEITHER HAVE ALTS
 
             -- Alt is a main - is the player too?
             if alt.isMain then
@@ -353,6 +369,8 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
                     GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].name = alt.name;
                     GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].class = alt.class;
 
+                    sort ( GRM_Alts[GRM_G.guildName][player.altGroup] , function ( a , b ) return a.name < b.name end );
+
                     if alt.name == GRM_G.currentName then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
@@ -368,6 +386,7 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
                     GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].name = player.name;
                     GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].class = player.class;
 
+                    sort ( GRM_Alts[GRM_G.guildName][player.altGroup] , function ( a , b ) return a.name < b.name end );
                 end
 
             else
@@ -378,15 +397,23 @@ GRM.AddAltTest = function ( playerName , altName , isSync , syncTimeStamp )
                     player.altGroup = GRM.CreateNewAltGroupID();
                     GRM_Alts[GRM_G.guildName][player.altGroup] = {};
                     GRM_Alts[GRM_G.guildName][player.altGroup].main = "";
+
+                    -- Add player to the group - only need to add if creating a new group, otherwise if player is a main they are already in the grouping.
+                    table.insert ( GRM_Alts[GRM_G.guildName][player.altGroup] , {} );
+                    GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].name = player.name;
+                    GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].class = player.class;
                 end
 
                 alt.altGroup = player.altGroup;
 
-                GRM_Alts[GRM_G.guildName][player.altGroup].timeOfChange = timeOfChange; 
-                table.insert ( GRM_Alts[GRM_G.guildName][player.altGroup] , {} );
-                GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].name = alt.name;
-                GRM_Alts[GRM_G.guildName][player.altGroup][#GRM_Alts[GRM_G.guildName][player.altGroup]].class = alt.class;
+                GRM_Alts[GRM_G.guildName][player.altGroup].timeOfChange = timeOfChange;
 
+                -- Now, add the alt to the group
+                table.insert ( GRM_Alts[GRM_G.guildName][alt.altGroup] , {} );
+                GRM_Alts[GRM_G.guildName][alt.altGroup][#GRM_Alts[GRM_G.guildName][alt.altGroup]].name = alt.name;
+                GRM_Alts[GRM_G.guildName][alt.altGroup][#GRM_Alts[GRM_G.guildName][alt.altGroup]].class = alt.class;
+
+                sort ( GRM_Alts[GRM_G.guildName][alt.altGroup] , function ( a , b ) return a.name < b.name end );
             end
         end
 
@@ -413,9 +440,10 @@ GRM.RemoveAltTest = function ( playerName , isSync , timestamp )
 
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
 
-    if player then
+    if player and player.altGroup ~= "" then
 
         timestamp = timestamp or time();
+        local needsRefresh = false;
 
         -- Ok, remove him from the grouping...
         for i = 1 , #GRM_Alts[GRM_G.guildName][player.altGroup] do
@@ -425,15 +453,36 @@ GRM.RemoveAltTest = function ( playerName , isSync , timestamp )
                 break;
             end
         end
-        
-        -- Check if no players left in the grouping, and if so, clear it from existence.
-        if #GRM_Alts[GRM_G.guildName][player.altGroup] == 0 then
-            GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
 
-        -- Still at least 1 player in the grouping, so let's check if the player was the main, and if they were, clear the main status.
-        elseif GRM_Alts[GRM_G.guildName][player.altGroup].main == player.name then
+        if GRM_Alts[GRM_G.guildName][player.altGroup].main == player.name then
             GRM_Alts[GRM_G.guildName][player.altGroup].main = "";
         end
+        
+        -- Check if no players left in the grouping, and if so, clear it from existence.
+        if #GRM_Alts[GRM_G.guildName][player.altGroup] < 2 then 
+            
+            -- no main left, with only one person means to disband the group
+            if #GRM_Alts[GRM_G.guildName][player.altGroup] == 1 and GRM_Alts[GRM_G.guildName][player.altGroup].main == "" then
+                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][1].name] then
+                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][1].name].altGroup = "";
+                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][1].name].altGroupModified = timestamp;
+
+                    if GRM_Alts[GRM_G.guildName][player.altGroup][1].name == GRM_G.currentName then
+                        needsRefresh = true;
+                    end
+                end
+                GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+            elseif #GRM_Alts[GRM_G.guildName][player.altGroup] == 0 then
+                GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+            end
+
+        end
+
+        if not needsRefresh and player.altGroup == GRM.GetPlayerAltGroupID ( GRM_G.currentName ) then
+            needsRefresh = true;
+        end
+
+        originalAltGroup = player.altGroup;
 
         -- Now, if the player WAS a main, let's set him to main in his own solo group.
         if player.isMain then
@@ -453,11 +502,9 @@ GRM.RemoveAltTest = function ( playerName , isSync , timestamp )
         player.altGroupModified = timestamp;
 
         -- LIVE FRAMES UPDATE
-        if GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+        if GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible() and needsRefresh then
 
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then
-                GRM.PopulateAltFrames ( GRM_G.currentName );
-            end
+            GRM.PopulateAltFrames ( GRM_G.currentName );
         end
     end
 
@@ -607,7 +654,6 @@ GRM.SetMainTest = function ( mainName , isSync , timestamp )
     end
     
     if player.altGroup ~= "" then
-        
         if GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main] then
             GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].isMain = false;
             GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].mainStatusChangeTime = timestamp;
@@ -664,18 +710,24 @@ GRM.DemoteFromMainTest = function ( mainName , isSync , timestamp )
     timestamp = timestamp or time();
 
     if player then
-        if GRM_Alts[GRM_G.guildName][player.altGroup].main == player.name then
+
+        player.isMain = false;
+        player.mainStatusChangeTime = timestamp;
+
+        if #GRM_Alts[GRM_G.guildName][player.altGroup] == 1 then
+            -- Just 1, since no longer a main, let's purge this.
+            GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+            player.altGroup = "";
+        elseif GRM_Alts[GRM_G.guildName][player.altGroup].main == player.name then
             GRM_Alts[GRM_G.guildName][player.altGroup].main = "";
             GRM_Alts[GRM_G.guildName][player.altGroup].timeOfChange = timestamp;
 
-            player.isMain = false;
-            player.mainStatusChangeTime = timestamp;
-
             if player.name == GRM_G.currentName then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
             end
         end
+        
+        
     end
 
     -- LIVE FRAMES UPDATE
@@ -683,7 +735,6 @@ GRM.DemoteFromMainTest = function ( mainName , isSync , timestamp )
 
         if player.name == GRM_G.currentName then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
         end
 
         if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then

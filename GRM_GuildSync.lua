@@ -924,10 +924,8 @@ GRMsync.CheckAddAltChange = function ( msg , sender , prefix )
         if not isFound and not isFound2 and not abortUpdate then
             if isSyncUpdate then
                 GRM.AddAltTest ( name , altName , true , altNameEpochTime );
-                GRM.AddAlt ( name , altName , true , altNameEpochTime );
             else
                 GRM.AddAltTest ( name , altName , false , 0 );
-                GRM.AddAlt ( name , altName , false , 0 );
             end
             C_Timer.After ( 1 , function() 
                 GRM.SyncBirthdayWithNewAlt ( altName );
@@ -991,10 +989,8 @@ GRMsync.CheckRemoveAltChange = function ( msg , sender , prefix )
         
         if isSyncUpdate then
             GRM.RemoveAltTest ( altName , true , altChangeTimeStamp );
-            GRM.RemoveAlt ( name , altName , true , altChangeTimeStamp , false );
         else
             GRM.RemoveAltTest ( altName , false , 0 );
-            GRM.RemoveAlt ( name , altName , false , 0 , false );
         end
         
         if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == altName then       -- If the alt being removed is being dumped from the list of alts, but the Sync person is on that frame...
@@ -1039,7 +1035,6 @@ GRMsync.CheckAltMainChange = function ( msg , sender )
     local name , mainName = GRM.ParseComMsg ( msg , GRM_G.CheckAltMainPattern );
 
     GRM.SetMainTest ( mainName , false , 0 );
-    GRM.SetMain ( name , mainName , false , 0 );
 
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ mainName ];
 
@@ -1088,7 +1083,6 @@ GRMsync.CheckMainSyncChange = function ( msg )
         if mainStatus == "true" then
             -- Set the player as Main
             GRM.SetMainTest ( mainName , true , mainChangeTimestamp );
-            GRM.SetMain ( mainName , mainName , true , mainChangeTimestamp );
             -- Need to ensure "main" tag populates correctly if window is open.
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                 if not GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:IsVisible() and GRM_G.currentName == mainName then
@@ -1098,7 +1092,6 @@ GRMsync.CheckMainSyncChange = function ( msg )
         else
             -- remove from being main.
             GRM.DemoteFromMainTest ( mainName );
-            GRM.DemoteFromMain ( mainName , mainName , true , mainChangeTimestamp );
             -- Udate the UI!
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == mainName then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
@@ -1121,7 +1114,6 @@ GRMsync.CheckAltMainToAltChange = function ( msg , sender )
     local name , mainName = GRM.ParseComMsg ( msg , GRM_G.CheckAltMainToAltPattern );
 
     GRM.DemoteFromMainTest ( mainName );
-    GRM.DemoteFromMain ( name , mainName , false , 0 );
 
     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
         if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:IsVisible() and GRM_G.currentName == mainName then
@@ -5429,7 +5421,6 @@ GRMsync.RemoveAltErrorFix = function( msg )
     local altName = string.sub ( msg , string.find ( msg , "?" ) + 1 );
 
     GRM.RemoveAltTest ( altName , false , 0 );
-    GRM.RemoveAlt ( name , altName , false , 0 , true )
 end
 
 -------------------------------
