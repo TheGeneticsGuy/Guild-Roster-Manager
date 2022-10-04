@@ -57,6 +57,7 @@
 GRM_API = {};
 
 GRM_API.Initialized = false;
+GRM_API.ErrorMessages = true;
 
 
 -- GRM API ACCESS MISC - Public use general tools further down
@@ -74,7 +75,7 @@ local function GateCheck ( playerName , guildName )
     local gName,f;
 
     -- Guild Name Check
-    local gName = guildName or GRM_G.guildName;
+    gName = guildName or GRM_G.guildName;
     if gName == "" then
         isValid = false;
     end
@@ -89,7 +90,9 @@ local function GateCheck ( playerName , guildName )
 
         if not GRM_GuildMemberHistory_Save[GRM_G.F][gName] and not GRM_GuildMemberHistory_Save[f][gName] then
             isValid = false;
-            GRM.Report ( GRM.L ( "GRM API Error:" ) .. " " .. GRM.L ( "The guild name \"{name}\" cannot be found in the database. Ensure proper formatting." , gName ) );
+            if GRM_API.ErrorMessages then
+                GRM.Report ( GRM.L ( "GRM API Error:" ) .. " " .. GRM.L ( "The guild name \"{name}\" cannot be found in the database. Ensure proper formatting." , gName ) );
+            end
                 
         else
             -- Setting which faction it is properly for return
@@ -101,7 +104,9 @@ local function GateCheck ( playerName , guildName )
         if isValid then
             if not GRM_GuildMemberHistory_Save[f][gName][playerName] then
                 isValid = false;
-                GRM.Report ( GRM.L ( "GRM API Error:" ) .. " " .. GRM.L ( "The player name \"{name}\" cannot be found in the database. Ensure proper spelling." , playerName ) );
+                if GRM_API.ErrorMessages then
+                    GRM.Report ( GRM.L ( "GRM API Error:" ) .. " " .. GRM.L ( "The player name \"{name}\" cannot be found in the database. Ensure proper spelling." , playerName ) );
+                end
             end
         end
     end
@@ -152,8 +157,9 @@ end
 -- What it Does:    Returns the entire metaData profile on a player as a table. The data is washed and rebuilt so the values cannot be modified.
 -- Purpose:         Database access
 GRM_API.GetMemberData = function ( playerName , guildName )
+    guildName = guildName or GRM_G.guildName;
     local valid , memberData , gName , faction;
-    valid , gName , faction = GateCheck ( playerName , gName );
+    valid , gName , faction = GateCheck ( playerName , guildName );
 
     if valid then
         memberData = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[faction][gName][playerName] );
@@ -166,22 +172,16 @@ end
 -- What it does:    Returns the player's main if they are part of an alt grouping. Or, retuns nil if there is no main designation. It can return its own name. 
 -- Purpose:         Database access
 GRM_API.GetMain = function( playerName , guildName )
+    guildName = guildName or GRM_G.guildName;
     local valid , result , gName , faction;
+
     valid , gName , faction = GateCheck ( playerName , guildName );
 
     if valid then
         if GRM_GuildMemberHistory_Save[faction][gName][playerName].isMain then
             result = playerName;
-        elseif #GRM_GuildMemberHistory_Save[faction][gName][playerName].alts > 0 then
-            local alts = GRM_GuildMemberHistory_Save[faction][gName][playerName].alts;
-
-            for i = 1 , #alts do
-                -- main found!
-                if alts[i][5] then
-                    result = GRM.DeepCopyArray ( alts[i][1] );
-                    break;
-                end
-            end
+        elseif GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup ~= "" and GRM_Alts[gName][GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup] and GRM_Alts[gName][GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup].main ~= "" then
+            result = GRM_Alts[gName][GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup].main;
         end
     end
 
@@ -192,6 +192,7 @@ end
 -- What it does:    Returns true or false if the player is a main. If player cannot be found, it returns nil.
 -- Purpose:         Database access
 GRM_API.IsMain = function( playerName , guildName )
+    guildName = guildName or GRM_G.guildName;
     local valid , result , faction , gName;
     valid , gName , faction = GateCheck ( playerName , guildName );
 
@@ -206,63 +207,90 @@ GRM_API.IsMain = function( playerName , guildName )
     return result;
 end
 
-GRM_API.GetAlts = function( playerName , namesOnly , guildName )
-    local valid , result , gName , faction;
-    valid , gName , faction = GateCheck ( playerName , gName );
+-- GRM_API.GetAlts = function( playerName , namesOnly , guildName )
+-- guildName = guildName or GRM_G.guildName;
+--     local valid , result , gName , faction;
+--     valid , gName , faction = GateCheck ( playerName , guildName );
 
-    if valid then
-
-
-    end
-
-    return result;
-end
-
-GRM_API.GetJoinDate = function( playerName , getOriginal , guildName )
-    local valid , result , gName , faction , verified;
-    valid , gName , faction = GateCheck ( playerName , gName );
-
-    if valid then
+--     if namesOnly then end
+--     if faction then end
+--     result = "";
 
 
-    end
-
-    return result , verified;
-end
-
-GRM_API.GetLastPromotionDate = function( playerName , guildName )
-    local valid , result , gName , faction , verified;
-    valid , gName , faction = GateCheck ( playerName , gName );
-
-    if valid then
+--     if valid then
 
 
-    end
+--     end
 
-    return result , verified;
-end
+--     return result;
+-- end
 
-GRM_API.GetBirthday = function( playerName , guildName )
-    local valid , day , month , timestamp , gName , faction;
-    valid , gName , faction = GateCheck ( playerName , gName );
+-- -- GRM_API.GetJoinDate = function( playerName , getOriginal , guildName )
+-- guildName = guildName or GRM_G.guildName;
+-- --     local valid , result , gName , faction , verified;
+-- --     valid , gName , faction = GateCheck ( playerName , guildName );
 
-    if valid then
+-- --     if getOriginal then end
+-- --     if faction then end
+-- --     result = "";
+-- --     verified= false;
 
-
-    end
-
-    return day , month, timestamp;
-end
-
-GRM_API.GetCustomNote = function( playerName , guildName )
-    local valid , result , gName , faction;
-    valid , gName , faction = GateCheck ( playerName , gName );
-
-    if valid then
+-- --     if valid then
 
 
-    end
+-- --     end
 
-    return result;
-end
+-- --     return result , verified;
+-- -- end
+
+-- -- GRM_API.GetLastPromotionDate = function( playerName , guildName )
+-- guildName = guildName or GRM_G.guildName;
+-- --     local valid , result , gName , faction , verified;
+-- --     valid , gName , faction = GateCheck ( playerName , guildName );
+
+-- --     if faction then end
+-- --     result = "";
+-- --     verified= false;
+
+-- --     if valid then
+
+
+-- --     end
+
+-- --     return result , verified;
+-- -- end
+
+-- -- GRM_API.GetBirthday = function( playerName , guildName )
+-- guildName = guildName or GRM_G.guildName;
+-- --     local valid , day , month , timestamp , gName , faction;
+-- --     valid , gName , faction = GateCheck ( playerName , guildName );
+
+-- --     if faction then end
+-- --     result = "";
+-- --     verified= false;
+
+-- --     if valid then
+
+
+-- --     end
+
+-- --     return day , month, timestamp;
+-- -- end
+
+-- -- GRM_API.GetCustomNote = function( playerName , guildName )
+-- guildName = guildName or GRM_G.guildName;
+-- --     local valid , result , gName , faction;
+-- --     valid , gName , faction = GateCheck ( playerName , guildName );
+
+-- --     if faction then end
+-- --     result = "";
+-- --     verified= false;
+
+-- --     if valid then
+
+
+-- --     end
+
+-- --     return result;
+-- -- end
 

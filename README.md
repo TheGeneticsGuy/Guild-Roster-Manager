@@ -104,6 +104,35 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 * These will show on all guildies in guild chat, whispers, party, raid, instance chat.
 
+**MACRO TOOL**
+
+*In patch 7.3 Blizzard removed the ability of addons from being able to remove, demote, or promote players from the guild. There is no way around this, you **HAVE** to manually implement this action in-game. So, GRM has attempted to adapt to these changes, and while not as simple as pre-7.3, it is still far easier to deal with. By creating a list of players you wish to kick and then using the addon to auto-create a macro to remove them, the player only then needs to activate the "hot-key combo" to trigger the macro, and the addon will automatically rebuild the macro with the next set of names to be removed after each trigger of the macro.*
+
+![Macro Tool to kick players](https://i.imgur.com/UcYNfrq.jpg)
+
+*I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that hustles and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. That's the main reason I do it. I get to build my guild and shape it with the culture I wish to have. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it.*
+
+**PROMOTIONS**
+
+![Matching to Promotion Rules](https://i.imgur.com/PCUMGII.jpg)
+
+![Unconfigured Promotion Settings](https://i.imgur.com/WhNgVwC.jpg)
+
+**DEMOTIONS**
+
+![Matching to Demotion Rules](https://i.imgur.com/QNSyRbK.jpg)
+
+![Macro Button Improved Tooltip](https://i.imgur.com/zDg9lQB.jpg)
+
+Bring up the Macro tool with any of the following SLASH commands.
+
+```
+/grm macro
+/grm tool
+/grm kick
+/grm promote
+/grm demote
+```
 
 **ROSTER MOUSEOVER WINDOW**
 
@@ -194,44 +223,6 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 ![Exporting your log](https://i.imgur.com/NxG2YVT.jpg)
 
-
-**MACRO TOOL (still work in progress)**
-
-**Phase 1 Release: Mass Kick (released and working)**
-
-*In patch 7.3 Blizzard removed the ability of addons from being able to remove, demote, or promote players from the guild. There is no way around this, you **HAVE** to manually implement this action in-game. So, GRM has attempted to adapt to these changes, and while not as simple as pre-7.3, it is still far easier to deal with. By creating a list of players you wish to kick and then using the addon to auto-create a macro to remove them, the player only then needs to activate the "hot-key combo" to trigger the macro, and the addon will automatically rebuild the macro with the next set of names to be removed after each trigger of the macro.*
-
-![Macro Tool to kick players](https://i.imgur.com/78DsdNf.jpg)
-
-* Populate the recommended to kick lists by setting threshold dates based on inactivity. If they haven't log on for X days or months, add them to the list.
-
-* There is a safe list, however. Players added to the safe list will be ignored. The mouseover player window has a checkbox in the bottom left to ignore macro tool rules
-
-![Macro Tool ignore/Safe List](https://i.imgur.com/DxANz4A.jpg)
-
-**Phase 2 Release: Custom Rules**
-
-![Custom Filters and Rule Creation](https://i.imgur.com/PlSSQav.jpg)
-
-* Ability to add as many custom rules as you want. Want to build a rule for each rank, for level ranges and so on? Not a problem. In fact, if you ever build a rule where this is overlap, the tooltip when mousing over a player in the list will show you which rules apply to that player.
-
-* Ability to Enable/Disable specific rules on the fly. No need to delete them, just temporarily disable.
-
-* Additional Rule Filters: Specific ranks you want the rule to apply, level ranges, and even if you want to add people to the list that have a certain text match in any of their public,officer, or custom notes.
-
-* The rules are so customizable that you could theoretically disable all the rules and just have it apply to a specific rank, so all the people that are then recommended to be kicked would just be a certain rank. Have fun with it!
-
-* Ability to name each rule whatever you want.
-
-**Phase 3: Mass Promote/Demote (unreleased)**
-
-* Building on top of the previous Phase 1 and Phase 2 rules, the ability to recommend promotions after certain amounts of time, obey filter rules, apply different schedules to different ranks, and so on.
-
-* Mass promoting is particularly a pain in Classic. Want a group of people to move up 3 ranks? Easy, the addon will determine that you need to hit the macro X times to populate them to the appropriate rank, rebuilding it as needed. 
-
-*PHASE 3 is a core priorities for release, at the moment.
-
-
 **!NOTE TRIGGER**
 
 *This particular tool is more useful in CLASSIC since players have to deal with the issue of any guildie being able to edit other members' public notes again, unlike retail.*
@@ -315,6 +306,8 @@ I just want to make it extremely clear that even though GRM provides a way to un
 * GRM will export the Joined date to the public/officer/custom notes and you can control not only which note to send it to, but also what timestamp date format to use, for conformity.
 
 * Ensure all officers have the feature enabled to auto-add public notes with the !note capabilities.
+
+[Here is a short video demonstration of how to unify guild member GRM settings easily](https://www.youtube.com/watch?v=7qToyABMaXo)
 
 
 **GRM Module/Plugin Support**

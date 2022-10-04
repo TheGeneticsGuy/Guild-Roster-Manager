@@ -31,7 +31,7 @@
         GRM_L["Friend"] = FRIEND;
         
         -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-        GRM_L["/XXXX"] = true            -- /grm will always work, now you can make your own acronym that fits your language.
+        GRM_L["/XXXX"] = true                           -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
     
         GRM_L["German"] = "Deutsch"
         GRM_L["English"] = "Englisch"
@@ -170,7 +170,7 @@
         GRM_L["EVENTS"] = "EREIGNISSE"                                          -- Events tab
         GRM_L["{name}'s Anniversary!"] = "{name} hat Jahrestag!"
         GRM_L["{name}'s Birthday!"] = "{name} hat Geburtstag!"
-        GRM_L["Event Calendar Manager"] = "Ereignis Kalender Manager"
+        GRM_L["Event Calendar Manager"] = "Ereignismanager"
         GRM_L["Event:"] = "Ereignis:"
         GRM_L["Description:"] = "Beschreibung:"
         GRM_L["Add to\nCalendar"] = "Zum\nKalender\nhinzufügen"
@@ -178,59 +178,59 @@
         GRM_L["No Player Event Has Been Selected"] = "Kein Ereignis ausgewählt"
         GRM_L["Event Added to Calendar: {custom1}"] = "Ereignis zum Kalender hinzugefügt: {custom1}"              -- Custom1 = the title of the event, like "Arkaan's Anniversary"
         GRM_L["Please Select Event to Add to Calendar"] = "Wähle ein Ereignis aus, um einen Kalendereintrag zu erstellen"
-        GRM_L["No Calendar Events to Add"] = "Keine Ereignisse zum Erstellen"
-        GRM_L["{name}'s event has already been added to the calendar!"] = "Ereignis von {name} wurde bereits im Kalender erstellt!"
+        GRM_L["No Calendar Events to Add"] = "Keine Ereignisse zu erstellen"
+        GRM_L["{name}'s event has already been added to the calendar!"] = "Ereignis von {name} wurde bereits zum Kalender hinzugefügt!"
         GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = "Bitte warte {num} Sekunden, bis du das Ereignis im Kalender erstellst!"
-        GRM_L["{name}'s Event Removed From the Que!"] = "Ereignis von {name} aus der Liste entfernt!"
+        GRM_L["{name}'s Event Removed From the Queue!"] = "Ereignis von {name} aus der Liste entfernt!"
         GRM_L["Full Description:"] = "Beschreibung:"
     
         -- BAN WINDOW
-        GRM_L["BAN LIST"] = "BANN-LISTE"                                        -- Ban List Tab
+        GRM_L["BAN LIST"] = "BANNLISTE"                                        -- Ban List Tab
         GRM_L["Reason Banned?"] = "Grund?"
         GRM_L["Click \"YES\" When Done"] = "Klicke \"JA\", wenn fertig"                         -- Of note, the \" is how you notate for quotations to actually appear. Adjust as needed
-        GRM_L["Select a Player"] = "Wähle einen Spieler aus"
+        GRM_L["Select a Player"] = "Wähle einen Charakter aus"
         GRM_L["Player Selected"] = "Ausgewählt:"
         GRM_L["{name}(Still in Guild)"] = "{name} (in der Gilde)"
         GRM_L["(Still in Guild)"] = "(in der Gilde)"
         GRM_L["No Ban Reason Given"] = "Kein Grund angegeben"
-        GRM_L["Total Banned:"] = "Gebannte Spieler:"
+        GRM_L["Total Banned:"] = "Gebannte Charaktere:"
         GRM_L["Rank"] = "Rang"
         GRM_L["Ban Date"] = "Datum"
-        GRM_L["No Players Have Been Banned from Your Guild"] = "Keine Spieler wurden aus der Gilde verbannt"
+        GRM_L["No Players Have Been Banned from Your Guild"] = "Keine Charakter wurden aus der Gilde verbannt"
         GRM_L["Remove Ban"] = "Bann aufheben"
-        GRM_L["Add Player to Ban List"] = "Spieler zur Bann-Liste hinzufügen"
+        GRM_L["Add Player to Ban List"] = "Charakter zur Bannliste hinzufügen"
         GRM_L["Server:"] = "Server:"
         GRM_L["Class:"] = "Klasse:"
         GRM_L["Reason:"] = "Grund:"
-        GRM_L["It is |CFFFF0000CRITICAL|r the player's name and server are spelled correctly for accurate tracking and notifications."] = "|CFFFF0000EXTREM WICHTIG:|r Name und Server müssen unbedingt korrekt geschrieben sein!"
+        GRM_L["It is |CFFFF0000CRITICAL|r the player's name and server are spelled correctly for accurate tracking and notifications."] = "|CFFFF0000WICHTIG:|r Charaktername und Server müssen unbedingt korrekt geschrieben sein!"
         GRM_L["Submit Ban"] = "Bannen"
         GRM_L["Confirm"] = "Bestätigen"
         GRM_L["Cancel"] = "Abbrechen"
         GRM_L["Add"] = "Hinzufügen"                                         -- Context: "Add" player to ban list
-        GRM_L["Confirm Ban for the Following Player?"] = "Diesen Spieler wirklich bannen?"
-        GRM_L["Please Enter a Valid Player Name"] = "Gültigen Spielernamen eingeben."            -- Player Name
+        GRM_L["Confirm Ban for the Following Player?"] = "Möchtest du diesen Charakter wirklich bannen?"
+        GRM_L["Please Enter a Valid Player Name"] = "Gültigen Charakternamen eingeben."            -- Player Name
         GRM_L["Please Enter a Valid Server Name"] = "Gültigen Servernamen eingeben."            -- Server Name
-        GRM_L["Please Select a Player to Unban!"] = "Bitte einen Spieler auswählen."
-        GRM_L["{name} - Ban List"] = "{name} - Bann-Liste"                           -- Context: "GuildName - Ban List"
+        GRM_L["Please Select a Player to Unban!"] = "Bitte wähle einen Charakter aus."
+        GRM_L["{name} - Ban List"] = "{name} - Bannliste"                           -- Context: "GuildName - Ban List"
         GRM_L["No Reason Given"] = "Kein Grund angegeben"
     
         -- ADDON USERS WINDOW
         GRM_L["SYNC USERS"] = "SYNC"
-        GRM_L["Ok!"] = "Ok!"
-        GRM_L["Their Rank too Low"] = "Rang ist zu niedrig"
-        GRM_L["Your Rank too Low"] = "teilt nur mit höheren Rängen"
+        GRM_L["Ok!"] = "Synchronisation möglich"
+        GRM_L["Their Rank too Low"] = "Gildenrang des Spielers ist zu niedrig"
+        GRM_L["Your Rank too Low"] = "Teilt Änderungen nur mit höheren Rängen"
         GRM_L["Outdated Version"] = "Veraltete Version"
         GRM_L["You Need Updated Version"] = "Du musst GRM aktualisieren"
         GRM_L["Player Sync Disabled"] = "Spieler-Sync deaktiviert"
         GRM_L["No Guildie Online With Addon."] = "Keine Spieler mit Addon online"
         GRM_L["ONE Person is Online. Recommend It!"] = "EIN Spieler ist online. Empfiehl ihm GRM!"
-        GRM_L["{num} others are Online! Recommend It!"] = "{num} andere sind online! Empfiehl ihnen GRM!"
+        GRM_L["{num} others are Online! Recommend It!"] = "{num} andere Spieler sind online! Empfiehl ihnen GRM!"
         GRM_L["GRM Sync Info"] = "GRM Sync Info"
         GRM_L["Ver: {custom1}"] = "Version: {custom1}"                                 -- Context:  Ver: R1.125  - Ver is short for Version
         GRM_L["Name:"] = "Name"
         GRM_L["Version"] = "Version"
-        GRM_L["Sync"] = "Sync"
-        GRM_L["Your Sync is Currently Disabled"] = "Dein Sync ist momentan deaktiviert"
+        GRM_L["Sync"] = "Synchronisation"
+        GRM_L["Your Sync is Currently Disabled"] = "Die Synchronisation mit anderen Spielern ist momentan deaktiviert"
         
         -- OPTIONS WINDOW
         GRM_L["Public Note"] = "Öffentliche Notiz"
@@ -238,58 +238,59 @@
         GRM_L["Guild Rank Restricted:"] = "Durch Gildenrang beschränkte Einstellungen:"
         GRM_L["Sync:"] = "Synchronisation:"
         -- Options window -- of note, these are very concise statements. They may need to be adjusted properly in the Options window for proper spacing, so verify they look ok after translating.
-        GRM_L["Slash Commands"] = "Befehle"
+        GRM_L["Slash Commands"] = "Slash-Befehle"
         GRM_L["Trigger scan for changes manually"] = "Starte manuellen Scan nach Änderungen"
         GRM_L["Trigger sync one time manually"] = "Starte einmalige manuelle Synchronisation"
         GRM_L["Centers all Windows"] = "Alle Fenster zentrieren"
-        GRM_L["Slash command info"] = "Hilfe im Chatfenster"
+        GRM_L["Slash command info"] = "Slash-Befehle im Chatfenster ausgeben"
         GRM_L["Resets ALL data"] = "ALLE Daten verwerfen"
         GRM_L["Report addon ver"] = "Ausgabe der installierten Version"                                    -- Ver is short for Version
-        GRM_L["Resets Guild data"] = "Gilden-Daten verwerfen"
-        GRM_L["Show at Logon"] = "Zeige beim Login"
-        GRM_L["Only Show if Log Changes"] = "Nur bei Änderungen zeigen"
+        GRM_L["Resets Guild data"] = "Gildendaten verwerfen"
+        GRM_L["Show at Logon"] = "Zeige Fenster als Pop-up beim Login"
+        GRM_L["Only Show if Log Changes"] = "Nur bei Änderungen anzeigen"
     
         GRM_L["Before Scan Timer"] = "Alle"               -- Context: "Scan for Changes Every 10 Seconds" -- There will be a number added here and may require custom positioning, so please provide full statement and Arkaan will allign
         GRM_L["After Scan Timer"] = "Sekunden nach Änderungen scannen"
     
-        GRM_L["Before Inactive Timer"] = "Aktivitätsmeldung ausgeben, wenn ein Spieler, der länger als"
-        GRM_L["After Inactive Timer"] = "offline war Online kommt."
+        GRM_L["Before Inactive Timer"] = "Aktivitätsmeldung ausgeben, wenn ein Spieler online war, der länger als"
+        GRM_L["After Inactive Timer"] = "Tage offline war."
     
-        GRM_L["Reactivating SCAN for Guild Member Changes..."] = "Scan für Gildenmitgliederänderungen AKTIVIEREN"
-        GRM_L["Deactivating SCAN of Guild Member Changes..."] = "Scan für Gildenmitgliederänderungen DEAKTIVIEREN"
-        GRM_L["Please choose a scan interval {num} seconds or higher!"] = "Bitte einen Scanintervall von mindestens {num} Sekunden wählen"
+        GRM_L["Reactivating SCAN for Guild Member Changes..."] = "Scan nach Änderungen |cff00FF00aktiviert|r"
+        GRM_L["Deactivating SCAN of Guild Member Changes..."] = "Scan nach Änderungen |cffFF0000deaktiviert|r"
+        GRM_L["Please choose a scan interval {num} seconds or higher!"] = "Bitte ein Scanintervall von mindestens {num} Sekunden wählen"
         GRM_L["{num} is too Low!"] = "{num} ist zu klein!"
-        GRM_L["The Current Lvl Cap is {num}."] = "Das momentane Maximalevel ist {num}"
+        GRM_L["The Current Lvl Cap is {num}."] = "Das aktuelle Maximallevel ist {num}"
         GRM_L["Kick Inactive Player Reminder at"] = "Erinnerung zum Kicken inaktiver Spieler ab"        -- Context: "Kick Inactive Player Reminder at X Months" - Again, allignment will need to be adjusted for options UI, so please post
-        GRM_L["Please choose a month between 1 and 99"] = "Bitte eine Zahl zwischen 1 und 99 wählen"
-        GRM_L["Sync BAN List With Guildies at Rank"] = "Bann-Liste teilen: Rang"     -- Context: "Sync Ban List with Guildies at Rank [DROPDOWNMENU OF RANKS] or Higher" - Please show where dropdown menu should be pinned
+        GRM_L["Please choose a month between 1 and 99"] = "Bitte eine Zahl zwischen 1 und 99 auswählen!"
+        GRM_L["Sync BAN List With Guildies at Rank"] = "Bannliste teilen mit"     -- Context: "Sync Ban List with Guildies at Rank [DROPDOWNMENU OF RANKS] or Higher" - Please show where dropdown menu should be pinned
         GRM_L["or Higher"] = "oder höher"                               -- Context: Look at the above statement. Show where this needs to go in regards to dropdown menu of rank selection in Options
         GRM_L["Restore Defaults"] = "Standardeinstellungen\nwiederherstellen"
         GRM_L["Please choose between 1 and 180 days!"] = "Bitte eine Zahl zwischen 1 und 180 auswählen!"
-        GRM_L["Announce Events"] = "Ereignisse ankündigen"                         -- Context: "Announce Events X number of days in advance" -- the X is the editbox to modify number of days. Please include the location of where to pin that.
-        GRM_L["Days in Advance"] = "Tage vorher"
+        GRM_L["Announce Events"] = "Ereignisse"                         -- Context: "Announce Events X number of days in advance" -- the X is the editbox to modify number of days. Please include the location of where to pin that.
+        GRM_L["Days in Advance"] = "Tage vorher ankündigen"
         GRM_L["Please choose between 1 and 28 days!"] = "Bitte eine Zahl zwischen 1 und 28 auswählen!"
         GRM_L["Add Events to Calendar"] = "Ereignisse zum Kalender hinzufügen"
-        GRM_L["SYNC Changes With Guildies at Rank"] = "Änderungen teilen: Rang"      -- Context: at Rank [DROPDOWNRANKSELECTION] or Higher. - Please note where to place dropdown box in the position of the sentence.
-        GRM_L["Reactivating Data SYNC with Guildies..."] = "Daten teilen AKTIVIEREN"
-        GRM_L["Deactivating Data SYNC with Guildies..."] = "Daten teilen DEAKTIVIEREN"
-        GRM_L["Display Sync Update Messages"] = "Update-Meldungen für GRM anzeigen"
-        GRM_L["Only Sync With Up-to-Date Addon Users"] = "Nur mit Mitgliedern synchronisieren, die die aktuelle Version von GRM haben"
-        GRM_L["Leveled"] = "Level"
-        GRM_L["Inactive Return"] = "wieder aktiv"
+        GRM_L["SYNC Changes With Guildies at Rank"] = "Änderungen teilen mit"      -- Context: at Rank [DROPDOWNRANKSELECTION] or Higher. - Please note where to place dropdown box in the position of the sentence.
+        GRM_L["Reactivating Data SYNC with Guildies..."] = "Synchronisation der Änderungen |cff00FF00aktiviert|r"
+        GRM_L["Deactivating Data SYNC with Guildies..."] = "Synchronisation der Änderungen |cffFF0000deaktiviert|r"
+        GRM_L["Display Sync Update Messages"] = "Updatemeldungen für GRM anzeigen"
+        GRM_L["Only Sync With Up-to-Date Addon Users"] = "Nur mit Mitgliedern synchronisieren, die die aktuelle Version von GRM installiert haben"
+
+        GRM_L["Leveled"] = "Leveländerungen"
+        GRM_L["Inactive Return"] = "Wieder aktiv"
         GRM_L["resetall"] = "resetall"
         GRM_L["resetguild"] = "resetguild"
         --Side chat/log controls - Of note, limited spacing
-        GRM_L["Name Change"] = "Namensänderung"
+        GRM_L["Name Change"] = "Namensänderungen"
         GRM_L["Rank Renamed"] = "Rang umbenannt"
-        GRM_L["Event Announce"] = "Ereignis"
-        GRM_L["Left"] = "Austritt"                        -- Context: As in, "Left" the guild...
+        GRM_L["Event Announce"] = "Ereignisse"
+        GRM_L["Left"] = "Austritte"                        -- Context: As in, "Left" the guild...
         GRM_L["Recommendations"] = "Erinnerungen"
-        GRM_L["Banned"] = "gebannt"
+        GRM_L["Banned"] = "Banne"
         GRM_L["To Chat:"] = "Im Chat"                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
         GRM_L["To Log:"] = "Im Log"                     -- Context: To show it in the guild log.
-        GRM_L["Display Changes"] = "Änderungen zeigen"
-        GRM_L["Syncing too fast may cause disconnects!"] = "Zu schnelles teilen kann Disconnects verursachen!"
+        GRM_L["Display Changes"] = "Änderungen anzeigen"
+        GRM_L["Syncing too fast may cause disconnects!"] = "Zu schnelles Synchronisieren kann Verbindungsabbrüche verursachen!"
         GRM_L["Speed:"] = "Geschwindigkeit"                      -- Context: Speed that the sync takes place.
         GRM_L["Show 'Main' Name in Chat"] = "Zeige 'Main' im Chat"
     
@@ -299,26 +300,26 @@
         GRM_L["Main"] = "Main"
         GRM_L["Main or Alt?"] = "Main oder Twink?"
         GRM_L["Alt"] = "Twink"
-        GRM_L["Total Incomplete: {num} / {custom1}"] = "Gesamt unvollständig {num} / {custom1}"                 -- Context: Total Incomeplete: 50 / 100    (50 out of 100)
+        GRM_L["Total Incomplete: {num} / {custom1}"] = "Unvollständig {num} von {custom1}"                 -- Context: Total incomplete: 50 / 100    (50 out of 100)
         GRM_L["Mains:\n{num}"] = "Mains:\n{num}"                                                                  -- Context: Number of "main" toons
         GRM_L["Unique Accounts:\n{num}"] = "Accounts:\n{num}"
         GRM_L["All Complete"] = "Alles komplett"                                                                -- Context: All dates have been added and are known, thus it states it is "All Complete"
         GRM_L["Set Incomplete to Unknown"] = "Ändere \"kein Datum\" zu \"unbekannt\""                           -- Context: Implied to set ALL incomplete to unknown
         GRM_L["Clear All Unknown"] = "Ändere \"unbekannt\" zu \"kein Datum\""
         GRM_L["Please Wait {num} more Seconds"] = "Bitte warte {num} Sekunden"
-        GRM_L["Guild Data Audit"] = "Gilden-Daten-Überprüfung"
+        GRM_L["Guild Data Audit"] = "Überprüfung der Gildendaten"
         GRM_L["Name"] = "Name"
         GRM_L["Join Date"] = "Beitritt"
         GRM_L["Promo Date"] = "Beförderung"
         GRM_L["Main/Alt"] = "Main/Twink"
-        GRM_L["Only Show Incomplete Guildies"] = "Nur unvollständige Einträge zeigen"
+        GRM_L["Only Show Incomplete Guildies"] = "Nur unvollständige Einträge anzeigen"
     
         -- ADDON SYSTEM MESSAGES
         GRM_L["Guild Roster Manager"] = "Guild Roster Manager"
         GRM_L["GRM:"] = "GRM:"                                                                -- Abbreviation for "Guild Roster Manager"
         GRM_L["(Ver:"] = "Version:"                                                               -- Ver: is short for Version:
         GRM_L["GRM Updated:"] = "GRM aktualisiert:"
-        GRM_L["Configuring Guild Roster Manager for {name} for the first time."] = "Erstes Konfigurieren von Guild Roster Manager für {name}"
+        GRM_L["Configuring Guild Roster Manager for {name} for the first time."] = "Erstmalige Konfiguration von Guild Roster Manager für {name}"
         GRM_L["Notification Set:"] = "Benachrichtigung eingestellt:"
         GRM_L["Report When {name} is ACTIVE Again!"] = "Meldung, wenn {name} nicht mehr AFK ist!"
         GRM_L["Report When {name} Comes Online!"] = "Meldung, wenn {name} online kommt!"
@@ -326,79 +327,81 @@
         GRM_L["A new version of Guild Roster Manager is Available!"] = "Eine neue Version von Guild Roster Manager ist verfügbar!"
         GRM_L["Please Upgrade!"] = "Bitte aktualisieren!"
         GRM_L["Player Does Not Have a Time Machine!"] = "Spieler hat keine Zeitmaschine!"
-        GRM_L["Please choose a valid DAY"] = "Bitte einen gültigen TAG wählen"
-        GRM_L["{name} has been Removed from the Ban List."] = "{name} wurde von der Bann-Liste entfernt."
-        GRM_L["Scanning for Guild Changes Now. One Moment..."] = "Scanne nach Gildenänderungen. Bitte warten..."
+        GRM_L["Please choose a valid DAY"] = "Bitte einen gültigen Tag wählen"
+        GRM_L["{name} has been Removed from the Ban List."] = "{name} wurde von der Bannliste entfernt."
+        GRM_L["Scanning for Guild Changes Now. One Moment..."] = "Scanne nach Änderungen. Bitte warten..."
         GRM_L["Breaking current Sync with {name}."] = "Breche Synchronisation mit {name} ab."
         GRM_L["Breaking current Sync with the Guild..."] = "Breche Gildensynchronisation ab..."
-        GRM_L["Initializing Sync Action. One Moment..."] = "Starte Sync. Bitte warten..."
-        GRM_L["No Players Currently Online to Sync With..."] = "Es sind keine Spieler online, mit denen du synchronisieren kannst."
-        GRM_L["No Addon Users Currently Compatible for FULL Sync."] = "Es sind keine kompatiblen Addonnutzer online, mit denen du synchronisieren kannst."
-        GRM_L["SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted."] = "Synchronisation nicht möglich! Gildenchat ist eingeschränkt."
-        GRM_L["Manual Scan Complete"] = "Manueller Scan abgeschlossen"
-        GRM_L["Analyzing guild for the first time..."] = "Analysiere Gilde das erste Mal..."
-        GRM_L["Building Profiles on ALL \"{name}\" members"] = "Erstelle Profile für ALLE \"{name}\" Mitglieder"                 -- {name} will be the Guild Name, for context
+        GRM_L["Initializing Sync Action. One Moment..."] = "Starte Synchronisation. Bitte warten..."
+        GRM_L["No Players Currently Online to Sync With..."] = "Es sind keine Spieler online, mit denen du Änderungen synchronisieren kannst."
+        GRM_L["No Addon Users Currently Compatible for FULL Sync."] = "Es sind keine kompatiblen Spieler online, mit denen du Änderungen synchronisieren kannst."
+        GRM_L["SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted."] = "Synchronisation nicht möglich, wenn der Gildenchat eingeschränkt ist."
+        GRM_L["Manual Scan Complete"] = "Manueller Scan nach Änderungen abgeschlossen"
+        GRM_L["Analyzing guild for the first time..."] = "Erstmalige Analyse der Gilde..."
+        GRM_L["Building Profiles on ALL \"{name}\" members"] = "Erstelle Profile für alle Mitglieder von \"{name}\""                 -- {name} will be the Guild Name, for context
         GRM_L["NOTIFICATION:"] = "BENACHRICHTIGUNG:"                                               -- Context:  "Notification: Player is no longer AFK"
-        GRM_L["{name} is now ONLINE!"] = "{name} ist jetzt ONLINE!"
-        GRM_L["{name} is now OFFLINE!"] = "{name} ist jetzt OFFLINE!"
-        GRM_L["{name} is No Longer AFK or Busy!"] = "{name} ist nicht mehr AFK!"
-        GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = "{name} ist nicht mehr AFK, nun aber OFFLINE!"
-        GRM_L["Player should try to obtain group invite privileges."] = "Du hast keine Rechte, um jemanden einzuladen."
+        GRM_L["{name} is now ONLINE!"] = "{name} ist jetzt |cff00FF00online|r!"
+        GRM_L["{name} is now OFFLINE!"] = "{name} ist jetzt |cffFF0000offline|r!"
+        GRM_L["{name} is No Longer AFK or Busy!"] = "{name} ist nicht mehr |cffFFFF00AFK|r!"
+        GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = "{name} ist nun |cffFF0000online|r und nicht mehr |cffFFFF00AFK|r!"
+        GRM_L["Player should try to obtain group invite privileges."] = "Du hast keine Berechtigung, um Spieler einzuladen."
         GRM_L["{name}'s saved data has been wiped!"] = "Die gespeicherten Daten von {name} wurden gelöscht!"
-        GRM_L["Re-Syncing {name}'s Guild Data..."] = "Wiederherstellen der Daten von {name}"
-        GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Alle gespeicherten Daten werden gelöscht! Kompletter Neuaufbau..."
-        GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Alle gespeicherten Gildendaten werden gelöscht! Kompletter Neuaufbau..."
-        GRM_L["There are No Log Entries to Delete, silly {name}!"] = "Keine Log-Einträge zum löschen vorhanden, Dummerchen!"
+
+        GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Alle gespeicherten Daten werden gelöscht! Kompletter Neuaufbau wird durchgeführt..."
+        GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Alle gespeicherten Gildendaten werden gelöscht! Kompletter Neuaufbau wird durchgeführt..."
+        GRM_L["There are No Log Entries to Delete, silly {name}!"] = "Es sind keine Log-Einträge zum Löschen vorhanden!"
         GRM_L["Guild Log has been RESET!"] = "Gildenlog wurde gelöscht!"
         GRM_L["{name} is now set as \"main\""] = "{name} ist nun als \"Main\" gesetzt"
         GRM_L["{name} is no longer set as \"main\""] = "{name} ist nicht mehr als \"Main\" gesetzt"
-        GRM_L["Reset All of {name}'s Data?"] = "Alle Daten von {name} löschen?"
+        GRM_L["Reset All of {name}'s Data?"] = "Möchtest du alle Daten von {name} löschen?"
         
         -- /grm help
-        GRM_L["Opens Guild Log Window"] = "Öffnet das Gildenlog-Fenster"
-        GRM_L["Resets ALL saved data"] = "Löscht ALLE gespeicherten Daten"
-        GRM_L["Resets saved data only for current guild"] = "Löscht ALLE Daten dieser Gilde"
+        GRM_L["Opens Guild Log Window"] = "Öffnet das Guild Roster Manager-Fenster"
+        GRM_L["Resets ALL saved data"] = "Löscht alle gespeicherten Daten"
+        GRM_L["Resets saved data only for current guild"] = "Löscht alle Daten der aktuellen Gilde"
         GRM_L["Re-centers the Log window"] = "Zentriert alle Fenster"
-        GRM_L["Triggers manual re-sync if sync is enabled"] = "Starte manuelle Synchronisation"
-        GRM_L["Does a one-time manual scan for changes"] = "Startet einmaligen Scan nach Änderungen"
-        GRM_L["Displays current Addon version"] = "Zeigt installierte Addon-Version"
-        GRM_L["WARNING! complete hard wipe, including settings, as if addon was just installed."] = "WARNUNG! Komplette Löschung ALLER DATEN inklusive Einstellungen. Als ob das Addon gerade installiert wurde.";
+        GRM_L["Triggers manual re-sync if sync is enabled"] = "Startet eine manuelle Synchronisation"
+        GRM_L["Does a one-time manual scan for changes"] = "Startet einen einmaligen Scan nach Änderungen"
+        GRM_L["Displays current Addon version"] = "Zeigt die installierte Version des Addons an"
+        GRM_L["WARNING! Complete hard wipe, including settings, as if addon was just installed."] = "WARNUNG! Löscht alle Daten und Einstellungen und setzt das Addon in den Werkszustand zurück.";
     
         -- General Misc UI
-        GRM_L["Really Clear All Account-Wide Saved Data?"] = "Wirklich alle accountweit gespeicherten Daten löschen?"
-        GRM_L["Really Clear All Guild Saved Data?"] = "Wirklich alle Gilden-Daten löschen?"
+        GRM_L["Really Clear All Account-Wide Saved Data?"] = "Möchtest du wirklich alle accountweit gespeicherten Daten löschen?"
+        GRM_L["Really Clear All Guild Saved Data?"] = "Möchtest du wirklich alle Gildendaten löschen?"
         GRM_L["Yes!"] = "Ja!"
         GRM_L["Ban Player?"] = "Spieler bannen?"
-        GRM_L["Ban the Player's {num} alts too?"] = "Auch die {num} Twinks bannen?"      -- Plural number of alts
-        GRM_L["Ban the Player's {num} alt too?"] = "Auch den Twink bannen?"     -- Singular number of alts, just 1
-        GRM_L["Please Click \"Yes\" to Ban the Player!"] = "Bitte drücke \"Ja\" um den Spieler zu bannen!"
+        GRM_L["Ban the Player's {num} alts too?"] = "Auch die {num} dazugehörigen Twinks bannen?"      -- Plural number of alts
+        GRM_L["Ban the Player's {num} alt too?"] = "Auch den dazugehörigen Twink bannen?"     -- Singular number of alts, just 1
+        GRM_L["Please Click \"Yes\" to Ban the Player!"] = "Bitte drücke \"Ja\" um den Charakter zu bannen!"
     
         -- Sync Messages
         GRM_L["{name} updated {name2}'s Join Date."] = "{name} hat das Beitrittsdatum von {name2} aktualisiert"
         GRM_L["{name} updated {name2}'s Promotion Date."] = "{name} hat das Beförderungsdatum von {name2} aktualisiert"
-        GRM_L["\"{custom1}\" event added to the calendar by {name}"] = "\"custom1\" Ereignis wurde von {name} im Kalender erstellt."
-        GRM_L["{name} updated {name2}'s list of Alts."] = "{name} hat die Twinkliste von {name} aktualisiert"
-        GRM_L["{name} removed {name2}'s from {custom1}'s list of Alts."] = "{name} hat {name2} von der Twinkliste von {custom1} entfernt."
+        GRM_L["\"{custom1}\" event added to the calendar by {name}"] = "\"{custom1}\" Ereignis wurde von {name} im Kalender erstellt."
+        GRM_L["{name} updated {name2}'s list of Alts."] = "{name} hat die Twinks von {name} aktualisiert"
+        GRM_L["{name} removed {name2} from {custom1}'s list of Alts."] = "{name} hat {name2} von der Liste der Twinks von {custom1} entfernt."
         GRM_L["{name} set {name2} to be 'Main'"] = "{name} hat {name2} als Main gesetzt."
         GRM_L["{name} has changed {name2} to be listed as an 'alt'"] = "{name} hat {name2} als Twink gesetzt."
-        GRM_L["{name} has Removed {name2} from the Ban List."] = "{name} hat {name2} von der Bann-Liste entfernt."
-        GRM_L["{name} has been BANNED from the guild!"] = "{name} wurde aus der Gilde VERBANNT!"
-        GRM_L["{name} has been UN-BANNED from the guild!"] = "{name} ist nicht länger aus der Gilde verbannt!"
+        GRM_L["{name} has Removed {name2} from the Ban List."] = "{name} hat {name2} von der Bannliste entfernt."
+        GRM_L["{name} has been BANNED from the guild!"] = "{name} wurde aus der Gilde |cffFF0000verbannt|r!"
+        GRM_L["{name} has been UN-BANNED from the guild!"] = "{name} ist nicht mehr länger aus der Gilde verbannt!"
         GRM_L["Initiating Sync with {name} Instead!"] = "Starte stattdessen Synchronisation mit {name}!"
         GRM_L["Sync Failed with {name}..."] = "Synchronisation mit {name} gescheitert..."
         GRM_L["The Player Appears to Be Offline."] = "Der Spieler scheint offline zu sein."
         GRM_L["There Might be a Problem With Their Sync"] = "Es könnte ein Problem mit der Synchronisation bestehen"
-        GRM_L["While not ideal, Ask Them to /reload to Fix It and Please Report the Issue to Addon Creator"] = "Auch, wenn es keine Lösung ist; bitte sie einen /reload zu machen und informiere den Addon-Autor über den Fehler."
-        GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = "Manuelle Synchronisation mit Mitgliedern läuft...einmalig."
+        GRM_L["While not ideal, Ask Them to /reload to Fix It and Please Report the Issue to Addon Creator"] = "Auch wenn es keine Lösung ist: Bitte die Anderen einen /reload zu machen und informiere den Addon-Autor über den Fehler."
+        GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = "Manuelle einmalige Synchronisation mit Mitgliedern läuft..."
         GRM_L["Syncing Data With Guildies Now..."] = "Synchronisiere jetzt mit Mitgliedern..."
-        GRM_L["(Loading screens may cause sync to fail)"] = "(Ladebildschirme können den Sync abbrechen)"
+        GRM_L["(Loading screens may cause sync to fail)"] = "(Ladebildschirme können die Synchronisation abbrechen)"
         GRM_L["Sync With Guildies Complete..."] = "Synchronisation abgeschlossen!"
         GRM_L["Manual Sync With Guildies Complete..."] = "Manuelle Synchronisation abgeschlossen!"
         GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = "Keine Spieler online, mit denen synchronisiert werden kann..."
-        GRM_L["{name} tried to Sync with you, but their addon is outdated."] = "Spieler {name} hat versucht, mit dir zu synchronisieren, aber sein Addon ist veraltet."
-        GRM_L["Remind them to update!"] = "Bitte erinnere ihn/sie, zu aktualisieren!"
+        GRM_L["{name} tried to Sync with you, but their addon is outdated."] = "Spieler {name} hat versucht mit dir zu synchronisieren, aber sein Addon ist veraltet."
+        GRM_L["Remind them to update!"] = "Bitte erinnere ihn/sie, Guild Roster Manager zu aktualisieren!"
     
-            -- ERROR MESSAGES
+-- TODO:
+
+        -- ERROR MESSAGES
         GRM_L["Notification Has Already Been Arranged..."] = "Benachrichtigung wurde bereits eingestellt..."
         GRM_L["Failed to add alt for unknown reason. Try closing Roster window and retrying!"] = "Twink hinzufügen ist fehlgeschlagen. Schließe das Fenster und versuche es erneut."
         GRM_L["{name} is Already Listed as an Alt."] = "{name} ist bereits als Twink eingetragen."
@@ -444,12 +447,13 @@
         GRM_L["Warrior"] = "Krieger"
     
     -- TIME AND DATES
-        GRM_L["1 Mar"] = "1 Mär"                           -- This date is used in a specific circumstance. If someone's anniversary/bday landed on a leap year (Feb 29th), it defaults to the 1st of March on non-leap year
+        GRM_L["1 Mar"] = "1. März"                           -- This date is used in a specific circumstance. If someone's anniversary/bday landed on a leap year (Feb 29th), it defaults to the 1st of March on non-leap year
         -- Full Month Name
         GRM_L["January"] = "Januar"
         GRM_L["February"] = "Februar"
         GRM_L["March"] = "März"
         GRM_L["April"] = "April"
+        GRM_L["May"] = "Mai" 
         GRM_L["June"] = "Juni" 
         GRM_L["July"] = "Juli"
         GRM_L["August"] = "August"
@@ -462,7 +466,7 @@
         GRM_L["Feb"] = "Feb"
         GRM_L["Mar"] = "Mär"
         GRM_L["Apr"] = "Apr"
-        GRM_L["May"] = "Mai"
+        -- Removed May here as the short name is equal to the long name
         GRM_L["Jun"] = "Jun"
         GRM_L["Jul"] = "Jul"
         GRM_L["Aug"] = "Aug"
@@ -481,8 +485,6 @@
         GRM_L["Day"] = "Tag"
         GRM_L["Months"] = "Monate"
         GRM_L["Month"] = "Monat"
-        GRM_L["Years"] = "Jahre"
-        GRM_L["Year"] = "Jahr"
         GRM_L["HourBreak"] = ":"
     
         GRM_L["am"] = "am"
@@ -523,7 +525,6 @@
         -- tooltips
         GRM_L["|CFFE6CC7FClick|r to open GRM"] = "|CFFE6CC7FKlicken|r, um GRM zu öffnen"                           -- Please maintain the color coding
         GRM_L["|CFFE6CC7FRight-Click|r to Reset to 100%"] = "|CFFE6CC7FRechtsklicken|r, um auf 100% zurückzusetzen"                -- for the Options slider tooltip
-        GRM_L["|CFFE6CC7FRight-Click|r to Sync Join Date with Alts"] = "|CFFE6CC7FRechtsklicken|r, um Beitrittsdatum auf alle Twinks zu übertragen"
         GRM_L["|CFFE6CC7FRight-Click|r to Set Notification of Status Change"] = "|CFFE6CC7FRechtsklicken|r, um eine Benachrichtigung zu erhalten, wenn der Status sich ändert"
         -- tooltip end
         GRM_L["GRM"] = "GRM"
@@ -642,10 +643,10 @@
         GRM_L["Edited by {name}"] = "Geändert von: {name}"
         GRM_L["Note Removed by {name}"] = "Notiz gelöscht von: {name}"
         GRM_L["|CFFFF0000Player No Longer in Guild"] = "|CFFFF0000Spieler nicht mehr in der Gilde"
-        GRM_L["|CFF00CCFFMinimum Rank to Sync: Player Data, Ban List"] = "|CFF00CCFFMinimaler Rang, um folgendes zu teilen: Spielerdaten, Bann-Liste"
-        GRM_L["Warning! Ban List rank threshold is below the overall sync rank. Changing from \"{name}\" to \"{name2}\""] = "Warnung! Bann-Listen-Rang-Beschränkung ist unter der Allgemeinen Rang-Beschränkung! Wechsle von \"{name}\" zu \"{name2}\""
-        GRM_L["|CFF00CCFFSync filter can be set tighter for the Ban List"] = "|CFF00CCFFSync-Filter für die Bann-Liste kann angepasst werden"
-        GRM_L["Warning! Unable to select a Ban List rank below \"{name}\""] = "Warnung! Kann keinen Rang unter \"{name}\" für die Bann-Liste setzen"
+        GRM_L["|CFF00CCFFMinimum Rank to Sync: Player Data, Ban List"] = "|CFF00CCFFMinimaler Rang, um folgendes zu teilen: Spielerdaten, Bannliste"
+        GRM_L["Warning! Ban List rank threshold is below the overall sync rank. Changing from \"{name}\" to \"{name2}\""] = "Warnung! Bannlisten-Rang-Beschränkung ist unter der Allgemeinen Rang-Beschränkung! Wechsle von \"{name}\" zu \"{name2}\""
+        GRM_L["|CFF00CCFFSync filter can be set tighter for the Ban List"] = "|CFF00CCFFSync-Filter für die Bannliste kann angepasst werden"
+        GRM_L["Warning! Unable to select a Ban List rank below \"{name}\""] = "Warnung! Kann keinen Rang unter \"{name}\" für die Bannliste setzen"
         GRM_L["Setting to match core filter rank"] = "Zum Ändern muss der Rang zum Änderungen teilen (oben) zunächst geändert werden"
     
         -- R1.1482
@@ -660,11 +661,8 @@
         GRM_L["Unable to properly locate guild for backup"] = "Kann keine Gilde für Backup finden"
     
         -- R1.1500
-        GRM_L["It's almost time to celebrate {name}'s Birthday!"] = "Es ist fast soweit, um den Geburtstag von {name} zu feiern!"          -- Custom1 is the actual date.  Like "1 Mar '18"
         GRM_L["Unique accounts pull from the server is known to be faulty"] = "Serverabfrage für die Accounts ist fehlerhaft"
         GRM_L["Use only as an estimate. Hopefully Blizz fixes this soon"] = "Nutze diese Zahl nur als Schätzung. Wir hoffen auf einen Fix von Blizz"
-        GRM_L["{name}'s Anniversary!"] = "Jahrestag von {name}!"
-        GRM_L["{name}'s Birthday!"] = "Geburtstag von {name}!"
         GRM_L["Add Upcoming Events to the Calendar"] = "Füge anstehende Ereignisse dem Kalender hinzu"
         GRM_L["Player rank unable to add events to calendar"] = "Gildenrang zu niedrig, um Ereignisse im Kalender anzulegen"
         GRM_L["Anniversaries, Birthdays, and Other Events can be added with permission"] = "Jahrestage, Geburtstage und andere Ereignisse können mit Erlaubnis angelegt werden"
@@ -685,8 +683,8 @@
         GRM_L["{num} new ranks have been added to the guild!"] = "{num} neue Ränge wurden der Gilde hinzugefügt!"
         GRM_L["The guild has removed a rank!"] = "Ein Rang wurde der Gilde entfernt!"
         GRM_L["{num} guild ranks have been removed!" ] = "{num} Ränge wurden der Gilde entfernt!"
-        GRM_L["Edit Ban"] = "Bann editieren"
-        GRM_L["Please Select a Player to Edit their Ban!"] = "Bitte einen Spieler auswählen, um seinen Bann zu editieren!"
+        GRM_L["Edit Ban"] = "Bann bearbeiten"
+        GRM_L["Please Select a Player to Edit their Ban!"] = "Bitte einen Spieler auswählen, um seinen Bann zu bearbeiten!"
         GRM_L["Update Ban"] = "Bann aktualisiert"
         GRM_L["{name}'s Ban Info has Been Updated!"] = "Bann-Info von {name} aktualisiert!"
     
@@ -698,7 +696,7 @@
         -- R1.20
         GRM_L["|CFFE6CC7FHold Shift|r to view more alt details."] = "|CFFE6CC7FHalte Shift|r, um mehr Twink-Details zu sehen."               -- "Hold Shift to view more alt details" is the phrase, but the |CFF|r is the text coloring hex code. Please keep it in there on the keyboard command coloring
         GRM_L["|CFFE6CC7FClick|r to view more alt details."] = "|CFFE6CC7FKlicke|r, um mehr Twink-Details zu sehen."
-        GRM_L["|CFFE6CC7FShift-Click|r to keep alt details open."] = "|CFFE6CC7FShift-Klicke|r, um die Twink-Details offen zu lassen"               -- The same can be said here. ^^
+        GRM_L["{custom1} to keep alt details open."] = "{custom1}, um die Twink-Details offen zu lassen"               -- The same can be said here. ^^
         GRM_L["|CFFE6CC7FClick|r to flip player name ordering"] = "|CFFE6CC7FKlicke|r, um die Sortierreihenfolge umzudrehen"                  -- and the reset...
         GRM_L["|CFFE6CC7FClick|r to sort Join Dates by Newest"] = "|CFFE6CC7FKlicke|r, um Neueste Eintrittsdaten oben zu sehen"
         GRM_L["|CFFE6CC7FClick|r to sort Join Dates by Oldest"] = "|CFFE6CC7FKlicke|r, um Älteste Eintrittsdaten oben zu sehen"
@@ -721,7 +719,6 @@
         -- R1.26
         GRM_L["Click to Disable Sync of Custom Note"] = true
         GRM_L["Click to Enable Sync of Custom Note"] = true
-        GRM_L["|CFFE6CC7FRight-Click|r for Additional Options"] = true
     
         -- R1.27
         GRM_L["Show Border on Public, Officer, and Custom Notes"] = true
@@ -729,7 +726,6 @@
         -- R1.28
         GRM_L["Public Note:"] = true
         GRM_L["Officer Note:"] = true
-        GRM_L["Public Note"] = true
         GRM_L["Officer Note"] = true
         GRM_L["Show Public, Officer, and Custom Notes on Log Entries of Left Players"] = true
         GRM_L["Hard Reset"] = true
@@ -739,7 +735,6 @@
         GRM_L["Unable to Change Rank. Guild Leader has set restriction to {name} or higher"] = true     -- Like Initiate or higher
         GRM_L["Unable to Change Rank. Guild Leader has set restriction level."] = true
         GRM_L["Force Settings with Guild Info Tags"] = true
-        GRM_L["Warning! System messages are disabled! GRM cannot function fully without them. You must re-enable them in the chat settings."] = true
         GRM_L["Database Still Loading. GRM will open automatically when finished."] = true
     
         -- R1.29
@@ -769,7 +764,6 @@
     
         -- R1.33
         GRM_L["Macro will auto-remove after {num} seconds."] = true
-        GRM_L["UI"] = true
         GRM_L["UI Controls"] = true
         GRM_L["UI Configuration:"] = true
         GRM_L["Show Character Guild Reputation"] = true
@@ -909,19 +903,16 @@
         -- JD tool button actions and tooltips
         GRM_L["|CFFE6CC7FShift-Click|r Second Button to Select All In-Between"] = true
         GRM_L["|CFFE6CC7FClick|r to select player"] = true
-        GRM_L["|CFFE6CC7FCtrl-Click|r to open Player Window"] = true
         GRM_L["Only Show Players With Incomplete Status"] = true
         GRM_L["{num} Join Dates Need Attention"] = true             -- In other words, "155 join dates need attention" as an example
         GRM_L["Do you really want to remove the join dates from notes other than the {name}?"] = true
         GRM_L["Do you really want to fix mismatched dates using the note?"] = true
         GRM_L["Do you really want to fix note dates using the saved GRM dates?"] = true
-        GRM_L["Do you really want to import all dates from the notes?"] = true
         GRM_L["Do you really want to add the missing join dates to the {name}?"] = true                     -- add the missing join dates to the default note name - like "... to the Officer Note?"
         GRM_L["Auto-adding join dates to the {name} is disabled. Do you still wish to continue?"] = true    -- Just as above
         GRM_L["There are currently {num} mismatched dates to fix"] = true
         GRM_L["There are currently no mismatched dates that need to be fixed."] = true
         GRM_L["There are currently no dates that need to be imported."] = true
-        GRM_L["There are currently {num} dates that can be imported"] = true
         GRM_L["There are currently no dates that can be added to the default note."] = true
         GRM_L["There are currently no dates that need to be removed from incorrect notes"] = true
         GRM_L["There are currently {num} players who have join dates listed in the incorrect note"] = true
@@ -1028,10 +1019,6 @@
         GRM_L["There are currently no names to remove"] = true
         GRM_L["Rules"] = true
         GRM_L["Please choose a day between 1 and 99"] = true
-        GRM_L["Time before recommending to kick has been set to 99 Days. For a longer time period, use the months instead."] = true
-        GRM_L["Time before recommending to kick has been set to the default period of 12 Months."] = true
-        GRM_L["Time before recommending to kick has been set to {num} Months."] = true
-        GRM_L["Time before recommending to kick has been set to {num} Days."] = true
         GRM_L["Pressing the ESC key will also clear all lines"] = true
         GRM_L["Player's rank does not have permission to remove others from the guild"] = true
         GRM_L["Player's rank does not have permission to promote others in the guild"] = true
@@ -1060,8 +1047,6 @@
         GRM_L["There are currently no players on the Ignore List"] = true
         GRM_L["Remove all players from Ignore List"] = true
         GRM_L["Ignored Players: {num}"] = true
-        GRM_L["Ignore Macro Tool Filters"] = true
-        GRM_L["Type \"/grm tool\" to Bring Up Macro Tool"] = true       -- Of note, the /grm tool will ALWAYS work, regardless of the language. Feel free to create your own word to coordinate for a slash command. It will match the next line
         GRM_L["Tool"] = true                                            -- /grm tool
         GRM_L["Macro Tool"] = true
         GRM_L["Macro Tool: {num}"] = true
@@ -1071,15 +1056,12 @@
         GRM_L["Roster"] = true
         GRM_L["Feature is disabled in WoW Classic"] = true
         GRM_L["Feature is disabled in TBC Classic"] = true          -- Just laying groundwork now in case Blizz ever releases it. Calendar was not added until WOTLK
-        GRM_L["There is no calendar to add events to"] = true
         GRM_L["(Classic)"] = true       -- tooltip tag that shows only on the minimap mosueover version tooltip in Classic
         
         -- 1.69
         GRM_L["Importing dates must be done in a compatible format"] = true
         GRM_L["The date selection in OPTIONS shows all supported"] = true
         GRM_L["Headers, like \"Joined,\" are supported"] = true
-        GRM_L["Date can only be detected if at the beginning of a note"] = true
-        GRM_L["Note: Dates are only found if at the start of a note in an addon supported format. \"Joined\" headers are ok"] = true
         GRM_L["To confirm or edit the date, open the player window, right click the date, edit, and submit"] = true        --The "!!" tags are the {name}
         GRM_L["To confirm or edit the date, right click the date, edit, and submit"] = true     -- Slightly shorter explanation if already on player window
         GRM_L["The {name} tag indicates a date must be verified to sync"] = true
@@ -1096,8 +1078,6 @@
         GRM_L["Applying update patches... one moment."] = true
         GRM_L["Update Complete... {num} patches applied."] = true   -- Plural
         GRM_L["Update Complete... 1 patch applied."] = true         -- Singular version
-        GRM_L["|CFFE6CC7FCtrl-Click|r to also REMOVE all alts from the ignore list"] = true     -- Safe/ignore filters list checkButton tooltip (bottom left mouseover window)
-        GRM_L["|CFFE6CC7FCtrl-Click|r to also ADD all alts to the ignore list"] = true          -- Same
         GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = true       -- Enable/disable birthday chekbox on UI Options and the Audit windoppw
         GRM_L["To avoid addon taint/blocking errors in Classic, the player must manually open the Guild Roster tab the first time."] = true          -- Classic only message for players explaining why window cannot open automatically.
         GRM_L["Confirm Date"] = true
@@ -1120,7 +1100,7 @@
         -- 1.76
         GRM_L["Same Rank"] = true                                                                   -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
         GRM_L["Higher Rank"] = true                                                                 -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
-        GRM_L["Feature Disabled. There is no Calendar in Classic"] = true                           -- Events Tab top warning
+        GRM_L["Limited Features. There is no Calendar in Classic"] = true                           -- Events Tab top warning
         GRM_L["This only affects settings for your current guild: {name}"] = true                   -- Tooltip for Options > General > Sync settings to all alts in same guild
         GRM_L["GC"] = true                                                                          -- Options window, acronym for "Global Controls" and will be adjacent to all settings that have global controls
         GRM_L["*GC = Global Control - Use Guild Info to Force Setting For All"] = true              -- Top left Options window
@@ -1162,8 +1142,6 @@
         GRM_L["Clearing Log Export. A filter setting has been changed."] = true             -- If the filter settings have been modified, the export string should be cleared and re-done
         GRM_L["No Tag"] = true                                                              -- Main Tag
         GRM_L["Delimiter:"] = true                                                          -- Delimiter selection for Export window
-        GRM_L["|CFFE6CC7FClick|r to view more alt details."] = true                         -- Calendar tooltip
-        GRM_L["|CFFE6CC7FRight-Click|r for additional options."] = true                     -- Also Calendar tooltip
         GRM_L["The selected delimiter will be removed from all notes on export"] = true
         GRM_L["Choose thoughtfully"] = true
         GRM_L["{name}'s note has been updated!"] = true
@@ -1174,7 +1152,6 @@
         GRM_L["Export Tool"] = true
         GRM_L["Opens the Data Export Tool"] = true
         GRM_L["Opens the Advanced Macro Tool"] = true
-        GRM_L["Open any GRM window: Log, Event, Ban, etc."] = true
     
         -- 1.78
         GRM_L["Hurray!"] = true                                                              -- A short cheer! Like "Yay!" except "Hurray!"
@@ -1264,7 +1241,6 @@
         GRM_L["Add Join Date to:"] = "Füge Beitrittsdatum hinzu:"
     
         -- R1.87
-        GRM_L["Kick Rule {num}"] = true         -- Exampe: Kick Rule 1
         GRM_L["|CFFE6CC7FLeft-Click|r to Disable Rule"] = true
         GRM_L["|CFFE6CC7FLeft-Click|r to Enable Rule"] = true
         GRM_L["Edit"] = true
@@ -1316,7 +1292,6 @@
         GRM_L["Enable Module"] = true
         GRM_L["Show Interactable Distance Indicator"] = true
         GRM_L["No GRM Modules Currently Installed"] = true
-        GRM_L["Pending Feature"] = true
         GRM_L["Custom Color"] = true
         GRM_L["{name} is listed as the Main"] = true
         GRM_L["Kick Banned in Guild"] = true
@@ -1326,7 +1301,7 @@
         GRM_L["Multi-Channel support. Just separate with commas"] = true
         
         --R1.89
-        GRM_L["Does NOT apply to Ban List"] = "Wirkt sich NICHT auf die Einstellungen für die Bann-Liste"
+        GRM_L["Does NOT apply to Ban List"] = "Wirkt sich NICHT auf die Einstellungen für die Bannliste"
 
         -- R1.89
         GRM_L["GRM API Error:"] = true
@@ -1346,12 +1321,11 @@
         GRM_L["Unable to promote players within the guild at current rank."] = true
         GRM_L["Unable to demote players within the guild at current rank."] = true
         GRM_L["Feature disabled."] = true
-        GRM_L["Does NOT apply to Ban List"] = true
         GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
         GRM_L["Custom Notes can be Restricted Further Below"] = true
         GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
         GRM_L["Always open to selected tab:"] = true
-        GRM_L["{num} guild members have incomeplete info."] = true
+        GRM_L["{num} guild members have incomplete info."] = true
         GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
         GRM_L["No Audit Necessary! Great Work!"] = true
         GRM_L["GRM Audit Report:"] = true                                                               -- Appears after the player's first sync that game secssion.
@@ -1398,7 +1372,6 @@
         GRM_L["Shift Rank Down"] = true
 
         -- R1.90
-        GRM_L["Promotion and demotion mass macros are not yet implemented"] = true
         GRM_L["Suggestions on kick filters? Submit to Discord"] = true
         GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = true
         GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true      -- if sync is triggered after logon too soon
@@ -1408,8 +1381,114 @@
         GRM_L["After Auto Trigger"] = "Seconds After Logging On"
         GRM_L["Report When Other Members Have Outdated Versions"] = true
 
+        -- Macro Tool update promote/demote
+        -- R1.92
+        GRM_L["Inactive"] = true
+        GRM_L["Promote Player if at Rank for"] = true
+        GRM_L["Demote Player if Inactive for"] = true
+        GRM_L["Apply Promotions Regardless of Activity"] = true
+        GRM_L["Apply Only to Active Players"] = true
+        GRM_L["Player is considered inactive if offline for"] = true
+        GRM_L["Ignore inactivity if at least one player linked alt is active"] = true
+        GRM_L["Promote to Rank:"] = true
+        GRM_L["Demote to Rank:"] = true
+        GRM_L["Only recommend to Demote if all player linked alts exceed max time"] = true
+        GRM_L["Suggestions on promote filters? Submit to Discord"] = true                                                                       -- promote
+        GRM_L["Suggestions on demote filters? Submit to Discord"] = true                                                                        -- demote
+        GRM_L["Unable to promote players to this rank"] = true                                                                                  -- etc...
+        GRM_L["Unable to demote players to this rank"] = true
+        GRM_L["Unable to promote players at this rank."] = true
+        GRM_L["Unable to demote players from this rank."] = true
+        GRM_L["Unable to kick players at this rank"] = true
+        GRM_L["Unable to promote players at this rank to \"{name}\""] = true
+        GRM_L["Unable to demote players at this rank to \"{name}\""] = true
+        GRM_L["Disable chat log spam while using the Macro Tool"] = true
+        GRM_L["When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions"] = true           -- Similar entries demote/promote plura/singular versions
+        GRM_L["When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions"] = true                -- ''
+        GRM_L["When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions"] = true         -- ''
+        GRM_L["When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions"] = true          -- ''
 
+        -- Mouseover tooltip on the macro button on the roster
+        GRM_L["Players to Kick:"] = true
+        GRM_L["Players to Promote:"] = true
+        GRM_L["Players to Demote:"] = true
+
+        GRM_L["Hello {custom1}"] = true
+
+        -- Consideration for plural/singular
+        GRM_L["Player has been at rank for more than {num} Day"] = true
+        GRM_L["Player has been at rank for more than {num} Days"] = true
+        GRM_L["Player has been at rank for more than {num} Month"] = true
+        GRM_L["Player has been at rank for more than {num} Months"] = true
+
+        -- Promote?Demote tooltup updates on the rules
+        GRM_L["Destination Rank:"] = true
+        GRM_L["# Moves:"] = true        -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
+        GRM_L["Notify if at current rank for {num} {name}" ] = true
         
+        -- Macro Tool Log reporting
+        GRM_L["{name} matches {num} macro tool rules. Promotion Recommended!"] = true     -- I know, a little redundancy here, but I don't want to go back to the kick rules above and modify for all. Just copy/paste the first sentence for each singular/plural.
+        GRM_L["{name} matches {num} macro tool rule. Promotion Recommended!"] = true
+        GRM_L["{name} matches {num} macro tool rules. Demotion Recommended!"] = true
+        GRM_L["{name} matches {num} macro tool rule. Demotion Recommended!"] = true
+        
+        -- 1.921
+        -- These are going to be used to cleanup some of the string formatting in the future
+        GRM_L["Click"] = true                   -- Referencing a mouse click
+        GRM_L["Ctrl-Click"] = true              -- Ctrl = Control
+        GRM_L["Alt-Click"] = true
+        GRM_L["Shift-Click"] = true
+        GRM_L["Ctrl-Shift-Click"] = true
+        GRM_L["Alt-Shiift-Click"] = true
+        GRM_L["Right-Click"] = true
+        
+        GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action
+        GRM_L["{custom1} to remove player from all 3 macro tool ignore lists"] = true
+        GRM_L["{custom1} to push ignore list settings to {name}'s alts"] = true
+        GRM_L["Type \"{name} {name2}\" to Bring Up Macro Tool. {custom1} also work."] = true         -- This is how it looks in final form in English - "Type "/grm macro" to Bring Up Macro Tool (tool, kick, promote, demote also work)""
+        GRM_L["Kick Rules"] = true
+        GRM_L["Promote Rules"] = true
+        GRM_L["Demote Rules"] = true
+        GRM_L["Macro Rule Ignore Lists"] = true
+        GRM_L["Select categories you wish the player to be ignored"] = true
+        GRM_L["Ignoring"] = true
+        GRM_L["Monitoring"] = true
+        GRM_L["Macro Rules"] = true
+        GRM_L["{name}'s alts now share the same macro rule ignore settings."] = true
+        GRM_L["{name} or Press ESC"] = true
+        GRM_L["Please choose a day between {num} and {custom1}"] = true         -- Example: "Please choose a day between 1 and 999"
+        GRM_L["Reactivate monitoring after {num} days."] = true
+        GRM_L["Set Days:"] = true
+        GRM_L["Configured: {custom1}"] = true
+        GRM_L["Time Left: {custom1}"] = true
+        GRM_L["{name} is now being monitored by the kick macro rules after being on the ignore list for {num} days."] = true
+        GRM_L["{name} is now being monitored by the promote macro rules after being on the ignore list for {num} days."] = true
+        GRM_L["{name} is now being monitored by the demote macro rules after being on the ignore list for {num} days."] = true
+        GRM_L["WARNING! Unchecking this setting will reset the timer upon re-enabling."] = true
+        GRM_L["Year"] = true
+        GRM_L["Years"] = true
+        GRM_L["This note will appear with the log notification when a player meets this rule's conditions."] = true
+        GRM_L["Demotion Macro Limitation!!! Unable to demote {name} due to multiple players in the guild with the same name, though different realms. Please demote manually."] = true
+        GRM_L["Due to limitations with macros a player can only move 1 rank at a time."] = true
+        GRM_L["Disabled at Current Rank"] = true
+        
+        -- 1.922
+        GRM_L["Verifying Macro Changes. One moment."] = true
+        GRM_L["Not all macro changes validated. One moment..."] = true
+        GRM_L["Macro rank changes have been validated!"] = true
+        GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = true
+
+        -- 1.93
+        GRM_L["There was an error with a {name} rule: \"{name2}\""] = true
+        GRM_L["Please report to addon creator the following variables were missing: {custom1}"] = true
+        GRM_L["Customize Color"] = true
+        GRM_L["GRM has detected that FGI is blocking system messages and cannot function properly without them. Do you want to enable them?"] = true        -- FGI is in reference to the "Fast Guild Invite" addon...
+        GRM_L["GRM has detected that System Messages are disabled and cannot function properly without them. Do you want to enable them?"] = true
+        GRM_L["System Messages have been enabled and GRM should now function properly."] = true
+        GRM_L["Officer Only Access"] = true   -- Tooltip on the advanced join date tool button
+        GRM_L["Player no longer has officer access. Advanced Join Date Tool has been closed."] = true
+        GRM_L["{custom1} to open Player Window"] = true
+        GRM_L["{custom1} for Additional Options"] = true
     end
     
     -- THANK YOU @Nehry for this full translation up to R1.20

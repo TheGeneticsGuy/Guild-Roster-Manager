@@ -1,7 +1,4 @@
-
--- Mass Kick, Promote, and Demote tool
-GRM.ruleTypeEnum = { [1] = "kickRules" , [2] = "promoteRules" , [3] = "demoteRules" };
-GRM.ruleTypeEnum2 = { [1] = "kick" , [2] = "promote" , [3] = "demote" };
+-- Tool to use GRM data to build pre-made macros based on certain filters to handle promotions/demotions/kicking of players. This is due to the fact that the API to do these actions was restricted in patch 7.3, effectively breaking many guild leadership and management addons. This is an attempt to help officers and Guild Leaders' lives out a little bit through creating quick rebuilding macros.
 
 -- CREATING FRAMES -- 
 -- Core Frame
@@ -19,6 +16,9 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton = CreateFrame( "Button" , "GRM
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:CreateFontString ( "GRM_ToolBuildMacroButtonText" , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton = CreateFrame( "Button" , "GRM_ToolViewSafeListButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:CreateFontString ( "GRM_ToolViewSafeListButtonText" , "OVERLAY" , "GameFontNormalTiny" );
+
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton = CreateFrame( "Button" , "GRM_ToolSyncRulesButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:CreateFontString ( "GRM_ToolSyncRulesButtonText" , "OVERLAY" , "GameFontNormalTiny" );
 
 -- Macro Control Buttons
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolClearSelectedMacrodNamesButton = CreateFrame( "Button" , "GRM_ToolClearSelectedMacrodNamesButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" );
@@ -48,7 +48,6 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6 = GRM_UI.GRM_ToolCoreFrame:Creat
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameText7" , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameText8" , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameText9" , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameText10" , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameTextPermissions" , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameTextPermissions1" , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameTextPermissions2" , "OVERLAY" , "GameFontNormalTiny" );
@@ -62,6 +61,15 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2 = GRM_UI.GRM_ToolCoreFra
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameTotalIgnoredText" , "OVERLAY" , "GameFontNormalTiny" )
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameTotalIgnoredText2" , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameRankRestrictionText" , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameDestinationRankHeaderText" , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameKickQueText" , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFramePromoteQueText" , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_ToolCoreFrameDemoteQueText" , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( "GRM_TooCoreFrameLimitationText" , "OVERLAY" , "GameFontNormalTiny" );
+
+-- Optional spam control
+GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton = CreateFrame ( "CheckButton" , "GRM_MacroToolDisableLogSpamCheckbutton" , GRM_UI.GRM_ToolCoreFrame , "OptionsSmallCheckButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText = GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:CreateFontString ( "GRM_MacroToolDisableLogSpamCheckbuttonText" , "OVERLAY" , "GameFontNormalSmall" );
 
 -- Safe Details
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText1 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:CreateFontString ( "GRM_ToolCoreIgnoreFrameText1" , "OVERLAY" , "GameFontNormalTiny" );
@@ -70,6 +78,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText3 = 
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText4 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:CreateFontString ( "GRM_ToolCoreIgnoreFrameText4" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton = CreateFrame ( "CheckButton" , "GRM_ToolCoreIgnoreCheckButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "OptionsSmallCheckButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:CreateFontString ( "GRM_ToolCoreIgnoreCheckButtonText" , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:CreateFontString ( "GRM_IgnoreListRuleTypeText" , "OVERLAY" , "GameFontNormalSmall" );
 
 -- Tabs
 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab = CreateFrame ( "Button" , "GRM_KickTab" , GRM_UI.GRM_ToolCoreFrame , "TabButtonTemplate" );
@@ -187,8 +196,8 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM
 
 -- Kick even if active filter
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton = CreateFrame ( "CheckButton" , "GRM_KickEvenIfActiveButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "OptionsSmallCheckButtonTemplate" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:CreateFontString ( "GRM_KickEvenIfActiveButtonText" , "OVERLAY" , "GameFontNormalSmall" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox = CreateFrame( "EditBox" , "GRM_KickEvenIfActiveEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "InputBoxTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:CreateFontString ( "GRM_KickEvenIfActiveButtonText" , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox = CreateFrame( "EditBox" , "GRM_KickEvenIfActiveEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InputBoxTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:ClearFocus();
 -- Day or Month selection even if active
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected = CreateFrame ( "Frame" , "GRM_KickEvenIfActiveTimeSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
@@ -206,6 +215,8 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton1 = CreateFrame ( 
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton1.GRM_ContextButton1Text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton1:CreateFontString ( "GRM_ContextButton1Text" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2 = CreateFrame ( "Button" , "GRM_ContextButton2" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2.GRM_ContextButton2Text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2:CreateFontString ( "GRM_ContextButton2Text" , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3 = CreateFrame ( "Button" , "GRM_ContextButton3" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3.GRM_ContextButton3Text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3:CreateFontString ( "GRM_ContextButton3Text" , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuCancelButton = CreateFrame ( "Button" , "GRM_ToolContextMenuCancelButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuCancelButton.GRM_ToolContextMenuCancelButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuCancelButton:CreateFontString ( "GRM_ToolContextMenuCancelButtonText" , "OVERLAY" , "GameFontWhiteTiny" );
 
@@ -247,6 +258,23 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox = CreateFrame( "EditBox" , "GRM_CustomLogMessageEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:ClearFocus();
 
+-- PROMOTION/DEMOTION Specific
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1 = CreateFrame ( "CheckButton" , "GRM_ApplyRegardlessActivityRadialButton1" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "UIRadioButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:CreateFontString ( "GRM_ApplyRegardlessActivityRadialButton1Text" , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2 = CreateFrame ( "CheckButton" , "GRM_ApplyRegardlessActivityRadialButton2" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "UIRadioButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:CreateFontString ( "GRM_ApplyRegardlessActivityRadialButton2Text" , "OVERLAY" , "GameFontNormalSmall" );
+-- Dropdown Rank Selection with line
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected = CreateFrame ( "Frame" , "GRM_DestinationRankSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:CreateFontString ( "GRM_DestinationRankSelectedText" , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu = CreateFrame ( "Frame" , "GRM_DestinationRankDropdownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected , BackdropTemplateMixin and "BackdropTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Hide();
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:CreateFontString ( "GRM_RankDestinationText" , "OVERLAY" , "GameFontNormalSmall" );
+
+-- Sync rule
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton = CreateFrame ( "CheckButton" , "GRM_ToolSyncButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "OptionsSmallCheckButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:CreateFontString ( "GRM_ToolSyncButtonText" , "OVERLAY" , "GameFontNormalSmall" );
+
+
 -- Suggestion String
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:CreateFontString ( "GRM_ToolSuggestIdeasText" , "OVERLAY" , "GameFontNormalSmall" );
 
@@ -257,11 +285,14 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText = GRM
 -- Global Locals
 local repOperators = { "<" , "=" , ">" };
 
+GRM_G.countAction = { 0 , 0 , 0 };  -- time of kick, promote , demote last counts
+GRM_G.counts = { 0 , 0 , 0 };       -- count values of each
+
 -- INITIALIZING FRAME VALUES
 GRM_UI.GRM_ToolCoreFrame:ClearAllPoints();
 GRM_UI.GRM_ToolCoreFrame:SetPoint ( "CENTER" , UIParent );
 GRM_UI.GRM_ToolCoreFrame:SetFrameStrata ( "MEDIUM" );
-GRM_UI.GRM_ToolCoreFrame:SetSize ( 1200 , 470 );
+GRM_UI.GRM_ToolCoreFrame:SetSize ( 1200 , 485 );
 GRM_UI.GRM_ToolCoreFrame:EnableMouse ( true );
 GRM_UI.GRM_ToolCoreFrame:SetMovable ( true );
 GRM_UI.GRM_ToolCoreFrame:SetToplevel ( true );
@@ -289,9 +320,16 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
 GRM_UI.GRM_ToolCoreFrame.IsInitialized = false;
 GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
 GRM_UI.GRM_ToolCoreFrame.QueuedEntries = {};
+GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
 GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;           -- 1 = kick , 2 = promote , 3 = demote
 GRM_UI.GRM_ToolCoreFrame.Timer = 0;
 GRM_UI.GRM_ToolCoreFrame.Safe = {};                 -- List of safe people for whatever the reason.
+GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;       -- For manually scanning roster when validating macro success
+
+-- Mass Kick, Promote, and Demote tool
+GRM_UI.ruleTypeEnum = { [1] = "kickRules" , [2] = "promoteRules" , [3] = "demoteRules" };
+GRM_UI.ruleTypeEnum2 = { [1] = "kick" , [2] = "promote" , [3] = "demote" };
+GRM_UI.ruleTypeEnum3 = { [1] = GRM.L ( "Kick" ) , [2] = GRM.L ( "Promote" ) , [3] = GRM.L ( "Demote" ) };
 
 GRM_UI.GRM_ToolCoreFrame:Hide();                    -- Default load position is hidden
 
@@ -347,7 +385,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.TriggerIgnoredQueuedWindowRefresh();
         end);
 
-        local AuditWindowRefresh = false;
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
             self.Timer = self.Timer + elapsed;
             if self.Timer >= 0.025 then
@@ -357,20 +394,24 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
                     GRM_G.HK = false;
                     GRM.PurgeMacrodNames();
+
+                    -- Need to validate the names are update now...
+                    if GRM.IsMacroActionComplete() then
+                        C_Timer.After ( 1 , GRM.ValidateMacroRecordingSuccess );
+                    end
+                    
                     GRM.BuildQueuedScrollFrame ( true , false , false );
                     GRM.BuildMacrodScrollFrame ( true , true );
-
                     GRM_G.timeDelayValue = time(); -- resetting delay
-
                     GRM.GuildRoster();
 
-                    if not AuditWindowRefresh and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-                        AuditWindowRefresh = true;
+                    if not GRM_G.AuditWindowRefresh and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+                        GRM_G.AuditWindowRefresh = true;
 
                         -- Delay action
                         C_Timer.After ( 2 , function()
                             GRM.RefreshAuditFrames ( true , true );
-                            AuditWindowRefresh = false;
+                            GRM_G.AuditWindowRefresh = false;
                         end);
                     end
                 end
@@ -380,7 +421,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnHide" , function()
             -- Clear the macro!
-            GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" );
+            GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
@@ -395,8 +436,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1 , "RIGHT" , 6 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetWidth ( 191 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetWidth ( 85 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetWordWrap ( false );
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPRIGHT" , -10 , -2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetJustifyH ( "RIGHT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetWidth ( 110 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetWordWrap ( false );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOMRIGHT" , -10 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetJustifyH ( "LEFT" );
@@ -418,21 +464,22 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOM" , 0 , -20 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWidth (320);
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWidth ( 320 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWordWrap ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetSpacing ( 1 )
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPRIGHT" , 2 , -19 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWidth ( 160 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWordWrap ( true );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetSpacing ( 1 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetTextColor ( 1 , 0 , 0 );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOP" , 0 , 17 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetJustifyH ( "CENTER" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOP" , 0 , 17 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetJustifyH ( "LEFT" );
-
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "TOP" , 0 , 2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetWidth ( 300 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetSpacing ( 1 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:Hide();
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMLEFT" , -20 , -35 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetJustifyH ( "LEFT" );
@@ -442,6 +489,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetJustifyH ( "LEFT" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 18 , -49 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetJustifyH ( "LEFT" );
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , "TOP" , 0 , 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , "TOP" , 0 , 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , "TOP" , 0 , 2 );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton , "BOTTOM" , 0 , -12 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetJustifyH ( "CENTER" );
@@ -505,6 +556,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText4:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "TOPLEFT" , 15 , -15 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetTextColor ( 1 , 0 , 0 );
+
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "BOTTOMLEFT" , 13 , 13 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetScript ( "OnClick", function()
@@ -516,6 +570,19 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM.TriggerIgnoredQueuedWindowRefresh();
             end
             GRM.SyncSettings();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetPoint ( "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText , "LEFT" , - 2 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame , "BOTTOMRIGHT" , -12 , 14 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetScript ( "OnClick", function( self , button )
+            if button == "LeftButton" then
+                if self:GetChecked() then
+                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam = true;                 
+                else
+                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam = false;
+                end
+                GRM.SyncSettings();
+            end
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreClearSelectionButton:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton , "TOP" , 0 , 20 );
@@ -648,6 +715,24 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton:SetScript ( "OnLeave" , function()
             GRM.RestoreTooltip();
         end);
+
+        -- Sync button
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetSize ( 50 , 30 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame , "BOTTOMLEFT" , 12 , 12 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetScript ( "OnClick" , function ( _ , button )
+            if button == "LeftButton" then
+                print("Test")
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetScript ( "OnEnter" , function( self )
+            GRM.BuildMacroSyncTooltip( self );
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
+        end);
         
         -- RULES
         GRM_UI.GRM_ToolCoreFrame.GRM_CustomRuleAddButton:SetSize ( 175 , 25 );
@@ -665,7 +750,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
 
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                    validToOpen = false -- DISABLE THIS ONCE FEATURE ENABLED
                     GRM_UI.ConfigureCustomRulePromoteFrame ( false , nil );  -- Creating a new rule
                     if not CanGuildPromote() then
                         validToOpen = false;
@@ -673,8 +757,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
                     
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
-                    validToOpen = false -- DISABLE THIS ONE FEATURE ENABLED
-                    GRM_UI.ConfigureCustomRuleDemoteFrame ( false , nil );  -- Creating a new rule
+                    GRM_UI.ConfigureCustomRulePromoteFrame ( false , nil );  -- Creating a new rule
                     if not CanGuildDemote() then
                         validToOpen = false;
                         GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
@@ -690,7 +773,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
         
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -10 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetWordWrap ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetSpacing ( 1 );
@@ -877,7 +959,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.RestoreTooltip();
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText , "BOTTOMLEFT" , 0 , -6 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText , "BOTTOMLEFT" , 0 , -42 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetSize ( 80 , 25 );
         PanelTemplates_TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , nil , 80 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 0 , -5 );
@@ -894,7 +976,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if needsFullRefresh then
                     GRM_UI.FullMacroToolRefresh();
                 end
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:Hide();
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                    GRM.TriggerIgnoredQueuedWindowRefresh();
+                end
             end
         end);
 
@@ -930,7 +1014,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if needsFullRefresh then
                     GRM_UI.FullMacroToolRefresh();
                 end
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:Show();
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                    GRM.TriggerIgnoredQueuedWindowRefresh();
+                end
             end
         end);
 
@@ -967,7 +1053,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if needsFullRefresh then
                     GRM_UI.FullMacroToolRefresh();
                 end
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:Show();
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                    GRM.TriggerIgnoredQueuedWindowRefresh();
+                end
             end
         end);
 
@@ -996,16 +1084,19 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Hide();
 
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
             end
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
         end
@@ -1084,7 +1175,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Rules Scroll Frame
         -- Ignored ScrollFrame
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:SetSize ( 305 , 200 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , "BOTTOMLEFT" , 0 , -42 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , "BOTTOMLEFT" , 0 , -8 );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrame:SetSize ( 287 , 176 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrame:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "BOTTOMLEFT" , 5 , 10 );
@@ -1123,7 +1214,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         -- Context Menu Initializations
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:SetSize( 80 , 105 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:SetSize( 80 , 125 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:SetBackdrop ( GRM_UI.noteBackdrop2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:SetFrameStrata ( "FULLSCREEN_DIALOG" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu , 7 , -10 );
@@ -1141,6 +1232,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2.GRM_ContextButton2Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2.GRM_ContextButton2Text:SetWidth ( 65 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2.GRM_ContextButton2Text:SetJustifyH ( "LEFT" );
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2 , "BOTTOMLEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3:SetSize ( 65 , 20 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3:SetHighlightTexture ( "Interface\\Buttons\\UI-Panel-Button-Highlight" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3.GRM_ContextButton3Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3.GRM_ContextButton3Text:SetWidth ( 65 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3.GRM_ContextButton3Text:SetJustifyH ( "LEFT" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuDividerText:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuCancelButton , "TOPLEFT" , 0 , 4 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuDividerText:SetText ("__");
@@ -1188,22 +1286,24 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetText( GRM.L ( "Macro:" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetText( GRM.L ( "# Moves:" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetText( GRM.L ( "Name:" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetText( GRM.L ( "Action" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetText( GRM.L ( "Hot Key: {name}" , "CTRL-SHIFT-K" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetText( GRM.L ( "Hot Key: {name}" , GRM_G.MacroHotKey ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetText( GRM.L ( "Queued Actions" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetText( GRM.L ( "Current Actions" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText10:SetText ( "|cffff0000" .. string.upper ( GRM.L ( "Pending Feature" ) ) .. "|r\n" .. GRM.L ( "Promotion and demotion mass macros are not yet implemented" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetText( GRM.L ( "Players the same rank or higher will not be shown" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetText ( GRM.L ( "Due to limitations with macros a player can only move 1 rank at a time." ))
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetText ( GRM.L ( "Permissions" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
@@ -1221,6 +1321,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText2:SetText ( GRM.L ( "Ignored Action:" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText3:SetText ( GRM.L ( "Ignored Players Safe From Action" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText:SetText ( GRM.L ( "Only show players with ignored action" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton.GRM_ToolIgnoreResetSelectedNamesButtonText:SetText ( GRM.L ( "Clear Selection" ) );
@@ -1249,15 +1350,19 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetText ( GRM.L ( "Actions Ignored:" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
     -- Rules
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText:SetText ( GRM.L ( "Rules" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetText ( GRM.L ( "Only recommend to kick if all player linked alts exceed max time" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText );
     GRM_UI.GRM_ToolCoreFrame.GRM_CustomRuleAddButton.GRM_CustomRuleAddButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_CustomRuleAddButton.GRM_CustomRuleAddButtonText:SetText ( GRM.L ( "Add Custom Rule" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText:SetText ( GRM.L ( "Sync" ) );
 
     -- Tabs
     GRM_UI.GRM_ToolCoreFrame.GRM_KickTabText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
@@ -1281,6 +1386,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ToolContextMenuText:SetText ( GRM.L ( "Options" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton1.GRM_ContextButton1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2.GRM_ContextButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3.GRM_ContextButton3Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     
     ----------------------
     --- CUSTOM FILTERS ---
@@ -1289,8 +1395,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
     if not isManual then
 
         --------------- RULES FRAME -----------------
-
-        
         -- Core Frame
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:ClearAllPoints();
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetPoint ( "CENTER" , UIParent );
@@ -1327,7 +1431,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Title
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 15 , -15 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetTextColor ( 1 , 0 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOP" , 0 , -18 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOP" , 0 , -22 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetSize ( 250 , 30 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetTextInsets( 2 , 3 , 3 , 2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetMaxLetters ( 25 );
@@ -1378,7 +1482,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
         
         -- LEVEL RANGE
         -- Radial buttons
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "BOTTOMLEFT" , 0 , -15 )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetHitRectInsets ( 0 , -115 , 0 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1 , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetHitRectInsets ( 0 , -150 , 0 , 0 );
@@ -1537,21 +1640,61 @@ GRM_UI.LoadToolFrames = function ( isManual )
             self:SetCursorPosition ( 0 );
         end);
 
-
-
         -- Confirm Button
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetSize ( 145 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "BOTTOM" , -20 , 15 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton.GRM_ToolCustomRulesConfirmButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
+
+                -- Set the values if cursor still focused
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:ClearFocus();
+                end
+
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:ClearFocus();
+                end
+
                 if GRM.IsRuleReady() then
                     -- Add or edit the new rule
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule );
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal ~= GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name then
-                        GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] = nil;
+                    if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.ruleIndex = GRM.GetRulesCount( GRM_UI.GRM_ToolCoreFrame.TabPosition ) + 1;
                     end
-                    
+
+                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule );
+
+                    -- Configure editTime for sync purposes
+                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].editTime = time();
+
+                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = {};
+                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString = GRM.ConvertMacroRuleToString ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] , GRM_UI.GRM_ToolCoreFrame.TabPosition );
+                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex;
+
+                    -- Clear it from removed rules if it is there...
+                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = nil;
+
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit then
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal ~= GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name then
+                            -- It's an Edit and it has been renamed... In that case we are going to send a message to show it different name;
+                        
+                            -- First, add it to our own removedRules so it can be referenced to be removed against.
+                            -- GRM.AddToRemovedRules ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] , time() , nil );
+
+                            -- Next, we now add the new rule
+                            -- GRM.SendRuleRemove ( GRM_UI.GRM_ToolCoreFrame.TabPosition , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal , time() , GRM_G.addonUser , false );
+
+
+                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] = nil;
+                            -- Configure the sync saved data as well
+                            GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] = nil;   -- removed the saved format here - no need to store it anymore.
+                        end
+                    end
+
+                    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].macroSyncKickEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].macroSyncPromoteEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].macroSyncDemoteEnabled ) then
+                        -- GRM.SendRuleAdd ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name , GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString , true );
+                    end
+                        
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
                     GRM.RefreshNumberOfHoursTilRecommend();
                     GRM_UI.FullMacroToolRefresh();
@@ -1667,21 +1810,48 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Purpose          Purely aesthetics and ease to manipulate if enabling buttons
         GRM_UI.SetDefaultRankFilters = function()
             local numRanks = GuildControlGetNumRanks() - 1;
+            local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
             if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes ~= numRanks then       -- If window was open at same time rank was removed, we can rebuild the frames
                 BuildRankCheckBoxes();
             end
 
-            for i = 1 , numRanks do
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.ranks[i] = true;
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetChecked ( true );
+            -- Want to disable all ranks in promotion or demotion as in most cases you don't want it to apply to all players.
+            local setRankEnabled = true;
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+                setRankEnabled = false;
             end
+
+            for i = 1 , numRanks do
+                
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and i >= playerIndex then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.ranks[i] = false;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetChecked ( false );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.ranks[i] = setRankEnabled;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetChecked ( setRankEnabled );
+                end
+            end
+        end
+
+        GRM_UI.EnableEvenIfActiveButton = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Enable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 1 , 0.82 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Enable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1 , 0 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( true );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 1 , 1 , 1 );
-            
+        end
+
+        GRM_UI.DisableEvenIfActiveButton = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive = false;
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetChecked ( false );
         end
 
         -- Method:              GRM_UI.EnableCustomSelectionOfRanks()
@@ -1693,12 +1863,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][2]:SetTextColor ( 1 , 0.82 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter = true;
             end
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Enable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 1 , 0.82 , 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Enable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1 , 0 , 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( true );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 1 , 1 , 1 );
+            GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
+            if not GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+                GRM_UI.EnableEvenIfActiveButton();
+            end
         end
 
         -- What it Does:            Enables all Custom Rule Rank Checkboxes and greys them out.
@@ -1708,14 +1876,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][2]:SetTextColor ( 0.5 , 0.5 , 0.5 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter = false;
             end
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Disable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Disable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( false );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
+            GRM_UI.DisableEvenIfActiveButton();
         end
+
+        
         -- Method:          GRM_UI.DisableLevelSelectionEditBoxes()
         -- What it Does:    Disables editing of this feature in the controls
         -- Purpose:         Easier UX controls
@@ -1740,18 +1904,122 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRangeText:SetTextColor ( 1 , 0.82 , 0 );
         end
 
-        -- Method:          GRM_UI.ConfigureCustomRuleKickFrame ( bool , string )
+        -- Method:              GRM_UI.EnableRankActivityFrames()
+        -- What it Does:        Activates the rule frames as needed
+        -- Purpose:             UI quality of life
+        GRM_UI.EnableRankActivityFrames = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1 , 0 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( true );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 1 , 1 , 1 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
+
+        end
+
+        -- Method:              GRM_UI.DisableRankActivityFrames()
+        -- What it Does:        Disabled certain rule frame UI features as needed
+        -- Purpose:             UI quality of life
+        GRM_UI.DisableRankActivityFrames = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+        end
+
+        -- Method:          GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote()
+        -- What it Does:    Configures the checkboxes UX experience to adapt over for promotions/demotions
+        -- Purpose:         UX
+        GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote = function()
+            local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
+            local rankCap
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+                rankCap = ( GuildControlGetNumRanks() - GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank );
+            end
+
+            for i = 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes do
+
+                if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2  and i <= rankCap ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and i > rankCap + 1 ) then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:Enable();
+
+                    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and i >= playerIndex ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and i >= playerIndex - 1 ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and i >= playerIndex ) then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][2]:SetTextColor ( 1 , 0 , 0 );
+
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetScript ( "OnEnter" , function ( self )
+                            GRM_UI.SetTooltipScale()
+                            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+                                GameTooltip:AddLine( GRM.L ( "Unable to kick players at this rank" ) );
+                            elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                                GameTooltip:AddLine( GRM.L ( "Unable to promote players at this rank." ) );
+                            elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                                GameTooltip:AddLine( GRM.L ( "Unable to demote players from this rank." ) );
+                            end
+                            GameTooltip:Show();
+                        end);
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetScript ( "OnLeave" , function()
+                            GRM.RestoreTooltip();
+                        end);
+                        
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][2]:SetTextColor ( 1 , 0.82 , 0 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetScript ( "OnEnter" , nil );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetScript ( "OnLeave" , nil );
+                    end
+                else 
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][2]:SetTextColor ( 0.5 , 0.5 , 0.5 );
+
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetScript ( "OnEnter" , function ( self )
+                        GRM_UI.SetTooltipScale()
+                        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                            GameTooltip:AddLine( GRM.L ( "Unable to promote players at this rank to \"{name}\"" , GuildControlGetRankName ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank ) ) );
+                        elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                            GameTooltip:AddLine( GRM.L ( "Unable to demote players at this rank to \"{name}\"" , GuildControlGetRankName ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank ) ) );
+                        end
+                        GameTooltip:Show();
+                    end);
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[i][1]:SetScript ( "OnLeave" , function()
+                        GRM.RestoreTooltip();
+                    end);
+
+                end
+            end
+        end
+
+        -- Method:          GRM_UI.ConfigureCustomRuleKickFrame ( bool , string , bool  )
         -- What it Does:    Configures the values of all the buttons on the custom rules creation window
         -- Purpose:         Keep rules settings displayed properly.
-        GRM_UI.ConfigureCustomRuleKickFrame = function ( isEdit , ruleName )
+        GRM_UI.ConfigureCustomRuleKickFrame = function ( isEdit , ruleName , isCopy )
 
             local matchString = GRM.L ( "Click to Set" );
 
             -- Build Rank Filter
             BuildRankCheckBoxes();
+            GRM_UI.ModifyRuleUI();
 
             if isEdit then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.GetKickRule ( ruleName );
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
+
+                -- Sync Rule at top left
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.sync then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Enabled" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 0 , 0.82 , 1 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetChecked ( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Disabled" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetChecked ( false );
+                end
+                GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText );
 
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo == 1 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetChecked ( true );
@@ -1777,10 +2045,20 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 end
 
                 -- Build header text
+                if isCopy then
+                    local tempRule = GRM.BuildNewKickRuleTemplate();
+                    ruleName = tempRule.name;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name = ruleName;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.ruleIndex = tempRule.ruleIndex;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetText ( "(" .. GRM.L ( "Copy" ) .. ")" );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetText ( "(" .. GRM.L ( "Edit" ) .. ")" );
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal = ruleName;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetText ( ruleName );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox.ruleNameText = ruleName;
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal = ruleName;
 
                 -- Inactivity filter
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
@@ -1814,13 +2092,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetChecked ( false );
                 end
 
+                GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
                 -- Rank Filter
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetChecked( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( false );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
-                    GRM_UI:EnableCustomSelectionOfRanks(); 
+                    GRM_UI:EnableCustomSelectionOfRanks();
                 else
                     
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( true );
@@ -1830,7 +2109,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.DisableCustomSelectionRanks();
                 end
                 GRM_UI.SetRankCustomRuleFilters();
-
+                
                 -- Activity Filter, Regardless if Active
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetChecked ( true );
@@ -1861,6 +2140,417 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.DisableLevelSelectionEditBoxes();
                 end
                 local levelRange = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[1];
+                if levelRange == 999 then
+                    levelRange = GetMaxPlayerLevel();
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( levelRange );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:GetText();
+                levelRange = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[2];
+                if levelRange == 999 then
+                    levelRange = GetMaxPlayerLevel();
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( levelRange );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:GetText();
+
+                -- Guild Rep 
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetText ( repOperators[GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repOperator] );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( GRM.GetReputationTextLevel ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep , true ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:Show();
+
+                if GRM_G.BuildVersion >= 40000 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repFilter then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:EnableMouse ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:EnableMouse ( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:EnableMouse ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:EnableMouse ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( GRM.GetReputationTextLevel ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep , false ) );
+                end
+                
+                -- Note Matching
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetChecked( true );
+                    GRM_UI.EnableNoteMatch();
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetChecked ( false );
+                    GRM_UI.DisableNoteMatch();
+                end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatchEmpty then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton:SetChecked( true );
+                    GRM_UI.DisableNoteEditBox();
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton:SetChecked ( false );
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
+                        GRM_UI.EnableNoteEditBox();
+                    end
+                end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.notesToCheck[1] then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton:SetChecked ( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton:SetChecked ( false );
+                end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.notesToCheck[2] then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButton:SetChecked ( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButton:SetChecked ( false );
+                end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.notesToCheck[3] then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetChecked ( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetChecked ( false );
+                end
+
+                if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatchEmpty then
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.matchingString > 0 then
+                        matchString = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.matchingString;
+                    end
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:SetText ( matchString );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox.stringPattern = matchString;
+
+                -- Ok let's reset
+                matchString = GRM.L ( "Click to Set" );
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLog then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 1 , 1 , 1 );
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLogMsg > 0 then
+                        matchString = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLogMsg;
+                    end
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( false );
+                end 
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetText ( matchString );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern = matchString;
+
+
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.BuildNewKickRuleTemplate();
+
+                -- Sync Rule at top left
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Enabled" ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 0 , 0.82 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetChecked ( true );
+                GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText );
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM_ApplyRulesRadioButton3Text:SetTextColor ( 1 , 0.82 , 0 );
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox.ruleNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name;
+
+                -- Inactivity filter
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox.value = 12;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetText ( "12" );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetText ( GRM.L ( "Months") );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:EnableMouse ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetTextColor ( 1 , 1 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 1 , 0 , 0 );
+
+                -- Rank Filter
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetChecked( false );
+                                
+                GRM_UI.SetDefaultRankFilters();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 1 , 1 , 1 );
+                
+                GRM_UI.DisableCustomSelectionRanks();
+
+                -- Activity Filter Regardless if Active
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value = 12;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetText ( "12" );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Months") );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
+
+                -- Level Range
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( GRM_G.LvlCap );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = "1";
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM_G.LvlCap );
+                GRM_UI.DisableLevelSelectionEditBoxes();
+
+                -- Guild Rep
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:EnableMouse ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:EnableMouse ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetText ( repOperators[2] );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( GRM.GetReputationTextLevel ( 4 , false ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
+                
+                -- Custom Note
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButton:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:SetText ( matchString );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox.stringPattern = "";
+                GRM_UI.DisableNoteMatch();
+
+                -- Custom Log Entry
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetText ( matchString );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern = matchString;
+                
+            end
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;            
+
+        end
+
+        -- Method:          GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( bool , string , bool )
+        -- What it Does:    Configures the values of all the buttons on the custom rules creation window
+        -- Purpose:         Keep rules settings displayed properly.
+        GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame = function ( isEdit , ruleName , isCopy )
+
+            local matchString = GRM.L ( "Click to Set" );
+
+            -- Build Rank Filter
+            BuildRankCheckBoxes();
+            GRM_UI.ModifyRuleUI();
+
+            if isEdit then
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.GetPromoteRule ( ruleName );
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.GetDemoteRule ( ruleName );
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
+
+                -- Sync checkbox top right
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.sync then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Enabled" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 0 , 0.82 , 1 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetChecked ( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Disabled" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetChecked ( false );
+                end
+                GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText );
+
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo == 1 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM_ApplyRulesRadioButton3Text:SetTextColor ( 1 , 0.82 , 0 );
+                elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM_ApplyRulesRadioButton3Text:SetTextColor ( 1 , 0.82 , 0 );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM_ApplyRulesRadioButton3Text:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                end
+
+                -- Build header text
+                if isCopy then
+                    ruleName = GRM.BuildNewPromoteOrDemoteRuleTemplate().name;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name = ruleName;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetText ( "(" .. GRM.L ( "Copy" ) .. ")" );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetText ( "(" .. GRM.L ( "Edit" ) .. ")" );
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal = ruleName;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetText ( ruleName );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox.ruleNameText = ruleName;
+
+                -- Inactivity filter
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:EnableMouse ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetTextColor ( 1 , 1 , 1 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 1 , 0 , 0 );
+
+                    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlessOfActivity then
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                            GRM_UI.DisableRankActivityFrames();
+                        else
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
+                            GRM_UI.EnableRankActivityFrames();
+                        end
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Enable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Enable();
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
+
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
+                            GRM_UI.DisableEvenIfActiveButton();
+                        end
+                    end
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:EnableMouse ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu:Hide();
+    
+                    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        GRM_UI.DisableRankActivityFrames();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Disable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Disable();
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Disable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+    
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
+                            GRM_UI.EnableEvenIfActiveButton();
+                        end
+                    end
+                end
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlesOsfActivity then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( true );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( false );
+                        
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                        end
+                        
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( false );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( true );
+                        
+                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 ); 
+                        end
+                    end
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox.value = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths );
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetText ( GRM.L ( "Months") );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetText ( GRM.L ( "Days") );
+                end
+
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 1 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetText ( GuildControlGetRankName ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank ) );
+                local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
+                local rankCap = ( GuildControlGetNumRanks() - GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank );
+
+                if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and rankCap >= playerIndex ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and rankCap >= playerIndex - 1 ) then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 0 , 0 );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 1 , 1 );
+                end
+
+
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.allAltsApplyToKick then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetChecked ( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetChecked ( false );
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths );
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Months") );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Days") );
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
+
+                GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
+                -- Rank Filter
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetChecked( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI:EnableCustomSelectionOfRanks(); 
+                else
+                    
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetChecked( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.DisableCustomSelectionRanks();
+                end
+                GRM_UI.SetRankCustomRuleFilters();
+                
+                -- Level Range
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0.82 , 0  );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.EnableLevelSelectionEditBoxes();
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.DisableLevelSelectionEditBoxes();
+                end
+                local levelRange = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[1];
+                
                 if levelRange == 999 then
                     levelRange = GetMaxPlayerLevel();
                 end
@@ -1942,14 +2632,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLog then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Enable();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( true );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetTextColor ( 1 , 0.82 , 0 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 1 , 1 , 1 );
                     if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLogMsg > 0 then
                         matchString = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLogMsg;
                     end
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Disable();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( false );
                 end 
@@ -1958,7 +2646,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
 
             else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.BuildNewKickRuleTemplate();
+                -- NOT AN EDIT
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.BuildNewPromoteOrDemoteRuleTemplate();
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Enabled" ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 0 , 0.82 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetChecked ( true );
+                GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText );
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetChecked ( true );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text:SetTextColor ( 1 , 0 , 0 );
@@ -1967,7 +2662,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text:SetTextColor ( 1 , 0.82 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM_ApplyRulesRadioButton3Text:SetTextColor ( 1 , 0.82 , 0 );
 
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:Hide(); -- (Edit)
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox.ruleNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name;
@@ -1977,30 +2672,46 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox.value = 12;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetText ( "12" );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetText ( GRM.L ( "Months") );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetChecked ( true );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
+                
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:EnableMouse ( true );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetTextColor ( 1 , 1 , 1 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Enable();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 1 , 0 , 0 );
 
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
+                
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 1 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetText ( GuildControlGetRankName ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank ) );
+
                 -- Rank Filter
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( true );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetChecked( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetChecked( true );
                                 
                 GRM_UI.SetDefaultRankFilters();
-                GRM_UI.DisableCustomSelectionRanks();
-
+                GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
+                
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 1 , 1 , 1 );
+                
                 -- Activity Filter Regardless if Active
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetChecked ( false );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value = 12;
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetText ( "12" );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value = 3;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetText ( "3" );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Months") );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
 
                 -- Level Range
@@ -2039,14 +2750,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 -- Custom Log Entry
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( false );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Disable();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetText ( matchString );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern = matchString;
                 
-                
-
             end
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;            
@@ -2057,25 +2765,19 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- What it Does:    Configures the values of all the buttons on the custom rules creation window
         -- Purpose:         Keep rules settings displayed properly.
         GRM_UI.ConfigureCustomRulePromoteFrame = function ( isEdit , ruleName )
-            print( GRM.L ( "Pending Feature" ) );
-        end
-
-        -- Method:          GRM_UI.ConfigureCustomRuleDemoteFrame ( bool , string )
-        -- What it Does:    Configures the values of all the buttons on the custom rules creation window
-        -- Purpose:         Keep rules settings displayed properly.
-        GRM_UI.ConfigureCustomRuleDemoteFrame = function ( isEdit , ruleName )
-            print( GRM.L ( "Pending Feature" ) );
+            GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( isEdit , ruleName );
         end
 
         -- INACTIVITY CUSTOM RULES
         --------------------------
 
         -- Apply Rules To: 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -65 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText , "RIGHT" , 5 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1 , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1:SetScript ( "OnClick", function ( self )
-            if self:GetChecked() then
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo == 1 then
+                self:SetChecked ( true );
+            else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo = 1;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text:SetTextColor ( 1 , 0 , 0 );
 
@@ -2090,7 +2792,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton1.GRM_ApplyRulesRadioButton1Text , "RIGHT" , 10 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2 , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2:SetScript ( "OnClick", function ( self )
-            if self:GetChecked() then
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo == 2 then
+                self:SetChecked ( true );
+            else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo = 2;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text:SetTextColor ( 1 , 0 , 0 );
 
@@ -2116,7 +2820,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton2.GRM_ApplyRulesRadioButton2Text , "RIGHT" , 10 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM_ApplyRulesRadioButton3Text:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3 , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3:SetScript ( "OnClick", function ( self )
-            if self:GetChecked() then
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo == 3 then
+                self:SetChecked ( true );
+            else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyRulesTo = 3;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesRadioButton3.GRM_ApplyRulesRadioButton3Text:SetTextColor ( 1 , 0 , 0 );
 
@@ -2133,23 +2839,57 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetScript ( "OnClick", function( self )
             if self:GetChecked() then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter = true;
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
-                
+
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:EnableMouse ( true );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetTextColor ( 1 , 1 , 1 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Enable();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 1 , 0 , 0 );
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlessOfActivity then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                        GRM_UI.DisableRankActivityFrames();
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
+                        GRM_UI.EnableRankActivityFrames();
+                    end
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Enable();
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 1 , 0.82 , 0 );
+
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
+                        GRM_UI.DisableEvenIfActiveButton();
+                    end
+                end
+
             else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter = false;
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Disable();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:EnableMouse ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected.GRM_TimeScaleSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:Disable();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu:Hide();
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.DisableRankActivityFrames();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Disable();
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter then
+                        GRM_UI.EnableEvenIfActiveButton();
+                    end
+                end
+
             end
         end);
         
@@ -2288,32 +3028,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         -- Days to months.
                         if number == 1 and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
                             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths = true;
-                            
-                            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths == 99 then
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths = 12;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to the default period of 12 Months." ) );
-                            else
-                                local num = math.floor ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths / 30 );
-                                if num == 0 then
-                                    num = 1;
-                                end
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths = num;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to {num} Months." , nil , nil , num ) );
-                            end
-                            
+                                                        
                         -- Going from months to days
                         elseif number == 2 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
                             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths = false;
-
-                            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths > 3 then
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths = 99;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to 99 Days. For a longer time period, use the months instead." ) );
-                                
-                            else
-                                local num = 30 * GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths;
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths = num;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to {num} Days." , nil , nil , num ) );
-                            end
 
                         end
 
@@ -2488,31 +3206,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         if number == 1 and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
                             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths = true;
                             
-                            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths == 99 then
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths = 12;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to the default period of 12 Months." ) );
-                            else
-                                local num = math.floor ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths / 30 );
-                                if num == 0 then
-                                    num = 1;
-                                end
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths = num;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to {num} Months." , nil , nil , num ) );
-                            end
-                            
                         -- Going from months to days
                         elseif number == 2 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
                             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths = false;
-
-                            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths > 3 then
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths = 99;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to 99 Days. For a longer time period, use the months instead." ) );
-                                
-                            else
-                                local num = 30 * GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths;
-                                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths = num;
-                                GRM.Report ( GRM.L ( "Time before recommending to kick has been set to {num} Days." , nil , nil , num ) );
-                            end
 
                         end
 
@@ -2583,10 +3279,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu.Buttons[3][2]:SetTextColor ( 1 , 1 , 1 );
             end
 
-            return result;
         end
 
-        GRM.SetRepSymbolSelection = function ( button , buttonNumber , buttonText )
+        GRM.SetRepSymbolSelection = function ( _ , buttonNumber )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repOperator = buttonNumber;  -- + 3 is to deal with reputation at neutral is index 4
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetText ( repOperators[buttonNumber] );
@@ -2640,7 +3335,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
     
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:SetScript ( "OnLeave" , function()
             GRM.RestoreTooltip();
-        end)
+        end);
 
         GRM.ConfigureSymbolSelected = function()
             if ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep == 4 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repOperator == 1 ) or ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep == 8 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repOperator == 3 )then
@@ -2649,7 +3344,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end
 
-        GRM.SetGuildRepSelection = function ( button , buttonNumber , buttonText )
+        GRM.SetGuildRepSelection = function ( _ , buttonNumber , buttonText )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep = buttonNumber + 3;  -- + 3 is to deal with reputation at neutral is index 4
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( buttonText:GetText() );
@@ -2709,7 +3404,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
         
         -- CUSTOM RANK RULE Button Controls
         --------------------
-        
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2 , "BOTTOMLEFT" , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1 , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetScript ( "OnClick", function()
@@ -2720,7 +3414,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0 , 0 ); 
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed , "BOTTOMLEFT" , -8 , -15 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2 , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetScript ( "OnClick", function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( true );
@@ -2830,6 +3523,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.EnableNoteEditBox = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:Enable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:SetTextColor ( 1 , 1 , 1 );
+            local matchString = GRM.L ( "Click to Set" );
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.matchingString == "" then
                     matchString = GRM.L ( "Click to Set" );
@@ -2892,16 +3586,25 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLog = false;
                 GRM_UI.DisableCustomLogEntry();
             end
+            GRM.RestoreTooltip();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetScript ( "OnEnter" , function( self )
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine ( GRM.L ( "This note will appear with the log notification when a player meets this rule's conditions." ) );
+            GameTooltip:Show();
+        end);
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
         end);
 
         GRM_UI.EnableCustomLogEntry = function()
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetTextColor ( 1 , 0.82 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 1 , 1 , 1 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Enable();
         end
 
         GRM_UI.DisableCustomLogEntry = function()
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:Disable();
 
@@ -2992,22 +3695,287 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetPoint( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "BOTTOM" , 0 , 45 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetWidth ( 290 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetWidth ( 320 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetSpacing ( 1 );
     
+        -----------------------
+        ------------ PROMOTION DEMOTION Unique BUTTONS
+        -----------------------
+
+        -- Activity Check
+        -- Radial buttons
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -5 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1 , "RIGHT" , 2 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1 , "BOTTOMLEFT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2 , "RIGHT" , 2 , 0 );
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetScript ( "OnClick", function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( true );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0 , 0 ); 
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlessOfActivity = true;
+            GRM_UI.DisableRankActivityFrames();            
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetScript ( "OnClick", function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( true );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 ); 
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlessOfActivity = false;
+            GRM_UI.EnableRankActivityFrames();
+        end);
+
+        -- Compares ranks in order in numerically descending fasion than ascending.
+        GRM_UI.GetRankIndexDescendingOrder = function()
+            return ( GuildControlGetNumRanks() - GRM_G.playerRankID );
+        end
+
+        GRM_UI.SetDiestinationSelection = function ( _ , buttonNumber , buttonText )
+            local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank = ( GuildControlGetNumRanks() - buttonNumber + 1 );  -- + 3 is to deal with reputation at neutral is index 4
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetText ( buttonText:GetText() );
+
+            if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and buttonNumber >= playerIndex ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and buttonNumber >= playerIndex - 1 ) then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 0 , 0 );
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 1 , 1 );
+            end
+
+            -- Re-configure the checkboxes.
+            GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
+        end
+
+        GRM_UI.AdjustColoringOfDestinationRanks = function()
+            local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
+            for i = 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu.Buttons do
+
+                if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and i >= playerIndex ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and i >= playerIndex - 1 ) then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu.Buttons[i][2]:SetTextColor ( 1 , 0 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu.Buttons[i][1]:SetScript ( "OnEnter" , function ( self )
+                        GRM_UI.SetTooltipScale()
+                        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+
+                        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                            GameTooltip:AddLine( GRM.L ( "Unable to promote players to this rank" ) );
+                        elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                            GameTooltip:AddLine( GRM.L ( "Unable to demote players to this rank" ) );
+                        end
+                        GameTooltip:Show();
+                    end);
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu.Buttons[i][1]:SetScript ( "OnLeave" , function()
+                        GRM.RestoreTooltip();
+                    end);
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu.Buttons[i][2]:SetTextColor ( 1 , 0.82 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu.Buttons[i][1]:SetScript ( "OnEnter" , nil );      -- No tooltip necessary if rank is ok
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu.Buttons[i][1]:SetScript ( "OnLeave" , nil );
+                end
+
+            end
+        end
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText , "TOPLEFT" , 0 , 10 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText , "RIGHT" , 5 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetSize (  160 , 18 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetBackdrop ( GRM_UI.noteBackdrop2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetFrameStrata ( "DIALOG" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetWidth ( 155 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected , "BOTTOM" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:SetWidth ( 160 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:SetBackdrop ( GRM_UI.noteBackdrop2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:SetFrameStrata ( "DIALOG" );
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:SetScript ( "OnKeyDown" , function ( self , key )
+            self:SetPropagateKeyboardInput ( true );
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetScript ( "OnShow" , function() 
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Hide();
+        end)
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetScript ( "OnMouseDown" , function( self , button )
+            if button == "LeftButton" then
+                if  GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:IsVisible() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Hide();
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Show();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
+                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu , 12 , 12 , "THICKOUTLINE" , GRM.GetListOfGuildRanks() ,  GRM_UI.SetDiestinationSelection );
+                    GRM_UI.AdjustColoringOfDestinationRanks();
+                end
+                GRM.RestoreTooltip();
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetScript ( "OnEnter" , function( self )
+            GRM_UI.SetTooltipScale()
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FClick|r to Change" ) );
+            GameTooltip:Show();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
+        end)
+
+        -- Sync details
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame , "BOTTOMLEFT" , 0 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetScript ( "OnClick" , function ( self )
+            if self:GetChecked() then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.sync = true;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.editTime = time();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Enabled" ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 0 , 0.82 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:SetChecked ( true );                
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.sync = false;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetText ( GRM.L ( "Rule Sync Disabled" ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetTextColor ( 1 , 0 , 0 );
+            end
+            GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText );
+            GRM.RestoreTooltip();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton , "RIGHT" , 2 , 0 );
+
+        -----------------------
+        ---- UI MODIFICATIONS DEPENDING ON Macro Action
+        -----------------------
+
+        -- Method:          GRM_UI.ModifyRuleUI()
+        -- What it Does:    Adjusts the positioning of the main rules selection filters window and various frames to adjust for kick, promote, and demote filters
+        -- PurposeL         Rather than rebuild whole new frames for each, this just builds one reusable frame for all 3 rule types.
+        GRM_UI.ModifyRuleUI = function()
+
+            -- Unpinning for all as needed
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:ClearAllPoints();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:ClearAllPoints();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:ClearAllPoints();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:ClearAllPoints();
+
+            -- Kick
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:SetText ( GRM.L ( "Kick Inactive Player Reminder at" ) .. " " );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetText ( GRM.L ( "Kick Players at Selected Rank(s) after" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetText ( GRM.L ( "Only recommend to kick if all player linked alts exceed max time" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetText ( GRM.L ( "Suggestions on kick filters? Submit to Discord" ) );
+
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -60 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:Hide()
+
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:SetText ( GRM.L ( "Demote Player if Inactive for" ) .. " " );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:SetText ( GRM.L ( "Demote to Rank:" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetText ( GRM.L ( "Suggestions on demote filters? Submit to Discord" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetText ( GRM.L ( "Only recommend to Demote if all player linked alts exceed max time" ) );
+
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -80 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:Show();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:Show()
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "RIGHT" , 2 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed , "BOTTOMLEFT" , -8 , -15 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "BOTTOMLEFT" , 0 , -15 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -10 );
+                
+                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 700 );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 720 );
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Show();
+
+            -- Promote and Demote
+            elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:SetText ( GRM.L ( "Promote Player if at Rank for" ) .. " " );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetText ( GRM.L ( "Apply Promotions Regardless of Activity" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetText ( GRM.L ( "Apply Only to Active Players" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:SetText ( GRM.L ( "Promote to Rank:" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetText ( GRM.L ( "Suggestions on promote filters? Submit to Discord" ) );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetText ( GRM.L ( "Player is considered inactive if offline for" ) .. " " );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetText ( GRM.L ( "Ignore inactivity if at least one player linked alt is active" ) );
+                
+                end
+
+                GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text );
+                GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text );
+                
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2 , "BOTTOMRIGHT" , 2 , -7 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2 , "BOTTOMLEFT" , -8 , -65 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "BOTTOMLEFT" , 0 , 25 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText , "BOTTOMLEFT" , -5 , -10 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -80 );
+
+                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 725 );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 735 );
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Hide();
+
+            end
+
+            GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText );
+            GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText );
+
+        end
+
+
+
+        GRM_UI.LocalizationMModifications = function()
+                    -- Localization adjustments
+            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -6 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , "BOTTOMLEFT" , 0 , -5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:ClearAllPoints();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -65 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 65 );
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButtonText , "RIGHT" , 8 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:ClearAllPoints();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -95 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 25 );
+            end
+        end
+
     end
 
     -- Custom Rules Fontstrings
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetText ( "(" .. GRM.L ( "Edit" ) .. ")" );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton.GRM_ToolCustomRulesConfirmButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton.GRM_ToolCustomRulesConfirmButtonText:SetText( GRM.L ( "Confirm" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton.GRM_ToolCustomRulesCancelButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesCancelButton.GRM_ToolCustomRulesCancelButtonText:SetText ( GRM.L ( "Cancel" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:SetText ( GRM.L ( "Kick Inactive Player Reminder at" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetText ( GRM.L ( "Apply Only to Selected Ranks" ) );
@@ -3051,9 +4019,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButtonText:SetText ( GRM.L ( "Custom Note" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButtonText );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSuggestIdeasText:SetText ( GRM.L ( "Suggestions on kick filters? Submit to Discord" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:SetText ( GRM.L ( "(Disabled in Classic)" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetText ( GRM.L ( "Disable chat log spam while using the Macro Tool" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText );
 
     -- Updated Rules
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -3077,24 +4047,18 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip:SetText ( GRM.L ( "Press ENTER to Save" ) );
 
-    -- Localization adjustments
-    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -6 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , "BOTTOMLEFT" , 0 , -5 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:ClearAllPoints();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -65 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 65 );
-    else
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButtonText , "RIGHT" , 8 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -5 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:ClearAllPoints();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -95 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 25 );
-    end
+    -- Promotions and Demotions
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+
+    -- Sync
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    
+    -- UI modications as needed for localization purposes as well as different pinning and additional options depening on macro type.
+    GRM_UI.LocalizationMModifications();
+    GRM_UI.ModifyRuleUI();
 
 end
 
@@ -3142,14 +4106,8 @@ GRM.GetQueuedEntries = function ()
         if CanGuildRemove() then
             result = GRM.GetKickNamesByFilterRules();
         end
-    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-        if CanGuildPromote() then
-            result = GRM.GetPromoteNamesByFilterRules();
-        end
-    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
-        if CanGuildDemote() then
-            result = GRM.GetDemoteNamesByFilterRules();
-        end
+    elseif ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() ) then
+        result = GRM.GetNamesByFilterRules ( GRM_UI.GRM_ToolCoreFrame.TabPosition );
     end
 
     return result;
@@ -3167,11 +4125,11 @@ GRM.SetKickQueuedValues = function ( ind , ind2 )
     line[3]:SetText ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action );
 
     if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action == GRM.L ( "Kick" )then
-        line[3]:SetTextColor ( 1.0 , 0.84 , 0 , 1 );
+        line[3]:SetTextColor ( 1 , 0 , 0 , 1 );
     elseif GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action == GRM.L ( "Promote" ) then
-        line[3]:SetTextColor ( 1.0 , 0.84 , 0 , 1 );
+        line[3]:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][3] , 1 );
     elseif GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action ==  GRM.L ( "Demote" ) then
-        line[3]:SetTextColor ( 1.0 , 0.84 , 0 , 1 );
+        line[3]:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][3] , 1 );
     end
 
     -- Update the tooltip if underlying data changes
@@ -3269,7 +4227,7 @@ GRM.GetToolTipLine = function ( rulePart )
             table.insert ( result , " - " .. GRM.L ( "Empty Note match: {name}" , "\"" .. rulePart[i][2] .. "\"" ) );
         elseif rulePart[i][1] == "Main/Alt" then
             table.insert ( result , " - " .. GRM.L ( "Main/Alt: {name}" , "\"" .. rulePart[i][2] .. "\"" ) );
-        elseif rulePart[i][1] == "RanTime" then
+        elseif rulePart[i][1] == "RankTime" then
             table.insert ( result , " - " .. GRM.L ( "Time at Rank: {name}" , "\"" .. rulePart[i][2] .. "\"" ) );
         elseif rulePart[i][1] == "Rep" then
             table.insert ( result , " - " .. rulePart[i][2] );
@@ -3285,18 +4243,17 @@ end
 GRM.UpdateQueuedTooltip = function ( ind )
 
     local playerName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText();
-    local reason = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][3]:GetText();
     local details;
 
     GRM_UI.SetTooltipScale();
     GameTooltip:SetOwner ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][1] , "ANCHOR_CURSOR" );
     GameTooltip:AddLine ( playerName , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetTextColor() );
 
-    if reason == GRM.L ( "Kick" ) then
+    for i = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries do
+        if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name == playerName then
 
-        for i = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries do
-            if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name == playerName then
-                for j = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i] , 1 , -1 do
+            if type ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i][#GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i]] ) == "table" then
+                for j = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i] do
                     GameTooltip:AddLine ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i][j][1] )     -- Rule Name
                     details = GRM.GetToolTipLine ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i][j][2] );     -- Rule Sub details
 
@@ -3304,21 +4261,17 @@ GRM.UpdateQueuedTooltip = function ( ind )
                         GameTooltip:AddLine ( details[k] , 1 , 1 , 1 );
                     end
                     GameTooltip:AddLine ( " " );    -- adds a small space between the lines
-
                 end
-
-                break;
+            else
+                GameTooltip:AddLine ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].customMsg )
+                GameTooltip:AddLine ( " " );
             end
+
+            break;
         end
-
-    elseif reason == GRM.L ( "Promote" ) then
-
-    elseif reason == GRM.L ( "Demote" ) then
-
     end
 
-    
-    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to open Player Window" ) );
+    GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
     GameTooltip:Show();
 
@@ -3337,13 +4290,14 @@ end
 -- Method:          GRM.BuildQueuedScrollFrame( bool , bool , bool )
 -- What it Does:    Updates the Queued scrollframe as needed
 -- Purpose:         UX of the GRM mass kick tool
-GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , bannedInGuildList )
+GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , bannedInGuildList , customKickGroup )
     local hybridScrollFrameButtonCount = 13;
     local buttonHeight = 25;
     local scrollHeight = 0;
     local buttonWidth = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame:GetWidth() - 5;
     if showAll and fullRefresh then
-        if not isBanAltList and not bannedInGuildList then
+        GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
+        if not isBanAltList and not bannedInGuildList and not customKickGroup then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries ( true );
         elseif isBanAltList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllAltsTable );
@@ -3351,6 +4305,9 @@ GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , b
         elseif bannedInGuildList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllBannedTable );
             GRM_G.KickAllBannedTable = {};
+        elseif customKickGroup then
+            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.customKickList );
+            GRM_G.customKickList = {};
         end
     end
 
@@ -3564,6 +4521,61 @@ GRM.IsNameBlacklisted = function ( name )
     return result;
 end
 
+-- Method:          GRM.AdjustForDemoteMacroLimitation ( table )
+-- What it Does:    Checks for duplicates in the list and purges all of them. This implies there are multiple players with the same name.
+-- Purpose:         The /gdemote macro command has a limitation on merged realm guilds. You cannot get the macro to work (as of patch 9.0.2) if the server is appended
+--                  This ultimately creates a point of flaw where in a merged realm you can have multiple characters with the same name, but from different realms. As such, for the addon to compensate,
+--                  what happens is GRM decides to just purge the names of the players with the SAME name and instead gives a notification for the player to do those demotions manually, in the rare, edge case scenario
+--                  this this might occur. Hopefully Blizzard revises this macro at some point in the future.
+GRM.AdjustForDemoteMacroLimitation = function ( entries )
+    local names = {};
+    local count , num = 0 , 0;
+    local name = {};
+    local listOfMembers = GRM.GetListOfGuildies( true );
+
+    for i = #entries , 1 , -1 do
+        num = 0;
+        name = GRM.SlimName ( entries[i].name );        -- Next name
+        
+        for j = 1 , #listOfMembers do                   -- Let's compare to existing guild. If this person on the list has 2 copies of a member in the guild with the same name we are in trouble.
+
+            if name == listOfMembers[j] then
+                -- name match!!!
+                num = num + 1;
+
+                if num > 1 then                         -- sign of 2 copies!!!
+                    if not names[name] then             -- don't need to add more than once.
+                        names[name] = entries[i].name;  -- Add the full name for report to chat
+                        count = count + 1;
+                    end
+                    table.remove ( entries , i ); -- purge repeats
+                end
+                break;
+
+            end
+        end
+
+    end
+
+    -- Now, we remove the purged names
+    for n in pairs ( names ) do
+        for i = #entries , 1 , -1 do
+            if GRM.SlimName ( entries[i].name ) == n then
+                table.remove ( entries , i);
+                break;
+            end
+        end
+    end
+
+    if count > 0 then
+        for _ , fullName in pairs ( names ) do
+            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Demotion Macro Limitation!!! Unable to demote {name} due to multiple players in the guild with the same name, though different realms. Please demote manually." , fullName ) );
+        end
+    end
+    
+    return entries;
+end
+
 -- Method:          GRM.GetMacroEntries ()
 -- What it Does:    Determines which grouping to import
 -- Purpose:         Proper sorting of players in the guild to be added to the mass kick tool
@@ -3575,6 +4587,11 @@ GRM.GetMacroEntries = function ()
     local count = 0;
     local count2 = 0;
     local i = 1;
+
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+        GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.AdjustForDemoteMacroLimitation ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
+    end
+
     local entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
     local macroSet = false;
     
@@ -3584,7 +4601,7 @@ GRM.GetMacroEntries = function ()
             tempText = macroTxt;
             -- Save room on the macro if player is on the same server as you
             if count == 0 then
-                tempText = "/run GRM_G.HK=true\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name );
+                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name );
                 count = 1;
             else
                 tempText = tempText .. "\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name );
@@ -3635,32 +4652,195 @@ GRM.GetMacroEntries = function ()
     return result , count2 , finalCount;
 end
 
+-- Method:          GRM.GetMacroCountForPromoteAndDemote()
+-- What it Does:    Returns the count of the number of times a macro needs to be hit
+-- Purpose:         To inform the player how many times macro must be hit.
+GRM.GetMacroCountForPromoteAndDemote = function()
+    local macroTxt = "";
+    local tempText = "";
+    local count = 0;
+    local count2 = 0;
+    local i = 1;
+    local entries = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
+    local listOfNames = {};
+    
+    -- Create the macro
+    while i <= #entries do
+        if not GRM.IsNameBlacklisted ( entries[i].name ) then
+            tempText = macroTxt;
+            -- Save room on the macro if player is on the same server as you
+            if count == 0 then
+                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name );
+                count = 1;
+            else
+                tempText = tempText .. "\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name );
+            end
+
+            -- Macro still not full and we are still on the first set
+            if #tempText < 256 and count2 == 0 then
+                macroTxt = tempText;
+
+                if entries[i].numRankJumps > 1 then
+                    entries[i].numRankJumps = entries[i].numRankJumps - 1;
+                    table.insert ( listOfNames , entries[i] );
+                end
+                i = i + 1;
+
+            -- Macro Still not full and we are on the 2nd loop that is not being used to be built
+            elseif #tempText < 256 and count2 > 0 then
+                macroTxt = tempText;
+
+                if entries[i].numRankJumps > 1 then
+                    entries[i].numRankJumps = entries[i].numRankJumps - 1;
+                    table.insert ( listOfNames , entries[i] );
+                end
+                i = i + 1;
+
+            -- Macro IS full, and we are still on the first set.
+            elseif count2 == 0 and ( #tempText > 255 or ( i == #entries and #listOfNames > 0 ) ) then
+                count = 0;
+                count2 = count2 + 1;
+                macroTxt = "";
+                tempText = "";
+                if #listOfNames > 0 then
+                    for j = 1 , #listOfNames do
+                        table.insert ( entries , listOfNames[j] );
+                    end
+                    listOfNames = {};
+                end
+
+            -- Macro IS full, and we are on the subsequent sets.
+            elseif count2 > 0 and ( #tempText > 255 or ( i == #entries and #listOfNames > 0 ) ) then
+                count = 0;
+                count2 = count2 + 1;
+                macroTxt = "";
+                if #listOfNames > 0 then
+                    for j = 1 , #listOfNames do
+                        table.insert ( entries , listOfNames[j] );
+                    end
+                    listOfNames = {};
+                end
+            end
+
+        else
+            i = i + 1;      -- Name was blacklisted, moving on.
+        end
+
+        if i > #entries then
+            count2 = count2 + 1;
+        
+            if #listOfNames > 0 then
+                count = 0;
+                macroTxt = "";
+                tempText = "";
+                for j = 1 , #listOfNames do
+                    table.insert ( entries , listOfNames[j] );
+                end
+                listOfNames = {};
+            end
+        end
+    end
+
+    return count2;
+end
+
+-- Method:          GRM.IsMacroActionComplete()
+-- What it Does:    Checks if any names on the qued list are not blacklist and if so, they are still going to be built into the macro list, thus we know it is not complete
+-- Purpose:         Useful to know when all macro actions have compelted to do a verification they reached destination ranks
+GRM.IsMacroActionComplete = function()
+    local result = true;
+    for i = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries do
+        if not GRM.IsNameBlacklisted ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name ) then
+            result = false;
+        end
+    end
+
+    return result;
+end
+
 -- Method:          GRM.PurgeMacrodNames()
 -- What it Does:    Removes the names just macro'd from the list
 -- Purpose:         Rebuild the macros ASAP!
 GRM.PurgeMacrodNames = function()
+    local startCount = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
 
-    for i = 1 , #GRM_UI.GRM_ToolCoreFrame.MacroEntries do
+    for i = #GRM_UI.GRM_ToolCoreFrame.MacroEntries , 1 , -1 do
         for j = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries , 1 , -1 do
             if GRM_UI.GRM_ToolCoreFrame.MacroEntries[i].name == GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].name then
-                table.remove ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries , j );
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+                    table.remove ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries , j );
+                else
+                    -- Don't purge from the quue yet if they need multiple jumps.
+                    if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].numRankJumps > 1 then
+                        GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].numRankJumps = GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].numRankJumps - 1;
+                    else
+                        table.remove ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries , j );
+                    end
+                end
+                GRM_UI.GRM_ToolCoreFrame.ValidatedNames[GRM_UI.GRM_ToolCoreFrame.MacroEntries[i].name] = GRM_UI.GRM_ToolCoreFrame.MacroEntries[i].rankIndex;
+                table.remove ( GRM_UI.GRM_ToolCoreFrame.MacroEntries , i );
                 break;
             end
         end
     end
 
+    if startCount ~= #GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
+        C_Timer.After ( 0.5 , function()
+            GRM.GetCountOfNamesBeingFiltered();
+            GRM.RefreshSelectHybridFrames ( true , true , true , false );
+        end);
+    end
+
 end
 
--- Method:          GRM.SetKickMacrodValues ( int , int )
+-- Method:          GRM.ValidateMacroRecordingSuccess ( bool )
+-- What it Does:    Checks if all of the rank changes matched their destination rank, if not, rescans the roster for changes
+-- Purpose:         To ensure integrity of the roster
+GRM.ValidateMacroRecordingSuccess = function( isReScan )
+    local ranksAllMatching = true;
+    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+
+    for name , rankIndex in pairs ( GRM_UI.GRM_ToolCoreFrame.ValidatedNames ) do
+        if guildData[name].rankIndex ~= rankIndex then
+            ranksAllMatching = false;
+            break;
+        end
+    end
+
+    if not ranksAllMatching then
+        if not isReScan then        -- Only going to scan 1 time...
+            GRM.Report ( GRM.L ( "GRM:" ) .. " : " .. GRM.L ( "Not all macro changes validated. One moment..." ) );
+            GRM_G.ManualScanEnabled = true;
+            GRM_UI.GRM_ToolCoreFrame.MacroSuccess = false
+            GRM_G.changeHappenedExitScan = false;
+            C_Timer.After ( 1 , function()
+                GRM.BuildNewRoster();
+            end);
+        else
+            -- Not able to validate
+            GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;
+            GRM.Report ( GRM.L ( "Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further." ) );
+        end
+    else
+        GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;
+        GRM_G.changeHappenedExitScan = false;       -- This doesn't need to be set when using macro tool
+        GRM.Report ( GRM.L ( "Macro rank changes have been validated!" ) );
+    end
+
+end
+
+-- Method:          GRM.SetMacroValues ( int , int )
 -- What it Does:    Builds the values of the given line in the window
 -- Purpose:         Quality of life feature.
-GRM.SetKickMacrodValues = function ( ind , ind2 )
+GRM.SetMacroValues = function ( ind , ind2 )
     local line = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[ind];
 
     -- Player Name
     line[2]:SetText ( GRM.GetMacroFormattedName ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].name ) );
     line[2]:SetTextColor ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].class[1] , GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].class[2] , GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].class[3] , 1 );
     line[3]:SetText ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].macro );
+    line[4]:SetText ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].numRankJumps );
 
     if GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].isHighlighted then
         line[1]:LockHighlight();
@@ -3759,14 +4939,14 @@ end
 -- What it Does:    Sets the last value of the hybridscrollframe backups at position 16
 -- Purpose:         Clean scrolling
 GRM.KickMacrodSetLastValue = function()
-    GRM.SetKickMacrodValues ( #GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset );
+    GRM.SetMacroValues ( #GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset );
 end
 
 -- Method:          GRM.KickMacrodSetFirstValue()
 -- What it Does:    Sets the first value of the hybridscrollframe backups at position 1
 -- Purpose:         Clean scrolling
 GRM.KickMacrodSetFirstValue = function()
-    GRM.SetKickMacrodValues ( 1 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset - #GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons + 1 );
+    GRM.SetMacroValues ( 1 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset - #GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons + 1 );
 end
 
 -- Method:          GRM.UpdateMacrodTooltip()
@@ -3781,7 +4961,7 @@ GRM.UpdateMacrodTooltip = function ( ind )
 
     GameTooltip:AddLine ( " " );    -- adds a small space between the lines
     GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to Select for Removal" ) );
-    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to open Player Window" ) );
+    GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
     GameTooltip:Show();
 end
@@ -3811,6 +4991,14 @@ GRM.RemoveNamesFromMacroEntries = function ()
     GRM.BuildMacrodScrollFrame ( false , false );
 end
 
+-- Method:          GRM.RMM()
+-- What it Does:    Resets Macro
+-- Purpose:         Clear the macro after each use so it can be rebuilt - prevents double use of macro by spam clicking.
+GRM.RMM = function()
+    GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );
+    GRM_G.HK = true;
+end
+
 -- Method:          GRM.BuildMacrodScrollFrame( bool , bool )
 -- What it Does:    Updates the Macrod scrollframe as needed
 -- Purpose:         UX of the GRM mass kick tool
@@ -3825,9 +5013,15 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
     GRM.ResetToolMacrodHighlights();
     
     if ( showAll and fullRefresh ) or ( not showAll and not fullRefresh ) then
+
         GRM_UI.GRM_ToolCoreFrame.MacroEntries , count , size = GRM.GetMacroEntries();
+
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+            count = GRM.GetMacroCountForPromoteAndDemote();     -- Specialized count for multi-hit promotions/demotions
+        end
+
     elseif not fullRefresh then
-        GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" );    -- Clear the macro
+        GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );    -- Clear the macro
     end
 
 
@@ -3849,7 +5043,8 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[i] = {
                     button ,
                     button:CreateFontString ( "MacrodString1_" .. i , "OVERLAY" , "GameFontWhiteTiny" ),
-                    button:CreateFontString ( "MacrodString2_" .. i , "OVERLAY" , "GameFontNormalTiny" )
+                    button:CreateFontString ( "MacrodString2_" .. i , "OVERLAY" , "GameFontNormalTiny" ),
+                    button:CreateFontString ( "MacrodString3_" .. i , "OVERLAY" , "GameFontNormalTiny" )
                 };
 
                 button = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[i][1];
@@ -3868,7 +5063,7 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
         end
 
         if i >= ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset - hybridScrollFrameButtonCount + 1 ) and i <= GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset then
-            GRM.SetKickMacrodValues ( i - ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset - hybridScrollFrameButtonCount ) , i );
+            GRM.SetMacroValues ( i - ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset - hybridScrollFrameButtonCount ) , i );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[i - ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.Offset - hybridScrollFrameButtonCount )][1]:Show();
         end
         
@@ -3897,21 +5092,43 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
     if #GRM_UI.GRM_ToolCoreFrame.MacroEntries > 0 then
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetText ( GRM.L ( "Macro Size: {num}/255" , nil , nil , size ) );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:Show();
-        if count == 1 then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetText ( GRM.L ( "When you are ready to remove the players, press the Hot-Key {name} 1 time to complete all actions" , "|CFF00CCFF" .. "CTRL-SHIFT-K" .. "|r" ) );
-        elseif count > 1 then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetText ( GRM.L ( "When you are ready to remove the players, press the Hot-Key {name} {num} times to complete all actions" , "|CFF00CCFF" .. "CTRL-SHIFT-K" .. "|r" , nil , count ) );
-        end
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetText ( GRM.GetHotKeyRecommendationScript ( count ) );
+
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:Show();
+
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Show();
+        end
     else
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:Hide();
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:Hide();
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Hide();
+    end
+
+    -- Not relevant for kicks, only macros and demotions - kicks == 1
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Hide();
     end
 
     -- Permissions Text
     GRM_UI.RefreshToolPermissionReport();
     GRM.SetMacroButtonText();
 
+end
+
+-- Method:          GRM.GetHotKeyRecommendationScript ( int )
+-- What it Does:    Gets the proper hotkey message to the player based on the type of macro action, and if plural or singular form
+-- Purpose:         Quality of life and properly grammatic messaging.
+GRM.GetHotKeyRecommendationScript = function ( count )
+    count = "|CFFFF0000" .. count .. "|r";
+    local singularEnum = { [1] = GRM.L ( "When you are ready to remove the players, press the Hot-Key {name} 1 time to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" ) , [2] = GRM.L ( "When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" ) , [3] = GRM.L ( "When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" ) }
+    local pluralEnum = { [1] = GRM.L ( "When you are ready to remove the players, press the Hot-Key {name} {num} times to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" , nil , count ) , [2] = GRM.L ( "When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" , nil , count ) , [3] = GRM.L ( "When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions" , "|CFF00CCFF" .. GRM_G.MacroHotKey .. "|r" , nil , count ) }
+
+    if count == 1 then
+        return singularEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition];
+    else
+        return pluralEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition];
+    end
 end
 
 -- Method:          GRM.ResetToolMacrodHighlights()
@@ -3936,10 +5153,12 @@ GRM.BuildKickMacrodScrollButtons = function ( ind , isResizeAction )
     local coreButton = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[ind][1];
     local buttonText1 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[ind][2];
     local buttonText2 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[ind][3];
+    local buttonText3 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[ind][4];
 
     -- Name
     buttonText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     buttonText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    buttonText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
     -- Actions don't need to be run more than once.
     if not isResizeAction then
@@ -3951,8 +5170,12 @@ GRM.BuildKickMacrodScrollButtons = function ( ind , isResizeAction )
 
         buttonText2:SetPoint ( "LEFT" , buttonText1 , "RIGHT" , 5 , 0 );
         buttonText2:SetJustifyH ( "LEFT" );
-        buttonText2:SetWidth ( 191 );
+        buttonText2:SetWidth ( 150 );
         buttonText2:SetWordWrap ( false );
+
+        buttonText3:SetPoint ( "RIGHT" , coreButton , "RIGHT" , -20 , 0 );
+        buttonText3:SetJustifyH ( "RIGHT" );
+        buttonText3:SetWordWrap ( false );
 
         coreButton:EnableMouse ( true );
         coreButton:RegisterForDrag ( "LeftButton" );
@@ -4019,6 +5242,21 @@ end
 -------------------------
 -- Ignored List Window --
 -------------------------
+
+-- Method:          GRM.HowManySafeListsIsPlayerOn ( player )
+-- What it Does:    Returns true of the player is on the safe list of
+-- Purpose:         UI control on the mouseover button tooltip 
+GRM.HowManySafeListsIsPlayerOn = function ( player )
+    local c = 0;
+
+    for _ , safeList in pairs ( player.safeList ) do
+        if safeList[1] then
+            c = c + 1;
+        end
+    end
+
+    return c;
+end
 
 -- Method:          GRM.IsAnyIgnoredHighlighted()
 -- What it Does:    It scans through the Ignored List and reports true if any are selected and the number of selected
@@ -4115,6 +5353,7 @@ end
 GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local player;
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
     -- We need to scan and find all the entries, then find them in the guild
     for i = #GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , 1 , -1 do
@@ -4124,8 +5363,8 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
 
             -- Now scan through the roster and update.
             player = guildData[ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries[i].name ];
-            if player ~= nil then
-                player.safeList = false;
+            if player then
+                player.safeList[rule][1] = false;
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , i );
 
                 -- Rebuild the mouseover frame in case it is open
@@ -4153,12 +5392,13 @@ end
 -- Purpose:         Ease of allowing the player to easily remove all from the ignore list.
 GRM.ClearAllPlayersFromIgnoreList = function()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local count = 0;
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList then
-                player.safeList = false;
+            if player.safeList[rule][1] then
+                player.safeList[rule][1] = false;
                 count = count + 1;
             end
         end
@@ -4182,7 +5422,7 @@ GRM.ClearAllPlayersFromIgnoreList = function()
         end
         
         if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesCheckButton:SetChecked ( false );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetChecked ( false );
         end
     end
 end
@@ -4192,11 +5432,12 @@ end
 -- Purpose:         To determine the number ignored for UI purposes.
 GRM.GetNumIgnored = function()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local count = 0;
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList then
+            if player.safeList[rule][1] then
                 count = count + 1;
             end
         end
@@ -4210,11 +5451,12 @@ end
 -- Purpose:         UX
 GRM.IsAnyIgnored = function()
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local result = false;
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList then
+            if player.safeList[rule][1] then
                 result = true;
                 break;
             end
@@ -4421,7 +5663,7 @@ GRM.UpdateIgnoredToolTip = function ( ind )
     
     GameTooltip:AddLine ( " " );    -- adds a small space between the lines
     GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to Select for Removal" ) );
-    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to open Player Window" ) );
+    GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
     GameTooltip:Show();
 
@@ -4436,7 +5678,9 @@ GRM.TriggerIgnoredQueuedWindowRefresh = function()
     
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter then
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetChecked( true );
-    end        
+    end
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_IgnoreListRuleTypeText:SetText ( GRM_UI.ruleTypeEnum3[GRM_UI.GRM_ToolCoreFrame.TabPosition] );
 
     GRM.BuildIgnoredScrollFrame ( true , true );
     GRM.SetIgnoredButtonText();
@@ -4603,58 +5847,82 @@ GRM.BuildIgnoredScrollButtons = function ( ind , isResizeAction )
     end
 end
 
-
 -----------------------------------
 --------- RULES SCROLLFRAME -------
 -----------------------------------
 
--- Method:          GRM.GetKickRulesCount()
+-- Method:          GRM.GetRulesCount( integer )
 -- What it Does:    Returns the number of rules that already exist
 -- purpose:         So it can be determined with rule number is being added
-GRM.GetKickRulesCount = function()
+GRM.GetRulesCount = function ( RulesType )
     local count = 0;
 
-    for _ in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules ) do
+    for _ in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[RulesType]] ) do
         count = count + 1;
     end
 
     return count;
 end
 
--- Method:          GRM.RemoveKickRule()
--- What it Does:    Removes the named kick Rule
--- Purpose:         Ability to purge rules no longer needed.
-GRM.RemoveKickRule = function( name )
-    GRM.AdjustKickRuleNumbers ( name , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["kickRules"][name].ruleNumber );
-    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["kickRules"][name] = nil;
-    GRM_UI.FullMacroToolRefresh();
-end
-
 -- Method:          GRM.RemoveRuleButtonLogic ( string , string )
 -- What it Does:    Removes the given rule
 -- Purpose:         Control over adding and removing rules.
 GRM.RemoveRuleButtonLogic = function ( ruleType , name )
+    local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 };
+    local epochTime = time();
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
-    GRM.AdjustKickRuleNumbers ( name , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][name].ruleNumber );
+    GRM.AdjustRuleNumbers ( name , ruleType , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][name].ruleIndex );
+    -- GRM.AddToRemovedRules ( ruleType , name , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][name] , epochTime , nil );
+    -- Send message out to remove the rule
+    -- GRM.SendRuleRemove ( typeEnum[ruleType] , name , epochTime , GRM_G.addonUser , true );
     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][name] = nil;
     GRM_UI.FullMacroToolRefresh();
 end
 
--- Method:          GRM.AdjustKickRuleNumbers ( string , int )
+-- Method:          GRM.AdjustRuleNumbers ( string , string , int )
 -- What it Does:    Adjusts the given rule number
-GRM.AdjustKickRuleNumbers = function ( name , number )
-    for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules ) do
-        if ruleName ~= name and rule.ruleNumber > number then
-            rule.ruleNumber = rule.ruleNumber - 1;
+-- Purpose:         Auto-adjust the rule numbers when deleting to keep them properly sorted
+GRM.AdjustRuleNumbers = function ( name , ruleType , number )
+    for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType] ) do
+        if ruleName ~= name and rule.ruleIndex > number then
+            rule.ruleIndex = rule.ruleIndex - 1;
+        end
+    end
+    for ruleName , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
+        if ruleName ~= name and rule.ruleIndex > number then
+            rule.ruleIndex = rule.ruleIndex - 1;
         end
     end
 end
+
+-- -- Method:          GRM.AddToRemovedRules ( string , string , table , int , string )
+-- -- What it Does:    Adds the rule to the removedRules and then adds the timestamp this occurred
+-- -- Purpose:         To keep track of what rules have been removed.
+-- GRM.AddToRemovedRules = function ( ruleType , name , rule , epochTime , removedBy )
+--     local remover = removedBy or GRM_G.addonUser;
+--     local rule = GRM.ConvertMacroRuleToString ( rule , ruleType )
+--     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][name] = { epochTime , remover , rule };
+-- end
 
 -- Method:          GRM.GetKickRule()
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetKickRule = function ( name )
     return GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["kickRules"][name] );
+end
+
+-- Method:          GRM.GetPromoteRule()
+-- What it Does:    Returns the given rule by name
+-- Purpose:         To easily be able to edit the existing rule
+GRM.GetPromoteRule = function ( name )
+    return GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["promoteRules"][name] );
+end
+
+-- Method:          GRM.GetDemoteRule()
+-- What it Does:    Returns the given rule by name
+-- Purpose:         To easily be able to edit the existing rule
+GRM.GetDemoteRule = function ( name )
+    return GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["demoteRules"][name] );
 end
 
 -- Method:          GRM.ChangeRuleName ( string , string , string )
@@ -4670,17 +5938,19 @@ end
 -- What it Does:    Creates a new rules template to be added on confirmation
 -- Purpose:         To easily add new rules.
 GRM.BuildNewKickRuleTemplate = function( name , num )
-    local ruleNumber = num or GRM.GetKickRulesCount() + 1;
+    local ruleNumber = num or GRM.GetRulesCount( 1 ) + 1;
     local ruleName = "";
     local nameSet = false;
 
     if name ~= nil then
         ruleName = name;
     else
+        local tempNum = ruleNumber;
+
         while not nameSet do
-            ruleName = GRM.L ( "Kick Rule {num}" , nil , nil , ruleNumber );
+            ruleName = GRM.L ( "{name}'s Kick Rule {num}" , GRM.SlimName ( GRM_G.addonUser ) , nil , tempNum );
             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["kickRules"][ruleName] ~= nil then
-                ruleNumber = ruleNumber + 1;
+                tempNum = tempNum + 1;
             else
                 nameSet = true;
             end
@@ -4690,6 +5960,8 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
 
     result.name = ruleName
     result.isEnabled = true;
+
+    result.applyRulesTo = 1;                -- All = 1 , Alts = 2 , Mains = 3
 
     result.activityFilter = true;
     result.isMonths = true;
@@ -4702,21 +5974,11 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
     result.levelFilter = false;
     result.levelRange = { 1 , 999 };
 
-    result.classFilter = false;
-    result.classes = {};
-
-    result.raceFilter = false;
-    result.races = {};
-
     result.noteMatch = false;
     result.noteMatchEmpty = false;
     result.notesToCheck = { true , true , true };   -- Public , Officer, Custom
     result.matchingString = "";
-    result.ruleNumber = GRM.GetKickRulesCount() + 1;
-
-    result.applyRulesTo = 1;                -- All = 1 , Alts = 2 , Mains = 3
-
-    result.applyEvenIfActiive = false;
+    
     result.rankSpecialIsMonths = true;
     result.rankSpecialNumDaysOrMonths = 12;
     
@@ -4724,10 +5986,171 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
     result.repOperator = 2
     result.rep = 4;            -- 4 = neutral
 
-    result.customlog = false;
+    result.customLog = false;
     result.customLogMsg = "";
+    result.ruleIndex = ruleNumber;
+    result.editTime = 0;
+    result.sync = true;
+    result.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
+
+    result.applyEvenIfActiive = false;  -- Unique rule to kicks
 
     return result , ruleName;
+end
+
+-- Method:          GRM.BuildNewPromoteOrDemoteRuleTemplate( string , int )
+-- What it Does:    Creates a new rules template to be added on confirmation
+-- Purpose:         To easily add new rules.
+GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
+    local ruleName = "";
+    local nameSet = false;
+    local position = tabPosition or GRM_UI.GRM_ToolCoreFrame.TabPosition;
+    local ruleNumber = num or GRM.GetRulesCount( position ) + 1;
+    local ruleNameString = { [2] = "{name}'s Promote Rule {num}" , [3] = "{name}'s Demote Rule {num}" };
+    local ruleType = { [2] = 2 , [3] = 3 }; -- localize it, I know it seems redundant,
+
+    if name ~= nil then
+        ruleName = name;
+    else
+        local tempNum = ruleNumber;
+        while not nameSet do 
+            ruleName = GRM.L ( ruleNameString[position] , GRM.SlimName ( GRM_G.addonUser ) , nil , tempNum );
+            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[position]][ruleName] ~= nil then
+                tempNum = tempNum + 1;
+            else
+                nameSet = true;
+            end
+        end
+    end
+    local result = {};
+
+    -- Activity Filters
+
+    result.name = ruleName
+    result.isEnabled = true;
+    result.ruleType = ruleType[position];
+
+    result.applyRulesTo = 1;                -- All = 1 , Alts = 2 , Mains = 3
+
+    result.activityFilter = true;
+    result.isMonths = true;
+    result.numDaysOrMonths = 12;
+    result.allAltsApplyToKick = true;
+
+    result.rankFilter = true;
+    result.ranks = {};
+
+    result.levelFilter = false;
+    result.levelRange = { 1 , 999 };    
+
+    result.noteMatch = false;
+    result.noteMatchEmpty = false;
+    result.notesToCheck = { true , true , true };   -- Public , Officer, Custom
+    result.matchingString = "";
+
+    result.rankSpecialIsMonths = true;
+    result.rankSpecialNumDaysOrMonths = 3;
+    
+    result.repFilter = false;
+    result.repOperator = 2
+    result.rep = 4;            -- 4 = neutral
+
+    result.customLog = false;
+    result.customLogMsg = "";
+    result.ruleIndex = ruleNumber;
+    result.editTime = 0;
+    result.sync = true;
+    result.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
+
+    -- Unique rules to demote and promote
+    result.destinationRank = GuildControlGetNumRanks() - 1;     -- Default is 1st to last lowest rank;
+    if position == 2 then
+        result.regardlessOfActivity = false;
+    end
+
+    return result , ruleName;
+end
+-- Edited By???
+-- Method:          GRM.ValidateRule ( table )
+-- What it does:    Returns true of the rule contains all of the expected variables in their proper form.
+-- Purpose:         To ensure integrity of the rules.
+GRM.ValidateRule = function ( rule , ruleType )
+    local isValid = true;
+    local missingValues = {};
+    local ruleFilters = { "ruleType" , "destinationRank" , "regardlessOfActivity"  , "applyEvenIfActiive", "name" , "isEnabled" , "applyRulesTo" , "activityFilter" , "isMonths" , "numDaysOrMonths" , "allAltsApplyToKick" , "rankSpecialIsMonths" , "rankSpecialNumDaysOrMonths" , "rankFilter" , "ranks" , "levelFilter" , "levelRange" , "noteMatch" , "noteMatchEmpty" , "notesToCheck" , "matchingString" , "repFilter" , "repOperator" , "rep" , "customLog" , "customLogMsg" , "ruleIndex" , "editTime" , "sync" , "createdBy" };
+
+    if not rule then
+        isValid = false;
+        missingValues = ruleFilters;
+    end
+
+    if isValid then
+        for i = 1 , #ruleFilters do
+            isValid = true;
+            if rule[ruleFilters[i]] == nil then
+                if i < 4 then
+                    if ruleType > 1 then
+                        if i == 3 then
+                            if ruleType == 2 then
+                                isValid = false;
+                            end
+                        else
+                            isValid = false;
+                        end
+                    end
+                elseif i == 4 then
+                    if ruleType == 1 then
+                        isValid = false
+                    end
+                else
+                    isValid = false
+                end
+
+                if not isValid then
+                    table.insert ( missingValues , ruleFilters[i] );
+                end
+            end
+        end
+    end
+    
+    if #missingValues > 0 then
+        isValid = false;
+    end
+
+    return isValid , missingValues;
+end
+
+-- Method:          GRM.RuleIntegrityCheck()
+-- What it Does:    Scans through all the rules for the macro tool of a player and reports anything wrong and removes the rule
+-- Purpose:         Prevent lua errors and maintain integrity of the macro rules.
+GRM.RuleIntegrityCheck = function()
+    local isValid = false;
+    local missingValues = {};
+
+    local getMissing = function ( missingV )
+        local missing = "";
+        for i = 1 , #missingV do
+            if i < #missingV then
+                missing = missing .. missingV[i] .. ", ";
+            else
+                missing = missing .. missingV[i];
+            end
+        end
+        return missing;
+    end
+
+    for i = 1 , 3 do
+        for name , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[i]] ) do
+            isValid , missingValues = GRM.ValidateRule ( rule , i );
+
+            if not isValid then
+                GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[i]][name] = nil;
+                GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "There was an error with a {name} rule: \"{name2}\"" , GRM_UI.ruleTypeEnum3[i] , name ) );
+                GRM.Report ( GRM.L ( "Please report to addon creator the following variables were missing: {custom1}" , nil , nil , nil , getMissing ( missingValues ) ) );
+            end
+
+        end
+    end
 end
 
 -- Method:          GRM.IsAnyInTableEnabled ( table )
@@ -4796,12 +6219,26 @@ GRM.IsRuleReady = function()
     return result;
 end
 
+-- Method:          GRM.RulesIntegrityCheck ( int )
+-- What it Does:    Does a quick integrity check on the rule makes sure it is good for us. This will be expanded upon
+-- Purpose:         Ensure integrity of data due to syncing.
+GRM.RulesIntegrityCheck = function ( ruleType )
+    for _ , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
+        if rule.createdBy[1] == "" then
+            rule.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
+            print("Fixing Created By: " .. rule.name)
+        end
+    end
+end
+
 -- Method:          GRM.GetRuleEntries ( int )
 -- What it Does:    Determines which rule grouping to import
 -- Purpose:         Proper sorting of players in the guild to be added to the mass kick tool
 GRM.GetRuleEntries = function ( ruleType )
     local result = {};
     local tempTable = {};
+
+    GRM.RulesIntegrityCheck ( ruleType );
 
     if ruleType == 1 then
         tempTable = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules );
@@ -4814,7 +6251,7 @@ GRM.GetRuleEntries = function ( ruleType )
     for _ , rule in pairs ( tempTable ) do
         table.insert ( result , rule );
     end
-    sort ( result , function ( a , b ) return a.ruleNumber < b.ruleNumber end );
+    sort ( result , function ( a , b ) return a.ruleIndex < b.ruleIndex end );
 
     return result;
 end
@@ -4862,6 +6299,58 @@ GRM.IsRuleHighlighted = function()
     return result , ruleName;
 end
 
+-- Method:          GRM.ShiftRuleUp ( string )
+-- What it Does:    As it says, shifts the rule up in the rule list
+-- Purpose:         Custom organization of the rules list
+GRM.ShiftRuleUp = function ( ruleName )
+    local ruleData = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]];
+    ruleData[ruleName].ruleIndex = ruleData[ruleName].ruleIndex - 1;
+    local ruleType = GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition];
+
+    for name , rule in pairs ( ruleData ) do
+        if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
+            rule.ruleIndex = rule.ruleIndex + 1;
+            break;
+        end
+    end
+
+    GRM_G.MacroRuleSyncFormat[ruleType][ruleName].ruleIndex = tonumber ( ruleData[ruleName].ruleIndex );
+
+    for name , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
+        if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
+            rule.ruleIndex = rule.ruleIndex + 1;
+            break;
+        end
+    end
+    GRM_UI.FullMacroToolRefresh();
+end
+
+-- Method:          GRM.ShiftRuleDown( string )
+-- What it Does:    As it says, shifts the rule up in the rule list
+-- Purpose:         Custom organization of the rules list
+GRM.ShiftRuleDown = function ( ruleName )
+    local ruleData = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]];
+    -- Increment up by 1
+    ruleData[ruleName].ruleIndex = ruleData[ruleName].ruleIndex + 1;
+    local ruleType = GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition];
+
+    for name , rule in pairs ( ruleData ) do
+        if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
+            rule.ruleIndex = rule.ruleIndex - 1;
+            break;
+        end
+    end
+    GRM_G.MacroRuleSyncFormat[ruleType][ruleName].ruleIndex = tonumber ( ruleData[ruleName].ruleIndex );
+
+    for name , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
+        if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
+            rule.ruleIndex = rule.ruleIndex - 1;
+            break;
+        end
+    end
+    GRM_UI.FullMacroToolRefresh();
+end
+
 -- Method:          GRM.BuildRuleButtons ( int , boolean , int )
 -- What it Does:    Initiates the buttons and their values for each line of the Rules window of the GRM macro tool's hybridscrollframe
 -- Purpose:         Create a smooth scrolling experience in the GRM macro tool window
@@ -4869,6 +6358,8 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
     local coreButton = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][1];
     local buttonText1 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2];
     local checkButton = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][4];
+    local buttonDown = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][5];
+    local buttonUp = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][6];
 
     buttonText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
 
@@ -4901,15 +6392,79 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
 
                 -- Set the Button Logic
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton1:SetScript ( "OnClick" , function()
-                    GRM_UI.ConfigureCustomRuleKickFrame ( true , ruleName );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Show();
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
+                    local validToOpen = true;
+
+                    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+
+                        if not CanGuildRemove() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to remove players from the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRuleKickFrame ( true , ruleName );
+                        end
+    
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        if not CanGuildPromote() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to promote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName );
+                        end
+                        
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                        if not CanGuildDemote() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName );
+                        end
+    
+                    end
+                    if validToOpen then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Show();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
+                    end
                 end);
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2:SetScript ( "OnClick" , function()
-                    GRM.RemoveRuleButtonLogic ( GRM.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , ruleName );
+                    GRM.RemoveRuleButtonLogic ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , ruleName );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
                     if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name == ruleName then
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
+                    end
+                end);
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3:SetScript ( "OnClick" , function()
+                    local validToOpen = true;
+
+                    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+
+                        if not CanGuildRemove() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to remove players from the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRuleKickFrame ( true , ruleName , true );
+                        end
+    
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        if not CanGuildPromote() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to promote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName , true );
+                        end
+                        
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                        if not CanGuildDemote() then
+                            validToOpen = false;
+                            GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                        else
+                            GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName , true );
+                        end
+    
+                    end
+                    if validToOpen then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Show();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
                     end
                 end);
 
@@ -4918,6 +6473,7 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:SetPoint ( "BOTTOMRIGHT" , self , "TOPLEFT" , 0 , -2 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton1.GRM_ContextButton1Text:SetText ( GRM.L ( "Edit" ) );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2.GRM_ContextButton2Text:SetText ( GRM.L ( "Remove" ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton3.GRM_ContextButton3Text:SetText ( GRM.L ( "Copy" ) );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Show();
                 GRM_UI.RestoreTooltipScale();
                 GameTooltip:Hide();
@@ -4948,10 +6504,10 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
             if button == "LeftButton" then
                 local ruleName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2]:GetText();
                 if self:GetChecked() then
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = true;
+                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = true;
                     refreshTooltip( self );
                 else
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = false;
+                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = false;
                     refreshTooltip( self );
                 end
                 GRM_UI.FullMacroToolRefresh();
@@ -4964,6 +6520,18 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
 
         checkButton:SetScript ( "OnLeave" , function()
             GRM.RestoreTooltip();
+        end);
+
+        buttonDown:SetScript ( "OnClick" , function ( _ , button )
+            if button == "LeftButton" then
+                GRM.ShiftRuleDown ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2]:GetText() );
+            end
+        end);
+
+        buttonUp:SetScript ( "OnClick" , function ( _ , button )
+            if button == "LeftButton" then
+                GRM.ShiftRuleUp ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2]:GetText() );
+            end
         end);
 
     end
@@ -4998,13 +6566,19 @@ GRM.BuildRulesScrollFrame = function ( showAll , fullRefresh )
 
                 local button = CreateFrame ( "Button" , "RuleButton" .. i , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame );
                 local checkButton = CreateFrame ( "Checkbutton" , "RuleCheckButton" , button , "OptionsSmallCheckButtonTemplate" );
+                local buttonUp = CreateFrame ( "Button" , "RuleButtonUp" .. i , button , "UIPanelScrollUpButtonTemplate" );
+                local buttonDown = CreateFrame ( "Button" , "RuleButtonDown" .. i , button , "UIPanelScrollDownButtonTemplate" );
+
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i] = {
                     button ,
                     button:CreateFontString ( "RuleButton" .. i .. "Text" , "OVERLAY" , "GameFontWhiteTiny" ),
                     false,
-                    checkButton
+                    checkButton,
+                    buttonDown,
+                    buttonUp
                 };
 
+                -- Configure the button
                 button = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][1];
                 if i == 1 then
                     button:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame , "TOP" , 7 , 0 );
@@ -5014,6 +6588,16 @@ GRM.BuildRulesScrollFrame = function ( showAll , fullRefresh )
 
                 button:SetHighlightTexture ( "Interface\\Buttons\\UI-Panel-Button-Highlight" );
                 button:SetSize ( buttonWidth , buttonHeight );
+
+                -- Configure the up and down sorting buttons
+                buttonDown = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][5];
+                buttonUp = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][6];
+
+                buttonDown:SetPoint ( "RIGHT" , button , "RIGHT" , -5 , 0 );
+                buttonDown:SetSize ( 15 , 15 );
+                buttonUp:SetPoint ( "RIGHT" , buttonDown , "LEFT" , -5 , 0 );
+                buttonUp:SetSize ( 15 , 15 );
+
                 GRM.BuildRuleButtons ( i  , false , buttonWidth );
                 
             end
@@ -5063,6 +6647,21 @@ GRM.SetRuleValues = function ( ind , ind2 )
         line[4]:SetChecked ( false );
     end
 
+    -- Up and down buttons - first one only down needs to be seen.
+    if ind2 == 1 and ind == 1 then
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][6]:Hide();
+        if #GRM_UI.GRM_ToolCoreFrame.RuleEntries > 1 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][5]:Show();
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][5]:Hide();
+        end
+    elseif ind2 == #GRM_UI.GRM_ToolCoreFrame.RuleEntries then
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][5]:Hide();
+    else
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][5]:Show();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][6]:Show();
+    end
+    
     -- Update the tooltip if underlying data changes
     if GameTooltip:IsVisible() and GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][1]:IsMouseOver() then 
         GRM.UpdateRulesTooltip ( ind );
@@ -5083,6 +6682,18 @@ GRM.KickRulesHybridShiftDown = function()
             -- Header Line
             buttons[i][2]:SetText( buttons[i+1][2]:GetText() );
             buttons[i][4]:SetChecked ( buttons[i+1][4]:GetChecked() );
+
+            if buttons[i+1][5]:IsVisible() then
+                buttons[i][5]:Show();
+            else
+                buttons[i][5]:Hide();
+            end
+
+            if buttons[i+1][6]:IsVisible() then
+                buttons[i][6]:Show();
+            else
+                buttons[i][6]:Hide();
+            end
 
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;
@@ -5113,6 +6724,18 @@ GRM.KickRulesHybridShiftUp = function()
 
             buttons[i][2]:SetText( buttons[i-1][2]:GetText() );
             buttons[i][4]:SetChecked( buttons[i-1][4]:GetChecked() );
+
+            if buttons[i-1][5]:IsVisible() then
+                buttons[i][5]:Show();
+            else
+                buttons[i][5]:Hide();
+            end
+
+            if buttons[i-1][6]:IsVisible() then
+                buttons[i][6]:Show();
+            else
+                buttons[i][6]:Hide();
+            end
 
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;
@@ -5167,22 +6790,44 @@ end
 -- What it Does:    Sets the tooltip for the Queued scrollframe in the GRM kick tool
 -- Purpose:         Make it clear the QoL controls.
 GRM.UpdateRulesTooltip = function ( ind )
-    local kickRuleName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2]:GetText();
-    local rule = GRM.GetKickRule ( kickRuleName );
+    local ruleName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2]:GetText();
+    local rule = {};
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+            rule = GRM.GetKickRule ( ruleName );
+        elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+            rule = GRM.GetPromoteRule ( ruleName );
+        elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+            rule = GRM.GetDemoteRule ( ruleName );
+        end
     local c = {};
     local time = "";
     c.E = { 0 , 0.77 , 0.063 }; -- enabled
     c.D = { 1 , 0 , 0 };        -- disabled
+    local status = { GRM.L ( "Enabled" ) , GRM.L ( "Disabled" ) };
+    local statusColor = {};
+    if rule.sync then
+        status = GRM.L ( "Enabled" );
+        statusColor = { 0 , 0.8 , 1 };
+    else
+        status = GRM.L ( "Disabled" );
+        statusColor = c.D;
+    end
 
     GRM_UI.SetTooltipScale();
     GameTooltip:SetOwner ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][1] , "ANCHOR_CURSOR" );
     GameTooltip:AddLine ( "|CFFE6CC7F" .. GRM.L ( "Rule Filter: {name}" , "|r" .. rule.name ) , 0 , 0.8 , 1 );
+    GameTooltip:AddLine ( "|CFFE6CC7F" .. GRM.L ( "Created By: {name}" , "|r" .. GRM.GetClassColorRGB ( rule.createdBy[2] , true ) .. rule.createdBy[1] ) );
+    GameTooltip:AddLine ( "|CFFE6CC7F" .. GRM.L ( "Sync: {name}" , "|r" .. status ) , statusColor[1] , statusColor[2] , statusColor[3] );
     GameTooltip:AddLine ( " " );
 
     if rule.applyRulesTo == 2 then
         GameTooltip:AddLine ( GRM.L ( "Alts Only" ) , 1 , 0 , 0 );
     elseif rule.applyRulesTo == 3 then
         GameTooltip:AddLine ( GRM.L ( "Mains Only" ) , 1 , 0 , 0 );
+    end
+
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+        GameTooltip:AddDoubleLine ( GRM.L ( "Destination Rank:" ) , GuildControlGetRankName ( rule.destinationRank ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     end
 
     if rule.activityFilter then
@@ -5200,9 +6845,17 @@ GRM.UpdateRulesTooltip = function ( ind )
             end
         end
 
-        GameTooltip:AddDoubleLine ( GRM.L ( "Inactivity:" ) , GRM.L ( "Notify if inactive for {num} {name}" , time , nil , rule.numDaysOrMonths ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+            GameTooltip:AddDoubleLine ( GRM.L ( "Inactivity:" ) , GRM.L ( "Notify if inactive for {num} {name}" , time , nil , rule.numDaysOrMonths ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
+        elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+            GameTooltip:AddDoubleLine ( GRM.L ( "Time at Rank:" ) , GRM.L ( "Notify if at current rank for {num} {name}" , time , nil , rule.numDaysOrMonths ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
+        end
     else
-        GameTooltip:AddDoubleLine ( GRM.L ( "Inactivity:" ) , GRM.L ( "Disabled" ) , 1 , 0.82 , 0 , c.D[1] , c.D[2] , c.D[3] );
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+            GameTooltip:AddDoubleLine ( GRM.L ( "Inactivity:" ) , GRM.L ( "Disabled" ) , 1 , 0.82 , 0 , c.D[1] , c.D[2] , c.D[3] );
+        else
+            GameTooltip:AddDoubleLine ( GRM.L ( "Time at Rank:" ) , GRM.L ( "Disabled" ) , 1 , 0.82 , 0 , c.D[1] , c.D[2] , c.D[3] );
+        end
     end
 
     if rule.rankFilter then
@@ -5213,7 +6866,7 @@ GRM.UpdateRulesTooltip = function ( ind )
         end
         GameTooltip:AddDoubleLine ( GRM.L ( "Ranks:" ) , ranks , 1 , 0.82 , 0 , 1 , 1 , 1 );
 
-        if rule.applyEvenIfActiive then
+        if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 ) and rule.applyEvenIfActiive then
 
             time = "";
             if rule.rankSpecialIsMonths then
@@ -5285,11 +6938,373 @@ end
 ------------------------------------------
 ------ Custom Rules UI Controls ----------
 
-GRM.GetPromoteNamesByFilterRules = function()
-    return {};
+-- Method:          GRM.HasTimeExceededDate ( string , int )
+-- What it Does:    Returns true if the player is ready for a rank change based on time passed
+-- Purpose:         Scanning for changes on promotions and demotions
+GRM.HasTimeExceededDate = function ( epochDate , hoursTilRecommend )
+    local result = false;
+   
+    if math.floor ( ( time() - epochDate ) / 3600 ) >= hoursTilRecommend then
+        result = true;
+    end
+    return result;
 end
-GRM.GetDemoteNamesByFilterRules = function()
-    return {};
+
+-- Method:          GRM.GetSingularOrPluralFormattingForMacroToolMsg ( bool , int)
+-- What it Does:    Returns the proper string before it is translated.
+-- Purpose:         To handle plural and singular formats as a quality of life feature.
+GRM.GetSingularOrPluralFormattingForMacroToolMsg = function ( isMonths , num , inactive )
+    local choice = { "Player has been at rank for more than {num} Day" , "Player has been at rank for more than {num} Days" , "Player has been at rank for more than {num} Month" , "Player has been at rank for more than {num} Months" };
+    local result = "";
+
+    if isMonths then
+        if num > 1 then
+            result = choice[4];
+        else
+            result = choice[3];
+        end
+    else
+        if num > 1 then
+            result = choice[2];
+        else
+            result = choice[1];
+        end
+    end
+
+    if inactive then
+        result = "CFFFF0000( " .. GRM.L ( "Inactive" ) .. " )|r" .. result;
+    end
+    return result;
+end
+
+-- Method:          GRM.GetNamesByFilterRules()
+-- What it Does:    Collects the names of all the players who match the given rule
+-- Purpose:         Macro Tool use
+GRM.GetNamesByFilterRules = function( ruleTypeIndex )
+    local listOfPlayers = {};
+    local ruleCount = ruleTypeIndex or GRM_UI.GRM_ToolCoreFrame.TabPosition;
+
+    GRM_G.countAction[ruleCount] = time();
+    
+    -- No need to do all the work if there are no rules to check!
+    if GRM.GetRulesCount ( ruleCount ) == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
+        return listOfPlayers;
+    end
+
+    -- The name formatting is purely to be used for the macro to be added.
+    
+    local ruleConfirmedCheck = true
+    local listOfPlayers , tempRuleCollection = {} , {};
+    local macroAction = { [2] = "/gpromote" , [3] = "/gdemote" };
+    local rankDestination = { [2] = GRM.L ( "Promote to Rank:" ) , [3] = GRM.L ( "Demote to Rank:" ) };
+
+    -- need to know if player can be promoted or demoted to destination rank, and how many rank moves they need to make to get there.
+    local playerCanBeMoved = function ( playerRankIndex , destinationRank , ruleType )
+        local result = false;
+        local numRankPlacesToMove = 0;
+
+        if ( ruleType == 2 and playerRankIndex > destinationRank ) then
+            result = true;
+            numRankPlacesToMove = ( playerRankIndex - destinationRank );
+        elseif ( ruleType == 3 and playerRankIndex < destinationRank ) then
+            result = true;
+            numRankPlacesToMove = ( destinationRank - playerRankIndex );
+        end
+
+        return result , numRankPlacesToMove;
+    end
+
+    for _ , player in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
+        if type ( player ) == "table" and player.name ~= GRM_G.addonUser then
+            -- reset for this player.
+
+            for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ GRM_UI.ruleTypeEnum[ruleCount] ] ) do
+                if rule.isEnabled then
+                    ruleConfirmedCheck = true;
+                    tempRuleCollection = {};
+                    -- Check filter
+
+                    -- if my rank is lower is only way to work- cannot kick someone a higher or equal rank
+                    if GRM_G.playerRankID < player.rankIndex then 
+                        local canMove , numRankMoves = playerCanBeMoved ( player.rankIndex , ( rule.destinationRank - 1 ) , rule.ruleType );
+
+                        if canMove then
+                            -- Need to at least insert the ruleName and number of jumps it needs to make to destination rank
+                            table.insert ( tempRuleCollection , { rankDestination[rule.ruleType] , GuildControlGetRankName ( rule.destinationRank ) , numRankMoves } );
+                            local alts = GRM.GetListOfAlts ( player );
+
+                            ----------------------------
+                            -- RULES TO CHECK AGAINST --
+                            ----------------------------
+
+                            -- MAIN/ALT
+                            if ruleConfirmedCheck and rule.applyRulesTo > 1 then
+                                ruleConfirmedCheck = false;
+
+                                if rule.applyRulesTo == 2 and not player.isMain and GRM.PlayerIsAnAlt ( player ) then
+                                    ruleConfirmedCheck = true;
+                                    table.insert ( tempRuleCollection , { "Main/Alt" , GRM.L ( "Player is an Alt" ) } );
+
+                                elseif rule.applyRulesTo == 3 and player.isMain then
+                                    -- Player is not a main!
+                                    ruleConfirmedCheck = true
+                                    table.insert ( tempRuleCollection , { "Main/Alt" , GRM.L ( "Player is a Main" ) } );
+                                end
+
+                            end
+                            
+                            if rule.ruleType == 3 then
+                                -- Inactivity
+                                if ruleConfirmedCheck and rule.activityFilter and not ( rule.rankFilter and rule.applyEvenIfActiive ) then
+                                    ruleConfirmedCheck = false;
+
+                                    if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActive ( alts , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
+                                        -- Is actually considered inactive
+                                        if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours then
+                                        -- Cannot remove players same rank or higher, so they have to be a higher index than you to remove them.
+                                            ruleConfirmedCheck = true;
+                                            table.insert ( tempRuleCollection , { "Inactive" , player.lastOnline } );
+                                        end
+                                    end
+                                end
+
+                                -- Extra activity filter based on rank
+                                if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
+                                    -- We know that the rank is valid at this point as it has been made true
+                                    ruleConfirmedCheck = false;
+                                    if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] and player.rankHist[1][7] and GRM.HasTimeExceededDate ( player.rankHist[1][5] , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].evenIfActiveHours ) then
+                                        ruleConfirmedCheck = true;
+                                        table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
+                                        table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( player.rankHist[1][5] )[4] } );
+                                    end
+                                end
+
+                            elseif rule.ruleType == 2 then
+
+                                -- Inactivity -- can only promote based on activity if there is a verified promotion date currently.
+                                if ruleConfirmedCheck and rule.activityFilter then
+                                    ruleConfirmedCheck = false;
+
+                                    -- Initial activity
+                                    if player.rankHist[1][7] and GRM.HasTimeExceededDate ( player.rankHist[1][5] , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) then
+                                        -- It appears the player HAS been at the rank for that given amount of time - now, do we promote no matter what, or do we check for inactivity?
+                                        if rule.regardlessOfActivity then
+                                            -- YES - promote regardless.
+                                            ruleConfirmedCheck = true; 
+                                            table.insert ( tempRuleCollection , { "RankTime" , GRM.L ( GRM.GetSingularOrPluralFormattingForMacroToolMsg ( rule.isMonths , rule.numDaysOrMonths ) , nil , nil , rule.numDaysOrMonths ) } );
+                                        else
+
+                                            -- Promote logic is slightly different
+                                            if rule.ruleType == 2 then
+
+                                                -- If player is NOT INACTIVE   -- OR -- At least one alt is active
+                                                if player.lastOnline < GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].inactive or ( rule.allAltsApplyToKick and GRM.IsAnyAltActive ( alts , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].inactive ) ) then
+                                                    ruleConfirmedCheck = true;
+                                                    table.insert ( tempRuleCollection , { "RankTime" , GRM.L ( GRM.GetSingularOrPluralFormattingForMacroToolMsg ( rule.isMonths , rule.numDaysOrMonths ) , nil , nil , rule.numDaysOrMonths ) } );
+                                                end
+                                                
+
+                                            -- Demote logic is slightly different.
+                                            elseif rule.ruleType == 3 then
+
+                                                -- If player IS INACTIVE (if not inactive why would you be demoting?)
+                                                if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].inactive then
+                                                    
+                                                    if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActive ( alts , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].inactive ) ) then
+                                                        ruleConfirmedCheck = true;
+                                                        table.insert ( tempRuleCollection , { "RankTime" , GRM.L ( GRM.GetSingularOrPluralFormattingForMacroToolMsg ( rule.isMonths , rule.numDaysOrMonths ) , nil , nil , rule.numDaysOrMonths ) } );
+                                                    end
+
+                                                end
+
+                                            end
+
+                                        end
+                                    end
+
+                                end
+                            end
+
+                                -- Extra activity filter based on rank
+                            if ruleConfirmedCheck and rule.rankFilter then
+                                -- We know that the rank is valid at this point as it has been made true
+                                ruleConfirmedCheck = false;
+                                if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] then
+                                    ruleConfirmedCheck = true;
+                                    table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
+                                end
+                            end
+
+                            -- Level Filters
+                            if ruleConfirmedCheck and rule.levelFilter then
+                                ruleConfirmedCheck = false;
+
+                                local topLevel;
+                                if rule.levelRange[2] == 999 then
+                                    topLevel = GRM_G.LvlCap;
+                                else
+                                    topLevel = rule.levelRange[2];
+                                end
+                                if player.level >= rule.levelRange[1] and player.level <= topLevel then
+                                    ruleConfirmedCheck = true;
+                                    table.insert ( tempRuleCollection , { "Level" , rule.levelRange[1] , topLevel } );
+                                end
+                            end
+
+                            -- Reputation Filter
+                            if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                                ruleConfirmedCheck = false;
+                                local msg = "";
+                                -- Less than Operator
+                                if rule.repOperator == 1 and player.guildRep < rule.rep then
+                                    msg = GRM.L ( "Guild Rep lower than {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
+                                elseif rule.repOperator == 2 and player.guildRep == rule.rep then
+                                    msg = GRM.L ( "Guild Rep equal to {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
+                                elseif rule.repOperator == 3 and player.guildRep > rule.rep then
+                                    msg = GRM.L ( "Guild Rep higher than {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
+                                end
+
+                                if #msg > 0 then
+                                    ruleConfirmedCheck = true;
+                                    table.insert ( tempRuleCollection , { "Rep" , GRM.L ( "Rep: {name} - {name2}" , GRM.GetReputationTextLevel ( player.guildRep , true ) , msg ) } );
+                                end
+                            end
+
+                            -- Note match filter
+                            if ruleConfirmedCheck and rule.noteMatch and not rule.noteMatchEmpty then
+
+                                if #rule.matchingString > 0 then
+                                    ruleConfirmedCheck = false;
+
+                                    -- public note
+                                    if rule.notesToCheck[1] and string.find ( string.lower ( player.note ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
+                                        ruleConfirmedCheck = true;
+                                    end
+                                    -- Officer Note
+                                    if not ruleConfirmedCheck and rule.notesToCheck[2] and string.find ( string.lower ( player.officerNote ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
+                                        ruleConfirmedCheck = true;
+                                    end
+                                    -- Custom Note
+                                    if not ruleConfirmedCheck and rule.notesToCheck[3] and string.find ( string.lower ( player.customNote[6] ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
+                                        ruleConfirmedCheck = true;
+                                    end
+
+                                    if ruleConfirmedCheck then
+                                        table.insert ( tempRuleCollection , { "Note Match" , rule.matchingString } );
+                                    end
+                                end
+
+                            end
+
+                            -- Empty note
+                            if ruleConfirmedCheck and rule.noteMatch and rule.noteMatchEmpty then
+                                ruleConfirmedCheck = false;
+                                local notes = "";
+
+                                if ( rule.notesToCheck[1] and player.note == "" ) then
+                                    notes = GRM.L ( "Public" );
+                                end
+                                if ( rule.notesToCheck[2] and player.officerNote == "" ) then
+                                    if #notes > 0 then
+                                        notes = notes .. " , " .. GRM.L ( "Officer" );
+                                    else
+                                        notes = notes .. GRM.L ( "Officer" );
+                                    end
+                                end
+                                if ( rule.notesToCheck[3] and player.customNote[6] == "" ) then
+                                    if #notes > 0 then
+                                        notes = notes .. " , " .. GRM.L ( "Custom" );
+                                    else
+                                        notes = notes .. GRM.L ( "Custom" );
+                                    end
+                                end
+
+                                if #notes > 0 then
+                                    ruleConfirmedCheck = true;
+                                    table.insert ( tempRuleCollection , { "Empty Note Match" , notes } );                            
+                                end
+                            end
+
+            
+                            if ruleConfirmedCheck then
+
+                                -- RULE IS GOOD - ADD PLAYER
+
+                                if not player.safeList[GRM_UI.ruleTypeEnum2[rule.ruleType]][1] then      -- Ignore for scanning... but I still want a count of the ignored.
+
+                                    local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
+
+                                    if not index then
+                                        table.insert ( listOfPlayers , {} );
+                                        index = #listOfPlayers;
+                                        listOfPlayers[index].name = player.name;
+                                        listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
+                                        listOfPlayers[index].lastOnline = player.lastOnline;
+                                        listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[rule.ruleType];
+                                        listOfPlayers[index].macro = macroAction[rule.ruleType];
+                                        listOfPlayers[index].isHighlighted = false;
+                                        listOfPlayers[index].rankIndex = rule.destinationRank - 1;      -- Miinus 1 rank for it to match the player indexes
+                                        listOfPlayers[index].mainName = GRM.GetMainName ( player , true );
+                                        listOfPlayers[index].customMsg = "";
+                                    end
+
+                                    local numJumps = 0;
+                                    if rule.ruleType == 2 then
+
+                                        numJumps = player.rankIndex - ( rule.destinationRank - 1 );
+                                        if not listOfPlayers[index].numRankJumps then               -- if this doesn't exist
+                                            listOfPlayers[index].numRankJumps = numJumps;
+                                        elseif listOfPlayers[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
+                                            listOfPlayers[index].numRankJumps = numJumps;
+                                        end
+
+                                    else
+
+                                        numJumps = ( rule.destinationRank - 1 ) - player.rankIndex;
+                                        if not listOfPlayers[index].numRankJumps then               -- if this doesn't exist
+                                            listOfPlayers[index].numRankJumps = numJumps;
+                                        elseif listOfPlayers[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
+                                            listOfPlayers[index].numRankJumps = numJumps;
+                                        end
+
+                                    end
+
+                                    table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
+                                    sort ( listOfPlayers , function ( a , b ) return a.name < b.name end );
+
+                                else
+                                    local index = GRM.GetIndexOfPlayerOnList ( GRM_UI.GRM_ToolCoreFrame.Safe , player.name );
+    
+                                    if index == nil and player.name ~= GRM_G.addonUser then
+                                        table.insert ( GRM_UI.GRM_ToolCoreFrame.Safe , {} );
+                                        index = #GRM_UI.GRM_ToolCoreFrame.Safe;
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].name = player.name
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].rankIndex = player.rankIndex;
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].class = GRM.GetClassColorRGB ( player.class );
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].reason = GRM_UI.ruleTypeEnum3[rule.ruleType];
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].lastOnline = player.lastOnline;
+                                        GRM_UI.GRM_ToolCoreFrame.Safe[index].isHighlighted = false;
+                                    end
+                                end
+                                
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if #listOfPlayers > 0 then
+        for i = 1 , #listOfPlayers do
+            sort ( listOfPlayers[i] , function ( a , b ) return a[1] < b[1] end );
+        end
+    end
+
+    -- Get count
+    GRM_G.counts[ruleCount] = #listOfPlayers;
+
+    return listOfPlayers;
 end
 
 -- Method:          GRM.GetMacroFormattedName ( string )
@@ -5297,7 +7312,7 @@ end
 -- Purpose:         If a player is on the same server as you, you don't need to add their server, thus you can remove it and allow more space in the macro tool
 GRM.GetMacroFormattedName = function ( name )
     local result = "";
-    if string.find ( name , GRM_G.realmName , 1 , true ) ~= nil then      -- If the player has the same realm name as me than it can be shortened.
+    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and GRM_G.BuildVersion >= 90000 ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
         result = GRM.SlimName ( name );
     else
         result = name;
@@ -5306,30 +7321,15 @@ GRM.GetMacroFormattedName = function ( name )
     return result;
 end
 
--- Method:          GRM.IsPlayerAnAlt ( player )
--- What it Does:    Returns true if the player is a confirmed alt, as in, their main is known
--- Purpose:         Export filter to allow filtering to alt/mains
-GRM.IsPlayerAnAlt = function ( player )
-    local result = false;
-    
-    for i = 1 , #player.alts do
-        if player.alts[i][5] then
-            result = true;
-            break;
-        end
-    end
-
-    return result;
-end
-
 -- Method:          GRM.GetKickNamesByFilterRules ()
 -- What it Does:    Gets the names that adhere to the given rules
--- Purpose:         UX
+-- Purpose:         To populate the macro tool
 GRM.GetKickNamesByFilterRules = function()
     local listOfPlayers = {};
+    GRM_G.countAction[1] = time();
 
     -- No need to do all the work if there are no rules to check!
-    if GRM.GetKickRulesCount() == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
+    if GRM.GetRulesCount ( 1 ) == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
         return listOfPlayers;
     end
 
@@ -5339,7 +7339,7 @@ GRM.GetKickNamesByFilterRules = function()
     local listOfPlayers , tempRuleCollection = {} , {};
 
     for _ , player in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
-        if type ( player ) == "table" then
+        if type ( player ) == "table" and player.name ~= GRM_G.addonUser then
             -- reset for this player.
 
             for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules ) do
@@ -5348,14 +7348,14 @@ GRM.GetKickNamesByFilterRules = function()
                     tempRuleCollection = {};
                     -- Check filter
 
-                    -- if my rank is lower - cannot kick someone a higher or equal rank
+                    -- if my rank is lower is only way to work- cannot kick someone a higher or equal rank
                     if GRM_G.playerRankID < player.rankIndex then
 
                         -- main
                         if ruleConfirmedCheck and rule.applyRulesTo > 1 then
                             ruleConfirmedCheck = false;
 
-                            if rule.applyRulesTo == 2 and not player.isMain and GRM.IsPlayerAnAlt ( player ) then
+                            if rule.applyRulesTo == 2 and not player.isMain and GRM.PlayerIsAnAlt ( player ) then
                                 ruleConfirmedCheck = true;
                                 table.insert ( tempRuleCollection , { "Main/Alt" , GRM.L ( "Player is an Alt" ) } );
 
@@ -5367,10 +7367,10 @@ GRM.GetKickNamesByFilterRules = function()
                         end
 
                         -- Inactivity
-                        if ruleConfirmedCheck and rule.activityFilter then
+                        if ruleConfirmedCheck and rule.activityFilter and not ( rule.rankFilter and rule.applyEvenIfActiive ) then
                             ruleConfirmedCheck = false;
 
-                            if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( player.alts , ruleName ) ) then
+                            if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( GRM.GetListOfAlts ( player ) , ruleName ) ) then
                                 -- Is actually considered inactive
                                 if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
                                 -- Cannot remove players same rank or higher, so they have to be a higher index than you to remove them.
@@ -5392,13 +7392,13 @@ GRM.GetKickNamesByFilterRules = function()
                         end
 
                         -- Extra activity filter based on rank
-                        if ruleConfirmedCheck and rule.rankFilter and rule.applyEvenIfActiive then
+                        if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
                             -- We know that the rank is valid at this point as it has been made true
                             ruleConfirmedCheck = false;
-                            if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] and player.verifiedPromoteDate[1] ~= "" and GRM.GetHoursSinceTimestamp ( player.rankHistory[#player.rankHistory][3] ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
+                            if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.GetHoursSinceTimestamp ( player.rankHist[1][5] ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
                                 ruleConfirmedCheck = true;
                                 table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
-                                table.insert ( tempRuleCollection , { "RanTime" , GRM.GetTimePassedUsingStringStamp ( player.rankHistory[#player.rankHistory][2] )[4] } );
+                                table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( player.rankHist[1][5] )[4] } );
                             end
                         end
 
@@ -5495,7 +7495,7 @@ GRM.GetKickNamesByFilterRules = function()
                         if ruleConfirmedCheck then
                             -- RULE IS GOOD - ADD PLAYER
                             -- Check safe list too
-                            if not player.safeList then      -- Ignore for scanning... but I still want a count of the ignored.
+                            if not player.safeList.kick[1] then      -- Ignore for scanning... but I still want a count of the ignored.
                                 local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
 
                                 if index == nil then
@@ -5504,9 +7504,11 @@ GRM.GetKickNamesByFilterRules = function()
                                     listOfPlayers[index].name = player.name;
                                     listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
                                     listOfPlayers[index].lastOnline = player.lastOnline;
-                                    listOfPlayers[index].action = GRM.L ( "Kick" );
+                                    listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[1];
                                     listOfPlayers[index].macro = "/gremove";
                                     listOfPlayers[index].isHighlighted = false;
+                                    listOfPlayers[index].mainName = GRM.GetMainName ( player , true );
+                                    listOfPlayers[index].customMsg = "";
                                 end
                                 
                                 table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
@@ -5524,7 +7526,6 @@ GRM.GetKickNamesByFilterRules = function()
                                     GRM_UI.GRM_ToolCoreFrame.Safe[index].reason = GRM.L ( "Kick" );
                                     GRM_UI.GRM_ToolCoreFrame.Safe[index].lastOnline = player.lastOnline;
                                     GRM_UI.GRM_ToolCoreFrame.Safe[index].isHighlighted = false;
-                                    sort ( GRM_UI.GRM_ToolCoreFrame.Safe , function ( a , b ) return a.name < b.name end );
                                 end
                             end
                         end
@@ -5533,6 +7534,24 @@ GRM.GetKickNamesByFilterRules = function()
             end
         end
     end
+
+    -- if #listOfPlayers > 1 then
+    --     sort ( listOfPlayers , function ( a , b ) return a.name < b.name end );
+    -- end
+
+    if #listOfPlayers > 0 then
+        for i = 1 , #listOfPlayers do
+            sort ( listOfPlayers[i] , function ( a , b ) return a[1] < b[1] end );
+        end
+    end
+
+    if #GRM_UI.GRM_ToolCoreFrame.Safe then
+        sort ( GRM_UI.GRM_ToolCoreFrame.Safe , function ( a , b ) return a.name < b.name end );
+    end
+
+    -- Get count
+    GRM_G.counts[1] = #listOfPlayers;
+
     return listOfPlayers;
 end
 
@@ -5561,9 +7580,10 @@ GRM.GetSafePlayers = function( getCountAndPlayers )
     local count = 0;
     local names = {};
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
         for _ , player in pairs ( guildData ) do
-            if type ( player ) == "table" and player.safeList and player.name ~= GRM_G.addonuser then
+            if type ( player ) == "table" and player.safeList[rule][1] and player.name ~= GRM_G.addonuser then
 
                 count = count + 1;
                 -- Default just gets the count - otherwise it returns the list of players as well.
@@ -5599,6 +7619,35 @@ GRM.GetReasonIgnoredMsg = function ( myRank , targetRank )
     return result;
 end
 
+-- Method:          GRM.RefreshMacroToolRuleCount()
+-- What it Does:    Refreshes the UI text count on the macro tool
+-- Purpose:         Update frames on the fly
+GRM.RefreshMacroToolRuleCount = function()
+    -- let's set the indicator text above the macro tool rule tabs
+    if GRM_UI.GRM_ToolCoreFrame and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
+        if GRM_G.counts[1] == 0 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetTextColor ( 0 , 0.8 , 1 );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetTextColor ( 1 , 0 , 0 );
+        end
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetText ( GRM_G.counts[1] );
+
+        if GRM_G.counts[2] == 0 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( 0 , 0.8 , 1 );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][3] );
+        end
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetText ( GRM_G.counts[2] );
+
+        if GRM_G.counts[3] == 0 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( 0 , 0.8 , 1 );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][3] );
+        end
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetText ( GRM_G.counts[3] );
+    end
+end
 
 -- RULES!!!
 -- Method:          GRM.GetCountOfNamesBeingFiltered()
@@ -5606,28 +7655,51 @@ end
 -- Purpose:         Refreshes the names
 GRM.GetCountOfNamesBeingFiltered = function()
     local listOfNames = {};
-    local c = 0;
+    local k , p , d = 0 , 0 , 0;    -- Kick , Promote , Demote
 
     -- Add Remove Names
     if CanGuildRemove() then
-        listOfNames = GRM.GetKickNamesByFilterRules();
-        for _ in pairs ( listOfNames ) do
-            c = c + 1;
+
+        if time() - GRM_G.countAction[1] > 0.25 then
+            listOfNames = GRM.GetKickNamesByFilterRules();
+            for _ in pairs ( listOfNames ) do
+                k = k + 1;
+            end
+            GRM_G.counts[1] = k;
+        else
+            k = GRM_G.counts[1];
         end
     end
 
     -- Add Promotion Names
     if CanGuildPromote() then
-
+        if time() - GRM_G.countAction[2] > 0.25 then
+            listOfNames = GRM.GetNamesByFilterRules( 2 );
+            for _ in pairs ( listOfNames ) do
+                p = p + 1;
+            end
+            GRM_G.counts[2] = p;
+        else
+            p = GRM_G.counts[2];
+        end
     end
 
     -- Add Demotion Names
     if CanGuildDemote() then
-
+        if time() - GRM_G.countAction[3] > 0.25 then
+            listOfNames = GRM.GetNamesByFilterRules( 3 );
+            for _ in pairs ( listOfNames ) do
+                d = d + 1;
+            end
+            GRM_G.counts[3] = d;
+        else
+            d = GRM_G.counts[3];
+        end
     end
 
+    GRM.RefreshMacroToolRuleCount();
 
-    return c;
+    return k , p , d;
 end
 
 ------------------------
@@ -5637,7 +7709,7 @@ end
 -- Method:          GRM_UI.RefreshManagementTool( bool )
 -- What it Does:    Refreshes the management tool
 -- Purpose:         Compartmentalize the refresh details.
-GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild )
+GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customKickGroup )
     if not GRM_UI.GRM_ToolCoreFrame.IsInitialized then
 
         -- Check permissions - set tab as default one 
@@ -5651,8 +7723,14 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild )
 
         GRM_UI.LoadToolFrames ( false );
     end
+
+    -- Re-check they are valid
+    GRM.RuleIntegrityCheck();
+
+    GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
-    GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild );
+    GRM_UI.GRM_ToolCoreFrame.Safe = {}; -- reset this list to rebuild
+    GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild , customKickGroup );
     -- On reshow, always reset the macro
     GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
     GRM.BuildMacrodScrollFrame ( true , false );
@@ -5662,7 +7740,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild )
     GRM_UI.RefreshToolButtonsOnUpdate();
 
     -- Populate the macro 
-    if isBanAltList or isBanInGuild then
+    if isBanAltList or isBanInGuild or customKickGroup then
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:Click();
     end
 
@@ -5674,19 +7752,23 @@ end
 GRM_UI.RefreshToolButtonsOnUpdate = function()
 
     if GRM_G.guildName ~= "" then
-        local count = GRM.GetCountOfNamesBeingFiltered();
+        
+        GRM_UI.GRM_LoadToolOldRosterButton.count = {GRM.GetCountOfNamesBeingFiltered()};
+        GRM_UI.GRM_LoadToolOldRosterButton.total = GRM_UI.GRM_LoadToolOldRosterButton.count[1] + GRM_UI.GRM_LoadToolOldRosterButton.count[2] + GRM_UI.GRM_LoadToolOldRosterButton.count[3];
+        GRM_UI.GRM_LoadToolButton.count = GRM_UI.GRM_LoadToolOldRosterButton.count;
+        GRM_UI.GRM_LoadToolButton.total = GRM_UI.GRM_LoadToolOldRosterButton.total;
 
         if GRM_UI.GRM_LoadToolButton:IsVisible() then
-            if count > 0 then
-                GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool: {num}" , nil , nil , count ) );
+            if GRM_UI.GRM_LoadToolButton.total > 0 then
+                GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool: {num}" , nil , nil , GRM_UI.GRM_LoadToolButton.total ) );
             else
                 GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
             end
         end
 
         if GRM_UI.GRM_LoadToolOldRosterButton:IsVisible() then
-            if count > 0 then
-                GRM_UI.GRM_LoadToolOldRosterButtonText:SetText ( GRM.L ( "Macro Tool: {num}" , nil , nil , count ) );
+            if GRM_UI.GRM_LoadToolOldRosterButton.total > 0 then
+                GRM_UI.GRM_LoadToolOldRosterButtonText:SetText ( GRM.L ( "Macro Tool: {num}" , nil , nil , GRM_UI.GRM_LoadToolOldRosterButton.total ) );
             else
                 GRM_UI.GRM_LoadToolOldRosterButtonText:SetText ( GRM.L ( "Macro Tool" ) );
             end
@@ -5727,7 +7809,1226 @@ GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
     elseif GRM_G.kickBannedControl then
         GRM_UI.RefreshManagementTool( false , GRM_G.kickBannedControl );
         GRM_G.kickBannedControl = false;
+    elseif GRM_G.customKickGroup then
+        GRM_UI.RefreshManagementTool( false , false , GRM_G.customKickGroup );
+        GRM_G.customKickGroup = false;
     else
         GRM_UI.RefreshManagementTool( false , false );
     end
+
+    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam then
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( true );
+    else
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( false );
+    end
 end);
+
+----------------------------------------------
+------------ MACRO SYNC LOGIC ----------------
+----------------------------------------------
+--- For syncing macro rules among officers ---
+----------------------------------------------
+
+-- On loading initial button - log current state of buttons - then log any updates made and report
+-- Mouseover of button should show what buttons are in sync... and if still checking state "pending..."
+-- Set it to trigger sync if you just enabled it.
+
+-- -- Globals
+-- GRM_G.MacroSyncList = {};                   -- Collects the names and their rules as they arrive
+-- GRM_G.MacroSyncLeads = {};                  -- Collection of names to determine who is the number one person to sync macro rules with
+-- GRM_G.MacroSyncCollecting = false;          -- On the initial timing sync request
+-- GRM_G.MacroSyncTimeOutCheck = { 0 , 0 };    -- to compare on recursive error check. Each step this will be reset to time(). If time goes by between each check then we know sync failed, it will retry. - 2nd number is the step you are at///./
+GRM_G.MacroRuleSyncFormat = {};
+GRM_G.MacroRuleSyncFormat.kickRules = {};
+GRM_G.MacroRuleSyncFormat.promoteRules = {};
+GRM_G.MacroRuleSyncFormat.demoteRules = {};
+-- GRM_G.macroSizeMod = 12;                        -- Static value representing macro prefix size
+-- GRM_G.macroRequestQue = {};
+-- GRM_G.MacroSyncQuePosition = 0;                 -- Tracking the position in que to be used in the tooltip
+-- GRM_G.macroSyncSending = false                  -- Indicates the sending is currently in process
+-- GRM_G.macroSyncRulesReceived = {};   -- Number of rules received and accepted in this sync
+-- GRM_G.macroSyncRulesReceived.kickRules = {};
+-- GRM_G.macroSyncRulesReceived.promoteRules = {};
+-- GRM_G.macroSyncRulesReceived.demoteRules = {};
+
+-- -- Method:          GRM.ResetMacroSyncValues()
+-- -- What it Does:    Resets default values of sync progress
+-- -- Purpose:         Clear old information if no longer needed
+-- GRM.ResetMacroSyncValues = function()
+
+--     GRM_G.macroSyncRulesReceived.kickRules = {};
+--     GRM_G.macroSyncRulesReceived.promoteRules = {};
+--     GRM_G.macroSyncRulesReceived.demoteRules = {};
+
+-- end
+
+-- -- Method:          GRM.MacroSync ( string , string , string )
+-- -- What it Does:    Diverts the sync protocol to the macro tool use
+-- -- Purpose:         To sync macro rules
+-- GRM.MacroSync = function ( syncMsg , prefix , sender )
+--     local intendedRecipient = "";
+
+--     if prefix == "GRM_MACRO_T" then
+--         -- Timestamp received, add to collection
+--         GRM.MacroSyncCollectTime ( sender , syncMsg );
+
+--     elseif prefix == "GRM_Macro_RK" and syncMsg == GRM_G.addonUser then
+--         -- Received Kick rules request
+--         GRM.CollectRequest ( 1 , sender );
+
+--         if not GRM_G.macroSyncSending then
+--             print ("SendingRules")
+--             C_Timer.After ( 2 , GRM.SendRules );
+
+--         end
+
+--     elseif prefix == "GRM_Macro_RP" and syncMsg == GRM_G.addonUser then
+--         -- Received Promote rules request
+--         GRM.CollectRequest ( 2 , sender );
+
+--         if not GRM_G.macroSyncSending then
+--             C_Timer.After ( 1 , GRM.SendRules );
+--         end
+
+--     elseif prefix == "GRM_Macro_RD" and syncMsg == GRM_G.addonUser then
+--         -- Received Demote rules request
+--         GRM.CollectRequest ( 3 , sender );
+
+--         if not GRM_G.macroSyncSending then
+--             C_Timer.After ( 1 , GRM.SendRules );
+--         end
+
+--     elseif prefix == "GRM_Macro_SK" then
+--         -- Received Kick rule
+--         intendedRecipient , syncMsg = GRM.GetRecipient ( syncMsg )
+--         print("RECEIVED KICK: " .. intendedRecipient)
+--         if intendedRecipient == GRM_G.addonUser then
+--             print("RECEIVED KICK 2")
+--             GRM.CollectRule ( syncMsg , 1 , false , nil );
+--         end
+
+--     elseif prefix == "GRM_Macro_SP" then
+--         -- Received Promote rule
+--         intendedRecipient , syncMsg = GRM.GetRecipient ( syncMsg )
+--         if intendedRecipient == GRM_G.addonUser then
+--             GRM.CollectRule ( syncMsg , 2 , false , nil );
+--         end
+
+--     elseif prefix == "GRM_Macro_SD" then
+--         -- Received Demote rule
+--         intendedRecipient , syncMsg = GRM.GetRecipient ( syncMsg )
+--         if intendedRecipient == GRM_G.addonUser then
+--             GRM.CollectRule ( syncMsg , 3 , false , nil );
+--         end
+        
+--     elseif prefix == "GRM_Macro_MK" then
+--         print("Received Kick Rule")
+--         -- Received rule
+--         GRM.CollectRule ( syncMsg , 1 , false , nil );
+
+--     elseif prefix == "GRM_Macro_MP" then
+--         print("Received Promote Rule")
+--         -- Received Promote Rule
+--         GRM.CollectRule ( syncMsg , 2 , false , nil );
+
+--     elseif prefix == "GRM_Macro_MD" then
+--         print("Received Demote Rule")
+--         -- Received Demote Rule
+--         GRM.CollectRule ( syncMsg , 3 , false , nil );
+
+--     elseif prefix == "GRM_Macro_LK" then
+--         print("Received Live Kick Rule")
+--         -- Received LIVE rule
+--         GRM.CollectRule ( syncMsg , 1 , true , sender );
+
+--     elseif prefix == "GRM_Macro_LP" then
+--         print("Received Live Promote Rule")
+--         -- Received LIVE Promote Rule
+--         GRM.CollectRule ( syncMsg , 2 , true , sender );
+
+--     elseif prefix == "GRM_Macro_LD" then
+--         print("Received Live Demote Rule")
+--         -- Received LIVE Demote Rule
+--         GRM.CollectRule ( syncMsg , 3 , true , sender );
+
+--     elseif prefix == "GRM_Macro_PQ" then    -- Position in Que
+--         -- Received Que update
+--         GRM.CollectQuePosition ( syncMsg );
+
+--     elseif prefix == "GRM_Macro_FN" and syncMsg == GRM_G.addonUser then
+--         -- Received Finished Statement
+--         GRM.ReviewFinalResults();
+
+--     elseif prefix == "GRM_Macro_XR" then
+--         -- Received Finished Statement
+--         GRM.ReceiveRuleRemove ( syncMsg , sender );
+
+--     elseif prefix == "GRM_Macro_XL" then
+--         -- Received Finished Statement
+--         GRM.ReceiveRuleRemoveLive ( syncMsg , sender );
+
+--     end
+
+--     -- Else, nothing happens, end of function, just ignore the msg.
+-- end
+
+-- -- Method:          GRM.MacroSyncSend ( table , int , string )
+-- -- What it Does:    Sends the macro rule out to be compared.
+-- -- Purpose:         Build a lead, reusable tool to send the rules to other players easily.
+-- GRM.MacroSyncSend = function ( macroType , customMsg )
+--     local syncPrefixEnum = { [1] = "GRM_Macro_SK" , [2] = "GRM_Macro_SP" , [3] =  "GRM_Macro_SD" , [4] = "GRM_Macro_RK" , [5] = "GRM_Macro_RP" , [6] =  "GRM_Macro_RD" , [7] = "GRM_Macro_LK" , [8] = "GRM_aMcro_LP" , [9] = "GRM_Macro_LD", [10] = "GRM_Macro_PQ", [11] = "GRM_Macro_FN" , [12] = "GRM_Macro_XR" , [13] = "GRM_Macro_MK" , [14] = "GRM_Macro_MP" , [15] = "GRM_Macro_MD" , [16] = "GRM_Macro_XL"  }; -- "R == Request" and "S == Send" , "L" = "Live" - important differentiation on new data.
+
+--     local prefix = syncPrefixEnum[macroType];
+--     local msg = customMsg or "";
+
+
+--     -- DO NOT SEND FOR NOW
+--     -- GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?" .. prefix .. "?" .. msg , GRMsyncGlobals.channelName );
+-- end
+
+-- Method:          GRM.ConvertMacroRuleToString ( table , int )
+-- What it Does:    Returns the text string in syncable format of the rule given
+-- Purpose:         So rule can be shared
+GRM.ConvertMacroRuleToString = function ( rule , ruleType )
+    local result = "";
+    local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 };
+
+    if type ( ruleType ) == "string" then
+        ruleType = typeEnum [ ruleType ];
+    end
+
+    if ruleType == 1 then       -- kick rule
+        result = GRM.BuildKickRuleTosync ( rule );
+
+    elseif ruleType == 2 then   -- Promote rule
+        result = GRM.BuildPromoteRuleToSync ( rule );
+
+    elseif ruleType == 3 then   -- Demote rule
+        result = GRM.BuildDemoteRuleToSync ( rule );
+
+    end
+
+    return result;
+end
+
+-- -- Method:          GRM.GetRecipient ( string )
+-- -- What it Does:    Parses out the recipient's name in the msg
+-- -- Purpose:         Only players the message is intended for need to analyze this. Saves processing cycles needlessly.
+-- GRM.GetRecipient = function ( msg )
+--     local name = string.sub ( msg , 1 , string.find ( msg , "?" ) -1 );
+--     local msg = GRM.Next ( msg );
+
+--     return name , msg;
+-- end
+
+-- -- Method:          GRM.CollectRequest ( int , string )
+-- -- What it Does:    Collects the name of the person requesting the data
+-- -- Purpose:         Prevent double requesting and to be able to hold a que if multiple requests are received at the same time.
+-- GRM.CollectRequest = function ( ruleType , sender )
+--     -- Verify not already added
+--     if not GRM_G.macroRequestQue[sender] then
+--         GRM_G.macroRequestQue[sender] = { false , false , false };
+--     end
+
+--     GRM_G.macroRequestQue[sender][ruleType] = true;
+
+-- end
+
+-- -- Method:          GRM.CollectQuePosition ( string )
+-- -- What it Does:    Collects the position the player is in que to receive the sync data. In most cases this will be 1, if in middle of sync, but in rare cases multiple login at same time this could be more
+-- -- Purpose:         Simple UI feature for the tooltip to help indicate a sort of ETA on when you will receeive the sync update.
+-- GRM.CollectQuePosition = function ( msg )
+--     local name , num = string.match ( msg , "(.+)?(%d+)" );
+
+--     if name == GRM_G.addonUser then
+--         print("Sync Position")
+--         GRM_G.MacroSyncQuePosition = tonumber ( num );
+--     end
+-- end
+
+-- -- Method:          GRM.MacroSyncSendTime()
+-- -- What it Does:    Send the timestamp the player logged on
+-- -- Purpose:         To compile a list and determine who has been online the longest.
+-- GRM.MacroSyncSendTime = function()
+--     GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MACRO_T?" .. tostring (GRMsyncGlobals.timeAtLogin) , GRMsyncGlobals.channelName );
+-- end
+
+-- -- Method:          GRM.MacroSyncCollectTime()
+-- -- What it Does:    Collects the players into a table as they send in their timeOnline stamps
+-- -- Purpose:         Determine who we are going to sync with.
+-- GRM.MacroSyncCollectTime = function( sender , time )
+--     print("Collecting 1")
+--     if GRM_G.MacroSyncCollecting then
+--         local player = GRM.GetPlayer ( sender );
+--         if player then
+--             local canPromote , canDemote , canKick = GRM.GetPlayerRankPermissions ( player.name , player.rankIndex );
+--             local isFound = false;
+--             for i = 1 , #GRM_G.MacroSyncList do
+--                 if GRM_G.MacroSyncList[i][2] == player.name then
+--                     GRM_G.MacroSyncList[i] = { tonumber ( time ) , player.name , canKick , canPromote , canDemote };
+--                     isFound = true;
+--                     break;
+--                 end
+--             end
+
+--             if not isFound then
+--                 table.insert ( GRM_G.MacroSyncList , { tonumber ( time ) , sender , canKick , canPromote , canDemote } );   -- re-arranged to be in order of the macro tool
+--             end
+            
+--         end
+--     end
+-- end
+
+-- -- Method:          GRM.CompareTime
+-- -- What it Does:    Compares the timestamp of people online for syncing the macro rules
+-- -- Purpose:         To determine who is good to sync with.
+-- GRM.CompareTime = function()
+
+--     -- Need to reset these values...
+--     GRM_G.MacroSyncLeads.kick = { 0 , "" };
+--     GRM_G.MacroSyncLeads.promote = { 0 , "" };
+--     GRM_G.MacroSyncLeads.demote = { 0 , "" };
+--     local canKick , canPromote , canDemote = CanGuildRemove() , CanGuildPromote() , CanGuildDemote();
+    
+--     if #GRM_G.MacroSyncList > 0 then
+
+--         sort ( GRM_G.MacroSyncList , function ( a , b ) return a[1] < b[1] end );
+
+--         -- Set leads
+--         for i = 1 , #GRM_G.MacroSyncList do
+            
+--             -- Check kickLead
+--             if canKick and GRM_G.MacroSyncList[i][3] and ( GRM_G.MacroSyncLeads.kick[1] == 0 or GRM_G.MacroSyncLeads.kick[1] > GRM_G.MacroSyncList[i][1] ) then
+--                 GRM_G.MacroSyncLeads.kick = { GRM_G.MacroSyncList[i][1] , GRM_G.MacroSyncList[i][2] };
+--             end
+
+--             -- Promotions Lead
+--             if canPromote and GRM_G.MacroSyncList[i][4] and ( GRM_G.MacroSyncLeads.promote[1] == 0 or GRM_G.MacroSyncLeads.promote[1] > GRM_G.MacroSyncList[i][1] ) then
+--                 GRM_G.MacroSyncLeads.promote = { GRM_G.MacroSyncList[i][1] , GRM_G.MacroSyncList[i][2] };
+--             end
+
+--             -- Demotions Lead
+--             if canDemote and GRM_G.MacroSyncList[i][5] and ( GRM_G.MacroSyncLeads.demote[1] == 0 or GRM_G.MacroSyncLeads.demote[1] > GRM_G.MacroSyncList[i][1] ) then
+--                 GRM_G.MacroSyncLeads.demote = { GRM_G.MacroSyncList[i][1] , GRM_G.MacroSyncList[i][2] };
+--             end
+
+--         end
+--     end
+
+--     GRM.RequestRulesToCompare();
+--     GRM_G.MacroSyncCollecting = false;  -- all done
+-- end
+
+-- -- Method:          GRM.RequestRulesToCompare()
+-- -- What it Does:    Sends a request to each lead of the macro rule for their rules.
+-- -- Purpose:         Control the flow of requesting for info.
+-- GRM.RequestRulesToCompare = function()
+    
+--     -- Kick rules
+--     if GRM_G.MacroSyncLeads.kick[1] > 0 then
+--         print("Requesting kick rules to compare")
+--         GRM.MacroSyncSend ( 4 , GRM_G.MacroSyncLeads.kick[2] );
+--     end
+
+--     -- if GRM_G.MacroSyncLeads.promote[1] > 0 then
+--     --     GRM.MacroSyncSend ( 5 , GRM_G.MacroSyncLeads.promote[2] );
+--     -- end
+
+--     -- if GRM_G.MacroSyncLeads.demote[1] > 0 then
+--     --     GRM.MacroSyncSend ( 6 , GRM_G.MacroSyncLeads.demote[2] );
+--     -- end
+
+-- end
+
+
+
+-- Method:          GRM.B2Num ( bool )
+-- What it Does:    If something is true it returns it as 1 and 0 if false
+-- Purpose:         Easy converion to num values for true or false which helps shave just a few chars on the sync data as well.
+GRM.B2Num = function ( bool , convertToString )
+    local result;
+    local conv = { [true]=1 , [false]=0 };
+
+    if type ( bool ) == "boolean" then
+        result = conv[bool];
+        if convertToString then
+            result = tostring ( result )
+        end
+    end
+    
+    return result;
+end
+
+-- Method:          GRM.Num2B ( string )
+-- What it Does:    Converts a string 1 to true and string 0 to false booleans
+-- Purpose:         Easier converting when syncing data back and forth, keeps msg slim to pack and unpack it
+GRM.Num2B = function ( numString )
+    local result;
+    local conv = { ["1"]=true , ["0"]=false };
+
+    if type ( numString ) == "string" then
+        result = conv[numString];
+    end
+
+    return result;
+end
+
+-- Method:          getRanksString ( string )
+-- What it Does:    Converts the nested table into a string
+-- Purpose:         Easier parsing on the receiving end of sync message
+local getRanksString = function ( ranks )
+    local result = "&&X";
+
+    if #ranks > 0 then
+        for i = 1 , #ranks do
+            result = result .. GRM.B2Num ( ranks[i] , true ) .. "?";
+        end
+        result = result .. "X&&";
+    else
+        result = "&&X&X&&"
+    end
+
+    return result;
+end
+
+-- Method           getStringWithPlaceholder ( string )
+-- What it Does:    For sync purposes - if it finds an empy string, there needs to be a placeholder so it replaces it with this uncomon string
+-- Purpose:         Easy with parsing string on the receiving end.
+local getStringWithPlaceholder = function ( msg )
+    local result = "@&@";
+    if msg == "" then
+        return result;
+    else
+        return msg;
+    end
+end
+
+-- Method:          GRM.BuildKickRuleTosync ( table )
+-- What it Does:    Converts all of the rule values into a string
+-- Purpose:         So the rule can be shared among officers.
+GRM.BuildKickRuleTosync = function ( rule )
+
+    -- Set all rule values into a large string.
+    local result =                                              -- Indexed because when they are received they will be added into an array starting at 1
+    getRanksString ( rule.ranks ) ..                            -- 1
+    getStringWithPlaceholder ( rule.matchingString ) .. "?" ..  -- 2
+    getStringWithPlaceholder ( rule.customLogMsg ) .. "?" ..    -- 3
+    rule.name .. "?" ..                                         -- 4
+    rule.createdBy[1] .. "?" ..                                 -- 5
+    rule.createdBy[2] .. "?" ..                                 -- 6
+    GRM.B2Num ( rule.activityFilter , true ) .. "?" ..          -- 7
+    GRM.B2Num ( rule.isMonths , true ) .. "?" ..                -- 8
+    GRM.B2Num ( rule.noteMatch , true ) .. "?" ..               -- 9
+    GRM.B2Num ( rule.noteMatchEmpty , true ) .. "?" ..          -- 10
+    GRM.B2Num ( rule.notesToCheck[1] , true ) .. "?" ..         -- 11
+    GRM.B2Num ( rule.notesToCheck[2] , true ) .. "?" ..         -- 12
+    GRM.B2Num ( rule.notesToCheck[3] , true ) .. "?" ..         -- 13
+    GRM.B2Num ( rule.applyEvenIfActiive , true ) .. "?" ..      -- 14
+    GRM.B2Num ( rule.rankSpecialIsMonths , true ) .. "?" ..     -- 15
+    GRM.B2Num ( rule.allAltsApplyToKick , true ) .. "?" ..      -- 16
+    GRM.B2Num ( rule.rankFilter , true ) .. "?" ..              -- 17
+    GRM.B2Num ( rule.levelFilter , true ) .. "?" ..             -- 18
+    GRM.B2Num ( rule.repFilter , true ) .. "?" ..               -- 19
+    GRM.B2Num ( rule.customLog , true ) .. "?" ..               -- 20
+    tostring ( rule.numDaysOrMonths ) .. "?" ..                 -- 21
+    tostring ( rule.levelRange[1] ) .. "?" ..                   -- 22
+    tostring ( rule.levelRange[2] ) .. "?" ..                   -- 23
+    tostring ( rule.rankSpecialNumDaysOrMonths ) .. "?" ..      -- 24
+    tostring ( rule.applyRulesTo ) .. "?" ..                    -- 25
+    tostring ( rule.repOperator ) .. "?" ..                     -- 26
+    tostring ( rule.rep ) .. "?" ..                             -- 27
+    tostring ( rule.editTime );                                 -- 28
+
+    return result;
+end
+
+-- Method:          GRM.BuildPromoteRuleToSync ( table )
+-- What it Does:    Converts all of the rule values into a string
+-- Purpose:         So the rule can be shared among officers.
+GRM.BuildPromoteRuleToSync = function ( rule )
+
+    -- Set all rule values into a large string.
+    local result = 
+    getRanksString ( rule.ranks ) ..                            -- 1
+    getStringWithPlaceholder ( rule.matchingString ) .. "?" ..  -- 2
+    getStringWithPlaceholder ( rule.customLogMsg ) .. "?" ..    -- 3
+    rule.name .. "?" ..                                         -- 4
+    rule.createdBy[1] .. "?" ..                                 -- 5
+    rule.createdBy[2] .. "?" ..                                 -- 6
+    GRM.B2Num ( rule.activityFilter , true ) .. "?" ..          -- 7
+    GRM.B2Num ( rule.isMonths , true ) .. "?" ..                -- 8
+    GRM.B2Num ( rule.noteMatch , true ) .. "?" ..               -- 9
+    GRM.B2Num ( rule.noteMatchEmpty , true ) .. "?" ..          -- 10
+    GRM.B2Num ( rule.notesToCheck[1] , true ) .. "?" ..         -- 11
+    GRM.B2Num ( rule.notesToCheck[2] , true ) .. "?" ..         -- 12
+    GRM.B2Num ( rule.notesToCheck[3] , true ) .. "?" ..         -- 13
+    GRM.B2Num ( rule.regardlessOfActivity , true ) .. "?" ..    -- 14   -- UNIQUE
+    GRM.B2Num ( rule.rankSpecialIsMonths , true ) .. "?" ..     -- 15
+    GRM.B2Num ( rule.allAltsApplyToKick , true ) .. "?" ..      -- 16
+    GRM.B2Num ( rule.rankFilter , true ) .. "?" ..              -- 17
+    GRM.B2Num ( rule.levelFilter , true ) .. "?" ..             -- 18
+    GRM.B2Num ( rule.repFilter , true ) .. "?" ..               -- 19
+    GRM.B2Num ( rule.customLog , true ) .. "?" ..               -- 20
+    tostring ( rule.numDaysOrMonths ) .. "?" ..                 -- 21
+    tostring ( rule.levelRange[1] ) .. "?" ..                   -- 22
+    tostring ( rule.levelRange[2] ) .. "?" ..                   -- 23
+    tostring ( rule.rankSpecialNumDaysOrMonths ) .. "?" ..      -- 24
+    tostring ( rule.applyRulesTo ) .. "?" ..                    -- 25
+    tostring ( rule.repOperator ) .. "?" ..                     -- 26
+    tostring ( rule.rep ) .. "?" ..                             -- 27
+    tostring ( rule.editTime ) .. "?" ..                        -- 28
+    tostring ( rule.destinationRank );                          -- 29
+    
+    return result;
+end
+
+-- Method:          GRM.BuildDemoteRuleToSync ( table )
+-- What it Does:    Converts all of the rule values into a string
+-- Purpose:         So the rule can be shared among officers.
+GRM.BuildDemoteRuleToSync = function ( rule )
+
+    -- Set all rule values into a large string.
+    local result = 
+    getRanksString ( rule.ranks ) ..                            -- 1
+    getStringWithPlaceholder ( rule.matchingString ) .. "?" ..  -- 2
+    getStringWithPlaceholder ( rule.customLogMsg ) .. "?" ..    -- 3
+    rule.name .. "?" ..                                         -- 4
+    rule.createdBy[1] .. "?" ..                                 -- 5
+    rule.createdBy[2] .. "?" ..                                 -- 6
+    GRM.B2Num ( rule.activityFilter , true ) .. "?" ..          -- 7
+    GRM.B2Num ( rule.isMonths , true ) .. "?" ..                -- 8
+    GRM.B2Num ( rule.noteMatch , true ) .. "?" ..               -- 9
+    GRM.B2Num ( rule.noteMatchEmpty , true ) .. "?" ..          -- 10
+    GRM.B2Num ( rule.notesToCheck[1] , true ) .. "?" ..         -- 11
+    GRM.B2Num ( rule.notesToCheck[2] , true ) .. "?" ..         -- 12
+    GRM.B2Num ( rule.notesToCheck[3] , true ) .. "?" ..         -- 13
+    GRM.B2Num ( rule.rankSpecialIsMonths , true ) .. "?" ..     -- 14
+    GRM.B2Num ( rule.allAltsApplyToKick , true ) .. "?" ..      -- 15
+    GRM.B2Num ( rule.rankFilter , true ) .. "?" ..              -- 16
+    GRM.B2Num ( rule.levelFilter , true ) .. "?" ..             -- 17
+    GRM.B2Num ( rule.repFilter , true ) .. "?" ..               -- 18
+    GRM.B2Num ( rule.customLog , true ) .. "?" ..               -- 19
+    tostring ( rule.numDaysOrMonths ) .. "?" ..                 -- 20
+    tostring ( rule.levelRange[1] ) .. "?" ..                   -- 21
+    tostring ( rule.levelRange[2] ) .. "?" ..                   -- 22
+    tostring ( rule.rankSpecialNumDaysOrMonths ) .. "?" ..      -- 23
+    tostring ( rule.applyRulesTo ) .. "?" ..                    -- 24
+    tostring ( rule.repOperator ) .. "?" ..                     -- 25
+    tostring ( rule.rep ) .. "?" ..                             -- 26
+    tostring ( rule.destinationRank ) .. "?" ..                 -- 27
+    tostring ( rule.editTime );                                 -- 28
+
+    return result;
+end
+
+-- -- Method:          GRM.SendRuleAdd ( string , string , string , bool )
+-- -- What it Does:    Sends a macro rule to a player to be checked, any type
+-- -- Purpose:         Syncing rules
+-- GRM.SendRuleAdd = function ( ruleType , ruleName , ruleString , isLive )
+--     local sendDetails;
+--     if isLive then
+--         sendDetails = { ["kickRules"] = 13 , ["promoteRules"] = 14 , ["demoteRules"] = 15 };
+--     else
+--         sendDetails = { ["kickRules"] = 7 , ["promoteRules"] = 8 , ["demoteRules"] = 9 };
+--     end
+
+--     local msg = ruleString or GRM.ConvertMacroRuleToString ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][ruleName] , ruleType );
+
+--     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRM_G.macroSizeMod;
+--     GRM.MacroSyncSend ( sendDetails[ruleType] , msg );
+-- end
+
+-- -- Method:          GRM.SendRuleRemove ( string , string , int , string , bool )
+-- -- What it DoeS:    Sends a message to a player to remove the given rule
+-- -- Purpose:         Quality of life in syncing macro rules
+-- GRM.SendRuleRemove = function ( typeIndex , ruleName , epochTime , removedBy , isLive )
+--     local prefix = 12; -- "GRM_Macro_XR"
+--     local t = epochTime or time();
+
+--     if isLive then
+--         prefix = 16; -- "GRM_Macro_XL"
+--     end
+
+--     local msg = typeIndex .. "?" .. ruleName  .. "?" .. removedBy .. "?" .. t; 
+--     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRM_G.macroSizeMod;
+--     GRM.MacroSyncSend ( prefix , msg );
+-- end
+
+
+-- -- Method:          GRM.ReceiveRuleRemove ( string , string )
+-- -- What it Does:    Determines if a rule was received as a live rule, or a retroactive sync, and then updates file as needed.
+-- GRM.ReceiveRuleRemove = function ( msg , sender )
+    
+--     local ruleType , epochTime , name = string.match ( msg , "%d?%d?%d+?.+" );
+
+--     isLive = GRM.Num2B ( isLive );
+--     ruleType = tonumber ( ruleType );
+--     epochTime = tonumber ( epochTime );
+
+--     if isLive then
+--         GRM.ReceiveRuleRemoveLive ( ruleType , epochTime , name );
+--     else
+--         GRM.ReceiveRuleRemoveSync ( ruleType , epochTime , name );
+--     end
+
+-- end
+
+-- -- Method:          GRM.RemoveMacroRule ( string , string , bool )
+-- -- What it Does:    Removes a macro rule LIVE\
+-- -- Purpose:         Part of macro sync algorithm
+-- GRM.RemoveMacroRule = function ( ruleName , ruleType , liveUpdate , sender )
+--     print ("Removing Rule: " .. ruleName )
+--     -- GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][ruleName] = nil;
+    
+
+--     if liveUpdate then
+--         local removeMsg = { ["kickRules"] = GRM.L ( "Kick Rule \"{name}\" Removed by {name2}" , ruleName , GRM.GetClassifiedName ( sender ) ) , ["promoteRules"] = GRM.L ( "Promote Rule \"{name}\" Removed by {name2}" , ruleName , GRM.GetClassifiedName ( sender ) ) , ["demoteRules"] = GRM.L ( "Demote Rule \"{name}\" Removed by {name2}" , ruleName , GRM.GetClassifiedName ( sender ) ) };
+
+--         GRM.Report ( GRM.L ( "Macro Rule Sync:" ) .. " " .. removeMsg[ruleType] );
+--     end
+
+--     GRM.RefreshNumberOfHoursTilRecommend();
+-- end
+
+-- -- GRM.RemoveMacroRule
+-- GRM.ReceiveRuleRemoveLive = function ( ruleType , epochTime , name )
+
+-- end
+
+-- GRM.ReceiveRuleRemoveSync = function ( ruleType , epochTime , name )
+
+-- end
+
+-- -- Method:          GRM.SendRuleRemove ( bool , int  int , string)
+-- -- What it Does:    Sends a macro rule sync on a rule that has been removed
+-- -- Purpose:         Syncing macro rules among players in same guild.
+-- GRM.SendRuleRemove = function ( isLive , ruleType , epochTime , name )
+--     local msg = GRM.B2Num ( isLive , true ) .. "?" .. ruleType .. "?" .. epochTime .. "?" .. name;
+--     GRM.MacroSyncSend ( 12 , msg );
+-- end
+
+-- -- Method:          GRM.SendKickRules ( string , int , table , int )
+-- -- What it Does:    This sends the kick rules to the other player in a qued fashion
+-- -- Purpose:         Syncing macro rules.
+-- GRM.SendRules = function ( s , t , rules , count )
+--     GRM_G.macroSyncSending = true;
+
+--     local sender , ruleType;
+
+--     if not s then
+--         sender , ruleType = GRM.GetNextInMacroSyncQue();
+--         GRM.SendNumInQue();
+--     else
+--         sender = s;
+--         ruleType = t;
+--     end
+
+--     local ruleFunctions = { GRM.CompileKickRules , GRM.CompilePromoteRules , GRM.CompileDemoteRules };
+--     local macroRules = rules or ruleFunctions[ruleType]();
+--     local ruleCount = count or 1;
+--     local msg = "";
+    
+--     for i = ruleCount , #macroRules do
+--         msg = sender .. "?" .. macroRules[i].ruleString;
+        
+--         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRM_G.macroSizeMod;
+--         print("Sending rules here type: " .. ruleType)
+--         GRM.MacroSyncSend ( ruleType , msg );
+
+--         if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
+--             GRMsyncGlobals.SyncCount = 0;
+--             C_Timer.After ( GRMsyncGlobals.ThrottleDelay , function()
+--                 GRM.SendRules ( sender , ruleType , rules , i );    -- Send with full details
+--             end);
+--             return;
+--         end
+--     end
+
+--     print("Sending rules complete")
+--     -- Rule send complete - let's check next step
+--     GRM_G.macroRequestQue[sender][ruleType] = false;
+
+--     -- Let's check same person for additional requests
+--     for i = 1 , #GRM_G.macroRequestQue[sender] do
+--         if GRM_G.macroRequestQue[sender][i] then
+--             ruleType = i;
+--             GRM.SendRules ( sender , ruleType );    -- still need another rule set to be sent.
+--             return;
+--         end
+--     end
+
+--     -- remove sender from que
+--     GRM_G.macroRequestQue[sender] = nil;
+--     GRM.MacroSyncSend ( 11 , sender );  -- Let player know done sending
+
+--     -- On to the next in que
+--     if GRM.GetNumInQue() > 0 then
+--         C_Timer.After ( 5 , GRM.SendRules );
+--         return;
+--     end
+
+--     GRM_G.macroSyncSending = false;
+-- end
+
+-- -- Method:          GRM.GetNumInQue()
+-- -- What it Does:    Returns the integer number of people qued
+-- -- Purpose:         Organize the que send list
+-- GRM.GetNumInQue = function()
+--     local num = 0;
+
+--     for _ in pairs ( GRM_G.macroRequestQue ) do
+--         num = num + 1;
+--     end
+
+--     return num;
+-- end
+
+-- -- Method:          GRM.SendNumInQue()
+-- -- What it Does:    Sends out to each person in que their placement in the que so the tooltip can update if que is taking a while
+-- -- Purpose:         Quality of life info on tooltip
+-- GRM.SendNumInQue = function()
+--     local msg = "";
+--     local count = 1;
+
+--     for name in pairs ( GRM_G.macroRequestQue ) do
+--         msg = name .. "?" .. count;
+--         GRM.MacroSyncSend ( 10 , msg );
+--         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRM_G.macroSizeMod;
+--     end
+
+-- end
+
+-- -- Method:          GetNextInMacroSyncQue()
+-- -- What it Does:    It returns the name and type of the person in the macro sync que next
+-- -- Purpose:         Control the flow of the requests properly if qued.
+-- GRM.GetNextInMacroSyncQue = function()
+--     local name , ruleType;
+
+--     for n , ruleRequest in pairs ( GRM_G.macroRequestQue ) do
+--         for i = 1 , #ruleRequest do
+--             if ruleRequest[i] then
+--                 name = n;
+--                 ruleType = i;
+--                 break;
+--             end
+--         end
+--         if name then    -- Add an escape
+--             break;
+--         end
+--     end
+
+--     return name , ruleType;
+-- end
+
+-- -- Method:          GRM.CompileKickRules()
+-- -- What it Does:    Compiles all of your kick rules to be sent
+-- -- Purpose:         Control the flow of information when sending.
+-- GRM.CompileKickRules = function()
+--     local listOfRules = {};
+--     local tempTable = {};
+
+--     for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules ) do
+--         if rule.sync then
+--             if not GRM_G.MacroRuleSyncFormat.kickRules[ruleName] then
+--                 GRM_G.MacroRuleSyncFormat.kickRules[ruleName] = {};
+--                 GRM_G.MacroRuleSyncFormat.kickRules[ruleName].ruleString = GRM.ConvertMacroRuleToString ( rule , 1 );
+--                 GRM_G.MacroRuleSyncFormat.kickRules[ruleName].ruleIndex = tonumber ( rule.ruleIndex );
+--             end
+--             table.insert ( listOfRules , GRM_G.MacroRuleSyncFormat.kickRules[ruleName] );
+--         end
+--     end
+
+--     sort ( listOfRules , function ( a , b ) return a.ruleIndex < b.ruleIndex end );
+
+--     return listOfRules;
+-- end
+
+-- -- Method:          GRM.CompilePromoteRules()
+-- -- What it Does:    Compiles all of your promote rules to be sent
+-- -- Purpose:         Control the flow of information when sending.
+-- GRM.CompilePromoteRules = function()
+--     local listOfRules = {};
+
+--     for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteRules ) do
+--         if rule.sync then
+--             if not GRM_G.MacroRuleSyncFormat.promoteRules[ruleName] then
+--                 GRM_G.MacroRuleSyncFormat.promoteRules[ruleName] = {};
+--                 GRM_G.MacroRuleSyncFormat.promoteRules[ruleName].ruleString = GRM.ConvertMacroRuleToString ( rule , 2 );
+--                 GRM_G.MacroRuleSyncFormat.promoteRules[ruleName].ruleIndex = tonumber ( rule.ruleIndex );
+--             end
+--             table.insert ( listOfRules , GRM_G.MacroRuleSyncFormat.promoteRules[ruleName] );
+--         end
+--     end
+
+--     sort ( listOfRules , function ( a , b ) return a.ruleIndex < b.ruleIndex end );
+--     -- Send in a qued format.
+
+--     return listOfRules;
+-- end
+
+-- -- Method:          GRM.CompileDemoteRules()
+-- -- What it Does:    Compiles all of your demote rules to be sent
+-- -- Purpose:         Control the flow of information when sending.
+-- GRM.CompileDemoteRules = function()
+--     local listOfRules = {};
+
+--     for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteRules ) do
+--         if rule.sync then
+--             if not GRM_G.MacroRuleSyncFormat.demoteRules[ruleName] then
+--                 GRM_G.MacroRuleSyncFormat.demoteRules[ruleName] = {};
+--                 GRM_G.MacroRuleSyncFormat.demoteRules[ruleName].ruleString = GRM.ConvertMacroRuleToString ( rule , 3 );
+--                 GRM_G.MacroRuleSyncFormat.demoteRules[ruleName].ruleIndex = tonumber ( rule.ruleIndex );
+--             end
+--             table.insert ( listOfRules , GRM_G.MacroRuleSyncFormat.demoteRules[ruleName] );
+--         end
+--     end
+
+--     sort ( listOfRules , function ( a , b ) return a.ruleIndex < b.ruleIndex end );
+--     -- Send in a qued format.
+
+--     return listOfRules;
+-- end
+
+-- -- Method:          GRM.ReceiveRule ( string )
+-- -- What it Does:    Parses the received rule into an array
+-- -- Purpose:         For syncing macro rules
+-- GRM.ReceiveRule = function ( ruleMsg , ruleType )
+--     local tempRanks , ruleMsg = string.match ( ruleMsg , "&&X(.+)X&&?(.+)" );
+--     local receivedR = {};
+--     local whileFilter = { [1]=21 , [2]=21 , [3]=20 };
+--     receivedR[1] = {};
+
+--     while tempRanks and string.find ( tempRanks , "?" ) ~= nil do
+--         table.insert ( receivedR[1] , GRM.Num2B ( string.sub ( tempRanks , 1 , 1 ) ) );
+--         tempRanks = string.sub ( tempRanks , 3 );
+--     end
+
+--     local ind = string.find ( ruleMsg , "?" );
+--     local value = "";
+--     local c = 1;
+    
+--     while ind do
+--         table.insert ( receivedR , string.sub ( ruleMsg , 1 , ind - 1 ) );
+--         ruleMsg = string.sub ( ruleMsg , ind + 1 );
+--         ind = string.find ( ruleMsg , "?" );
+--         c = c + 1;
+--         if c > 6 then
+--             if c < whileFilter[ruleType] then
+--                 receivedR[c] = GRM.Num2B ( receivedR[c] );
+--             else
+--                 receivedR[c] = tonumber ( receivedR[c] );
+--             end
+--         else
+--             -- c < 5
+--             if c == 2 or c == 3 then
+--                 if receivedR[c] == "@&@" then
+--                     receivedR[c] = "";
+--                 end
+--             end
+--         end
+--     end
+
+--     if #ruleMsg > 0 then
+--         table.insert ( receivedR , tonumber ( ruleMsg ) );
+--     end
+
+--     return receivedR , ruleType;
+-- end
+
+-- -- Method:          GRM.CollectRule ( string , int , bool , string )
+-- -- What it Does:    Collects the received rule and compares it
+-- -- Purpose:         So player can know if they need to add the rule or not.
+-- GRM.CollectRule = function ( ruleMsg , ruleType , liveUpdate , sender )
+--     local rule = GRM.ReceiveRule ( ruleMsg , ruleType );
+
+--     -- Compare rule to see if to add or to send the other person my rule
+--     if ruleType == 1 then
+--         GRM.MacroSyncCompareRule ( rule , "kickRules" , liveUpdate , sender );
+--     elseif ruleType == 2 then
+--         GRM.MacroSyncCompareRule ( rule , "promoteRules" , liveUpdate , sender );
+--     elseif ruleType == 3 then
+--         GRM.MacroSyncCompareRule ( rule , "demoteRules" , liveUpdate , sender );
+--     end
+-- end
+
+-- -- Method:          GRM.MacroSyncCompareRule ( table , string )
+-- -- What it Does:    Compares the rule received to what you already have and either absorbs it or ignores it.
+-- -- Purpose:         To see which rule is the most recent.
+-- GRM.MacroSyncCompareRule = function ( rule , ruleType , liveUpdate , sender )
+--     print("Received rule")
+--     -- First thing, let's check if the rule exists, and if it does, let's check editTimes
+--     local addRule = false;
+--     local ruleName = rule[4];
+
+--     local senderNeedsToRemove = false;
+
+--     -- Check if it already exists
+--     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ ruleType ][ ruleName ] then
+--         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ ruleType ][ ruleName ].editTime < rule[28] and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ ruleType ][ ruleName ].sync then
+--             -- Rule needs to be added / overwrite existing
+--             addRule = true;
+--             print("Need to add it")
+--         else
+--             print("already exists")
+--         end
+
+--     -- Rule exists, but you removed it, let's see who is more recent.
+--     elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][ ruleName ] then
+        
+--         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][ ruleName ][1] <= rule[28] then
+--             addRule = true;
+--         else
+--             senderNeedsToRemove = true;
+--         end
+
+--     else
+--         print("AddingRule")
+--         addRule = true;
+--     end
+
+--     if not liveUpdate then
+
+--         GRM_G.macroSyncRulesReceived[ruleType][ruleName] = {};
+--         GRM_G.macroSyncRulesReceived[ruleType][ruleName].toAdd = addRule;
+--         GRM_G.macroSyncRulesReceived[ruleType][ruleName].senderRemove = senderNeedsToRemove;
+
+--     end
+
+--     -- Now we add it.
+--     if addRule then
+--         GRM.AddMacroRule ( rule , ruleType , liveUpdate , sender );
+
+--     else
+--         print("Rule already added")
+--     end
+
+-- end
+
+-- -- Method:          GRM.AddMacroRule ( ruleTable , int , bool )
+-- -- What it Does:    Takes the table values of the macro rule and adds them to the new rule
+-- -- Purpose:         Allow slimmer storing of rule data for syncing purposes and storage efficiency, and to convert back to useful form easily.
+-- GRM.AddMacroRule = function ( newRule , ruleType , liveUpdate )
+--     local rule = {};
+    
+--     if ruleType == "kickRules" then
+--         rule = GRM.BuildNewKickRuleTemplate();
+--         rule.applyEvenIfActiive = newRule[14];  -- Unique rule to kicks
+--         rule.name = newRule[4]
+--         rule.applyRulesTo = newRule[25];                -- All = 1 , Alts = 2 , Mains = 3
+--         rule.activityFilter = newRule[7];
+--         rule.isMonths = newRule[8];
+--         rule.numDaysOrMonths = newRule[21];
+--         rule.allAltsApplyToKick = newRule[16];
+--         rule.rankFilter = newRule[17];
+--         rule.ranks = newRule[1];
+--         rule.levelFilter = newRule[18];
+--         rule.levelRange = { newRule[22] , newRule[23] };
+--         rule.noteMatch = newRule[9];
+--         rule.noteMatchEmpty = newRule[10];
+--         rule.notesToCheck = { newRule[11] , newRule[12] , newRule[13] };   -- Public , Officer, Custom
+--         rule.matchingString = newRule[2];
+--         rule.rankSpecialIsMonths = newRule[15];
+--         rule.rankSpecialNumDaysOrMonths = newRule[24];
+--         rule.repFilter = newRule[19];
+--         rule.repOperator = newRule[26];
+--         rule.rep = newRule[27];            -- 4 = neutral
+--         rule.customLog = newRule[20];
+--         rule.customLogMsg = newRule[3];
+--         rule.editTime = newRule[28];
+--         rule.createdBy = { newRule[5] , newRule[6] };
+        
+--     elseif ruleType == "promoteRules" then
+--         rule = GRM.BuildNewPromoteOrDemoteRuleTemplate ( nil , nil , 2 );
+--         rule.regardlessOfActivity = newRule[14];  -- Unique rule to promote
+--         rule.destinationRank = newRule[29];       -- Unique rule to promote/demote
+--         rule.name = newRule[4]
+--         rule.applyRulesTo = newRule[25];                -- All = 1 , Alts = 2 , Mains = 3
+--         rule.activityFilter = newRule[7];
+--         rule.isMonths = newRule[8];
+--         rule.numDaysOrMonths = newRule[21];
+--         rule.allAltsApplyToKick = newRule[16];
+--         rule.rankFilter = newRule[17];
+--         rule.ranks = newRule[1];
+--         rule.levelFilter = newRule[18];
+--         rule.levelRange = { newRule[22] , newRule[23] };
+--         rule.noteMatch = newRule[9];
+--         rule.noteMatchEmpty = newRule[10];
+--         rule.notesToCheck = { newRule[11] , newRule[12] , newRule[13] };   -- Public , Officer, Custom
+--         rule.matchingString = newRule[2];
+--         rule.rankSpecialIsMonths = newRule[15];
+--         rule.rankSpecialNumDaysOrMonths = newRule[24];
+--         rule.repFilter = newRule[19];
+--         rule.repOperator = newRule[26];
+--         rule.rep = newRule[27];            -- 4 = neutral
+--         rule.customLog = newRule[20];
+--         rule.customLogMsg = newRule[3];
+--         rule.editTime = newRule[28];
+--         rule.createdBy = { newRule[5] , newRule[6] };
+
+--     elseif ruleType == "demoteRules" then
+--         rule = GRM.BuildNewPromoteOrDemoteRuleTemplate( nil , nil , 3 );
+--         rule.destinationRank = newRule[27];       -- Unique rule to promote/demote
+--         rule.name = newRule[4]
+--         rule.applyRulesTo = newRule[24];                -- All = 1 , Alts = 2 , Mains = 3
+--         rule.activityFilter = newRule[7];
+--         rule.isMonths = newRule[8];
+--         rule.numDaysOrMonths = newRule[20];
+--         rule.allAltsApplyToKick = newRule[15];
+--         rule.rankFilter = newRule[16];
+--         rule.ranks = newRule[1];
+--         rule.levelFilter = newRule[17];
+--         rule.levelRange = { newRule[21] , newRule[22] };
+--         rule.noteMatch = newRule[9];
+--         rule.noteMatchEmpty = newRule[10];
+--         rule.notesToCheck = { newRule[11] , newRule[12] , newRule[13] };   -- Public , Officer, Custom
+--         rule.matchingString = newRule[2];
+--         rule.rankSpecialIsMonths = newRule[14];
+--         rule.rankSpecialNumDaysOrMonths = newRule[23];
+--         rule.repFilter = newRule[18];
+--         rule.repOperator = newRule[25];
+--         rule.rep = newRule[26];            -- 4 = neutral
+--         rule.customLog = newRule[19];
+--         rule.customLogMsg = newRule[3];
+--         rule.editTime = newRule[28];
+--         rule.createdBy = { newRule[5] , newRule[6] };
+
+--     end
+
+--     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][rule.name] = GRM.DeepCopyArray ( rule );
+--     -- Clear it from removed rules if it is there...
+--     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][rule.name] = nil;
+--     -- Don't refresh UI until sender confirms they sent last rule
+--     GRM.RefreshNumberOfHoursTilRecommend();
+-- end
+
+-- -- Method:          GRM.ReviewFinalResults()
+-- -- What it Does:    Reviews the ultimate results of received rules
+-- -- Purpose:         Ensure both players on the same page and quality of life reporting to the player
+-- GRM.ReviewFinalResults = function()
+--     print("Reviewing final results")
+--     local countToSend = 0;
+--     local listOfRulesToSend = {};
+--     listOfRulesToSend.kickRules = {};
+--     listOfRulesToSend.promoteRules = {};
+--     listOfRulesToSend.demoteRules = {};
+
+--     local count = { { 0 , 0 } , { 0 , 0 } , { 0 , 0 } }; -- { added , removed }
+--     local ruleGroup = { "kickRules" , "promoteRules" , "demoteRules" };
+
+--     for i = 1 , #ruleGroup do
+--         for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleGroup[i]] ) do
+
+--             -- If it was not received, but you have this rule, then send it back as a LIVE update to specific person
+--             if not GRM_G.macroSyncRulesReceived[ruleGroup[i]][ruleName] then
+--                 if rule.sync then
+--                     listOfRulesToSend[ruleGroup[i]][ruleName] = {};
+
+--                     -- CPU cycle logic saving
+--                     if not GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName] then
+--                         GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName] = {};
+--                         GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName].ruleString = GRM.ConvertMacroRuleToString ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleGroup[i]][ruleName] , i );
+--                         GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName].ruleIndex = tonumber ( rule.ruleIndex );
+--                     end
+
+--                     listOfRulesToSend[ruleGroup[i]][ruleName] = GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName];
+--                     listOfRulesToSend[ruleGroup[i]][ruleName].toAdd = true;
+--                     listOfRulesToSend[ruleGroup[i]][ruleName].name = ruleName;
+--                     listOfRulesToSend[ruleGroup[i]][ruleName].editTime = rule.editTime;
+--                     countToSend = countToSend + 1;
+--                 end
+--             else
+--                 -- Rule received exists - only add to list if telling them to remove it
+--                 if GRM_G.macroSyncRulesReceived[ruleGroup[i]][ruleName].senderRemove then
+--                     listOfRulesToSend[ruleGroup[i]][ruleName] = {};
+--                     listOfRulesToSend[ruleGroup[i]][ruleName].toAdd = false;
+--                     listOfRulesToSend[ruleGroup[i]][ruleName].name = ruleName;
+--                     listOfRulesToSend[ruleGroup[i]][ruleName].editTime = rule.editTime;
+--                     countToSend = countToSend + 1;
+--                 end
+
+--             end
+--         end
+--     end
+    
+--     -- REPORTING TO CHAT
+--     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
+--         local isAnyCount = false;
+--         local i = 0;
+--         for ruleGroup in pairs ( GRM_G.macroSyncRulesReceived ) do
+            
+--             if ruleGroup == "kickRules" then
+--                 i = 1;
+--             elseif ruleGroup == "promoteRules" then
+--                 i = 2;
+--             elseif ruleGroup == "demoteRules" then
+--                 i = 3;
+--             end
+
+--             for _ , rule in pairs ( GRM_G.macroSyncRulesReceived[ruleGroup] ) do
+--                 if rule.toAdd then
+--                     count[i][1] = count[i][1] + 1;
+--                     isAnyCount = true;
+--                 elseif rule.toRemove then
+--                     count[i][2] = count[i][2] + 1;
+--                     isAnyCount = true;
+--                 end
+--             end
+--         end
+--         -- Only report to chat IF there is an udpate.
+--         if isAnyCount then
+--             GRM.Report ( GRM.L ( "Macro Rules Sync Result:" ) );
+
+--             if count[1][1] > 0 then
+--                 GRM.Report ( GRM.L ( "Kick Rules Added: {num}" , nil , nil , count[1][1] ) );
+--             end
+--             if count[1][2] > 0 then
+--                 GRM.Report ( GRM.L ( "Kick Rules Removed: {num}" , nil , nil , count[1][2] ) );
+--             end
+
+--             if count[2][1] > 0 then
+--                 GRM.Report ( GRM.L ( "Promote Rules Added: {num}" , nil , nil , count[2][1] ) );
+--             end
+--             if count[2][2] > 0 then
+--                 GRM.Report ( GRM.L ( "Promote Rules Removed: {num}" , nil , nil , count[2][2] ) );
+--             end
+
+--             if count[3][1] > 0 then
+--                 GRM.Report ( GRM.L ( "Demote Rules Added: {num}" , nil , nil , count[3][1] ) );
+--             end
+--             if count[3][2] > 0 then
+--                 GRM.Report ( GRM.L ( "Demote Rules Removed: {num}" , nil , nil , count[3][2] ) );
+--             end
+--         end
+--     end
+
+--     if countToSend > 0 then
+--         GRM.ResponseBackAfterMacroSync ( listOfRulesToSend );
+--     else
+--         print("Macro ccSync Complete")
+--     end
+    
+    
+--     -- Reset values and report end of macro rule sync
+--     -- GRM.ResetMacroSyncValues();
+-- end
+
+-- -- Method:          GRM.ResponseBackAfterMacroSync ( table )
+-- -- What it Does:    Sends a throttled response back of all the rules you have that needed to be added or removed by the syncer
+-- -- Purpose:         Decentralized syncing.
+-- GRM.ResponseBackAfterMacroSync = function ( listOfRulesToSend , sortedListOfRulesToSend , index )
+--     local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 };
+--     local rulesToSend = {};
+--     local startIndex = index or 1;
+
+--     if sortedListOfRulesToSend then
+--         rulesToSend = sortedListOfRulesToSend;
+--     else
+--         -- Let's create a sorted list so when sending it arrives neatly and in order
+--         rulesToSend.kickRules = {};
+--         rulesToSend.promoteRules = {};
+--         rulesToSend.demoteRules = {};
+
+--         -- Let's sort in send order
+--         for ruleType in pairs ( listOfRulesToSend ) do
+--             for ruleName , rule in pairs ( listOfRulesToSend[ruleType] ) do
+--                 table.insert ( rulesToSend[ruleType] , rule );
+--             end
+--         end
+--         sort ( rulesToSend.kickRules , function ( a , b ) return a.ruleIndex < b.ruleIndex end );
+--         sort ( rulesToSend.promoteRules , function ( a , b ) return a.ruleIndex < b.ruleIndex end );
+--         sort ( rulesToSend.demoteRules , function ( a , b ) return a.ruleIndex < b.ruleIndex end );
+--     end
+
+--     -- Now, we can send back our own rules to add and the ones that should be removed
+--     for ruleType in pairs ( rulesToSend ) do
+--         for i = startIndex , #rulesToSend[ruleType] do
+           
+--             if rulesToSend[ruleType][i].toAdd then
+--                 -- Send Live request to add
+--                 print("Sending Rule: " .. rulesToSend[ruleType][i].name .. "\n" .. rulesToSend[ruleType][i].ruleString )
+--                 GRM.SendRuleAdd ( ruleType , nil , rulesToSend[ruleType][i].ruleString , false );
+--             else
+--                 -- Send Live request to remove
+--                 print("Send Rule to Remove: " .. rulesToSend[ruleType][i].name)
+--                 GRM.SendRuleRemove ( typeEnum[ruleType] , rulesToSend[ruleType][i].name , rulesToSend[ruleType][i].editTime  )
+--             end
+
+--             if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
+--                 GRMsyncGlobals.SyncCount = 0;
+--                 C_Timer.After ( GRMsyncGlobals.ThrottleDelay , function()
+--                     GRM.ResponseBackAfterMacroSync ( nil , rulesToSend , i );    -- Send with full details
+--                 end);
+--                 return;
+--             end
+
+--             startIndex = 1;
+--         end
+--     end
+
+--     print("Macro ccSync Complete 2")
+-- end
+
+
+-- Method:          GRM.BuildMacroSyncTooltip()
+-- What it Does:    Builds the tooltip for the sync feature
+-- Purpose:         Information over the macro sync button
+GRM.BuildMacroSyncTooltip = function( button )
+    GRM_UI.SetTooltipScale();
+    GameTooltip:SetOwner ( button , "ANCHOR_CURSOR" );
+    GameTooltip:AddLine( GRM.L ( "Pending Feature... Not yet ready" ) );
+    GameTooltip:Show();
+end
+
+-- GRM.RemoveRuleSync = function()
+
+-- end
+
+-- -- Method:          GRM.RefreshSyncUsers()
+-- -- What it Does:    Refreshes the users you are syncing with in case people you had on your list previously are now offline.
+-- -- Purpose:         Have up to date list to sync rules with as people come online and offline all the time.
+-- GRM.RefreshSyncUsers = function()
+--     if not GRM_G.MacroSyncCollecting then
+--         GRM.InitializeMacroSync();
+--     end
+-- end
+
+-- -- Method:          GRM.InitializeMacroSync()
+-- -- What it Does:    Initializes the sync protocol so GRM only needs 1 prfix registered.
+-- -- Purpose:         For sync purposes of macro tool
+-- GRM.InitializeMacroSync = function ()
+--     if not GRMsyncGlobals.RulesSet then
+--         GRMsync.MessageTracking = GRMsync.MessageTracking or CreateFrame ( "Frame" , "GRMsyncMessageTracking" );
+--         GRMsync.BuildSyncNetwork ( true , false );
+--         C_Timer.After ( 1 , function()
+--             GRM.InitializeMacroSync();
+--             return;
+--         end);
+--     else
+--         GRM.SendInitialRequest();
+--     end
+-- end
+
+-- -- Method:          GRM.SendInitialRequest()
+-- -- What it Does:    Initializes Macro Sync
+-- -- Purpose:         So Macro Rules can be shared
+-- GRM.SendInitialRequest = function()
+--     GRM_G.MacroSyncQuePosition = 0;
+--     GRM_G.MacroSyncCollecting = true;
+--     GRM_G.MacroSyncTimeOutCheck = time();
+--     C_ChatInfo.SendAddonMessage ( "GRMUSER" , "GRM_MACRO_R?" , "GUILD" );   -- Piggie back a function that should already be configured.
+
+--     -- Add delay here
+--     C_Timer.After ( 5 , GRM.CompareTime );
+-- end
+
+-- -- Macro sync algorithm
+
+-- Send Request to All
+-- Other GRM "officers" receive request and send response back of their timeOnline
+--         We want to determine who has been online the longest
+-- Spend 5 seconds collecting responses, in case of lag
+-- Determine who is longest online
+-- Send this person all of your rules
+-- This person will receive and compare all rules
+--   Rules received they do not have will be absorbed
+--   Rules they have that you do not they will then send back to you.

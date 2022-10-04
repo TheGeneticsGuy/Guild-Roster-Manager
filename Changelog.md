@@ -2,6 +2,439 @@
 
 _______________________
 
+**VERSION R1.93 RELEASE - PENDING DATE**
+
+
+***BUG FIXES***
+
+* Fixed an issue where some people were having troubles updating their addon and it was crashing at load.
+
+* Fixed an issue where if you banned a player when kicking them, and then you wanted to ban all their alts as well, it would successfully ban them, but the "reason" you gave for the ban was only showing on the toon that was first kicked, not on all of the alts that were just banned. The "Reason" will now propogate to all in the grouping.
+
+* Fixed an issue with sync failing due to trying to sync demotion data of a player who quit in the middle of a sync - as it attempted to demote a player from main it would no longer find the player. There is protection against this now (other sync data already had it, I just overlooked it on dropping a player from main status)
+
+* Fixed a typo with the word Que instead of Queue
+
+* Fixed an issue that could occur with the sync process...
+
+* Fixed an issue where the "custom message" using the macro tool would not report to the log properly and stay enabled.
+
+* Fixed some broken alt groups that would keep getting mixed everytime a player would sync with another. It is worth mentioning that in some cases it is impossible to know which of the toons is the real "main" as the affected alt groups could result in 2 different toons being linked as mains. Since I cannot know for certain your intention on who was who, the addon will auto-demote both and remove the main designation, and in some clases, if too broken, purge the alt group completely (*this is more more rare*). The good news is that with the restructuring of the alt database these issues should not return. 
+
+* Fixed a bug where the main tag would being added to a player going offline would error out if they had just recently quit the guild but their system message status was still showing for you even though no longer in the guild. This self-resolves within minutes of a person leaving the guild, so this is somewhat an edge case.
+
+* Fixed an issue where an old member of the guild REJOINS, but also went up in level. It errors out when trying to build the log string as a former member rejoining. This has been fixed.
+
+* Fixed an issue where the "Macro Rules" button on the player mouseover, if a person had 12 alts, it was being positioned incorrectly slightly shifted down. It should now be properly consistent.
+
+* Fixed the logic in the "Hours report" that broke time since last online down to hours, days, months, and years - There was a lazier away before. Now it is completely exact, taking into account leap years. This has been fully expanded into exact logic on the macro tool as well. Before I was lazy and just took a 365 / 12 approach to average X months past, and cross-reference against the time pulled from the server, but now it will be exactly explicit. This is not as clean as it sounds because it essentially needed to reverse-engineer what I break down from the server as for ease of comparing numbers and time, when I pull the data from the server "last online" blizz gives this to me in the format of X years, X months, X days. On their own backend they take into consideration of all of these things, but then they throw out this simplified form, so I basically parse it all down and convert it into hours to compare. It really just leans out the code a bit to do this conversion. Well, now I need to reverse back the hours back to their actual epoch timestamp dates. This was a HUGE pain because to do so, and use the built-in Lua time tools, I had to also build a converter that took Operating System time (your windows PC time), and then convert it to the server time. That is the next line. It was a lot of work lol that most people will probably never notice lol.
+
+* Rewrote the entire backend logic on parsing the date("*t") function and in parsing epoch time. There was a flaw that I found that I didn't realize before but in trying to figure out why some people's dates seemed to reflect differently I found that the function "date()" only pulls from the server your OS time, not the actual in-game server time, so if you played on a realm with a larger time difference there was a chance of things occasionally being off. No more!
+
+* Fixed a bug where the mouseover window, when locked, sometimes the player status would sporatically swap and show other player status on the update. This has been a bug that kept creeping up every once in a while so I just redesigned the whole on update to instead of bandaid this annoying thing, it is rewritten and will not happen anymore. yay!
+
+* (Retail Only) - If you have the communities guild frame open, and the old guild roster open - there was a problem where you would get the mouseover window to appear from coommunities, but because it was now hovering over the old roster window, it still detected the mouseover of different names on the old roster so it would change the name you were looking at. This now will no longer happen.
+
+* fixed minor issue where if you went to set the date of a player's promotion, then hit cancel, the tex behind the set Promotion date button would not disappear.
+
+* Fixed a bug where if you set birthday to Unknown, it was only setting that specific toon as unknown, not the entier alt grouping. Same with editing and setting unknown. This will now resolve that. To fix this I had to check each alt grouping for fractured "unknowns and if any in the alt grouping were broken it set it to just not being set.
+
+* Fixed a bug in Classic builds where if you edited a public note in the GRM interface it would cause an error.
+
+* Fixed a bug when syncing the join dates among all alts on selection the button would just disappear rather than hiding the whole side window.
+
+* Fixed a bug that could cause GRM not to load at all for some people who haven't updated in a while.
+
+* Fixed a minor bug with the macro tool where the ranks should be greyed out from selection if rules are set to ALL ranks. This would not properly happen during an "EDIT"
+
+* CLASSIC - Level filtering option should now properly include max level 70 checkbox if in BCC and 80 if in WOTLK (once fully released).
+
+* Fixed a bug where the tooltip did not work properly on the macro tool when mass kicking banned players or a player's set of alts
+
+* Fixed a bug where it was saying 100% complete after a sync if the player had between > 99% and < 100% complete, it was always reporting 100%. 
+
+* Fixed an issue that could cause taint if you are a guild leader in Classic WOW. 
+
+* Fixed some typos in some localization/translation work.
+
+* Fixed an issue where GRM was creating a lot of sync "spam" behind the scenes in guilds with tons of GRM users. While it might not have been obvious to some people, as it was behind the scenes, it was wasteful use of resources. The sync has been moved to happen across whisper between the "sync leader" account, and the person who just recently logged on, though the updates will be broadcast guild wide, if necessary. Should be a bit less noisy now.
+
+* When someone had an unverified join date or promo date, you could "use the date of promotion/join" however you wanted, with the simple click of a button. It's a minor quality of life time saver. However, in some cases this was causing a Lua error and has been fixed.
+
+***QUALITY OF LIFE***
+
+* Complete Rebuild of the entire backend alt database - while this will not be obvious on the front end, when I initially wrote the alt logic I was basically building as a I went and the entire codebase at that point was less than 1000 lines of code. Fundamentally it was not built in the most efficient way, but I have built over its foundation since. As GRM has grown into tens of thousands of lines of code, with increasing complexity, and with the alt logic having its tentacles all over thhe place, it got to the point where a decision had to be made, do I keep building on the original "leaky" logic, that had a larger memory footprint, or do I finally get around to rebuilding the entire alt database and accompanying logic from scratch. Well, with no end in sight for the future of GRM, it just made sense to get it over with now. This will have the side effect of fixing some potential logic flow errors that could result in alt groups getting jumbled incorrectly during a sync.
+
+* Guild_Roster_Manager.lua file has been renamed to GRM_Core.lua - This is to prevent confusion with the SavedVariables which carry the same name as the addon.
+
+* Added some compatibility to mouseover function if a player
+
+* If an addon is now disabling system messages, GRM will prompt you with a popup window asking if you want to re-enable them. This allows this addon compatibilty with addons like Fast Guild Invite which auto-disable the messages, breaking GRM. Unfortunately the API cannot permanently enable system messages between sessions. There will be a message informing the player that if they wish to permanently enable system messages they will need to do it manually in the chat general settings as this will only enable them for the current logged in session..
+
+* The advanced join date tool found in the audit window is now restricted to be only accessible by officers in the guild, and it will update on the fly if a person is removed from officer status, locking them out of the tool, to prevent confusion. Before you could still access it as a non-officer, but it was mostly useless. This just helps avoid any unnecessary attempts since they won't accomplish anything anyway.
+  -- In addition, the tool was revamped a bit on the back end - fixing compatibility issues with some date formats, and also scanning the entire note for it to be imported or moved
+  -- Retooled the tooltips a bit to be more clear and restructured the restrictions on it.
+  -- Added compatibility for YYYY-MM-DD, DD-MM-YYYY - there was partial compatibility before but it didn't work with the Advanced Join Date Tool
+
+* In the side Add Alt window - instead of needing to hit the ENTER key when adding an alt, just clicking the name a 2nd time will auto-add it to the alts list. Ty @TimeDrawsNigh
+
+* Players can now Ctrl-Click the names in the alt lists and be taken to their player window which will allow them to do things like promote/demote. Before, just clicking on a name will swap to their GRM window, but not to actual player window. Of note, due to taint restrictions on the Communities window, this auto-popup of the roster is only possible with the classic guild roster window.
+
+* If right clicking resetting a specific player's date, it would do that, then force a sync. It no longer does that now because it doesn't make sense to wipe an individual's player then re-sync it all back. Maybe you want to wipe it, then modify any changes first. This is not a widely used feature.
+
+* If you right click the status of the player on the mouseover window the options wiill now be consistently reliable on reporting for updates. I also noticed that it was failing to show "AFK" speedily at times, when it should have been, and it was not taking into account in some cases if someone was on "mobile" chat rather than in-game. The whole process, while not used that often, is now significantly smoother to use. If anyone has any suggestions you would like to track on a player beyond "Report when player is no longer afk" then let me know as I would like to be able to add some kind of status tracking and expand this a little further, but in ways that are useful and make sense.
+    
+* The Sync join date among all alts now has a small button instead of relying on mouseover tooltip and right-clicking the join date title. Now, if it applies, a small button with an arrow to the right will appear. Click this and it will allow you to sync those join dates. Furthermore, the tool now shows the actual dates you are going to sync to. Before it just said "Want to sync to your main?" Well, now it shows you the actual date it is asking to sync to so it can be comapred to potential other options, like oldest.
+
+* The same applies to the alt group extra details window that would popout before when holding shift over Alts title - now, there is a button that appears and on mouseover the side window pops up, which you can click to lock in place.
+
+* 2 new font choices: Avant Garde Bold and Nunito Xtra Bold
+
+* When updating a player's join date to the player note, before, if it found anything in the player, officerNote, or in some circumstances the custom, it would avoid updated the timestamp, it would skip over it. Now, it will purge the old date, no matter where it is in the note (text in front or after it doesn't matter), and it will now add the new timestamp. That is, if there is room for it to be added only. If you still don't have the room then it will not write over it to make room so it IS limited to the max char limit (31 for public and officer).
+
+* The minimap icon on Classic will now be the same as retail - before I used the built-in icons for access and the icon I used was not available in Classic. I decided to grab the icon media file and import it directly from the addon folder.
+
+* GRM will now inform you if it is the player's birthday when they login - It will also inform you if when you login, any of the players that are already online, if it is their birthday. This will only announce once per player, no matter how many session you login that day, or how many times they login. This can be disabled in the OPTIONS > SCAN tab.
+
+* Promotions will now be reported to the log *AFTER* new member log entries, because it makes sense that a player changed rank after they joined the guild.
+
+* The /grm help command is now fully localized so if localized program is using a custom slash command it will help
+
+* Fixed a minor lua error that could pop if you leave a guild in the middle of trying to update the "safe" lists for the macro tool
+
+* GRM now auto-scans your roster for "Dead Accounts" when you login. Or, you can type /grm dead. Often accounts are abandoned, players banned, and so on, but their name is still in the guild. Sometimes the accounts are just so old an inactive that Blizz changes the name of the player and adds numbers to the name (this can also happen on a force rename too). But, the logic looks for an inactive player who has the features on this type of name which is most certainly indicating a dead account, thus that person will never be returning to the game on that toon. As a result, the addon now recommends permanently removing that player.
+
+* Events Tab/Window
+  -- "Ignore All Events" button has now been added so you can just clear all.
+  -- Last Online has been added
+  -- Date is now visible without needing to click on it
+  -- Events now sort in order of upcoming date
+  -- Tooltip has been cleaned up to actually go away when mousing off of the event
+  -- Classic compatibility has been added, though limited as there is no export to a calendar feature
+  >> Insert ScreenShot <<
+
+* Macro Tool improved
+  -- Copy feature now available. Right click and copy the rule, which opens the edit window that has the same vaolues as the existing rule, but now can be quickly and slightly modified without needing to edit the entire rule from scratch
+  -- Macro tool rules can now be configured in any order you wish to view them. (link pic)
+
+  * Fixed an issue where sometimes the server was not providing correct information immediately on a player's ability to participate in guild chat. Some guilds can silence players as a punishment rank, but this also hinders addons from being able to communicate from players at that rank as well. The addon will now do a proper re-check when trying to sync, to ensure the server provided the most up-to-date info and not getting incorrecetly reported that the player does not have access to syncing data because chat is restricted. This is sort of an "edge case" system as very few people have ever reported this after logging in, and a /reload fixed it, but this should resolve the annoyance of having to reload.
+
+* Fixed a bug where the birthdate was not properly syncing among a grouping of alts when adding a toon to a grouping. Sort of an edge case as bug that would not happen in all circumstances. The group structure had to be a certain way.
+
+**CODE OPTIMIAZATION**
+
+***Removal of some individual guild member data variables***
+
+**Removed Rank and Join Functions**
+
+* player.rankHistory
+* player.verifiedPromoteDate
+* player.oldRank
+* player.LeftGuildDate
+* player.LeftGuildEpoch
+* player.joinDate
+* player.joinDateEpoch
+* player.verifiedJoinDate
+
+**Replaced with:**
+
+* player.rankHist
+* player.joinDateHist
+
+```
+player.rankHist = 
+{ 
+    {
+         rankName (string),
+         day (int),
+         month (int), 
+         year (int),
+         dateInEpoch (int),
+         epochTimeOfChange (int),
+         isVerified (bool),
+         typeOfRankChange (int)     -- typeOfRankChange: 1 = promotion, 2 = demotion , 3 = left guild
+    }
+}
+
+player.joinDateHist =
+{ 
+    {
+         day (int),
+         month (int), 
+         year (int),
+         dateInEpoch (int),
+         epochTimeOfChange (int),
+         isVerified (bool),
+         typeOfMembershipChange (int)     -- typeOfMembershipChange: 1 = Join, 2 = left guild
+    }
+}
+```
+
+*NOTE* These a 2D tables/arrays where each nested table is another recording of the player either leaving the guild, joining the guild, or in regards to the rank information, changing rank (a join counts as a rank change as you rejoin lowest rank). The LATEST and most current event is inserted at position 1 of the table, just like above. This is the equivalent of position ZERO in most "normal" programming languages lol
+
+
+--TASK
+GRMsyncGlobals.guildData = {};
+    GRMsyncGlobals.formerGuildData = {}; 
+    Set to that after sync
+
+  Buttons to Enable and Disable Sync
+
+***Note:** Each update will be tagged with  **Classic/Retail/Both** for context*
+
+_______________________
+
+**VERSION R1.92991 RELEASE - September 1st, 2022**
+
+* Fixed an issue that affected class name colorization in Classic, as well as the hotkey binding for the guild pane. I repeat, GRM does **NOT** overwrite any keybinds at all, and even goes out of its way to ensure the default guild pane hotkey in Classic is not only not used at all, but not shared with the Push-to-Talk hotkey, if there even is one.
+* Fixed an issue that could cause classic build errors if they ever released TBC again. Just better compartmentalizing of the various Classic builds so that I can have 1 single GRM build compatible with ALL Classic builds and Retail.
+
+**VERSION R1.9299 RELEASE - September 1st, 2022**
+
+* Fixed an issue that affected some localization clients with spamming of the GuildInfo to the chat. This now future proofs the parsing of the data with some pattern matching instead, in case Blizz decide's to change their translation a 3rd time!
+
+**VERSION R1.9298 RELEASE - September 1st, 2022**
+
+* Compatibility update for WOTLK Classic and for Retail
+* Please note, the calendar feature of WOTLK has not been fully implemented by Blizzard so events cannot yet be created until they are. As such, the feature will still be disabled, like with TBC and Classic era until it is fully updated and implemented. This should hopefully happen in the first mini patch in WOTLK.
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9297 RELEASE - February 22, 2022**
+
+* Compatibility update for 9.2.0
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9296 RELEASE - November 4th, 2021**
+
+* Compatibility fix with 9.1.5, Classic 1.14, and BCC 2.5.2
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9295 RELEASE - July 5th 2021**
+
+* Compatibility fix with 9.1
+* Minor bug fix for a critical issue in patching that needed to be addressed for some older accounts updating.
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9294 RELEASE - May 24th, 2021**
+
+* Fixed a bug that could cause the guild window to open when in combat and a new player joins - How annoying! This only affects Classic realms.
+
+
+**VERSION R1.9293 RELEASE - May 22nd, 2021**
+
+* Class coloring of the names should once again work in TBC.
+
+
+**VERSION R1.9292 RELEASE - May 21st, 2021**
+
+* Minor fixes for the public note in GRM Classic build and prevention of 1 Lua error
+
+
+**VERSION R1.9291 RELEASE - May 20th, 2021**
+
+* Typo fix pointing to wrong files in the retail .toc file
+
+
+**VERSION R1.929 RELEASE - May 18th, 2021**
+
+* Compatibility with TBC - also updates Classic - brings retail all into the same codebase.
+
+* Another minor bandaid fix to some alt group issues until the major release is ready - 
+
+Note: this is not a feature or bug update, but a compatibility one for TBC launch and unifying the codebase now. Larger update is pending soon, hopefully by June 1st (at least beta release on Discord).
+
+
+**VERSION R1.928 RELEASE - March 9th, 2021**
+
+* Compatibility release for the new 9.0.5 update
+
+* Minor bandaid fix for some alt grouping issues. This will disassociate broken groups and you will need to rebuild them, but it is a temporary fix tile major release.
+
+* Yes, this is the longest gap between releases ever. My next update is fairly significant and it is taking me a very very long time. It will be worth it. Join the discord channel for early access to beta within the next few weeks most likely
+
+
+**VERSION R1.927 RELEASE - December 10th, 2020**
+
+* Major bug fix for issue corrupting the log that has been overlooked since November 19th and can happen to anyone... BAD! Never before happened. If you have an in-game backup that predates this, or a windows backup, this can be fixed. It does not affect ALL people, but it effects enough to be a major issue.
+
+**VERSION R1.926 RELEASE - November 27th, 2020**
+
+***BUG FIXES***
+
+* Pretty significant bug where some nested tables grew VERY large if you were experiencing a crash in a previous patch, so it built over and over. This cleans up the flaw and the database. Example, a 50MB database that experience this flaw would drop to roughly 10MB. It was a fairly big flaw, but it affected very few people it seems.
+
+* Fixed an issue with some players not being able to patch properly from the previous update. This should resolve it.
+
+
+**VERSION R1.925 RELEASE - November 24th, 2020**
+
+***BUG FIXES***
+
+* Fixed a long time bug that was causing the addon not to load for a very small number of people, and was basically the remnants of a very old bug that finally is getting quashed.
+
+* Fixed an issue where a rank being renamed could spam the log more than 1 time before self-resolving...
+
+
+
+**VERSION R1.924 RELEASE - November 22nd, 2020**
+
+* Fixed a lot of errors in relation to last update
+
+* Also - no more spammy notifications of addon being outdated... this should only occur once per session. oops!
+
+
+**VERSION R1.923 RELEASE - November 20th, 2020**
+
+* Minor bug fix that broke Classic
+
+
+**VERSION R1.922 RELEASE - November 20th, 2020**
+
+***BUG FIXES***
+
+* Found an issue where the addon would not configure properly for some people who had remnants of an old unresolved DB conversion bug. This likely affects very few people but it should self-resolve now.
+
+* Sync was crashing for many players with latest build due to a slight oversight in a change. This is now resolved.
+
+* Sync was skipping syncing join and promotion dates as well in many cases. This is now resolved. Oops!
+
+* Fixed the "Macro Rules" button tooltip on the mouseover window to now properly show status of of each macro rule category.
+
+* The macro Rules button on the mouseover should no longer pop back up when editing the custom note.
+
+* Demotions were not working in Classic. They are working now.
+
+* Fixed an issue where export was not working... again!
+
+
+***QUALITY OF LIFE***
+
+* The macro tool will now attempt to properly validate that the promotion and demotion changes occurred at the end. It will inform you if they have been validated, and if not, then it will also inform you.
+
+* Did a thorough cleanup of unused variables and global writes to ensure GRM isn't polluting the global space.
+
+
+**VERSION R1.921 RELEASE - November 19th, 2020**
+
+*FULLY COMPATIBLE WITH 9.0.2 UPDATE!*
+
+
+***NEW FEATURE - MACRO TOOL UPGRADE***
+
+**Promotions and Demotion Feature with Rules Added!**
+
+*This has been a long time coming. While it may not seem that complicated, there were a lot of pieces under the hood that needed to come together to make this work, coupled with the less time I was able to spend on the addon this year due to RL obligations with work and increased time with the kids around due to schools being closed. I have to say, my vision for GRM has always been centered on a single principle, however. Does it make your life as an officer or a leader easier? Does it save you time? If so, I want it...* 
+
+*I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that hustles and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. That's the main reason I do it. I get to build my guild and shape it with the culture I wish to have. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it.*
+
+**PROMOTIONS**
+
+![Matching to Promotion Rules](https://i.imgur.com/PCUMGII.jpg)
+
+![Unconfigured Promotion Settings](https://i.imgur.com/WhNgVwC.jpg)
+
+**DEMOTIONS**
+
+![Matching to Demotion Rules](https://i.imgur.com/QNSyRbK.jpg)
+
+![Macro Button Improved Tooltip](https://i.imgur.com/zDg9lQB.jpg)
+
+Bring up the Macro tool with any of the following SLASH commands.
+
+```
+/grm macro
+/grm tool
+/grm kick
+/grm promote
+/grm demote
+```
+
+**NOTABLE FEATURE ABSENT FROM MACRO TOOL**
+
+* Rule sharing among officers. You cannot yet sync the rules to all the leadership in a guild. This is planned and coming very soon. I wanted to get this released first!
+
+* I have plans to add an option to move all alts of a toon to the same rank of your choice and it will build a combo demotion/promotion macro if necessary
+
+* Misc requests on filters... I am getting to them. Wanted to get out core tool ASAP for 9.0.2 update.
+
+***NOTE*** - Please report to discord any errors you encounter, bugs, or recommendations for filters. There is a lot of overlap between the rules, but I did center the promotions to prioritize time at rank with demotions prioritizing inactivity, though you can customize your rules however you please.
+
+
+***BUG FIXES***
+
+* On exporting players, the column "headers" were not showing even if checked. This is now resolved.
+
+* Issue with the verified promote date in some weird edge case getting set to nil after a sync, which then breaks future syncs. This shouldn't occur now.
+
+* The new sync process, while much more efficient, can have a slightly longer behind the scenes "pre-check" of the data before identifying what needs to be sync'd. This time delay was not taken into consideration for so an error check was being triggered too soon, not to account for the change, causing sync to error in large guilds, whilst work perfectly fine in smaller. This should no longer happen.
+
+* Fixed an issue if people had certain regex code in their player notes it now properly parses in consideration of the escape char so it doesn't fail in localizing log entries.
+
+* Fixed a bit of a logic flow issue in the macro tool for kicking players if you were using the option under the rank selections to kick a player even if they were active, but still at a rank after X amount of time. It was overriding the main kick for inactivity and it doesn't seem to make sense to have both enabled, so now it is just one or the other. Furthermore, there was an issue where the actual epoch stamp was being set as the server time, not the actual date, so I fixed the logic issue, then in the "patches" the addon parses the entire databse and rebuilds the epoch stamp for all the rankHistory points by converting the string (text) timestamp to the actual epoch date in seconds. This may cause the patching process on updating the addon to the latest version to add a couple of seconds to the process.
+
+* Fixed a bug that could occur where if you have global control set to NOT add the Join date to a player's note, but then you manually change the destination, like custom note instead of default officer... it was re-enabling it globally, but disabling locally. This is now resolved. It will only affect a small number of people as this was only first reporeted recently and it has been a long-existent bug,
+
+* Fixed an issue where the rank being renamed was not reporting correctly. The addon will also detect the rank changes more easily, even if a rank was renamed that had no players in that rank. Before it was detecting a rank change if an existing player in that rank no longer had a matching rank name, yet the underlying rank index had not changed. Well, this could create some potential for oddities, like if a rank name was changed and no toons were currently members of that rank, GRM wouldn't notice. Another is that what if you changed the "new member" lowest rank name, then they joined the guild, well the addon didn't know how to handle that properly since the new member shows new current rank, but doesn't have a previous rank name to compare against. So, I rewrote the whole logic to be just a bit better and reliable in all instances of name change detection.
+
+* The "Group Invite" button on the GRM mouseover window should now work with the new 9.0 API changes
+
+* Fixed a bug with the macro tool setting the rules where you could uncheck all 3 of the radio buttons at the top for "all, alts only , mains only" - This should no longer be possible.
+
+* Fixed a typo on the audit tab mouseover tooltip.
+
+* Fixed an issue where if a player was holding on to a guild name with say an alt, so they could namechange a guild to it later, then they disbanded that guild then renamed their main guild with the name of that guild you just disbanded, then GRM was failing to detect the namechange as it was still finding the name in the database. GRM now properly compares against the guild GUID (the clubID) so this error should no longer occur.
+
+**POST BETA BUG FIXES TO LIVE**
+
+* Previous BETA update there was a fix needed to an old flaw that was found in how some epoch dates were stored in the rank history. This fixes that Beta bug for people who were using Macro Tool in beta. So, all the epoch stamps were reformatted and rebuilt to be sure they were all accurate using a Text string to integer epoch stamp formatter I wrote. However, if the string date was determined to be invalid I placed just an empty value there in the rank history as it was a sign of the old bug. Well, this is a problem for nested ranks in the array. If it was just the first rank ever, no biggie because it would just show the mouseover window for a player to set the promotion date, as if it was never set. However, if it was a later change, now I have an empty value which breaks some of the later logic. This update goes and recorrects this oversights and fixes those promotion date errors where you might see just an "!!" and nothing else there.
+
+* Player Status should now properly show on the mouseover window. Anyone know how long this was not showing? I don't know when I broke this lol
+
+* Fixed some behavior on the macro tool rules as it was not consistently disabling and enabling certain rule filter options when editing them.
+
+* Fixed a BETA only bug where the timestamp formats were not showing correctly.
+
+* Full "Kick Banned Players Still in Guild" is now fully working. If you a ban a player, or ban all of their alts, the main GRM window's BAN tab will show you all of the players who are banned but not yet removed from theh guild. In this case a button will appear giving you the option to kick all banned players. This will automatically bring up the macro tool and be ready to go.
+
+![Easily mass kick banned players still in guild now](https://i.imgur.com/7HKwGjm.jpg)
+
+* Fixed a bug where the "zone" and "time in zone" info was not disappearing underneath when editing or adding join/promo/birthdates. It would disappear and immediately reappear. It should now properly hide and reappear when completed.
+
+* The text indicating how many times you need to press the macro key now reflects properly, including all the extra times as necessary if a player must be moved multiple ranks.
+
+* Fixed a major issue with the macro demotions not working on merged realms. I have now gotten it to work on the merged realms, but there is a special condition that needs to be considered for guilds that have multiple players with the same name but from different realms in the same guild. Blizz does not handle this well so players will be informed on that rare edge case scenario that they will need to manually demote the players in the guild if they have the same name. Let's hope Blizz eventually revises this.
+
+* Players should no longer be able to EDIT a macro tool rule if they don't have permissions set by guild leader to promote, demote, or kick
+
+* Fixed an issue where if a player had a "verified" join or promotion date, if they left the guild and rejoined later, those old verified dates were not changed to their new ones. Even worse, if the new Rejoin date could not be verified it would keep the old verified date, so now the addon thinks a rejoin has verified info but they do not. The database has been cleaned up to people who have mismatching verified dates from their rank and join date histories. Be warned, you may end up with a few names that appear on your audit list again as not being complete, but this is just because it is wiping out incorrect data to begin with. This was actually a fairly significant bug. This same bug affected both promotion macro tool "time at rank" checking, and it also affected the advanced join date tool as being inaccurate for some players as it looked at the incorrect dates.
+
+* Fixed a coloring issue of the system message in chat when a player goes offline. The parentheses was coloring the name of the player, if you were showing main and alt... looks clean now!
+
+* Fixed a bug where the (Alt) and (main) tags on the mouseover window could overlap if you right-clicked someone on the alt list and set as main.
+
+***QUALITY OF LIFE***
+
+* No longer is just the "(Main)" title showing on players windows, but it now also shows the Alt title, though a slightly different chromatic shade.
+
+* Huge cleanup of no longer used or duplicate strings from the language locale files. Special shoutout to @Mythos#7392 (Discord) for this huge cleanup (as well as some updated German translation work!)
+
+* Macro tool - Cleaned up some of the rank selection, added some tooltips as well for the kick. Basically if the rank is equal to you or above you, it is now red indicated you cannot kick players from that rank, to prevent any confusion as to why they are not showing up in the list.
+
+* Patch 8.3 introduced a bug that was causing disconnects of players, but not due to GRM, because of an error in coding on Blizz's end. However, the bug was very niche in who it targeted. It literally ONLY affected players in a guild who were officers with access to the new guild recruitment system. You see, it was firing a call to the server for information, and you were getting the event firing "CLUB_FINDER_RECRUITMENT_POST_RETURNED" - Well, if you kept the community frame window open the calls to the server snowballed to the point of sending hundreds and even thousands of calls a second, eventually causing the server to boot you offline. It was largely looked over because it only affected the unique situation of an officer who had his community window open to the guild page for 5-10+ minutes. So, as you can see, leadership in the guild could easily find themselves getting bumped, but it was a non-issue to most players. @Xulu on discord re-investigaed this bug to see if Blizz had resolved it in 9.0, which they have, so the temporary fix that I implemented to protect against these disconnects for GRM users is no longer necessary and it appears that Blizz has finally addressed the underlying code. That code is no longer necessary.
+
+* The macro tool macros can now be spammed without risk of double spamming it. I added a protection against it by clearing the macro immediately after use so that you cannot spam click the macro again as you wait for it to be rebuilt. Current PCs it should rebuild the next macro within 0.025 seconds of clicking it, but there are people that like to mousehweel-hotkey their macros, like myself, and with the Logitech free-spinning stuff, I can punch out like 100 clicks a second, easily. So, now you have protections in place against it. This was probably a non-issue for most people.
+
+* Removed some of the logic I added to the days/months selection in the macro tool. I realized how much I hated it auto-changing the date to a bigger number if I swapped back and forth on month and day. It was supposed to help be more convenient, but my guess is I coded it in a half stuper of sleep originally and my brain thought at the time, probably 2 or 3am, that it was a good idea. Ya... it wasn't. I purged all that logic now.
+
+* The "safe list" you could put players on to ignore kick macro rules hav now been expanded to support promotion and demotions as well. Furthermore, you can also create a custom "extension" period of time where they will be removed from this list after X days expire.
+
+* Github Readme has been updated to reflect addon features as well.
+
+
+![Safe List Configuration](https://i.imgur.com/LsALIVk.jpg)
+
+
+
 **VERSION R1.913 RELEASE - October 18th, 2020**
 
 ***BUG FIXES***
@@ -3536,7 +3969,7 @@ Note... lots being worked on, this is just a minor update to resolve this bug.
 
 **QUALITY OF LIFE**
 
-QoL1: AddAlt "autocomplete" is now significantly smarter. It will not just alphabetize it, but will do partial word matches to names, it color codes the names to their class, and if they are already grouped as an alt/main it indicates it with <A> or <M> tags
+QoL1: AddAlt "autocomplete" is now significantly smarter. It will not just alphabetize it, but will do partial word matches to names, it color codes the names to their class, and if they are already grouped as an alt/main it indicates it with alt or main tags
 
 QoL2: Options Window has been a bit overhauled, with sub-tabs for each category. While they are mostly "empty" now, there is a lot of room for further customization as needed as more features are added without getting too cluttered.
 
