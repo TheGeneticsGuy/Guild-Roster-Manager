@@ -801,7 +801,7 @@ GRML.Russian = function()
     -- R1.37
     GRM_L["No Action Configured"] = "Действие не настроено"
     GRM_L["OLD LOG"] = "Старый лог"
-    GRM_L["CHANGES"] = "Изменения пока вас  не было"
+    GRM_L["CHANGES"] = "Изменения пока вас не было"
     GRM_L["Sync has failed to start. Please try again!"] = "Синхронизация не началась. Пожалуйста, попробуйте еще раз!"
     GRM_L["Please wait {num} more seconds before manually initiating the sync process again."] = "Подождите еще {num} секунд перед повторным запуском процесса синхронизации вручную."
 
