@@ -180,7 +180,7 @@ GRML.Dutch = function()
     GRM_L["Please Select Event to Add to Calendar"] = true
     GRM_L["{name}'s event has already been added to the calendar!"] = true
     GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = true
-    GRM_L["{name}'s Event Removed From the Queue!"] = true
+    GRM_L["{name}'s Event Removed From the Que!"] = true
     GRM_L["Full Description:"] = true
 
     -- BAN WINDOW
@@ -1487,4 +1487,7 @@ GRML.Dutch = function()
     GRM_L["Macro rank changes have been validated!"] = true
     GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = true
 
+    GRM_L["{custom1} to open Player Window"] = true
+
+    
 end

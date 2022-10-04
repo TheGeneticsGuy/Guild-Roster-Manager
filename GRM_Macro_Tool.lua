@@ -5823,9 +5823,9 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
     result.repOperator = 2
     result.rep = 4;            -- 4 = neutral
 
-    result.customLog = false;
+    result.customlog = false;
     result.customLogMsg = "";
-    result.ruleIndex = ruleNumber;
+    result.ruleIndex = num;
 
     return result , ruleName;
 end
@@ -5891,93 +5891,11 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num )
     result.repOperator = 2
     result.rep = 4;            -- 4 = neutral
 
-    result.customLog = false;
+    result.customlog = false;
     result.customLogMsg = "";
-    result.ruleIndex = ruleNumber;
+    result.ruleIndex = num;
 
     return result , ruleName;
-end
-
--- Method:          GRM.ValidateRule ( table )
--- What it does:    Returns true of the rule contains all of the expected variables in their proper form.
--- Purpose:         To ensure integrity of the rules.
-GRM.ValidateRule = function ( rule , type )
-    local isValid = true;
-    local missingValues = {};
-    local ruleFilters = { "ruleType" , "destinationRank" , "regardlessOfActivity"  , "applyEvenIfActiive", "name" , "isEnabled" , "ruleNumber" , "applyRulesTo" , "activityFilter" , "isMonths" , "numDaysOrMonths" , "allAltsApplyToKick" , "rankSpecialIsMonths" , "rankSpecialNumDaysOrMonths" , "rankFilter" , "ranks" , "levelFilter" , "levelRange" , "noteMatch" , "noteMatchEmpty" , "notesToCheck" , "matchingString" , "repFilter" , "repOperator" , "rep" , "customLog" , "customLogMsg" , "ruleIndex" };
-
-    if not rule then
-        isValid = false;
-        missingValues = ruleFilters;
-    end
-
-    if isValid then
-        for i = 1 , #ruleFilters do
-            isValid = true;
-            if rule[ruleFilters[i]] == nil then
-                if i < 4 then
-                    if type > 1 then
-                        if i == 3 then
-                            if type == 2 then
-                                isValid = false;
-                            end
-                        else
-                            isValid = false;
-                        end
-                    end
-                elseif i == 4 then
-                    if type == 1 then
-                        isValid = false
-                    end
-                else
-                    isValid = false
-                end
-
-                if not isValid then
-                    table.insert ( missingValues , ruleFilters[i] );
-                end
-            end
-        end
-    end
-    
-    if #missingValues > 0 then
-        isValid = false;
-    end
-
-    return isValid , missingValues;
-end
-
--- Method:          GRM.RuleIntegrityCheck()
--- What it Does:    Scans through all the rules for the macro tool of a player and reports anything wrong and removes the rule
--- Purpose:         Prevent lua errors and maintain integrity of the macro rules.
-GRM.RuleIntegrityCheck = function()
-    local isValid = false;
-    local missingValues = {};
-
-    local getMissing = function ( missingV )
-        local missing = "";
-        for i = 1 , #missingV do
-            if i < #missingV then
-                missing = missing .. missingV[i] .. ", ";
-            else
-                missing = missing .. missingV[i];
-            end
-        end
-        return missing;
-    end
-
-    for i = 1 , 3 do
-        for name , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[i]] ) do
-            isValid , missingValues = GRM.ValidateRule ( rule , i );
-
-            if not isValid then
-                GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[i]][name] = nil;
-                GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "There was an error with a {name} rule: \"{name2}\"" , GRM_UI.ruleTypeEnum3[i] , name ) );
-                GRM.Report ( GRM.L ( "Please report to addon creator the following variables were missing: {custom1}" , nil , nil , nil , getMissing ( missingValues ) ) );
-            end
-
-        end
-    end
 end
 
 -- Method:          GRM.IsAnyInTableEnabled ( table )
@@ -7356,10 +7274,6 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild )
 
         GRM_UI.LoadToolFrames ( false );
     end
-
-    -- Re-check they are valid
-    GRM.RuleIntegrityCheck();
-
     GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
     GRM_UI.GRM_ToolCoreFrame.Safe = {}; -- reset this list to rebuild

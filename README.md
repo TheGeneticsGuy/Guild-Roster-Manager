@@ -3,7 +3,7 @@
 
 **JOIN-UP ON DISCORD**
 
-[Join Discord Here](https://discord.gg/mnnqyPWURZ) or Copy This Link: https://discord.gg/mnnqyPWURZ
+[Join Discord Here](https://discord.gg/xuECv9S6S3) or Copy This Link: https://discord.gg/xuECv9S6S3
 
 *Join up to discuss GRM, offer suggestions, report bugs, or even just chat about guild management related things. All help in this regard is greatly appreciated! I respond much faster to Discord posts than I do anywhere else and am more likely to respond faster to any issues you might be encountering.*
 
@@ -338,6 +338,6 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 **JOIN-UP ON DISCORD!**
 
-[Join Discord Here](https://discord.gg/mnnqyPWURZ) or Copy This Link: https://discord.gg/mnnqyPWURZ
+[Join Discord Here](https://discord.gg/xuECv9S6S3) or Copy This Link: https://discord.gg/xuECv9S6S3
 
 Join up on discord for updates, and feel free to chat about the addon, make suggestions, or report bugs. Have any Lua errors occur, visual bugs, or event just quality of life improvement suggestions that you think would be good for this addon? Reporting them to discord would be very helpul!

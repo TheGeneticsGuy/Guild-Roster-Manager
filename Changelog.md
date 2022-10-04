@@ -2,34 +2,79 @@
 
 _______________________
 
-**VERSION R1.93 RELEASE - December 24th, 2020**
+**VERSION R1.92991 RELEASE - September 1st, 2022**
+
+* Fixed an issue that affected class name colorization in Classic, as well as the hotkey binding for the guild pane. I repeat, GRM does **NOT** overwrite any keybinds at all, and even goes out of its way to ensure the default guild pane hotkey in Classic is not only not used at all, but not shared with the Push-to-Talk hotkey, if there even is one.
+* Fixed an issue that could cause classic build errors if they ever released TBC again. Just better compartmentalizing of the various Classic builds so that I can have 1 single GRM build compatible with ALL Classic builds and Retail.
 
 
-***BUG FIXES***
+**VERSION R1.9299 RELEASE - September 1st, 2022**
+
+* Fixed an issue that affected some localization clients with spamming of the GuildInfo to the chat. This now future proofs the parsing of the data with some pattern matching instead, in case Blizz decide's to change their translation a 3rd time!
+
+**VERSION R1.9298 RELEASE - September 1st, 2022**
+
+* Compatibility update for WOTLK Classic and for Retail
+* Please note, the calendar feature of WOTLK has not been fully implemented by Blizzard so events cannot yet be created until they are. As such, the feature will still be disabled, like with TBC and Classic era until it is fully updated and implemented. This should hopefully happen in the first mini patch in WOTLK.
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9297 RELEASE - February 22, 2022**
+
+* Compatibility update for 9.2.0
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9296 RELEASE - November 4th, 2021**
+
+* Compatibility fix with 9.1.5, Classic 1.14, and BCC 2.5.2
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9295 RELEASE - July 5th 2021**
+
+* Compatibility fix with 9.1
+* Minor bug fix for a critical issue in patching that needed to be addressed for some older accounts updating.
+* This is NOT the pending major release. Stay tuned.
+
+**VERSION R1.9294 RELEASE - May 24th, 2021**
+
+* Fixed a bug that could cause the guild window to open when in combat and a new player joins - How annoying! This only affects Classic realms.
 
 
+**VERSION R1.9293 RELEASE - May 22nd, 2021**
 
-* Fixed a typo with the word Que instead of Queue
-
-* Fixed an issue that could occur with the sync process...
-
-* Fixed an issue where the "custom message" using the macro tool would not report to the log properly and stay enabled.
-
-* Fixed some broken alt groups that would keep getting mixed everytime a player would sync with another. It is worth mentioning that in some cases it is impossible to know which of the toons is the real "main" as the affected alt groups could result in 2 different toons being linked as mains. Since I cannot know for certain your intention on who was who, the addon will auto-demote both and remove the main designation, and in some clases, if too broken, purge the alt group completely (*this is more more rare*). The good news is that with the restructuring of the alt database these issues should not return. 
-
-***QUALITY OF LIFE***
-
-* Complete Rebuild of the entire backend alt database - while this will not be obvious on the front end, when I initially wrote the alt logic I was basically building as a I went and the entire codebase at that point was less than 1000 lines of code. Fundamentally it was not built in the most efficient way, but I have built over its foundation since. As GRM has grown into tens of thousands of lines of code, with increasing complexity, and with the alt logic having its tentacles all over thhe place, it got to the point where a decision had to be made, do I keep building on the original "leaky" logic, that had a larger memory footprint, or do I finally get around to rebuilding the entire alt database and accompanying logic from scratch. Well, with no end in sight for the future of GRM, it just made sense to get it over with now. This will have the side effect of fixing some potential logic flow errors that could result in alt groups getting jumbled incorrectly during a sync.
-
-* Guild_Roster_Manager.lua file has been renamed to GRM_Core.lua - This is to prevent confusion with the SavedVariables which carry the same name as the addon.
-
-* Added some compatibility to mouseover function if a player
+* Class coloring of the names should once again work in TBC.
 
 
-**ERSION R1.927 RELEASE - December 10th, 2020**
+**VERSION R1.9292 RELEASE - May 21st, 2021**
+
+* Minor fixes for the public note in GRM Classic build and prevention of 1 Lua error
+
+
+**VERSION R1.9291 RELEASE - May 20th, 2021**
+
+* Typo fix pointing to wrong files in the retail .toc file
+
+
+**VERSION R1.929 RELEASE - May 18th, 2021**
+
+* Compatibility with TBC - also updates Classic - brings retail all into the same codebase.
+
+* Another minor bandaid fix to some alt group issues until the major release is ready - 
+
+Note: this is not a feature or bug update, but a compatibility one for TBC launch and unifying the codebase now. Larger update is pending soon, hopefully by June 1st (at least beta release on Discord).
+
+
+**VERSION R1.928 RELEASE - March 9th, 2021**
+
+* Compatibility release for the new 9.0.5 update
+
+* Minor bandaid fix for some alt grouping issues. This will disassociate broken groups and you will need to rebuild them, but it is a temporary fix tile major release.
+
+* Yes, this is the longest gap between releases ever. My next update is fairly significant and it is taking me a very very long time. It will be worth it. Join the discord channel for early access to beta within the next few weeks most likely
+
+
+**VERSION R1.927 RELEASE - December 10th, 2020**
 
 * Major bug fix for issue corrupting the log that has been overlooked since November 19th and can happen to anyone... BAD! Never before happened. If you have an in-game backup that predates this, or a windows backup, this can be fixed. It does not affect ALL people, but it effects enough to be a major issue.
-
 
 **VERSION R1.926 RELEASE - November 27th, 2020**
 
@@ -3743,7 +3788,7 @@ Note... lots being worked on, this is just a minor update to resolve this bug.
 
 **QUALITY OF LIFE**
 
-QoL1: AddAlt "autocomplete" is now significantly smarter. It will not just alphabetize it, but will do partial word matches to names, it color codes the names to their class, and if they are already grouped as an alt/main it indicates it with <A> or <M> tags
+QoL1: AddAlt "autocomplete" is now significantly smarter. It will not just alphabetize it, but will do partial word matches to names, it color codes the names to their class, and if they are already grouped as an alt/main it indicates it with alt or main tags
 
 QoL2: Options Window has been a bit overhauled, with sub-tabs for each category. While they are mostly "empty" now, there is a lot of room for further customization as needed as more features are added without getting too cluttered.
 

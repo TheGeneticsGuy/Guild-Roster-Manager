@@ -181,7 +181,7 @@
         GRM_L["No Calendar Events to Add"] = "Keine Ereignisse zu erstellen"
         GRM_L["{name}'s event has already been added to the calendar!"] = "Ereignis von {name} wurde bereits zum Kalender hinzugefügt!"
         GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = "Bitte warte {num} Sekunden, bis du das Ereignis im Kalender erstellst!"
-        GRM_L["{name}'s Event Removed From the Queue!"] = "Ereignis von {name} aus der Liste entfernt!"
+        GRM_L["{name}'s Event Removed From the Que!"] = "Ereignis von {name} aus der Liste entfernt!"
         GRM_L["Full Description:"] = "Beschreibung:"
     
         -- BAN WINDOW
@@ -1492,6 +1492,8 @@
         GRM_L["Not all macro changes validated. One moment..."] = true
         GRM_L["Macro rank changes have been validated!"] = true
         GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = true
+        
+        GRM_L["{custom1} to open Player Window"] = true
 
 
     end

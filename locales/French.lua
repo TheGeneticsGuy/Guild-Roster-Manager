@@ -181,7 +181,7 @@ GRML.French = function()
     GRM_L["No Calendar Events to Add"] = "Aucun événement à ajouter"
     GRM_L["{name}'s event has already been added to the calendar!"] = "L'événement de {name} a déjà été ajouté au calendrier !"
     GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = "Merci de patienter {num} secondes avant d'ajouter l'événement au calendrier !"
-    GRM_L["{name}'s Event Removed From the Queue!"] = "L'événement de {name} a déjà été retiré de la file d'attente !"
+    GRM_L["{name}'s Event Removed From the Que!"] = "L'événement de {name} a déjà été retiré de la file d'attente !"
     GRM_L["Full Description:"] = "Description complète :"
 
     -- BAN WINDOW
@@ -1483,5 +1483,6 @@ GRML.French = function()
     GRM_L["Macro rank changes have been validated!"] = true
     GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = true
 
+    GRM_L["{custom1} to open Player Window"] = true
     
 end

@@ -741,13 +741,13 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
 
     local playerName , promotionDate , epochTimeOfChange = GRM.ParseComMsg ( msg , GRM_G.CheckPromoDatePattern );
     epochTimeOfChange = tonumber ( epochTimeOfChange );
-    local slimDate = GRM.GetCleanTimestamp ( promotionDate );       -- remove the timestamp
+    local slimDate = string.sub ( promotionDate , 11 , string.find ( promotionDate , "'" ) + 2 );       -- remove the timestamp
 
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
     if player ~= nil then
         if player.verifiedPromoteDate[2] < epochTimeOfChange then
             player.rankHistory[#player.rankHistory][2] = slimDate;
-            player.rankHistory[#player.rankHistory][3] = GRM.TimeStampToEpoch ( slimDate , true );
+            player.rankHistory[#player.rankHistory][3] = GRM.TimeStampToEpoch ( " " .. slimDate , true );
 
             -- For SYNC
             player.verifiedPromoteDate[1] = slimDate;
@@ -923,9 +923,9 @@ GRMsync.CheckAddAltChange = function ( msg , sender , prefix )
         
         if not isFound and not isFound2 and not abortUpdate then
             if isSyncUpdate then
-                GRM.AddAltTest ( name , altName , true , altNameEpochTime );
+                GRM.AddAlt ( name , altName , true , altNameEpochTime );
             else
-                GRM.AddAltTest ( name , altName , false , 0 );
+                GRM.AddAlt ( name , altName , false , 0 );
             end
             C_Timer.After ( 1 , function() 
                 GRM.SyncBirthdayWithNewAlt ( altName );
@@ -988,9 +988,9 @@ GRMsync.CheckRemoveAltChange = function ( msg , sender , prefix )
     if not abortUpdate then
         
         if isSyncUpdate then
-            GRM.RemoveAltTest ( altName , true , altChangeTimeStamp );
+            GRM.RemoveAlt ( name , altName , true , altChangeTimeStamp , false );
         else
-            GRM.RemoveAltTest ( altName , false , 0 );
+            GRM.RemoveAlt ( name , altName , false , 0 , false );
         end
         
         if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == altName then       -- If the alt being removed is being dumped from the list of alts, but the Sync person is on that frame...
@@ -1034,7 +1034,7 @@ GRMsync.CheckAltMainChange = function ( msg , sender )
     GRM_G.CheckAltMainPattern = GRM_G.CheckAltMainPattern or GRM.BuildComPattern ( 2 , "?" , false );
     local name , mainName = GRM.ParseComMsg ( msg , GRM_G.CheckAltMainPattern );
 
-    GRM.SetMainTest ( mainName , false , 0 );
+    GRM.SetMain ( name , mainName , false , 0 );
 
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ mainName ];
 
@@ -1082,7 +1082,7 @@ GRMsync.CheckMainSyncChange = function ( msg )
     if not abortMainChange then 
         if mainStatus == "true" then
             -- Set the player as Main
-            GRM.SetMainTest ( mainName , true , mainChangeTimestamp );
+            GRM.SetMain ( mainName , mainName , true , mainChangeTimestamp );
             -- Need to ensure "main" tag populates correctly if window is open.
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                 if not GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:IsVisible() and GRM_G.currentName == mainName then
@@ -1091,7 +1091,7 @@ GRMsync.CheckMainSyncChange = function ( msg )
             end
         else
             -- remove from being main.
-            GRM.DemoteFromMainTest ( mainName );
+            GRM.DemoteFromMain ( mainName , mainName , true , mainChangeTimestamp );
             -- Udate the UI!
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == mainName then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
@@ -1113,7 +1113,7 @@ GRMsync.CheckAltMainToAltChange = function ( msg , sender )
     GRM_G.CheckAltMainToAltPattern = GRM_G.CheckAltMainToAltPattern or GRM.BuildComPattern ( 2 , "?" , false );
     local name , mainName = GRM.ParseComMsg ( msg , GRM_G.CheckAltMainToAltPattern );
 
-    GRM.DemoteFromMainTest ( mainName );
+    GRM.DemoteFromMain ( name , mainName , false , 0 );
 
     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
         if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:IsVisible() and GRM_G.currentName == mainName then
@@ -1771,12 +1771,31 @@ GRMsync.GetCustomPseudoHash = function()
         return rNum1 , rString2;
     end
 
+    -- Unique count based on GUID
+    -- Grabs the last few indexes of the GUID of the player for adjustments.
+    local getGUIDVal = function ( guid )
+        local result = 0;
+        for i = 0 , 3 do
+            result = result + string.byte ( string.sub ( guid , #guid - i , #guid - i ) );
+        end
+        return result;
+    end
+    
+    local getByteValueFullName = function ( name )
+        local result = 0;
+        local nameByteArray = { string.byte ( name , 1 , -1 ) };
+        for i = 1 , #nameByteArray do
+            result = result + nameByteArray[i];
+        end
+        return result;
+    end
+
     local player;
     for i = 1 , #guildData do
         player = guildData[i];
 
-        byteVal = GRM.ConvertStringToVal ( player.name );                  -- Get the byte of the first character of the first name... Adds increased uniqueness to the string
-        guidVal = GRM.ConvertGUIDToVal ( player.GUID );
+        byteVal = getByteValueFullName ( player.name );                  -- Get the byte of the first character of the first name... Adds increased uniqueness to the string
+        guidVal = getGUIDVal ( player.GUID );
 
         -- JD data
         if not player.joinDateUnknown and #player.joinDate > 0 and player.verifiedJoinDate[1] ~= "" and player.verifiedJoinDate[1] ~= nil and player.verifiedJoinDate[2] ~= 978375660 then
@@ -1828,7 +1847,7 @@ GRMsync.GetCustomPseudoHash = function()
 
         -- Custom Note Data
         if #player.customNote[6] > 0 then
-            cust1 = cust1 + GRM.ConvertStringToVal ( player.customNote[3] ) + #player.customNote[6] + byteVal;
+            cust1 = cust1 + getByteValueFullName ( player.customNote[3] ) + #player.customNote[6] + byteVal;
         end
         cust1 , cust2 = getHashPrecision ( cust1 , cust2 );
         
@@ -1843,7 +1862,7 @@ GRMsync.GetCustomPseudoHash = function()
     for i = 1 , #leftData do
             player = leftData[i];
             if player.bannedInfo[1] then
-                byteVal = GRM.ConvertStringToVal ( player.name );                  -- Get the byte of the first character of the first name... Adds increased uniqueness to the string
+                byteVal = getByteValueFullName ( player.name );                  -- Get the byte of the first character of the first name... Adds increased uniqueness to the string
                 ban1 = ban1 + byteVal;
             end
     end
@@ -3491,11 +3510,13 @@ GRMsync.SubmitFinalSyncData = function()
     end
     -- Promo date sync!
     if #GRMsyncGlobals.PDChanges > 0 and not GRMsyncGlobals.finalSyncProgress[2] then
+        local promotionDate = "";
         for i = GRMsyncGlobals.finalSyncDataCount , #GRMsyncGlobals.PDChanges do
+            promotionDate = ( "Promoted: " .. GRMsyncGlobals.PDChanges[i][3] );
             GRMsyncGlobals.finalSyncDataCount = GRMsyncGlobals.finalSyncDataCount + 1;
             if GRMsyncGlobals.SyncOK then
                 
-                msg = GRMsyncGlobals.PDChanges[i][1] .. "?" .. GRMsyncGlobals.PDChanges[i][3] .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][2] );
+                msg = GRMsyncGlobals.PDChanges[i][1] .. "?" .. promotionDate .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][2] );
 
                 tempMsg1 = GRM_G.PatchDayString .. "?GRM_PDSYNCUP?" .. GRMsyncGlobals.PDChanges[i][4] .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][5] ) .. "?";
 
@@ -5420,7 +5441,7 @@ GRMsync.RemoveAltErrorFix = function( msg )
     local name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
     local altName = string.sub ( msg , string.find ( msg , "?" ) + 1 );
 
-    GRM.RemoveAltTest ( altName , false , 0 );
+    GRM.RemoveAlt ( name , altName , false , 0 , true )
 end
 
 -------------------------------

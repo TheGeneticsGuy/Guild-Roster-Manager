@@ -117,7 +117,7 @@ end
 -- Purpose:         Porting GRM to Classic needs to have this consideration for non-existent features, like the calendar, in the original Warcraft release.
 GRM_UI.DisableFramesForClassic = function()
 
-    if GRM_G.BuildVersion < 30000 then  -- Not introduced until WOTLK
+    if GRM_G.BuildVersion <= 40000 then  -- Not introduced until WOTLK
 
         -- Event stuff
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsCheckButton:Disable();
@@ -138,7 +138,7 @@ end
 -- Purpose:         Needed to unlock the highlights properly so it is not confusing who is selected.
 GRM.ClearRosterHighlights = function()
     SetGuildRosterSelection ( 0 );      -- If you do not clear the selection, it will just re-highlight the bar when it updates.
-    for i = 1 , GRM_UI.ContainerButtonCount do
+    for i = 1 , 13 do
         _G[ "GuildFrameButton" .. i ]:UnlockHighlight();
     end
 end
