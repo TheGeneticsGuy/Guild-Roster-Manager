@@ -86,6 +86,9 @@ GRML.FontNames = {
     "Merriweather",
     "PT Sans",
     "Roboto",
+    "Avant Garde Bold",
+    "Nunito Xtra Bold"
+
 }
 
 GRML.listOfFonts = {
@@ -116,7 +119,9 @@ GRML.listOfFonts = {
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Expressway.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Merriweather-Regular.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\PT_Sans_Narrow.TTF",
-    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Roboto-Regular.TTF"    
+    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Roboto-Regular.TTF",
+    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\AvantGarde_Bold.TTF",
+    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Nunito-ExtraBold.TTF" 
 }
 
 -- Method:          GRML.SetNewLanguage ( int , boolean , boolean )
@@ -240,7 +245,7 @@ if GRM_G.Region == "deDE" then
     GRM_L["left the guild."] = "hat die Gilde verlassen."
     GRM_L["has promoted"] = "befördert."
     GRM_L["has demoted"] = "degradiert."
-    GRM_L["Professions"] = "Berufe"
+    GRM_L["Professions"] = "Berufe"  
     GRM_L["added to friends"] = "zur Kontaktliste hinzugefügt."
     GRM_L["is already your friend"] = "ist bereits einer Eurer Kontakte."
     GRM_L["Player not found."] = "Spieler nicht gefunden."
