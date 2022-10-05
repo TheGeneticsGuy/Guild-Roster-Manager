@@ -1482,7 +1482,7 @@ GRML.English = function()
     GRM_L["{custom1} to open Player Window"] = true
     GRM_L["{custom1} for Additional Options"] = true
 
-    --1.94
+    --1.93
     GRM_L["Please Note: To permanently enable system messages, you must manually re-enable them in your chat window general settings"] = true
     GRM_L["Unable to notify yourself if you go offline."] = true
     GRM_L["{custom1} to sync join date among all alts in grouping."] = true
@@ -1539,16 +1539,16 @@ GRML.English = function()
     GRM_L["Promote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Demote Rule \"{name}\" Removed by {name2}"] = true
 
+
+    GRM_L["Reject"] = true
+    GRM_L["Please confirm that the guild \"{name}\" has been renamed to \"{name2}\"."] = true
+    GRM_L["Possible Guild Name Change Detected. {num}% match."] = true
+
     -- Additonal slash command
     GRM_L["dead"] = true            -- slash command for checking dead names
     GRM_L["deadnames"] = true       -- slash command for checking dead names
     GRM_L["TabName"] = true
 
-
-
-
-    -- Add to Russian
-    GRM_L["Open any GRM window: Log, Event, Ban, etc."] = "Откройте любое окно ГРМ: {name}, {name2}, {custom1}, и т.д."
 
 
 end

@@ -1,7 +1,7 @@
 -- ALT MANAGEMENT FUNCTIONS IN A SINGLE CLASS
 -- This will function to organize alt management easier and quicker access to the alt functions.
--- As GRM has grown, the core file has grown quite large. This will help me from trying to remember if a function exists and trying to seek it out, to instead putting it in a more compact file.
-
+-- As GRM has grown, the core file has grown quite large. This will help me from trying to remember
+-- if a function exists and trying to seek it out, to instead putting it in a more compact file.
 
 -- Method:          GRM.GetAltGroupMain ( string )
 -- What it Does:    Returns the string name of the player who is listed as the main, and also the GUID if requested
@@ -37,10 +37,10 @@ GRM.GetPlayerMain = function ( playerName )
                 result = GRM_Alts[GRM_G.guildName][player.altGroup].main;
             end
         end
-        
+
     end
     return result;
-end 
+end
 
 -- Method:          GRM.GetNumAltGroups ( string )
 -- What it Does:    Return the count of the number of alt groups in the guild
@@ -124,7 +124,7 @@ GRM.IsToonNotInAltGroup = function ( name , guildName )
 
     for id , group in pairs ( GRM_Alts[gName] ) do          -- Scan through all alt groups
         for i = 1 , #group do
-            if group[1].name == name then
+            if group[i].name == name then
                 validated = false;
                 table.insert ( foundID , id );
             end
@@ -313,7 +313,6 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
     else
         local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
         local alt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altName];
-        local isMain = false;
         local classMain , classAlt = "" , "";
         local timeOfChange = syncTimeStamp or time();
         
@@ -522,7 +521,7 @@ end
 -- Purpose:         Alt management, so whoever has addon installed can tag player as alts and mains and manipulate easily.
 GRM.RemoveAlt = function ( playerName , isSync , epochTime )
 
-    local timestamp = 0;
+    local timestamp = time();
 
     if not playerName then
         return;
@@ -534,8 +533,6 @@ GRM.RemoveAlt = function ( playerName , isSync , epochTime )
 
         if isSync then
             timestamp = epochTime;
-        else
-            timestamp = time();
         end
 
         local needsRefresh = false;
@@ -630,7 +627,6 @@ GRM.AddPlayerToOwnAltList = function()
     -- if no main, first person on list can add.
     -- if main, then main will add this player.
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.addonUser];
-    local addToAltsGroup = false;
 
     if player then
         playerIsFound = true;
@@ -652,7 +648,7 @@ GRM.AddPlayerToOwnAltList = function()
 
                         if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altName].isMain then
                             -- ADD ALT HERE!!!!!!
-                            addToAltsGroup = GRM.AddAlt ( GRM_G.addonUser , altName , false , time() );
+                            local addToAltsGroup = GRM.AddAlt ( GRM_G.addonUser , altName , false , time() );
                             GRM.SyncBirthdayWithNewAlt ( GRM_G.addonUser , altName , addToAltsGroup );
                             isAdded = true;
                             break;
@@ -666,7 +662,7 @@ GRM.AddPlayerToOwnAltList = function()
                     for altName in pairs ( GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName] ) do
                         -- Make sure it is not the player.
                         if altName ~= GRM_G.addonUser then
-                            addToAltsGroup = GRM.AddAlt ( GRM_G.addonUser , altName , false , time() );
+                            local addToAltsGroup = GRM.AddAlt ( GRM_G.addonUser , altName , false , time() );
                             GRM.SyncBirthdayWithNewAlt ( GRM_G.addonUser , altName , addToAltsGroup );
                             break;
                         end
@@ -854,7 +850,7 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt )
                 end
                 GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
             end
-            
+
             -- Update frames if looking at them on the spot...
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and name == GRM_G.currentName and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBDay and tempAlt.events[2][3] ~= "" then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
@@ -883,7 +879,7 @@ GRM.SetMain = function ( mainName , isSync , timestamp )
     -- if player is in a group or not
     player.isMain = true;
     player.mainStatusChangeTime = timestamp;
-    
+
     if player.name == GRM_G.currentName then
         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();

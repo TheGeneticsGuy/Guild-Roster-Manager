@@ -788,6 +788,8 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_Le
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter6Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter6Button:CreateFontString ( "GRM_LevelFilter6Text" , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Button = CreateFrame ( "CheckButton" , "GRM_LevelFilter7Button" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame , "OptionsSmallCheckButtonTemplate" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Button:CreateFontString ( "GRM_LevelFilter7Text" , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Button = CreateFrame ( "CheckButton" , "GRM_LevelFilter8Button" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame , "OptionsSmallCheckButtonTemplate" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Button:CreateFontString ( "GRM_LevelFilter8Text" , "OVERLAY" , "GameFontNormalSmall" );
 
 -- Enable !note feature
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton = CreateFrame ( "CheckButton" , "GRM_NoteTagFeatureCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame , "OptionsSmallCheckButtonTemplate" );
@@ -7327,7 +7329,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition ~= 1 then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition = 1;
-                GRM_UI.SetExportTabHighlights ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition );
+                GRM_UI.SetExportTabHighlights ();
             end
         end
     end);
@@ -7336,7 +7338,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition ~= 2 then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition = 2;
-                GRM_UI.SetExportTabHighlights ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition );
+                GRM_UI.SetExportTabHighlights ();
             end
         end
     end);
@@ -7345,7 +7347,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition ~= 3 then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition = 3;
-                GRM_UI.SetExportTabHighlights ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition );
+                GRM_UI.SetExportTabHighlights ();
             end
         end
     end);
@@ -7361,7 +7363,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame:SetScript ( "OnShow" , function ()
-        GRM_UI.SetExportTabHighlights ( GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.TabPosition );
+        GRM_UI.SetExportTabHighlights();
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEscapePressed" , function ( self )
@@ -11553,15 +11555,26 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.ConfigureLevelFilterButton ( self , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Text , 7 , 70 );
     end);
 
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Text:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Button , "RIGHT" , 4 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Text:SetText ( "70" );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Button:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Text , "RIGHT" , -2 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Button:SetHitRectInsets ( 0 , 0 , 0 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Button:SetScript ( "OnClick", function( self )
+        GRM_UI.ConfigureLevelFilterButton ( self , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Text , 8 , 80 );
+    end);
+
     GRM_UI.ConfigureLevelFilterMaxTooltip = function()
         local f = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame;
-        local buttons = { f.GRM_LevelFilter6Button , f.GRM_LevelFilter7Button };
+        local buttons = { f.GRM_LevelFilter6Button , f.GRM_LevelFilter7Button , f.GRM_LevelFilter8Button };
         local expansionButton;
 
         if GRM_G.LvlCap == 60 then
             expansionButton = buttons[1];
         elseif GRM_G.LvlCap == 70 then
             expansionButton = buttons[2];
+        elseif GRM_G.LvlCap == 80 then
+            expansionButton = buttons[3];
         end
 
         expansionButton:SetScript ( "OnEnter" , function( self )
@@ -15129,6 +15142,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     -- Reset the size to standard on hiding
     GRM_UI.GRM_GeneralPopupWindow:SetScript ( "OnHide" , function()
         GRM_UI.GRM_GeneralPopupWindow:SetSize ( 320 , 120 );
+        GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowIgnoreButtonText:SetText ( GRM.L ( "Ignore" ) );
+
+        -- One time thing as this is so critical it NEEDS to be addressed so it will require a response.
+        if GRM_G.GuildNamechangeProcessing then
+            GRM_G.GuildNamechangeProcessing = false;
+        end
+
     end);
     
     GRM_UI.NewTooltipScale();

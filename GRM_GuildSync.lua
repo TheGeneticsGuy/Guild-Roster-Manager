@@ -5619,7 +5619,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                                                 GRM.NextSyncStep ( 1 );
                                             end);
                                         else
-                                            GRMsync.SendCompletionMsg( false );
+                                            GRMsync.SendCompletionMsg();
                                         end
                                     end
                                 end

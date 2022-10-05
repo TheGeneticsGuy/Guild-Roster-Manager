@@ -1,9 +1,6 @@
-***Note:** Each update will be tagged with  **Classic/Retail/Both** for context*
-
 _______________________
 
-**VERSION R1.93 RELEASE - PENDING DATE**
-
+## **VERSION R1.93 RELEASE - PENDING DATE**
 
 ***BUG FIXES***
 
@@ -19,7 +16,7 @@ _______________________
 
 * Fixed an issue where the "custom message" using the macro tool would not report to the log properly and stay enabled.
 
-* Fixed some broken alt groups that would keep getting mixed everytime a player would sync with another. It is worth mentioning that in some cases it is impossible to know which of the toons is the real "main" as the affected alt groups could result in 2 different toons being linked as mains. Since I cannot know for certain your intention on who was who, the addon will auto-demote both and remove the main designation, and in some clases, if too broken, purge the alt group completely (*this is more more rare*). The good news is that with the restructuring of the alt database these issues should not return. 
+* Fixed some broken alt groups that would keep getting mixed everytime a player would sync with another. It is worth mentioning that in some cases it is impossible to know which of the toons is the real "main" as the affected alt groups could result in 2 different toons being linked as mains. Since I cannot know for certain your intention on who was who, the addon will auto-demote both and remove the main designation, and in some clases, if too broken, purge the alt group completely (*this is more more rare*). The good news is that with the restructuring of the alt database these issues should not return.
 
 * Fixed a bug where the main tag would being added to a player going offline would error out if they had just recently quit the guild but their system message status was still showing for you even though no longer in the guild. This self-resolves within minutes of a person leaving the guild, so this is somewhat an edge case.
 
@@ -51,15 +48,17 @@ _______________________
 
 * Fixed a bug where the tooltip did not work properly on the macro tool when mass kicking banned players or a player's set of alts
 
-* Fixed a bug where it was saying 100% complete after a sync if the player had between > 99% and < 100% complete, it was always reporting 100%. 
+* Fixed a bug where it was saying 100% complete after a sync if the player had between > 99% and < 100% complete, it was always reporting 100%.
 
-* Fixed an issue that could cause taint if you are a guild leader in Classic WOW. 
+* Fixed an issue that could cause taint if you are a guild leader in Classic WOW.
 
 * Fixed some typos in some localization/translation work.
 
 * Fixed an issue where GRM was creating a lot of sync "spam" behind the scenes in guilds with tons of GRM users. While it might not have been obvious to some people, as it was behind the scenes, it was wasteful use of resources. The sync has been moved to happen across whisper between the "sync leader" account, and the person who just recently logged on, though the updates will be broadcast guild wide, if necessary. Should be a bit less noisy now.
 
 * When someone had an unverified join date or promo date, you could "use the date of promotion/join" however you wanted, with the simple click of a button. It's a minor quality of life time saver. However, in some cases this was causing a Lua error and has been fixed.
+
+* Fixed a bug where the birthdate was not properly syncing among a grouping of alts when adding a toon to a grouping. Sort of an edge case as bug that would not happen in all circumstances. The group structure had to be a certain way.
 
 ***QUALITY OF LIFE***
 
@@ -83,7 +82,7 @@ _______________________
 * If right clicking resetting a specific player's date, it would do that, then force a sync. It no longer does that now because it doesn't make sense to wipe an individual's player then re-sync it all back. Maybe you want to wipe it, then modify any changes first. This is not a widely used feature.
 
 * If you right click the status of the player on the mouseover window the options wiill now be consistently reliable on reporting for updates. I also noticed that it was failing to show "AFK" speedily at times, when it should have been, and it was not taking into account in some cases if someone was on "mobile" chat rather than in-game. The whole process, while not used that often, is now significantly smoother to use. If anyone has any suggestions you would like to track on a player beyond "Report when player is no longer afk" then let me know as I would like to be able to add some kind of status tracking and expand this a little further, but in ways that are useful and make sense.
-    
+
 * The Sync join date among all alts now has a small button instead of relying on mouseover tooltip and right-clicking the join date title. Now, if it applies, a small button with an arrow to the right will appear. Click this and it will allow you to sync those join dates. Furthermore, the tool now shows the actual dates you are going to sync to. Before it just said "Want to sync to your main?" Well, now it shows you the actual date it is asking to sync to so it can be comapred to potential other options, like oldest.
 
 * The same applies to the alt group extra details window that would popout before when holding shift over Alts title - now, there is a button that appears and on mouseover the side window pops up, which you can click to lock in place.
@@ -117,14 +116,15 @@ _______________________
   -- Copy feature now available. Right click and copy the rule, which opens the edit window that has the same vaolues as the existing rule, but now can be quickly and slightly modified without needing to edit the entire rule from scratch
   -- Macro tool rules can now be configured in any order you wish to view them. (link pic)
 
-  * Fixed an issue where sometimes the server was not providing correct information immediately on a player's ability to participate in guild chat. Some guilds can silence players as a punishment rank, but this also hinders addons from being able to communicate from players at that rank as well. The addon will now do a proper re-check when trying to sync, to ensure the server provided the most up-to-date info and not getting incorrecetly reported that the player does not have access to syncing data because chat is restricted. This is sort of an "edge case" system as very few people have ever reported this after logging in, and a /reload fixed it, but this should resolve the annoyance of having to reload.
+* Fixed an issue where sometimes the server was not providing correct information immediately on a player's ability to participate in guild chat. Some guilds can silence players as a punishment rank, but this also hinders addons from being able to communicate from players at that rank as well. The addon will now do a proper re-check when trying to sync, to ensure the server provided the most up-to-date info and not getting incorrecetly reported that the player does not have access to syncing data because chat is restricted. This is sort of an "edge case" system as very few people have ever reported this after logging in, and a /reload fixed it, but this should resolve the annoyance of having to reload.
 
-* Fixed a bug where the birthdate was not properly syncing among a grouping of alts when adding a toon to a grouping. Sort of an edge case as bug that would not happen in all circumstances. The group structure had to be a certain way.
+* Russian translation has been updated, fixing some translation errors. Thank you @Oleg Koloskov on Github
+
+* GRM will now add proper guild nameChange detection to Classic builds, as Blizz now allows the purchase of a namechange. Due to some complexity with this capability as some server information is not available in Classic that does exist in retail, a popup window will appear after logging in during a suspected nameChange detection and ask for confirmation. If you Reject the detection, it will just add the new guild, otherwise, it will just overwrite the old name with the new guild name and none of your guild data, like alt info, logs, etc... will be lost.
 
 **CODE OPTIMIAZATION**
 
 ***Removal of some individual guild member data variables***
-
 **Removed Rank and Join Functions**
 
 * player.rankHistory
@@ -136,12 +136,12 @@ _______________________
 * player.joinDateEpoch
 * player.verifiedJoinDate
 
-**Replaced with:**
+**Above Player Data Replaced with 2 points:**
 
 * player.rankHist
 * player.joinDateHist
 
-```
+```lua
 player.rankHist = 
 { 
     {
@@ -152,7 +152,7 @@ player.rankHist =
          dateInEpoch (int),
          epochTimeOfChange (int),
          isVerified (bool),
-         typeOfRankChange (int)     -- typeOfRankChange: 1 = promotion, 2 = demotion , 3 = left guild
+         typeOfRankChange (int) -- typeOfRankChange: 1 = promotion, 2 = demotion , 3 = left guild
     }
 }
 
@@ -165,20 +165,20 @@ player.joinDateHist =
          dateInEpoch (int),
          epochTimeOfChange (int),
          isVerified (bool),
-         typeOfMembershipChange (int)     -- typeOfMembershipChange: 1 = Join, 2 = left guild
+         typeOfMembershipChange (int)  -- typeOfMembershipChange: 1 = Join, 2 = left guild
     }
 }
 ```
 
-*NOTE* These a 2D tables/arrays where each nested table is another recording of the player either leaving the guild, joining the guild, or in regards to the rank information, changing rank (a join counts as a rank change as you rejoin lowest rank). The LATEST and most current event is inserted at position 1 of the table, just like above. This is the equivalent of position ZERO in most "normal" programming languages lol
-
+*NOTE* These a 2D tables/arrays where each nested table is another recording of the player either leaving the guild, joining the guild, or in regards to the rank information, changing rank (a join counts as a rank change as you rejoin lowest rank). The LATEST and most current event is inserted at position 1 of the table, just like above. This is the equivalent of position ZERO in most "normal" programming languages
 
 --TASK
-GRMsyncGlobals.guildData = {};
-    GRMsyncGlobals.formerGuildData = {}; 
+    GRMsyncGlobals.guildData = {};
+    GRMsyncGlobals.formerGuildData = {};
     Set to that after sync
 
   Buttons to Enable and Disable Sync
+
 
 ***Note:** Each update will be tagged with  **Classic/Retail/Both** for context*
 

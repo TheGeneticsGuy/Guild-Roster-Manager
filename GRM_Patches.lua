@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 94;
+local totalPatches = 95;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -997,19 +997,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- patch 90
     patchNum = patchNum + 1;
-    if numericV < 1.93 and baseValue < 1.93 then
+    if numericV < 1.92995 and baseValue < 1.92995 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.fixAltGroups , true , false , true ); -- Long standing bug - cleanup groups
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddRulesValue );
         GRM_Patch.ModifyPlayerSetting ( "promoteRules" , GRM_Patch.AddRulesValue );
         GRM_Patch.ModifyPlayerSetting ( "demoteRules" , GRM_Patch.AddRulesValue );
 
-        if loopCheck ( 1.93 ) then
+        if loopCheck ( 1.92995 ) then
             return;
         end
     end
 
     patchNum = patchNum + 1;
-    if numericV < 1.93 and baseValue < 1.93 then
+    if numericV < 1.92996 and baseValue < 1.92996 then
         GRM_Patch.ConfigureNewAltGroups();
         GRM_Patch.AddMemberMetaData ( "altGroup" , "" );
         GRM_Patch.AddMemberMetaData ( "altGroupModified" , 0 );
@@ -1017,39 +1017,39 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddMemberMetaData ( "altsAtTimeOfLeaving" , {} );
         GRM_Patch.BuildNewAltLists();
 
-        if loopCheck ( 1.93 ) then
+        if loopCheck ( 1.92996 ) then
             return;
         end
     end
 
     patchNum = patchNum + 1;
-    if numericV < 1.93 and baseValue < 1.93 then
+    if numericV < 1.92997 and baseValue < 1.92997 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.UpdateUnknownRankFormat , false , true , false );
         GRM_Patch.ModifyMemberData ( GRM_Patch.FixUnknownBirthdayBug , true , true , true );
         GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertRankHistoryToRanks , true , false , false , false ); -- Only modifying current
         GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertRankHistoryToRanks , false , true , false , true );  -- Only modifying left - with special bool condition
         
-        if loopCheck ( 1.93 ) then
+        if loopCheck ( 1.92997 ) then
             return;
         end
     end
 
     -- 93
     patchNum = patchNum + 1;
-    if numericV < 1.93 and baseValue < 1.93 then
+    if numericV < 1.92998 and baseValue < 1.92998 then
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.ConfigureRuleIndexAndEditTime );
         GRM_Patch.ModifyPlayerSetting ( "promoteRules" , GRM_Patch.ConfigureRuleIndexAndEditTime );
         GRM_Patch.ModifyPlayerSetting ( "demoteRules" , GRM_Patch.ConfigureRuleIndexAndEditTime );
         GRM_Patch.AddPlayerSetting ( nil , nil , GRM_Patch.AddRemovedRules );
         
-        if loopCheck ( 1.93 ) then
+        if loopCheck ( 1.92998 ) then
             return;
         end
     end
 
     -- Patch 94
     patchNum = patchNum + 1;
-    if numericV < 1.9310 and baseValue < 1.93 then
+    if numericV < 1.92999 and baseValue < 1.92999 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertJoinHistory , true , false , false , false ); -- Only modifying current
         GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertJoinHistory , false , true , false , true );  -- Only modifying left - with special bool condition
         GRM_Patch.ModifyMemberData ( GRM_Patch.RemoveOldAltLists , true , true , false );           -- some time after this patch
@@ -1060,25 +1060,23 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddPlayerSetting ( "macroSyncPromoteEnabled" , true );                             -- Same --
         GRM_Patch.AddPlayerSetting ( "macroSyncDemoteEnabled" , true );                              -- Same -- 
         
-        if loopCheck ( 1.9310 ) then
+        if loopCheck ( 1.92999 ) then
             return;
         end
     end
 
-    -- Patch 94
+    -- Patch 95
     patchNum = patchNum + 1;
-    if numericV < 1.9311 and baseValue < 1.9311 then
+    if numericV < 1.93 and baseValue < 1.93 then
 
     -- ONLY DO THIS IF PATCH HAS BEEN COMPLETELY SUCCESSFUL!!! If we get this far it has!
     
-    
         GRM.ResetAllBackups ( true , true );        -- Clearing the manual - unfortunately it needs to be done. Mostly unused feature anyway.
         GRM_G.ForceAuto = true;                 -- We want to force auto-backup this session so it backs up the alt groups.
-        if loopCheck ( 1.9311 ) then
+        if loopCheck ( 1.93 ) then
             return;
         end
     end
-
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -2166,7 +2164,7 @@ end
 -- Purpose:         Fixing a coding flaw
 GRM_Patch.RemoveDouble = function ( finalStepTable )
     local t = finalStepTable;
-    local i , c , r = 2;
+    local i , c , r = 2 , 2 , 2;
     while i <= #t do
         c = 0;
         local n = t[i][1];
@@ -5751,7 +5749,7 @@ GRM_Patch.BuildNewAltLists = function()
 
     for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
         for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
-            for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+            for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do
                 if type ( player ) == "table" then
 
                     if player.altGroup == "" and player.alts and ( #player.alts > 0 or player.isMain ) then
