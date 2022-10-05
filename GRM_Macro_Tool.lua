@@ -8975,7 +8975,7 @@ end
 GRM.BuildMacroSyncTooltip = function( button )
     GRM_UI.SetTooltipScale();
     GameTooltip:SetOwner ( button , "ANCHOR_CURSOR" );
-    GameTooltip:AddLine( GRM.L ( "Pending Feature... Not yet ready" ) );
+    GameTooltip:AddLine( "Pending Feature... Not yet ready" );
     GameTooltip:Show();
 end
 

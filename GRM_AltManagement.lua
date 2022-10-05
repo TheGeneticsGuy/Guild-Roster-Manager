@@ -995,7 +995,7 @@ GRM.AddAltAutoComplete = function()
     local partName = GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:GetText();
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local tag = 0;
-    local matches = {};
+    local players = {};
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
@@ -1009,48 +1009,20 @@ GRM.AddAltAutoComplete = function()
                     tag = 2;
                 end
 
-                table.insert ( matches , { player.name , player.class , tag } );
+                table.insert ( players , { player.name , player.class , tag } );
             end
         end
     end
     -- Need to sort "Complex" table
-    sort ( matches , function ( a , b ) return a[1] < b[1] end );    -- Alphabetizing it for easier parsing for buttontext updating. - This sorts the first index of the 2D array
+    sort ( players , function ( a , b ) return a[1] < b[1] end );    -- Alphabetizing it for easier parsing for buttontext updating. - This sorts the first index of the 2D array
     
     -- Now, let's identify the names that match
-    local matchingList = {};
-    local found = false;
-    local innerFound = false;
-    for i = 1 , #matches do
-        innerFound = false;
-        if string.lower ( partName ) == string.lower ( string.sub ( matches[i][1] , 1 , #partName ) ) then
-            innerFound = true;
-            found = true;
-            table.insert ( matchingList , matches[i] );
-        end
-        if #matchingList == GRM_G.MaxAltAutoCompleteList then
-            break;
-        end
-        if innerFound ~= true and found then    -- resource saving
-            break;
-        end
-    end
-
-    -- If No alphabetical matches, try partial
-    if #matchingList == 0 then
-        for i = 1 , #matches do
-            if string.find ( string.lower ( matches[i][1] ) , string.lower ( partName ) ) ~= nil then
-                table.insert ( matchingList , matches[i] );
-            end
-            if #matchingList == GRM_G.MaxAltAutoCompleteList then
-                break;
-            end
-        end
-    end
+    local matchingList = GRM.GetAutoCompleteMatches ( players , partName , 30 );
     
     -- Populate the buttons now...
     if partName ~= nil and partName ~= "" then
-        local resultCount = #matchingList;
-        if resultCount > 0 then
+
+        if #matchingList > 0 then
             GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Hide();
             GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
             GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Show();

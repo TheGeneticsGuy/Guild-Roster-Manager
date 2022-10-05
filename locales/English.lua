@@ -1543,6 +1543,8 @@ GRML.English = function()
     GRM_L["Reject"] = true
     GRM_L["Please confirm that the guild \"{name}\" has been renamed to \"{name2}\"."] = true
     GRM_L["Possible Guild Name Change Detected. {num}% match."] = true
+    GRM_L["Player Search"] = true
+    GRM_L["Search to find a player quicker"] = true
 
     -- Additonal slash command
     GRM_L["dead"] = true            -- slash command for checking dead names

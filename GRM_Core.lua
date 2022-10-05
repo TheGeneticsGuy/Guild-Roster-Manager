@@ -2836,7 +2836,6 @@ GRM.SetGuildInfoDetails = function()
         ChatFrame_AddMessageEventFilter ( "CHAT_MSG_SYSTEM" , GRM.SetSystemMessageFilter );
     end
 
-
     -- Enable System Messages if Disabled.
     GRM.ConfigureSystemMessages();
 
@@ -2870,12 +2869,19 @@ GRM.GetAllGuildiesOnline = function( fullNameNeeded )
     return listOfNames;
 end
 
--- Method:          GRM.GetAuditLinePlayervalues ( array )
+-- Method:          GRM.GetAuditLinePlayervalues ( array , boolean )
 -- What it Does:    Collections the JoinDateText, the Promo, and the main Status text for use of the audit window
 -- Purpose:         Easily callable function for reuse in parsing player data for the audit system.
-GRM.GetAuditLinePlayervalues = function ( player , isComplete )
+GRM.GetAuditLinePlayervalues = function ( data , isComplete )
     local joinDate , promoDate , mainStatus = "" , "" , "";
     local classColors = {};
+    local player;
+
+    if type ( data ) == "string" then
+        player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][data];
+    else
+        player = data;
+    end
     
     -- Join date
     if player.joinDateHist[1][4] == 0 then
@@ -3331,69 +3337,60 @@ GRM.GetListOfGuildies = function( slimName )
     return list;
 end
 
--- Method:          GRM.GetAutoCompleteList ( string , int , table )
--- What it Does:    Returns a list of names, in an array, sorted, if they match the auto-complete text. It first checks if there is an exact match, alphabetically, and if it finds none
---                  it then checks for partial matches.
--- Purpose:         Autocomplete is a UX tool. Useful to help player look up info in editboxes
-GRM.GetAutoCompleteList = function ( matchingText , maxNames , listOfNames )
-    listOfNames = listOfNames or GRM.GetListOfGuildies ( false );       -- Alphebatized
-    local matches = {};
-    local found = false;
-    local innerFound = false;
-
-    for i = 1 , #listOfNames do
-        innerFound = false;
-        if string.lower ( partName ) == string.lower ( string.sub ( listOfNames[i] , 1 , #partName ) ) then
-            innerFound = true;
-            found = true;
-            table.insert ( matches , listOfNames[i] );
-        end
-        if #matches == maxNames then
-            break;
-        end
-        if innerFound ~= true and found then    -- resource saving
-            break;
-        end
-    end
-
-    -- If No alphabetical matches, try partial
-    if #matches == 0 then
-        for i = 1 , #listOfNames do
-            if string.find ( string.lower ( listOfNames[i] ) , string.lower ( partName ) ) ~= nil then
-                table.insert ( matches , listOfNames[i] );
-            end
-            if #matches == maxNames then
-                break;
-            end
-        end
-    end
-
-    return matches;
-end
-
--- Method:          GRM.GetAllCurrentAndFormerGuildies()
+-- Method:          GRM.GetAllCurrentAndFormerGuildies( boolean , boolean )
 -- What it Does:    Collects the names and class of every player currently in the guild, formerly in the guild in database, and sorts the 2D array alphabetically
 -- Purpose:         This will be useful when adding people manually to ban list for auto-complete
-GRM.GetAllCurrentAndFormerGuildies = function()
+GRM.GetAllCurrentAndFormerGuildies = function( getCurrent , getFormer )
     local result = {};
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
 
-    -- First, grab those currently in the guild
-    for _ , player in pairs ( guildData ) do
-        if type ( player ) == "table" then
-            table.insert ( result , { player.name , player.class } );
+    if getCurrent then
+        -- First, grab those currently in the guild
+        for _ , player in pairs ( guildData ) do
+            if type ( player ) == "table" then
+                table.insert ( result , { player.name , player.class } );
+            end
         end
     end
 
-    -- Nemembert, grab those not in the guild
-    guildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-    for _ , player in pairs ( guildData ) do
-        if type ( player ) == "table" then
-            table.insert ( result , { player.name , player.class } );
+    if getFormer then
+        -- Nemembert, grab those not in the guild
+        guildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+        for _ , player in pairs ( guildData ) do
+            if type ( player ) == "table" then
+                table.insert ( result , { player.name , player.class } );
+            end
         end
     end
+
     -- Now we sort "Complemember" table
     sort ( result , function ( a , b ) return a[1] < b[1] end );    -- Alphabetizing it for easier parsing for buttontemembert updating. - This sorts the first indemember of the 2D array
+
+    return result;
+end
+
+-- Method:          GRM.RemoveSpecialCharacters ( string )
+-- What it Does:    Replaces all the special alt characters with English alphabet chars
+-- Purpose:         Allows the autocomplete search of a player to provide results without needing to know special chars
+GRM.RemoveSpecialCharacters = function( word )
+    local result = word;
+    local listOfChars = {  { "Ç" , "c" } , { "ü" , "u" } , { "é" , "e" } , { "â" , "a" } ,
+                        { "ä" , "a" } , { "à" , "a" } , { "å" , "a" } , { "ç" , "c" } , { "ê" , "e" } ,
+                        { "ë" , "e" } , { "è" , "e" } , { "ï" , "i" } , { "î" , "i" } , { "ì" , "i" } ,
+                        { "Ä" , "a" } , { "Å" , "a" } , { "É" , "e" } , { "æ" , "ae" } ,
+                        { "Æ" , "ae" } , { "ô" , "o" } , { "ö" , "o" } , { "ò" , "o" } , { "û" , "u" } ,
+                        { "ù" , "u" } , { "ÿ" , "y" } , { "Ö" , "o" } , { "Ü" , "u" } , { "¢" , "c" } ,
+                        { "á" , "a" } , { "í" , "i" } , { "ó" , "o" } , { "ú" , "u" } , { "ñ" , "n" } ,
+                        { "Ñ" , "n" } , { "Θ" , "o" } , { "Á" , "a" } , { "Â" , "a" } , { "À" , "a" } ,
+                        { "ã" , "a" } , { "Ã" , "a" } , { "Ð" , "d" } , { "Ê" , "e" } , { "Ë" , "e" } ,
+                        { "È" , "e" } , { "Í" , "i" } , { "Î" , "i" } , { "Ï" , "i" } , { "Ó" , "o" } ,
+                        { "ß" , "b" } , { "Ô" , "o" } , { "Ò" , "o" } , { "õ" , "o" } , { "Õ" , "o" } ,
+                        { "µ" , "u" } , { "Ú" , "u" } , { "Û" , "u" } , { "Ù" , "u" } , { "ý" , "y" } ,
+                        { "Ý" , "y" } };
+    
+    for i = 1 , #listOfChars do
+        result = string.gsub ( result , listOfChars[i][1] , listOfChars[i][2] );
+    end
 
     return result;
 end
@@ -3402,7 +3399,7 @@ end
 -- Method:          GRM.GetAutoCompleteMatches ( array , string )
 -- What it Does:    This scans through the given list and returns a new list with only the string matched items.
 -- Purpose:         Useful for auto-complete filtering.
-GRM.GetAutoCompleteMatches = function ( list , key )
+GRM.GetAutoCompleteMatches = function ( list , key , maxResult )
     local result = {};
     if key == "" then
         return result;
@@ -3410,8 +3407,12 @@ GRM.GetAutoCompleteMatches = function ( list , key )
     key = string.lower ( key );
     
     for i = 1 , #list do
-        if string.find ( string.lower ( list[i][1] ) , key , 1 , true ) then
+        if string.find ( GRM.RemoveSpecialCharacters ( string.lower ( list[i][1] ) ) , key , 1 , true ) or string.find ( string.lower ( list[i][1] ) , key , 1 , true ) then
             table.insert ( result , list[i] );
+        end
+
+        if maxResult ~= nil and maxResult == #result then
+            break;
         end
     end
 
@@ -9199,6 +9200,32 @@ GRM.GetAuditEntries = function ()
     return result;
 end
 
+-- Method:          GRM.GetAutoCompleteNamesForAudit ( string )
+-- What it Does:    Updates the audit list to be shown as those to match the search box
+-- Purpose:         Search for guildies
+GRM.GetAutoCompleteNamesForAudit = function ( searchString )
+
+    local matches = GRM.GetAutoCompleteMatches ( GRM.GetAllCurrentAndFormerGuildies ( true , false ) , searchString )
+    local listOfGuildies = {};
+    local isComplete = true;
+    local joinDate = "";
+    local promoDate = "";
+    local mainStatus = "";
+    local classColors = {};
+    local birthDate = "";
+
+    for i = 1 , #matches do
+            -- proper name format
+        joinDate , promoDate , mainStatus , isComplete , classColors , birthDate = GRM.GetAuditLinePlayervalues ( matches[i][1] , isComplete );
+
+        table.insert ( listOfGuildies , { matches[i][1] , joinDate , promoDate , mainStatus , classColors , birthDate } );
+    end
+
+    sort ( listOfGuildies , function ( a , b ) return a[1] < b[1] end );
+
+    return listOfGuildies
+end
+
 -- Method:          GRM.SetAuditValues ( int , int )
 -- What it Does:    Builds the values of the given line in the audit window
 -- Purpose:         Quality of life feature.
@@ -9365,7 +9392,7 @@ end
 -- Method:          GRM.RefreshAuditFrames( bool , bool )
 -- What it Does:    Updates the audit frames when called
 -- Purpose:         Audit frames are useful so the leader or player can do an easy visual check of the entire guild on what is needed.
-GRM.RefreshAuditFrames = function ( showAll , fullRefresh )
+GRM.RefreshAuditFrames = function ( showAll , fullRefresh , searchString )
     local hybridScrollFrameButtonCount = 14;
     local buttonHeight = 22.1875;
     local scrollHeight = 0;
@@ -9392,8 +9419,9 @@ GRM.RefreshAuditFrames = function ( showAll , fullRefresh )
                 end
             end
         end
+    elseif not showAll then
+        GRM_G.AuditEntries = GRM.GetAutoCompleteNamesForAudit ( searchString );
     end
-
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons or {};
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset or ( hybridScrollFrameButtonCount );
@@ -24461,7 +24489,8 @@ end
 -- What it Does:    Rechecks if a certain frame function is loaded. 
 -- Purpose:         For some reason some edge cases out there some clients load these very slow, and an addon can trigger before this is done.
 GRM.LoadRecursiveErrorCheck = function()
-    if UIDropDownMenu_CreateInfo() == nil then
+    
+    if ( GRM_G.BuildVersion < 80000 and UIDropDownMenu_CreateInfo() == nil ) or ( GRM_G.BuildVersion >= 80000 and not CommunitiesFrame ) then
         C_Timer.After ( 3 , function()
             GRM.LoadRecursiveErrorCheck();
         end);
@@ -24724,10 +24753,7 @@ end
 Initialization:RegisterEvent ( "ADDON_LOADED" );
 Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
-
--- Send to join/promo date not working on right click
 -- Make sure in new expansion this is updated - GRM.BuildGuildRosterHotkeyAndMacro - the "KeyNum" binding must match
--- When calendar is implemented - Classic Functions needs buildVersion updated.
 
 -- Ah ya I see. Just to be clear, just the yellow system messages GRM uses, but you still want to see the yellow system messages unrelated to GRM, right? Like above the invite ones?
 
@@ -24744,12 +24770,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- Online indicator on the alt popout moseouver
 
 -- Thanks in advance for taking the time to read this:  Is it possible to use a macro to exclude promoting toons that you have a certain note.  We avoid promoting folks until they have entered some info into their notes.  Until this is done we enter "Needs Notes" in the public note section.  Can I write a promotion macro to promote them once they have been a member of the guild for X days so long as their note DOESN'T contain "Needs Notes"?  
-
--- Discord suggeestion Random suggestion not related to the addon, but if you made the Discord server a "community server" and set #news to an announcements channel, people can follow the channel to have updates posted in their own servers
-
--- Reconfigure the sync leadership to ONLY have one and always select the top person.
-
--- 100% showing on sync completion, even if more than 1 still left
 
 -- Actually a good kick rule for us would be if the character's name was changed in the manner Blizzard uses when they freed up a name (like Fred3e08B) Because that tells us the account is truly dead.
   -- NOTIFICATION if a player's name has a number in it you know account is dead.
@@ -24768,7 +24788,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- Adjust sync leadership structure and restrict sync leadership to the highest rank - if someone inquires who Is Leader and you determine they are a higher rank than you, then do not respond and let them reassess leadership.
 -- Alt search - a = à = á = â = ã = ä = å   -- normalize this to all be "a"
 
--- resiuzable frames with drag.
+-- resizable frames with dragging corner
 
 -- Add message if you are an officer and no global control set, to recommend setting global controls.
 
@@ -24786,20 +24806,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- 3 of which can be kicked because of Inactivity so i want them to be show as a set. 
 -- Currently I have to remember all of there alts while using the Macro Tool as it doesn't organize by set, it is organize alphabetically. It would be awesome to also do it by set. hopefully that makes since.
 
--- Arkaan do you think it would be possible to have a setting for GRM to work in custom chat channels? at least in our healer chat it's not
-
--- Massive rewrite of the right click menus on mouseover - all new frames, less complicated - just finished status, and alt windows.
-     -- Need Promoe/Join?Demote now as 1
-
--- Roster search with Ctrl-Click
-
 -- Macro tool rule - error with 2 rules applying - causing doubling  -- Only tooltip is showing 1 rule applying, but you have 2 copies of same person in the list. It only happens with 2 rules checked.
-
--- PRIORITY -- 
--- REVAMP Rank History and Verified to be same thing.
--- Dates  1/1/2001 -- still showing under the hood
-
--- Birthday should be universal to the alts, so birthday sync to player AND alt group?
 
 -- MACRO TOOL
 -- Rule options - include an option to send an advance message to guild chat in advance of the macro spam!!!\
@@ -25016,13 +25023,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- Ability to import alt from the notes
 
-
-
-
-
--- Unable to exxport cert note formats. (unable to recreate)
-
-
 -- Store why the person left, kicked, inactive, removed and so on and report that in the log when they rejoin,.
 
 -- Export have a dropdown selection of all guilds in DB
@@ -25033,13 +25033,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
 -- Add an export of just a specific player (possibly right click option on player name)
 
-
-
 -- https://github.com/rossnichols/LibSerialize
-
-
-
--- Ability to rearrange the order of the rules.
 
 
 -- Slash command to force all epoch stamps for sync purposes to be today's date... mass tool for sync control power.
@@ -25070,7 +25064,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- * Snapping back on the scrolling. Click the player locks the player, but it continues to allow mouseover scrolling, and snaps back when you scroll off... but lock is released if t he player's name is scrolled off.
 
 -- Change how all the Log reporting is... show the fullName on merged realms and show 
-
 
 
 -- Statistics Panel And Module
@@ -25290,10 +25283,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- * If a player goes from not being able to read officer note, to having access, it spams your log. That should be known...
 -- * Custom note cyrillic characters
 
-
-
-
-
 -- Addon Idea
 -- Auto-updating player note.
 -- would be if it updated their roster notes for them, to add their item level to their note
@@ -25326,10 +25315,6 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 
     -- Mass demote to lowest rank
     -- /run local n,r,t,m,p,d,s=GetNumGuildMembers(),GuildControlGetNumRanks()-1,"","D";DeleteMacro(m);for i=1,n do p,_,d=GetGuildRosterInfo(i);if d~=r and d~=0 then s="/gdemote "..p.."\n"; if #t+#s<256 then t=t..s;end;end;end;CreateMacro(m,"inv_misc_key_04",t)
-
-
-
-
 
 
 -- RECRUITMENT

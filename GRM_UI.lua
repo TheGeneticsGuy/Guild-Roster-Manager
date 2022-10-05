@@ -95,6 +95,16 @@ GRM_UI.noteBackdrop3 = {
     insets = { left = 2 , right = 2 , top = 3 , bottom = 1 }
 }
 
+-- For disabling backdrops on frames for UI customization
+GRM_UI.framelessBackdrop = {
+    bgFile = nil,
+    edgeFile = "",
+    tile = true,
+    tileSize = 32,
+    edgeSize = 9,
+    insets = { left = -2 , right = -2 , top = -3 , bottom = -2 }
+}
+
 -- Notes of the 
 GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow = CreateFrame( "Frame" , "GRM_PlayerNoteWindow" , GRM_UI.GRM_MemberDetailMetaData , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1 = GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:CreateFontString ( "GRM_noteFontString1" , "OVERLAY" , "GameFontWhiteTiny" );
@@ -976,6 +986,10 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButton = C
 GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButton:CreateFontString ( "GRM_AuditBirthdayToggleButtonText" , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_ShowExportWindowButton = CreateFrame ( "Button" , "GRM_ShowExportWindowButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_ShowExportWindowButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_ShowExportWindowButton:CreateFontString ( "GRM_ShowExportWindowButtonText" , "OVERLAY" , "GameFontWhiteTiny");
+GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox = CreateFrame( "EditBox" , "GRM_PlayerSearchAuditEditBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame , "InputBoxTemplate" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:ClearFocus();
+GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:CreateFontString ( "GRM_PlayerSearchAuditEditBoxText" , "OVERLAY" , "GameFontWhiteTiny");
+
 -- MINIMAP BUTTON
 GRM_UI.GRM_MinimapButton = CreateFrame ( "Button" , "GRM_MinimapButton" , Minimap );
 GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon = GRM_UI.GRM_MinimapButton:CreateTexture ( "GRM_MinimapButtonIcon" , "BORDER" );
@@ -2627,12 +2641,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetWidth ( 108 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetJustifyH ( "LEFT" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetMaxLines ( 3 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
 
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBorders then
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:Show();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
     else
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:Hide();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
     end
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetSize ( 125 , 40 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "TOP" , 0 , 0 );
@@ -2655,12 +2668,10 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetJustifyH ( "LEFT" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetMaxLines ( 3 );
 
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
-
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBorders then
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:Show();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
     else
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:Hide();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
     end
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetSize ( 125 , 40 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetPoint( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow , "TOP" , 0 , 0 );
@@ -3810,11 +3821,10 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     
 
     -- SCROLL FRAME
-    GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:SetBackdrop ( GRM_UI.noteBackdrop );
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBorders then
-        GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:Show();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:SetBackdrop ( GRM_UI.noteBackdrop );
     else
-        GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:Hide();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:SetBackdrop ( GRM_UI.framelessBackdrop );
     end
     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "BOTTOMLEFT" , 0 , -10 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:SetSize ( 125 , 85 );
@@ -9036,15 +9046,15 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             if self:GetChecked() then
                 GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBorders = true;
-                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:Show();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:Show();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:SetBackdrop ( GRM_UI.noteBackdrop );
                 
             else
                 GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBorders = false;
-                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:Hide();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame:SetBackdrop ( GRM_UI.framelessBackdrop );
             end
             GRM.SyncSettings();
         end
@@ -12933,6 +12943,72 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM.SlashCommandExport();
         end
     end);
+
+    -- Player Search
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox , "TOP" , 0 , -2 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetTextColor ( 1 , 0.82 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetText ( GRM.L ( "Player Search" ) );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame , "TOPRIGHT" , -15 , -40 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetSize ( 200 , 30 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetTextInsets ( 2 , 3 , 3 , 2 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetMaxLetters ( 100 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:EnableMouse( true );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetAutoFocus( false );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetJustifyH ( "CENTER" );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetTextColor ( 1 , 1 , 1 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetNumeric ( false );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox.partialNameText = "";
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale()
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "Search to find a player quicker" ) );
+        GameTooltip:Show();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip();
+    end);        
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnEscapePressed" , function ( self )
+        self:SetText ( GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox.partialNameText );
+        self:ClearFocus();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnEnterPressed" , function ( self )
+        self:ClearFocus();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnEditFocusLost" , function ( self )
+        self:HighlightText ( 0 , 0 );
+        self:SetText ( GRM.Trim ( self:GetText() ) );
+
+        if self:GetText() == "" then
+            GRM.RefreshAuditFrames ( true , true );
+        end
+
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox.partialNameText = self:GetText();
+    end)
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnEditFocusGained" , function ( self )
+        self:HighlightText ( 0 );
+        self:SetCursorPosition ( 0 );
+        GRM.RestoreTooltip();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnTextChanged" , function ( self )
+        local partialName = self:GetText();
+
+        if partialName ~= "" then
+            GRM.RefreshAuditFrames ( false , false , partialName );
+        end
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnHide" , function ( self )
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox.partialNameText = "";
+        self:SetText ( "" );
+    end);
     
     -- Scroll Frame Details
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollBorderFrame:SetSize ( 584 , 335.625 );
@@ -14065,7 +14141,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM.PopulateClassDropDownMenu();
 
         -- Create the autocomplete list so it doesn't have to keep rebuilding it over and over.
-        GRM_G.autoCompleteBanList = GRM.GetAllCurrentAndFormerGuildies();
+        GRM_G.autoCompleteBanList = GRM.GetAllCurrentAndFormerGuildies( true , true );
     end)
 
     -- Autocomplete scrollframe

@@ -60,6 +60,8 @@ _______________________
 
 * Fixed a bug where the birthdate was not properly syncing among a grouping of alts when adding a toon to a grouping. Sort of an edge case as bug that would not happen in all circumstances. The group structure had to be a certain way.
 
+* Fixed an issue where in the GRM > Options > UI Tab - if you wanted to disable the borders around the player notes on the mouseover window, for a slightly cleaner UI, it was hiding the note. This now works properly.
+
 ***QUALITY OF LIFE***
 
 * Complete Rebuild of the entire backend alt database - while this will not be obvious on the front end, when I initially wrote the alt logic I was basically building as a I went and the entire codebase at that point was less than 1000 lines of code. Fundamentally it was not built in the most efficient way, but I have built over its foundation since. As GRM has grown into tens of thousands of lines of code, with increasing complexity, and with the alt logic having its tentacles all over thhe place, it got to the point where a decision had to be made, do I keep building on the original "leaky" logic, that had a larger memory footprint, or do I finally get around to rebuilding the entire alt database and accompanying logic from scratch. Well, with no end in sight for the future of GRM, it just made sense to get it over with now. This will have the side effect of fixing some potential logic flow errors that could result in alt groups getting jumbled incorrectly during a sync.
@@ -95,6 +97,8 @@ _______________________
 
 * GRM will now inform you if it is the player's birthday when they login - It will also inform you if when you login, any of the players that are already online, if it is their birthday. This will only announce once per player, no matter how many session you login that day, or how many times they login. This can be disabled in the OPTIONS > SCAN tab.
 
+* Birthdays will now just say "Happy Birthday, [Guild Member]" instead of the weird "It's almost time to celebrate" message.
+
 * Promotions will now be reported to the log *AFTER* new member log entries, because it makes sense that a player changed rank after they joined the guild.
 
 * The /grm help command is now fully localized so if localized program is using a custom slash command it will help
@@ -121,6 +125,12 @@ _______________________
 * Russian translation has been updated, fixing some translation errors. Thank you @Oleg Koloskov on Github
 
 * GRM will now add proper guild nameChange detection to Classic builds, as Blizz now allows the purchase of a namechange. Due to some complexity with this capability as some server information is not available in Classic that does exist in retail, a popup window will appear after logging in during a suspected nameChange detection and ask for confirmation. If you Reject the detection, it will just add the new guild, otherwise, it will just overwrite the old name with the new guild name and none of your guild data, like alt info, logs, etc... will be lost.
+
+* Calendar features have been enabled in WOTLK.
+
+* When searching a name, like when adding an alt to a player's list, if the name has special "alt code" characters, the comparable english letter will still be able to find the name. For example, if your name is "Bîkê" then searching "bike" will be sufficient in the search.
+
+* A player search has been added to the audit window to help assist in finding players quicker
 
 **CODE OPTIMIAZATION**
 
