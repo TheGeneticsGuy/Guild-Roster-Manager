@@ -31,9 +31,9 @@ GRML = {};
 GRM_G = {}; 
 
 -- Addon Details:
-GRM_G.Version = "R1.93";
-GRM_G.PatchDay = 1664920098;             -- In Epoch Time
-GRM_G.PatchDayString = "1664920098";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
+GRM_G.Version = "R1.931";
+GRM_G.PatchDay = 1665097091;             -- In Epoch Time
+GRM_G.PatchDayString = "1665097091";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds.
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -644,7 +644,6 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         player["syncSameVersion"] = true;                                   -- 19 Only sync with players with current version
         player["syncBanList"] = true;                                       -- 21
         player["syncRankBanList"] = GRM.GetFirstOfficerRank();              -- 22 Default sync ban restriction
-        player["syncSpeed"] = 1;                                            -- 24 On a 1.0 scale - 1 = 100%
         player["exportAllRanks"] = true;                                    -- 35 Share data with ALL guildies, but only receive from your threshold rank
         player["syncCustomNote"] = true;                                    -- 38
         player["syncRankCustom"] = GRM.GetRankRestrictedDefaultRankIndex(); -- 49 Default rank for syncing the custom note... default is same as top rank
@@ -992,7 +991,6 @@ GRM.FinalSettingsConfigurations = function()
 
     -- For sync...
     GRMsyncGlobals.timeAtLogin = time();    -- Important for Sync Leader backend election algorithm.
-    GRMsyncGlobals.ThrottleCap = GRMsyncGlobals.ThrottleCap * GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncSpeed;   -- Adjust the throttle cap
 
     -- The Tag Headers
     GRM.SetJoinAndRejoinTags();
@@ -4855,11 +4853,18 @@ end
 -- Purpose:         Now that many of the dates are stored as a table format, for easier conversion, rather than a string, this allows for quick access and formatting but only in default fashion.
 GRM.GetTimestampFromTable = function ( timeArray )
 
-    if timeArray[3] > 2000 then
-        timeArray[3] = timeArray[3] - 2000;
+    local result = "";
+
+    if timeArray[3] ~= nil then
+        if timeArray[3] > 2000 then
+            timeArray[3] = timeArray[3] - 2000;
+        end
+        result = ( timeArray[1] .. " " .. monthEnum2[tostring(timeArray[2])] .. " '" .. timeArray[3] );
+    else
+        result = ( timeArray[1] .. " " .. monthEnum2[tostring(timeArray[2])] );
     end
 
-    return ( timeArray[1] .. " " .. monthEnum2[tostring(timeArray[2])] .. " '" .. timeArray[3] );
+    return result;
 end
 
 -- Method:          GRM.GetTimePassedInZone ( oldTimestamp , int , bool )
@@ -13568,7 +13573,7 @@ end
 GRM.SetBirthdayFrameLogic = function()
     local day = GRM_G.dayIndex;
     local month = GRM_G.monthIndex;
-    local timeStampFormat = tostring ( day ) .. " " .. monthEnum2 [ tostring ( month ) ] .. " '19";      -- The year is just a placeholder to be parsed out...
+    local timeStampFormat = tostring ( day ) .. " " .. monthEnum2 [ tostring ( month ) ] .. " '22";      -- The year is just a placeholder to be parsed out... without needing to rewrite a bunch of logic - just ignore
     GRM.SetBirthday ( GRM_G.currentName , day , month , 1 , timeStampFormat , time() );
 
     -- Birthday Text logic...
@@ -25223,6 +25228,7 @@ Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
 -- * Custom Messaging - stored select messages to send to guild chat. Customizable?   * Possibly standalone addon or plugin
 -- * Global MOTD with more info for GRM users. Sync'd -- Just 1 item to compare.
 
+-- * GRM keeps track of how long you played each week and does a once a week report on your play habits. Adds a tracker for how many hours logged in, Dungeons run, raids run, BGs run, Arenas, etc...
 
 -- ***ADDON PLUGIN IDEAS**
 

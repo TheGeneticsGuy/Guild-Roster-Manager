@@ -289,8 +289,6 @@ GRML.English = function()
     GRM_L["To Chat:"] = true                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
     GRM_L["To Log:"] = true                     -- Context: To show it in the guild log.
     GRM_L["Display Changes"] = true
-    GRM_L["Syncing too fast may cause disconnects!"] = true
-    GRM_L["Speed:"] = true                      -- Context: Speed that the sync takes place.
     GRM_L["Show 'Main' Name in Chat"] = true
 
     -- AUDIT WINDOW
@@ -1538,8 +1536,6 @@ GRML.English = function()
     GRM_L["Kick Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Promote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Demote Rule \"{name}\" Removed by {name2}"] = true
-
-
     GRM_L["Reject"] = true
     GRM_L["Please confirm that the guild \"{name}\" has been renamed to \"{name2}\"."] = true
     GRM_L["Possible Guild Name Change Detected. {num}% match."] = true

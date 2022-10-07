@@ -1607,7 +1607,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_JDSYNCUP?" .. GRM_G.addonUser .. "?" .. syncRankFilter .. "?" .. tempAlt.name .. "?" .. tostring ( finalTStampEpoch ) .. "?" .. tostring ( syncEpochStamp ) .. "?" .. noteDestination , "GUILD");
+                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_JDSYNCUP?" .. GRM_G.addonUser .. "?" .. syncRankFilter .. "?" .. tempAlt.name .. "?" .. tostring ( finalTStampEpoch ) .. "?" .. tostring ( date[1] ) .. "?" .. tostring ( date[2] ) .. "?" .. tostring ( date[3] ) .. "?" .. tostring ( syncEpochStamp ) .. "?" .. noteDestination , "GUILD");
                 end
 
             end

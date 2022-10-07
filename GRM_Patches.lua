@@ -1070,10 +1070,20 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.93 and baseValue < 1.93 then
 
     -- ONLY DO THIS IF PATCH HAS BEEN COMPLETELY SUCCESSFUL!!! If we get this far it has!
-    
+        
         GRM.ResetAllBackups ( true , true );        -- Clearing the manual - unfortunately it needs to be done. Mostly unused feature anyway.
         GRM_G.ForceAuto = true;                 -- We want to force auto-backup this session so it backs up the alt groups.
         if loopCheck ( 1.93 ) then
+            return;
+        end
+    end
+
+    -- patch 96
+    patchNum = patchNum + 1;
+    if numericV < 1.931 and baseValue < 1.931 then
+
+        GRM_Patch.ModifyPlayerSetting ( "syncSpeed" , nil );
+        if loopCheck ( 1.931 ) then
             return;
         end
     end
