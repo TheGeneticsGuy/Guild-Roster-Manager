@@ -12961,9 +12961,10 @@ GRM.CheckPlayerChanges = function ( roster )
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].reportInactiveReturn and player.lastOnline > GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].inactiveHours and roster[x].lastOnline < GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].inactiveHours and player.lastOnline > roster[x].lastOnline then  -- Player has logged in after having been inactive for greater than given time
                         local needsToReport = true;
 
+                        local alts = GRM.GetListOfAlts ( player , false );
                         -- No need to report if any player's alts are active still...
-                        if GRM.PlayerHasAlts ( player ) and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].allAltRequirement then
-                            if GRM.IsAnyAltActive ( GRM.GetListOfAlts ( player , false ) ) then
+                        if #alts and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].allAltRequirement then
+                            if GRM.IsAnyAltActive ( alts ) then
                                 needsToReport = false;
                             end
                         end
@@ -15434,7 +15435,6 @@ GRM.ReconfigureLogMessage = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
     end
 end
-
 
 -- Method:          GRM.BuildCustomNoteScrollFrame ( string )
 -- What it Does:    Builds the custom note scroll frame

@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 95;
+local totalPatches = 96;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -5738,7 +5738,6 @@ end
 GRM_Patch.BuildNewAltLists = function()
     local alt;
     local groupID;
-    local timeOfChange = 0;
 
     -- Setting the most recent chan ge timestamp.
     local getHighestTimeOfChange = function ( player )
@@ -5747,10 +5746,14 @@ GRM_Patch.BuildNewAltLists = function()
         if #player.alts > 0 then
 
             for i = 1 , #player.alts do
-                if player.alts[i][1] == player.name then
+                if player.alts[i][6] > time then
                     time = player.alts[i][6];
-                    break;
                 end
+            end
+
+            -- If you have alts, there needs to be a timestamp
+            if time == 0 then
+                time = time();
             end
         end
 
@@ -5771,7 +5774,7 @@ GRM_Patch.BuildNewAltLists = function()
 
                         GRM_Alts[guildName][ groupID ] = {};
                         GRM_Alts[guildName][ groupID ].main = "";
-                        GRM_Alts[guildName][ groupID ].timeModified = 0;
+                        GRM_Alts[guildName][ groupID ].timeModified = player.altGroupModified;
 
                         GRM_Patch.AddAltForPatch ( "" , groupID , guildName , player , player.altGroupModified );
 
@@ -5795,6 +5798,7 @@ GRM_Patch.BuildNewAltLists = function()
                         end
                         -- Alphabetize them
                         sort ( GRM_Alts[guildName][ groupID ] , function ( a , b ) return a.name < b.name end );
+                    
                     end
 
                 end
@@ -5802,104 +5806,8 @@ GRM_Patch.BuildNewAltLists = function()
         end
     end
 end
-
--- -- 1.93
--- -- Method:          GRM_Patch.BuildNewAltListsBackupData()
--- -- What it Does:    Modifies the guild into the new format.
--- -- Purpose:         Since the other one writes to the saved file, and the backup data might be different from the current system, it needed
--- --                  to be processed differently.
--- GRM_Patch.BuildNewAltListsBackupData = function()
---     local altSave = {};
---     local alt;
---     local groupID;
---     local timeOfChange = 0;
---     local count = 1;
-
---     local getHighestTimeOfChange = function ( alts )
---         local time = 0;
-
---         for i = 1 , #alts do
---             if alts[i][6] > time then
---                 time = alts[i][6];
---             end
---         end
-
---         return time;
---     end
-
---     for faction in pairs ( GRM_GuildMemberHistory_Save ) do
---         for guildName in pairs ( GRM_GuildMemberHistory_Save[faction] ) do
---             if not altSave [ guildName ] then
---                 altSave[ guildName ] = {};
---             end
---         end
---     end
-
---     -- Check the backup data as well.
---     local backup = { "Auto" , "Manual" , "members" };
---     for F in pairs ( GRM_GuildDataBackup_Save ) do
---         for guildName in pairs ( GRM_GuildDataBackup_Save[F] ) do
---             for i = 1 , 2 do            -- Auto vs Manual
---                 altSave = {};           -- Reset for each one.
---                 if #GRM_GuildDataBackup_Save[F][guildName][backup[i]] > 0 then
-
---                     if GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]] == nil or #GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]] > 0 then
---                         GRM_GuildDataBackup_Save[F][guildName][backup[i]] = {};                                
---                     else
---                         count = 1;
---                         for name , player in pairs ( GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]] ) do
---                             if type ( player ) == "table" then 
-
---                                 if player.altGroup == "" and player.alts and ( #player.alts > 0 or player.isMain ) then
---                                     count = count + 1;
-
---                                     timeOfChange = getHighestTimeOfChange ( player );
---                                     groupID = tostring ( count );
-                            
---                                     player.altGroup = groupID;
---                                     player.altGroupModified = timeOfChange;
-
---                                     -- Ok, create the table and insert the player into it.
---                                     altSave[guildName][ groupID ] = {};
---                                     altSave[guildName][ groupID ].main = "";
---                                     altSave[guildName][ groupID ].timeOfChange = timeOfChange;
-
---                                     GRM_Patch.AddAltForPatch ( "" , groupID , player , altSave[guildName][ groupID ].timeOfChange );
-
---                                     if player.isMain then
---                                         altSave[guildName][ groupID ].main = player.name;
---                                     end
-
---                                     -- Now, let's cycle through all of the alts.
---                                     for i = 1 , #player.alts do
---                                         alt = GRM_GuildDataBackup_Save[F][guildName][backup[i]][backup[3]][player.alts[i][1]];
---                                         if alt ~= nil then
---                                             -- We know it is valid and toon is still in the guild
---                                             alt.altGroup = groupID;
-
---                                             if alt.isMain then
---                                                 altSave[guildName][ groupID ].main = alt.name;
---                                             end
-
---                                             altSave = GRM_Patch.AddAltBackupPatch ( "" , groupID , guildName , alt , altSave[guildName][ groupID ].timeOfChange , altSave );
---                                         end
---                                     end
-
---                                     sort ( altSave[guildName][ groupID ] , function ( a , b ) return a.name < b.name end );
-
---                                 end
---                             end
---                         end
---                     end
---                 end
-
---                 -- Store it in the backups now...
-
-
---             end
---         end
---     end
--- end
+-- /dump GRM.GetPlayer("Hotsockets"
+-- /dump GRM_Alts[GRM_G.guildName]["7"]
 
 -- 1.93
 -- Method:          GRM_Patch.AddAltForPatch ( string , string , string , playerTable, string )
@@ -5919,7 +5827,6 @@ GRM_Patch.AddAltForPatch = function( oldGroupID , newGroupID , guildName , playe
     GRM_Alts[guildName][newGroupID][ind] = {};
     GRM_Alts[guildName][newGroupID][ind].name = player.name;
     GRM_Alts[guildName][newGroupID][ind].class = player.class;
-    GRM_Alts[guildName][newGroupID][ind].timeAdded = timeStamp;
 
 end
 
@@ -5937,7 +5844,7 @@ GRM_Patch.AddAltBackupPatch = function( oldGroupID , newGroupID , guildName , pl
 
     -- Now we add to the new group.
     local ind = #altSave[newGroupID] + 1;
-    altSave[newGroupID].timeOfChange = timeStamp or time();
+    altSave[newGroupID].timeModified = timeStamp or time();
 
     altSave[newGroupID][ind] = {};
     altSave[newGroupID][ind].name = player.name;
@@ -5945,7 +5852,6 @@ GRM_Patch.AddAltBackupPatch = function( oldGroupID , newGroupID , guildName , pl
 
     return altSave;
 end
-
 
 -- 1.93
 -- Method:          GRM_Patch.RemoveOldAltLists ( playerTable )

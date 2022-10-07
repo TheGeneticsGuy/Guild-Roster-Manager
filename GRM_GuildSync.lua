@@ -271,7 +271,7 @@ GRMsync.ResetReportTables = function()
     GRMsyncGlobals.AltMainChanges = {};
     GRMsyncGlobals.CustomNoteChanges = {};
     GRMsyncGlobals.BDayChanges = {};
-    GRMsyncGlobals.FinalCorrectAltList = {};
+    -- GRMsyncGlobals.FinalCorrectAltList = {};
     GRMsyncGlobals.FinalAltListReeceived = {};
 end
 
@@ -280,7 +280,7 @@ GRMsync.ResetTempTables = function()
     GRMsyncGlobals.JDReceivedTemp = {};
     GRMsyncGlobals.PDReceivedTemp = {};
     GRMsyncGlobals.BanReceivedTemp = {};
-    GRMsyncGlobals.AltReceivedTemp = {};
+    -- GRMsyncGlobals.AltReceivedTemp = {};
     GRMsyncGlobals.MainReceivedTemp = {};
     GRMsyncGlobals.CustomNoteReceivedTemp = {};
     GRMsyncGlobals.BirthdayReceivedTemp = {};
@@ -1061,8 +1061,6 @@ GRMsync.CheckAddAltSyncChange = function ( finalList , lastStep )
         GRMsync.CheckAddAltSyncChange ( finalList , true );
     end
 
-    GRMsyncGlobals.FinalCorrectAltList = {};
-    GRMsyncGlobals.FinalAltListReeceived = {};
 end
 
 
@@ -2578,7 +2576,7 @@ GRMsync.SendAddAltPackets = function()
     local i = GRMsyncGlobals.SyncCountAltAdd;
     local hasAtLeastOne = false;
     local alts = {};
-    local main = "";
+    local playerName = "";
 
     -- Set the tables to new memory index to prevent stutter...
     if GRMsyncGlobals.AltSendIsFinished then
@@ -2597,17 +2595,19 @@ GRMsync.SendAddAltPackets = function()
          while i <= #exactIndexes[3] do
             messageReady = false;
             if GRMsyncGlobals.SyncOK then
+
                 if GRM.GetNumAlts ( GRMsyncGlobals.TempRoster[exactIndexes[3][i]].altGroup ) > 0 then
                     hasAtLeastOne = true
+
                     if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
                         -- add new player
 
                         alts = GRM.GetListOfAlts ( GRMsyncGlobals.TempRoster[exactIndexes[3][i]] , false , GRMsyncGlobals.TempAltRoster );
 
                         -- Lead name, let's just call it main
-                        main = GRMsyncGlobals.TempRoster[exactIndexes[3][i]].name;
+                        playerName = GRMsyncGlobals.TempRoster[exactIndexes[3][i]].name;
 
-                        tempMessage = syncMessage .. "?&" .. main;
+                        tempMessage = syncMessage .. "?&" .. playerName;
                         tempMessage4 = tempMessage .. alts[1][1] .. "?" .. tostring ( alts[1][3] )
                         -- Add all the alts...
                         tempMessage2 = "";
@@ -2616,7 +2616,7 @@ GRMsync.SendAddAltPackets = function()
                             if j == 1 and ( #tempMessage4 + GRMsyncGlobals.sizeModifier ) >= 255 then
                                 GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
                                 GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
-                                tempMessage = GRM_G.PatchDayString .. "?GRM_ALTADDSYNC?" .. syncRankFilter .. "?&" .. main;
+                                tempMessage = GRM_G.PatchDayString .. "?GRM_ALTADDSYNC?" .. syncRankFilter .. "?&" .. playerName;
                             else
                                 
                                 -- To temp store the value;
@@ -2633,7 +2633,7 @@ GRMsync.SendAddAltPackets = function()
                                     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMessage3 + GRMsyncGlobals.sizeModifier;
                                     GRMsync.SendMessage ( "GRM_SYNC" , tempMessage3 , GRMsyncGlobals.DesignatedLeader );
                                     -- reset the string
-                                    tempMessage = GRM_G.PatchDayString .. "?GRM_ALTADDSYNC?" .. syncRankFilter .. "?&" .. main .. "?" .. alts[j][1] .. "?" .. tostring ( alts[j][3] );
+                                    tempMessage = GRM_G.PatchDayString .. "?GRM_ALTADDSYNC?" .. syncRankFilter .. "?&" .. playerName .. "?" .. alts[j][1] .. "?" .. tostring ( alts[j][3] );
                                     tempMessage2 = "";
                                 end
                             end
@@ -2646,13 +2646,15 @@ GRMsync.SendAddAltPackets = function()
                         else
                             messageReady = true;
                             -- Hold this value over...
-                            tempMessage = GRM_G.PatchDayString .. "?GRM_ALTADDSYNC?" .. syncRankFilter .. "?&" .. main .. tempMessage2; -- Don't need the extra "?" divider since no header...
+                            tempMessage = GRM_G.PatchDayString .. "?GRM_ALTADDSYNC?" .. syncRankFilter .. "?&" .. playerName .. tempMessage2; -- Don't need the extra "?" divider since no header...
                         end
                     end
                 else
                     -- No Alts listed
+
                     if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
                         tempMessage = syncMessage .. "?&" .. GRMsyncGlobals.TempRoster[exactIndexes[3][i]].name .. "?" .. GRMsyncGlobals.TempRoster[exactIndexes[3][i]].altGroupModified;
+
                         if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
                             syncMessage = tempMessage;
                             if i == #exactIndexes[3] then
@@ -5131,12 +5133,13 @@ GRMsync.CompareAltLists = function()
     end
 
     -- Leader Count
+    local listOfAlts = {};
     for name , alts in pairs ( GRMsyncGlobals.FinalCorrectAltList ) do
         
         if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] then
             -- Ok, collect the alts so we can compare.
-            
-            if not GRMsync.IsListTheSame ( alts , GRM.GetListOfAlts ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] , false , GRM_Alts[GRM_G.guildName] ) ) then
+            listOfAlts = GRM.GetListOfAlts ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] , false , GRM_Alts[GRM_G.guildName] )
+            if not GRMsync.IsListTheSame ( alts , listOfAlts ) then
                 GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
                 GRMsyncGlobals.upatesEach[3] = GRMsyncGlobals.upatesEach[3] + 1;
             end

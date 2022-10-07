@@ -1526,7 +1526,7 @@ GRM.ChangePlayerNameInAltGrouping = function ( oldName , newName )
         end
     end
 end
--- /dump GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["Rochester-Zul'jin"].joinDateHist[1]
+
 -- Method:          GRM.SyncJoinDatesOnAllAlts()
 -- What it Does:    Tales the player name and makes ALL of their alts share the same timestamp on joining.
 -- Purpose:         Ease for the addon user to be able to sync the join dates among all alts rather than have to manually do them 1 at a time.6
