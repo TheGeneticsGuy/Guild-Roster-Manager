@@ -1499,6 +1499,11 @@ GRM.IsAnyAltActiveForRecommendKicks = function ( listOfAlts , ruleName )
     for i = 1 , #listOfAlts do
         player = guildData[listOfAlts[i][1]];
         if player then
+
+            if GRM_G.NumberOfHoursTilRecommend.kick[ruleName] == nil then
+                GRM.RefreshNumberOfHoursTilRecommend();
+            end
+
             if player.lastOnline < GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
                 result = true;
                 break;

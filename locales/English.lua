@@ -21,8 +21,6 @@
 -- DO NOT UPDATE GRM IF YOU HAVE NOT BACKED UP YOUR TRANSLATION WORK!!! Twitch and other services will overwrite your work without warning when they update!!!
 -- WARNING!!!
 
--- Also of note. I do NOT use the Global/glue strings for the built-in localization as I want to be able to swap languages even if using a certain client.
-
     ---------------------------------
     -- BEGIN TRANSLATION WORK HERE --
     ---------------------------------
@@ -448,6 +446,7 @@ GRML.English = function()
     GRM_L["February"] = true
     GRM_L["March"] = true
     GRM_L["April"] = true
+    GRM_L["May"] = true
     GRM_L["June"] = true
     GRM_L["July"] = true
     GRM_L["August"] = true
@@ -1546,7 +1545,5 @@ GRML.English = function()
     GRM_L["dead"] = true            -- slash command for checking dead names
     GRM_L["deadnames"] = true       -- slash command for checking dead names
     GRM_L["TabName"] = true
-
-
 
 end

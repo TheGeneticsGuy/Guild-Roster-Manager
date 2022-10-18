@@ -1026,8 +1026,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.92997 and baseValue < 1.92997 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.UpdateUnknownRankFormat , false , true , false );
         GRM_Patch.ModifyMemberData ( GRM_Patch.FixUnknownBirthdayBug , true , true , true );
-        GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertRankHistoryToRanks , true , false , false , false ); -- Only modifying current
-        GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertRankHistoryToRanks , false , true , false , true );  -- Only modifying left - with special bool condition
+        GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertRankHistoryToRanks , true , true , false ); -- Only modifying current
         
         if loopCheck ( 1.92997 ) then
             return;
@@ -1050,8 +1049,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     -- Patch 94
     patchNum = patchNum + 1;
     if numericV < 1.92999 and baseValue < 1.92999 then
-        GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertJoinHistory , true , false , false , false ); -- Only modifying current
-        GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertJoinHistory , false , true , false , true );  -- Only modifying left - with special bool condition
+        GRM_Patch.ModifyMemberData ( GRM_Patch.ConvertJoinHistory , true , true , false ); -- Only modifying current
         GRM_Patch.ModifyMemberData ( GRM_Patch.RemoveOldAltLists , true , true , false );           -- some time after this patch
         GRM_Patch.ModifyPlayerSetting ( "syncSameVersion" ,  true );                                -- Due to enormous sync changes, this needs to be enabled to prevent possible problems.
         GRM_Patch.AddPlayerSetting ( "AnnounceBdayOnLogin" , true );                                -- New setting to control whether to announce to guild chat if it is the player's bday
@@ -5803,11 +5801,17 @@ GRM_Patch.BuildNewAltLists = function()
 
                 end
             end
+
+            -- Ensure the altGroupModified is the same for all
+            for altGroupID in pairs ( GRM_Alts[guildName] ) do
+                for i = 1 , #GRM_Alts[guildName][altGroupID] do
+                    GRM_GuildMemberHistory_Save[F][guildName][GRM_Alts[guildName][altGroupID][i].name].altGroupModified = GRM_Alts[guildName][altGroupID].timeModified;
+                end
+            end
+            
         end
     end
 end
--- /dump GRM.GetPlayer("Hotsockets"
--- /dump GRM_Alts[GRM_G.guildName]["7"]
 
 -- 1.93
 -- Method:          GRM_Patch.AddAltForPatch ( string , string , string , playerTable, string )
@@ -5830,28 +5834,28 @@ GRM_Patch.AddAltForPatch = function( oldGroupID , newGroupID , guildName , playe
 
 end
 
--- 1.93
--- Method:          GRM_Patch.AddAltBackupPatch ( string , string , string , playerTable, string , table )
--- What it Does:    Repeatable function to use for patching the player into the new data table
--- Purpose:         Cleaaner code to strip this out.
-GRM_Patch.AddAltBackupPatch = function( oldGroupID , newGroupID , guildName , player , timeStamp , altSave )
+-- -- 1.93
+-- -- Method:          GRM_Patch.AddAltBackupPatch ( string , string , string , playerTable, string , table )
+-- -- What it Does:    Repeatable function to use for patching the player into the new data table
+-- -- Purpose:         Cleaaner code to strip this out.
+-- GRM_Patch.AddAltBackupPatch = function( oldGroupID , newGroupID , guildName , player , timeStamp , altSave )
 
-    -- First, let's handle the OLD group ID
-    if oldGroupID ~= "" then
-        player.altGroup = newGroupID;
-        GRM.RemoveAltFromGrouping ( oldGroupID , guildName , player );
-    end
+--     -- First, let's handle the OLD group ID
+--     if oldGroupID ~= "" then
+--         player.altGroup = newGroupID;
+--         GRM.RemoveAltFromGrouping ( oldGroupID , guildName , player );
+--     end
 
-    -- Now we add to the new group.
-    local ind = #altSave[newGroupID] + 1;
-    altSave[newGroupID].timeModified = timeStamp or time();
+--     -- Now we add to the new group.
+--     local ind = #altSave[newGroupID] + 1;
+--     altSave[newGroupID].timeModified = timeStamp or time();
 
-    altSave[newGroupID][ind] = {};
-    altSave[newGroupID][ind].name = player.name;
-    altSave[newGroupID][ind].class = player.class;    
+--     altSave[newGroupID][ind] = {};
+--     altSave[newGroupID][ind].name = player.name;
+--     altSave[newGroupID][ind].class = player.class;    
 
-    return altSave;
-end
+--     return altSave;
+-- end
 
 -- 1.93
 -- Method:          GRM_Patch.RemoveOldAltLists ( playerTable )
@@ -6017,10 +6021,10 @@ GRM_Patch.UpdateUnknownRankFormat = function ( player )
 end
 
 -- 1.93
--- Method:          GRM_Patch.ConvertJoinHistory ( playerObject , bool )
+-- Method:          GRM_Patch.ConvertJoinHistory ( playerObject )
 -- What it Does:    Converts the player join date history to the new format and purges the old
 -- Purpose:         Simplifying multiple player variables into one.
-GRM_Patch.ConvertJoinHistory = function ( player , isFormerMembers )
+GRM_Patch.ConvertJoinHistory = function ( player )
 
     local day, month, year = 0 , 0 , 0;
     local timeTable , tTable;

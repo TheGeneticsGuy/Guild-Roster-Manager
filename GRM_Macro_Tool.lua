@@ -7370,7 +7370,7 @@ GRM.GetKickNamesByFilterRules = function()
                         if ruleConfirmedCheck and rule.activityFilter and not ( rule.rankFilter and rule.applyEvenIfActiive ) then
                             ruleConfirmedCheck = false;
 
-                            if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( GRM.GetListOfAlts ( player ) , ruleName ) ) then
+                            if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( GRM.GetListOfAlts ( player ) , ruleName , player.name ) ) then
                                 -- Is actually considered inactive
                                 if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
                                 -- Cannot remove players same rank or higher, so they have to be a higher index than you to remove them.
