@@ -5,6 +5,7 @@
 
 [Join Discord Here](https://discord.gg/wA7bPUfZuK) or Copy This Link: https://discord.gg/wA7bPUfZuK
 
+
 *Join up to discuss GRM, offer suggestions, report bugs, or even just chat about guild management related things. All help in this regard is greatly appreciated! I respond much faster to Discord posts than I do anywhere else and am more likely to respond faster to any issues you might be encountering.*
 
 **FOREWORD**
