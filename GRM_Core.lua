@@ -372,6 +372,7 @@ local UI_Events = CreateFrame ( "Frame" );
 local VersionCheck = CreateFrame ( "Frame" );
 local KickAndRankChecking = CreateFrame ( "Frame" );
 local AddonUsersCheck = CreateFrame ( "Frame" );
+local AchievementsChecking = CreateFrame ( "Frame" );
 local StatusChecking = CreateFrame ( "Frame" );
 
 --------------------------
@@ -24498,6 +24499,20 @@ GRM.GR_LoadAddon = function()
         KickAndRankChecking:RegisterEvent ( "CLUB_MEMBER_ADDED" );
     end
     KickAndRankChecking:SetScript ( "OnEvent" , GRM.KickPromoteOrJoinPlayer );
+
+	if GRM_G.BuildVersion < 80000 and GRM_G.BuildVersion >= 30000 then
+		-- Achievements are broken in WotLK classic - so don't announce for modern versions or it'll duplicate
+	    C_ChatInfo.RegisterAddonMessagePrefix("GRMACHIEV");
+	    AchievementsChecking:RegisterEvent("CHAT_MSG_ADDON");
+	    AchievementsChecking:RegisterEvent("ACHIEVEMENT_EARNED");
+	    AchievementsChecking:SetScript("OnEvent", function(_, event, prefix, msg, channel, sender)
+	        if event == "CHAT_MSG_ADDON" and prefix == "GRMACHIEV" and channel == "GUILD" and sender ~= GRM_G.addonUser then
+	        	GRM.AnnounceAchievement(sender, msg)
+	        elseif event == "ACHIEVEMENT_EARNED" then
+	        	GRM.OnAchievementEarned(prefix)
+	        end
+	    end);
+	end
     
     -- Initialize chat tagging
     GRM.MessageHookControl();
@@ -24790,6 +24805,26 @@ GRM.GetNumModules = function()
     end
 
     return num;    
+end
+
+-- Method:          GRM.OnAchievementEarned()
+-- What it Does:    Announced earned achievements to the guild in classic
+-- Purpose:         Fixes a bug in WoTLK Classic :D
+GRM.OnAchievementEarned = function(id)
+	local link = GetAchievementLink(id)
+	if link then
+		C_ChatInfo.SendAddonMessage("GRMACHIEV", GetAchievementLink(id), "GUILD");
+	end
+end
+
+-- Method:          GRM.AnnounceAchievement()
+-- What it Does:    Announced earned achievements from the guild in classic
+-- Purpose:         Fixes a bug in WoTLK Classic :D
+GRM.AnnounceAchievement = function(source, link)
+	local name, _ = GRM.GetNameWithMainTags(source, true, true, false, true)
+	local message = string.gsub(string.gsub(BROADCAST_ACHIEVEMENT, "%%s", name), "$a", link);
+	local color = ChatTypeInfo["GUILD"];
+	GRM.Report("|cff00c8ff" .. GRM.L("GRM:" ) .. "|r " .. message, color.r, color.g, color.b);
 end
 
 -- Initialize the first frames as game is being loaded.
