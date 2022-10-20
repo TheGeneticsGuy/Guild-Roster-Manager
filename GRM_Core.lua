@@ -1416,8 +1416,8 @@ end
 -- Purpose:         Since there is no right-click trigger, this detects the popup window use, and it will only pin the window properly *IF* it is the appropriate time due to the reusability of this window by Warcraft
 GRM.IsMouseOverAnyChatWindowIncludingCommunities = function()
     local result = false;
-    local name;
-    local server;
+    local name = "";
+    local server = "";
 
     for i = 1 , #CHAT_FRAMES do
         if GetClickFrame ( CHAT_FRAMES[i] ):IsMouseOver() then
@@ -1702,7 +1702,7 @@ GRM.ParseMultiChannelString = function ( channels )
     channels = GRM.Trim ( channels );
     local result = {};
     local ind = string.find ( channels , "," , 1 , true );
-    local tableName;
+    local tableName = "";
     
     if #channels > 0 then
 
@@ -2687,7 +2687,7 @@ GRM.AddMainTagToComeOnlineSystemMessage = function( msg , isInGuild )
             local hexCode = "";
             local mainColoring = "";
             local systemMsgHex = "|CFFFFFF00";  -- For display controls further...
-            local mainDisplay;
+            local mainDisplay = "";
             local necessaryGap = "";
             local hasAlts = false;
             
@@ -2795,13 +2795,12 @@ GRM.ConfigureSystemMessages = function()
     else
         reportChannels = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].reportChannel;
     end
-    local name;
-
+    local name = "";
 
     for i = 1 , FCF_GetNumActiveChatFrames() do
         name = GetChatWindowInfo ( i );
         CURRENT_CHAT_FRAME_ID = i;
-        
+
         -- If customChannel then
         if nameMatchingID == 0 then
             for j = #reportChannels , 1 , -1 do
@@ -2878,7 +2877,7 @@ end
 -- Purpose:         Easily callable function for reuse in parsing player data for the audit system.
 GRM.GetAuditLinePlayervalues = function ( data , isComplete )
     local joinDate , promoDate , mainStatus = "" , "" , "";
-    local classColors;
+    local classColors = {};
     local player;
 
     if type ( data ) == "string" then
@@ -2977,7 +2976,7 @@ end
     local promoDate = "";
     local mainStatus = "";
     local isComplete = true;
-    local classColors;
+    local classColors = {};
     local birthDate = "";
     local name = "";
 
@@ -3020,7 +3019,7 @@ GRM.GetAllGuildiesInJoinDateOrder = function ( fullNameNeeded , newFirst )
     local promoDate = "";
     local mainStatus = "";
     local isComplete = true;
-    local classColors;
+    local classColors = {};
     local birthDate = "";
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
 
@@ -3100,7 +3099,7 @@ GRM.GetAllGuildiesInPromoDateOrder = function ( fullNameNeeded , newFirst )
     local promoDate = "";
     local mainStatus = "";
     local isComplete = true;
-    local classColors;
+    local classColors = {};
     local birthDate = "";
 
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
@@ -3183,7 +3182,7 @@ GRM.GetAllMainsAndAltsInOrder = function ( mainsFirst )
     local promoDate = "";
     local mainStatus = "";
     local isComplete = true;
-    local classColors;
+    local classColors = {};
     local birthDate = "";
 
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
@@ -3243,7 +3242,7 @@ GRM.GetAllGuildiesByBirthdayDateOrder = function ( fullNameNeeded , newFirst )
     local promoDate = "";
     local mainStatus = "";
     local isComplete = true;
-    local classColors;
+    local classColors = {};
     local birthdate = "";
 
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
@@ -4271,7 +4270,7 @@ GRM.AddonUserRegister = function( sender , msg )
     if GRM_G.guildName ~= "" and GRM_G.F ~= "" then
         local rankOfSender = GRM.GetGuildMemberRankID ( sender );
         local playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser )
-        local banRankRequirement;
+        local banRankRequirement = 0;
 
         -- If rank call fails.
         if rankOfSender == -1 or playerRankID == -1 then
@@ -5219,7 +5218,7 @@ end
 -- Purpose:         To display useful info on how long the player has been a member of the guild.
 GRM.GetTimePlayerHasBeenMember = function ( name )
     local player = GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][name];
-    local result;
+    local result = "";
      
     if player then
         if player.joinDateHist[1][4] > 0 then
@@ -5573,10 +5572,10 @@ end
 GRM.FormatTimeStamp = function ( timestamp , includeHour , removeYear , forcedForm )
 
     local day = 0;
-    local monthNum;
-    local year;
+    local monthNum = 0;
+    local year = 0;
     local typeForm = forcedForm or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].dateFormat;
-    local month;
+    local month = ""
     local typeStamp = 0; -- 1 = string, 2 = table, 3 = epochNum
 
     if type ( timestamp ) == "string" then
@@ -6408,7 +6407,7 @@ GRM.MemberListBlizTooltip_Update = function( self , isOldRoster , classID , name
                 toolTipMergeInfo = GRM.GetAllTooltipText();         -- Raider.io compatibility, and other addons...
             end
             GameTooltip:SetOwner ( self );
-            local classInfo;
+            local classInfo = "";
             local color = NORMAL_FONT_COLOR;
             if classID then
                 classInfo = C_CreatureInfo.GetClassInfo ( classID );
