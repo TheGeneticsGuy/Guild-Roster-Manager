@@ -46,7 +46,7 @@ GRM_G.guildName = "";
 GRM_G.realmName = string.gsub ( string.gsub ( GetRealmName() , "-" , "" ) , "%s+" , "" );       -- Remove the space since server return calls don't include space on multi-name servers, also removes a hyphen if server is hyphened.Necessary for backend addon to addon comms formatting sender.
 GRM_G.addonUser = ( GetUnitName ( "PLAYER" , false ) .. "-" .. GRM_G.realmName );         -- Oddly, GetUnitName set as true will not reliably return realm name on non-merged realms without this formatting.
 GRM_G.faction = UnitFactionGroup ( "PLAYER" );
-GRM_G.FID = 0;                  -- index for Horde = 1; Ally = 2
+GRM_G.FID = 0;                  -- index for Horde = 1; Ally = 2 (semi depricated)
 GRM_G.F = "";                   -- F for Faction ID  - "H" or "A";
 GRM_G.setPID = 0;               -- Since settings are player unique, PID = Player ID -- Only useful so the addon can update settings for the OLD DB...
 GRM_G.playerRankID = 0;         -- Player personal rank ID based on rank in the guild. The lowest, 0 , is the Guild Leader. This is only used for sync purposes and is configured on sync configuration.
@@ -7622,7 +7622,7 @@ end
 GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo )
     
     -- -- First things first... ensure the player is not already added...
-    if GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][memberInfo.name] ~= nil then
+    if GRM_G.guildName == "" or GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][memberInfo.name] ~= nil then
         return -- Already in the guild. Abort!!!
     end;
     
@@ -11951,30 +11951,28 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                         verifiedEpoch = epochTime;
                     end
 
-                    if dates ~= nil then
-                        if player.rankHist[1][5] == 0 then
+                    if player.rankHist[1][5] == 0 then
 
-                            player.rankHist[1][1] = player.rankName;
-                            player.rankHist[1][2] = dates[1];
-                            player.rankHist[1][3] = dates[2];
-                            player.rankHist[1][4] = dates[3];
-                            player.rankHist[1][5] = epochTime;
+                        player.rankHist[1][1] = player.rankName;
+                        player.rankHist[1][2] = dates[1];
+                        player.rankHist[1][3] = dates[2];
+                        player.rankHist[1][4] = dates[3];
+                        player.rankHist[1][5] = epochTime;
 
-                            -- verified or not
-                            player.rankHist[1][6] = verifiedEpoch
-                            player.rankHist[1][7] = isVerified;
-                            player.rankHist[1][8] = 1;
+                        -- verified or not
+                        player.rankHist[1][6] = verifiedEpoch
+                        player.rankHist[1][7] = isVerified;
+                        player.rankHist[1][8] = 1;
 
-                        else
-                            table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , epochTime , verifiedEpoch , isVerified , 1 } );
-                        end
+                    else
+                        table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , epochTime , verifiedEpoch , isVerified , 1 } );
+                    end
 
-                        -- Ok data is saved! Now let's report it to the log...
-                        if added then
-                            GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , logEntryMetaData[2] , logEntryMetaData[3] , logEntryMetaData[4] , logEntryMetaData[5] , logEntryMetaData[6][3] );
-                        else
-                            GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , nil , simpleName , nameOfBaseRank , member.rankName , select ( 2 , GRM.GetTimestamp() ) );
-                        end
+                    -- Ok data is saved! Now let's report it to the log...
+                    if added then
+                        GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , logEntryMetaData[2] , logEntryMetaData[3] , logEntryMetaData[4] , logEntryMetaData[5] , logEntryMetaData[6][3] );
+                    else
+                        GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , nil , simpleName , nameOfBaseRank , member.rankName , select ( 2 , GRM.GetTimestamp() ) );
                     end
                 end            
                 break;
@@ -12135,27 +12133,25 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
                 
                 -- For Event tracking!
                 local date = GRM.ConvertGenericTimestampToIntValues ( timeStamp );
-                if date ~= nil then
-                    if timeEpoch == nil then
-                        timeEpoch = GRM.TimeStampToEpoch ( { date[1] , date[2] , date[3] } );
-                    end
-
-                    if player.joinDateHist[1][4] == 0 then
-                        player.joinDateHist[1][1] = date[1];
-                        player.joinDateHist[1][2] = date[2];
-                        player.joinDateHist[1][3] = date[3];
-                        player.joinDateHist[1][4] = timeEpoch;
-                        player.joinDateHist[1][5] = 0
-                        player.joinDateHist[1][6] = false;
-                        player.joinDateHist[1][7] = 1;
-                    else
-                        table.insert ( player.joinDateHist , 1 , { date[1] , date[2] , date[3] , timeEpoch , 0 , false , 1 } );               
-                    end
-
-                    player.events[1][1][1] = date[1];
-                    player.events[1][1][2] = date[2];
-                    player.events[1][1][3] = date[3];
+                if timeEpoch == nil then
+                    timeEpoch = GRM.TimeStampToEpoch ( { date[1] , date[2] , date[3] } );
                 end
+
+                if player.joinDateHist[1][4] == 0 then
+                    player.joinDateHist[1][1] = date[1];
+                    player.joinDateHist[1][2] = date[2];
+                    player.joinDateHist[1][3] = date[3];
+                    player.joinDateHist[1][4] = timeEpoch;
+                    player.joinDateHist[1][5] = 0
+                    player.joinDateHist[1][6] = false;
+                    player.joinDateHist[1][7] = 1;
+                else
+                    table.insert ( player.joinDateHist , 1 , { date[1] , date[2] , date[3] , timeEpoch , 0 , false , 1 } );               
+                end
+
+                player.events[1][1][1] = date[1];
+                player.events[1][1][2] = date[2];
+                player.events[1][1][3] = date[3];
             else
                 -- UNVERIFIED DATA!!!!
                 local tStamp = GRM.GetTimestamp();
@@ -12166,22 +12162,20 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
                 -- For Event tracking!
                 local date = GRM.ConvertGenericTimestampToIntValues ( tStamp );
 
-                if date ~= nil then
-                    if player.joinDateHist[1][4] == 0 then
-                        player.joinDateHist[1][1] = date[1];
-                        player.joinDateHist[1][2] = date[2];
-                        player.joinDateHist[1][3] = date[3];
-                        player.joinDateHist[1][4] = time();
-                        player.joinDateHist[1][5] = 0
-                        player.joinDateHist[1][6] = false;
-                        player.joinDateHist[1][7] = 1;
-                    else
-                        table.insert ( player.joinDateHist , 1 , { date[1] , date[2] , date[3] , time() , 0 , false , 1 } );            
-                    end
-                    player.events[1][1][1] = date[1];
-                    player.events[1][1][2] = date[2];
-                    player.events[1][1][3] = date[3];
+                if player.joinDateHist[1][4] == 0 then
+                    player.joinDateHist[1][1] = date[1];
+                    player.joinDateHist[1][2] = date[2];
+                    player.joinDateHist[1][3] = date[3];
+                    player.joinDateHist[1][4] = time();
+                    player.joinDateHist[1][5] = 0
+                    player.joinDateHist[1][6] = false;
+                    player.joinDateHist[1][7] = 1;
+                else
+                    table.insert ( player.joinDateHist , 1 , { date[1] , date[2] , date[3] , time() , 0 , false , 1 } );            
                 end
+                player.events[1][1][1] = date[1];
+                player.events[1][1][2] = date[2];
+                player.events[1][1][3] = date[3];
             end
             
             if added then 
@@ -12189,33 +12183,31 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
                 -- For SYNC
                 local dates = GRM.ConvertGenericTimestampToIntValues ( tempTimeStamp );
 
-                if dates ~= nil then
-                    -- Join Date
-                    if player.joinDateHist[1][4] == 0 then
-                        player.joinDateHist[1][1] = dates[1];
-                        player.joinDateHist[1][2] = dates[2];
-                        player.joinDateHist[1][3] = dates[3];
-                        player.joinDateHist[1][4] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } );
-                        player.joinDateHist[1][5] = 0
-                        player.joinDateHist[1][6] = false;
-                        player.joinDateHist[1][7] = 1;
-                    else
-                        table.insert ( player.joinDateHist , 1 , { dates[1] , dates[2] , dates[3] , timeEpoch , timeEpoch , true , 1 } );                    
-                    end
+                -- Join Date
+                if player.joinDateHist[1][4] == 0 then
+                    player.joinDateHist[1][1] = dates[1];
+                    player.joinDateHist[1][2] = dates[2];
+                    player.joinDateHist[1][3] = dates[3];
+                    player.joinDateHist[1][4] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } );
+                    player.joinDateHist[1][5] = 0
+                    player.joinDateHist[1][6] = false;
+                    player.joinDateHist[1][7] = 1;
+                else
+                    table.insert ( player.joinDateHist , 1 , { dates[1] , dates[2] , dates[3] , timeEpoch , timeEpoch , true , 1 } );                    
+                end
 
-                    -- Promo Date
-                    if player.rankHist[1][5] == 0 then
-                        player.rankHist[1][1] = player.rankName;
-                        player.rankHist[1][2] = dates[1];
-                        player.rankHist[1][3] = dates[2];
-                        player.rankHist[1][4] = dates[3];
-                        player.rankHist[1][5] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } );
-                        player.rankHist[1][6] = timeEpoch
-                        player.rankHist[1][7] = true;
-                        player.rankHist[1][8] = 1;
-                    else
-                        table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , timeEpoch , timeEpoch , true , 1 } );
-                    end
+                -- Promo Date
+                if player.rankHist[1][5] == 0 then
+                    player.rankHist[1][1] = player.rankName;
+                    player.rankHist[1][2] = dates[1];
+                    player.rankHist[1][3] = dates[2];
+                    player.rankHist[1][4] = dates[3];
+                    player.rankHist[1][5] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } );
+                    player.rankHist[1][6] = timeEpoch
+                    player.rankHist[1][7] = true;
+                    player.rankHist[1][8] = 1;
+                else
+                    table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , timeEpoch , timeEpoch , true , 1 } );
                 end
 
             end
@@ -12288,21 +12280,19 @@ GRM.RecordJoinChanges = function ( member , simpleName , scanUpdate , dateArray 
 
                         local dates = GRM.ConvertGenericTimestampToIntValues ( timestamp2 );
 
-                        if dates ~= nil then
-                            if player.rankHist[1][5] == 0 then
+                        if player.rankHist[1][5] == 0 then
 
-                                player.rankHist[1][1] = member.rankName;
-                                player.rankHist[1][2] = dates[1];
-                                player.rankHist[1][3] = dates[2];
-                                player.rankHist[1][4] = dates[3];
-                                player.rankHist[1][5] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3]} );
-                                player.rankHist[1][6] = 0
-                                player.rankHist[1][7] = false;
-                                player.rankHist[1][8] = 1;
+                            player.rankHist[1][1] = member.rankName;
+                            player.rankHist[1][2] = dates[1];
+                            player.rankHist[1][3] = dates[2];
+                            player.rankHist[1][4] = dates[3];
+                            player.rankHist[1][5] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3]} );
+                            player.rankHist[1][6] = 0
+                            player.rankHist[1][7] = false;
+                            player.rankHist[1][8] = 1;
 
-                            else
-                                table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3]} ) , 0 , false , 1 } );
-                            end
+                        else
+                            table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3]} ) , 0 , false , 1 } );
                         end
                     end
 
@@ -12830,29 +12820,27 @@ GRM.CheckPlayerChanges = function ( roster )
                                         isVerified = true;
                                         verifiedTime = epochTime;
                                     end
-                                    if dates then
 
-                                        if player.rankHist[1][5] == 0 then
+                                    if player.rankHist[1][5] == 0 then
 
-                                            player.rankHist[1][1] = player.rankName;
-                                            player.rankHist[1][2] = dates[1];
-                                            player.rankHist[1][3] = dates[2];
-                                            player.rankHist[1][4] = dates[3];
-                                            player.rankHist[1][5] = eTime;
-                                            player.rankHist[1][6] = verifiedTime
-                                            player.rankHist[1][7] = isVerified;
-                                            player.rankHist[1][8] = 1;
+                                        player.rankHist[1][1] = player.rankName;
+                                        player.rankHist[1][2] = dates[1];
+                                        player.rankHist[1][3] = dates[2];
+                                        player.rankHist[1][4] = dates[3];
+                                        player.rankHist[1][5] = eTime;
+                                        player.rankHist[1][6] = verifiedTime
+                                        player.rankHist[1][7] = isVerified;
+                                        player.rankHist[1][8] = 1;
 
-                                        else
-                                            table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , eTime , verifiedTime , isVerified , 1 } );
-                                        end
+                                    else
+                                        table.insert ( player.rankHist , 1 , { player.rankName , dates[1] , dates[2] , dates[3] , eTime , verifiedTime , isVerified , 1 } );
+                                    end
+                                    
+                                    -- Update the player index if it is the player themselves that received the change in rank.
+                                    if roster[x].name == GRM_G.addonUser then
+
+                                        GRM.AddonPlayerRankChange ( roster[x].rankIndex );
                                         
-                                        -- Update the player index if it is the player themselves that received the change in rank.
-                                        if roster[x].name == GRM_G.addonUser then
-
-                                            GRM.AddonPlayerRankChange ( roster[x].rankIndex );
-                                            
-                                        end
                                     end
 
                                 -- Adjust new rank index - make rank change good.
