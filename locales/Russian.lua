@@ -1226,8 +1226,6 @@ GRML.Russian = function()
     GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = "В предыдущем действии все еще есть рекомендуемые задачи: {num}. Рекомендуется сделать это в первую очередь."         -- Plural
     GRM_L["Step {num}"] = "Шаг {num}"                                                                                      -- Like Step 1 , Step 2 , etc.
 
-
-
         -- 1.86
     GRM_L["What tags look like:"] = "Как выглядят теги:"
     GRM_L["Add Join Date to:"] = "Добавлять дату вербовки в:"
