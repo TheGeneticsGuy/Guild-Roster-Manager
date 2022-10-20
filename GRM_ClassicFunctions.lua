@@ -1,3 +1,4 @@
+
 -- CLASSIC Specific functions
 
 -- Method:          GRM.ClassicCheckForNewMember ( name )
@@ -63,7 +64,7 @@ GRM.ClassicCheckForNewMember = function ( name )
         -- -- Delay for time to check "Unique Accounts" change...
         C_Timer.After ( 10 , function()               
             if GRM_G.DesignateMain then
-                GRM.SetMain ( name , name , false , 0 );
+                GRM.SetMain ( name , 1 );
                 GRM.Report ( GRM.L ( "GRM Auto-Detect! {name} has joined the guild and will be set as Main" , GRM.GetClassifiedName ( name , true ) ) );
                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                     GRM.RefreshAuditFrames ( true , true );

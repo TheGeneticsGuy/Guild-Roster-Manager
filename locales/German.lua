@@ -1554,8 +1554,9 @@
     GRM_L["dead"] = true            -- slash command for checking dead names
     GRM_L["deadnames"] = true       -- slash command for checking dead names
     GRM_L["TabName"] = true
-
-    end
+    GRM_L["Add unique player GUID to chat window to copy"] = true
+    
+end
     
     -- THANK YOU @Nehry for this full translation up to R1.20
     -- TY @Mythos for cleaning up translation work done up to R1.88

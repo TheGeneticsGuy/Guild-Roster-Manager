@@ -132,6 +132,10 @@ _______________________
 
 * A player search has been added to the audit window to help assist in finding players quicker
 
+* A player can no longer cause a Lua error by typing /grm quickly after logging on, since the addon is not configured instantly. It now ensures the addon is fully configured, similar to clicking the minimap button.
+
+* New slash command `/grm guid` will add a player's GUID to the chat box to be easily copied and extracted from the game.
+
 **CODE OPTIMIAZATION**
 
 * A LOT of code has been changed, updated, modified, deleted, added, and so on. Significant rewrite on the backend of a lot, as well as the addition of a lot. This took a very long time, but laid the groundwork for easier development in the future and cleans up a lot of legacy issues that had never been truly resolved, only "patched"

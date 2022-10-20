@@ -136,7 +136,7 @@ end
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllOfficerNotes = function()
 
-    if CanEditOfficerNote() then
+    if GRM.CanEditOfficerNote() then
         for i = 1 , GetNumGuildMembers() do
             GuildRosterSetOfficerNote ( i , "" );
         end

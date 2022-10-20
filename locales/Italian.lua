@@ -927,8 +927,8 @@ GRML.Italian = function()
 	GRM_L["Date found in correct note location, but not yet imported"] = "Data trovata nel tipo di nota corretto, ma non ancora importata"
 
 	-- More misc.
-	GRM_L["The \"{name}\" and \"{name2}\" tags have globally been set to be added to join date note entries."] = "I tag \"{name}\" e \"{name2}\ sono stati impostati per essere aggiunti alle note"
-	GRM_L["The \"{name}\" and \"{name2}\" tags have globally been disabled from adding to join date note entries."] = "I tag \"{name}\" e \"{name2}\ sono stati impostati per NON essere aggiunti alle note"
+	GRM_L["The \"{name}\" and \"{name2}\" tags have globally been set to be added to join date note entries."] = "I tag \"{name}\" e \"{name2}\" sono stati impostati per essere aggiunti alle note"
+	GRM_L["The \"{name}\" and \"{name2}\" tags have globally been disabled from adding to join date note entries."] = "I tag \"{name}\" e \"{name2}\" sono stati impostati per NON essere aggiunti alle note"
 	GRM_L["Your rank has changed. Re-evaluating sync permissions."] = "Il tuo grado è cambiato. Rivalutando i permessi di sincronizzazione"
 
 	-- 1.57
@@ -1548,5 +1548,6 @@ GRML.Italian = function()
     GRM_L["dead"] = true            -- slash command for checking dead names
     GRM_L["deadnames"] = true       -- slash command for checking dead names
     GRM_L["TabName"] = true
-
+	GRM_L["Add unique player GUID to chat window to copy"] = true
+    
 end

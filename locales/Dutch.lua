@@ -28,7 +28,7 @@
 GRML.Dutch = function()
 
     -- Auto Localized (Only use this on Client languages) - like this doesn't apply to Dutch/Danish, etc..
-    GRM_L["Friend"] = "";
+    GRM_L["Friend"] = true;
 
     -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
     GRM_L["/XXXX"] = true                           -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
@@ -1548,7 +1548,6 @@ GRML.Dutch = function()
     GRM_L["dead"] = true            -- slash command for checking dead names
     GRM_L["deadnames"] = true       -- slash command for checking dead names
     GRM_L["TabName"] = true
-
-
-    
+    GRM_L["Add unique player GUID to chat window to copy"] = true
+        
 end

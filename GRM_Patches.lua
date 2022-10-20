@@ -1,10 +1,11 @@
+
 ---UPDATES AND BUG PATCHES
 
 
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 96;
+local totalPatches = 97;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1056,7 +1057,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddPlayerSetting ( "ignoreDeadNames" , false );                                   -- New setting regarding tracking player dead names
         GRM_Patch.AddPlayerSetting ( "macroSyncKickEnabled" , true );                                -- New setting macro sync rules 
         GRM_Patch.AddPlayerSetting ( "macroSyncPromoteEnabled" , true );                             -- Same --
-        GRM_Patch.AddPlayerSetting ( "macroSyncDemoteEnabled" , true );                              -- Same -- 
+        GRM_Patch.AddPlayerSetting ( "macroSyncDemoteEnabled" , true );                              -- Same --
+         
         
         if loopCheck ( 1.92999 ) then
             return;
@@ -1082,6 +1084,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_Patch.ModifyPlayerSetting ( "syncSpeed" , nil );
         if loopCheck ( 1.931 ) then
+            return;
+        end
+    end
+
+    -- patch 97
+    patchNum = patchNum + 1
+    if numericV < 1.9311 and baseValue < 1.9311 then
+
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixTimestamps , true , true , false );
+        if loopCheck ( 1.9311 ) then
             return;
         end
     end
@@ -2486,10 +2498,12 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
     if GRM.CanEditOfficerNote() then
         local g1 = false;
         local g2 = false;
+        local rankInd , note, officerNote = 0 , "" , "";
 
         for i = 1 , GRM.GetNumGuildies() do
             -- For guild info
-            local rankInd , _ , _ , _ , note , officerNote = select ( 3 , GetGuildRosterInfo ( i ) );
+            rankInd , _ , _ , _ , note , officerNote = select ( 3 , GetGuildRosterInfo ( i ) );
+            
             if rankInd == 0 then
                 -- Guild Leader identified!
                 -- first, let's look for grm1, if it's there, let's get rid of it.
@@ -5920,7 +5934,6 @@ end
 -- What it Does:    Converts the player rank history to the new format and purges the old
 -- Purpose:         Simplifying multiple player variables into one.
 GRM_Patch.ConvertRankHistoryToRanks = function ( player , isFormerMembers )
-    local day, month, year = 0 , 0 , 0;
     local timeTable;
     local changeType = 1; -- 1 = promotion, 2 = demotion, 3 = Left guild
     local timeArray , rank , leftGuildEpoch , verified;
@@ -6026,9 +6039,8 @@ end
 -- Purpose:         Simplifying multiple player variables into one.
 GRM_Patch.ConvertJoinHistory = function ( player )
 
-    local day, month, year = 0 , 0 , 0;
     local timeTable , tTable;
-    local timeArray , leftGuildEpoch , verified;
+    local leftGuildEpoch;
 
     -- Add a new rank format
     player.joinDateHist = {};
@@ -6118,4 +6130,47 @@ GRM_Patch.AddRemovedRules = function ( rulesTable )
     end
 
     return rulesTable;
+end
+
+-- 1.931
+-- Method:          GRM_Patch.FixTimestamps ( table )
+-- What it Does:    Due to an old legacy issue, there are some instances where incorrect dates exist in the system, like Feb 30th, due to some faulty logic. This cleans all of those up and with new logic, should not re-occur
+-- Purpose:         Cleanup Timestamps from legacy bugs
+GRM_Patch.FixTimestamps = function ( player )
+
+    local timeTable = {};
+
+    for i = 1 , #player.joinDateHist do
+        timeTable = {};
+
+        if player.joinDateHist[i][4] > 0 then
+            timeTable = select ( 2 , GRM.EpochToDateFormat ( player.joinDateHist[i][4] ) );
+
+            if timeTable and ( player.joinDateHist[i][1] ~= timeTable[1] or player.joinDateHist[i][2] ~= timeTable[2] or player.joinDateHist[i][3] ~= timeTable[3] ) then
+                player.joinDateHist[i][1] = timeTable[1];
+                player.joinDateHist[i][2] = timeTable[2]
+                player.joinDateHist[i][3] = timeTable[3]
+            end
+
+        end
+
+    end
+
+    for i = 1 , #player.rankHist do
+        timeTable = {};
+
+        if player.rankHist[i][5] > 0 then
+            timeTable = select ( 2 , GRM.EpochToDateFormat ( player.rankHist[i][5] ) );
+
+            if timeTable and ( player.rankHist[i][2] ~= timeTable[1] or player.rankHist[i][3] ~= timeTable[2] or player.rankHist[i][4] ~= timeTable[3] ) then
+                player.rankHist[i][2] = timeTable[1];
+                player.rankHist[i][3] = timeTable[2]
+                player.rankHist[i][4] = timeTable[3]
+            end
+
+        end
+
+    end
+
+    return player;
 end

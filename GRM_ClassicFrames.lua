@@ -1,3 +1,4 @@
+
 -- Expansion compatibility Frames
 -- I only wish to maintain one Codebase, not 2. Foundational compatibility built with expansion in mind.
 
@@ -60,12 +61,3 @@ GRM_UI.EstablishClassicFrames = function()
 
 
 end
-
-
--- FEATURES RELEASED WITH WHAT CORRESPONDING BUILDS
-
--- Calendar                                 = 30000 (3.0 WOTLK)
-
--- Guild Event Log                          = 40000 (4.0 CATA)
-
--- Guild News and Rewards and so on         = 40000 ''

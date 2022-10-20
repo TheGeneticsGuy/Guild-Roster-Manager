@@ -1,3 +1,4 @@
+
 -- Tool to use GRM data to build pre-made macros based on certain filters to handle promotions/demotions/kicking of players. This is due to the fact that the API to do these actions was restricted in patch 7.3, effectively breaking many guild leadership and management addons. This is an attempt to help officers and Guild Leaders' lives out a little bit through creating quick rebuilding macros.
 
 -- CREATING FRAMES -- 
@@ -397,7 +398,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     -- Need to validate the names are update now...
                     if GRM.IsMacroActionComplete() then
-                        C_Timer.After ( 1 , GRM.ValidateMacroRecordingSuccess );
+                        C_Timer.After ( 1 , function()
+                            GRM.ValidateMacroRecordingSuccess ( false );
+                        end);
                     end
                     
                     GRM.BuildQueuedScrollFrame ( true , false , false );
@@ -818,7 +821,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 end
             end
         end);
-    
+        
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSettingsButton:SetScript ( "OnEnter" , function ( self )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
@@ -4298,7 +4301,7 @@ GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , b
     if showAll and fullRefresh then
         GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
         if not isBanAltList and not bannedInGuildList and not customKickGroup then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries ( true );
+            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries ();
         elseif isBanAltList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllAltsTable );
             GRM_G.KickAllAltsTable = {};
@@ -6803,8 +6806,9 @@ GRM.UpdateRulesTooltip = function ( ind )
     local time = "";
     c.E = { 0 , 0.77 , 0.063 }; -- enabled
     c.D = { 1 , 0 , 0 };        -- disabled
-    local status = { GRM.L ( "Enabled" ) , GRM.L ( "Disabled" ) };
+    local status = "";
     local statusColor = {};
+    
     if rule.sync then
         status = GRM.L ( "Enabled" );
         statusColor = { 0 , 0.8 , 1 };
@@ -7370,7 +7374,7 @@ GRM.GetKickNamesByFilterRules = function()
                         if ruleConfirmedCheck and rule.activityFilter and not ( rule.rankFilter and rule.applyEvenIfActiive ) then
                             ruleConfirmedCheck = false;
 
-                            if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( GRM.GetListOfAlts ( player ) , ruleName , player.name ) ) then
+                            if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( GRM.GetListOfAlts ( player ) , ruleName  ) ) then
                                 -- Is actually considered inactive
                                 if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
                                 -- Cannot remove players same rank or higher, so they have to be a higher index than you to remove them.

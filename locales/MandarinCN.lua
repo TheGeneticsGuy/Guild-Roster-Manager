@@ -1547,5 +1547,6 @@ GRML.MandarinCN = function()
     GRM_L["dead"] = true            -- slash command for checking dead names
     GRM_L["deadnames"] = true       -- slash command for checking dead names
     GRM_L["TabName"] = true
+    GRM_L["Add unique player GUID to chat window to copy"] = true
     
 end

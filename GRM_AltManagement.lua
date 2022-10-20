@@ -629,7 +629,6 @@ GRM.AddPlayerToOwnAltList = function()
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.addonUser];
 
     if player then
-        playerIsFound = true;
         -- Ok, adding the player!
         GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName][GRM_G.addonUser] = {};
 
@@ -865,10 +864,10 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt )
     end
 end
 
--- Method:              GRM.SetMain ( string , string , boolean , int )
+-- Method:              GRM.SetMain ( string , int )
 -- What it Does:        Sets the player as main, as well as updates that status among the alt grouping.
 -- Purpose:             Main/alt management control.
-GRM.SetMain = function ( mainName , isSync , timestamp )
+GRM.SetMain = function ( mainName , timestamp )
     if not mainName then
         return;
     end
@@ -1353,6 +1352,7 @@ GRM.GetSortedAltNamesWithDetails = function ( playerName )
     local isAdded = false;
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
     local playerDetails;
+    local tempAlt = {};
 
     if player and GRM.PlayerHasAlts ( player ) then
         local alts = GRM.GetListOfAlts ( player );
@@ -1574,7 +1574,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                         local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( h );
                         if tempAlt.name == guildieName then
                             local noteDate = "";
-                            local t = GRM.FormatTimeStamp ( finalTStamp , false );
+                            local t = GRM.FormatTimeStamp ( finalTStampEpoch , false );
                             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].includeTag then
                                 noteDate = GRM_G.customHeaderJoin .. " " .. t;
                             else
@@ -1635,7 +1635,7 @@ end
 -- What it Does:    Syncs the join date of the grouping of alts to all be the same as the alt with the earliest join date
 -- Purpose:         For join date syncing and time-saving for the player
 GRM.SyncJoinDateUsingEarliest = function()
-    GRM.SyncJoinDatesOnAllAlts ( GRM.GetAltWithOldestJoinDate ( GRM_G.currentName )[1] );
+    GRM.SyncJoinDatesOnAllAlts ( GRM.GetAltWithOldestJoinDate ( GRM_G.currentName ) );
 end
 
 -- Method:          GRM.SyncJoinDateUsingMain()
@@ -1658,7 +1658,6 @@ end
 GRM.GetAltWithOldestJoinDate = function ( playerName )
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
     local oldestPlayer = { playerName , 0 };
-    local oldestJoinDate = {};
     local day , nonth, year = 0 , 0 , 0;
     
     if player then
@@ -1667,26 +1666,23 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
 
         if player.joinDateHist[1][4] > 0 then
             oldestPlayer[2] = player.joinDateHist[1][4];
-            oldestJoinDate = { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] };
         end
 
         for i = 1 , #alts do
             playerAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ alts[i][1] ];
             if playerAlt then
                 if playerAlt.joinDateHist[1][4] > 0 then                           -- First, double check it is set
+                    
                     if oldestPlayer[2] == 0 or playerAlt.joinDateHist[1][4] < oldestPlayer[2] then
                         oldestPlayer = { alts[i][1] , playerAlt.joinDateHist[1][4] };
-                        oldestJoinDate = { playerAlt.joinDateHist[1][1] , playerAlt.joinDateHist[1][2] , playerAlt.joinDateHist[1][3] };
                     end
+
                 end
             end
         end
     end
 
-    if oldestJoinDate[1] and oldestJoinDate[1] > 0 then
-        oldestPlayer[2] = GRM.FormatTimeStamp ( { oldestJoinDate[1] , oldestJoinDate[2] , oldestJoinDate[3] } , false , false );
-    end
-    return oldestPlayer;
+    return oldestPlayer[1];
 end
 
 -- Method:          GRM.IsAltJoinDatesSynced()

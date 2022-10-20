@@ -1,3 +1,4 @@
+
 -- Author: TheGenomeWhisperer (Arkaan)
 
 -- Guild Roster Manager UI
@@ -162,7 +163,7 @@ GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton.GRM_GroupInviteButtonText 
 
 -- Safe from recommendations checkbox
 GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton = CreateFrame ( "Button" , "GRM_SafeFromRulesButton" , GRM_UI.GRM_MemberDetailMetaData , "GameMenuButtonTemplate" );
-GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton.GRM_SafeFromRulesButtonText = GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:CreateFontString ( "GRM_SafeFromRulesButtonText" , "OVERLAY" , GameFontWhiteTiny );
+GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton.GRM_SafeFromRulesButtonText = GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:CreateFontString ( "GRM_SafeFromRulesButtonText" , "OVERLAY" , "GameFontWhiteTiny" );
 
 -- Tooltips
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankToolTip = CreateFrame ( "GameTooltip" , "GRM_MemberDetailRankToolTip" , GRM_UI.GRM_MemberDetailMetaData , "GameTooltipTemplate" );
@@ -2684,8 +2685,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         
         if GRM_G.BuildVersion >= 80000 and CommunitiesFrame and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText ~= nil then
             universalFont = CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:GetFont();
-        elseif GRM_G.BuildVersion < 80000 and GuildFrame and PersonalNoteTex then
-            universalFont = PersonalNoteTex;
+        elseif GRM_G.BuildVersion < 80000 and GuildFrame and PersonalNoteText then
+            universalFont = PersonalNoteText;
         end
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFont( universalFont , GRM_G.FontModifier + 9 );
         GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetFont ( universalFont , GRM_G.FontModifier + 9 );
@@ -3803,7 +3804,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     else
                         GameTooltip:AddLine( GRM.L ( "Edited by {name}" , player.customNote[3] .. " (" .. GRM.L( "|CFFFF0000Player No Longer in Guild" ) .. ")"  ) );
                     end
-                    GameTooltip:AddLine ( GRM.FormatTimeStamp ( GRM.EpochToDateFormat ( player.customNote[2] ) , false ) );
+                    GameTooltip:AddLine ( GRM.EpochToDateFormat ( player.customNote[2] ) );
                     GameTooltip:Show();
                 end
             end           
@@ -8082,7 +8083,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame:SetScript ( "OnShow" , function( self )
         self.GRM_OptionsTexture:SetPoint ( "CENTER" , self );
         self.GRM_OptionsTexture:SetSize( 15 , 15 );
-        GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["mainTagColor"].r , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["mainTagColor"].g , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["mainTagColor"].b , 1.0 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["mainTagColor"].r , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["mainTagColor"].g , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["mainTagColor"].b , 1.0 );
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame:SetScript ( "OnMouseDown" , function ( _ , button )
@@ -15717,7 +15718,7 @@ GRM_UI.BuildLogFrames = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText2:SetText ( math.floor ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider:GetValue() + 0.5 ) .. "%" );
     
     -- Slider Values
-    local value = "";
+    local value = 0;
     local getValueString = function ( v )
         if #v < 4 then
             if #v == 3 then 
@@ -15916,11 +15917,11 @@ if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calenda
                     GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
                 end);
                 GRM_G.CalendarRegistered = true;
-                GRM_UI.CalendarEventOpenRefresh ( 0 );
-                GRM_UI.CalendarEventCreateRefresh ( 0 );
+                GRM_UI.CalendarEventOpenRefresh ();
+                GRM_UI.CalendarEventCreateRefresh ();
 
             else
-                GRM_UI.CalendarDelayRefresh ( 0 );
+                GRM_UI.CalendarDelayRefresh ();
             end
             GRM_G.currentCalendarOffset = 1;
         end
@@ -15945,7 +15946,6 @@ if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calenda
         GRM_UI.UpdateCalendarInviteNames ( CalendarViewEventInviteListScrollFrame );
         GRM_UI.InitializeCalendarButtons ( CalendarViewEventInviteListScrollFrame );
     end
-    -- /dump HybridScrollFrame_GetOffset(CalendarViewEventInviteListScrollFrame.buttons)
 
     -- Method:          GRM_UI.CalendarEventCreateRefresh()
     -- What it Does:    Calls to the event update for the calendar invite scrollframe
