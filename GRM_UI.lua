@@ -2685,8 +2685,6 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         
         if GRM_G.BuildVersion >= 80000 and CommunitiesFrame and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText ~= nil then
             universalFont = CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:GetFont();
-        elseif GRM_G.BuildVersion < 80000 and GuildFrame and PersonalNoteText then
-            universalFont = PersonalNoteText;
         end
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFont( universalFont , GRM_G.FontModifier + 9 );
         GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetFont ( universalFont , GRM_G.FontModifier + 9 );
