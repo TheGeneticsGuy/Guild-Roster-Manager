@@ -32,9 +32,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.933";
-GRM_G.PatchDay = 1666329697;             -- In Epoch Time
-GRM_G.PatchDayString = "1666329697";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.934";
+GRM_G.PatchDay = 1666379532;             -- In Epoch Time
+GRM_G.PatchDayString = "1666379532";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -1109,6 +1109,18 @@ GRM.SetClassChatColoring = function()
     end
 end
 
+-- Method:          GRM.SetChatClassColoringInWrath ( bool )
+-- What it Does:    Enables or Disables chat class coloring
+-- Purpose:         Enable chat coloring controls in wrath
+GRM.SetChatClassColoringInWrath = function ( enable )
+    local list = { "SAY" , "EMOTE" , "YELL" , "GUILD" , "GUILD_OFFICER" , "OFFICER" , "GUILD_ACHIEVEMENT" , "ACHIEVEMENT" , "WHISPER" , "PARTY" , "PARTY_LEADER" , "RAID" , "RAID_LEADER" , "RAID_WARNING" , "INSTANCE_CHAT" , "INSTANCE_CHAT_LEADER" , "CHANNEL1" , "CHANNEL2" , "CHANNEL3" , "CHANNEL4" , "CHANNEL5"};
+
+    for i = 1 , #list do
+        ToggleChatColorNamesByClassGroup ( enable, list[i] );
+    end
+
+end
+
 -- method:          GRM.RefreshNumberOfHoursTilRecommend()
 -- What it Does:    Rebuilds the time on the recommends for the macro tool and the log.
 -- Purpose:         Resource saving. No need to process over and over everytime it is looked at unless a change is made.
@@ -1463,21 +1475,23 @@ end
 -- Method:          GRM.SetReportWindow ()
 -- What it Does:    Sets the addon reporting to a specified custom channel
 -- Purpose:         Allow flexibility to send GRM reports to a custom channel so you don't miss anything.
-GRM.SetReportWindow = function()
+GRM.SetReportWindow = function( count )
     local isEstablished = false;
     local chatFrame;
+    count = count or 1;
 
     for i = #GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].reportChannel , 1 , -1 do
         isEstablished = false;
 
         for j = 1 , #CHAT_FRAMES do
-            chatFrame = GetClickFrame ( CHAT_FRAMES[j] );
+            chatFrame = _G[ CHAT_FRAMES[j] ];
 
             if chatFrame ~= nil and chatFrame.name == GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].reportChannel[i] then
                 -- Custom frame writte, custom frame found! Now, let's see if there is a tab
 
-                if GetClickFrame ( chatFrame:GetName() .. "Tab" ):IsVisible() then
+                if _G[ CHAT_FRAMES[j] .."Tab" ]:IsVisible() then
                     isEstablished = true;
+                    
                     GRM.AddReportChannel ( nil , chatFrame , true );        -- Just adds it to the GRM_G.Chat
                     break;
                 end
@@ -1486,7 +1500,15 @@ GRM.SetReportWindow = function()
         end
 
         if not isEstablished then
-            table.remove ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].reportChannel , i );
+            if count < 5 then
+                C_Timer.After ( 2 , function()
+                    count = count + 1;
+                    GRM.SetReportWindow ( count );      -- Some redundancy before I go and start removing channels.
+                    return;
+                end);
+            else
+                table.remove ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].reportChannel , i );
+            end
         end
     end
 

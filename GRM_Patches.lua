@@ -5955,38 +5955,42 @@ GRM_Patch.ConvertRankHistoryToRanks = function ( player , isFormerMembers )
     -- verifiedPromote = { "" , 0 };              -- Deprecating out
 
     -- Add a new rank format
-    player.rankHist = {};
+    player.rankHist = player.rankHist or {};
 
-    -- First, add verified date into first index - we are always going to insert new into the first index.
-    if player.verifiedPromoteDate[1] ~= nil and type ( player.verifiedPromoteDate[1] ) == "string" and player.verifiedPromoteDate[1] ~= "" then
-        timeTable = GRM.ConvertGenericTimestampToIntValues ( player.verifiedPromoteDate[1] );
+    if player.verifiedPromoteDate ~= nil then
+        -- First, add verified date into first index - we are always going to insert new into the first index.
+        if player.verifiedPromoteDate[1] ~= nil and type ( player.verifiedPromoteDate[1] ) == "string" and player.verifiedPromoteDate[1] ~= "" then
+            timeTable = GRM.ConvertGenericTimestampToIntValues ( player.verifiedPromoteDate[1] );
 
-        if timeTable and player.verifiedPromoteDate[2] ~= nil and type ( player.verifiedPromoteDate[2] ) == "number" and player.verifiedPromoteDate[2] > 0 and player.verifiedPromoteDate[2] ~= 978375660 then  -- Removing old date redundancy
-            table.insert ( player.rankHist , 1 , { player.rankName , timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.verifiedPromoteDate[1] ) , player.verifiedPromoteDate[2] , true , 1 } );
-            verificationFound = true;            
+            if timeTable and player.verifiedPromoteDate[2] ~= nil and type ( player.verifiedPromoteDate[2] ) == "number" and player.verifiedPromoteDate[2] > 0 and player.verifiedPromoteDate[2] ~= 978375660 then  -- Removing old date redundancy
+                table.insert ( player.rankHist , 1 , { player.rankName , timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.verifiedPromoteDate[1] ) , player.verifiedPromoteDate[2] , true , 1 } );
+                verificationFound = true;            
+            end
         end
     end
 
     -- Need to move people over 
     if isFormerMembers then
         
-        if player.oldRank ~= "" then
-            rank = player.oldRank;
-        else
-            rank = player.rankName
-        end
+        if player.oldRank ~= nil and player.leftGuildEpoch ~= nil then
+            if player.oldRank ~= "" then
+                rank = player.oldRank;
+            else
+                rank = player.rankName
+            end
 
-        if #player.leftGuildEpoch > 0 then
-            timeArray = GRM.ConvertGenericTimestampToIntValues ( player.leftGuildDate[#player.leftGuildDate] );
-            leftGuildEpoch = player.leftGuildEpoch[#player.leftGuildEpoch];
-            verified = true;
-        else
-            timeArray = select ( 2 , GRM.GetTimestamp() );
-            leftGuildEpoch = time();
-            verified = false;
+            if #player.leftGuildEpoch > 0 then
+                timeArray = GRM.ConvertGenericTimestampToIntValues ( player.leftGuildDate[#player.leftGuildDate] );
+                leftGuildEpoch = player.leftGuildEpoch[#player.leftGuildEpoch];
+                verified = true;
+            else
+                timeArray = select ( 2 , GRM.GetTimestamp() );
+                leftGuildEpoch = time();
+                verified = false;
+            end
+            
+            table.insert ( player.rankHist , 1 , { rank , timeArray[1] , timeArray[2] , timeArray[3] , leftGuildEpoch , leftGuildEpoch , verified , 3 } );
         end
-        
-        table.insert ( player.rankHist , 1 , { rank , timeArray[1] , timeArray[2] , timeArray[3] , leftGuildEpoch , leftGuildEpoch , verified , 3 } );
 
     end
 
@@ -5997,28 +6001,30 @@ GRM_Patch.ConvertRankHistoryToRanks = function ( player , isFormerMembers )
     end
     
     -- Go backwards
-    for i = ( #player.rankHistory - startingPoint ) , 1 , -1 do
+    if player.rankHistory ~= nil then
+        for i = ( #player.rankHistory - startingPoint ) , 1 , -1 do
 
-        if player.rankHistory[i] ~= nil and player.rankHistory[i][2] ~= nil and type ( player.rankHistory[i][2] ) == "string" and player.rankHistory[i][2] ~= "" then
-            timeTable = GRM.ConvertGenericTimestampToIntValues ( player.rankHistory[i][2] );
+            if player.rankHistory[i] ~= nil and player.rankHistory[i][2] ~= nil and type ( player.rankHistory[i][2] ) == "string" and player.rankHistory[i][2] ~= "" then
+                timeTable = GRM.ConvertGenericTimestampToIntValues ( player.rankHistory[i][2] );
 
-            if timeTable and player.rankHistory[i][1] ~= nil and type ( player.rankHistory[i][1] ) == "string" and player.rankHistory[i][3] ~= nil and type ( player.rankHistory[i][3] ) == "number" and player.rankHistory[i][3] > 0 then
+                if timeTable and player.rankHistory[i][1] ~= nil and type ( player.rankHistory[i][1] ) == "string" and player.rankHistory[i][3] ~= nil and type ( player.rankHistory[i][3] ) == "number" and player.rankHistory[i][3] > 0 then
 
-                if string.find ( player.rankHistory[i][1] , "Left Guild" , 1 , true ) ~= nil then
-                    changeType = 3;
-                    verified = true;
-                    leftGuildEpoch = GRM.TimeStampToEpoch ( player.rankHistory[i][2] );
+                    if string.find ( player.rankHistory[i][1] , "Left Guild" , 1 , true ) ~= nil then
+                        changeType = 3;
+                        verified = true;
+                        leftGuildEpoch = GRM.TimeStampToEpoch ( player.rankHistory[i][2] );
 
-                else
-                    -- Normal rank change - not a time they left
-                    changeType = 1;
-                    verified = false;
-                    leftGuildEpoch = 0;
+                    else
+                        -- Normal rank change - not a time they left
+                        changeType = 1;
+                        verified = false;
+                        leftGuildEpoch = 0;
+                    end
+                    
+                    table.insert ( player.rankHist , { player.rankHistory[i][1] , timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.rankHistory[i][2] ) , leftGuildEpoch , verified , changeType } );
                 end
-                
-                table.insert ( player.rankHist , { player.rankHistory[i][1] , timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.rankHistory[i][2] ) , leftGuildEpoch , verified , changeType } );
-            end
 
+            end
         end
     end
 
@@ -6056,39 +6062,42 @@ GRM_Patch.ConvertJoinHistory = function ( player )
     local leftGuildEpoch;
 
     -- Add a new rank format
-    player.joinDateHist = {};
+    player.joinDateHist = player.joinDateHist or {};
 
     local verified = false;
-    for i = #player.joinDate , 1 , -1 do
-        
-        if player.joinDate[i] ~= nil and type ( player.joinDate[i] ) == "string" and player.joinDate[i] ~= "" then
-            timeTable = GRM.ConvertGenericTimestampToIntValues ( player.joinDate[i] );
 
-            if timeTable and player.joinDateEpoch[i] ~= nil and player.joinDateEpoch[i] ~= nil and type ( player.joinDateEpoch[i] ) == "number" and player.joinDateEpoch[i] > 0 then
-                verified = false;
-
-                if player.leftGuildDate[i] ~= nil then
-                    leftGuildEpoch = player.leftGuildEpoch[i];
-                    tTable = GRM.ConvertGenericTimestampToIntValues ( player.leftGuildDate[i] );
-                    table.insert ( player.joinDateHist , { tTable[1] , tTable[2] , tTable[3] , leftGuildEpoch , leftGuildEpoch , true , 2 } );
-                end
-
-                if i == #player.joinDate and player.verifiedJoinDate[1] ~= nil and type ( player.verifiedJoinDate[1] ) == "string" and player.verifiedJoinDate[1] ~= "" then
-                    timeTable = GRM.ConvertGenericTimestampToIntValues ( player.verifiedJoinDate[1] );
+    if player.joinDate ~= nil then
+        for i = #player.joinDate , 1 , -1 do
             
-                    if timeTable and player.verifiedJoinDate[2] ~= nil and type ( player.verifiedJoinDate[2] ) == "number" and player.verifiedJoinDate[2] > 0 and player.verifiedJoinDate[2] ~= 978375660 then  -- Removing old date redundancy
-                        table.insert ( player.joinDateHist , 1 , { timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.verifiedJoinDate[1] ) , player.verifiedJoinDate[2] , true , 1 } );
-                        verified = true;
+            if player.joinDate[i] ~= nil and type ( player.joinDate[i] ) == "string" and player.joinDate[i] ~= "" then
+                timeTable = GRM.ConvertGenericTimestampToIntValues ( player.joinDate[i] );
+
+                if timeTable and player.joinDateEpoch[i] ~= nil and player.joinDateEpoch[i] ~= nil and type ( player.joinDateEpoch[i] ) == "number" and player.joinDateEpoch[i] > 0 then
+                    verified = false;
+
+                    if player.leftGuildDate[i] ~= nil then
+                        leftGuildEpoch = player.leftGuildEpoch[i];
+                        tTable = GRM.ConvertGenericTimestampToIntValues ( player.leftGuildDate[i] );
+                        table.insert ( player.joinDateHist , { tTable[1] , tTable[2] , tTable[3] , leftGuildEpoch , leftGuildEpoch , true , 2 } );
                     end
+
+                    if i == #player.joinDate and player.verifiedJoinDate[1] ~= nil and type ( player.verifiedJoinDate[1] ) == "string" and player.verifiedJoinDate[1] ~= "" then
+                        timeTable = GRM.ConvertGenericTimestampToIntValues ( player.verifiedJoinDate[1] );
+                
+                        if timeTable and player.verifiedJoinDate[2] ~= nil and type ( player.verifiedJoinDate[2] ) == "number" and player.verifiedJoinDate[2] > 0 and player.verifiedJoinDate[2] ~= 978375660 then  -- Removing old date redundancy
+                            table.insert ( player.joinDateHist , 1 , { timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.verifiedJoinDate[1] ) , player.verifiedJoinDate[2] , true , 1 } );
+                            verified = true;
+                        end
+                    end
+
+                    if not verified then
+
+                        table.insert ( player.joinDateHist , { timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.joinDate[i] ) , 0 , false , 1 } );
+                    end
+    
                 end
 
-                if not verified then
-
-                    table.insert ( player.joinDateHist , { timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.joinDate[i] ) , 0 , false , 1 } );
-                end
-   
             end
-
         end
     end
 

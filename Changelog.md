@@ -1,3 +1,15 @@
+## **VERSION R1.934 RELEASE - 21st Oct, 2022**
+
+***BUG FIXES***
+
+* Fixed an issue that would cause an "error" message about alt sync data message - this could ultimately cause alt data to not sync completely accuractely either for a few names at the end of the roster. Minor oversight from when I rewrote the alt sync protocol.
+
+* Fixed a bug where GRM would not finish the "patching" process.
+
+* Added a fix where if you used a custom channel for GRM messaging, in some cases it would get reset. This shouldn't happen anymore as there is some redundance to recheck that a channel exists before just purging it immediately.
+
+* (Classic Only) - Class coloring was erroneously getting disabled in the default channels by mistake in latest update. This has been resolved. Also, you can control this much easier in the /grm > Options > UI settings tab with just a single checkbox.
+
 ## **VERSION R1.933 RELEASE - 21st Oct, 2022**
 
 ***QUALITY OF LIFE***
@@ -34,6 +46,8 @@
 * The same applies to the alt group extra details window that would popout before when holding shift over Alts title - now, there is a button that appears and on mouseover the side window pops up, which you can click to lock in place.
 
 ![Alt Groups Button](https://imgur.com/jIpKFwa.jpg)
+
+* (Classic Only) - Achievement announce. Thanks to @DinnerBone on discord, the code pull request has been merged and Classic Wrath will now announce achievements to other GRM users. For some reason this feature is missing from Classic Wrath even though it existed in the original WOTLK expansion - Blizz has acknowledged this bug, but who knows when they will fix it.
 
 * Birthdays will now just say "Happy Birthday, [Guild Member]" instead of the weird "It's almost time to celebrate" message.
 
@@ -143,8 +157,6 @@
 * (Classic Only) - Level filtering option in the GRM > Options > Scan tab should now properly include max level 70 checkbox if in BCC and 80 if in WOTLK (once fully released).
 
 * (Classic Only) - Export, when you selected to "Check all" was erroneously checking the "Guild Rep
-
-* (Classic Only) - Achievement announce. Thanks to @DinnerBone on discord, the code pull request has been merged and Classic Wrath will now announce achievements to other GRM users. For some reason this feature is missing from Classic Wrath even though it existed in the original WOTLK expansion - Blizz has acknowledged this bug, but who knows when they will fix it.
 
 **CODE OPTIMIAZATION**
 
