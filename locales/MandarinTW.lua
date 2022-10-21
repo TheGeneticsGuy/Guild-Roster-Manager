@@ -1548,5 +1548,7 @@ GRML.MandarinTW = function()
     GRM_L["deadnames"] = true       -- slash command for checking dead names
     GRM_L["TabName"] = true
     GRM_L["Add unique player GUID to chat window to copy"] = true
+    GRM_L["Achievement Announce"] = ACHIEVEMENT
+    GRM_L["Only Guild Members with GRM installed will see."] = true
     
 end

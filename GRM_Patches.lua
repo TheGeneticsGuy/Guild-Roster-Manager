@@ -5,7 +5,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 97;
+local totalPatches = 98;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1094,6 +1094,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_Patch.ModifyMemberData ( GRM_Patch.FixTimestamps , true , true , false );
         if loopCheck ( 1.9311 ) then
+            return;
+        end
+    end
+
+    -- patch 98
+    patchNum = patchNum + 1;
+    if numericV < 1.933 and baseValue < 1.933 then
+
+        if GRM_G.BuildVersion < 80000 and GRM_G.BuildVersion >= 30000 then
+            GRM_Patch.AddPlayerSetting ( "achievements" , true );
+        end
+        
+        if loopCheck ( 1.933 ) then
             return;
         end
     end

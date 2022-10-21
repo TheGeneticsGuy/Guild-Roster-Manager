@@ -1,6 +1,92 @@
-_______________________
+## **VERSION R1.933 RELEASE - 21st Oct, 2022**
 
-## **VERSION R1.931 RELEASE - 6th Oct, 2022**
+***QUALITY OF LIFE***
+
+* Events Tab/Window
+  -- "Ignore All Events" button has now been added so you can just clear all.
+  -- Last Online has been added
+  -- Date is now visible without needing to click on it
+  -- Events now sort in order of upcoming date
+  -- Tooltip has been cleaned up to actually go away when mousing off of the event
+  -- Classic compatibility has been added, though limited as there is no export to a calendar feature in TBC or Vanilla - it DOES work in WOTLK
+
+![Improved Events Window](https://i.imgur.com/DQufBIU.jpg)
+
+* A player search has been added to the audit window to help assist in finding players quicker
+
+![Member Search Added to Audit](https://i.imgur.com/K4rSEPp.jpg)
+
+* Macro Tool improved
+  -- Copy feature now available. Right click and copy the rule, which opens the edit window that has the same vaolues as the existing rule, but now can be quickly and slightly modified without needing to edit the entire rule from scratch
+  -- Macro tool rules can now be configured in any order you wish to view them. Sort them up and down. This is just for personal convenience.
+
+![Macro Tool Rule Copy](https://imgur.com/fowJVTY.jpg)
+![Macro Tool Reorder](https://imgur.com/Adu2ZIj.jpg)
+
+* If an addon is now disabling system messages, GRM will prompt you with a popup window asking if you want to re-enable them. This allows this addon compatibilty with addons like Fast Guild Invite which auto-disable the messages, breaking GRM. Unfortunately, the API cannot permanently enable system messages between sessions. There will be a message informing the player that if they wish to permanently enable system messages they will need to do it manually in the chat general settings as this will only enable them for the current logged in session. This will only apply to people blocking all system messages so GRM cannot catch certain events, and for some reason Fast Guild Invite disabled it by default.
+
+![ReEnable System Msg Easily](https://imgur.com/zeicZzS.jpg)
+
+* The Sync join date among all alts now has a small button instead of relying on mouseover tooltip and right-clicking the join date title. Now, if it applies, a small button with an arrow to the right will appear. Click this and it will allow you to sync those join dates. Furthermore, the tool now shows the actual dates you are going to sync to. Before it just said "Want to sync to your main?" Well, now it shows you the actual date it is asking to sync to so it can be comapred to potential other options, like oldest.
+
+![Sync Join Dates Button](https://imgur.com/m9WTcZy.jpg)
+
+* The same applies to the alt group extra details window that would popout before when holding shift over Alts title - now, there is a button that appears and on mouseover the side window pops up, which you can click to lock in place.
+
+![Alt Groups Button](https://imgur.com/jIpKFwa.jpg)
+
+* Birthdays will now just say "Happy Birthday, [Guild Member]" instead of the weird "It's almost time to celebrate" message.
+
+* GRM will now inform you if it is the player's birthday when they login - It will also inform you if when you login, any of the players that are already online, if it is their birthday. This will only announce once per player, no matter how many session you login that day, or how many times they login. This can be disabled in the OPTIONS > SCAN tab.
+
+* Cleaned up some translation work, and also removed many redundant strings, or modified them to make more sense. I am pretty sure some of the ones I wrote I must have been half asleep!
+
+* Fixed the logic in the "Hours report" that broke time since the player was "last online" down to hours, days, months, and years - There was a lazier away before. Now it is completely exact, taking into account leap years. This has been fully expanded into exact logic on the macro tool as well. Before I was lazy and just took a 365 / 12 approach to average X days in a month, and cross-referenced against the time pulled from the server, but now it will be exactly explicit. This is not as clean as it sounds because it essentially needed to reverse-engineer what I break down from the server as for ease of comparing numbers and time, when I pull the data from the server "last online" blizz gives this to me in the format of X years, X months, X days. On their own backend they take into consideration of all of these things, but then they throw out this simplified form, so I basically parse it all down and convert it into hours to compare. It really just leans out the code a bit to do this conversion. Well, now I need to reverse back the hours back to their actual epoch timestamp dates. This was a HUGE pain because to do so, and use the built-in Lua time tools, I had to also build a converter that took Operating System time (your windows PC time), and then convert it to the server time. That is the next line. It was a lot of work lol that most people will probably never notice lol.
+
+* Fixed an issue where GRM was creating a lot of sync "spam" behind the scenes in guilds with tons of GRM users. While it might not have been obvious to some people, as it was behind the scenes, it was wasteful use of resources. The sync has been moved to happen across whisper between the "sync leader" account, and the person who just recently logged on, though the updates will be broadcast guild wide, if necessary. Should be a bit less noisy now.
+
+* Sync speed slider in the Options has been removed as it no longer applies and is sort of a legacy feature that was unnecessary and applied more to when I was trying to "cheat" the server limits.
+
+* Complete Rebuild of the entire backend alt database - while this will not be obvious on the front end, when I initially wrote the alt logic I was basically building as a I went and the entire codebase at that point was less than 1000 lines of code. Fundamentally it was not built in the most efficient way, but I have built over its foundation since. As GRM has grown into tens of thousands of lines of code, with increasing complexity, and with the alt logic having its tentacles all over thhe place, it got to the point where a decision had to be made, do I keep building on the original "leaky" logic, that had a larger memory footprint, or do I finally get around to rebuilding the entire alt database and accompanying logic from scratch. Well, with no end in sight for the future of GRM, it just made sense to get it over with now. This will have the side effect of fixing some potential logic flow errors that could result in alt groups getting jumbled incorrectly during a sync.
+
+* Guild_Roster_Manager.lua file has been renamed to GRM_Core.lua - This is to prevent confusion with the SavedVariables which carry the same name as the addon.
+
+* The advanced join date tool found in the audit window is now restricted to be only accessible by officers in the guild, and it will update on the fly if a person is removed from officer status, locking them out of the tool, to prevent confusion. Before you could still access it as a non-officer, but it was mostly useless. This just helps avoid any unnecessary attempts since they won't accomplish anything anyway.
+  -- In addition, the tool was revamped a bit on the back end - fixing compatibility issues with some date formats, and also scanning the entire note for it to be imported or moved
+  -- Retooled the tooltips a bit to be more clear and restructured the restrictions on it.
+  -- Added compatibility for YYYY-MM-DD, DD-MM-YYYY - there was partial compatibility before with GRM, but the Advanced JD tool it had not yet been implemented until now.
+
+* In the side Add Alt window - instead of needing to hit the ENTER key when adding an alt, just clicking the name a 2nd time will auto-add it to the alts list. Ty @TimeDrawsNigh
+
+* Players can now Ctrl-Click the names in the alt lists and be taken to their player window which will allow them to do things like promote/demote. Before, just clicking on a name will swap to their GRM window, but not to actual player window. Of note, due to taint restrictions on the Communities window, this auto-popup of the roster is only possible with the classic guild roster window.
+
+* If right clicking a player's name on the mouseover window, and resetting a specific player's info, it would then force a resync. It no longer does that now because it doesn't make sense to wipe an individual's player then re-sync it all back. Maybe you want to wipe it, then modify any changes first. This does not appear to be a widely used feature.
+
+* Mouseover window should now shoe that the player is "AFK" or "Active" more quickly, as before it sometimes could take a long time to update. Also, it now takes into account if a person is on "mobile" chat rather than in-game.
+
+* 2 new font choices: Avant Garde Bold and Nunito Xtra Bold, have been added, as per requested. Find them in the GRM Options / general settings.
+
+* When updating a player's join date to the player note, before, if it found anything in the player, officerNote, or in some circumstances the custom, it would avoid updated the timestamp, it would skip over it. Now, it will purge the old date, no matter where it is in the note (text in front or after it doesn't matter), and it will now add the new timestamp. That is, if there is room for it to be added only. If you still don't have the room then it will not write over it to make room so it IS limited to the max char limit (31 for public and officer).
+
+* The minimap icon on Classic will now be the same as retail - before I used the built-in icons for access and the icon I used was not available in Classic. I decided to grab the icon media file and import it directly from the addon folder.
+
+* Promotions will now be reported to the log *AFTER* new member log entries, because it makes sense that a player changed rank after they joined the guild.
+
+* The /grm help command is now fully localized to be compatible with all available languages, though it still needs translation work for some.
+
+* GRM now auto-scans your roster for "Dead Accounts" when you login. Or, you can type /grm dead. Often accounts are abandoned, players banned, and so on, but their name is still in the guild. Sometimes the accounts are just so old an inactive that Blizz changes the name of the player and adds numbers to the name (this can also happen on a force rename too). But, the logic looks for an inactive player who has the features on this type of name which is most certainly indicating a dead account, thus that person will never be returning to the game on that toon. As a result, the addon now recommends permanently removing that player. You can also manually do a search by typing `/grm dead`
+
+* Fixed an issue where sometimes the server was not providing correct information immediately on a player's ability to participate in guild chat. Some guilds can silence players as a punishment rank, but this also hinders addons from being able to communicate from players at that rank as well. The addon will now do a proper re-check when trying to sync, to ensure the server provided the most up-to-date info and not getting incorrecetly reported that the player does not have access to syncing data because chat is restricted. This is sort of an "edge case" system as very few people have ever reported this after logging in, and a /reload fixed it, but this should resolve the annoyance of having to reload.
+
+* Russian translation has been updated, fixing some translation errors. Thank you @Oleg Koloskov on Github
+
+* GRM will now add proper guild nameChange detection to Classic builds, as Blizz now allows the purchase of a namechange. Due to some complexity with this capability as some server information is not available in Classic that does exist in retail, a popup window will appear after logging in during a suspected nameChange detection and ask for confirmation. If you Reject the detection, it will just add the new guild, otherwise, it will just overwrite the old name with the new guild name and none of your guild data, like alt info, logs, etc... will be lost.
+
+* When searching a name, like when adding an alt to a player's list, if the name has special "alt code" characters, the comparable english letter will still be able to find the name. For example, if your name is "Bîkê" then searching "bike" will be sufficient in the search.
+
+* A player can no longer cause a Lua error by typing /grm quickly after logging on, since the addon is not configured instantly. It now ensures the addon is fully configured, similar to clicking the minimap button.
+
+* New slash command `/grm guid` will add a player's GUID to the chat box to be easily copied and extracted from the game.
 
 ***BUG FIXES***
 
@@ -58,83 +144,7 @@ _______________________
 
 * (Classic Only) - Export, when you selected to "Check all" was erroneously checking the "Guild Rep
 
-
-***QUALITY OF LIFE***
-
-* Events Tab/Window
-  -- "Ignore All Events" button has now been added so you can just clear all.
-  -- Last Online has been added
-  -- Date is now visible without needing to click on it
-  -- Events now sort in order of upcoming date
-  -- Tooltip has been cleaned up to actually go away when mousing off of the event
-  -- Classic compatibility has been added, though limited as there is no export to a calendar feature in TBC or Vanilla - it DOES work in WOTLK
-![Improved Events Window](https://i.imgur.com/DQufBIU.jpg)
-
-* Macro Tool improved
-  -- Copy feature now available. Right click and copy the rule, which opens the edit window that has the same vaolues as the existing rule, but now can be quickly and slightly modified without needing to edit the entire rule from scratch
-  -- Macro tool rules can now be configured in any order you wish to view them. Sort them up and down. This is just for personal convenience.
-
-* GRM will now inform you if it is the player's birthday when they login - It will also inform you if when you login, any of the players that are already online, if it is their birthday. This will only announce once per player, no matter how many session you login that day, or how many times they login. This can be disabled in the OPTIONS > SCAN tab.
-
-* Birthdays will now just say "Happy Birthday, [Guild Member]" instead of the weird "It's almost time to celebrate" message.
-
-* Cleaned up some translation work, and also removed many redundant strings, or modified them to make more sense. I am pretty sure some of the ones I wrote I must have been half asleep!
-
-* Fixed the logic in the "Hours report" that broke time since the player was "last online" down to hours, days, months, and years - There was a lazier away before. Now it is completely exact, taking into account leap years. This has been fully expanded into exact logic on the macro tool as well. Before I was lazy and just took a 365 / 12 approach to average X days in a month, and cross-referenced against the time pulled from the server, but now it will be exactly explicit. This is not as clean as it sounds because it essentially needed to reverse-engineer what I break down from the server as for ease of comparing numbers and time, when I pull the data from the server "last online" blizz gives this to me in the format of X years, X months, X days. On their own backend they take into consideration of all of these things, but then they throw out this simplified form, so I basically parse it all down and convert it into hours to compare. It really just leans out the code a bit to do this conversion. Well, now I need to reverse back the hours back to their actual epoch timestamp dates. This was a HUGE pain because to do so, and use the built-in Lua time tools, I had to also build a converter that took Operating System time (your windows PC time), and then convert it to the server time. That is the next line. It was a lot of work lol that most people will probably never notice lol.
-
-* Fixed an issue where GRM was creating a lot of sync "spam" behind the scenes in guilds with tons of GRM users. While it might not have been obvious to some people, as it was behind the scenes, it was wasteful use of resources. The sync has been moved to happen across whisper between the "sync leader" account, and the person who just recently logged on, though the updates will be broadcast guild wide, if necessary. Should be a bit less noisy now.
-
-* Sync speed slider in the Options has been removed as it no longer applies and is sort of a legacy feature that was unnecessary and applied more to when I was trying to "cheat" the server limits.
-
-* Complete Rebuild of the entire backend alt database - while this will not be obvious on the front end, when I initially wrote the alt logic I was basically building as a I went and the entire codebase at that point was less than 1000 lines of code. Fundamentally it was not built in the most efficient way, but I have built over its foundation since. As GRM has grown into tens of thousands of lines of code, with increasing complexity, and with the alt logic having its tentacles all over thhe place, it got to the point where a decision had to be made, do I keep building on the original "leaky" logic, that had a larger memory footprint, or do I finally get around to rebuilding the entire alt database and accompanying logic from scratch. Well, with no end in sight for the future of GRM, it just made sense to get it over with now. This will have the side effect of fixing some potential logic flow errors that could result in alt groups getting jumbled incorrectly during a sync.
-
-* Guild_Roster_Manager.lua file has been renamed to GRM_Core.lua - This is to prevent confusion with the SavedVariables which carry the same name as the addon.
-
-* If an addon is now disabling system messages, GRM will prompt you with a popup window asking if you want to re-enable them. This allows this addon compatibilty with addons like Fast Guild Invite which auto-disable the messages, breaking GRM. Unfortunately, the API cannot permanently enable system messages between sessions. There will be a message informing the player that if they wish to permanently enable system messages they will need to do it manually in the chat general settings as this will only enable them for the current logged in session. This will only apply to people blocking all system messages so GRM cannot catch certain events, and for some reason Fast Guild Invite disabled it by default.
-
-* The advanced join date tool found in the audit window is now restricted to be only accessible by officers in the guild, and it will update on the fly if a person is removed from officer status, locking them out of the tool, to prevent confusion. Before you could still access it as a non-officer, but it was mostly useless. This just helps avoid any unnecessary attempts since they won't accomplish anything anyway.
-  -- In addition, the tool was revamped a bit on the back end - fixing compatibility issues with some date formats, and also scanning the entire note for it to be imported or moved
-  -- Retooled the tooltips a bit to be more clear and restructured the restrictions on it.
-  -- Added compatibility for YYYY-MM-DD, DD-MM-YYYY - there was partial compatibility before with GRM, but the Advanced JD tool it had not yet been implemented until now.
-
-* In the side Add Alt window - instead of needing to hit the ENTER key when adding an alt, just clicking the name a 2nd time will auto-add it to the alts list. Ty @TimeDrawsNigh
-
-* Players can now Ctrl-Click the names in the alt lists and be taken to their player window which will allow them to do things like promote/demote. Before, just clicking on a name will swap to their GRM window, but not to actual player window. Of note, due to taint restrictions on the Communities window, this auto-popup of the roster is only possible with the classic guild roster window.
-
-* If right clicking a player's name on the mouseover window, and resetting a specific player's info, it would then force a resync. It no longer does that now because it doesn't make sense to wipe an individual's player then re-sync it all back. Maybe you want to wipe it, then modify any changes first. This does not appear to be a widely used feature.
-
-* Mouseover window should now shoe that the player is "AFK" or "Active" more quickly, as before it sometimes could take a long time to update. Also, it now takes into account if a person is on "mobile" chat rather than in-game.
-
-* The Sync join date among all alts now has a small button instead of relying on mouseover tooltip and right-clicking the join date title. Now, if it applies, a small button with an arrow to the right will appear. Click this and it will allow you to sync those join dates. Furthermore, the tool now shows the actual dates you are going to sync to. Before it just said "Want to sync to your main?" Well, now it shows you the actual date it is asking to sync to so it can be comapred to potential other options, like oldest.
-
-* The same applies to the alt group extra details window that would popout before when holding shift over Alts title - now, there is a button that appears and on mouseover the side window pops up, which you can click to lock in place.
-
-* 2 new font choices: Avant Garde Bold and Nunito Xtra Bold, have been added, as per requested. Find them in the GRM Options / general settings.
-
-* When updating a player's join date to the player note, before, if it found anything in the player, officerNote, or in some circumstances the custom, it would avoid updated the timestamp, it would skip over it. Now, it will purge the old date, no matter where it is in the note (text in front or after it doesn't matter), and it will now add the new timestamp. That is, if there is room for it to be added only. If you still don't have the room then it will not write over it to make room so it IS limited to the max char limit (31 for public and officer).
-
-* The minimap icon on Classic will now be the same as retail - before I used the built-in icons for access and the icon I used was not available in Classic. I decided to grab the icon media file and import it directly from the addon folder.
-
-* Promotions will now be reported to the log *AFTER* new member log entries, because it makes sense that a player changed rank after they joined the guild.
-
-* The /grm help command is now fully localized to be compatible with all available languages, though it still needs translation work for some.
-
-* GRM now auto-scans your roster for "Dead Accounts" when you login. Or, you can type /grm dead. Often accounts are abandoned, players banned, and so on, but their name is still in the guild. Sometimes the accounts are just so old an inactive that Blizz changes the name of the player and adds numbers to the name (this can also happen on a force rename too). But, the logic looks for an inactive player who has the features on this type of name which is most certainly indicating a dead account, thus that person will never be returning to the game on that toon. As a result, the addon now recommends permanently removing that player.
-
-
-* Fixed an issue where sometimes the server was not providing correct information immediately on a player's ability to participate in guild chat. Some guilds can silence players as a punishment rank, but this also hinders addons from being able to communicate from players at that rank as well. The addon will now do a proper re-check when trying to sync, to ensure the server provided the most up-to-date info and not getting incorrecetly reported that the player does not have access to syncing data because chat is restricted. This is sort of an "edge case" system as very few people have ever reported this after logging in, and a /reload fixed it, but this should resolve the annoyance of having to reload.
-
-* Russian translation has been updated, fixing some translation errors. Thank you @Oleg Koloskov on Github
-
-* GRM will now add proper guild nameChange detection to Classic builds, as Blizz now allows the purchase of a namechange. Due to some complexity with this capability as some server information is not available in Classic that does exist in retail, a popup window will appear after logging in during a suspected nameChange detection and ask for confirmation. If you Reject the detection, it will just add the new guild, otherwise, it will just overwrite the old name with the new guild name and none of your guild data, like alt info, logs, etc... will be lost.
-
-* When searching a name, like when adding an alt to a player's list, if the name has special "alt code" characters, the comparable english letter will still be able to find the name. For example, if your name is "Bîkê" then searching "bike" will be sufficient in the search.
-
-* A player search has been added to the audit window to help assist in finding players quicker
-
-* A player can no longer cause a Lua error by typing /grm quickly after logging on, since the addon is not configured instantly. It now ensures the addon is fully configured, similar to clicking the minimap button.
-
-* New slash command `/grm guid` will add a player's GUID to the chat box to be easily copied and extracted from the game.
+* (Classic Only) - Achievement announce. Thanks to @DinnerBone on discord, the code pull request has been merged and Classic Wrath will now announce achievements to other GRM users. For some reason this feature is missing from Classic Wrath even though it existed in the original WOTLK expansion - Blizz has acknowledged this bug, but who knows when they will fix it.
 
 **CODE OPTIMIAZATION**
 

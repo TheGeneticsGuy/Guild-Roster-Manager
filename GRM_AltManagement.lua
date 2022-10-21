@@ -1659,6 +1659,7 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
     local oldestPlayer = { playerName , 0 };
     local day , nonth, year = 0 , 0 , 0;
+    local oldestDate = "";
     
     if player then
         local alts = GRM.GetListOfAlts ( player );
@@ -1666,6 +1667,8 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
 
         if player.joinDateHist[1][4] > 0 then
             oldestPlayer[2] = player.joinDateHist[1][4];
+            oldestPlayer[1] = playerName;
+            oldestDate = GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , false );
         end
 
         for i = 1 , #alts do
@@ -1675,6 +1678,7 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
                     
                     if oldestPlayer[2] == 0 or playerAlt.joinDateHist[1][4] < oldestPlayer[2] then
                         oldestPlayer = { alts[i][1] , playerAlt.joinDateHist[1][4] };
+                        oldestDate = GRM.FormatTimeStamp ( { playerAlt.joinDateHist[1][1] , playerAlt.joinDateHist[1][2] , playerAlt.joinDateHist[1][3] } , false , false , false );
                     end
 
                 end
@@ -1682,7 +1686,7 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
         end
     end
 
-    return oldestPlayer[1];
+    return oldestPlayer[1] , oldestDate;
 end
 
 -- Method:          GRM.IsAltJoinDatesSynced()

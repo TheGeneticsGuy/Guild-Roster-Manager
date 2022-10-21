@@ -32,9 +32,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.932";
-GRM_G.PatchDay = 1666294948;             -- In Epoch Time
-GRM_G.PatchDayString = "1666294948";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.933";
+GRM_G.PatchDay = 1666329697;             -- In Epoch Time
+GRM_G.PatchDayString = "1666329697";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -14577,7 +14577,7 @@ GRM.GetSearchLog = function ( isSearch , searchString )
 
     return result , totalCount;
 end
--- /run local log,c=GRM_LogReport_Save[GRM_G.F][GRM_G.guildName],0;for i = 1 , #log do if log[i][1]==7 or log[i][1]==8 then c=c+1;end;end;print("Number Join/Rejoin entries: "..c)
+
 -- Method:          GRM.SetColoredLines()
 -- What it Does:    Sets all of the instances in the temp filtered log as true or false, indicating which lines should be red or not.
 -- Purpose:         Line coloring!!!
@@ -24506,11 +24506,13 @@ GRM.GR_LoadAddon = function()
 	    AchievementsChecking:RegisterEvent("CHAT_MSG_ADDON");
 	    AchievementsChecking:RegisterEvent("ACHIEVEMENT_EARNED");
 	    AchievementsChecking:SetScript("OnEvent", function(_, event, prefix, msg, channel, sender)
-	        if event == "CHAT_MSG_ADDON" and prefix == "GRMACHIEV" and channel == "GUILD" and sender ~= GRM_G.addonUser then
-	        	GRM.AnnounceAchievement(sender, msg)
-	        elseif event == "ACHIEVEMENT_EARNED" then
-	        	GRM.OnAchievementEarned(prefix)
-	        end
+            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].achievements then
+                if event == "CHAT_MSG_ADDON" and prefix == "GRMACHIEV" and channel == "GUILD" and sender ~= GRM_G.addonUser then
+                    GRM.AnnounceAchievement(sender, msg)
+                elseif event == "ACHIEVEMENT_EARNED" then
+                    GRM.OnAchievementEarned(prefix)
+                end
+            end
 	    end);
 	end
     
@@ -24780,7 +24782,7 @@ GRM.SettingsLoadedFinishDataLoad = function()
         if GRM_G.BuildVersion >= 30000 then
             QueryGuildEventLog();
         end
-        C_Timer.After ( 2 , GRM.GR_LoadAddon );                 -- Queries do not return info immediately, gives server a 5 second delay.
+        C_Timer.After ( 2 , GRM.GR_LoadAddon );                 -- Queries do not return info immediately, gives server a 2 second delay.
     else
         GRM.ManageGuildStatus();
     end
@@ -24811,10 +24813,13 @@ end
 -- What it Does:    Announced earned achievements to the guild in classic
 -- Purpose:         Fixes a bug in WoTLK Classic :D
 GRM.OnAchievementEarned = function(id)
-	local link = GetAchievementLink(id)
-	if link then
-		C_ChatInfo.SendAddonMessage("GRMACHIEV", GetAchievementLink(id), "GUILD");
-	end
+
+    local link = GetAchievementLink(id)
+    if link then
+        -- Just to ensure the global sync cap is not broken, add to the count
+        GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #link + #"GRMACHIEV"    
+        C_ChatInfo.SendAddonMessage ( "GRMACHIEV", link, "GUILD");
+    end
 end
 
 -- Method:          GRM.AnnounceAchievement()
