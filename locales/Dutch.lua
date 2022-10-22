@@ -1551,5 +1551,9 @@ GRML.Dutch = function()
     GRM_L["Add unique player GUID to chat window to copy"] = true
     GRM_L["Achievement Announce"] = true
     GRM_L["Only Guild Members with GRM installed will see."] = true
-        
+    
+    -- R1.935
+    GRM_L["Search"] = true -- This is the global string for "Search"
+    
+
 end

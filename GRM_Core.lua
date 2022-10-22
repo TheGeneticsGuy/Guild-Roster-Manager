@@ -32,9 +32,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.934";
-GRM_G.PatchDay = 1666379532;             -- In Epoch Time
-GRM_G.PatchDayString = "1666379532";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.935";
+GRM_G.PatchDay = 1666402516;             -- In Epoch Time
+GRM_G.PatchDayString = "1666402516";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -5054,7 +5054,7 @@ GRM.ConvertTimetableToServer = function ( timeTable , offset )
                 else
                     timeTable.month = timeTable.month - 1;
                     timeTable.day = daysInMonth [ tostring ( timeTable.month ) ];
-                    if timeTable.month == 2 and IsLeapYear ( timeTable.year ) then
+                    if timeTable.month == 2 and GRM.IsLeapYear ( timeTable.year ) then
                         timeTable.day = timeTable.day + 1;
                     end
                     
@@ -6814,7 +6814,7 @@ GRM.GetLevelRange = function()
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].recordLevelUp then
         result = "|cffffd100" .. GRM.L ( "Reporting:" ) .. "|r|cff00ccff";
         local initialNumber = "";
-        local caps = { 10 , 20 , 30 , 40 , 50 , 60 };
+        local caps = { 10 , 20 , 30 , 40 , 50 , 60 , 70 , 80 };
         local addon = "";
 
         local atLeastOne = false;
@@ -9242,7 +9242,6 @@ end
 -- What it Does:    Updates the audit list to be shown as those to match the search box
 -- Purpose:         Search for guildies
 GRM.GetAutoCompleteNamesForAudit = function ( searchString )
-
     local matches = GRM.GetAutoCompleteMatches ( GRM.GetAllCurrentAndFormerGuildies ( true , false ) , searchString )
     local listOfGuildies = {};
     local isComplete = true;
@@ -11839,13 +11838,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                     local index;
 
                     if member.rosterSelection == 0 then
-                        for i = 1 , GRM.GetNumGuildies() do
-                            local name = GetGuildRosterInfo ( i );
-                            if name == member.name then
-                                index = i;
-                                break;
-                            end
-                        end
+                        
                     else
                         index = member.rosterSelection;
                     end
@@ -23898,6 +23891,32 @@ GRM.SlashCommandGUID = function()
     end
 end
 
+GRM.SlashCommandSearch = function ( text )
+    local searchName;
+
+    if GRM.GetPlayer ( GRM_G.addonUser ) then
+        GRM.SlashCommandAudit(); 
+
+        -- if text == string.lower ( GRM.L ( "Search" ) ) or text == "Search" then
+            -- Open search window, but nothing to search
+
+        if string.match ( text , "(" ..string.lower ( GRM.L ( "Search" ) ) .. ").+" ) ~= nil then
+            searchName = string.match ( text , string.lower ( GRM.L ( "Search" ) ) .. "(.+)" );
+
+        elseif string.match ( text , "(Search).+" ) ~= nil then
+            searchName = string.match ( text , "(Search).+" );
+
+        end
+
+        if searchName then
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText ( GRM.Trim ( searchName ) );
+            GRM.RefreshAuditFrames ( false , false , GRM.Trim ( searchName ) );
+        end
+    else
+        GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
+    end
+end
+
 -- Method:          GRM.InitiateConfirmFrame ( string , function , string , string )
 -- What it Does:    Configures the generic popup window for confirmation of an action
 -- Purpose:         Repeat use of the popup window without needing to keep copying and pasting the configuration window.
@@ -24106,7 +24125,10 @@ SlashCmdList["GRM"] = function ( input )
     elseif command == "guid" then
         GRM.SlashCommandGUID();
 
-    -- Invalid slash command.
+    -- /grm search
+    elseif string.match ( command , "(" ..string.lower ( GRM.L ( "Search" ) ) .. ").+" ) ~= nil or string.match ( command , "(Search).+" ) ~= nil or command == string.lower ( GRM.L ( "Search" ) ) or command == "Search" then
+        GRM.SlashCommandSearch ( command )
+
     elseif string.find ( command , "debug" ) ~= nil then
         GRM.DebugConfig( command );
     else

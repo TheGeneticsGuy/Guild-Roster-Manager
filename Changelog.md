@@ -1,3 +1,13 @@
+## **VERSION R1.935 RELEASE - 21st Oct, 2022**
+
+***QUALITY OF LIFE***
+
+* You can now type `/grm search playerName` into the guild chat and it will bring up the audit window searching their name. It does not have to be exact spelling - this will also do partial matches, as well as disregard special alt code characters so complicated name spellings can be easily simplified.
+
+***BUG FIXES***
+
+* Fixed a bug that was missed that would cause GRM to fail to load or complete the patch process - this was missed because it ONLY affected people who had toons in their guild with join or rank dates on Feb 28th or Mar 1st -- Had a typo on my LeapYear API and the Lua error filters never caught it in any of the databases I tried due to this semi-edge case situation!
+
 ## **VERSION R1.934 RELEASE - 21st Oct, 2022**
 
 ***BUG FIXES***
@@ -9,6 +19,7 @@
 * Added a fix where if you used a custom channel for GRM messaging, in some cases it would get reset. This shouldn't happen anymore as there is some redundance to recheck that a channel exists before just purging it immediately.
 
 * (Classic Only) - Class coloring was erroneously getting disabled in the default channels by mistake in latest update. This has been resolved. Also, you can control this much easier in the /grm > Options > UI settings tab with just a single checkbox.
+
 
 ## **VERSION R1.933 RELEASE - 21st Oct, 2022**
 

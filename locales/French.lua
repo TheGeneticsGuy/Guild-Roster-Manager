@@ -1548,4 +1548,8 @@ GRML.French = function()
     GRM_L["Achievement Announce"] = ACHIEVEMENT
     GRM_L["Only Guild Members with GRM installed will see."] = true
     
+    -- R1.935
+    GRM_L["Search"] = AUCTION_HOUSE_SEARCH_BUTTON -- This is the global string for "Search"
+    
+    
 end
