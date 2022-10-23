@@ -1,4 +1,33 @@
-## **VERSION R1.935 RELEASE - 21st Oct, 2022**
+## **VERSION R1.936 RELEASE - 23rd Oct, 2022**
+
+***QUALITY OF LIFE***
+
+* Added the ability to control-click a player's name in the chat window and open the guild roster directly. This only works, obviously, with current guild members. I also added a tooltip indicating this possibility on the current roster.
+
+* Using the "search" in the Log will be a little bit smoother for people with large number of entries and it will only do the search once you've finished typing, not try to reprocess the whole log each char, instantly.
+
+* The Ban List window now has a "Search" feature to find names - I did notice something I need to also update with the ban feature - This is the last window that is NOT a hybrid scrollframe, so it is a bit inefficient of a window. I completely forgot that I never implemented the code on this scrolling window. I made a note to do it on my to-do list. Regardless, enjoy the search feature! :)
+
+![Search names on the ban list](https://imgur.com/a/EPktqyf.jpg)
+
+* Dates should not be properly 2 index formatting. For example, 5th of January, 2022 was showing 2022-1-5 for date formatting, and now it should properly show 2022-01-05, which just is the proper way to show the dates.
+
+* It might not be obvious, but you can actually shift click player's names in the GRM window to copy them. As such, I added a tooltip to make this information more known:
+
+![Copy someone's name to chat](https://imgur.com/a/gaH8ytU.jpg)
+
+
+***BUG FIXES***
+
+* Fixed a Lua error that could trigger when reviewing guild calendar.
+
+* /grm guid was not posting to chat for some people - a delay has been added to ensure the proper clearing of the chat in the UI has enough time to occur and the player GUID pastes there to be copied.
+
+* (Classic Only) - When using the `/grm search playerName` - you will no longer get spammed about a missing key. 
+
+
+
+**VERSION R1.935 RELEASE - 21st Oct, 2022**
 
 ***QUALITY OF LIFE***
 
@@ -8,7 +37,7 @@
 
 * Fixed a bug that was missed that would cause GRM to fail to load or complete the patch process - this was missed because it ONLY affected people who had toons in their guild with join or rank dates on Feb 28th or Mar 1st -- Had a typo on my LeapYear API and the Lua error filters never caught it in any of the databases I tried due to this semi-edge case situation!
 
-## **VERSION R1.934 RELEASE - 21st Oct, 2022**
+**VERSION R1.934 RELEASE - 21st Oct, 2022**
 
 ***BUG FIXES***
 
@@ -21,7 +50,7 @@
 * (Classic Only) - Class coloring was erroneously getting disabled in the default channels by mistake in latest update. This has been resolved. Also, you can control this much easier in the /grm > Options > UI settings tab with just a single checkbox.
 
 
-## **VERSION R1.933 RELEASE - 21st Oct, 2022**
+**VERSION R1.933 RELEASE - 21st Oct, 2022**
 
 ***QUALITY OF LIFE***
 

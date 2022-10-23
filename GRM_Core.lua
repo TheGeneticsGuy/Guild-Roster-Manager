@@ -32,9 +32,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.935";
-GRM_G.PatchDay = 1666402516;             -- In Epoch Time
-GRM_G.PatchDayString = "1666402516";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.936";
+GRM_G.PatchDay = 1666520858;             -- In Epoch Time
+GRM_G.PatchDayString = "1666520858";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -248,6 +248,7 @@ GRM_G.OldLogHeaderIsOn = false;
 GRM_G.IndexOfLastLogEntry = 0;
 GRM_G.fullLogMatch = {};
 GRM_G.CurrentTotalCount = 0;
+GRM_G.logSearch = false;
 
 -- Version Control
 GRM_G.VersionChecked = false;
@@ -370,7 +371,7 @@ local Initialization = CreateFrame ( "Frame" );
 local GeneralEventTracking = CreateFrame ( "Frame" );
 local UI_Events = CreateFrame ( "Frame" );
 local VersionCheck = CreateFrame ( "Frame" );
-local KickAndRankChecking = CreateFrame ( "Frame" );
+local SystemMessageChecking = CreateFrame ( "Frame" );
 local AddonUsersCheck = CreateFrame ( "Frame" );
 local AchievementsChecking = CreateFrame ( "Frame" );
 local StatusChecking = CreateFrame ( "Frame" );
@@ -1466,6 +1467,7 @@ GRM.IsMouseOverAnyChatWindowIncludingCommunities = function()
                 result = true;
             end
         end
+        
 
     end
     
@@ -3645,11 +3647,11 @@ GRM.IsPlayerStillOnServerByGUID = function ( name , guid , isBanCheck )
 
  end
 
- -- Method:         GRM.ValidateBanGUIDs()
+ -- Method:         GRM.ValidateBanGUIDs( string )
  -- What it Does:   Checks against the given result from a Ban list GUID check and returns a list of the players whose info went missing.
  -- Purpose:        To be able to update the Ban Frames with relevant info on if player is still on the server or not on the fly.
- GRM.ValidateBanGUIDs = function()
-    local currentBanList = GRM.GetSortedBanListNamesWithDetails();
+ GRM.ValidateBanGUIDs = function ( textSearch )
+    local currentBanList = GRM.GetSortedBanListNamesWithDetails ( textSearch );
     local result = {};
     local isFound = false;
 
@@ -5622,6 +5624,10 @@ GRM.FormatTimeStamp = function ( timestamp , includeHour , removeYear , forcedFo
         day = timestamp[1];
         monthNum = tostring ( timestamp[2] );
         year = timestamp[3];
+
+        if day < 10 then
+            day = "0" .. tostring ( day );
+        end
         
         if year > 2000 then
             year = year - 2000;
@@ -5630,6 +5636,10 @@ GRM.FormatTimeStamp = function ( timestamp , includeHour , removeYear , forcedFo
             year = "0" .. tostring ( year );
         end
         month = tostring ( monthEnum2[ monthNum ] );
+
+        if #monthNum == 1 then
+            monthNum = "0" .. monthNum;
+        end
     end
     local result = "";  
 
@@ -18666,8 +18676,6 @@ GRM.RemoveBan = function ( name , onPopulate , personWhoRemovedIt )
         -- On populate is referring to the check for when it is on mouseover... no need to check this if not.
         if onPopulate and GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:IsVisible() then
             -- Refresh the frames:
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:Hide();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetText ( GRM.L ( "Select a Player" ) );
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons ~= nil then
                 for i = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
@@ -18705,8 +18713,6 @@ GRM.BanListUnban = function ( name , personWhoRemovedIt )
     end
 
     -- Refresh the frames:
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:Hide();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetText ( GRM.L ( "Select a Player" ) );
     if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons ~= nil then
         for i = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
@@ -19274,11 +19280,10 @@ GRM.GetNumberOfPlayerSBannedCurrentlyInGuild = function()
         
     return result , names;
 end
-
--- Method:          GRM.GetSortedBanListNamesWithDetails ()
+-- Method:          GRM.GetSortedBanListNamesWithDetails ( string )
 -- What it Does:    Returns the list of all banned players based on the given sorting settings
 -- Purpose:         Give the player to sort the ban list by the headers.
-GRM.GetSortedBanListNamesWithDetails = function ()
+GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local finalList = {};
     local format = GRM_G.banDetailsControl[1];
@@ -19287,13 +19292,14 @@ GRM.GetSortedBanListNamesWithDetails = function ()
     local isAdded = false
     local count = 0;
 
-    -- Add bans of people still in the guild
+-- Add bans of people still in the guild
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             if player.bannedInfo[1] then
-                
-                table.insert ( playerDetails  , { player.name , player.class , player.bannedInfo[2] , player.rankName , player.rankIndex , player.reasonBanned , true , player.isUnknown , player.GUID } );
-                count = count + 1;
+                if not textSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , textSearch , 1 , true ) then
+                    table.insert ( playerDetails  , { player.name , player.class , player.bannedInfo[2] , player.rankName , player.rankIndex , player.reasonBanned , true , player.isUnknown , player.GUID } );
+                    count = count + 1;
+                end
             end
         end
     end
@@ -19308,30 +19314,32 @@ GRM.GetSortedBanListNamesWithDetails = function ()
         if type ( player ) == "table" then
 
             if player.bannedInfo[1] then
-                insertIndex = 1;
-
-                local isUnknown = false;
-                if player.GUID == "" then
-                    isUnknown = true;
-                end
-
-                if #playerDetails == 0 then
+                if not textSearch or string.find ( GRM.RemoveSpecialCharacters ( player.name ) , textSearch , 1 , true ) then
                     insertIndex = 1;
-                else
-                    for i = start , #playerDetails do
-                        if player.bannedInfo[2] >= playerDetails[i][3] then
-                            insertIndex = i;
-                            break;
-                        end
 
-                        if i == #playerDetails and insertIndex == 1 then
-                            insertIndex = i + 1;
+                    local isUnknown = false;
+                    if player.GUID == "" then
+                        isUnknown = true;
+                    end
+
+                    if #playerDetails == 0 then
+                        insertIndex = 1;
+                    else
+                        for i = start , #playerDetails do
+                            if player.bannedInfo[2] >= playerDetails[i][3] then
+                                insertIndex = i;
+                                break;
+                            end
+
+                            if i == #playerDetails and insertIndex == 1 then
+                                insertIndex = i + 1;
+                            end
                         end
                     end
-                end
 
-                table.insert ( playerDetails  , insertIndex , { player.name , player.class , player.bannedInfo[2] , player.rankName , player.rankIndex , player.reasonBanned , false , isUnknown , player.GUID } );
-                count = count + 1;
+                    table.insert ( playerDetails  , insertIndex , { player.name , player.class , player.bannedInfo[2] , player.rankName , player.rankIndex , player.reasonBanned , false , isUnknown , player.GUID } );
+                    count = count + 1;
+                end
             end
         end
     end
@@ -19412,6 +19420,33 @@ GRM.GetSortedBanListNamesWithDetails = function ()
     return finalList , count;
 end
 
+-- Method:          GRM.IsAnyBanHighlighted()
+-- What it Does:    Checks if any of the buttons in the ban list are highlighted
+-- Purpose:         UX
+GRM.IsAnyBanHighlighted = function()
+    local result = false;
+
+    for i = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
+        if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] then
+            result = true;
+            break;
+        end
+
+    end
+
+    return result;
+end
+
+-- Method:          GRM.ClearAllBanHighlights()
+-- What it Does:    Clears all the highlights of any selected name in the ban window
+-- Purpose:         UX
+GRM.ClearAllBanHighlights = function()
+    for i = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] = false
+    end
+end
+
 -- Method:          GRM.IsBanNameOnList ( name , array )
 -- What it Does:    Returns true if the given name is on the list
 -- Purpose:         To identify a quick lookup if the name is on the list for purposes of updating the ban list to show player has left the server
@@ -19428,11 +19463,11 @@ GRM.IsBanNameOnList = function ( name , list )
     return result;
 end
 
--- Method:          GRM.RefreshBanListFrames()
+-- Method:          GRM.RefreshBanListFrames( bool , string )
 -- What it Does:    On loading the Ban List frames, it populates and prepares them for a scrollable window if necessary
 -- purpose:         Quality of Life. Whilst the ban list is managed automatically behind the scenes, it is useful to have common information that syncs between users
 --                  with the guild.
-GRM.RefreshBanListFrames = function( listNeedingUpdate )
+GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , count )
     -- SCRIPT LOGIC ON ADD EVENT SCROLLING FRAME
     local scrollHeight = 0;
     local scrollWidth = 561;
@@ -19442,15 +19477,17 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate )
 
     -- populating the window correctly.
     local tempHeight = 0;
-    -- { tempGuild[i][1] , tempGuild[i][9] , tempGuild[i][17][2] , tempGuild[i][4] , tempGuild[i][5] , tempGuild[i][18] , isInGuild } );
-    local banList , count = GRM.GetSortedBanListNamesWithDetails();
+
+    if not banList then
+        banList , count = GRM.GetSortedBanListNamesWithDetails ( textSearch );
+    end
 
     -- Populating the window based on the Current Players PLayers
     for i = 1 , #banList do
         -- if font string is not created, do so.
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i] then
             local tempButton = CreateFrame ( "Button" , "BannedPlayer" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame ); -- Names each Button 1 increment up
-            table.insert ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons , { tempButton , tempButton:CreateFontString ( "BannedPlayerNameText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerRankText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerDateText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerReasonText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) } );
+            table.insert ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons , { tempButton , tempButton:CreateFontString ( "BannedPlayerNameText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerRankText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerDateText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerReasonText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , false } );
         end
 
         local BanButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1];
@@ -19458,6 +19495,8 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate )
         local BanRankText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][3];
         local BanDateText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][4];
         local BanReasonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][5];
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] = false;  -- Reset the highlights.
+
         local classColor = GRM.GetClassColorRGB ( banList[i][2] );
         local nameDetails = banList[i][1];
         if banList[i][8] then
@@ -19539,16 +19578,18 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate )
                     -- For highlighting purposes
                     for j = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
                         if self ~= GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[j][1] then
+
+                            -- Selected button differs from this, so we can 
                             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[j][1]:UnlockHighlight();
+                            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[j][6] = false;
                         else
                             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[j][1]:LockHighlight();
+                            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[j][6] = true;
                         end
+
                     end
                     
                     GRM_G.TempBanTarget = { fullName , { GRM.ConvertRGBScale ( R , true ) , GRM.ConvertRGBScale ( G , true ) , GRM.ConvertRGBScale ( B , true ) } }; -- Need to parse out the "(Still in Guild)"
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:SetText ( GRM.SlimName ( fullName ) );
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetText ( GRM.L ( "Player Selected" ) );
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:Show();
                 end
             end
         end);
@@ -19576,11 +19617,9 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate )
     if count > 0 then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetText( "(" .. GRM.L ( "Total Banned:" ) .. " " .. count .. ")" );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Show();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:Show();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameAllOfflineText:Hide();
     else
         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:Hide();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameAllOfflineText:Show();
     end
 
@@ -19624,6 +19663,7 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine ( GRM.L ( "Player Was Banned By: {name}" , playerWhoBanned ) );
+            GameTooltip:AddLine ( " " );
             if stillInGuild then
                 GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
             end
@@ -19678,10 +19718,10 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate )
         GRM.SetplayersStillOnServer ( names , true );
 
         C_Timer.After ( 1.5 , function()
-            local listNeedingUpdate = GRM.ValidateBanGUIDs();
+            local listNeedingUpdate = GRM.ValidateBanGUIDs ( textSearch );
 
             if #listNeedingUpdate > 0 then
-                GRM.RefreshBanListFrames( listNeedingUpdate );
+                GRM.RefreshBanListFrames( listNeedingUpdate , textSearch , banList , count );
             end
         end);
     end
@@ -19923,6 +19963,8 @@ GRM.PlayerNameTooltip = function( self )
             self.GRM_MemberDetailServerNameToolTip:AddLine ( GRM.L ( "{name} {name2}" , C_CreatureInfo.GetRaceInfo ( raceIDEnum[player.race] ).raceName , GRM.GetSex ( player.sex ) ) , 1 , 1 , 1 );
         end
 
+        self.GRM_MemberDetailServerNameToolTip:AddLine ( " " );
+        self.GRM_MemberDetailServerNameToolTip:AddLine ( GRM.L ( "{custom1} to Copy Name to Chat" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Shift-Click" ) .. "|r" ) );
         self.GRM_MemberDetailServerNameToolTip:AddLine ( GRM.L ( "{custom1} for Additional Options" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Right-Click" ) .. "|r" ) );
         self.GRM_MemberDetailServerNameToolTip:Show();
     else
@@ -19969,6 +20011,8 @@ GRM.AltNameTooltip = function ( self , guildData )
                             color = GRM.GetClassColorRGB ( listOfAlts[i][2] , false )
                             AltTT:SetOwner ( GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1] , "ANCHOR_CURSOR" );
                             AltTT:AddLine ( listOfAlts[i][1] , color[1] , color[2] , color[3] );
+                            AltTT:AddLine ( " " );
+                            AltTT:AddLine ( GRM.L ( "{custom1} to Copy Name to Chat" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Shift-Click" ) .. "|r" ) );
                             AltTT:AddLine ( GRM.L ( "{custom1} for Additional Options" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Right-Click" ) .. "|r" ) );
                             AltTT:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) )
                             isOver = true;
@@ -23880,7 +23924,7 @@ end
 GRM.SlashCommandGUID = function()
 
     if GRM.GetPlayer ( GRM_G.addonUser ) then
-        C_Timer.After ( 0.1 , function()
+        C_Timer.After ( 1 , function()
             ChatFrame1EditBox:ClearFocus();
             ChatFrame1EditBox:SetFocus();
             ChatFrame1EditBox:Insert ( GRM.GetPlayer ( GRM_G.addonUser ).GUID );
@@ -24538,11 +24582,11 @@ GRM.GR_LoadAddon = function()
     GeneralEventTracking:RegisterEvent ( "PLAYER_GUILD_UPDATE" ); -- If player leaves or joins a guild, this should fire.
     GeneralEventTracking:SetScript ( "OnEvent" , GRM.ManageGuildStatus );
 
-    KickAndRankChecking:RegisterEvent ( "CHAT_MSG_SYSTEM" );
+    SystemMessageChecking:RegisterEvent ( "CHAT_MSG_SYSTEM" );
     if GRM_G.BuildVersion >= 80000 then
-        KickAndRankChecking:RegisterEvent ( "CLUB_MEMBER_ADDED" );
+        SystemMessageChecking:RegisterEvent ( "CLUB_MEMBER_ADDED" );
     end
-    KickAndRankChecking:SetScript ( "OnEvent" , GRM.KickPromoteOrJoinPlayer );
+    SystemMessageChecking:SetScript ( "OnEvent" , GRM.KickPromoteOrJoinPlayer );
 
 	if GRM_G.BuildVersion < 80000 and GRM_G.BuildVersion >= 30000 then
 		-- Achievements are broken in WotLK classic - so don't announce for modern versions or it'll duplicate
@@ -24558,6 +24602,7 @@ GRM.GR_LoadAddon = function()
                 end
             end
 	    end);
+
 	end
     
     -- Initialize chat tagging

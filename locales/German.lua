@@ -1477,8 +1477,6 @@
         GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = true
 
         -- 1.93
-        GRM_L["There was an error with a {name} rule: \"{name2}\""] = true
-        GRM_L["Please report to addon creator the following variables were missing: {custom1}"] = true
         GRM_L["Customize Color"] = true
         GRM_L["GRM has detected that FGI is blocking system messages and cannot function properly without them. Do you want to enable them?"] = true        -- FGI is in reference to the "Fast Guild Invite" addon...
         GRM_L["GRM has detected that System Messages are disabled and cannot function properly without them. Do you want to enable them?"] = true
@@ -1559,8 +1557,12 @@
     GRM_L["Only Guild Members with GRM installed will see."] = true
     
     -- R1.935
-    GRM_L["Search"] = AUCTION_HOUSE_SEARCH_BUTTON -- This is the global string for "Search"
+    GRM_L["Search"] = "Suchen" -- This is the global string for "Search"
     
+    -- R1.936
+    GRM_L["Use '{name} search PlayerName' to also find guild members"] = true
+    GRM_L["{custom1} to Copy Name to Chat"] = true  -- "Shift-Click to Copy Name to Chat" is the default
+
 end
     
     -- THANK YOU @Nehry for this full translation up to R1.20

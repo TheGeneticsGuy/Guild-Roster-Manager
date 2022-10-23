@@ -24,6 +24,9 @@ GRM_UI.IsLoaded = false;
 GRM_UI.ElvUIReset = false;
 GRM_UI.ElvUIReset2 = false;
 
+-- Tooltip check
+GRM_G.tooltipOn = false;
+
 -- Core Frame
 GRM_UI.GRM_MemberDetailMetaData = CreateFrame( "Frame" , "GRM_MemberDetailMetaData" , UIParent , "TranslucentFrameTemplate" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataCloseButton = CreateFrame( "Button" , "GRM_MemberDetailMetaDataCloseButton" , GRM_UI.GRM_MemberDetailMetaData , "UIPanelCloseButton");
@@ -864,15 +867,16 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersTooltip = Crea
 GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersTooltip:Hide();
 
 -- CORE BANLIST FRAME
-GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_CoreBanListFrameText" , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_CoreBanListFrameTitleText" , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_CoreBanListFrameTitleText2" , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText3 = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_CoreBanListFrameTitleText3" , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText4 = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_CoreBanListFrameTitleText4" , "OVERLAY" , "GameFontNormal" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_CoreBanListFrameSelectedNameText" , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_CoreBanListFrameNumBannedText" , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Hide();
-GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:Hide();
+-- SearchBox
+GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox = CreateFrame( "EditBox" , "GRM_PlayerSearchBanEditBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame , "InputBoxTemplate" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:ClearFocus();
+GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:CreateFontString ( "GRM_PlayerSearchBanEditBoxText" , "OVERLAY" , "GameFontWhiteTiny");
 
 -- BANLIST SCROLL FRAME
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrame = CreateFrame ( "ScrollFrame" , "GRM_CoreBanListScrollFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame );
@@ -1435,6 +1439,7 @@ end
 -- What it Does:    Stores the current gametooltip scale, changes it to the save value. Default value is 0.9
 -- Purpose:         So the addon can have customizable tooltip sizing, without overriding default values. It restores when finished.
 GRM_UI.SetTooltipScale = function()
+    GRM_G.tooltipOn = true;
     if not GameTooltip:IsVisible() then
         GRM_G.toolTipScale = GameTooltip:GetScale();
         GameTooltip:SetScale ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].tooltipSize );
@@ -1445,6 +1450,7 @@ end
 -- What it Does:    Restores the tooltip
 -- Purpose:         Maintain UI scaling to just be a feature of this addon.
 GRM_UI.RestoreTooltipScale = function()
+    GRM_G.tooltipOn = false;
     GameTooltip:SetScale ( GRM_G.toolTipScale );
 end
 
@@ -4091,6 +4097,7 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
             end
         end);
 
+         
         DropDownList1:HookScript ( "OnShow" , function ( self )
             local isOver , name = GRM.IsMouseOverAnyChatWindowIncludingCommunities();
             GRM_UI.GRM_DropDownList1AttachmentFrame.name = "";
@@ -4133,6 +4140,51 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
             end
             GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously = false;
         end);
+
+        local chatFrame;
+        for j = 1 , #CHAT_FRAMES do
+
+            chatFrame = _G[ CHAT_FRAMES[j] ];
+
+            chatFrame:HookScript ( "OnHyperlinkClick" , function ( _ , link , text , button )
+            
+                if button == "LeftButton" and IsInGuild() and IsControlKeyDown() then
+
+                    local name = string.match ( link , "player:(.+):%d+:.+" );
+
+                    if name and GRM_G.guildName ~= "" and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] then
+
+                        GRM.OpenPlayerWindow ( name )
+                        _G[ CHAT_FRAMES[j] .. "EditBox" ]:ClearFocus()
+
+                    end
+                end
+
+            end);
+
+            chatFrame:HookScript ( "OnHyperlinkEnter" , function ( self , link )
+
+                if IsInGuild() then
+                    local name = string.match ( link , "player:(.+):%d+:.+");
+
+                    if name and GRM_G.guildName ~= "" and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] then
+
+                        GRM_UI.SetTooltipScale()
+                        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                        GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
+                        GameTooltip:Show();
+                    end
+                end
+
+            end);
+
+            chatFrame:HookScript ( "OnHyperlinkLeave" , function ()
+                if GRM_G.tooltipOn and GameTooltip:IsVisible() then
+                    GRM.RestoreTooltip()
+                end
+            end);
+
+        end
 
     end
 
@@ -5555,7 +5607,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.AdjustTextColoring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination );
     end
 
-    -- Popup window to confirm!
     GRM_UI.GRM_RosterConfirmFrame:Hide();
     GRM_UI.GRM_RosterConfirmFrame:ClearAllPoints();
     GRM_UI.GRM_RosterConfirmFrame:SetPoint ( "CENTER" , UIParent , 0 , 200 );
@@ -5649,9 +5700,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:EnableMouse( true );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetJustifyH ( "CENTER" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText ( GRM.L ( "Search Filter" ) );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.MaxDelayCount = 0;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.currentCount = 0;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.timer = 0;
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.ChangeTime = 0;
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnEscapePressed" , function( self )
         self:ClearFocus();
@@ -5686,19 +5735,22 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     -- What it Does:    Slows the repeat asks to rebuild the log 
     -- Purpose:         to prevent spammy disconnect and needless resource wastage
     GRM_UI.LogEditBoxTimingControl = function()
-        if time() - GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.timer >= 0.2 and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.MaxDelayCount ~= GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.currentCount then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.timer = time();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.currentCount = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.MaxDelayCount;
+        if GetTime() - GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.ChangeTime >= 0.5 then
+            GRM_G.logSearch = false;
             GRM.BuildLogComplete( true , true );
             GRM_UI.ResetExportLogSettingsOnChange();
         else
-            C_Timer.After ( 0.2 , GRM_UI.LogEditBoxTimingControl );
+            GRM_G.logSearch = true;
+            C_Timer.After ( 0.5 , GRM_UI.LogEditBoxTimingControl );
         end
     end
     
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnTextChanged" , function()
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.MaxDelayCount = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.MaxDelayCount + 1;
-        GRM_UI.LogEditBoxTimingControl()
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.ChangeTime = GetTime();
+        if not GRM_G.logSearch then
+            GRM_G.logSearch = true;
+            GRM_UI.LogEditBoxTimingControl();
+        end
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnShow" , function ( self )
@@ -12445,6 +12497,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     GRM_G.pause = false;
                     GRM_UI.GRM_MemberDetailMetaData:Hide();
                 end
+            elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:IsVisible() and GRM.IsAnyBanHighlighted() then
+                GRM.ClearAllBanHighlights();
             else
                 GRM_UI.GRM_RosterChangeLogFrame:Hide();
             end
@@ -13006,6 +13060,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM_UI.SetTooltipScale()
         GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
         GameTooltip:AddLine( GRM.L ( "Search to find a player quicker" ) );
+
+        local slashCommand = "/" .. string.lower ( GRM.L ( "GRM" ) );
+        if GRM_L["/XXXX"] ~= true then
+            slashCommand = GRM.L ( "/XXXX" );
+        end
+
+        GameTooltip:AddLine( GRM.L ( "Use '{name} search PlayerName' to also find guild members" , slashCommand ) );
         GameTooltip:Show();
     end);
 
@@ -13572,16 +13633,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText4:SetTextColor ( 0.64 , 0.102 , 0.102 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 15 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText4:SetText ( string.upper ( GRM.L ( "Ban Date" ) ) );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_BanListEditButton , "RIGHT" , 10 , 0 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetJustifyH ( "CENTER" );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetWidth ( 100 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetWordWrap ( true );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetSpacing ( 1 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText , "RIGHT" , 30 , 0 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:SetJustifyH ( "CENTER" );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 15 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame , 8 , - 6 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
@@ -13915,6 +13966,78 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.BanFrameOnTextChanged ( false );
         end
     end);
+
+    -- SEARCH BOX FOR BAN
+    -- Player Search
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox , "TOP" , 0 , -2 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetTextColor ( 1 , 0.82 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetText ( GRM.L ( "Player Search" ) );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame , "TOPRIGHT" , -40 , -40 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetSize ( 200 , 30 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetTextInsets ( 2 , 3 , 3 , 2 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetMaxLetters ( 100 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:EnableMouse( true );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetAutoFocus( false );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetJustifyH ( "CENTER" );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetTextColor ( 1 , 1 , 1 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetNumeric ( false );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox.partialNameText = "";
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale()
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "Search to find a player quicker" ) );
+        GameTooltip:Show();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip();
+    end);        
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnEscapePressed" , function ( self )
+        self:SetText ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox.partialNameText );
+        self:ClearFocus();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnEnterPressed" , function ( self )
+        self:ClearFocus();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnEditFocusLost" , function ( self )
+        self:HighlightText ( 0 , 0 );
+        self:SetText ( GRM.Trim ( self:GetText() ) );
+
+        if self:GetText() == "" then
+            GRM.RefreshBanListFrames();
+        end
+
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox.partialNameText = self:GetText();
+    end)
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnEditFocusGained" , function ( self )
+        self:HighlightText ( 0 );
+        self:SetCursorPosition ( 0 );
+        GRM.RestoreTooltip();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnTextChanged" , function ( self )
+        local partialName = self:GetText();
+
+        if partialName ~= "" then
+            GRM_G.banDetailsControl = { 2 , true };
+            GRM.RefreshBanListFrames ( false , string.lower ( partialName ) );
+        else
+            GRM_G.banDetailsControl = { 4 , true };
+            GRM.RefreshBanListFrames();
+        end
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnHide" , function ( self )
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox.partialNameText = "";
+        self:SetText ( "" );
+    end);
+
 
     GRM_UI.CheckForBanPlayerAutoSelect = function( playerNameBoxExit , isServerSelection )
         local name = GRM.FormatInputName ( GRM.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) );
@@ -14578,8 +14701,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:SetScript ( "OnShow" , function()
         -- Reset the highlights and some certain frames...
         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText:SetText ( GRM.L ( "{name} - Ban List" , GRM.SlimName ( GRM_G.guildName ) ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameText:SetText ( GRM.L ( "Select a Player" ) );
         
         if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons ~= nil then
             for i = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
@@ -14650,7 +14771,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     -- Removing a player from the ban list that is no longer in the guild.
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_BanListRemoveButton:SetScript ( "OnClick" , function( _ , button )
         if button == "LeftButton" then
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:IsVisible() then
+            if GRM.IsAnyBanHighlighted() then
                 
                 -- Send the unban out for sync'd players
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncBanList then
@@ -14703,7 +14824,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     -- For managing the logic on the ban editing.
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_BanListEditButton:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameSelectedNameText:IsVisible() then
+            if GRM.IsAnyBanHighlighted() then
                 GRM_G.InitiatingBanEdit = true;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:Show();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanConfirmButtonText:SetText ( GRM.L ( "Update Ban" ) );
@@ -15974,7 +16095,7 @@ if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calenda
                 GRM_UI.CalendarEventCreateRefresh ();
 
             else
-                GRM_UI.CalendarDelayRefresh ();
+                GRM_UI.CalendarDelayRefresh( 2 );
             end
             GRM_G.currentCalendarOffset = 1;
         end

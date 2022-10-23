@@ -31,7 +31,7 @@ GRML.Dutch = function()
     GRM_L["Friend"] = true;
 
     -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-    GRM_L["/XXXX"] = true                           -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
+    GRM_L["/XXXX"] = true   -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
 
     GRM_L["German"] = "Duits"
 	GRM_L["English"] = "Engels"
@@ -1471,8 +1471,6 @@ GRML.Dutch = function()
     GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = true
 
     -- 1.93
-    GRM_L["There was an error with a {name} rule: \"{name2}\""] = true
-    GRM_L["Please report to addon creator the following variables were missing: {custom1}"] = true
     GRM_L["Customize Color"] = true
     GRM_L["GRM has detected that FGI is blocking system messages and cannot function properly without them. Do you want to enable them?"] = true        -- FGI is in reference to the "Fast Guild Invite" addon...
     GRM_L["GRM has detected that System Messages are disabled and cannot function properly without them. Do you want to enable them?"] = true
@@ -1553,7 +1551,11 @@ GRML.Dutch = function()
     GRM_L["Only Guild Members with GRM installed will see."] = true
     
     -- R1.935
-    GRM_L["Search"] = true -- This is the global string for "Search"
+    GRM_L["Search"] = "Zoeken" -- This is the global string for "Search"
     
+    -- R1.936
+    GRM_L["Use '{name} search PlayerName' to also find guild members"] = true
+    GRM_L["{custom1} to Copy Name to Chat"] = true  -- "Shift-Click to Copy Name to Chat" is the default
+
 
 end

@@ -6148,8 +6148,6 @@ GRM.RuleIntegrityCheck = function()
 
             if not isValid then
                 GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[i]][name] = nil;
-                GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "There was an error with a {name} rule: \"{name2}\"" , GRM_UI.ruleTypeEnum3[i] , name ) );
-                GRM.Report ( GRM.L ( "Please report to addon creator the following variables were missing: {custom1}" , nil , nil , nil , getMissing ( missingValues ) ) );
             end
 
         end
