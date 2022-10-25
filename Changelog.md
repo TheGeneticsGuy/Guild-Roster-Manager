@@ -1,3 +1,27 @@
+## **VERSION R1.937 RELEASE - 23rd Oct, 2022**
+
+***QUALITY OF LIFE***
+
+* There was some chance of spam when syncing if a player logged off in the middle of a sync, getting a message they are currently offline. GRM will now use that message to instantly know synce will fail and end the sync with the current player, silencing the spam messages.
+
+***BUG FIXES***
+
+* The check for dead accounts was not allowing you to ignore them on the scan - you would hit ignore, then next session you would see them again.
+
+* The ban list search was not showing all names, just the ones currently in guild but banned, but not yet removed. Oops! Fixed
+
+* There was an error where a Rejoining member was not processing in the scan properly. This has now been fixed. It broke the scan report so GRM will have reported no changes until this was resolved so if it has been broken for a few days for you, this will now resolve it. I tested it in all scenarios... Rejoining player, banned rejoining player, rejoining player with a namechange, and namechanged player who is rejoining but was previously banned. All scenarios working and reporting properly now.
+
+* Found an issue with the patching process because there was a bug found where a player, in Classic, can have guild database on one faction, deleted the guild, or abandoned it in a previous expansion, then the saved data is carried over to the next Classic expansion, Like Vanilla to TBC, but they now have changed factions and recreated the same guild on same server with same name... Typically you cannot do this, as you can only have 1 guild with a name on the server, well... this is how it can happen. In retail this is not an issue because the guild Check relies on the unique guild GUID or "ClubID" post 8.0 communities patch, but in Classic, you have to check against the guild name string only... Thank you @kreun for this report. This is the first I have ever heard of this happening.
+
+* When using the "Ignore List" - if you propagated all of the ignore rules to all alts of the player, and the macro tool was currently open, the queued window would need to be closed and opened to refresh. It will now refresh appropriately, automatically, when any ignore rules are set.
+
+
+
+
+
+
+
 ## **VERSION R1.936 RELEASE - 23rd Oct, 2022**
 
 ***QUALITY OF LIFE***
@@ -8,13 +32,13 @@
 
 * The Ban List window now has a "Search" feature to find names - I did notice something I need to also update with the ban feature - This is the last window that is NOT a hybrid scrollframe, so it is a bit inefficient of a window. I completely forgot that I never implemented the code on this scrolling window. I made a note to do it on my to-do list. Regardless, enjoy the search feature! :)
 
-![Search names on the ban list](https://imgur.com/a/EPktqyf.jpg)
+![Search names on the ban list](https://i.imgur.com/Ogyle02.jpg)
 
 * Dates should not be properly 2 index formatting. For example, 5th of January, 2022 was showing 2022-1-5 for date formatting, and now it should properly show 2022-01-05, which just is the proper way to show the dates.
 
 * It might not be obvious, but you can actually shift click player's names in the GRM window to copy them. As such, I added a tooltip to make this information more known:
 
-![Copy someone's name to chat](https://imgur.com/a/gaH8ytU.jpg)
+![Copy someone's name to chat](https://i.imgur.com/lpznWKa.jpg)
 
 
 ***BUG FIXES***

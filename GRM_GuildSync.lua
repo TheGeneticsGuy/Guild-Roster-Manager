@@ -156,6 +156,7 @@ GRMsyncGlobals.formerGuildData = {};
 GRMsyncGlobals.guildAltData = {};
 
 GRMsyncGlobals.firstSyncOccurred = false;
+GRMsyncGlobals.offline = false;
 
 -- For sync control measures on player details, so leader can be determined on who has been online the longest. In other words, for the leadership selecting algorithm
 -- when determining the tiers for syncing, it is ideal to select the leader who has been online the longest, as they most-likely have encountered the most current amount of information.
@@ -3284,18 +3285,20 @@ GRMsyncGlobals.TimeSinceLastSyncAction = time();
 ----- AND ANALYSIS ------------ 
 -------------------------------
 
--- Method:          GRMsync.ErrorCheck()
+-- Method:          GRMsync.ErrorCheck( boolean )
 -- What it Does:    On the giver ErrorCD interval, determines if sync has failed by time since last sync action has occcurred. 
 -- Purpose:         To exit out the sync attempt and retry in an efficiennt non, time-wasting way.
-GRMsync.ErrorCheck = function()
+GRMsync.ErrorCheck = function ( forceStop )
     if not GRM.IsCalendarEventEditOpen() then
         GRM.GuildRoster();
     end
     if GRMsyncGlobals.DesignatedLeader == GRM_G.addonUser then
-        if GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.TimeSinceLastSyncAction ) >= GRMsyncGlobals.ErrorCD then
+        if forceStop or ( GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.TimeSinceLastSyncAction ) >= GRMsyncGlobals.ErrorCD ) then
 
             -- Check if player is offline...
             local playerIsOnline = GRM.IsGuildieOnline ( GRMsyncGlobals.CurrentSyncPlayer );
+            GRMsyncGlobals.offline = false;
+            GRMsyncGlobals.TimeSinceLastSyncAction = time();
             local msg = GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync Failed with {name}..." , GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer , true ) );
             -- We already tried to sync, now aboard to 2nd.
             if playerIsOnline then
@@ -3355,9 +3358,11 @@ GRMsync.ErrorCheck = function()
         elseif GRMsyncGlobals.currentlySyncing and #GRMsyncGlobals.SyncQue > 0 then
             C_Timer.After ( GRMsyncGlobals.ErrorCD , GRMsync.ErrorCheck );
         end
-    elseif not GRMsyncGlobals.dateSentComplete then
-        if GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.TimeSinceLastSyncAction ) >= GRMsyncGlobals.ErrorCD then
+    elseif forceStop or not GRMsyncGlobals.dateSentComplete then
+        if forceStop or ( GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.TimeSinceLastSyncAction ) >= GRMsyncGlobals.ErrorCD ) then
             local playerIsOnline = GRM.IsGuildieOnline ( GRMsyncGlobals.DesignatedLeader );
+            GRMsyncGlobals.offline = false;
+            GRMsyncGlobals.TimeSinceLastSyncAction = time();
             local msg = GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync Failed with {name}..." , GRM.GetClassifiedName ( GRMsyncGlobals.DesignatedLeader , true ) );
             if GRMsyncGlobals.numSyncAttempts == 0 then
                 if not playerIsOnline then
@@ -3611,11 +3616,18 @@ GRMsync.SubmitFinalSyncData = function ()
                     C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalSyncData );
                     return;
                 end
+            else
+                break;
             end
         end
         GRMsyncGlobals.finalSyncDataCount = 1;
         GRMsyncGlobals.finalSyncProgress[1] = true;
     end
+
+    if not GRMsyncGlobals.SyncOK then
+        return;
+    end
+
     -- Promo date sync!
     if not GRMsyncGlobals.finalSyncProgress[2] and #GRMsyncGlobals.PDChanges > 0 then
         for i = GRMsyncGlobals.finalSyncDataCount , #GRMsyncGlobals.PDChanges do
@@ -3638,13 +3650,20 @@ GRMsync.SubmitFinalSyncData = function ()
                     C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalSyncData );
                     return;
                 end
+            else
+                break;
             end
         end
         GRMsyncGlobals.finalSyncDataCount = 1;
         GRMsyncGlobals.finalSyncProgress[2] = true;
     end
-    GRM.TableLength ( GRMsyncGlobals.FinalCorrectAltList )
-    GRM.TableLength ( GRMsyncGlobals.FinalAltListReeceived )
+
+    if not GRMsyncGlobals.SyncOK then
+        return;
+    end
+
+    -- GRM.TableLength ( GRMsyncGlobals.FinalCorrectAltList )
+    -- GRM.TableLength ( GRMsyncGlobals.FinalAltListReeceived )
     -- ALT changes sync for adding alts!
     if not GRMsyncGlobals.finalSyncProgress[3] and GRM.TableLength ( GRMsyncGlobals.FinalCorrectAltList ) > 0 then
 
@@ -3676,19 +3695,25 @@ GRMsync.SubmitFinalSyncData = function ()
 
                         for j = GRMsyncGlobals.SyncCountAdd2 , #toon do
 
-                            msg = tempMsg1 .. finalList[i] .. "?" .. toon[j] .. "?" .. tostring ( altGroupModified );
+                            if GRMsyncGlobals.SyncOK then
 
-                            GRMsync.SendMessage ( "GRM_SYNC" , msg , GRMsyncGlobals.CurrentSyncPlayer );
+                                msg = tempMsg1 .. finalList[i] .. "?" .. toon[j] .. "?" .. tostring ( altGroupModified );
 
-                            GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRMsyncGlobals.sizeModifier;
-                            -- Do my own changes too!
-                            
-                            if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
-                                GRMsyncGlobals.SyncCount = 0;
-                                GRMsyncGlobals.SyncCountAdd2 = j + 1;
-                                GRMsyncGlobals.SyncCountAdd1 = i;
-                                C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalSyncData );
-                                return;
+                                GRMsync.SendMessage ( "GRM_SYNC" , msg , GRMsyncGlobals.CurrentSyncPlayer );
+
+                                GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRMsyncGlobals.sizeModifier;
+                                -- Do my own changes too!
+                                
+                                if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
+                                    GRMsyncGlobals.SyncCount = 0;
+                                    GRMsyncGlobals.SyncCountAdd2 = j + 1;
+                                    GRMsyncGlobals.SyncCountAdd1 = i;
+                                    C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalSyncData );
+                                    return;
+                                end
+
+                            else
+                                break;
                             end
 
                         end
@@ -3708,7 +3733,8 @@ GRMsync.SubmitFinalSyncData = function ()
                         end
 
                     end
-
+                else
+                    break;
                 end
             end
 
@@ -3736,6 +3762,10 @@ GRMsync.SubmitFinalSyncData = function ()
         GRMsyncGlobals.SyncCountAdd1 = 1;
         GRMsyncGlobals.SyncCountAdd2 = 1;
         GRMsyncGlobals.finalSyncProgress[3] = true;
+    end
+
+    if not GRMsyncGlobals.SyncOK then
+        return;
     end
 
     -- CUSTOM NOTE CHECK!
@@ -3769,6 +3799,8 @@ GRMsync.SubmitFinalSyncData = function ()
                     C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalSyncData );
                     return;
                 end
+            else
+                break;
             end
         end
         GRMsyncGlobals.finalSyncDataCount = 1;
@@ -3776,6 +3808,10 @@ GRMsync.SubmitFinalSyncData = function ()
             GRMsyncGlobals.ThrottleCap = GRMsyncGlobals.normalMessage;
         end
         GRMsyncGlobals.finalSyncProgress[4] = true;
+    end
+
+    if not GRMsyncGlobals.SyncOK then
+        return;
     end
 
     -- BAN changes sync!
@@ -3803,6 +3839,8 @@ GRMsync.SubmitFinalSyncData = function ()
                     C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalSyncData );
                     return;
                 end
+            else
+                break;
             end
         end
         GRMsyncGlobals.finalSyncDataBanCount = 1;
@@ -3855,6 +3893,8 @@ GRMsync.SubmitFinalMainData = function()
                     C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalMainData );
                     return;
                 end
+            else
+                break;
             end
         end
         GRMsyncGlobals.finalSyncDataCount = 1;
@@ -3896,6 +3936,8 @@ GRMsync.SubmitFinalBdayData = function()
                     C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SubmitFinalBdayData );
                     return;
                 end
+            else
+                break;
 
             end
         end

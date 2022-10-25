@@ -32,9 +32,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.936";
-GRM_G.PatchDay = 1666520858;             -- In Epoch Time
-GRM_G.PatchDayString = "1666520858";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.937";
+GRM_G.PatchDay = 1666637123;             -- In Epoch Time
+GRM_G.PatchDayString = "1666637123";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -951,6 +951,8 @@ GRM.LoadSettings = function()
         end
 
         -- PATCH FIXES
+        -- Quick Data Integrity Check
+        GRM.GuildDataIntegrityCheck();
         GRM_Patch.SettingsCheck ( tonumber ( string.match ( playerV , "R(.+)" ) ) );
         
     else
@@ -958,6 +960,80 @@ GRM.LoadSettings = function()
         GRM.FinalSettingsConfigurations();
     end
 
+end
+
+-- Method:          GRM.GuildDataIntegrityCheck()
+-- What it Does:    Performs a check to see if the same guild name is on Horde and Alliance. If so, it purges the guild data from the database that is the most outdated.
+-- Purpose:         An unexpected error occurred when transferring from one classic expansion to the next, like Vanilla to TBC. The SavedVariables would be transferred by the client, but then a person could go and create a new guild on opposite faction with the same name, and GRM would then detect it as a new guild. As of Oct 24, 2022, I have only ever gotten 1 report of this ever happening, but it is possible others just never report it. This is just some logic to check against this, clean it up, and future proof against this happening in the future. Thanks @Kreun on Discord for the report!
+GRM.GuildDataIntegrityCheck = function()
+
+    local guildName = "";
+    local F2 = "A";
+    local indexTable = {
+        [1] = 8 , [2] = 8 , [3] = 7 , [4] = 6 , [5] = 6 , [7] = 6 , [8] = 6 , [9] = 6 , [10] = 11 , [11] = 5 , [14] = 5 , [15] = 5 , [16] = 5 , [17] = 7 , [19] = 7
+    }
+    local log1Date , log2Date = {} , {};
+
+    for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+        for name in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+
+            if F == "H" then
+                F2 = "A";
+            else
+                F2 = "H";
+            end
+
+            for n in pairs ( GRM_GuildMemberHistory_Save[F2] ) do
+
+                if n == name then
+
+                    -- There is a match. Let's look at the log
+                    if #GRM_LogReport_Save[F][name] > 0 and #GRM_LogReport_Save[F2][name] > 0 then
+                        -- Both have logs
+
+                        local found = false;
+                        local found2 = false;
+
+                        for i = #GRM_LogReport_Save[F][name] , 1 , -1 do
+                            if indexTable[GRM_LogReport_Save[F][name][i][1]] then
+                                found = true;
+                                log1Date = GRM_LogReport_Save[F][name][i][indexTable[GRM_LogReport_Save[F][name][i][1]]];
+                                break;
+                            end
+                        end
+
+                        for i = #GRM_LogReport_Save[F2][name] , 1 , -1 do
+                            if indexTable[GRM_LogReport_Save[F2][name][i][1]] then
+                                found2 = true;
+                                log2Date = GRM_LogReport_Save[F2][name][i][indexTable[GRM_LogReport_Save[F2][name][i][1]]];
+                                break;
+                            end
+                        end
+
+                        if found and found2 then
+                            
+                            if GRM.TimeStampToEpoch ( log1Date ) < GRM.TimeStampToEpoch ( log2Date ) then
+                                -- The F1 one is most recent, delete the other
+                                GRM.PurgeGuildFromDatabase ( name , F , true );
+                            else
+                                GRM.PurgeGuildFromDatabase ( name , F2 , true );
+                            end
+
+                        else
+                            print("GRM: Possible database issue - same guild found on both factions. Please report this to GRM Dev" ); -- Somehow it failed in the check. This should NEVER report, but just in case, I am adding this message.
+                        end
+
+                    elseif #GRM_LogReport_Save[F][name] > 0 then
+                        GRM.PurgeGuildFromDatabase ( name , F2 , true );    -- purging the guild with no log
+                    else
+                        GRM.PurgeGuildFromDatabase ( name , F , true );
+                    end
+
+                    break;
+                end
+            end
+        end
+    end
 end
 
 -- Method:          GRM.FinalSettingsConfigurations()
@@ -2275,13 +2351,15 @@ GRM.GetAllConnectedRealms = function()
     return realms;
 end
 
--- Method:          GRM.PurgeGuildFromDatabase( string , string)
+-- Method:          GRM.PurgeGuildFromDatabase( string , string , bool )
 -- What it Does:    Completely purges a guild from the player database... that it is not currently logged into
 -- Purpose:         Cleanup old guild data from a guild the player is no longer a part of.
-GRM.PurgeGuildFromDatabase = function ( guildName , faction )
+GRM.PurgeGuildFromDatabase = function ( guildName , faction , special )
 
     if guildName == GRM_G.guildName or guildName == GRM.SlimName ( GRM_G.guildName ) then
-        GRM.Report ( "\n" .. GRM.L ( "Player Cannot Purge the Guild Data they are Currently In!!!" ) .. "\n" .. GRM.L( "To reset your current guild data type '/grm clearguild'" ) );
+        if not special then
+            GRM.Report ( "\n" .. GRM.L ( "Player Cannot Purge the Guild Data they are Currently In!!!" ) .. "\n" .. GRM.L( "To reset your current guild data type '/grm clearguild'" ) );
+        end
     else
 
         if GRM_GuildMemberHistory_Save[faction][guildName] ~= nil then
@@ -2294,17 +2372,24 @@ GRM.PurgeGuildFromDatabase = function ( guildName , faction )
             GRM_PlayerListOfAlts_Save[faction][guildName] = nil;
             GRM_Alts[guildName] = nil;
 
-            GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
+            if not special then
+                GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
+            end
 
         else
             -- remove the saved data if any exists as well
             -- Do a purge of the guild regardless, if it's showing up here, it means it's get lingering bad data.
             if GRM_GuildDataBackup_Save[faction][guildName] ~= nil then
                 GRM_GuildDataBackup_Save[faction][guildName] = nil;
-                GRM.Report ( GRM.L ( "Error: Guild Not Found..." ) );
+                if not special then
+                    GRM.Report ( GRM.L ( "Error: Guild Not Found..." ) );
+                end
             else
-                GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
+                if not special then
+                    GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
+                end
             end
+
         end
     end
 end
@@ -2541,8 +2626,6 @@ GRM.CreateGuildCreationDatePattern = function()
 
     return pattern;
 end
--- /dump string.sub ( GUILD_INFO_TEMPLATE , 1 , string.find ( GUILD_INFO_TEMPLATE , "%%" ) - 1 )
-
 
 -- Method:          GRM.SetSystemMessageFilter ( self , string , string )
 -- What it Does:    Starts tracking the system messages for filtering. This is only triggered on the audit frame initialization or if a player has left the guild
@@ -2553,7 +2636,6 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
 
     if time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
         GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or string.sub ( GUILD_INFO_TEMPLATE , 1 , string.find ( GUILD_INFO_TEMPLATE , "%%" ) - 1 );
-
         -- GUILD INFO FILTER (GuildInfo())
         if GRM_G.MsgFilterDelay and ( string.find ( msg , GRM_G.guildInfoSystemMessage ) ~= nil or string.find ( msg , GRM.Trim ( CHAT_GUILD_SEND ) ) ~= nil ) then       -- These may need to be localized. I have not yet tested if other regions return same info. It IS system info.
             if string.find ( msg , GRM_G.guildInfoSystemMessage ) ~= nil and ( ( time() - GRM_G.SystemMsgThrottle ) > 1 ) then
@@ -2611,6 +2693,21 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
         elseif ( GRM_G.MsgFilterDelay or GRM_G.MsgFilterDelay2 ) and ( msg == GRM.L ( "Player not found." ) or string.find ( msg , GRM.L ( "added to friends" ) ) ~= nil or string.find ( msg , GRM.L ( "is already your friend" ) ) ~= nil ) then
             result = true;
 
+        elseif GRM.SystemMessagePatternMatchCheck ( 1 , msg ) then
+            if GRMsyncGlobals.currentlySyncing then
+
+                -- Logic to exit a sync faster if someone goes offline
+                if GRMsyncGlobals.SyncOK then
+                    GRMsyncGlobals.offline = true;
+                    GRMsyncGlobals.SyncOK = false;
+                    GRMsync.ErrorCheck ( true );
+                    C_Timer.After ( 1 , function()
+                        GRMsyncGlobals.SyncOK = true;
+                    end);
+                end
+            end
+            result = true;
+
         -- Normal System message... Let's add the main tags...
         elseif not GRM_G.MainNameSystemMsgControl and string.find ( msg , GRM.L ( "joined the guild." ) ) == nil and string.find ( msg , GRM.L ( "has Left the guild" ) ) == nil then  -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
             if ( time() - GRMsyncGlobals.timeAtLogin ) > 5 and ( ( GRM_G.MainTagHexCode ~= "" and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMainName ) or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].colorizeNames ) then
@@ -2632,6 +2729,47 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
     GRM.SystemMessageHookControl()
 
     return result , msg , ... ;
+end
+
+-- /run GRMsync.SendMessage("GRM_SYNC","TEST", "Neutron-Zul'jin")
+GRM.SystemMessagePatternMatchCheck = function( pattern , msg )
+
+    local result = false;
+    local toMatch = "";
+
+    if pattern == 1 then
+
+        if not GRM_G.NotOnlineSystemMessage then
+            if GRM_G.Region == "esES" or GRM_G.Region == "esMX" or GRM_G.Region == "koKR" or GRM_G.Region == "zhTW" then
+                toMatch = "%%s";
+
+            elseif GRM_G.Region == "zhCN" then
+                if GRM_G.BuildVersion < 40000 then  -- Not known exact expansion it changed
+                    toMatch = "\"%%s\""
+                else
+                    toMatch = "“%%s”";
+                end
+
+            elseif GRM_G.Region == "itIT" or GRM_G.Region == "ruRU" then
+                toMatch = "\"%%s\""
+
+            elseif GRM_G.Region == "koKR" then
+                toMatch = "“%%s";
+
+            else
+                toMatch = "\'%%s\'";
+            end
+
+            GRM_G.NotOnlineSystemMessage = string.gsub ( ERR_CHAT_PLAYER_NOT_FOUND_S , toMatch , "(.+)" );
+        end
+        
+        if string.match ( msg , GRM_G.NotOnlineSystemMessage ) ~= nil then
+            result = true;
+        end
+
+    end
+
+    return result;
 end
 
 -- Method:          GRM.AnnounceIfBirthday ( string )
@@ -3571,13 +3709,19 @@ GRM.IsGuildieOnline = function ( name )
         GRM.GuildRoster();
     end
     local result = false;
-    for i = 1 , GRM.GetNumGuildies() do
-        local fullName , _, _, _, _, _, _, _, online = GetGuildRosterInfo ( i );
-        if name == fullName then
-            result = online;
-            break;
+
+    if GRMsyncGlobals.offline then
+        result = false;
+    else
+        for i = 1 , GRM.GetNumGuildies() do
+            local fullName , _, _, _, _, _, _, _, online = GetGuildRosterInfo ( i );
+            if name == fullName then
+                result = online;
+                break;
+            end
         end
     end
+    
     return result;
 end
 
@@ -4894,6 +5038,10 @@ GRM.GetTimestampFromTable = function ( timeArray )
         if timeArray[3] > 2000 then
             timeArray[3] = timeArray[3] - 2000;
         end
+
+        if timeArray[3] < 10 then
+            timeArray[3] = "0" .. tostring ( timeArray[3] );
+        end
         result = ( timeArray[1] .. " " .. monthEnum2[tostring(timeArray[2])] .. " '" .. timeArray[3] );
     else
         result = ( timeArray[1] .. " " .. monthEnum2[tostring(timeArray[2])] );
@@ -5607,6 +5755,7 @@ GRM.FormatTimeStamp = function ( timestamp , includeHour , removeYear , forcedFo
         typeStamp = 1;
         timestamp = GRM.GetCleanTimestamp ( timestamp ); -- ensure proper formatting
         -- Default format = 12 Mar '18
+
         day = string.match ( timestamp , "%d+" );
         if #day == 1 then
             day = "0" .. day;
@@ -12689,13 +12838,13 @@ end
 -- Purpose:         Quality of life feature for maintenance reasons of a roster.
 GRM.CheckForDeadAccounts = function ()
     GRM_G.customKickList = {};
-    local hours = 1440; -- Equals 60 days - presumably someone with account deleted. This is just a buffer because sometimes names get flagged for rename for TOS violation but are still active.
+    local hours = 4320; -- Equals 180 days - presumably someone with account deleted. This is just a buffer because sometimes names get flagged for rename for TOS violation but are still active.
     local ind = 0;
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.lastOnline >= hours and string.match ( GRM.SlimName ( player.name ) , "%d" ) ~= nil then  -- Needs to just be first name because servers may have numbers in them, like Area52, but the player name cannot.
+            if not player.deadNameIgnore and player.lastOnline >= hours and string.match ( GRM.SlimName ( player.name ) , "%d" ) ~= nil then  -- Needs to just be first name because servers may have numbers in them, like Area52, but the player name cannot.
 
                 table.insert ( GRM_G.customKickList , { player.name } );
                 ind = #GRM_G.customKickList;
@@ -12728,7 +12877,13 @@ GRM.CheckForDeadAccounts = function ()
         end
 
         local ignoreDeadNames = function()
-            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreDeadNames = true;
+
+            for i = 1 , #GRM_G.customKickList do
+                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.customKickList[i].name] then
+                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.customKickList[i].name].deadNameIgnore = true;
+                end
+            end
+            
             GRM.Report ( GRM.L ( "You can re-check in the future by typing '/grm dead'" ) );
         end
 
@@ -19314,7 +19469,7 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
         if type ( player ) == "table" then
 
             if player.bannedInfo[1] then
-                if not textSearch or string.find ( GRM.RemoveSpecialCharacters ( player.name ) , textSearch , 1 , true ) then
+                if not textSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , textSearch , 1 , true ) then
                     insertIndex = 1;
 
                     local isUnknown = false;
@@ -19472,6 +19627,7 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
     local scrollHeight = 0;
     local scrollWidth = 561;
     local buffer = 20;
+    textSearch = textSearch or "";
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons or {};  -- Create a table for the Buttons.
 
@@ -19479,6 +19635,11 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
     local tempHeight = 0;
 
     if not banList then
+    
+        if textSearch == "" and GRM.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText() ) ~= "" then
+            textSearch = GRM.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText() );
+        end
+
         banList , count = GRM.GetSortedBanListNamesWithDetails ( textSearch );
     end
 

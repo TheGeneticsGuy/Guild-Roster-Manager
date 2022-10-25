@@ -27,6 +27,42 @@ GRM_UI.ElvUIReset2 = false;
 -- Tooltip check
 GRM_G.tooltipOn = false;
 
+
+
+
+
+
+
+
+-- COMPATIBILITY BETWEEN EXPANSIONS - RELEASES - CLASSIC
+-- DF made many UI template changes in 10.0 release, but these do not appear to propagate on the backend for the Classic builds... as of yet.
+
+-- Method           GRM_UI.CreateTexture ( frame , string , string )
+GRM_UI.CreateTexture = function ( frame , name , layer )
+    if GRM_G.BuildVersion >= 100000 then
+        frame[name] = frame:CreateTexture ( nil , layer , nil , 0 );
+    else
+        frame[name] = frame:CreateTexture ( nil , layer , frame , 0 );
+    end
+end
+
+if GRM_G.BuildVersion >= 100000 then
+    GRM_G.CheckButtonTemplate = "InterfaceOptionsCheckButtonTemplate";
+    GRM_G.TabButtonTemplate = "TabButtonTemplate";
+    GRM_G.TabResizeFiller = "";
+
+
+else
+    GRM_G.CheckButtonTemplate = "OptionsSmallCheckButtonTemplate";
+    GRM_G.TabButtonTemplate = "OptionsFrameTabButtonTemplate";
+    GRM_G.TabResizeFiller = nil;  -- PanelTemplates_TabResize
+
+end
+
+-------------------------------
+--- END COMPATIBILITY CHECK ---
+-------------------------------
+
 -- Core Frame
 GRM_UI.GRM_MemberDetailMetaData = CreateFrame( "Frame" , "GRM_MemberDetailMetaData" , UIParent , "TranslucentFrameTemplate" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataCloseButton = CreateFrame( "Button" , "GRM_MemberDetailMetaDataCloseButton" , GRM_UI.GRM_MemberDetailMetaData , "UIPanelCloseButton");
@@ -406,7 +442,8 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_Def
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelectionButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelectionButton:CreateFontString ( "GRM_DefaultTabSelectionButtonText" , "OVERLAY" , "GameFontNormalSmall" );
 -- Color Select
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame = CreateFrame ( "Frame" , "GRM_ColorSelectOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame , BackdropTemplateMixin and "BackdropTemplate" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame:CreateTexture ( nil , "ARTWORK" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame );
+
+GRM_UI.CreateTexture ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame , "GRM_OptionsTexture" , nil , "ARTWORK" )
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame:SetBackdrop ( {
     bgFile = nil,
     edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -3542,6 +3579,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 if IsShiftKeyDown() then
                     GRM_UI.SyncAltsToSameIgnoreFilters ( player );
                     GRM.Report ( GRM.L ( "{name}'s alts now share the same macro rule ignore settings." , GRM.GetClassifiedName ( player.name , true ) ) );
+                    GRM.RefreshAllMacroToolFrames();
                 else
                     GRM_UI.SetAllMacroIgnoreFilters ( player , true );
                     GRM_UI.SetIgnoreCheckButtonTooltip();

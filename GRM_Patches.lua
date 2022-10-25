@@ -5,7 +5,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 98;
+local totalPatches = 99;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1110,6 +1110,20 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    -- patch 99
+    patchNum = patchNum + 2;
+    if numericV < 1.937 and baseValue < 1.937 then
+
+        GRM_Patch.ModifyPlayerSetting ( "ignoreDeadNames" , nil );
+        GRM_Patch.AddMemberMetaData ( "deadNameIgnore" , false );
+        
+        if loopCheck ( 1.937 ) then
+            return;
+        end
+    end
+
+    
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -5809,6 +5823,7 @@ GRM_Patch.BuildNewAltLists = function()
 
                         -- Now, let's cycle through all of the alts.
                         for i = 1 , #player.alts do
+
                             alt = GRM_GuildMemberHistory_Save[F][guildName][player.alts[i][1]];
                             if alt ~= nil then
                                 -- We know it is valid and toon is still in the guild
@@ -5832,6 +5847,7 @@ GRM_Patch.BuildNewAltLists = function()
             -- Ensure the altGroupModified is the same for all
             for altGroupID in pairs ( GRM_Alts[guildName] ) do
                 for i = 1 , #GRM_Alts[guildName][altGroupID] do
+
                     GRM_GuildMemberHistory_Save[F][guildName][GRM_Alts[guildName][altGroupID][i].name].altGroupModified = GRM_Alts[guildName][altGroupID].timeModified;
                 end
             end
@@ -5851,7 +5867,6 @@ GRM_Patch.AddAltForPatch = function( oldGroupID , newGroupID , guildName , playe
         player.altGroup = newGroupID;
         GRM.RemoveAltFromGrouping ( oldGroupID , guildName , player );
     end
-
     -- Now we add to the new group.
     local ind = #GRM_Alts[guildName][newGroupID] + 1;
 
