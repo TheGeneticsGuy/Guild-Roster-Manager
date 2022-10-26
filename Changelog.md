@@ -1,10 +1,14 @@
-## **VERSION R1.937 RELEASE - 23rd Oct, 2022**
+## **VERSION R1.94 RELEASE - 26th Oct, 2022**
+
+***RELEASE FOR 10.0 COMPATIBILITY FOR DRAGONFLIGHT EXPANSION***
 
 ***QUALITY OF LIFE***
 
 * There was some chance of spam when syncing if a player logged off in the middle of a sync, getting a message they are currently offline. GRM will now use that message to instantly know synce will fail and end the sync with the current player, silencing the spam messages.
 
 ***BUG FIXES***
+
+* Compatibility issues with GRM and DF pre-patch 10.0 have been resolved.
 
 * The check for dead accounts was not allowing you to ignore them on the scan - you would hit ignore, then next session you would see them again.
 
@@ -16,8 +20,9 @@
 
 * When using the "Ignore List" - if you propagated all of the ignore rules to all alts of the player, and the macro tool was currently open, the queued window would need to be closed and opened to refresh. It will now refresh appropriately, automatically, when any ignore rules are set.
 
+* "Fade on Tab Change (GRM UI setting option) was throwing a lua error I just realized. I guess no one uses this feature, including me, as I only discovered it when testing if everything was working. lol
 
-
+* Classic had a potential taint issue that could occur if you CTRL-Clicked to bring up player window, like from audit window, prior to actually opening the guild frame yourself that session
 
 
 

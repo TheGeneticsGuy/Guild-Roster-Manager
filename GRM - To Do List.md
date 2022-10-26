@@ -2,11 +2,6 @@
 
 *These are either my own notes, or mostly suggestions and reports from all of you. This does not yet include all reported or suggestions on Discord. There is no guarantee I am going to do all of these eventually, just notes of all things suggested that I am either moderately interested in, or extremely interested in implemented. Some items I have already largely built but are not yet ready for release. Most I have not even begun to brainstorm implementation on. If you would like to add to any of these suggestions or expand on things further, please look at Suggestions in Discord*
 
-*PRIOR TO DRAGONFLIGHT LAUNCH*
-
-* Make sure in new expansion this is updated - GRM.BuildGuildRosterHotkeyAndMacro - the "KeyNum" binding must match - CRITICAL for me to not forget this, so I placed it at the top.
-
-
 # **BUG FIXES**
 
 * -- Promote live recording to chat on macro tool often not recording WHO "https://cdn.discordapp.com/attachments/418471113023029248/791368969561833512/unknown.png" - Still need to debug this as it was reported and I have not yet fixed it...

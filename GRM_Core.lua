@@ -32,9 +32,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.937";
-GRM_G.PatchDay = 1666637123;             -- In Epoch Time
-GRM_G.PatchDayString = "1666637123";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.94";
+GRM_G.PatchDay = 1666823002;             -- In Epoch Time
+GRM_G.PatchDayString = "1666823002";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -376,48 +376,50 @@ local AddonUsersCheck = CreateFrame ( "Frame" );
 local AchievementsChecking = CreateFrame ( "Frame" );
 local StatusChecking = CreateFrame ( "Frame" );
 
--- COMPATIBILITY BETWEEN EXPANSIONS - RELEASES - CLASSIC
--- DF made many UI template changes in 10.0 release, but these do not appear to propagate on the backend for the Classic builds... as of yet.
+
+--------------------------------------------
+----- COMPATIBILITY WITH CLASSIC BUILDS ----
+-------- NEEDED DUE TO 10.0 DF CHANGES -----
+--------------------------------------------
 
 -- Method           GRM.CreateTexture ( frame , string , string )
 -- What it Does:    Wraps 2 ways to implement the texture, for version compatibility
 -- Purpose:         Version Compatibility
 GRM.CreateTexture = function ( frame , name , layer , useFrame )
-
     local heritableFrame = nil;
 
     if GRM_G.BuildVersion >= 100000 then
-        
         frame[name] = frame:CreateTexture ( nil , layer , nil , 0 );
-
     else
 
         if useFrame then
             heritableFrame = frame;
         end
-
-        frame[name] = frame:CreateTexture ( nil , layer , heritableFrame , 0 );
+        frame[name] = frame:CreateTexture ( name , layer , heritableFrame , nil );
 
     end
 end
 
--- GRM.CreateFontString = function( self , frameName , layer , inherit )
+-- Method:          GRM.TabResize ( frameObject, int , int )
+-- What it Does:    Reframes a tab for all classic builds prior 10.0
+-- Purpose:         The UI changes in 10.0 negate the need of this.
+GRM.TabResize = function ( tabFrame , Width , Height )
+    if GRM_G.BuildVersion < 100000 then
+        PanelTemplates_TabResize ( tabFrame , nil , 76 , 25 );
+    else
+        tabFrame:SetHighlightTexture ( "Interface\\Buttons\\ButtonHilight-Square" );
+    end
+end
 
---     if GRM_G.BuildVersion >= 100000 then
---         self:CreateFontString ( nil , layer , inherit );
---     else
---         self:CreateFontString ( frameName , layer , inherit );
---     end
--- end
-
+-- Due to deprecated templates, these need to be used for duel compatibility
 if GRM_G.BuildVersion >= 100000 then
     GRM_G.CheckButtonTemplate = "InterfaceOptionsCheckButtonTemplate";
+    GRM_G.TabTemplate = "MinimalTabTemplate";
 
 else
     GRM_G.CheckButtonTemplate = "OptionsSmallCheckButtonTemplate";
-
+    GRM_G.TabTemplate = "TabButtonTemplate";
 end
-
 -------------------------------
 --- END COMPATIBILITY CHECK ---
 -------------------------------
@@ -6142,14 +6144,15 @@ GRM.GetRosterName = function ( button , isMouseClick )
     end
     return name;
 end
--- CommunitiesFrame.MemberList.ScrollBox.ScrollTarget
+
 -- Method:          GRM.InitializeRosterButtons()
 -- What it Does:    Initializes, one time, the script handlers for the roster frames
 -- Purpose:         So main player popup window appears properly 
+-- Note:            THIS ONLY WORKS WITH BFA and SL expansions 8.0 and 9.0 -- not Dragonflight
 GRM.InitializeRosterButtons = function()
     local cFrame = CommunitiesFrame;
     local memberFrame = cFrame.MemberList;
-    local buttons = memberFrame.ScrollBox.buttons;
+    local buttons = memberFrame.ListScrollFrame.buttons;
     for i = 1 , #buttons do
         buttons[i]:HookScript ( "OnEnter" , function ( self )
             
@@ -6228,6 +6231,92 @@ GRM.InitializeRosterButtons = function()
 
         buttons[i]:HookScript ( "OnUpdate" , GRM.RosterButton_OnUpdate );
     end
+end
+
+-- Method:          GRM.InitializeDragonFlightRosterButtons()
+-- What it Does:    Initializes, one time, the script handlers for the roster frames
+-- Purpose:         So main player popup window appears properly 
+GRM.InitializeDragonFlightRosterButtons = function()
+    local cFrame = CommunitiesFrame;
+
+    cFrame.MemberList.ScrollBox:ForEachFrame ( function ( scrollButton )
+
+        scrollButton:HookScript ( "OnEnter" , function ()
+            if cFrame:GetSelectedClubId() == GRM_G.gClubID and GetMouseFocus() == self then
+                local name = GRM.GetRosterName ( scrollButton , false  );
+                if name ~= "" and name ~= nil then
+
+                    local memberInfo = self.memberInfo
+                    GRM.MemberListBlizTooltip_Update ( scrollButton , false , memberInfo.classID , memberInfo.name , memberInfo.guildRank , memberInfo.race , memberInfo.level , memberInfo.presence , memberInfo.zone , memberInfo.memberNote , memberInfo.officerNote );
+                    GRM_G.currentName = name;
+                    GRM.SubFrameCheck();
+
+                    if cFrame:GetSelectedClubId() == GRM_G.gClubID then
+                        GRM.PopulateMemberDetails ( name , memberInfo );
+                        if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                            if not GRM_G.CurrentPinCommunity then
+                                if GRM_UI.MemberDetailFrame:IsVisible() then
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                                else
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
+                                end
+                                GRM_G.CurrentPinCommunity = true;
+                            end
+                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverRetail then
+                                if GRM_G.guildName ~= "" then
+                                    GRM_UI.GRM_MemberDetailMetaData:Show();
+                                end
+                            end
+                        end
+                    end
+
+                end
+            end
+        end);
+        
+        scrollButton:HookScript ( "OnClick" , function ( self , button )
+            if button == "LeftButton" then
+                local nameCopy = false;
+                if IsShiftKeyDown() then
+                    nameCopy = true;
+                end
+
+                local name = GRM.GetRosterName ( self , true );
+                if name ~= "" and name ~= nil then
+                    if not nameCopy then
+                        if name ~= GRM_G.currentName and StaticPopup1:IsVisible() and GRM_UI.GRM_PopupWindow:IsVisible() then
+                            StaticPopup1:Hide();
+                        end
+                        GRM_G.currentName = name;
+                        GRM.SubFrameCheck();
+                        if cFrame:GetSelectedClubId() == GRM_G.gClubID then
+                            GRM.PopulateMemberDetails ( name , self.memberInfo );
+                            GRM_G.pause = true;
+                            if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                                if not GRM_G.CurrentPinCommunity then
+                                    if GRM_UI.MemberDetailFrame:IsVisible() then
+                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                                    else
+                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
+                                    end
+                                    GRM_G.CurrentPinCommunity = true;
+                                end
+                                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverRetail then
+                                    if GRM_G.guildName ~= "" then
+                                        GRM_UI.GRM_MemberDetailMetaData:Show();
+                                    end
+                                end
+                            end
+                        end
+                    else
+                        GRM.GR_Roster_Click ( name );
+                    end
+                end
+            end
+        end);
+
+        scrollButton:HookScript ( "OnUpdate" , GRM.RosterButton_OnUpdate );
+    end);
 end
 
 
@@ -6682,8 +6771,19 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noPTT )
     count = count or 1;
     noPTT = noPTT or false;
 
-    local keyNum = 197;
-    local hotkeyTemp = select ( 3 , GetBinding(keyNum) );
+    local hotkeyTemp = "";
+    local keyNum = 0;
+
+    for i = 1 , 500 do
+        local name , _ , b = GetBinding(i);
+
+        if name == "TOGGLEGUILDTAB" then
+            hotkeyTemp = b;
+            keyNum = i;
+            break;
+        end
+    end
+
     local listOfKeybinds = { "J" , ";" };
     local keybinds = "";
 
@@ -6786,12 +6886,20 @@ end
 GRM.BuildGuildRosterHotkeyAndMacroCLASSIC = function( count , noPTT )
     count = count or 1;
     noPTT = noPTT or false;
-    
-    local keyNum = 184;
-    if GRM_G.BuildVersion >= 30000 then
-        keyNum = 209;
+
+    local keyBindGuild = "";
+    local keyNum = 0;
+
+    for i = 1 , 500 do
+        local name , _ , b = GetBinding(i);
+
+        if name == "TOGGLEGUILDTAB" then
+            keyBindGuild = b;
+            keyNum = i;
+            break;
+        end
     end
-    local keyBindGuild = select ( 3 , GetBinding(keyNum) );
+    
     local listOfKeybinds = { "J" , ";" };
 
     if not noPTT and C_VoiceChat.GetPushToTalkBinding() == nil then
@@ -6820,26 +6928,27 @@ GRM.BuildGuildRosterHotkeyAndMacroCLASSIC = function( count , noPTT )
                 end
             end
         end
-        
+
         SocialsMicroButton:SetScript ( "OnEnter" , function( self )
             local hotkeySocial = select ( 3 , GetBinding ( keyNum - 3 ) );                  -- This is the hotkey to open guild and community interface.
             local hotkeyRoster = select ( 3 , GetBinding ( keyNum ) ); 
             local tooltipTopLine = GRM.L ( "Social" );
-
+    
             if hotkeySocial ~= nil then
                 tooltipTopLine = tooltipTopLine .. " |CFFFFD100(" .. hotkeySocial .. ")|r"
             end
-
+    
             if IsInGuild() and hotkeyRoster ~= nil then
                 tooltipTopLine = tooltipTopLine .. " " .. GRM.L ( "Roster" ) .. " |CFFFFD100(" .. hotkeyRoster .. ")|r";
             end
-
+    
             GameTooltip:SetOwner ( self , "ANCHOR_NONE" );
             GameTooltip:SetPoint( "BOTTOMLEFT" , SocialsMicroButton , "TOPRIGHT" , 0 , 0 );   
             GameTooltip:AddLine( tooltipTopLine , 1 , 1 , 1 );
             GameTooltip:AddLine ( NEWBIE_TOOLTIP_SOCIAL , 1 , 0.82 , 0 , 1 , true );
             GameTooltip:Show();
         end);
+
     end
 end
 
@@ -23177,21 +23286,32 @@ GRM.DisplayRosterMember = function ( playerName , index )
     end
 end
 
+GRM_G.ClassicTaintProtection = false;
+
 -- Method:          GRM.OpenPlayerWindow ( string )
 -- What it Does:    Opens the community frame and brings up the player window for editing
 -- Purpose:         Easy access to find the player from various frames
 GRM.OpenPlayerWindow = function ( playerName )
+    local frameProtection = false;
+
     if GuildFrame and not GuildFrame:IsVisible() then
         if GRM_G.BuildVersion < 80000 then
-            SocialsMicroButton:Click();
-            C_Timer.After ( 0.1 , function()
-                if not GuildFrame:IsVisible() then
-                    if not GRM_G.ClassicTaintWarning then
-                        GRM_G.ClassicTaintWarning = true;
-                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "To avoid addon taint/blocking errors in Classic, the player must manually open the Guild Roster tab the first time." ) );
-                    end
+
+            if not GRM_G.ClassicTaintProtection then
+                if not FriendsFrame:IsVisible() then
+                    SocialsMicroButton:Click();
                 end
-            end);
+
+                C_Timer.After ( 0.1 , function()
+                    if not GuildFrame:IsVisible() then
+                        frameProtection = true;
+                        if not GRM_G.ClassicTaintWarning then
+                            GRM_G.ClassicTaintWarning = true;
+                            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "To avoid addon taint/blocking errors in Classic, the player must manually open the Guild Roster tab the first time." ) );
+                        end
+                    end
+                end);
+            end
         else
             -- Force community Frame open
             GuildFrame_Toggle();
@@ -23203,7 +23323,7 @@ GRM.OpenPlayerWindow = function ( playerName )
         GRM_UI.MemberDetailFrame:Hide();
     end
 
-    local timer = 0;
+    local timer = 0.2;
 
     if not GRM_G.BlizzFramePinsInitialized then
         timer = 0.5;
@@ -23219,8 +23339,11 @@ GRM.OpenPlayerWindow = function ( playerName )
         GRM.ClearAllFrames( true );
         GRM.PopulateMemberDetails ( GRM_G.currentName );
         GRM_UI.GRM_MemberDetailMetaData:Show();
-        GRM.DisplayRosterMember ( playerName , GRM_G.RosterSelection );
-        GRM.UpdateMemberDetailNameClassColor();
+
+        if not frameProtection then
+            GRM.DisplayRosterMember ( playerName , GRM_G.RosterSelection );
+            GRM.UpdateMemberDetailNameClassColor();
+        end
         GRM_G.pause = true;
 
     end);
@@ -23532,12 +23655,18 @@ GRM.FrameTransition = function( fadeInName , fadeOutName , isOptionsTab , isOpti
         if fadeInName ~= nil then
             fadeInName:Show();
             fadeInName:SetAlpha( fadeInName:GetAlpha() + 0.04 );
+            if fadeInName:GetAlpha() + 0.04 >= 1 then
+                fadeInName:SetAlpha(1);
+            end
         end
         if fadeOutName ~= nil then
             fadeOutName:SetAlpha( fadeOutName:GetAlpha() - 0.04 );
+            if fadeOutName:GetAlpha() - 0.04 <= 0 then
+                fadeOutName:SetAlpha(0);
+            end
         end
 
-        if ( fadeInName ~= nil and fadeInName:GetAlpha() < 1 ) or ( fadeInName == nil and fadeOutName:GetAlpha() > 0 ) then
+        if ( fadeInName ~= nil and fadeInName:GetAlpha() < 1 ) or ( fadeInName == nil and fadeOutName:GetAlpha() > 0 )  then
             C_Timer.After ( 0.01 , function()
                 GRM.FrameTransition ( fadeInName , fadeOutName , isOptionsTab , isOptionsSubTab );
             end);
