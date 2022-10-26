@@ -376,6 +376,53 @@ local AddonUsersCheck = CreateFrame ( "Frame" );
 local AchievementsChecking = CreateFrame ( "Frame" );
 local StatusChecking = CreateFrame ( "Frame" );
 
+-- COMPATIBILITY BETWEEN EXPANSIONS - RELEASES - CLASSIC
+-- DF made many UI template changes in 10.0 release, but these do not appear to propagate on the backend for the Classic builds... as of yet.
+
+-- Method           GRM.CreateTexture ( frame , string , string )
+-- What it Does:    Wraps 2 ways to implement the texture, for version compatibility
+-- Purpose:         Version Compatibility
+GRM.CreateTexture = function ( frame , name , layer , useFrame )
+
+    local heritableFrame = nil;
+
+    if GRM_G.BuildVersion >= 100000 then
+        
+        frame[name] = frame:CreateTexture ( nil , layer , nil , 0 );
+
+    else
+
+        if useFrame then
+            heritableFrame = frame;
+        end
+
+        frame[name] = frame:CreateTexture ( nil , layer , heritableFrame , 0 );
+
+    end
+end
+
+-- GRM.CreateFontString = function( self , frameName , layer , inherit )
+
+--     if GRM_G.BuildVersion >= 100000 then
+--         self:CreateFontString ( nil , layer , inherit );
+--     else
+--         self:CreateFontString ( frameName , layer , inherit );
+--     end
+-- end
+
+if GRM_G.BuildVersion >= 100000 then
+    GRM_G.CheckButtonTemplate = "InterfaceOptionsCheckButtonTemplate";
+
+else
+    GRM_G.CheckButtonTemplate = "OptionsSmallCheckButtonTemplate";
+
+end
+
+-------------------------------
+--- END COMPATIBILITY CHECK ---
+-------------------------------
+
+
 --------------------------
 --- STATUS FUNCTIONS -----
 --------------------------
@@ -6095,14 +6142,14 @@ GRM.GetRosterName = function ( button , isMouseClick )
     end
     return name;
 end
-
+-- CommunitiesFrame.MemberList.ScrollBox.ScrollTarget
 -- Method:          GRM.InitializeRosterButtons()
 -- What it Does:    Initializes, one time, the script handlers for the roster frames
 -- Purpose:         So main player popup window appears properly 
 GRM.InitializeRosterButtons = function()
     local cFrame = CommunitiesFrame;
     local memberFrame = cFrame.MemberList;
-    local buttons = memberFrame.ListScrollFrame.buttons;
+    local buttons = memberFrame.ScrollBox.buttons;
     for i = 1 , #buttons do
         buttons[i]:HookScript ( "OnEnter" , function ( self )
             
@@ -6824,8 +6871,8 @@ GRM.RosterFrame = function()
         end
 
         -- Ensure pinned to correct window.
-        if ( ( GRM_G.CurrentPinCommunity and not CommunitiesFrame.MemberList.ListScrollFrame:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld and not GRM_G.CurrentPinCommunity and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) and not GRM_G.pause then
-            if ( ( ( GRM_G.CurrentPinCommunity and not CommunitiesFrame.MemberList.ListScrollFrame:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld and not GRM_G.CurrentPinCommunity and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) and not DropDownList1MenuBackdrop:IsMouseOver ( 2 , -2 , -2 , 2 ) and not StaticPopup1:IsMouseOver ( 2 , -2 , -2 , 2 ) and not GRM_UI.GRM_MemberDetailMetaData:IsMouseOver ( 1 , -1 , -30 , 1 ) and not GRM_UI.GRM_CoreAltFrame:IsMouseOver( 5 , 5 , 5 , 35 ) and not GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:IsMouseOver ( 1 , 1 , 1 , 3 ) ) or 
+        if ( ( GRM_G.CurrentPinCommunity and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld and not GRM_G.CurrentPinCommunity and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) and not GRM_G.pause then
+            if ( ( ( GRM_G.CurrentPinCommunity and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld and not GRM_G.CurrentPinCommunity and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) and not DropDownList1MenuBackdrop:IsMouseOver ( 2 , -2 , -2 , 2 ) and not StaticPopup1:IsMouseOver ( 2 , -2 , -2 , 2 ) and not GRM_UI.GRM_MemberDetailMetaData:IsMouseOver ( 1 , -1 , -30 , 1 ) and not GRM_UI.GRM_CoreAltFrame:IsMouseOver( 5 , 5 , 5 , 35 ) and not GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:IsMouseOver ( 1 , 1 , 1 , 3 ) ) or 
                 ( not GRM_UI.GRM_MemberDetailMetaData:IsVisible() ) then  -- If player is moused over side window, it will not hide it!
                 if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                     GRM.ClearAllFrames( true );
@@ -8136,7 +8183,7 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
         -- if font string is not created, do so.
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i] then
             local tempButton = CreateFrame ( "Button" , "PlayerToAdd" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame ); -- Names each Button 1 increment up
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( "PlayerToAddText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "PlayerToAddDateText .. i" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "PlayerToAddTitleText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "PlayerToAddDescriptionText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) };
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
         end
 
         GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i][1].timer = 0;
@@ -8352,7 +8399,7 @@ GRM.BuildAddonUserScrollFrame = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.GRM_AddonUsersCoreFrameTitleText2:Hide();
         -- if font string is not created, do so.
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] = { GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( "GRM_AddonUserNameText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( "GRM_AddonUserSyncText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( "GRM_AddonUserVersionText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) };
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] = { GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
         end
 
         local AddonUserText1 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1];
@@ -8483,7 +8530,7 @@ GRM.BuildAltGroupingScrollFrame = function( currentName )
         for i = 1 , #listOfAlts do  -- The +1 is for the player so they can count themselves too...
             -- if font string is not created, do so.
             if not GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame.AllFrameFontstrings[i] then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame.AllFrameFontstrings[i] = { GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( "GRM_AltName" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( "GRM_AltLevel" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( "GRM_AltRank" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( "GRM_AltLastOnline" .. i , "OVERLAY" , "GameFontWhiteTiny" ) };
+                GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame.AllFrameFontstrings[i] = { GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
             end
     
             local AltName = GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame.AllFrameFontstrings[i][1];
@@ -8619,7 +8666,7 @@ GRM.BuildAutoCompleteAltSelectionScrollFrame = function ( listOfAlts )
         -- if font string is not created, do so.
         if not GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i] then
             local tempButton = CreateFrame ( "Button" , "AltSelection" .. i , GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame ); -- Names each Button 1 increment up
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i] = { tempButton , tempButton:CreateFontString ( "AltButtonText" .. i , "OVERLAY" , "GameFontWhiteTiny" )  };
+            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )  };
         end
 
         local button = GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i][1];
@@ -8694,7 +8741,7 @@ GRM.BuildAutoCompleteBanNames = function ( listOfAlts )
         -- if font string is not created, do so.
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i] then
             local tempButton = CreateFrame ( "Button" , "BanButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame ); -- Names each Button 1 increment up
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i] = { tempButton , tempButton:CreateFontString ( "BanButtonText" .. i , "OVERLAY" , "GameFontWhiteTiny" )  };
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )  };
         end
 
         local button = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i][1];
@@ -9152,11 +9199,11 @@ GRM.BuildBackupScrollFrame = function ( showAll , fullRefresh )
                 local button = CreateFrame ( "Button" , "GRMBackupCoreButton_" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[i] = {
                     button ,
-                    button:CreateFontString ( "GuildBString1_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "GuildBString2_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "GuildBString3_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "GuildBString4_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "GuildBString5_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
                     CreateFrame ( "Button" , "GuildBackup1_" .. i , button , "UIPanelButtonTemplate" ) ,
                     CreateFrame ( "Button" , "GuildBackup2_" .. i , button , "UIPanelButtonTemplate" ) ,
                 };
@@ -9636,11 +9683,11 @@ GRM.RefreshAuditFrames = function ( showAll , fullRefresh , searchString )
                 local button = CreateFrame ( "Button" , "GRMAuditCoreButton_" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i] = {
                     button ,
-                    button:CreateFontString ( "AudtString1_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "AudtString2_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "AudtString3_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "AudtString4_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
-                    button:CreateFontString ( "AudtString5_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) ,
                 };
 
                 button = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1];
@@ -14839,8 +14886,8 @@ GRM.BuildLog = function ( searchString , fullRefresh )
                 local button = CreateFrame ( "Button" , "LogButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i] = {
                     button ,
-                    button:CreateFontString ( "GRM_LogEntry_" .. i ) ,
-                    button:CreateFontString ( "GRM_LogCount_" .. i , "OVERLAY" , "GameFontWhiteTiny" ),
+                    button:CreateFontString ( nil ) ,
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),
                     0   -- index of the log
                 };
 
@@ -15540,7 +15587,7 @@ GRM.BuildExportDelimiterDropdownMenu = function()
     for i = 1 , #delimiters do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "GRM_DelimiterButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "GRM_DelimiterText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local DelimiterButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu.Buttons[i][1];
@@ -15748,7 +15795,7 @@ GRM.InitializeDropDownDay = function ()
     for i = 1 , numDays do
         if not GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "DayOfTheMonth" .. i , GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "DayOfTheGRM_MonthText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local DayButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i][1];
@@ -15807,7 +15854,7 @@ GRM.InitializeDropDownYear = function ()
     for i = 1 , currentYear - 2003 do
         if not GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "YearIndexButton" .. i , GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "YearIndexButtonText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local YearButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i][1];
@@ -15865,7 +15912,7 @@ GRM.InitializeDropDownMonth = function ()
     for i = 1 , #months do
         if not GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "monthIndex" .. i , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "monthIndexText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local MonthButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i][1];
@@ -16775,7 +16822,7 @@ GRM.PopulateOptionsRankDropDown = function ()
     for count = 1 , GuildControlGetNumRanks() do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "rankIndex" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "rankIndexText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local RankButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i][1];
@@ -16874,7 +16921,7 @@ GRM.PopulateBanListOptionsDropDown = function ()
     for count = 1 , GuildControlGetNumRanks() do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "rankIndex" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "rankIndexText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local RankButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i][1];
@@ -16970,7 +17017,7 @@ GRM.PopulateDefaultDropDownRankMenu = function ()
     for count = 1 , GuildControlGetNumRanks() do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "rankIndex" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "rankIndexText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local RankButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons[i][1];
@@ -17054,7 +17101,7 @@ GRM.CreateRankDropDownMenu = function ( SelectedFrame , Menu , fontSize , button
     for count = 1 , GuildControlGetNumRanks() do
         if not Menu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , Menu:GetName() .. "RankIndex_" .. i , Menu );
-            Menu.Buttons[i] = { tempButton , tempButton:CreateFontString ( Menu:GetName() .. "RankIndexText_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            Menu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local RankButtons = Menu.Buttons[i][1];
@@ -17105,7 +17152,7 @@ GRM.CreateDropDownMenu = function ( SelectedFrame , Menu , fontSize , buttonHeig
     for i = 1 , #textList do
         if not Menu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , Menu:GetName() .. "_" .. i , Menu );
-            Menu.Buttons[i] = { tempButton , tempButton:CreateFontString ( Menu:GetName() .. "Text_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            Menu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local RankButtons = Menu.Buttons[i][1];
@@ -17155,7 +17202,7 @@ GRM.PopulateClassDropDownMenu = function()
     for i = 1 , #AllClasses do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "ClassButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "ClassButtonText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
             if i == 1 then
                 GRM_G.DropDownHighlightLockIndex = 1;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[i][1]:LockHighlight();
@@ -17219,7 +17266,7 @@ GRM.PopulateMainTagDropdown = function()
     for i = 1 , #tagChoices do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "MainTagOption" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "MainTagText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local TagButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons[i][1];
@@ -17282,7 +17329,7 @@ GRM.PopulateDefaultTabDropdown = function()
     for i = 1 , #tabChoices do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "DefaultTabButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "DefaultTabButtonText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local TabButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i][1];
@@ -17334,7 +17381,7 @@ GRM.PopulateLanguageDropdown = function()
     for i = 1 , #GRML.Languages do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "GRM_Language_" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "GRM_LanguageButtonText_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local LangButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i][1];
@@ -17476,7 +17523,7 @@ GRM.PopulateFontDropdown = function()
     for i = 1 , #GRML.FontNames do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "GRM_Font" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "GRM_FontButtonText_" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
 
         local FontButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i][1];
@@ -17568,7 +17615,7 @@ GRM.PopulateTimestampFormatDropDown = function()
     for i = 1 , 16 do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "GRM_timeStampButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "GRM_GRM_timeStampButton_Text" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
         GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].dateFormat = i;
         local timeStampButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu.Buttons[i][1];
@@ -17625,7 +17672,7 @@ GRM.CreateServerSelectionDropdown = function ( theList )
     for i = 1 , #theList do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , name .. "_Button" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( name .. "_Button_Text" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
             if i == 1 then
                 GRM_G.DropDownHighlightLockIndex = 1;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerDropDownMenu.Buttons[i][1]:LockHighlight();
@@ -17683,7 +17730,7 @@ GRM.Populate24HrDropDown = function()
     for i = 1 , 2 do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "GRM_HrButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( "GRM_HrButton_Txt" .. i , "OVERLAY" , "GameFontWhiteTiny" ) }
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
         end
         local HrButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i][1];
         local HrButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i][2];
@@ -19648,7 +19695,7 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
         -- if font string is not created, do so.
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i] then
             local tempButton = CreateFrame ( "Button" , "BannedPlayer" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame ); -- Names each Button 1 increment up
-            table.insert ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons , { tempButton , tempButton:CreateFontString ( "BannedPlayerNameText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerRankText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerDateText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( "BannedPlayerReasonText" .. i , "OVERLAY" , "GameFontWhiteTiny" ) , false } );
+            table.insert ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons , { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , false } );
         end
 
         local BanButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1];
@@ -21866,13 +21913,10 @@ GRM.RefreshJDAuditToolFrames = function ( showAll , fullRefresh )
         -- Build HybridScrollFrame Buttons
         if i <= hybridScrollFrameButtonCount then
             if not GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame.AllButtons[i] then
-                local button = CreateFrame ( "Button" , "JDAuditButton" .. i .. "_" .. 1, GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame );
-                GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame.AllButtons[i] = { button , button:CreateFontString ( "JDAuditButtonText" .. i .. "_" .. 1 , "OVERLAY" , "GameFontWhiteTiny" ),
-                                                                                                    button:CreateFontString ( "JDAuditButtonText" .. i .. "_" .. 2 , "OVERLAY" , "GameFontWhiteTiny" ),
-                                                                                                    button:CreateFontString ( "JDAuditButtonText" .. i .. "_" .. 3 , "OVERLAY" , "GameFontWhiteTiny" ),
-                                                                                                    button:CreateFontString ( "JDAuditButtonText" .. i .. "_" .. 4 , "OVERLAY" , "GameFontWhiteTiny" ),
-                                                                                                    button:CreateFontString ( "JDAuditButtonText" .. i .. "_" .. 5 , "OVERLAY" , "GameFontWhiteTiny" )
+                local button = CreateFrame ( "Button" , "JDAuditButton" .. i .. "_" .. 1 , GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame );
+                GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame.AllButtons[i] = { button , button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ), button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ), button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ), button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ), button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )
                 };
+
                 button = GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame.AllButtons[i][1];
                 if i == 1 then
                     button:SetPoint ( "TOP" , GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame , "TOP" , -1 , 0 );
