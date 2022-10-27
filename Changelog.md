@@ -1,3 +1,14 @@
+## **VERSION R1.941 RELEASE - 27th Oct, 2022**
+
+***QUALITY OF LIFE***
+
+* Added compatibility to the LibDBIcon data broker, which is commonly used for MINIMAP Icons. The broker is not natively included within GRM, and the default GRM icon will work regardless. However, if GRM finds it installed, which is likely given the prevelance of other addons, it will take advantage of it and create a broker compatible icon. You may notice your minimap position has been reset. 
+
+***BUG FIXES***
+
+* Issue with the roster refreshing back to the top. Blizz must have made a change when doing a call to the roster to scan for changes, it will refresh the frames too. This is handled slightly differently now and should not annoyingly refresh your guild roster back to the top.
+
+
 ## **VERSION R1.94 RELEASE - 26th Oct, 2022**
 
 ***RELEASE FOR 10.0 COMPATIBILITY FOR DRAGONFLIGHT EXPANSION***
@@ -23,7 +34,6 @@
 * "Fade on Tab Change (GRM UI setting option) was throwing a lua error I just realized. I guess no one uses this feature, including me, as I only discovered it when testing if everything was working. lol
 
 * Classic had a potential taint issue that could occur if you CTRL-Clicked to bring up player window, like from audit window, prior to actually opening the guild frame yourself that session
-
 
 
 

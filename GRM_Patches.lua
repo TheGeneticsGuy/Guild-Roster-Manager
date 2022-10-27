@@ -1011,6 +1011,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     patchNum = patchNum + 1;
     if numericV < 1.92996 and baseValue < 1.92996 then
+        -- Quick Data Integrity Check
+        GRM.GuildDataIntegrityCheck();
         GRM_Patch.ConfigureNewAltGroups();
         GRM_Patch.AddMemberMetaData ( "altGroup" , "" );
         GRM_Patch.AddMemberMetaData ( "altGroupModified" , 0 );

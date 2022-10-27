@@ -25,6 +25,8 @@ GRM_Misc = GRM_Misc or {};                                                      
 GRM_DailyAnnounce = GRM_DailyAnnounce or {};
 -- Backups...
 GRM_GuildDataBackup_Save = GRM_GuildDataBackup_Save or {};
+-- Minimap position for databroker
+GRM_MinimapPosition = GRM_MinimapPosition or {};
 
 -- slash commands (You can create custom one localized to your language in the localization folder)
 SLASH_GRM1 = '/roster';
@@ -32,7 +34,7 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.94";
+GRM_G.Version = "R1.941";
 GRM_G.PatchDay = 1666823002;             -- In Epoch Time
 GRM_G.PatchDayString = "1666823002";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
@@ -357,7 +359,7 @@ local daysBeforeMonthEnum = { ['1']=0 , ['2']=31 , ['3']=59 , ['4']=90 , ['5']=1
 local daysInMonth = { ['1']=31 , ['2']=28 , ['3']=31 , ['4']=30 , ['5']=31 , ['6']=30 , ['7']=31 , ['8']=31 , ['9']=30 , ['10']=31 , ['11']=30 , ['12']=31 };
 local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" };
 local classFileIDEnum = { ["WARRIOR"]=1 , ["PALADIN"]=2 , ["HUNTER"]=3 , ["ROGUE"]=4 , ["PRIEST"]=5 , ["DEATHKNIGHT"]=6 , ["SHAMAN"]=7 , ["MAGE"]=8 , ["WARLOCK"]=9 , ["MONK"]=10 , ["DRUID"]=11 , ["DEMONHUNTER"]=12 };
-local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 };
+local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["    Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 };
 
 -- Let's global some of these useful frames into a table.
 local GuildRanks = {};
@@ -1000,8 +1002,6 @@ GRM.LoadSettings = function()
         end
 
         -- PATCH FIXES
-        -- Quick Data Integrity Check
-        GRM.GuildDataIntegrityCheck();
         GRM_Patch.SettingsCheck ( tonumber ( string.match ( playerV , "R(.+)" ) ) );
         
     else
@@ -1164,7 +1164,9 @@ end
 
 GRM.GuildRoster = function()
     if C_GuildInfo.GuildRoster then
-        C_GuildInfo.GuildRoster();
+        if CommunitiesFrame and CommunitiesFrame.MemberList and not CommunitiesFrame.MemberList:IsVisible() then
+            C_GuildInfo.GuildRoster();
+        end
     else
         GuildRoster();
     end
