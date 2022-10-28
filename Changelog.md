@@ -1,3 +1,14 @@
+## **VERSION R1.942 RELEASE - 27th Oct, 2022**
+
+* Fixed a Lua error that could occur when changing fonts or on load in Classic  
+
+* Fixed an issue where the mouseover could get locked even after closing the window. This seemed to only happen on the "Old" roster window.
+
+* Fixed the new minimap compatibility issue error that was causing GRM to crash for people hiding the minimap button.
+
+* Fixed an issue so export won't throw an error when looking at Race data for export in Classic, but trying to determine the source.
+
+
 ## **VERSION R1.941 RELEASE - 27th Oct, 2022**
 
 ***QUALITY OF LIFE***
@@ -34,7 +45,6 @@
 * "Fade on Tab Change (GRM UI setting option) was throwing a lua error I just realized. I guess no one uses this feature, including me, as I only discovered it when testing if everything was working. lol
 
 * Classic had a potential taint issue that could occur if you CTRL-Clicked to bring up player window, like from audit window, prior to actually opening the guild frame yourself that session
-
 
 
 ## **VERSION R1.936 RELEASE - 23rd Oct, 2022**

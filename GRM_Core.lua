@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.941";
-GRM_G.PatchDay = 1666823002;             -- In Epoch Time
-GRM_G.PatchDayString = "1666823002";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.942";
+GRM_G.PatchDay = 1666911833;             -- In Epoch Time
+GRM_G.PatchDayString = "1666911833";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -6818,8 +6818,10 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noPTT )
                     FriendsFrame:Show();
                 else
                     CommunitiesFrame:Hide();
-                    GuildFrame_Toggle();
-                    GuildFrame_TabClicked ( GuildFrameTab2 );
+                    if GuildFrame_Toggle ~= nil then
+                        GuildFrame_Toggle();
+                        GuildFrame_TabClicked ( GuildFrameTab2 );
+                    end
                 end
             else
                 GRM_G.CurrentPinCommunity = true;
@@ -11542,6 +11544,8 @@ GRM.ScanRecommendationsList = function()
     local tempListOfNames = {};
     local ruleNames = "";
 
+    GRM.RefreshNumberOfHoursTilRecommend();
+
     -- Kick Recommendations
     if CanGuildRemove() then        -- No need to do the work and report if you cannot remove players
         playerRecommendation = GRM.GetKickNamesByFilterRules();
@@ -15358,7 +15362,7 @@ GRM.BuildExportMemberDetails = function( currentMembers , specificGuild , guildF
                     playerDetails = playerDetails .. C_CreatureInfo.GetClassInfo ( classFileIDEnum[roster[i].class] ).className .. delimiter;   -- class
                 end
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportFilters[15] then
-                    if roster[i].race ~= "" then 
+                    if roster[i].race and roster[i].race ~= "" and raceIDEnum[roster[i].race] ~= nil then 
                         playerDetails = playerDetails .. C_CreatureInfo.GetRaceInfo ( raceIDEnum[roster[i].race] ).raceName .. delimiter;   -- Race
                     else
                         playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
@@ -23316,8 +23320,10 @@ GRM.OpenPlayerWindow = function ( playerName )
             end
         else
             -- Force community Frame open
-            GuildFrame_Toggle();
-            GuildFrame_TabClicked ( GuildFrameTab2 );
+            if GuildFrame_Toggle ~= nil then
+                GuildFrame_Toggle();
+                GuildFrame_TabClicked ( GuildFrameTab2 );
+            end
         end
     end
     

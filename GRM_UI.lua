@@ -1573,7 +1573,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end
     GRM_UI.GRM_MemberDetailMetaData:SetSize( 300 , 330 );
     GRM_UI.GRM_MemberDetailMetaData.timer = 0;
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataCloseButton:SetPoint( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData , 3, 3 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataCloseButton:SetPoint( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData , "TOPRIGHT" , -4 , -4 );
     GRM_UI.GRM_MemberDetailMetaData:EnableMouse ( true );
     GRM_UI.GRM_MemberDetailMetaData:SetToplevel ( true );
     
@@ -2003,10 +2003,70 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         GRM.ClearAllFrames( false );
         if not GRM_UI.MemberDetailFrame:IsVisible() and not GRM_UI.MemberDetailFrameClassic:IsVisible() then
             GRM_G.pause = false;
-            if GRM_G.BuildVersion < 80000 and ( GuildFrame and GuildFrame:IsVisible() ) then
-                GRM.ClearRosterHighlights();
-            end
+            GRM.ClearRosterHighlights();
+
+        else
+            if GRM_G.pause then
+                if GRM_UI.MemberDetailFrame then
+                    GRM_UI.MemberDetailFrame.LockedFrameText:Show();
+                end
+
+                if GRM_UI.MemberDetailFrameClassic then
+                    GRM_UI.MemberDetailFrameClassic.LockedFrameText:Show();
+                end
+            end                
         end
+    end);
+
+    GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnShow" , function()
+
+        local configured1 , configured2 = false , false;
+        -- Configure only once
+        if GRM_UI.MemberDetailFrame and not GRM_UI.MemberDetailFrame.LockedFrameText then
+            GRM_UI.MemberDetailFrame.LockedFrameText = GRM_UI.MemberDetailFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+            GRM_UI.MemberDetailFrame.LockedFrameText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -5 , 0 );
+            GRM_UI.MemberDetailFrame.LockedFrameText:SetFont (  GRM_G.FontChoice , GRM_G.FontModifier + 10 );
+            GRM_UI.MemberDetailFrame.LockedFrameText:SetTextColor ( 1 , 0 , 0 , 1 );
+            GRM_UI.MemberDetailFrame.LockedFrameText:SetText ( GRM.L ( "Locked. Press ESC" ) );
+            GRM_UI.MemberDetailFrame.LockedFrameText:Hide();
+
+            GRM_UI.MemberDetailFrame:HookScript ( "OnHide" , function()
+                if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                    GRM_G.pause = false;
+                    GRM.ClearRosterHighlights();
+                end
+            end);
+
+        else
+            configured1 = true;
+        end
+
+        if GRM_UI.MemberDetailFrameClassic and not GRM_UI.MemberDetailFrameClassic.LockedFrameText then
+            GRM_UI.MemberDetailFrameClassic.LockedFrameText = GRM_UI.MemberDetailFrameClassic:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.MemberDetailFrameClassic , "TOPRIGHT" , -5 , 0 );
+            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetFont (  GRM_G.FontChoice , GRM_G.FontModifier + 10 );
+            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetTextColor ( 1 , 0 , 0 , 1 );
+            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetText ( GRM.L ( "Locked. Press ESC" ) );
+            GRM_UI.MemberDetailFrameClassic.LockedFrameText:Hide();
+
+            GRM_UI.MemberDetailFrameClassic:HookScript ( "OnHide" , function()
+                if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                    GRM_G.pause = false;
+                    GRM.ClearRosterHighlights();
+                end
+            end);
+
+        else
+            configured2 = true;
+        end
+        
+        if configured1 then
+            GRM_UI.MemberDetailFrame.LockedFrameText:Hide();
+        end
+        if configured2 then
+            GRM_UI.MemberDetailFrameClassic.LockedFrameText:Hide();
+        end
+
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_SyncJoinDateSideFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData , "TOPRIGHT" , -7 , 0 );
@@ -5503,8 +5563,6 @@ GRM_UI.PreAddonLoadUI = function()
                     } );
                     if GRM_UI.GRM_MinimapButton then
                         GRM_UI.GRM_MinimapButton:Register("Guild_Roster_Manager", GRM_Initialize, GRM_MinimapPosition )
-                        LibDBIcon10_Guild_Roster_Manager:SetMovable ( true );
-                        LibDBIcon10_Guild_Roster_Manager:SetUserPlaced ( true );
                     end
                 end
             end
@@ -13129,7 +13187,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     -- Player Search
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox , "TOP" , 0 , -2 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox , "TOP" , 0 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetTextColor ( 1 , 0.82 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetText ( GRM.L ( "Player Search" ) );
@@ -14057,7 +14115,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     -- SEARCH BOX FOR BAN
     -- Player Search
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox , "TOP" , 0 , -2 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox , "TOP" , 0 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetTextColor ( 1 , 0.82 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBoxText:SetText ( GRM.L ( "Player Search" ) );
@@ -16464,6 +16522,7 @@ GRM_UI.OldRosterLog_OnShow = function( isManual )
         GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster:ClearAllPoints();
         GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster:SetPoint ( "BOTTOMRIGHT" , GuildRosterViewDropdown , "TOPRIGHT" , -12 , -5.5 );
         GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetPoint ( "RIGHT" , GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster , "LEFT" , -3 , 0 );
+        GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster.Configured = false;
         
         GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster:SetScript ( "OnClick", function( self )
             if self:GetChecked() then
@@ -16480,20 +16539,30 @@ GRM_UI.OldRosterLog_OnShow = function( isManual )
                 end                
             end
             GRM_UI.Unpause();
-            GRM.SyncSettings();
+            GRM.SyncSettings(); 
         end);
 
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld then
-            GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster:SetChecked ( true );
-            GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetTextColor ( 1 , 0.82 , 0 , 1 );
-        else
-            GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetTextColor ( 1 , 0 , 0 , 1 );
+        local timer = 0;
+        if not GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster.Configured and IsAddOnLoaded("AddOnSkins") then
+            timer = 3.1;
         end
+        GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster.Configured = true;
+
+        C_Timer.After ( timer , function()
+            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld then
+                GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster:SetChecked ( true );
+                GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetTextColor ( 1 , 0.82 , 0 , 1 );
+            else
+                GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetTextColor ( 1 , 0 , 0 , 1 );
+            end
+        end);
     end
 
-    GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetText ( GRM.L ( "Show Mouseover" ) );
-    GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster:SetHitRectInsets ( - GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:GetWidth() -2 , 1 , 1 , 1 );
-    GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 9.5 );
+    if GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster ~= nil then
+        GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetText ( GRM.L ( "Show Mouseover" ) );
+        GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster:SetHitRectInsets ( - GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:GetWidth() -2 , 1 , 1 , 1 );
+        GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 9.5 );
+    end
 
     if IsGuildLeader() and GRM_G.BuildVersion < 40000 and not GRM_G.rankShiftLoaded then
         GRM_G.rankShiftLoaded = true;
@@ -16522,6 +16591,7 @@ GRM_UI.MainRoster_OnShow = function( isManual )
         rosterFrame.GRM_EnableMouseOver:SetSize ( 20 , 20 );
         rosterFrame.GRM_EnableMouseOver:ClearAllPoints();
         rosterFrame.GRM_EnableMouseOver:SetHitRectInsets ( -90 , 1 , 1 , 1 );
+        rosterFrame.GRM_EnableMouseOver.Configured = false;
         rosterFrame.GRM_EnableMouseOverText:SetPoint ( "RIGHT" , rosterFrame.GRM_EnableMouseOver , "LEFT" , -3 , 0 );
         rosterFrame.GRM_EnableMouseOver:SetScript ( "OnClick", function( self )
 
@@ -16578,12 +16648,20 @@ GRM_UI.MainRoster_OnShow = function( isManual )
             rosterFrame.GRM_EnableMouseOver:SetPoint ( "BOTTOMRIGHT" , nextToButton , "TOPRIGHT" , -1 , -3 );
         end
 
-        if ( GRM_G.BuildVersion >= 80000 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverRetail ) or ( GRM_G.BuildVersion < 80000 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld ) then
-            rosterFrame.GRM_EnableMouseOver:SetChecked ( true );
-            rosterFrame.GRM_EnableMouseOverText:SetTextColor ( 1 , 0.82 , 0 , 1 );
-        else
-            rosterFrame.GRM_EnableMouseOverText:SetTextColor ( 1 , 0 , 0 , 1 );
+        local timer = 0;
+        if not rosterFrame.GRM_EnableMouseOver.Configured and IsAddOnLoaded("AddOnSkins") then
+            timer = 3.1;
         end
+        rosterFrame.GRM_EnableMouseOver.Configured = true;
+
+        C_Timer.After ( timer , function()
+            if ( GRM_G.BuildVersion >= 80000 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverRetail ) or ( GRM_G.BuildVersion < 80000 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showMouseoverOld ) then
+                rosterFrame.GRM_EnableMouseOver:SetChecked ( true );
+                rosterFrame.GRM_EnableMouseOverText:SetTextColor ( 1 , 0.82 , 0 , 1 );
+            else
+                rosterFrame.GRM_EnableMouseOverText:SetTextColor ( 1 , 0 , 0 , 1 );
+            end
+        end);
     end
 
     rosterFrame.GRM_EnableMouseOverText:SetText ( GRM.L ( "Show Mouseover" ) );
@@ -16896,9 +16974,7 @@ GRM_UI.InitalizeGuildFrame = function()
         end
 
         -- Classic highlight removal.
-        if GRM_G.BuildVersion < 80000 then
-            GRM.ClearRosterHighlights();
-        end
+        GRM.ClearRosterHighlights();
 
     end);
 

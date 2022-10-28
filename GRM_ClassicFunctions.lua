@@ -119,8 +119,17 @@ end
 -- What it Does:    Unlocks the highlighted player of the guildRoster if any is selected
 -- Purpose:         Needed to unlock the highlights properly so it is not confusing who is selected.
 GRM.ClearRosterHighlights = function()
-    SetGuildRosterSelection ( 0 );      -- If you do not clear the selection, it will just re-highlight the bar when it updates.
-    for i = 1 , GRM_UI.ContainerButtonCount do
-        _G[ "GuildFrameButton" .. i ]:UnlockHighlight();
+    SetGuildRosterSelection ( 0 );      -- If you do not clear the selection, it will just re-highlight the bar when it updates.\
+
+    if GuildFrame and GuildFrame:IsVisible() then
+        if GRM_G.BuildVersion < 40000 then
+            for i = 1 , GRM_UI.ContainerButtonCount do
+                _G[ "GuildFrameButton" .. i ]:UnlockHighlight();
+            end
+        else
+            for i = 1 , GRM_UI.ContainerButtonCount do
+                _G[ "GuildRosterContainerButton" .. i ]:UnlockHighlight();
+            end
+        end
     end
 end

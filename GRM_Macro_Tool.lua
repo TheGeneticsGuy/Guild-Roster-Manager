@@ -38,8 +38,8 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreClearSelectionBut
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreClearSelectionButton.GRM_ToolIgnoreClearSelectionButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreClearSelectionButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton = CreateFrame( "Button" , "GRM_ToolIgnoreResetSelectedNamesButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton.GRM_ToolIgnoreResetSelectedNamesButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton = CreateFrame( "Button" , "GRM_ToiolIgnoreRemoveAllButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "UIPanelButtonTemplate" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton = CreateFrame( "Button" , "GRM_ToolIgnoreRemoveAllButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "UIPanelButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
 
 -- Text
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
@@ -688,16 +688,16 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.RestoreTooltip();
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton , "BOTTOM" , 0 , -20 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton:SetSize ( 110 , 75 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton , "BOTTOM" , 0 , -20 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton:SetSize ( 110 , 75 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetWidth ( 95 )
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetWordWrap ( true );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetSpacing ( 1 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetWidth ( 95 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetWordWrap ( true );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetSpacing ( 1 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton:SetScript ( "OnClick" , function ( _ , button )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton:SetScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
                 if GRM.IsAnyIgnored() then
                     GRM_UI.RestoreTooltipScale();
@@ -709,7 +709,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton:SetScript ( "OnEnter" , function( self )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton:SetScript ( "OnEnter" , function( self )
             if not GRM.IsAnyIgnored() then
                 GRM_UI.SetTooltipScale();
                 GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
@@ -718,7 +718,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton:SetScript ( "OnLeave" , function()
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton:SetScript ( "OnLeave" , function()
             GRM.RestoreTooltip();
         end);
 
@@ -728,7 +728,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
-                print("Test")
+                print("Pending Feature - Test")
             end
         end);
 
@@ -1333,8 +1333,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton.GRM_ToolIgnoreResetSelectedNamesButtonText:SetText ( GRM.L ( "Clear Selection" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton.GRM_ToolIgnoreResetSelectedNamesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreClearSelectionButton.GRM_ToolIgnoreClearSelectionButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToiolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetText ( GRM.L ( "Remove all players from Ignore List" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText:SetText ( GRM.L ( "Remove all players from Ignore List" ) );
 
     -- Button Text
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
