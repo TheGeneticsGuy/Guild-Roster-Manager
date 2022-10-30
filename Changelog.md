@@ -1,3 +1,10 @@
+## **VERSION R1.945 RELEASE - 30th Oct, 2022**
+
+* Fixed an issue where if you set the date timestamp format to one of the last 2 options, globally, it would reset to a different format. This only affected people using the 30-10-2022 or the 2022.10.30 date formatting styles and had set it globally with the guildInfo tag.
+
+* Additional bugs for the backend resolved reported on discord.
+
+
 ## **VERSION R1.944 RELEASE - 30th Oct, 2022**
 
 ***QUALITY OF LIFE***
@@ -6,11 +13,11 @@
 
 * > Promotion Rule - You can now choose to set a promotion based on the Time at Rank, or based on the Time in the Guild
 
-![https://i.imgur.com/AytQLR9.jpg](New Promotion Macro Tool Rule)
+![New Promotion Macro Tool Rule](https://i.imgur.com/AytQLR9.jpg)
 
 * > Kick, Promote, Demote Rule - You can now search for a text match that will ignore the rule if a match is found. In other words, let's say your text match is "[S]" - The macro filter will skip over this player and deem them as "safe" from that specific rule. You can set any text tag you would like. However, I did make the decision that GRM will only search for the tag within the officer note. This is because the custom and public notes are typically widely available to players in the guild, and it doesn't make sense for a player who might discover the tag, to be able to add it to their own note.
 
-![https://i.imgur.com/1MV5tmE.jpg](New Promotion Macro Tool Rule)
+![New Promotion Macro Tool Rule](https://i.imgur.com/1MV5tmE.jpg)
 
 * Added compatibility to the YYYY.MM.DD timestamp formatting - This is another timestamp formatting option. This can be controlled as a global control for the guild. It is also a data format fully compatible with the "Advanced Join Date Tool" for importing/exporting join dates from player notes.
 

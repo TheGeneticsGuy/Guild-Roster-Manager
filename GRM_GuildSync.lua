@@ -1,6 +1,6 @@
 
 -- For Sync controls!
--- Author: Arkaan... aka "TheGenomeWhisperer"
+-- Author: Arkaan... aka "The Genetics Guy"
 -- To hold all Sync Methods/Functions
 
 GRMsync = {};
@@ -26,7 +26,7 @@ GRMsyncGlobals.InitializeTime = 0;                  -- to ensure no crossover ta
 
 -- For players queing to by sync'd to share data!
 -- If a player requests a leader sync, they are added to this que. This is so the leader can just add them to que
--- in the case that they may be syncing with another player already. Depending on the amount of data transferring, and the size of the guild, sync can take anywhere from 1-5 seconds
+-- in the case that they may be syncing with another player already. Depending on the amount of data transferring, and the size of the guild, sync can take some time due to the 4kb/sec cap for ALL addons.
 -- Based on server response time, per person. At least, initially. Live Sync updates happen near instantly.
 GRMsyncGlobals.SyncQue = {};
 

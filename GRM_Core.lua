@@ -1,12 +1,12 @@
 
--- Author: Arkaan
+-- Author: Arkaan - "The Genetics Guy" (Github)
 -- Addon Name: "Guild Roster Manager"
 
 -- Global Tables
 GRM = {};
--- Useful Variables ( kept in table to keep low upvalues count )
+-- Master table that will be used to house all functions
 GRM_G = {}; 
--- Global Table to hold all server-side global API by Blizz
+-- Global Table to hold all global variables made by GRM.
 GRM_L = {};
 -- Localaztion array for all language initialization functions.
 GRML = {};
@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.944";
-GRM_G.PatchDay = 1667066727;             -- In Epoch Time
-GRM_G.PatchDayString = "1667066727";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.945";
+GRM_G.PatchDay = 1667173033;             -- In Epoch Time
+GRM_G.PatchDayString = "1667173033";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -368,7 +368,7 @@ local GuildRanks = {};
 ------ FRAMES ----------
 ------------------------
 
--- Live Frames - Keep them separate for easier to read code... for now.
+-- Live Frames - Keep them separate for easier to read code...
 local Initialization = CreateFrame ( "Frame" );
 local GeneralEventTracking = CreateFrame ( "Frame" );
 local UI_Events = CreateFrame ( "Frame" );
@@ -11896,6 +11896,8 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
             end
 
         end
+
+        GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].altGroup = "";
         -- removing from active member library
         GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][unitName] = nil;
     end
@@ -12038,6 +12040,7 @@ GRM.RecordLeftGuildChanges = function ( unitName , isLiveDetection )
 
         end
         -- removing from active member library
+        GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][unitName].altGroup = "";
         GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][unitName] = nil;
     end
     
@@ -20867,8 +20870,8 @@ GRM.SetTimestampRestriction = function ( timeFormatIndex , isMyEdit )
         GRM_G.GlobalControl5 = true;
     end
 
-    if timeFormatIndex > 15 then
-        timeFormatIndex = 15
+    if timeFormatIndex > 17 then
+        timeFormatIndex = 17
     end
 
     -- Now, we check to see if yours matches it or not. If it doesn't, you need to change it.

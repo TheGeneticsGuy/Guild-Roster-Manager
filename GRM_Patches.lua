@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 100;
+local totalPatches = 101;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1128,7 +1128,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     if numericV < 1.944 and baseValue < 1.944 then
 
-        GRM_Patch.ModifyMemberData ( GRM_Patch.PlayerNameFixFormerMembers , false , true , true );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.PlayerNameFixFormerMembers , false , true , false );
         GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "sinceAtRank" , true );
         GRM_Patch.ModifyOrAddMacroRuleSetting ( "kickRules" , "safeText" , "" );
         GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "safeText" , "" );
@@ -1144,6 +1144,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+    
+    --patch 101
+    patchNum = patchNum + 1;
+    if numericV < 1.945 and baseValue < 1.945 then
+
+        GRM_Patch.ModifyMemberData ( GRM_Patch.PlayerNameFixFormerMembers , false , true , false );
+        
+        if loopCheck ( 1.945 ) then
+            return;
+        end
+    end
+    
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -6260,14 +6272,14 @@ end
 -- What it Does:    Checks for missing name variable and then adds the name using GUID, or purges if GUID and name are missing
 -- Purpose:         Due to a previous lua error, the name on former members maye have been lost and overwritten when they were trying to rejoin
 GRM_Patch.PlayerNameFixFormerMembers = function ( player )
-    local name , realmn = "" , "";
+    local name , realm = "" , "";
 
     if player.name == nil or player.name == "" then
-        if player.GUID and player.GUID ~= "" then
-            name , realmn = select ( 6 , GetPlayerInfoByGUID ( player.GUID ) );
+        if player.GUID ~= nil and player.GUID ~= "" then
+            name , realm = select ( 6 , GetPlayerInfoByGUID ( player.GUID ) );
 
             if name == nil or name == "" then
-                name , realmn = select ( 6 , GetPlayerInfoByGUID ( player.GUID ) );
+                name , realm = select ( 6 , GetPlayerInfoByGUID ( player.GUID ) );
             end
 
             if name ~= nil or name ~= "" then
@@ -6282,6 +6294,7 @@ GRM_Patch.PlayerNameFixFormerMembers = function ( player )
             end
 
         else
+            -- print ( "Removing Player: " .. player.name)
             player = nil; -- just purge it if it has no GUID and no name, as it is basically useless data now.
         end
     end
@@ -6299,3 +6312,5 @@ GRM_Patch.CreateMacroGUID = function ( rule )
 
     return rule
 end
+
+-- /run GRM_Patch.ModifyMemberData ( GRM_Patch.PlayerNameFixFormerMembers , false , true , false );

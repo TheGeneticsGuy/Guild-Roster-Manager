@@ -190,8 +190,14 @@ end
 GRM.PlayerHasAlts = function ( player )
     local result = false;
 
-    if player and player.altGroup ~= "" and #GRM_Alts[GRM_G.guildName][player.altGroup] > 1 then     -- Since they will be on their own list, even if just a main, then
-        result = true;
+    if player and player.altGroup ~= "" then
+        
+        if GRM_Alts[GRM_G.guildName][player.altGroup] ~= nil then
+            if #GRM_Alts[GRM_G.guildName][player.altGroup] > 1 then     -- Since they will be on their own list, even if just a main, then
+                result = true;
+            end
+
+        end
     end
 
     return result;
@@ -875,7 +881,15 @@ GRM.SetMain = function ( mainName , timestamp )
         return;
     end
 
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][mainName];
+    local player;
+
+    -- Protectection in case they join and then immediately quit
+    if GRM_G.guildName ~= "" and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] then
+        player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][mainName];
+        if not player then
+            return;
+        end
+    end
     timestamp = timestamp or time();
 
     -- if player is in a group or not
