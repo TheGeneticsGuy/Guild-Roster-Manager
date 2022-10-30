@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.942";
-GRM_G.PatchDay = 1666911833;             -- In Epoch Time
-GRM_G.PatchDayString = "1666911833";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.944";
+GRM_G.PatchDay = 1667066727;             -- In Epoch Time
+GRM_G.PatchDayString = "1667066727";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -357,9 +357,9 @@ local monthsFullnameEnum = { January = 1 , February = 2 , March = 3 , April = 4 
 local monthAbbrev = { "Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" };
 local daysBeforeMonthEnum = { ['1']=0 , ['2']=31 , ['3']=59 , ['4']=90 , ['5']=120 , ['6']=151 , ['7']=181 , ['8']=212 , ['9']=243 , ['10']=273 , ['11']=304 , ['12']=334 };
 local daysInMonth = { ['1']=31 , ['2']=28 , ['3']=31 , ['4']=30 , ['5']=31 , ['6']=30 , ['7']=31 , ['8']=31 , ['9']=30 , ['10']=31 , ['11']=30 , ['12']=31 };
-local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" };
-local classFileIDEnum = { ["WARRIOR"]=1 , ["PALADIN"]=2 , ["HUNTER"]=3 , ["ROGUE"]=4 , ["PRIEST"]=5 , ["DEATHKNIGHT"]=6 , ["SHAMAN"]=7 , ["MAGE"]=8 , ["WARLOCK"]=9 , ["MONK"]=10 , ["DRUID"]=11 , ["DEMONHUNTER"]=12 };
-local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["    Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 };
+local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Evoker" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" };
+local classFileIDEnum = { ["WARRIOR"]=1 , ["PALADIN"]=2 , ["HUNTER"]=3 , ["ROGUE"]=4 , ["PRIEST"]=5 , ["DEATHKNIGHT"]=6 , ["SHAMAN"]=7 , ["MAGE"]=8 , ["WARLOCK"]=9 , ["MONK"]=10 , ["DRUID"]=11 , ["DEMONHUNTER"]=12 , ["EVOKER"] = 13 };
+local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["    Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 , ["Dracthyr"] = 52 };
 
 -- Let's global some of these useful frames into a table.
 local GuildRanks = {};
@@ -1595,7 +1595,6 @@ GRM.IsMouseOverAnyChatWindowIncludingCommunities = function()
             end
         end
         
-
     end
     
     return result , name;
@@ -2548,6 +2547,12 @@ end
 GRM.GetFullNameClubMember = function( memberGUID )
     local name , realm = select ( 6 , GetPlayerInfoByGUID ( memberGUID ) );
     local result = "";
+
+    -- For some reason the server sometimes fails to give info on the first ask that session.
+    if name == nil or name == "" then
+        name , realm = select ( 6 , GetPlayerInfoByGUID ( memberGUID ) );
+    end
+    
     if name ~= nil and string.find ( name , "-" ) == nil then
         if realm == "" then
             result = name .. "-" .. GRM_G.realmName;
@@ -5939,6 +5944,12 @@ GRM.FormatTimeStamp = function ( timestamp , includeHour , removeYear , forcedFo
         else
             result = day .. "-" .. monthNum .. "-" .. "20" .. year;
         end  
+    elseif typeForm == 17 then
+        if removeYear then
+            result = monthNum .. "." .. day;
+        else
+            result = "20" .. year .. "." .. monthNum .. "." .. day;
+        end
     end
 
     if includeHour then
@@ -7428,6 +7439,12 @@ GRM.GetClassColorRGB = function ( className , getHex )
         else
             result = { 0.78 , 0.61 , 0.43 };
         end
+    elseif className == "EVOKER" then
+        if getHex then
+            result = "|CFF33937F";
+        else
+            result = { 0.20 , 0.58 , 0.50 };
+        end
     end
     return result;
 end
@@ -7461,6 +7478,8 @@ GRM.GetClassByRGB = function ( r , g , b )
         result = "WARLOCK";
     elseif r == 0.78 and g == 0.61 and b == 0.43 then
         result = "WARRIOR";
+    elseif r == 0.20 and g == 0.58 and b == 0.50 then
+        result = "EVOKER";
     elseif r == 0.50 and g == 0.50 and b == 0.50 then
         result = "OFFLINE";
     end
@@ -7497,6 +7516,8 @@ GRM.GetClassHex = function ( className )
         result = "|CFF9482C9";
     elseif className == "WARRIOR" then
         result = "|CFFC79C6E";
+    elseif className == "EVOKER" then
+        result = "|CFF33937F";
     end
     return result;
 end
@@ -7971,12 +7992,16 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     local name = memberInfo.name;
     local timeSeconds = time();
     local joinDate = GRM.GetTimestamp(); 
+
+    if name == "" or name == nil then
+        name = GRM.GetFullNameClubMember ( memberInfo.GUID );
+    end
     
     GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][name] = {};
     local member = GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][name];
 
                                                             -- Old format table index number (if no number it is a post database overhaul variable)
-    member["name"] = memberInfo.name;                       -- 1
+    member["name"] = name;                       -- 1
     member["rankName"] = memberInfo.rankName;               -- 4
     member["rankIndex"] = memberInfo.rankIndex;             -- 5
     member["level"] = memberInfo.level;                     -- 6
@@ -12020,7 +12045,6 @@ GRM.RecordLeftGuildChanges = function ( unitName , isLiveDetection )
     return unitName , false , timePassed , logEntryMetaData , listOfAlts , mainName , p , o , dates , isFoundInEventLog , isNoLongerOnServer , isLiveDetection , playerLevel , customNote;
 end
 
-
 -- Method:          GRM.IsRejoinAndSetDetails ( table , string , string , bool , array )
 -- What it Does:    Checks the left player meta data, to the new player joining, and determins if they are rejoining, and if so, if they were banned
 --                  It also manages setting the new officer/public note join date, if player uses said feature.
@@ -12050,7 +12074,6 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
             if member.GUID == player.GUID then  -- GUID comparison check - cannot rely purely on the name.
                 tempJoinStorage[5] = true;
                 -- MATCH FOUND - Player is RETURNING to the guild!
-                
                 -- Player has name-changed?
                 if member.name ~= player.name then
                     local classColorString = GRM.GetStringClassColorByName ( player.name );
@@ -17727,7 +17750,7 @@ GRM.PopulateTimestampFormatDropDown = function()
     local month , day , year = select ( 2 , GRM.GetTodaysDate() );
     local tempTimestampHolder = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].dateFormat;
 
-    for i = 1 , 16 do
+    for i = 1 , 17 do
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , "GRM_timeStampButton" .. i , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_TimestampSelectedDropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) }
@@ -18343,7 +18366,7 @@ GRM.CheckForNewPlayer = function( clubID , memberID )
     if C_Club.GetMemberInfo ( clubID , memberID ).name ~= nil then           -- This means it shows successfully 1 found player...
         
         local memberInfo = C_Club.GetMemberInfo ( clubID , memberID );
-        local rosterName;
+        local rosterName = GRM.FormatNameWithPlayerServer ( memberInfo.name );
 
         -- This means a system message fired erroneously. This is an edge case that can happen when servers merge.
         if memberInfo == nil or GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][rosterName] ~= nil then
@@ -18638,7 +18661,7 @@ end
 GRM.GetPlayerKickedFromButton = function( nameOrGUID )
     local playerThatWasKicked , realm = "" , "";
 
-    if string.match ( "Player-1426-0A40BDEC" , "Player-.+" ) then -- guid
+    if string.match ( nameOrGUID , "Player-.+" ) then -- guid
         playerThatWasKicked, realm = select ( 6 , GetPlayerInfoByGUID ( nameOrGUID ) );
 
         if realm == "" then
@@ -18841,58 +18864,60 @@ GRM.KickPromoteOrJoinPlayer = function ( _ , msg , text , clubMemberID )
             end
 
         else
-            -- player rank change
-            if string.find ( text , GRM.L ( "has promoted" ) ) ~= nil then
-                GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
-                GRM.LivePromoteOrDemoteDetection ( text , true );
-                
-            elseif string.find ( text , GRM.L ( "has demoted" ) ) ~= nil then
-                GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
-                GRM.LivePromoteOrDemoteDetection ( text , false );
-
-            -- Player joins the guild
-            elseif string.find ( text , GRM.L ( "joined the guild." ) ) ~= nil and IsInGuild() then
-                if GRM_G.BuildVersion < 80000 then
-                    if GRM_G.BuildVersion >= 30000 then -- WOTLK to Legion
-                        QueryGuildEventLog();
-                    end
+            if GRM_G.guildName ~= "" then
+                -- player rank change
+                if string.find ( text , GRM.L ( "has promoted" ) ) ~= nil then
                     GRM_G.changeHappenedExitScan = true;
                     GRM.GuildRoster();
+                    GRM.LivePromoteOrDemoteDetection ( text , true );
+                    
+                elseif string.find ( text , GRM.L ( "has demoted" ) ) ~= nil then
+                    GRM_G.changeHappenedExitScan = true;
+                    GRM.GuildRoster();
+                    GRM.LivePromoteOrDemoteDetection ( text , false );
 
-                    if not GRM_G.inCombat and FriendsFrame and not FriendsFrame:IsVisible() then
-                        FriendsFrame:Show();
-                        FriendsFrameCloseButton:Click();
-                    end
-                end
-        
-                GRM_G.TempBanSystemMessage = true;
-                GRM_G.MainNameSystemMsgControl = true;
-                C_Timer.After ( 1 , function()            -- Half a second delay to wait for update (further 3.5 second recursive check loop before given up buried in the next function)
-                    GRM_G.TempBanSystemMessage = false;
-                    GRM_G.MainNameSystemMsgControl = false;
+                -- Player joins the guild
+                elseif string.find ( text , GRM.L ( "joined the guild." ) ) ~= nil and IsInGuild() then
                     if GRM_G.BuildVersion < 80000 then
-                        local name = GRM.GetParsedJoinPlayerName ( text );
-                        if name ~= nil then
-                            GRM_G.changeHappenedExitScan = true;
-                            GRM.ClassicCheckForNewMember( name );
+                        if GRM_G.BuildVersion >= 30000 then -- WOTLK to Legion
+                            QueryGuildEventLog();
+                        end
+                        GRM_G.changeHappenedExitScan = true;
+                        GRM.GuildRoster();
+
+                        if not GRM_G.inCombat and FriendsFrame and not FriendsFrame:IsVisible() then
+                            FriendsFrame:Show();
+                            FriendsFrameCloseButton:Click();
                         end
                     end
-                end);
+            
+                    GRM_G.TempBanSystemMessage = true;
+                    GRM_G.MainNameSystemMsgControl = true;
+                    C_Timer.After ( 1 , function()            -- Half a second delay to wait for update (further 3.5 second recursive check loop before given up buried in the next function)
+                        GRM_G.TempBanSystemMessage = false;
+                        GRM_G.MainNameSystemMsgControl = false;
+                        if GRM_G.BuildVersion < 80000 then
+                            local name = GRM.GetParsedJoinPlayerName ( text );
+                            if name ~= nil then
+                                GRM_G.changeHappenedExitScan = true;
+                                GRM.ClassicCheckForNewMember( name );
+                            end
+                        end
+                    end);
 
-            -- player left on their own and was not kicked
-            elseif string.find ( text , GRM.L ( "left the guild." ) ) ~= nil then
-                GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
-                GRM.LiveLeaveDetection( text );
+                -- player left on their own and was not kicked
+                elseif string.find ( text , GRM.L ( "left the guild." ) ) ~= nil then
+                    GRM_G.changeHappenedExitScan = true;
+                    GRM.GuildRoster();
+                    GRM.LiveLeaveDetection( text );
 
-                -- Removal from the guild by officer, either yourself or another
-            elseif string.find ( text , GRM.L ( "has been kicked" ) ) ~= nil and not GRM_UI.GRM_ToolCoreFrame:IsVisible() then      -- you do not want to trigger this live action when macro tool is being used.
-                GRM_G.changeHappenedExitScan = true;
-                GRM.GuildRoster();
-                GRM.LiveKickDetection ( text );
-                               
+                    -- Removal from the guild by officer, either yourself or another
+                elseif string.find ( text , GRM.L ( "has been kicked" ) ) ~= nil and not GRM_UI.GRM_ToolCoreFrame:IsVisible() then      -- you do not want to trigger this live action when macro tool is being used.
+                    GRM_G.changeHappenedExitScan = true;
+                    GRM.GuildRoster();
+                    GRM.LiveKickDetection ( text );
+                                
+                end
             end
         end
     end
@@ -19613,7 +19638,7 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             if player.bannedInfo[1] then
-                if not textSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , textSearch , 1 , true ) then
+                if not textSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , textSearch , 1 , true ) or string.find ( string.lower ( player.name ) , textSearch , 1 , true ) then
                     table.insert ( playerDetails  , { player.name , player.class , player.bannedInfo[2] , player.rankName , player.rankIndex , player.reasonBanned , true , player.isUnknown , player.GUID } );
                     count = count + 1;
                 end
@@ -21575,8 +21600,13 @@ GRM.ParseDateFormat = function ( date , index , monthName )
             day = month;
             month = tonumber ( string.match ( date , "(%d+)/") );
         end
-    
+
     elseif index == 8 then
+        day = tonumber ( string.match ( date , "%d%d%d%d%.%d%d%.(%d%d)" ) );
+        month = tonumber ( string.match ( date , "%.(%d%d)%." ) );
+        year = tonumber ( string.match ( date , "(%d%d%d%d)%.%d%d%.%d%d" ) );
+    
+    elseif index == 9 then
         day = tonumber ( string.match ( date , "(%d+)%.") );
         month = tonumber ( string.match ( date , "%.(%d+)%.") );
         year = tonumber ( string.match ( date , "%d+%.%d+%.(%d%d)") );
@@ -21588,7 +21618,7 @@ GRM.ParseDateFormat = function ( date , index , monthName )
             month = tonumber ( string.match ( date , "(%d+)%.") );
         end
     
-    elseif index == 9 then
+    elseif index == 10 then
         day = tonumber ( string.match ( date , "(%d+)%.") );
         month = tonumber ( string.match ( date , "%.(%d+)%.") );
         year = tonumber ( string.match ( date , "%d+%.%d+%.(%d%d%d%d)") );
@@ -21600,18 +21630,18 @@ GRM.ParseDateFormat = function ( date , index , monthName )
             month = tonumber ( string.match ( date , "(%d+)%.") );
         end
     
-    elseif index == 10 then
+    elseif index == 11 then
         day = tonumber ( string.match ( date , "%s+(%d+)%s+'" ) );
         year = tonumber ( string.match ( date , "'(%d%d)") );
     
-    elseif index == 11 then
+    elseif index == 12 then
         day = tonumber ( string.match ( date , "%s+(%d+)%s+" ) );
         year = tonumber ( string.match ( date , "%s+%d+%s+(%d%d)" ) );
     
-    elseif index == 12 then
+    elseif index == 13 then
         day = tonumber ( string.match ( date , "-(%d+)-" ) );
         year = tonumber ( string.match ( date , "-(%d%d%d%d)" ) );
-    
+
     end
 
     if year < 2000 then
@@ -21665,27 +21695,29 @@ GRM.GetNoteDateDetails = function ( note )
         "%d+%-~#~%-%d%d%d%d",       -- 30-May-2021
         "%d+%-%d+%-%d%d",           -- 30-05-21     or 05-30-21
         "%d+/%d+/%d%d",             -- 30/05/21     or 05/30/21
+        "%d%d%d%d%.%d%d%.%d%d",     -- 2021.05.30
         "%d+%.%d+%.%d%d",           -- 30.05.21     or 05.30.21
         "%d+%.%d+%.%d%d%d%d",       -- 30.05.2021   or 05.30.2021
         "~#~%s+%d+%s+'%d%d",        -- May 30 '21
         "~#~%s+%d+%s+%d%d",         -- May 30 21
         "~#~%s+%d+%s+%d%d%d%d"      -- May 30 2021
+        
     }
 
     local index = 0;
     for i = 1 , #datePatterns do
 
-        if ( i > 2 and i < 10 )then
+        if ( i > 2 and i < 11 )then
 
             date = string.match ( note , datePatterns[i] );
             if date then
                 startIndex , lastIndex = string.find ( note , datePatterns[i] );
                 index = i;
-                if i == 8 then
+                if i == 9 then
                     if string.match ( note , datePatterns[i + 1] ) ~= nil then
                         date = string.match ( note , datePatterns[i + 1] );
                         startIndex , lastIndex = string.find ( note , datePatterns[i + 1] );
-                        index = 9;
+                        index = 10;
                     end
                 end
                 
@@ -23304,8 +23336,8 @@ GRM.OpenPlayerWindow = function ( playerName )
         if GRM_G.BuildVersion < 80000 then
 
             if not GRM_G.ClassicTaintProtection then
-                if not FriendsFrame:IsVisible() then
-                    SocialsMicroButton:Click();
+                if FriendsFrame and not FriendsFrame:IsVisible() then
+                    FriendsFrame:Show();
                 end
 
                 C_Timer.After ( 0.1 , function()
@@ -25262,6 +25294,7 @@ GRM.AnnounceAchievement = function(source, link)
 	local color = ChatTypeInfo["GUILD"];
 	GRM.Report("|cff00c8ff" .. GRM.L("GRM:" ) .. "|r " .. message, color.r, color.g, color.b);
 end
+
 
 -- Initialize the first frames as game is being loaded.
 Initialization:RegisterEvent ( "ADDON_LOADED" );

@@ -158,6 +158,9 @@ GRMsyncGlobals.guildAltData = {};
 GRMsyncGlobals.firstSyncOccurred = false;
 GRMsyncGlobals.offline = false;
 
+-- SYNC INTEGRITY CHECK VALUES
+GRMsyncGlobals.NumExpectedAlts = 0;
+
 -- For sync control measures on player details, so leader can be determined on who has been online the longest. In other words, for the leadership selecting algorithm
 -- when determining the tiers for syncing, it is ideal to select the leader who has been online the longest, as they most-likely have encountered the most current amount of information.
 GRMsyncGlobals.firstMessageReceived = false;
@@ -296,6 +299,8 @@ GRMsync.ResetTempTables = function()
     GRMsyncGlobals.BansCheckFinished = false;
     GRMsyncGlobals.upatesEach = { 0 , 0 , 0 , 0 , 0 , 0 };
     GRMsyncGlobals.preCheckControl = { 1 , 1 };
+    -- Sync Expected number of values
+    GRMsyncGlobals.NumExpectedAlts = 0;
 end
 
 -- For use on doing a hard reset on sync. This is useful like if the addon user themselves changes rank and permissions change. Things would be wonky without force a hard reset of privileges.
@@ -307,7 +312,7 @@ GRMsync.TriggerFullReset = function()
 end
 
 -- Useful indexing enum
-local allClassesEnum = { ["DEATHKNIGHT"] = 1 , ["DEMONHUNTER"] = 2 , ["DRUID"] = 3 , ["HUNTER"] = 4 , ["MAGE"] = 5 , ["MONK"] = 6 , ["PALADIN"] = 7 , ["PRIEST"] = 8 , ["ROGUE"] = 9 ,["SHAMAN"] = 10 , ["WARLOCK"] = 11 , ["WARRIOR"] = 12 }
+local allClassesEnum = { ["DEATHKNIGHT"] = 1 , ["DEMONHUNTER"] = 2 , ["DRUID"] = 3 , ["HUNTER"] = 4 , ["MAGE"] = 5 , ["MONK"] = 6 , ["PALADIN"] = 7 , ["PRIEST"] = 8 , ["ROGUE"] = 9 ,["SHAMAN"] = 10 , ["WARLOCK"] = 11 , ["WARRIOR"] = 12 , ["EVOKER"] = 13 }
 
 --------------------------
 ----- FUNCTIONS ----------
@@ -973,123 +978,129 @@ end
 -- Method:          GRMsync.CheckAddAltSyncChange ( table , boolean )
 -- What it Does:    Compares lists and you use which is most current
 -- Purpose:         Ensuring the alt groupings are most accurate.
-GRMsync.CheckAddAltSyncChange = function ( finalList , lastStep )
+GRMsync.CheckAddAltSyncChange = function ( finalList , lastStep , countExpected )
 
-    -- Now, we need to update the current database
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]
-    local player = {};
-    local currentAlts = {};
-    local timing = 0;
-    local onList = false;
-    local addToAltsGroup = false;
+    if countExpected == GRM.TableLength ( finalList ) then
+        -- Now, we need to update the current database
+        local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]
+        local player = {};
+        local currentAlts = {};
+        local timing = 0;
+        local onList = false;
+        local addToAltsGroup = false;
 
-    for name , alts in pairs ( finalList ) do
-        
-        player = guildData[name];
-
-        if player then
-            -- Ok, collect the alts so we can compare.
-            currentAlts = GRM.GetListOfAlts ( guildData[name] , false );
-
-            if not lastStep and not GRMsyncGlobals.IsElectedLeader and not GRMsync.IsListTheSame ( alts , currentAlts ) then
-                GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
-                GRMsyncGlobals.upatesEach[3] = GRMsyncGlobals.upatesEach[3] + 1;
-            end
+        for name , alts in pairs ( finalList ) do
             
-            -- First thing, scan through the master list and compare to current list. Any alts NOT on the master are to be removed
+            player = guildData[name];
 
-            if #alts > 0 then
-                -- Ok there are alts to be added/removed
+            if player then
+                -- Ok, collect the alts so we can compare.
+                currentAlts = GRM.GetListOfAlts ( guildData[name] , false );
 
-                if #currentAlts > 0 then
-                    -- Both have alts
-
-                    if not lastStep then
-                        -- Step 1
-                        -- If any alt is on the current list and NOT on the master list, then remove it
-                        for i = 1 , #currentAlts do
-                            onList = false;
-                            for j = 1 , #alts do
-
-                                if currentAlts[i][1] == alts[j] then
-
-                                    onList = true;
-                                    break;
-                                end
-
-                            end
-
-                            if not onList then
-                                -- Current alt should be removed as it is NOT on master list
-                                if finalList[currentAlts[i]] ~= nil then
-                                    timing = finalList[currentAlts[i][1]].altGroupModified;
-                                else
-                                    timing = finalList[name].altGroupModified;
-                                end
-
-                                GRM.RemoveAlt ( currentAlts[i][1] , true , timing );
-                            end
-                        end
-                    end
-
-                    if lastStep then
-                        -- Step 2:
-                        -- Now, if any alt is missing from the master list, we add it.
-                        for i = 1 , #alts do
-                            onList = false;
-                            for j = 1 , #currentAlts do
-
-                                if alts[i] == currentAlts[j][1] then
-
-                                    onList = true;
-                                    break;
-                                end
-
-                            end
-
-                            if not onList then
-                                addToAltsGroup = GRM.AddAlt ( name , alts[i] , true , finalList[name].altGroupModified );
-                                GRM.SyncBirthdayWithNewAlt ( name , alts[i] , addToAltsGroup );
-                            end
-                        end
-                    end
-
-                elseif lastStep then
-                    -- Master list has alts and the current list doesn't, so we are just going to add all from the master list
-                    for i = 1 , #alts do
-                        addToAltsGroup = GRM.AddAlt ( name , alts[i] , true , finalList[name].altGroupModified );
-                        GRM.SyncBirthdayWithNewAlt ( name , alts[i] , addToAltsGroup );
-                    end
-
-                end
-
-            elseif not lastStep then
-                -- Remove all current alts not supposed to be on the list
-
-                if not GRMsyncGlobals.IsElectedLeader and not GRMsync.IsListTheSame ( alts , currentAlts ) then
+                if not lastStep and not GRMsyncGlobals.IsElectedLeader and not GRMsync.IsListTheSame ( alts , currentAlts ) then
                     GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
                     GRMsyncGlobals.upatesEach[3] = GRMsyncGlobals.upatesEach[3] + 1;
                 end
+                
+                -- First thing, scan through the master list and compare to current list. Any alts NOT on the master are to be removed
 
-                for i = 1 , #currentAlts do
+                if #alts > 0 then
+                    -- Ok there are alts to be added/removed
 
-                    if finalList[currentAlts[i][1]] ~= nil then
-                        timing = finalList[currentAlts[i][1]].altGroupModified;
-                    else
-                        timing = finalList[name].altGroupModified;
+                    if #currentAlts > 0 then
+                        -- Both have alts
+
+                        if not lastStep then
+                            -- Step 1
+                            -- If any alt is on the current list and NOT on the master list, then remove it
+                            for i = 1 , #currentAlts do
+                                onList = false;
+                                for j = 1 , #alts do
+
+                                    if currentAlts[i][1] == alts[j] then
+
+                                        onList = true;
+                                        break;
+                                    end
+
+                                end
+
+                                if not onList then
+                                    -- Current alt should be removed as it is NOT on master list
+                                    if finalList[currentAlts[i]] ~= nil then
+                                        timing = finalList[currentAlts[i][1]].altGroupModified;
+                                    else
+                                        timing = finalList[name].altGroupModified;
+                                    end
+
+                                    GRM.RemoveAlt ( currentAlts[i][1] , true , timing );
+                                end
+                            end
+                        end
+
+                        if lastStep then
+                            -- Step 2:
+                            -- Now, if any alt is missing from the master list, we add it.
+                            for i = 1 , #alts do
+                                onList = false;
+                                for j = 1 , #currentAlts do
+
+                                    if alts[i] == currentAlts[j][1] then
+
+                                        onList = true;
+                                        break;
+                                    end
+
+                                end
+
+                                if not onList then
+                                    addToAltsGroup = GRM.AddAlt ( name , alts[i] , true , finalList[name].altGroupModified );
+                                    GRM.SyncBirthdayWithNewAlt ( name , alts[i] , addToAltsGroup );
+                                end
+                            end
+                        end
+
+                    elseif lastStep then
+                        -- Master list has alts and the current list doesn't, so we are just going to add all from the master list
+                        for i = 1 , #alts do
+                            addToAltsGroup = GRM.AddAlt ( name , alts[i] , true , finalList[name].altGroupModified );
+                            GRM.SyncBirthdayWithNewAlt ( name , alts[i] , addToAltsGroup );
+                        end
+
                     end
-                    GRM.RemoveAlt ( currentAlts[i][1] , true , timing );
+
+                elseif not lastStep then
+                    -- Remove all current alts not supposed to be on the list
+
+                    if not GRMsyncGlobals.IsElectedLeader and not GRMsync.IsListTheSame ( alts , currentAlts ) then
+                        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
+                        GRMsyncGlobals.upatesEach[3] = GRMsyncGlobals.upatesEach[3] + 1;
+                    end
+
+                    for i = 1 , #currentAlts do
+
+                        if finalList[currentAlts[i][1]] ~= nil then
+                            timing = finalList[currentAlts[i][1]].altGroupModified;
+                        else
+                            timing = finalList[name].altGroupModified;
+                        end
+                        GRM.RemoveAlt ( currentAlts[i][1] , true , timing );
+                    end
+
                 end
 
             end
 
         end
-
+        if not lastStep then
+            GRMsync.CheckAddAltSyncChange ( finalList , true , countExpected );
+        end
+    else
+        -- Error in the alt sync data...
+        if GRM_G.DebugEnabled then
+            print ( "GRM: Alt sync error. " .. countExpected .. " alts expedcted, but only received " .. GRM.TableLength ( finalList ) );
+        end
     end
-    if not lastStep then
-        GRMsync.CheckAddAltSyncChange ( finalList , true );
-    end
-
 end
 
 
@@ -3202,6 +3213,9 @@ GRMsync.SendBDayPackets = function()
         local guildData = GRMsyncGlobals.guildData;
         local hasAtLeastOne = false;
         local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
+        local timeOfChange = 0;
+        local day = 0;
+        local month = 0;
 
         if exactIndexes[6] == nil then
             GRMsync.BuildFullCheckArray();
@@ -3747,10 +3761,10 @@ GRMsync.SubmitFinalSyncData = function ()
             syncRankFilter = GuildControlGetNumRanks() - 1;
         end
 
-        GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_FINALALTSYNCUP?" .. GRMsyncGlobals.DesignatedLeader .. "?" .. tostring ( syncRankFilter ) .. "?" , GRMsyncGlobals.CurrentSyncPlayer );
+        GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_FINALALTSYNCUP?" .. tostring ( GRM.TableLength ( GRMsyncGlobals.FinalCorrectAltList ) ) .. "?" .. GRMsyncGlobals.DesignatedLeader .. "?" .. tostring ( syncRankFilter ) .. "?" , GRMsyncGlobals.CurrentSyncPlayer );
 
         if ( GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank and GRMsyncGlobals.CurrentSyncPlayerRankRequirement >= GRMsyncGlobals.CurrentLeaderRankID ) then
-            GRMsync.CheckAddAltSyncChange ( GRMsyncGlobals.FinalCorrectAltList , false );
+            GRMsync.CheckAddAltSyncChange ( GRMsyncGlobals.FinalCorrectAltList , false , GRM.TableLength ( GRMsyncGlobals.FinalCorrectAltList ) );
         end
 
         if GRM.IsAnyCustomNoteLarge() then
@@ -3851,7 +3865,8 @@ GRMsync.SubmitFinalSyncData = function ()
         GRMsync.BuildFullCheckArray();
     end
 
-    if #GRMsyncGlobals.DatabaseExactIndexes[6] == 0 and GRMsyncGlobals.DatabaseExactIndexes[7] == 0 then -- 6 = Main , 7 = Bday data
+    if #GRMsyncGlobals.DatabaseExactIndexes[6] == 0 and GRMsyncGlobals.DatabaseExactIndexes[7] == 0 then -- 6 = Main , 7 
+        -- no bday or main data
         GRMsync.FinalSyncComplete();
     else
         -- Need to request bday Data
@@ -3989,7 +4004,7 @@ end
 --                  as this prevents left player storage bloat unnecessarily and only syncs the banned or unbanned ones.
 GRMsync.UpdateLeftPlayerInfo = function ( msg , partialParsed )
     local name , rankID , level , classIndex , leftGuildMeta , oldJoinDateMeta , guid;
-    local AllClasses = { "DEATHKNIGHT" , "DEMONHUNTER" , "DRUID" , "HUNTER" , "MAGE" , "MONK" , "PALADIN" , "PRIEST" , "ROGUE" , "SHAMAN" , "WARLOCK" , "WARRIOR" };
+    local AllClasses = { "DEATHKNIGHT" , "DEMONHUNTER" , "DRUID" , "EVOKER" , "MAGE" , "MONK" , "PALADIN" , "PRIEST" , "ROGUE" , "SHAMAN" , "WARLOCK" , "WARRIOR" };
     -- Ok, let's check if this player is already known...
 
     name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
@@ -5607,6 +5622,10 @@ GRMsync.RegisterCommunicationProtocols = function()
                     msg = GRM.Next ( msg );
                     -- Determine if this is a retroactive sync message, or a live sync.
                     if comms.prefix2 == "GRM_JDSYNCUP" or ( commsSyncUp[comms.prefix2] or comms.prefix2 == "GRM_CUSTSYNCUP" ) then
+                        if comms.prefix2 == "GRM_FINALALTSYNCUP" then
+                            GRMsyncGlobals.NumExpectedAlts = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
+                            msg = GRM.Next ( msg );
+                        end
                         sender = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
                         msg = GRM.Next ( msg );
                     end
@@ -5913,7 +5932,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                         -- Final sync of ALT player Info - confirmation to compare data
                         elseif comms.prefix2 == "GRM_FINALALTSYNCUP" then
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                            GRMsync.CheckAddAltSyncChange ( GRMsyncGlobals.FinalAltListReeceived , false );
+                            GRMsync.CheckAddAltSyncChange ( GRMsyncGlobals.FinalAltListReeceived , false , GRMsyncGlobals.NumExpectedAlts );
                         
                         -- Final sync on Main Status
                         elseif comms.prefix2 == "GRM_MAINSYNCUP" then

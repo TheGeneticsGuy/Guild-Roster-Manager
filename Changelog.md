@@ -1,10 +1,38 @@
+## **VERSION R1.944 RELEASE - 30th Oct, 2022**
+
+***QUALITY OF LIFE***
+
+* Added 2 New Macro Rule filters:
+
+* > Promotion Rule - You can now choose to set a promotion based on the Time at Rank, or based on the Time in the Guild
+
+![https://i.imgur.com/AytQLR9.jpg](New Promotion Macro Tool Rule)
+
+* > Kick, Promote, Demote Rule - You can now search for a text match that will ignore the rule if a match is found. In other words, let's say your text match is "[S]" - The macro filter will skip over this player and deem them as "safe" from that specific rule. You can set any text tag you would like. However, I did make the decision that GRM will only search for the tag within the officer note. This is because the custom and public notes are typically widely available to players in the guild, and it doesn't make sense for a player who might discover the tag, to be able to add it to their own note.
+
+![https://i.imgur.com/1MV5tmE.jpg](New Promotion Macro Tool Rule)
+
+* Added compatibility to the YYYY.MM.DD timestamp formatting - This is another timestamp formatting option. This can be controlled as a global control for the guild. It is also a data format fully compatible with the "Advanced Join Date Tool" for importing/exporting join dates from player notes.
+
+
+***BUG FIXES***
+
+* Fixed the issue that is keeping new players' data from being added to the database properly when joining a guild. It also fixes the crashes of the log on load which was preventing the log from updating.
+
+* Ban list search now should match the names correctly, no matter what format you use in a name, special character or not. Oops!
+
+* Fixed an issue that could cause taint in Classic, which would block actions. These has been thoroughly tested to now be resolved, finally!
+
+* Fixed various misc. errors that popped up and were reported on Discord. Significant amount of work on this, so hopefully cleaner. Not all reported items are yet resolved, but the game breaking ones are.
+
+
 ## **VERSION R1.942 RELEASE - 27th Oct, 2022**
+
+* Fixed the new minimap compatibility issue error that was causing GRM to crash for people hiding the minimap button. If you are wondering why GRM stopped working for some people, this fix resolves that.
 
 * Fixed a Lua error that could occur when changing fonts or on load in Classic  
 
 * Fixed an issue where the mouseover could get locked even after closing the window. This seemed to only happen on the "Old" roster window.
-
-* Fixed the new minimap compatibility issue error that was causing GRM to crash for people hiding the minimap button.
 
 * Fixed an issue so export won't throw an error when looking at Race data for export in Classic, but trying to determine the source.
 

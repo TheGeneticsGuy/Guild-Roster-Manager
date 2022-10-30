@@ -787,14 +787,17 @@ GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isU
                 end
                 GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_BDAYREM?" .. syncRankFilter .. "?" .. name .. "?" .. tostring ( timestamp ) , "GUILD" );
             end
-        elseif not isUnknown then
-            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
-                if #alts > 0 then
-                    GRM.Report ( GRM.L ( "{name}'s alt grouping has had their Birthday removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
-                else
-                    GRM.Report ( GRM.L ( "{name}'s Birthday has been removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
-                end
-            end                
+        else
+            GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
+            GRMsyncGlobals.upatesEach[6] = GRMsyncGlobals.upatesEach[6] + 1;
+        -- elseif not isUnknown then
+            -- if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
+            --     if #alts > 0 then
+            --         GRM.Report ( GRM.L ( "{name}'s alt grouping has had their Birthday removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
+            --     else
+            --         GRM.Report ( GRM.L ( "{name}'s Birthday has been removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
+            --     end
+            -- end                
         end
 
         if not isUnknown and GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == name then

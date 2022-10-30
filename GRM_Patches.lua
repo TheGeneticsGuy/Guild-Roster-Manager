@@ -1,11 +1,10 @@
 
 ---UPDATES AND BUG PATCHES
 
-
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 99;
+local totalPatches = 100;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1114,7 +1113,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- patch 99
-    patchNum = patchNum + 2;
+    patchNum = patchNum + 1;
     if numericV < 1.937 and baseValue < 1.937 then
 
         GRM_Patch.ModifyPlayerSetting ( "ignoreDeadNames" , nil );
@@ -1125,7 +1124,26 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
-    
+    --patch 100
+    patchNum = patchNum + 1;
+    if numericV < 1.944 and baseValue < 1.944 then
+
+        GRM_Patch.ModifyMemberData ( GRM_Patch.PlayerNameFixFormerMembers , false , true , true );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "sinceAtRank" , true );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "kickRules" , "safeText" , "" );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "safeText" , "" );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "demoteRules" , "safeText" , "" );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "kickRules" , "safeMatch" , false );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "safeMatch" , false );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "demoteRules" , "safeMatch" , false );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "kickRules" , "GUID" , GRM_Patch.CreateMacroGUID );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "GUID" , GRM_Patch.CreateMacroGUID );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "demoteRules" , "GUID" , GRM_Patch.CreateMacroGUID );
+        
+        if loopCheck ( 1.944 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -5110,6 +5128,29 @@ GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic , additionalSe
     end
 end
 
+-- 1.943
+-- Method:          GRM_Patch.ModifyOrAddMacroRuleSetting ( string , string , function or type )
+-- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
+-- Purpose:         To be able to retroactively adapt and make changes to the database of macro rules
+GRM_Patch.ModifyOrAddMacroRuleSetting = function ( ruleType , setting , valueOrFunction )
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+            if not GRM_AddonSettings_Save[F][p][ruleType] then
+                GRM_AddonSettings_Save[F][p][ruleType] = {};
+            end
+            for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
+
+                if type ( valueOrFunction ) == "function" then
+                    rule = valueOrFunction ( rule , setting );
+                else
+                    rule[setting] = valueOrFunction;
+                end                    
+
+            end
+        end
+    end
+end
+
 -- 1.87
 -- Method:          GRM_Patch.AddPlayerSetting ( string , object , function )
 -- What it Does:    Allows the player to add a new setting to all settings profiles
@@ -6212,4 +6253,49 @@ GRM_Patch.FixTimestamps = function ( player )
     end
 
     return player;
+end
+
+-- 1.944
+-- Method:          GRM.PlayerNameFixFormerMembers ( playerObject )
+-- What it Does:    Checks for missing name variable and then adds the name using GUID, or purges if GUID and name are missing
+-- Purpose:         Due to a previous lua error, the name on former members maye have been lost and overwritten when they were trying to rejoin
+GRM_Patch.PlayerNameFixFormerMembers = function ( player )
+    local name , realmn = "" , "";
+
+    if player.name == nil or player.name == "" then
+        if player.GUID and player.GUID ~= "" then
+            name , realmn = select ( 6 , GetPlayerInfoByGUID ( player.GUID ) );
+
+            if name == nil or name == "" then
+                name , realmn = select ( 6 , GetPlayerInfoByGUID ( player.GUID ) );
+            end
+
+            if name ~= nil or name ~= "" then
+
+                if realm == "" then
+                    player.name = GRM.AppendSameServerName ( name );
+                else
+                    player.name = name .. "-" .. realm;
+                end
+            else
+                player.name = "";
+            end
+
+        else
+            player = nil; -- just purge it if it has no GUID and no name, as it is basically useless data now.
+        end
+    end
+
+    return player;
+end
+
+-- 1.944
+-- Method:          GRM_Patch.CreateMacroGUID ( string )
+-- What it Does:    Creates a unique GUID for macros
+-- Purpose:         To make the macro sync process easier.]
+GRM_Patch.CreateMacroGUID = function ( rule )
+
+    rule.GUID = tostring ( GRM.ConvertStringToVal ( rule.name ) + rule.editTime );
+
+    return rule
 end

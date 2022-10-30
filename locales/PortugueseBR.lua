@@ -1357,7 +1357,6 @@ GRML.PortugueseBR = function()
     GRM_L["Shift Rank Down"] = true
 
     -- R1.90
-    GRM_L["Suggestions on kick filters? Submit to Discord"] = true
     GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = true
     GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true      -- if sync is triggered after logon too soon
     GRM_L["Type '/grm sync' to initiate a one-time sync."] = true
@@ -1378,9 +1377,7 @@ GRML.PortugueseBR = function()
     GRM_L["Promote to Rank:"] = true
     GRM_L["Demote to Rank:"] = true
     GRM_L["Only recommend to Demote if all player linked alts exceed max time"] = true
-    GRM_L["Suggestions on promote filters? Submit to Discord"] = true                                                                       -- promote
-    GRM_L["Suggestions on demote filters? Submit to Discord"] = true                                                                        -- demote
-    GRM_L["Unable to promote players to this rank"] = true                                                                                  -- etc...
+    GRM_L["Unable to promote players to this rank"] = true
     GRM_L["Unable to demote players to this rank"] = true
     GRM_L["Unable to promote players at this rank."] = true
     GRM_L["Unable to demote players from this rank."] = true
@@ -1550,4 +1547,23 @@ GRML.PortugueseBR = function()
     GRM_L["Use '{name} search PlayerName' to also find guild members"] = true
     GRM_L["{custom1} to Copy Name to Chat"] = true  -- "Shift-Click to Copy Name to Chat" is the default
 
+    -- R1.944
+    GRM_L["Promote Player if in Guild for"] = true
+    GRM_L["Time in Guild: {name}"] = true
+    GRM_L["Time in Guild:"] = true
+    GRM_L["Notify if a member for at least {num} {name}"] = true
+    GRM_L["Player has been a member for more than {num} Day"] = true
+    GRM_L["Player has been a member for more than {num} Days"] = true
+    GRM_L["Player has been a member for more than {num} Month"] = true
+    GRM_L["Player has been a member for more than {num} Months"] = true
+    GRM_L["Ignore Rule With Text Match"] = true
+    GRM_L["This only searches the officer note for the safe tag"] = true
+    GRM_L["Examples of simple tags:"] = true
+    GRM_L["Do Not Kick" ] = true
+    GRM_L["[S]"] = true  -- While this is just a tag, it is short for the word "Safe"
+    GRM_L["Safe"] = true
+    GRM_L["Must be an exact match"] = true
+    GRM_L["No safe tag '{name}' in officer note"] = true
+    GRM_L["Safe Text Match:"] = true
+    
 end
