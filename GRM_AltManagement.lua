@@ -1592,7 +1592,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                         local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( h );
                         if tempAlt.name == guildieName then
                             local noteDate = "";
-                            local t = GRM.FormatTimeStamp ( finalTStampEpoch , false );
+                            local t = GRM.FormatTimeStamp ( finalTStampEpoch , false , false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].globalDateFormat );
                             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].includeTag then
                                 noteDate = GRM_G.customHeaderJoin .. " " .. t;
                             else
@@ -1686,7 +1686,7 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
         if player.joinDateHist[1][4] > 0 then
             oldestPlayer[2] = player.joinDateHist[1][4];
             oldestPlayer[1] = playerName;
-            oldestDate = GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , false );
+            oldestDate = GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false );
         end
 
         for i = 1 , #alts do
@@ -1696,7 +1696,7 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
                     
                     if oldestPlayer[2] == 0 or playerAlt.joinDateHist[1][4] < oldestPlayer[2] then
                         oldestPlayer = { alts[i][1] , playerAlt.joinDateHist[1][4] };
-                        oldestDate = GRM.FormatTimeStamp ( { playerAlt.joinDateHist[1][1] , playerAlt.joinDateHist[1][2] , playerAlt.joinDateHist[1][3] } , false , false , false );
+                        oldestDate = GRM.FormatTimeStamp ( { playerAlt.joinDateHist[1][1] , playerAlt.joinDateHist[1][2] , playerAlt.joinDateHist[1][3] } , false , false );
                     end
 
                 end

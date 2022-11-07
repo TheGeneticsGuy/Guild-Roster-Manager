@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 101;
+local totalPatches = 102;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1060,7 +1060,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddPlayerSetting ( "macroSyncPromoteEnabled" , true );                             -- Same --
         GRM_Patch.AddPlayerSetting ( "macroSyncDemoteEnabled" , true );                              -- Same --
          
-        
         if loopCheck ( 1.92999 ) then
             return;
         end
@@ -1156,6 +1155,21 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
     
+    --patch 102
+    patchNum = patchNum + 1;
+    if numericV < 1.946 and baseValue < 1.946 then
+
+        GRM_Patch.AddPlayerSetting ( "chatTooltip" , true );
+        GRM_Patch.ConfigureNewGlobalDateFormat();
+        GRM_Patch.ModifyPlayerSetting ( "syncSameVersion" , nil );
+        GRM_Patch.AddMemberMetaData ( "alts" , nil );
+        GRM_Patch.AddMemberMetaData ( "removedAlts" , nil );
+        GRM_Patch.FixIfGuildChange();
+        
+        if loopCheck ( 1.946 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -6235,6 +6249,15 @@ GRM_Patch.FixTimestamps = function ( player )
     for i = 1 , #player.joinDateHist do
         timeTable = {};
 
+        if player.joinDateHist[i][4] == nil and player.joinDateHist[i][1] and player.joinDateHist[i][1] > 0  and player.joinDateHist[i][2] and player.joinDateHist[i][2] > 0 and player.joinDateHist[i][3] and player.joinDateHist[i][3] > 0  then
+            player.joinDateHist[i][4] = GRM.TimeStampToEpoch ( { player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] } );
+        else
+            player.joinDateHist = { { 0 , 0 , 0 , 0 , 0 , false , 1 } };
+            break;
+        end
+        if player.joinDateHist[i][5] == nil then
+            player.joinDateHist[i][5] = 0;
+        end
         if player.joinDateHist[i][4] > 0 then
             timeTable = select ( 2 , GRM.EpochToDateFormat ( player.joinDateHist[i][4] ) );
 
@@ -6294,7 +6317,6 @@ GRM_Patch.PlayerNameFixFormerMembers = function ( player )
             end
 
         else
-            -- print ( "Removing Player: " .. player.name)
             player = nil; -- just purge it if it has no GUID and no name, as it is basically useless data now.
         end
     end
@@ -6313,4 +6335,77 @@ GRM_Patch.CreateMacroGUID = function ( rule )
     return rule
 end
 
--- /run GRM_Patch.ModifyMemberData ( GRM_Patch.PlayerNameFixFormerMembers , false , true , false );
+-- 1.946
+-- Method:          GRM_Patch.ConfigureNewGlobalDateFormat()
+-- What it Dpes:    Adds a new setting, but first aligns it with the old global
+-- Purpose:         Adding a new timestamp setting so the global can be differentiated.
+GRM_Patch.ConfigureNewGlobalDateFormat = function()
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+
+            if not GRM_AddonSettings_Save[F][p]["globalDateFormat"] then
+                GRM_AddonSettings_Save[F][p]["globalDateFormat"] = 1;
+            end
+
+            GRM_AddonSettings_Save[F][p]["globalDateFormat"] = tonumber ( GRM_AddonSettings_Save[F][p].dateFormat );
+
+        end
+    end
+end
+
+-- 1.946
+-- Method:          GRM_Patch.FixIfGuildChange()
+-- What it Does:    Fixes an error where if a guild namechange was detected, it updated all but hte new alt groups. 
+-- Purpose:         Fix Lua errors that would occur downstream of this issue
+GRM_Patch.FixIfGuildChange = function()
+
+    local isMatched = false;
+    for guild in pairs ( GRM_Alts ) do
+        isMatched = false;
+
+        for faction in pairs ( GRM_GuildMemberHistory_Save ) do
+            for guildName in pairs ( GRM_GuildMemberHistory_Save[faction] ) do
+                if guildName == guild then
+                    isMatched = true;
+                    break;
+                end
+            end
+            if isMatched then
+                break;
+            end
+
+        end
+
+        if not isMatched then
+            local oldGuildName = "";
+            -- Errors found
+            -- Found out which guild has no name match
+            for faction in pairs ( GRM_GuildMemberHistory_Save ) do
+                for guildName in pairs ( GRM_GuildMemberHistory_Save[faction] ) do
+                    isMatched = false;
+
+                    for gName in pairs ( GRM_Alts ) do
+                        oldGuildName = gName;
+                        if gName == guildName then
+                            isMatched = true;
+                            break;
+                        end
+                    end
+
+                    if not isMatched then
+                        -- We found the flawed candidate.
+                        GRM_Alts[guildName] = GRM.DeepCopyArray ( GRM_Alts[oldGuildName] );
+                        GRM_Alts[oldGuildName] = nil;
+                        GRM_GuildMemberHistory_Save[faction][guildName].grmName = guildName;
+                        GRM_PlayersThatLeftHistory_Save[faction][guildName].grmName = guildName;
+                        break;
+                    end
+                end
+            end
+
+            if not isMatched then
+                break;
+            end
+        end
+    end
+end

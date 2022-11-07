@@ -1,3 +1,32 @@
+## **VERSION R1.946 RELEASE - Nov 7th, 2022*
+
+* Timestamp that can be added to the player note, and can be controlled globally is now independent of player settings. So, the timestamp format join dates can be a different format than your own personal preference for GRM timestamps in just the GRM frames, like on the audit window or mouseover window. This was done because a guild leader may mandate a format for say, the join date exported to the Officer Note, but I personally would prefer to have my log showing a different timestamp format.
+
+![Officer controlled Timestamp format is different](https://i.imgur.com/pqCf80S.jpg.)
+
+
+* Tooltip on guildies in chat removed in favor of just an expanded right-click window - you can now Ctrl-Click or Shft-ctrl click. Eventually, I will expand this window a little more to add some additional controls, but for now, it's just informational, and to set Main or demot from main status. I will likely expand the options here. Also, this tooltip is not fully integrated into the built in tooltip for style reasons and is a GRM frame on top. Please note, this ONLY works on the chat window, not on the communities frame in retail. Blizzard has blocked addons from being able to access the guild chat stream in retail so addon actions are restricted strictly to your live chat window.
+
+![Right Click context Menu in Chat Frame](https://i.imgur.com/S0MQ7W3.jpg)
+
+
+* The shift ranks up and down should now, once again, be showing for Classic build players. Someone please confirm this as I have not yet had the opportunity to.
+
+* Should no longer get a warning on Evoker class missing localization.
+
+* RGB coloring of classes should stick and be compatible with the same coloring from the client, as is set by the player's client for colorblind play.
+
+* GRM has removed the option to sync with outdated addon users. By default, players must be using the same version of the addon to sync between each other. This is just something that is going to save me some headaches in the future.
+
+* Issue with completing patching for some people who haven't updated in a long time. This should actually be resolved now.
+
+* Fixed an issue where GRM would not load properly after a guild namechange.
+
+* (RETAIL ONLY) - Noticed that the mouseover still works when the recruitment window is open, sort of annoyingly. I now restrict the mouseover when the recruitment window is open.
+
+* (CLASSIC ONLY) - Due to repeated efforts to resolve the taint issue that has appeared only in classic, the ctrl-click ability has been forcibly hard restricted down to only showing the guild roster, and the GRM window. The small side window that is built-in with the promote/demote controls cannot be opened in any way by addon scripting or else taint is introduced. This is not the case in retail, funny enough. But in Classic, this is the compromise that needed to happen.
+
+
 ## **VERSION R1.945 RELEASE - 30th Oct, 2022**
 
 * Fixed an issue where if you set the date timestamp format to one of the last 2 options, globally, it would reset to a different format. This only affected people using the 30-10-2022 or the 2022.10.30 date formatting styles and had set it globally with the guildInfo tag.

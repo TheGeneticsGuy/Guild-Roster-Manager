@@ -1072,7 +1072,7 @@ GRML.Italian = function()
 	GRM_L["Update Complete... {num} patches applied."] = true   -- Plural
 	GRM_L["Update Complete... 1 patch applied."] = true         -- Singular version
 	GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = true       -- Enable/disable birthday chekbox on UI Options and the Audit windoppw
-	GRM_L["To avoid addon taint/blocking errors in Classic, the player must manually open the Guild Roster tab the first time."] = true          -- Classic only message for players explaining why window cannot open automatically.
+	GRM_L["To avoid addon taint/blocking errors  Classic, the player must manually open the Guild Roster tab the first time."] = true          -- Classic only message for players explaining why window cannot open automatically.
 	GRM_L["Confirm Date"] = true
 	GRM_L["If the date is accurate, right click and select 'Confirm Date'"] = true
 
@@ -1572,5 +1572,10 @@ GRML.Italian = function()
     GRM_L["Must be an exact match"] = true
     GRM_L["No safe tag '{name}' in officer note"] = true
     GRM_L["Safe Text Match:"] = true
+
+    -- R1.946
+    GRM_L["GRM Tools" ] = true
+    GRM_L["Style Choices:"] = true
+    GRM_L["Applies only to date format used for note"] = true
     
 end

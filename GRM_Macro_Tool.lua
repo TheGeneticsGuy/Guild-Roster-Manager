@@ -6042,14 +6042,14 @@ GRM.UpdateIgnoredToolTip = function ( ind )
     end
 
     if rankRestrictText ~= "" then
-        GameTooltip:AddLine ( rankRestrictText , 1 , 0 , 0 );
-    end
+        GameTooltip:AddLine ( rankRestrictText , 1 , 0 , 0 ); 
     
-    GameTooltip:AddLine ( " " );    -- adds a small space between the lines
-    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to Select for Removal" ) );
-    GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
-    GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
-    GameTooltip:Show();
+        GameTooltip:AddLine ( " " );    -- adds a small space between the lines
+        GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to Select for Removal" ) );
+        GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
+        GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+        GameTooltip:Show();
+    end
 
 end
 

@@ -1565,5 +1565,10 @@ GRML.PortugueseBR = function()
     GRM_L["Must be an exact match"] = true
     GRM_L["No safe tag '{name}' in officer note"] = true
     GRM_L["Safe Text Match:"] = true
-    
+
+    -- R1.946
+    GRM_L["GRM Tools" ] = true
+    GRM_L["Style Choices:"] = true
+    GRM_L["Applies only to date format used for note"] = true
+   
 end

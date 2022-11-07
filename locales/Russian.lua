@@ -1571,6 +1571,11 @@ GRML.Russian = function()
     GRM_L["Safe Text Match:"] = true
     
 
+    -- R1.946
+    GRM_L["GRM Tools" ] = true
+    GRM_L["Style Choices:"] = true
+    GRM_L["Applies only to date format used for note"] = true
+   
 end
     
     -- Anazing work Максим#0406 on Discord - Incredible work, really!

@@ -5593,7 +5593,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                         -- Due to older verisons... need to check if this is nil. It will be nil for many. To prevent Lua error/crash.
                         if tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) ) ~= nil then
                             comms.versionCheckEpoch = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
-                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncSameVersion and comms.versionCheckEpoch < GRM_G.PatchDay then                   -- if the player sending data to you has an older version (smaller epoch number)                       
+                            if comms.versionCheckEpoch < GRM_G.PatchDay then                   -- if the player sending data to you has an older version (smaller epoch number)                       
                                 comms.abortSync = true;
                             else
                                 GRMsyncGlobals.CompatibleAddonUsers[sender] = {};
