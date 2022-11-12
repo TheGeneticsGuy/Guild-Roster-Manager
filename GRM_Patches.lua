@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 102;
+local totalPatches = 103;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -994,11 +994,12 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-
+-- /run local g=GRM_AddonSettings_Save;for f in pairs(g) do for p,r in pairs(g[f]) do if r.promoteRules==nil then print("Error: "..p.." - "..f);end;end;end;
     -- patch 90
     patchNum = patchNum + 1;
     if numericV < 1.92995 and baseValue < 1.92995 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.fixAltGroups , true , false , true ); -- Long standing bug - cleanup groups
+        GRM_Patch.VerifyMacroRuleIntegrity();
         GRM_Patch.ModifyPlayerSetting ( "kickRules" , GRM_Patch.AddRulesValue );
         GRM_Patch.ModifyPlayerSetting ( "promoteRules" , GRM_Patch.AddRulesValue );
         GRM_Patch.ModifyPlayerSetting ( "demoteRules" , GRM_Patch.AddRulesValue );
@@ -1167,6 +1168,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.FixIfGuildChange();
         
         if loopCheck ( 1.946 ) then
+            return;
+        end
+    end
+
+    --patch 103
+    patchNum = patchNum + 1;
+    if numericV < 1.947 and baseValue < 1.947 then
+
+        GRM_Patch.ModifyPlayerSetting ( "exportFilters" , GRM_Patch.AddExportOptions );
+        GRM_Patch.AddPlayerSetting ( "promoteOnlineOnly" , false );  
+        GRM_Patch.AddPlayerSetting ( "demoteOnlineOnly" , false );  
+        
+        if loopCheck ( 1.947 ) then
             return;
         end
     end
@@ -5319,6 +5333,27 @@ GRM_Patch.fixAltGroups = function ( guildData , player )
     return player;
 end
 
+-- 1.947
+-- Method:          GRM_Patch.VerifyMacroRuleIntegrity()
+-- What it Does:    Establishes the rule if it doesn't exist
+-- Purpose:         Someone with a very old version of the addon could not load it with this error and it was just reported.
+GRM_Patch.VerifyMacroRuleIntegrity = function()
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+
+            if GRM_AddonSettings_Save[F][p].kickRules == nil then
+                GRM_AddonSettings_Save[F][p].kickRules = {};
+            end
+            if GRM_AddonSettings_Save[F][p].promoteRules == nil then
+                GRM_AddonSettings_Save[F][p].promoteRules = {};
+            end
+            if GRM_AddonSettings_Save[F][p].demoteRules == nil then
+                GRM_AddonSettings_Save[F][p].demoteRules = {};
+            end
+        end
+    end
+end
+
 -- 1.872
 -- Method:          GRM_Patch.FixManualBackupsFromDBLoad
 -- What it Does:    CleansUpDatabases that need to be cleaned up
@@ -5427,6 +5462,14 @@ GRM_Patch.AddExportOptions = function ( exportFilters )
 
         if #exportFilters == 18 then        -- alts only or mains only
             exportFilters[19] = true;       
+        end
+
+        if #exportFilters == 19 then        -- GUID
+            exportFilters[20] = false;       
+        end
+
+        if #exportFilters == 20 then        -- Remove special characters from sy
+            exportFilters[21] = false;       
         end
     end
 
@@ -6249,7 +6292,7 @@ GRM_Patch.FixTimestamps = function ( player )
     for i = 1 , #player.joinDateHist do
         timeTable = {};
 
-        if player.joinDateHist[i][4] == nil and player.joinDateHist[i][1] and player.joinDateHist[i][1] > 0  and player.joinDateHist[i][2] and player.joinDateHist[i][2] > 0 and player.joinDateHist[i][3] and player.joinDateHist[i][3] > 0  then
+        if player.joinDateHist[i][4] ~= nil and player.joinDateHist[i][1] and player.joinDateHist[i][1] > 0  and player.joinDateHist[i][2] and player.joinDateHist[i][2] > 0 and player.joinDateHist[i][3] and player.joinDateHist[i][3] > 0  then
             player.joinDateHist[i][4] = GRM.TimeStampToEpoch ( { player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] } );
         else
             player.joinDateHist = { { 0 , 0 , 0 , 0 , 0 , false , 1 } };

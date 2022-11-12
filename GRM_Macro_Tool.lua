@@ -74,6 +74,10 @@ GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText = GRM_UI.GRM_ToolCoreFra
 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton = CreateFrame ( "CheckButton" , "GRM_MacroToolDisableLogSpamCheckbutton" , GRM_UI.GRM_ToolCoreFrame , GRM_G.CheckButtonTemplate );
 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText = GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
+-- Online Cnly Control
+GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton = CreateFrame ( "CheckButton" , "GRM_MacroToolShowOnlineOnlyCheckButton" , GRM_UI.GRM_ToolCoreFrame , GRM_G.CheckButtonTemplate );
+GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+
 -- Safe Details
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText1 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText2 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
@@ -302,7 +306,7 @@ GRM_G.counts = { 0 , 0 , 0 };       -- count values of each
 GRM_UI.GRM_ToolCoreFrame:ClearAllPoints();
 GRM_UI.GRM_ToolCoreFrame:SetPoint ( "CENTER" , UIParent );
 GRM_UI.GRM_ToolCoreFrame:SetFrameStrata ( "MEDIUM" );
-GRM_UI.GRM_ToolCoreFrame:SetSize ( 1200 , 485 );
+GRM_UI.GRM_ToolCoreFrame:SetSize ( 1200 , 515 );
 GRM_UI.GRM_ToolCoreFrame:EnableMouse ( true );
 GRM_UI.GRM_ToolCoreFrame:SetMovable ( true );
 GRM_UI.GRM_ToolCoreFrame:SetToplevel ( true );
@@ -594,6 +598,42 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam = false;
                 end
                 GRM.SyncSettings();
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetPoint ( "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText , "LEFT" , - 2 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText , "BOTTOM" , 0 , -15 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetScript ( "OnClick", function( self , button )
+            if button == "LeftButton" then
+
+                if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() then
+                    if self:GetChecked() then
+                        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly = true;
+                        else
+                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly = true;
+                        end
+                    else
+                        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly = false;
+                        else
+                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly = false;
+                        end
+                    end
+
+                    GRM_UI.FullMacroToolRefresh();
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                        GRM.TriggerIgnoredQueuedWindowRefresh();
+                    end
+
+                    GRM.SyncSettings();
+                else
+                    if self:GetChecked() then
+                        self:SetChecked ( false );
+                    else
+                        self:SetChecked ( true );
+                    end
+                end
             end
         end);
 
@@ -1097,6 +1137,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Hide();
 
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:LockHighlight();
@@ -1104,11 +1145,26 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
+                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Show();
+
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
+
+                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Show();
+
             end
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
         end
@@ -2566,7 +2622,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 end
 
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlesOsfActivity then
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.regardlessOfActivity then
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:SetChecked ( true );
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:SetChecked ( false );
                         
@@ -4399,7 +4455,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetText ( GRM.L ( "Disable chat log spam while using the Macro Tool" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText );
-
+    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText:SetText ( GRM.L ( "Only Show Players Currently Online" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText );
     -- Updated Rules
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetText ( GRM.L ( "Apply Rules to:" ) );
@@ -7437,6 +7495,7 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
     local listOfPlayers , tempRuleCollection = {} , {};
     local macroAction = { [2] = "/gpromote" , [3] = "/gdemote" };
     local rankDestination = { [2] = GRM.L ( "Promote to Rank:" ) , [3] = GRM.L ( "Demote to Rank:" ) };
+    local playerMatch = false;
 
     -- need to know if player can be promoted or demoted to destination rank, and how many rank moves they need to make to get there.
     local playerCanBeMoved = function ( playerRankIndex , destinationRank , ruleType )
@@ -7689,45 +7748,67 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
 
                                 if not player.safeList[GRM_UI.ruleTypeEnum2[rule.ruleType]][1] then      -- Ignore for scanning... but I still want a count of the ignored.
 
-                                    local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
 
-                                    if not index then
-                                        table.insert ( listOfPlayers , {} );
-                                        index = #listOfPlayers;
-                                        listOfPlayers[index].name = player.name;
-                                        listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
-                                        listOfPlayers[index].lastOnline = player.lastOnline;
-                                        listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[rule.ruleType];
-                                        listOfPlayers[index].macro = macroAction[rule.ruleType];
-                                        listOfPlayers[index].isHighlighted = false;
-                                        listOfPlayers[index].rankIndex = rule.destinationRank - 1;      -- Miinus 1 rank for it to match the player indexes
-                                        listOfPlayers[index].mainName = GRM.GetMainName ( player , true );
-                                        listOfPlayers[index].customMsg = "";
-                                    end
 
-                                    local numJumps = 0;
-                                    if rule.ruleType == 2 then
-
-                                        numJumps = player.rankIndex - ( rule.destinationRank - 1 );
-                                        if not listOfPlayers[index].numRankJumps then               -- if this doesn't exist
-                                            listOfPlayers[index].numRankJumps = numJumps;
-                                        elseif listOfPlayers[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
-                                            listOfPlayers[index].numRankJumps = numJumps;
+                                    playerMatch = false;
+                                    if rule.ruleType == 1 then
+                                        playerMatch = true;
+                                        
+                                    elseif rule.ruleType == 2 then
+                                        
+                                        if ( not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
+                                            playerMatch = true;
                                         end
 
-                                    else
+                                    elseif rule.ruleType == 3 then
 
-                                        numJumps = ( rule.destinationRank - 1 ) - player.rankIndex;
-                                        if not listOfPlayers[index].numRankJumps then               -- if this doesn't exist
-                                            listOfPlayers[index].numRankJumps = numJumps;
-                                        elseif listOfPlayers[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
-                                            listOfPlayers[index].numRankJumps = numJumps;
+                                        if ( not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
+                                            playerMatch = true;
                                         end
-
+                                        
                                     end
 
-                                    table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
-                                    sort ( listOfPlayers , function ( a , b ) return a.name < b.name end );
+                                    if playerMatch then
+                                        local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
+
+                                        if not index then
+                                            table.insert ( listOfPlayers , {} );
+                                            index = #listOfPlayers;
+                                            listOfPlayers[index].name = player.name;
+                                            listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
+                                            listOfPlayers[index].lastOnline = player.lastOnline;
+                                            listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[rule.ruleType];
+                                            listOfPlayers[index].macro = macroAction[rule.ruleType];
+                                            listOfPlayers[index].isHighlighted = false;
+                                            listOfPlayers[index].rankIndex = rule.destinationRank - 1;      -- Miinus 1 rank for it to match the player indexes
+                                            listOfPlayers[index].mainName = GRM.GetMainName ( player , true );
+                                            listOfPlayers[index].customMsg = "";
+                                        end
+
+                                        local numJumps = 0;
+                                        if rule.ruleType == 2 then
+
+                                            numJumps = player.rankIndex - ( rule.destinationRank - 1 );
+                                            if not listOfPlayers[index].numRankJumps then               -- if this doesn't exist
+                                                listOfPlayers[index].numRankJumps = numJumps;
+                                            elseif listOfPlayers[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
+                                                listOfPlayers[index].numRankJumps = numJumps;
+                                            end
+
+                                        else
+
+                                            numJumps = ( rule.destinationRank - 1 ) - player.rankIndex;
+                                            if not listOfPlayers[index].numRankJumps then               -- if this doesn't exist
+                                                listOfPlayers[index].numRankJumps = numJumps;
+                                            elseif listOfPlayers[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
+                                                listOfPlayers[index].numRankJumps = numJumps;
+                                            end
+
+                                        end
+
+                                        table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
+                                        sort ( listOfPlayers , function ( a , b ) return a.name < b.name end );
+                                    end
 
                                 else
                                     local index = GRM.GetIndexOfPlayerOnList ( GRM_UI.GRM_ToolCoreFrame.Safe , player.name );
@@ -8171,7 +8252,7 @@ GRM.GetCountOfNamesBeingFiltered = function()
 
     GRM.RefreshMacroToolRuleCount();
 
-    return k , p , d;
+    return k , p , d , listOfNames;
 end
 
 ------------------------
@@ -8293,6 +8374,36 @@ GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
     else
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( false );
     end
+
+    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam then
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( true );
+    else
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( false );
+    end
+
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Hide();
+
+    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+
+        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly then
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
+        end
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Show();
+
+    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+
+        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly then
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
+        end
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Show();
+    end
+
 end);
 
 ----------------------------------------------

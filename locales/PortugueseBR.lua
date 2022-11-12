@@ -326,11 +326,8 @@ GRML.PortugueseBR = function()
     GRM_L["Please choose a valid DAY"] = true
     GRM_L["{name} has been Removed from the Ban List."] = true
     GRM_L["Scanning for Guild Changes Now. One Moment..."] = true
-    GRM_L["Breaking current Sync with {name}."] = true
-    GRM_L["Breaking current Sync with the Guild..."] = true
     GRM_L["Initializing Sync Action. One Moment..."] = true
     GRM_L["No Players Currently Online to Sync With..."] = true
-    GRM_L["No Addon Users Currently Compatible for FULL Sync."] = true
     GRM_L["SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted."] = true
     GRM_L["Manual Scan Complete"] = true
     GRM_L["Analyzing guild for the first time..."] = true
@@ -383,18 +380,13 @@ GRML.PortugueseBR = function()
     GRM_L["Initiating Sync with {name} Instead!"] = "Em vez disso, Iniciando Sincronização com {name}!"
     GRM_L["Sync Failed with {name}..."] = "Sincronia com {name} Falhou..."
     GRM_L["The Player Appears to Be Offline."] = "O Jogador Parece Estar Offline."
-    GRM_L["There Might be a Problem With Their Sync"] = "Pode Haver um Problema com a Sincronização Deles"
-    GRM_L["While not ideal, Ask Them to /reload to Fix It and Please Report the Issue to Addon Creator"] = "Embora não seja o ideal, Peça a eles para darem /reload para Corrigir e Por Favor Relate o Problema ao Criador do Addon"
     GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = "Sincronizando Dados Manualmente com Membros Agora... Apenas uma vez."
     GRM_L["Syncing Data With Guildies Now..."] = "Sincronizando Dados com Membros Agora..."
     GRM_L["(Loading screens may cause sync to fail)"] = "(Telas de carregamento podem causar falha na sincronização)"
     GRM_L["Sync With Guildies Complete..."] = "Sincronia Com Membros Completa..."
     GRM_L["Manual Sync With Guildies Complete..."] = "Sincronia Manual Com Membros Completa..."
     GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = "Nenhum Jogador Atualmente Online para Sincronizar Com. Desabilitando Sincronia..."
-    GRM_L["{name} tried to Sync with you, but their addon is outdated."] = "{name} tentou Sincronizar com você, mas o addon dele está desatualizado."
-    GRM_L["Remind them to update!"] = "Lembre eles de atualizar!"
 
-    
     -- ERROR MESSAGES DONE
     GRM_L["Notification Has Already Been Arranged..."] = "A notificação Já Foi Arrumada..."
     GRM_L["Failed to add alt for unknown reason. Try closing Roster window and retrying!"] = "Falhou ao adicionar alt por razões desconhecidas. Tente fechar a janela da Lista e tente de novo!"
@@ -413,7 +405,6 @@ GRML.PortugueseBR = function()
     GRM_L["Prefix:"] = "Prefixo:"
     GRM_L["Msg:"] = true                                                -- Context: Msg is short for Message
     GRM_L["Unable to register prefix > 16 characters: {name}"] = "Não foi possível registrar o prefixo > 16 caracteres: {name}"   -- Context: The {name} is the string code for the prefix. This is for debugging.
-
 
     --SLASH COMMANDS
     -- These are generally written in general shorthand. The original commands will ALWAYS work, but if there is one that makes more sense in your language, please feel free to modify
@@ -646,7 +637,6 @@ GRML.PortugueseBR = function()
     GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = "|CFFE6CC7FClique com O Esquerdo|r para Mudar a Fonte"
 
     -- R1.1490
-    GRM_L["You will still share some outgoing data with the guild"] = "Você ainda compartilhará alguns dados enviados com a guilda"
     GRM_L["Unable to properly locate guild for backup"] = "Incapaz de localizar corretamente a guilda para backup"
 
     -- R1.1500
@@ -1133,7 +1123,6 @@ GRML.PortugueseBR = function()
 	GRM_L["Choose thoughtfully"] = true
 	GRM_L["{name}'s note has been updated!"] = true
 	GRM_L["Locked. Press ESC"] = true                                        -- Mouseover Locked text in top right.
-	GRM_L["{num} guild members have outdated GRM versions"] = true                      -- Player sync with another is outdated
     GRM_L["|CFFE6CC7FClick|r to Select for Removal"] = true
     GRM_L["Feel free to recommend a delimiter you wish to use to the author"] = true
     GRM_L["Export Tool"] = true
@@ -1571,4 +1560,16 @@ GRML.PortugueseBR = function()
     GRM_L["Style Choices:"] = true
     GRM_L["Applies only to date format used for note"] = true
    
+    -- R1.947
+    GRM_L["Currently syncing with {name}. Please wait until after sync completes to activate again."] = true
+    GRM_L["Be Informed When GRM is out of date."] = true
+    GRM_L["This only reports to chat once per session."] = true
+    GRM_L["Player GUID"] = true
+    GRM_L["Remove Alt-Code Letters From Names"] = true
+    GRM_L["Only Show Players Currently Online"] = true
+    GRM_L["{name} matches rules for a promotion and is currently online."] = true
+    GRM_L["{name} matches rules for a demotion and is currently online."] = true
+    GRM_L["Please choose a valid Month"] = true
+    GRM_L["Warcraft was not released until 2004. Please choose a valid year."] = true
+
 end

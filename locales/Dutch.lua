@@ -325,11 +325,8 @@ GRML.Dutch = function()
     GRM_L["Please choose a valid DAY"] = true
     GRM_L["{name} has been Removed from the Ban List."] = true
     GRM_L["Scanning for Guild Changes Now. One Moment..."] = true
-    GRM_L["Breaking current Sync with {name}."] = true
-    GRM_L["Breaking current Sync with the Guild..."] = true
     GRM_L["Initializing Sync Action. One Moment..."] = true
     GRM_L["No Players Currently Online to Sync With..."] = true
-    GRM_L["No Addon Users Currently Compatible for FULL Sync."] = true
     GRM_L["SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted."] = true
     GRM_L["Manual Scan Complete"] = true
     GRM_L["Analyzing guild for the first time..."] = true
@@ -382,17 +379,12 @@ GRML.Dutch = function()
     GRM_L["Initiating Sync with {name} Instead!"] = true
     GRM_L["Sync Failed with {name}..."] = true
     GRM_L["The Player Appears to Be Offline."] = true
-    GRM_L["There Might be a Problem With Their Sync"] = true
-    GRM_L["While not ideal, Ask Them to /reload to Fix It and Please Report the Issue to Addon Creator"] = true
     GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = true
     GRM_L["Syncing Data With Guildies Now..."] = true
     GRM_L["(Loading screens may cause sync to fail)"] = true
     GRM_L["Sync With Guildies Complete..."] = true
     GRM_L["Manual Sync With Guildies Complete..."] = true
     GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = true
-    GRM_L["{name} tried to Sync with you, but their addon is outdated."] = true
-    GRM_L["Remind them to update!"] = true
-
     
     -- ERROR MESSAGES
     GRM_L["Notification Has Already Been Arranged..."] = true
@@ -413,7 +405,6 @@ GRML.Dutch = function()
     GRM_L["Msg:"] = true                                                -- Context: Msg is short for Message
     GRM_L["Unable to register prefix > 16 characters: {name}"] = true   -- Context: The {name} is the string code for the prefix. This is for debugging.
 
-    
     --SLASH COMMANDS
     -- These are generally written in general shorthand. The original commands will ALWAYS work, but if there is one that makes more sense in your language, please feel free to modify
     GRM_L["clearall"] = true                        -- Context: In regards, "Clear All" saved data account wide 
@@ -649,7 +640,6 @@ GRML.Dutch = function()
     GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = true
 
     -- R1.1490
-    GRM_L["You will still share some outgoing data with the guild"] = true
     GRM_L["Unable to properly locate guild for backup"] = true
 
     -- R1.1500
@@ -1135,7 +1125,6 @@ GRML.Dutch = function()
     GRM_L["Choose thoughtfully"] = true
     GRM_L["{name}'s note has been updated!"] = true
     GRM_L["Locked. Press ESC"] = true                                        -- Mouseover Locked text in top right.
-    GRM_L["{num} guild members have outdated GRM versions"] = true                      -- Player sync with another is outdated
     GRM_L["|CFFE6CC7FClick|r to Select for Removal"] = true
     GRM_L["Feel free to recommend a delimiter you wish to use to the author"] = true
     GRM_L["Export Tool"] = true
@@ -1577,5 +1566,17 @@ GRML.Dutch = function()
     GRM_L["GRM Tools" ] = true
     GRM_L["Style Choices:"] = true
     GRM_L["Applies only to date format used for note"] = true
+
+    -- R1.947
+    GRM_L["Currently syncing with {name}. Please wait until after sync completes to activate again."] = true
+    GRM_L["Be Informed When GRM is out of date."] = true
+    GRM_L["This only reports to chat once per session."] = true
+    GRM_L["Player GUID"] = true
+    GRM_L["Remove Alt-Code Letters From Names"] = true
+    GRM_L["Only Show Players Currently Online"] = true
+    GRM_L["{name} matches rules for a promotion and is currently online."] = true
+    GRM_L["{name} matches rules for a demotion and is currently online."] = true
+    GRM_L["Please choose a valid Month"] = true
+    GRM_L["Warcraft was not released until 2004. Please choose a valid year."] = true
 
 end

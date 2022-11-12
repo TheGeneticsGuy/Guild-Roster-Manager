@@ -1,133 +1,181 @@
 -- GRM PUBLIC ACCESS API TO QUERY GRM DATABASE
 
--- NOTES ON USE AND DESIGN STYLE
--- Note 1: Name format input
+-- NOTES ON GENERAL USE:
 
--- Since GRM deals with so many aspects of merged realm, cross-realm, classic and retail servers, all as a single universal code-base, to make our lives easier a full "Name-Server" format must be used for implementation on input. The server MUST be in the proper Blizzard database format too which I will explain below. Be aware that when querying the Blizzard servers this automatically has the name-serverName in proper format, so you don't need to do much work here, but for people that might be more hands-on in customizing the input arguments, follow these recommendations.
--- Example on Name Format:
---          Name: Arkaan-Zul'jin    -- CORRECT
---          Name: Arkaan            -- INCORRECT
---
--- Example on Server Format:
---          Name: Arkaan-AlteracMountains   -- CORRECT
---          Name: Arkaan-Alterac Mountains  -- INCORRECT
-
--- Note: The server name must also be appended to the name of the guild.
---          guildName: "Is a Subatomic Particle-Zul'jin"    -- CORRECT
---          guildName: "Is a Subatomic Particle"            -- INCORRECT
-
--- There are many varied realm names beyond just a simple white space removal, so I wrote a script to auto-format your guild name to the proper format, if needed at all. I suspect most will never need it.
--- Function:    GRM_API.ConvertRealmNameToDatabaseFormat ( realmName );
-
--- Note 2: Return results
-
--- If the player calls a function and it returns "nil" then one can assume there is no data to return. In other words, the player is non-existent given the input.
--- Example:
---          local isMain = GRM_API.IsMain( playerName );  -- One could also write it:  local isMain = playerName:GRM_API.IsMain();
---
--- If the "isMain" variable is true/false, then we know the player has been found in the database AND they are or are not a main. If the "isMain" == nil, then the playerName was not found in the given database.
-
-
--- Note 3: Default inputs can be changed
-
--- By default, to make this as simple as possible, the only thing that needs to be entered as an input is the player's name. The code will auto-default to using your current faction and guild as the database to look through. However, if you wish, you can modify the database query to any faction/guild you wish.
--- Example:
--- "Default"            local isMain = GRM_API.IsMain ( "Arkaan-Zul'jin" )                                              -- CORRECT  -- addon defaults to current faction and guild
--- This "default" ==    local isMain = GRM_API.IsMain ( "Arkaan-Zul'jin" , "Is a Subatomic Particle-Zul'jin" )    -- CORRECT  -- This is the exact same thing as previous. As can be seen, previous format is to simplify process.
-
--- "Search Database"    local isMain = GRM_API.IsMain ( "Arkaan-Tanaris" , "Dawn of the Dead-Tanaris" )                 -- CORRECT  -- addon now searches current faction, but guild on another server
-
--- Note: You will receive an error text notifaction that catches the failure to find results in a query. It will inform you what it could not find, the guild or the player. This will auto-query the whole databse be it Horde or Ally, so the only thing you really need to ensure is proper playerName spelling and proper guildName spelling/formatting.
-
-
--- FUNCTION ARGUMENTS
--- 
--- [, argument] -- this indicates an "optional" argument.
-
--- EXAMPLE: GRM_API.IsMain ( string [, string ] )
--- 
---          GRM_API.IsMain ( "Arkaan-Zul'jin" )                                                 -- CORRECT
---          GRM_API.IsMain ( "Arkaan-ConnectedRealm" , "connectedRealmGuild-ConnectedRealm" )   -- CORRECT
-
-
-
-
+-- * API calls do not need to include guild/faction. If excluded, they will default to current faction addon user is in
+-- * Server will be appended if left off name. The server MUST be included on toons not of the same realm
+-- * `faction` = "H" for Horde and "A" for Alliance
+-- * If the player cannot be found, results will return as 'nil`
+-- * Please note, the "GET" data returned is a copy of the GRM DB and not linked to the GRM database to be modified.
 
 -- Table to hold all methods.
 GRM_API = {};
 
-GRM_API.Initialized = false;
-GRM_API.ErrorMessages = true;
-
-
--- GRM API ACCESS MISC - Public use general tools further down
-
--- Method:          GateCheck ( string , string )
--- What it Does:    Acts as a gate check to not throw errors, validates input information
--- Purpose:         Since this is public access API, it is being built with some safeguards in place to prevent Lua errors.
-local function GateCheck ( playerName , guildName )
-    
-    if not GRM_API.Initialized then -- return nil every time until initialized
-        return;
+-- Error Protection
+GRM_API.GetCheck = function ( name , guild , faction , formerMemberDB )
+    local isValid = false;
+    local guildData;
+    if not formerMemberDB then
+        guildData = GRM_GuildMemberHistory_Save;
+    else
+        guildData = GRM_PlayersThatLeftHistory_Save;
     end
 
-    local isValid = true;
-    local gName,f;
+    name = GRM.AppendServerName ( name );
+    guild = guild or GRM_G.guildName;
+    faction = faction or GRM_G.F;
 
-    -- Guild Name Check
-    gName = guildName or GRM_G.guildName;
-    if gName == "" then
-        isValid = false;
+    if name ~= "" and guild ~= "" and faction ~= "" then
+        if guildData[faction] and guildData[faction][guild] and guildData[faction][guild][name] then
+            isValid = true;
+        end
     end
 
-    -- Validate player info
+    return isValid , name , guild , faction;
+end
+
+--------------------------------
+-- Public Access GRM database --
+--------------------------------
+
+-- Method:          GRM_API.GetMember ( string [,string] [,string] )
+-- What it Does:    Returns the member and all player data stored by GRM
+GRM_API.GetMember = function ( name , guild , faction )
+    local result;
+    local isValid;
+    isValid , name , guild , faction = GRM_API.GetCheck ( name , guild , faction );
+
     if isValid then
-        if GRM_G.F == "H" then
-            f = "A";
-        else
-            f = "H";
-        end
-
-        if not GRM_GuildMemberHistory_Save[GRM_G.F][gName] and not GRM_GuildMemberHistory_Save[f][gName] then
-            isValid = false;
-            if GRM_API.ErrorMessages then
-                GRM.Report ( GRM.L ( "GRM API Error:" ) .. " " .. GRM.L ( "The guild name \"{name}\" cannot be found in the database. Ensure proper formatting." , gName ) );
-            end
-                
-        else
-            -- Setting which faction it is properly for return
-            if GRM_GuildMemberHistory_Save[GRM_G.F][gName] then
-                f = GRM_G.F;
-            end
-        end
-        
-        if isValid then
-            if not GRM_GuildMemberHistory_Save[f][gName][playerName] then
-                isValid = false;
-                if GRM_API.ErrorMessages then
-                    GRM.Report ( GRM.L ( "GRM API Error:" ) .. " " .. GRM.L ( "The player name \"{name}\" cannot be found in the database. Ensure proper spelling." , playerName ) );
-                end
-            end
-        end
+        result = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[faction][guild][name] );
     end
 
-    return isValid , gName , f;
+    return result;
 end
 
--- Method:          GRM_API.ConvertRealmToDatabaseFormat ( string )
--- What it Does:    Converts the Realm format to proper format\
--- Purpose:         Necessary for database talk.
-GRM_API.ConvertRealmNameToDatabaseFormat = function ( realmName )
-    return string.gsub ( string.gsub ( realmName , "-" , "" ) , "%s+" , "" );
+-- Method:          GRM_API.GetFormerMember ( string [,string] [,string] )
+-- What it Does:    Returns the former Member and all player data stored by GRM
+GRM_API.GetFormerMember = function ( name , guild , faction )
+    local result;
+    local isValid;
+    isValid , name , guild , faction = GRM_API.GetCheck ( name , guild , faction , true );
+
+    if isValid then
+        result = GRM.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[faction][guild][name] );
+    end
+
+    return result;
 end
+
+-- Method:          GRM_API.GetMemberAlts ( string [,string] [,string] )
+-- What it Does:    Returns an alphabetically sorted list of alts in a string array
+GRM_API.GetMemberAlts = function ( name , guild , faction )
+    local result;
+    local isValid;
+    isValid , name , guild , faction = GRM_API.GetCheck ( name , guild , faction );
+
+    if isValid then
+        result = GRM.GetAlts ( GRM_GuildMemberHistory_Save[faction][guild][name] , GRM_Alts[guild] );
+    end
+
+    return result;
+end
+
+
+-- GRM_API.GetCustomNote = function()
+    
+
+-- end
+
+-- GRM_API.SetCustomNote = function()
+
+
+-- end
+
+-- GRM_API.GetPlayerNote = function()
+
+-- end
+
+-- GRM_API.GetOfficerNote = function()
+
+-- end
+
+
+-- GRM_API.GetBirthday = function()
+
+
+-- end
+
+
+-- GRM_API.GetJoinDates = function()
+
+
+-- end
+
+
+-- GRM_API.GetPromotionDates = function()
+
+
+-- end
+
+
+-- GRM_API.GetBanedPlayers = function()
+
+-- end
+
+
+-- GRM_API.GetTimeAsMember = function()
+
+-- end
+
+
+-- GRM_API.GetTimeAtRank = function()
+
+-- end
+
+
+-- GRM_API.GetRankHistory = function()
+
+-- end
+
+
+-- GRM_API.GetMembershipHistory = function()
+
+-- end
+
+
+-- GRM_API.GetWhoInvited = function()
+
+-- end
+
+
+-- GRM_API.GetRoles = function()       -- Pending GRM feature
+
+-- end
+
+
+-- GRM_API.GetNickname = function()    -- Pending GRM Feature
+
+-- end
+
+
+-- GRM_API.GetPronouns = function()    -- Pending GRM Feature (as requested)
+
+-- end
+
+
+
+------------------------------------------------------
+------------------------------------------------------
+---- TOOLBOX FOR UNIQUE API POWER TOOLS --------------
+---- WARNING!!! USE WITH CAUTION!! -------------------
+------------------------------------------------------
 
 -- Method:          GRM.ClearFriendsList()
 -- What it Does:    Clears the entire server side, non-battletag friends list completely to zero
--- Purpose:         For debugging cleanup
+-- Purpose:         To cleanup friends if you wanted
 GRM_API.ClearFriendsList = function()
     for i = C_FriendList.GetNumFriends() , 1 , -1 do
-        local name = C_FriendList.GetFriendInfoByIndex ( i ).name;
-        C_FriendList.RemoveFriend ( name );
+        C_FriendList.RemoveFriend ( C_FriendList.GetFriendInfoByIndex ( i ).name );
     end
 end
 
@@ -135,162 +183,159 @@ end
 -- What it Does:    Clears every officer note to every player in the guild
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllOfficerNotes = function()
-
     if GRM.CanEditOfficerNote() then
         for i = 1 , GetNumGuildMembers() do
             GuildRosterSetOfficerNote ( i , "" );
         end
-    else
-        if IsInGuild() then
-            GRM.Report ( GRM.L ( "Unable to change officer notes at current rank" ) );
-        else
-            GRM.Report ( GRM.L ( "Player is not currently in a Guild" ) );
+    end
+end
+
+-- Method:          GRM.ClearAllOfficerNotes()
+-- What it Does:    Clears every public note to every player in the guild
+-- Purpose:         Mass cleanup abilities
+GRM_API.ClearAllPublicNotes = function()
+    if GRM.CanEditPublicNote() then
+        for i = 1 , GetNumGuildMembers() do
+            GuildRosterSetPublicNote ( i , "" );
         end
     end
 end
 
---------------------------------
--- Public Access GRM database --
---------------------------------
+-- Method:          GRM.RestorAllPublicNotesFromSave()
+-- What it Does:    Looks at the GRM save database and restores all the public notes
+-- Purpose:         In case someone nefariously overwrites all public notes
+GRM_API.RestorAllPublicNotesFromSave = function()
+    local guildData = GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName].Auto.members;
+    local name = "";
 
--- Method:          GRM_API.GetMemberData ( string [, string ] )
--- What it Does:    Returns the entire metaData profile on a player as a table. The data is washed and rebuilt so the values cannot be modified.
--- Purpose:         Database access
-GRM_API.GetMemberData = function ( playerName , guildName )
-    guildName = guildName or GRM_G.guildName;
-    local valid , memberData , gName , faction;
-    valid , gName , faction = GateCheck ( playerName , guildName );
-
-    if valid then
-        memberData = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[faction][gName][playerName] );
+    if GRM.CanEditPublicNote() then
+        for i = 1 , GRM.GetNumGuildies() do 
+            name = GetGuildRosterInfo ( i );
+            for n , player in pairs ( guildData ) do 
+                if type ( player ) == "table" and name == n then 
+                    GuildRosterSetPublicNote ( i , player.note);
+                end
+            end
+        end
     end
-
-    return valid , memberData
 end
 
--- Method:          GRM_API.GetMain ( string [, string ] );
--- What it does:    Returns the player's main if they are part of an alt grouping. Or, retuns nil if there is no main designation. It can return its own name. 
--- Purpose:         Database access
-GRM_API.GetMain = function( playerName , guildName )
-    guildName = guildName or GRM_G.guildName;
-    local valid , result , gName , faction;
+-- Method:          GRM.RestorAllOfficerNotesFromSave()
+-- What it Does:    Looks at the GRM save database and restores all the officer notes
+-- Purpose:         In case someone nefariously overwrites all officer notes
+GRM_API.RestorAllOfficerNotesFromSave = function()
+    local guildData = GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName].Auto.members;
+    local name = "";
 
-    valid , gName , faction = GateCheck ( playerName , guildName );
+    if GRM.CanEditOfficerNote() then
+        for i = 1 , GRM.GetNumGuildies() do 
+            name = GetGuildRosterInfo ( i );
+            for n , player in pairs ( guildData ) do 
+                if type ( player ) == "table" and name == n then 
+                    GuildRosterSetOfficerNote ( i , player.officerNote );
+                end
+            end
+        end
+    end
+end
 
-    if valid then
-        if GRM_GuildMemberHistory_Save[faction][gName][playerName].isMain then
-            result = playerName;
-        elseif GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup ~= "" and GRM_Alts[gName][GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup] and GRM_Alts[gName][GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup].main ~= "" then
-            result = GRM_Alts[gName][GRM_GuildMemberHistory_Save[faction][gName][playerName].altGroup].main;
+-- Method:          GRM_API.SetAllUnlinkedPlayersToMain()
+-- What it Does:    Any player that is not a main, and does not have any linked alts will be set as main.
+-- Purpose:         Mass tool for OCD people who want to set all as main.
+GRM_API.SetAllUnlinkedPlayersToMain = function()
+    local guildData = GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName];
+
+    for name , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            if player.altGroup == "" then
+                GRM.SetMain ( name );
+            end
         end
     end
 
-    return result;
-end
-
--- Method:          GRM_API.IsMain ( string [, string ] );
--- What it does:    Returns true or false if the player is a main. If player cannot be found, it returns nil.
--- Purpose:         Database access
-GRM_API.IsMain = function( playerName , guildName )
-    guildName = guildName or GRM_G.guildName;
-    local valid , result , faction , gName;
-    valid , gName , faction = GateCheck ( playerName , guildName );
-
-    if valid then
-        if GRM_GuildMemberHistory_Save[faction][gName][playerName].isMain then
-            result = true;
-        else
-            result = false;
-        end
+    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+        GRM.RefreshAuditFrames ( true , true );
     end
 
-    return result;
 end
 
--- GRM_API.GetAlts = function( playerName , namesOnly , guildName )
--- guildName = guildName or GRM_G.guildName;
---     local valid , result , gName , faction;
---     valid , gName , faction = GateCheck ( playerName , guildName );
+-- Method:          GRM_API.SetAllUnknownPromoteDates ( int , int , int )
+-- What it Does:    Sets all players who do not have a rank change date set yet as the given date
+-- Purpose:         Mass tool to cleanup timestamps if you really do not want to investigate
+-- NOTES:           This is not really recommended to use, in that it is better to try to determine at least relative join dates
+GRM_API.SetAllUnknownPromoteDates = function ( day , month , year )
 
---     if namesOnly then end
---     if faction then end
---     result = "";
+    if GRM.IsValidSubmitDate ( day , month , year ) then
 
+        for _ , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
+            if type ( player ) == "table" then
 
---     if valid then
+                -- Ok, let's do the rank history first
+                if player.promoteDateUnknown or player.rankHist[1][2] == 0 then
 
+                    player.rankHist = { { player.rankName , 0 , 0 , 0 , 0 , 0 , false , 1 } }; -- Wipe the history
+                    player.rankHist[1][1] = player.rankName;
+                    player.rankHist[1][2] = day;
+                    player.rankHist[1][3] = month;
+                    player.rankHist[1][4] = year;
+                    player.rankHist[1][5] = GRM.TimeStampToEpoch ( { day , month , year } );
+                    player.rankHist[1][6] = time();
+                    player.rankHist[1][7] = true;
+                    player.rankHist[1][8] = 1;
+                    
+                    -- If player had it set to "unknown before"
+                    player.promoteDateUnknown = false;
 
---     end
+                end
 
---     return result;
--- end
+            end
+        end
 
--- -- GRM_API.GetJoinDate = function( playerName , getOriginal , guildName )
--- guildName = guildName or GRM_G.guildName;
--- --     local valid , result , gName , faction , verified;
--- --     valid , gName , faction = GateCheck ( playerName , guildName );
+        if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+            GRM.RefreshAuditFrames ( true , true );
+        end
 
--- --     if getOriginal then end
--- --     if faction then end
--- --     result = "";
--- --     verified= false;
+    end
+end
 
--- --     if valid then
+-- Method:          GRM_API.SetAllUnknownJoinDates ( int , int , int )
+-- What it Does:    Sets all players who do not have a promote date set yet as the given date
+-- Purpose:         Mass tool to cleanup timestamps if you really do not want to investigate
+-- NOTES:           This is not really recommended to use, in that it is better to try to determine at least relative join dates
+GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
 
+    if GRM.IsValidSubmitDate ( day , month , year ) then
 
--- --     end
+        for _ , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
+            if type ( player ) == "table" then
 
--- --     return result , verified;
--- -- end
+                -- Now, Join Date
+                if player.joinDateUnknown or player.joinDateHist[1][1] == 0 then
 
--- -- GRM_API.GetLastPromotionDate = function( playerName , guildName )
--- guildName = guildName or GRM_G.guildName;
--- --     local valid , result , gName , faction , verified;
--- --     valid , gName , faction = GateCheck ( playerName , guildName );
+                    player.joinDateHist = {};
+                    table.insert ( player.joinDateHist , { day , month , year , GRM.TimeStampToEpoch ( { day , month , year } ) , time() , true , 1 } );
 
--- --     if faction then end
--- --     result = "";
--- --     verified= false;
+                    player.joinDateUnknown = false;
 
--- --     if valid then
+                    GRM.AddTimeStampToNote ( player.name , GRM.FormatTimeStamp ( { day , month , year } , false , false , false ) );
 
+                    player.events[1][1][1] = day;
+                    player.events[1][1][2] = month;
+                    player.events[1][1][3] = year;
+                    player.events[1][2] = false;  -- Gotta Reset the "reported already" boolean!
+                    GRM.RemoveFromCalendarQue ( player.name , 1 , nil );
 
--- --     end
+                end 
+            end
+        end
 
--- --     return result , verified;
--- -- end
+        if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+            GRM.RefreshAuditFrames ( true , true );
+        end
+        if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame:IsVisible() then
+            GRM.RefreshAddEventFrame()
+        end
 
--- -- GRM_API.GetBirthday = function( playerName , guildName )
--- guildName = guildName or GRM_G.guildName;
--- --     local valid , day , month , timestamp , gName , faction;
--- --     valid , gName , faction = GateCheck ( playerName , guildName );
-
--- --     if faction then end
--- --     result = "";
--- --     verified= false;
-
--- --     if valid then
-
-
--- --     end
-
--- --     return day , month, timestamp;
--- -- end
-
--- -- GRM_API.GetCustomNote = function( playerName , guildName )
--- guildName = guildName or GRM_G.guildName;
--- --     local valid , result , gName , faction;
--- --     valid , gName , faction = GateCheck ( playerName , guildName );
-
--- --     if faction then end
--- --     result = "";
--- --     verified= false;
-
--- --     if valid then
-
-
--- --     end
-
--- --     return result;
--- -- end
+    end
+end
 

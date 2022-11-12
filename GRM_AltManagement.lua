@@ -268,6 +268,26 @@ GRM.GetListOfAlts = function ( player , includeGUID , syncTable )
     return names , mainName;
 end
 
+-- Method:          GRM.GetAlts ( playerTable )
+-- What it Does:    Returns all of the player alts if there are any
+-- Purpose:         Allow to obtain just the list of alts without any other data 
+GRM.GetAlts = function ( player , altData )
+    local names = {};
+    altData = altData or GRM_Alts[GRM_G.guildName];
+    
+    if altData and player and player.altGroup ~= "" then
+        for i = 1 , #altData[player.altGroup] do
+            if altData[player.altGroup][i].name ~= player.name then
+                table.insert ( names , altData[player.altGroup][i].name );
+            end
+        end
+    end
+
+    sort ( names );
+
+    return names;
+end
+
 -- Method:          GRM.GetMainName ( string )
 -- What it Does:    Returns the main name of the given alt from the alt grouping, or returns "" if none is established for the given player.
 -- Purpose:         To have a cleaner, simpler way of obtaining the main name.
@@ -1587,7 +1607,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
 
                 -- Let's set those officer/public notes as well!
                 local noteDestination = "none";
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote and ( GRM.CanEditOfficerNote() or CanEditPublicNote() ) then
+                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote and ( GRM.CanEditOfficerNote() or GRM.CanEditPublicNote() ) then
                     for h = 1 , GRM.GetNumGuildies() do
                         local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( h );
                         if tempAlt.name == guildieName then
@@ -1602,7 +1622,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                                 noteDestination = "officer";
                                 GuildRosterSetOfficerNote( h , noteDate );
-                            elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 and CanEditPublicNote() and ( note == "" or note == nil ) then
+                            elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 and GRM.CanEditPublicNote() and ( note == "" or note == nil ) then
                                 noteDestination = "public";
                                 GuildRosterSetPublicNote ( h , noteDate );
                             elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 3 then

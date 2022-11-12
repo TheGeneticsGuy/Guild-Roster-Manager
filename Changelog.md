@@ -1,3 +1,40 @@
+## **VERSION R1.947 RELEASE - Nov 11th, 2022*
+
+***QUALITY OF LIFE***
+
+![Updated Export Window](https://i.imgur.com/9JE3w1w.jpg)
+
+* GUID is now an optonal export - this is disabled by default. Also, you can choose to normalize the player names to the 26 char English alphabet and remove the special alt-code characters. This is also disabled by default.
+
+![Macro Tool - Show Only Online](https://i.imgur.com/4HP8kpB.jpg)
+
+* You now have an option to filter just the people currently online in the macro tool, for demotions and promotions (I did not include the option for kick). It seems useful to maybe want to only promote someone when you have a chance to talk to them.
+
+* In addition - GRM will now inform you if the person logging on to the guild currently has a pending promotion/demotion. Sometimes you just get busy and forget. If they match a promotion rule and are due for a promotion, and they just came online, GRM will now remind you of this status.
+
+* The system messages are now silenced and replaced by the GRM log messages. This only affects the promote/demote/kick/leave/join live recording messages. This is just so it cleans up a little bit of the spam in chat due to GRM's additional log message. If you would prefer the system message over the GRM message, just uncheck the box on the right side of the log "ToChat" for those specific messagess and you will see the system messages again. The GRM log messages will still be recorded to the log.
+
+* It may not have been clear before, with the wording of this option, but you can silence the once per session message that your GRM version is outdated (if another guildie has a more current version). I have moved this checkbox to the "General" options tab. Also, for new addon users, the feature is disabled by default, but you are able to turn it on. I personally like it, but I know some people prefer to not be notified by addons in any way that there are updates.
+
+* Furthermore, some of the sync reporting has been streamlined a bit, and the `/grm sync` command should no longer have the option to break current syncs.
+
+* Re-wrote the GRM_API I am prepping for classic... Some preliminary stuff is put together. One I finish the core of it I will publish all the accessible API functions, but you can see them easily in the GRM_API lua file. This is also where some more powerful tools will be made that maybe do not apply to general addon use, but will allow some more advanced options.
+
+***BUG FIXES***
+
+* Fixed an issue where the log would report a demotion, immediately after a promotion was made, in error, then it would correctly re-report the promotion. This would seemingly affect only some people, oddly enough. In some rare cases this could also occur when someone leaves the guild, it would report they are returning. This should no longer occur.
+
+* Some people may have found their join dates disappeared recently. There was an error on a patch and was not caught until it was reported by someone it happened to. It does not affect everyone. Fortunately, you can use the "Advanced Join Date Tool" in the /grm audit window if you were affected, and re-import the dates from the notes. 
+
+* Issue with sync not starting properly for some has been resolved. There seems to be a few different issues here with sync failing and I am working to clean them up. If you are getting any issues where sync fails to start, please let me know, or you type /grm sync and it won't trigger, let me know. It should trigger automatically after X seconds after logging in (default is 60). But, some people set it as early zs 10 seconds, or just disable it altogether and only sync when theyt manually /grm sync command it.
+
+* Fixed an issue where the join date was not getting added to a public or officer note properly. This would not have affected you if the date was going to custom note. There was a slight API change I didn't realize. This should work in all cases again.
+
+* Fixed a bug where the "Apply promotions regardless of activity" was not sticking properly when editing the macro rule.
+
+* Fixed a bug where GRM would not load at all as it was crashing in the patch process for someone who had not updated the addon in a little while.
+
+
 ## **VERSION R1.946 RELEASE - Nov 7th, 2022*
 
 * Timestamp that can be added to the player note, and can be controlled globally is now independent of player settings. So, the timestamp format join dates can be a different format than your own personal preference for GRM timestamps in just the GRM frames, like on the audit window or mouseover window. This was done because a guild leader may mandate a format for say, the join date exported to the Officer Note, but I personally would prefer to have my log showing a different timestamp format.
@@ -13,6 +50,8 @@
 * The shift ranks up and down should now, once again, be showing for Classic build players. Someone please confirm this as I have not yet had the opportunity to.
 
 * Should no longer get a warning on Evoker class missing localization.
+
+* Cleaned up the ordering of the GRM Options tabs a little as it was getting a bit crowded. Slightly extended the window.
 
 * RGB coloring of classes should stick and be compatible with the same coloring from the client, as is set by the player's client for colorblind play.
 

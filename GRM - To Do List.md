@@ -4,20 +4,16 @@
 
 # **BUG FIXES**
 
-* -- Promote live recording to chat on macro tool often not recording WHO "https://cdn.discordapp.com/attachments/418471113023029248/791368969561833512/unknown.png" - Still need to debug this as it was reported and I have not yet fixed it...
-
 * StaticPopup is closing on Escape, which is bad if you die and hit escape. It should only on the GRM one. This seems to be affecting Classic.
 
 * Birthday column on Audit window is not sorting when clicked. Note, when selecting "Include bdays as incomplete," the sorting works fine, interestingly enough.
-
-* Macro rule showing doubling results - seen it once but was unable to rereate
 
 
 # **QUALITY OF LIFE**
 
 * UI 2.0 - See Discord for details
 
-* Resizable frames by dragging corner
+* Re-scalable frames by dragging corner - NOT RESIZABLE, just scaling by dragging.
 
 * Online indicator on the alt popout mouseover toons beyond just alphabetically, but also tagged as main/alt group, etc...
 
@@ -273,9 +269,6 @@ end
 
 * Restore public note from backup
 
-```Lua
-/run local g,n,p=GRM_GuildDataBackup_Save["A"][GRM_G.guildName].Auto.members;for i=1,GRM.GetNumGuildies() do n,_,_,_,_,_,p=GetGuildRosterInfo(i);for x,y in pairs (g) do if type(y)=="table" and x==n then GuildRosterSetPublicNote(i,y.note);end;end;end
-```
 
 **MACRO TOOL ENHANCEMENT**
 
