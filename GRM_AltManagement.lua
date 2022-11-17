@@ -896,7 +896,7 @@ end
 -- Method:              GRM.SetMain ( string , int )
 -- What it Does:        Sets the player as main, as well as updates that status among the alt grouping.
 -- Purpose:             Main/alt management control.
-GRM.SetMain = function ( mainName , timestamp )
+GRM.SetMain  = function ( mainName , timestamp )
     if not mainName then
         return;
     end
@@ -1612,7 +1612,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                         local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( h );
                         if tempAlt.name == guildieName then
                             local noteDate = "";
-                            local t = GRM.FormatTimeStamp ( finalTStampEpoch , false , false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].globalDateFormat );
+                            local t = GRM.FormatTimeStamp ( { date[1] , date[2] , date[3] } , false , false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].globalDateFormat );
                             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].includeTag then
                                 noteDate = GRM_G.customHeaderJoin .. " " .. t;
                             else

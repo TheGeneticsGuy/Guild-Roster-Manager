@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 103;
+local totalPatches = 104;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1181,6 +1181,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddPlayerSetting ( "demoteOnlineOnly" , false );  
         
         if loopCheck ( 1.947 ) then
+            return;
+        end
+    end
+
+    --patch 104
+    patchNum = patchNum + 1;
+    if numericV < 1.948 and baseValue < 1.948 then
+
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixMissingClass , true , true , false );
+        GRM_Patch.ModifyMemberData ( GRM_Patch.UpdateYearFormatting , true , true , false );
+        GRM_Patch.AddMemberMetaData ( "removedAlts" , nil );    -- Forgot to remove the reference
+        
+        if loopCheck ( 1.948 ) then
             return;
         end
     end
@@ -6351,7 +6364,7 @@ GRM_Patch.PlayerNameFixFormerMembers = function ( player )
             if name ~= nil or name ~= "" then
 
                 if realm == "" then
-                    player.name = GRM.AppendSameServerName ( name );
+                    player.name = GRM.AppendServerName ( name );
                 else
                     player.name = name .. "-" .. realm;
                 end
@@ -6451,4 +6464,47 @@ GRM_Patch.FixIfGuildChange = function()
             end
         end
     end
+end
+
+-- 1.948
+-- Method:          GRM_Patch.FixMissingClass ( playerTable )
+-- What it Does:    Populates the class back due to a previous sync error
+-- Purpose:         Issue with sync due to a previous error caused class to be nil, so this is fixing a downstream issue
+GRM_Patch.FixMissingClass = function ( player )
+
+    local class;
+    if player.class == nil and player.GUID and string.find ( player.GUID , "Player-" ) ~= nil then
+        class = GetPlayerInfoByGUID ( player.GUID );
+        if class == nil or class == "" then
+            class = GetPlayerInfoByGUID ( player.GUID );
+        end
+
+        if class ~= nil and class ~= "" then
+            player.class = class;
+        else
+            player.class = "HUNTER" -- just a generic placeholder class that will be fixed if they ever rejoin or on the next scan, in case server is slow to provide info.
+        end 
+    end
+
+    return player;
+end
+
+-- 1.948
+-- method:          GRM_Patch.UpdateYearFormatting ( playerTable )
+-- What it Does:    Updates any 2-digit year formats to proper 4
+-- Purpose:         Normalization of some timestamp logic requires the timestamp data to have the years in proper format, not abbreviated.
+GRM_Patch.UpdateYearFormatting = function ( player )
+
+    for i = 1 , #player.rankHist do
+        if player.rankHist[i][4] > 0 and player.rankHist[i][4] < 100 then
+            player.rankHist[i][4] = player.rankHist[i][4] + 2000;
+        end
+    end
+
+    for i = 1 , #player.joinDateHist do
+        if player.joinDateHist[i][3] > 0 and player.joinDateHist[i][3] < 100 then
+            player.joinDateHist[i][3] = player.joinDateHist[i][3] + 2000;
+        end
+    end
+    return player;
 end

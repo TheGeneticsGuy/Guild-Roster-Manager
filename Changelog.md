@@ -1,4 +1,35 @@
+## **VERSION R1.948 RELEASE - Nov 17th, 2022*
+
+***VERSION COMPATIBILITY WITH 10.0.2 RELEASE***
+
+***BUG FIXES***
+
+* If a player logs on, and they match the macro rules for a promotion, the addon should now only inform you one time, even if they log off and on multiple times. It is just a once per session info message. There was an error where it was repeat reporting, but for only 1 player, everytime someone logged on, if there was a match.
+
+* New join's the history was reporting as a "Rejoin" in some cases, even though they weren't. This has been fixed.
+
+* Fairly significant flaw in the rank history and join history of player's rejoining the guild. This is a side effect of a recent overhaul of the database I did and something I just missed in the process and only noticed once some reports came in to discord. This should now work properly.
+
+* In some cases the live detection of people joining/leaving the guild was not being detected and/or not reporting at least the system message to chat. It should work now.
+
+* There was an issue where if someone left the guild, then rejoined the guild shortly after, the next scan of the roster then would erroneously report them as no longer in the guild... then the following scan would correct it saying they rejoined. How annoying! It's a little complicated to explain why this was happening, but we should be good now.
+
+* Classic Wrath was not parsing the guild log fully, and it now should - this will allow GRM to determine things like who promoted. I had this working, so I think I had a version control error and re-merged some old stuff and it has given me some issues I didn't realize until I was too deep into the next builds... Oops!
+
+* Issue with patching not completing for some people that has now been resolved.
+
+* You should no longer get an error when mousing over a player who is a Drenai race. There was a typo in the raceID here. It seems to have been there a while so this must be evidence that very few people play as that race as this is the first report I got of it ever lol.
+
+* Fixed an issue when mouseing over the "Custom Join Tag" in the officer tab of the GRM options - since this is a global control, in certain conditions the tooltip was erroring and throwing an error. It shouldn't anymore.
+
+* The dropdown menus for the default tab and changing the "main tag" in the GRM General options should be working again properly. There was a typo in my last build when I added the new timestamp option so dropdowns weren't loading. Oops!
+
+* Ignore players list was not refreshing properly when you removed or added people to the list and it was open. It now updates automatically on the fly without needing to reload the window.
+
+
 ## **VERSION R1.947 RELEASE - Nov 11th, 2022*
+
+**HAPPY VETERAN'S DAY IN THE USA**
 
 ***QUALITY OF LIFE***
 

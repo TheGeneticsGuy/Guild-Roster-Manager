@@ -210,7 +210,7 @@ end);
 
 -- Method:          GRMsync.MessageThrottleUpdate ( frame , float )
 -- What it Does:    Changes the throttle cap to the much lower default cap after the player has entered the world for 15 seconds.
--- Purpose:         This is due to there being a 1.28Mb cap within the first 20 seconds that drops to a tiny 5Kb/s If the player can burst most of the info right away on logon, then sync can be quite fast. Otherwise it needs to be hard throttled to prevent player disconnect
+-- Purpose:         This is due to there being a 1.28Mb cap within the first 20 seconds that drops to a tiny 4Kb/s If the player can burst most of the info right away on logon, then sync can be quite fast. Otherwise it needs to be hard throttled to prevent player disconnect
 GRMsync.MessageThrottleUpdate = function ( self , elapsed )
     if not GRMsyncGlobals.reloadControl then
         GRMsyncGlobals.throttleTimerUpdate = GRMsyncGlobals.throttleTimerUpdate + elapsed;
@@ -3507,7 +3507,7 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
         end
     else
         -- This condition can occur if the data has been sent, and then the receiving player/leader compiling it and syncing
-        -- with other guildies goes offline, you will indefinitely be waiting, and it will say you are indefinitely syncing.
+        -- with other guildies goes offline, you will indefinitely   be waiting, and it will say you are indefinitely syncing.
         -- This offers an escape
         local tempTime = ( time() - GRMsyncGlobals.TimeSinceLastSyncAction );
         if tempTime >= GRMsyncGlobals.ErrorCD and tempTime > GRMsyncGlobals.ErrorCD * 2 then
@@ -6067,9 +6067,7 @@ end
 
 -- Method:          GRMsync.BuildSyncNetwork()
 -- What it Does:    Step by step of my in-house sync algorithm custom built for this addon. Step by step it goes!
--- Purpose:         Control the work-flow of establishing the sync infrastructure. This will not maintain it, just builds the initial rules
---                  and the server-side channel of communication between players using the addon. Furthermore, by compartmentalizing it, it controls the flow of actions
---                  allowing a recursive check over the algorithm for flawless timing, and not moving ahead until the proper parameters are first met.
+-- Purpose:         Control the work-flow of establishing the sync infrastructure. This will not maintain it, just builds the initial rules and the server-side channel of communication between players using the addon. Furthermore, by compartmentalizing it, it controls the flow of actions allowing a recursive check over the algorithm for flawless timing, and not moving ahead until the proper parameters are first met.
 GRMsync.BuildSyncNetwork = function( forMacro , requestForTime )
     -- Rank necessary to be established to keep'
     if IsInGuild() then
