@@ -6361,9 +6361,9 @@ GRM_Patch.PlayerNameFixFormerMembers = function ( player )
                 name , realm = select ( 6 , GetPlayerInfoByGUID ( player.GUID ) );
             end
 
-            if name ~= nil or name ~= "" then
+            if name ~= nil and name ~= "" then
 
-                if realm == "" then
+                if realm == "" or realm == nil  then
                     player.name = GRM.AppendServerName ( name );
                 else
                     player.name = name .. "-" .. realm;

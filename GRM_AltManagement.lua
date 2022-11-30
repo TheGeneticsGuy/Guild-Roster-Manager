@@ -815,7 +815,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isU
             end
         else
             GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
-            GRMsyncGlobals.upatesEach[6] = GRMsyncGlobals.upatesEach[6] + 1;
+            GRMsyncGlobals.updatesEach[6] = GRMsyncGlobals.updatesEach[6] + 1;
         -- elseif not isUnknown then
             -- if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
             --     if #alts > 0 then
@@ -893,92 +893,99 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt )
     end
 end
 
--- Method:              GRM.SetMain ( string , int )
+-- Method:              GRM.SetMain ( string , int , bool )
 -- What it Does:        Sets the player as main, as well as updates that status among the alt grouping.
 -- Purpose:             Main/alt management control.
-GRM.SetMain  = function ( mainName , timestamp )
-    if not mainName then
+GRM.SetMain  = function ( mainName , timestamp , forceChange )
+    if not mainName or GRM_G.guildName == "" then
         return;
     end
 
-    local player;
+    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][mainName]
 
     -- Protectection in case they join and then immediately quit
-    if GRM_G.guildName ~= "" and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] then
-        player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][mainName];
-        if not player then
-            return;
-        end
-    end
-    timestamp = timestamp or time();
+    if player then
 
-    -- if player is in a group or not
-    player.isMain = true;
-    player.mainStatusChangeTime = timestamp;
+        timestamp = timestamp or time();
 
-    if player.name == GRM_G.currentName then
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
-    end
-    
-    if player.altGroup ~= "" then
-        if GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main] then
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].isMain = false;
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].mainStatusChangeTime = timestamp;
-
-            if GRM_Alts[GRM_G.guildName][player.altGroup].main == GRM_G.currentName then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
-            end
+        if forceChange and timestamp > player.mainStatusChangeTime then
+            timestamp = player.mainStatusChangeTime;
+        else
+            player.mainStatusChangeTime = timestamp;
         end
 
-        GRM_Alts[GRM_G.guildName][player.altGroup].main = player.name;
-
-        -- Now, need to update the mainStatusChange for entire alt group
-    else
-        -- No group, no one set as main. Let's create a new group
-        player.altGroup = GRM.CreateNewAltGroupID();
-        GRM_Alts[GRM_G.guildName][player.altGroup] = {};
-        GRM_Alts[GRM_G.guildName][player.altGroup].main = player.name;
-         
-        table.insert ( GRM_Alts[GRM_G.guildName][player.altGroup] , {} );
-        GRM_Alts[GRM_G.guildName][player.altGroup][1].name = player.name;
-        GRM_Alts[GRM_G.guildName][player.altGroup][1].class = player.class;
-        GRM_Alts[GRM_G.guildName][player.altGroup].timeModified = 0; -- Alt group not truly modified, only setting main.
-
-    end
-
-    -- LIVE FRAMES UPDATE
-    if GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+        -- if player is in a group or not
+        player.isMain = true;
 
         if player.name == GRM_G.currentName then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Show();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
+        end
+        
+        if player.altGroup ~= "" then
+            if GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= player.name and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main] then
+                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].isMain = false;
+                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].mainStatusChangeTime = timestamp;
+
+                if GRM_Alts[GRM_G.guildName][player.altGroup].main == GRM_G.currentName then
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
+                end
+            end
+
+            GRM_Alts[GRM_G.guildName][player.altGroup].main = player.name;
+
+            -- Now, need to update the mainStatusChange for entire alt group
+        else
+            -- No group, no one set as main. Let's create a new group
+            player.altGroup = GRM.CreateNewAltGroupID();
+            GRM_Alts[GRM_G.guildName][player.altGroup] = {};
+            GRM_Alts[GRM_G.guildName][player.altGroup].main = player.name;
+            
+            table.insert ( GRM_Alts[GRM_G.guildName][player.altGroup] , {} );
+            GRM_Alts[GRM_G.guildName][player.altGroup][1].name = player.name;
+            GRM_Alts[GRM_G.guildName][player.altGroup][1].class = player.class;
+            GRM_Alts[GRM_G.guildName][player.altGroup].timeModified = 0; -- Alt group not truly modified, only setting main.
+
         end
 
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then
-            GRM.PopulateAltFrames ( GRM_G.currentName );
+        -- LIVE FRAMES UPDATE
+        if GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+
+            if player.name == GRM_G.currentName then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
+            end
+
+            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then
+                GRM.PopulateAltFrames ( GRM_G.currentName );
+            end
         end
     end
 
 end
 
--- Method:              GRM.DemoteFromMain ( string , string , boolean , int )
+-- Method:              GRM.DemoteFromMain ( string , string , bool )
 -- What it Does:        If the player is "main" then it removes the main tag to false
 -- Purpose:             User Experience (UX) and alt management!
-GRM.DemoteFromMain = function ( mainName , isSync , timestamp )
+GRM.DemoteFromMain = function ( mainName , timestamp , forceChange )
 
-    if not mainName then
+    if not mainName or GRM_G.guildName == "" then
         return;
     end
 
     local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][mainName];
-    timestamp = timestamp or time();
-
+    
     if player then
 
+        timestamp = timestamp or time();
+        if forceChange and timestamp > player.mainStatusChangeTime then
+            timestamp = player.mainStatusChangeTime;
+        else
+            player.mainStatusChangeTime = timestamp;
+        end
+
         player.isMain = false;
-        player.mainStatusChangeTime = timestamp;
 
         if #GRM_Alts[GRM_G.guildName][player.altGroup] == 1 then
             -- Just 1, since no longer a main, let's purge this.
@@ -992,21 +999,19 @@ GRM.DemoteFromMain = function ( mainName , isSync , timestamp )
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
             end
         end
-        
-    end
 
-    -- LIVE FRAMES UPDATE
-    if GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+            -- LIVE FRAMES UPDATE
+        if GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
 
-        if player.name == GRM_G.currentName then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
+            if player.name == GRM_G.currentName then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
+            end
+
+            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then
+                GRM.PopulateAltFrames ( GRM_G.currentName );
+            end
         end
-
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then
-            GRM.PopulateAltFrames ( GRM_G.currentName );
-        end
     end
-
 end
 
 -- Method:          GRM.GetAltTag ( int )

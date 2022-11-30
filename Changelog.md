@@ -1,3 +1,25 @@
+## **VERSION R1.949 RELEASE - Nov 20th, 2022*
+
+***BUG FIXES***
+
+* Fixed an issue preventing GRM from patching to completion for some people who have recently updated. This was due to an error in pulling GUID data from the server from players no longer on the server returning "nil" data.
+
+* When adding a ban in Classic Vanilla or in Wrath, it should properly show the display of classes only for that expansion, and function properly. Previously, if you did the call to the server of a class that that expansion did not support, it would return no data, so I wrote the logic that if no data is received on the call, to just ignore that info, and I let the server handle it. Well, now, it actually provides the data regardless. So in Wrath, you can go `/dump RAID_CLASS_COLORS["MONK"]` and recived all class info, even though it doesn't exist in Wrath. This is likely due to efforts by Blizz to unify their API on the back end. This has been rewritten by build version control check now so it should not happen again in the future.
+
+* Ban list should work properly in adding names. There was an issue with adding Evoker previously.
+
+* Fixed an error where the Evnt log was not working if you tried to open the window
+
+* There was also an issue where you could no longer add events to the calendar. It looks like the "other" category has been added into an Enum table, hurray! `Enum.CalendarEventType.Other` is the new code line. I really like how Blizz has cleaned up a ton of their code to move lists into Enumerator tables.
+
+* The format `22-Nov-2022` for timestamp was broken in the audit tool and it was not being recognized. This was the only timestamp format affected and has now been rectified.
+
+* Exporting the join date timestamps to the player designated note was accidentally broken in a recent update. Oops! It is working again.
+
+* Fixed an issue where if a player deleted a toon or say, transfered servers, then joined the guild on a new toon with same name, it was not detecting it as a new join.
+
+* Fixed an issue that could cause sync to fail when syncing ban data
+
 ## **VERSION R1.948 RELEASE - Nov 17th, 2022*
 
 ***VERSION COMPATIBILITY WITH 10.0.2 RELEASE***

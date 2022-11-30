@@ -201,10 +201,10 @@ GRM_API.ClearAllPublicNotes = function()
     end
 end
 
--- Method:          GRM.RestorAllPublicNotesFromSave()
+-- Method:          GRM.RestoreAllPublicNotesFromSave()
 -- What it Does:    Looks at the GRM save database and restores all the public notes
 -- Purpose:         In case someone nefariously overwrites all public notes
-GRM_API.RestorAllPublicNotesFromSave = function()
+GRM_API.RestoreAllPublicNotesFromSave = function()
     local guildData = GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName].Auto.members;
     local name = "";
 
@@ -220,10 +220,10 @@ GRM_API.RestorAllPublicNotesFromSave = function()
     end
 end
 
--- Method:          GRM.RestorAllOfficerNotesFromSave()
+-- Method:          GRM.RestoreAllOfficerNotesFromSave()
 -- What it Does:    Looks at the GRM save database and restores all the officer notes
 -- Purpose:         In case someone nefariously overwrites all officer notes
-GRM_API.RestorAllOfficerNotesFromSave = function()
+GRM_API.RestoreAllOfficerNotesFromSave = function()
     local guildData = GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName].Auto.members;
     local name = "";
 

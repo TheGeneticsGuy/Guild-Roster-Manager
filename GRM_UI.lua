@@ -1282,9 +1282,6 @@ GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreL
 --- INITIALIZING COMPLETED -----------
 --------------------------------------
 
--- GRM_UI LOCAL GLOBALS
-local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Evoker" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" };
-
 --------------------------------------
 -------- COMMON LOGIC TO REUSE -------
 --------------------------------------
@@ -14396,15 +14393,17 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             end
             -- Now, we check the class...
             local isFound = false;
-            local foundInfo = {};
+            foundInfo = {};
             local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
         
             for _ , player in pairs ( guildData ) do
         
                 if type ( player ) == "table" then
+
                     if ( isServerSelection and player.name == name ) or ( not isServerSelection and GRM.SlimName ( player.name ) == name ) then
                         isFound = true;
                         table.insert ( foundInfo , { player.name , player.class } );
+
                         if isServerSelection and isFound then       -- No need to keep scanning if name-server already determined.
                             break;
                         end
@@ -14431,20 +14430,11 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
             if isFound and #foundInfo == 1 then
                 -- Setting global use of the selected ban class
-                GRM_G.tempAddBanClass = foundInfo[1][2];
-
-                local indexOfClass = 1;
-                -- Set the index                
-                for i = 1 , #AllClasses do
-                    if string.lower ( AllClasses[i] ) == string.lower ( GRM_G.tempAddBanClass ) then
-                        indexOfClass = i;
-                        break;
-                    end
-                end
+                GRM_G.tempAddBanClass = foundInfo[1][2]
 
                 -- Auto selecting the class
-                local colors = GRM.GetClassColorRGB ( string.upper ( AllClasses[indexOfClass] ) );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[indexOfClass][2]:GetText() );
+                local colors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] , 1 );
 
                 -- Selecting the server
@@ -14542,13 +14532,12 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.TabNextDropDown ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu , false );
         elseif key == "ENTER" then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetPropagateKeyboardInput ( false );
-            local classColors = GRM.GetClassColorRGB ( string.upper ( AllClasses[GRM_G.DropDownHighlightLockIndex] ) );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[GRM_G.DropDownHighlightLockIndex][2]:GetText() );
+            local classColors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( classColors[1] , classColors[2] , classColors[3] , 1 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelected:Show();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetFocus();
-            GRM_G.tempAddBanClass = string.upper ( AllClasses[GRM_G.DropDownHighlightLockIndex] );
         elseif key == "UP" then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetPropagateKeyboardInput ( false );
             GRM_UI.TabNextDropDown ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu , true );
@@ -14644,9 +14633,10 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetFocus();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( "" );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected.GRM_BanServerSelectedText:SetText ( GRM_G.realmName );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.L ( "Deathknight" ) );
             GRM_G.tempAddBanClass = "DEATHKNIGHT";
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( 0.77 , 0.12 , 0.23 , 1.0 );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
+            local colors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass )
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] , 1.0 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetText ( GRM.L ( "Reason Banned?" ) );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:Hide();
@@ -14780,41 +14770,31 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
                 if player then
                     isFound = true;
-                    if GRM_G.tempAddBanClass ~= player.class then
-                        local wrongName = GRM.FormatInputName ( GRM_G.tempAddBanClass );
-                        if wrongName ~= nil and wrongName ~= "" and wrongName ~= GRM.FormatInputName ( player.class ) then
-                            GRM.Report ( GRM.L ( "{name} plays the {custom1} class, not {custom2}." , name , nil , nil , GRM.L ( GRM.FormatInputName ( player.class ) ) , GRM.L ( wrongName ) ) );
-                        end
+                    if GRM_G.tempAddBanClass ~= player.class and GRM_G.tempAddBanClass ~= nil and GRM_G.tempAddBanClass ~= "" then
+                        GRM.Report ( GRM.L ( "{name} plays the {custom1} class, not {custom2}." , name , nil , nil , GRM.GetClassName ( player.class ) , GRM.GetClassName ( GRM_G.tempAddBanClass ) ) );
                     end
                     GRM_G.tempAddBanClass = player.class;
                     numAlts = GRM.GetNumAlts ( player.altGroup );
                 end
 
-                player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
-                if player then
-                    isFound = true;
-                    if GRM_G.tempAddBanClass ~= player.class then
-                        local wrongName = GRM.FormatInputName ( GRM_G.tempAddBanClass );
-                        if wrongName ~= nil and wrongName ~= "" and wrongName ~= GRM.FormatInputName ( player.class ) then
-                            GRM.Report ( GRM.L ( "{name} plays the {custom1} class, not {custom2}." , name , nil , nil , GRM.L ( GRM.FormatInputName ( player.class ) ) , GRM.L ( wrongName ) ) );
+                if not isFound then
+
+                    player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
+                    if player then
+                        isFound = true;
+                        if GRM_G.tempAddBanClass ~= player.class and GRM_G.tempAddBanClass ~= nil and GRM_G.tempAddBanClass ~= "" then
+                            GRM.Report ( GRM.L ( "{name} plays the {custom1} class, not {custom2}." , name , nil , nil , GRM.GetClassName ( player.class ) , GRM.GetClassName ( GRM_G.tempAddBanClass ) ) );
                         end
+                        GRM_G.tempAddBanClass = player.class;
+                        numAlts = GRM.GetNumAlts ( player.altGroup );
                     end
-                    GRM_G.tempAddBanClass = player.class;
-                    numAlts = GRM.GetNumAlts ( player.altGroup );
+
                 end
                 
                 if isFound then
-                    local indexOfClass = 1;
-                    -- Set the index                
-                    for i = 1 , #AllClasses do
-                        if string.lower ( AllClasses[i] ) == string.lower ( GRM_G.tempAddBanClass ) then
-                            indexOfClass = i;
-                            break;
-                        end
-                    end
 
-                    local colors = GRM.GetClassColorRGB ( string.upper ( AllClasses[indexOfClass] ) );
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[indexOfClass][2]:GetText() );
+                    local colors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] , 1 );
                 end
                 
@@ -14878,7 +14858,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_G.tempAddBanClass = player.class;
                 originalClass = player.class;
             end
-        
         
             if not isFoundInLeft then
                 player = guildData[ fullName ];
@@ -15179,34 +15158,31 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( GRM.SlimName ( GRM_G.TempBanTarget[1] ) );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected.GRM_BanServerSelectedText:SetText ( string.sub ( GRM_G.TempBanTarget[1] , string.find ( GRM_G.TempBanTarget[1] , "-" ) + 1 ) );
                 
-                local class = "";
-                local indexOfClass = 1;
+                local isFound = false;
+                GRM_G.tempAddBanClass = "DEATHKNIGHT"; -- Placeholder
                 local banReason = "";
                 local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
                 local player = guildData[ GRM_G.TempBanTarget[1] ];
 
                 if player then
-                    class = player.class;
+                    GRM_G.tempAddBanClass = player.class;
                     banReason = player.reasonBanned;
+                    isFound = true;
                 end
-                if class == "" then
+
+                if not isFound then
                     guildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
                     player = guildData[ GRM_G.TempBanTarget[1] ];
+
                     if player then
-                        class = player.class;
+                        GRM_G.tempAddBanClass = player.class;
                         banReason = player.reasonBanned;
+                        isFound = true;
                     end
                 end
-                -- Set the index                
-                for i = 1 , #AllClasses do
-                    if string.lower ( AllClasses[i] ) == string.lower ( class ) then
-                        indexOfClass = i;
-                        break;
-                    end
-                end
-                GRM_G.tempAddBanClass = string.upper ( AllClasses[indexOfClass] );
+
                 local colors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[indexOfClass][2]:GetText() );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] , 1 );
                 if banReason ~= GRM.L ( "None Given" ) and banReason ~= "" then
                     

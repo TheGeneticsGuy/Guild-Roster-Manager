@@ -1,8 +1,8 @@
 -- TESTING
+GRM_T = {};
 
 
-
-GRM.TestRejoinWithNameChange = function()
+GRM_T.TestRejoinWithNameChange = function()
     for name , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
         if type ( player ) == "table" then
             print("Testing with: " .. player.name );
@@ -16,13 +16,25 @@ GRM.TestRejoinWithNameChange = function()
     end
 end
 
-GRM.TestRejoin = function()
+GRM_T.TestRejoin = function()
     for name , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
         if type ( player ) == "table" then
             print("Testing with: " .. player.name );
             GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] = {};
             GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] = GRM.DeepCopyArray ( player );
             GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName][name] = nil;
+
+            break;
+        end
+    end
+end
+
+GRM_T.TestJoinWithSameNameButDifferent = function()
+    for name , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
+        if type ( player ) == "table" then
+            print("Testing with: " .. player.name );
+            player.GUID = UnitGUID("PLAYER");
+            player.class = "HUNTER"
 
             break;
         end
