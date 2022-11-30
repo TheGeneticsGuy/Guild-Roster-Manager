@@ -339,3 +339,26 @@ GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
     end
 end
 
+-- Method:          GRM_API.ClearAllUnverifiedPromoteDates()
+-- What it Does:    Removes all the unverified promotion dates, but only the first layer, and it will not remove it if it is the ONLY promotion date
+-- Purpose:         Save for the rank change error.
+GRM_API.ClearAllUnverifiedPromoteDates = function()
+
+    for _ , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
+        if type ( player ) == "table" then
+
+            -- Ok, let's do the rank history first
+            if #player.rankHist > 1 and not player.rankHist[1][7] then
+                table.remove ( player.rankHist , 1 );
+
+            end
+
+        end
+    end
+
+    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+        GRM.RefreshAuditFrames ( true , true );
+    end
+    
+end
+

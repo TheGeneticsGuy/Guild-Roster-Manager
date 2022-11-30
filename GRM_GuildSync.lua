@@ -4516,6 +4516,8 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
     local guildData = GRMsyncGlobals.guildData;
     local isFound = false;
     local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
+    local changeData;
+    local addReceived = false;      -- AM I going to add received data, or my own. One or the other needs 
 
     for j = 1 , #exactIndexes[1] do
         isFound = false;
@@ -4523,17 +4525,21 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
             if guildData[exactIndexes[1][j]].name == GRMsyncGlobals.JDReceivedTemp[i][1] then
                 isFound = true;
                 -- Ok player identified, now let's compare data.
-                if guildData[exactIndexes[1][j]].joinDateHist[1][1] ~= GRMsyncGlobals.JDReceivedTemp[i][2] or guildData[exactIndexes[1][j]].joinDateHist[1][2] ~= GRMsyncGlobals.JDReceivedTemp[i][3] or guildData[exactIndexes[1][j]].joinDateHist[1][3] ~= GRMsyncGlobals.JDReceivedTemp[i][4] then
+                addReceived = false;
+                changeData = {};
+
+                if not guildData[exactIndexes[1][j]].joinDateHist[1][6] then
+                    addReceived = true;
+                    changeData = GRMsyncGlobals.JDReceivedTemp[i];
+
+                elseif guildData[exactIndexes[1][j]].joinDateHist[1][1] ~= GRMsyncGlobals.JDReceivedTemp[i][2] or guildData[exactIndexes[1][j]].joinDateHist[1][2] ~= GRMsyncGlobals.JDReceivedTemp[i][3] or guildData[exactIndexes[1][j]].joinDateHist[1][3] ~= GRMsyncGlobals.JDReceivedTemp[i][4] then
+
                     -- Player dates don't match! Let's compare timestamps to see how made the most recent change, then sync data to that!
-                    
-                    local addReceived = false;      -- AM I going to add received data, or my own. One or the other needs to be added for sync
                     if guildData[exactIndexes[1][j]].joinDateHist[1][5] < GRMsyncGlobals.JDReceivedTemp[i][5] then
                         -- Received Data happened more recently! Need to update change!
                         addReceived = true;         -- In other words, don't add my own data, add the received data.
                     end
 
-                    -- Setting the change data properly.
-                    local changeData;
                     -- Adding Received from other player
                     if addReceived then
                         changeData = GRMsyncGlobals.JDReceivedTemp[i];
@@ -4542,27 +4548,26 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
                     else
                         changeData = { guildData[exactIndexes[1][j]].name , guildData[exactIndexes[1][j]].joinDateHist[1][5] , guildData[exactIndexes[1][j]].joinDateHist[1][1] , guildData[exactIndexes[1][j]].joinDateHist[1][2] , guildData[exactIndexes[1][j]].joinDateHist[1][3] , guildData[exactIndexes[1][j]].joinDateHist[1][4] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
                     end
-                    
-                    -- Need to check if change has not already been added, or if another player added info that is more recent! (Might need review for increased performance)
-                    local needToAdd = true;
-                    for r = #GRMsyncGlobals.JDChanges , 1 , -1 do
-                        if changeData[1] == GRMsyncGlobals.JDChanges[r][1] then
-                            -- If dates are the same, no need to change em!
-                            if changeData[2] <= GRMsyncGlobals.JDChanges[r][2] then
-                                needToAdd = false;
-                            end
+                end
+                -- Need to check if change has not already been added, or if another player added info that is more recent! (Might need review for increased performance)
+                local needToAdd = true;
+                for r = #GRMsyncGlobals.JDChanges , 1 , -1 do
+                    if changeData[1] == GRMsyncGlobals.JDChanges[r][1] then
+                        -- If dates are the same, no need to change em!
+                        if changeData[2] <= GRMsyncGlobals.JDChanges[r][2] then
+                            needToAdd = false;
+                        end
 
-                            -- If needToAdd is still true, then we need to remove the old index.
-                            if needToAdd then
-                                table.remove ( GRMsyncGlobals.JDChanges , r );
-                            end
+                        -- If needToAdd is still true, then we need to remove the old index.
+                        if needToAdd then
+                            table.remove ( GRMsyncGlobals.JDChanges , r );
                         end
                     end
+                end
 
-                    -- Now let's add it!
-                    if needToAdd then
-                        table.insert ( GRMsyncGlobals.JDChanges , changeData );
-                    end
+                -- Now let's add it!
+                if needToAdd then
+                    table.insert ( GRMsyncGlobals.JDChanges , changeData );
                 end
                 break;
             end
@@ -4589,9 +4594,16 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
         for i = 1 , #GRMsyncGlobals.PDReceivedTemp do
             if guildData[exactIndexes[2][j]].name == GRMsyncGlobals.PDReceivedTemp[i][1] then
                 isFound = true;
-                if guildData[exactIndexes[2][j]].rankHist[1][2] ~= GRMsyncGlobals.PDReceivedTemp[i][2] or guildData[exactIndexes[2][j]].rankHist[1][3] ~= GRMsyncGlobals.PDReceivedTemp[i][3] or guildData[exactIndexes[2][j]].rankHist[1][4] ~= GRMsyncGlobals.PDReceivedTemp[i][4] then
 
-                    local addReceived = false;      -- AM I going to add received data, or my own. One or the other needs to be added for sync
+                addReceived = false;
+                changeData = {};
+
+                if not guildData[exactIndexes[1][j]].rankHist[1][7] then
+                    addReceived = true;
+                    changeData = GRMsyncGlobals.PDReceivedTemp[i];
+
+                elseif guildData[exactIndexes[2][j]].rankHist[1][2] ~= GRMsyncGlobals.PDReceivedTemp[i][2] or guildData[exactIndexes[2][j]].rankHist[1][3] ~= GRMsyncGlobals.PDReceivedTemp[i][3] or guildData[exactIndexes[2][j]].rankHist[1][4] ~= GRMsyncGlobals.PDReceivedTemp[i][4] then
+
                     if guildData[exactIndexes[2][j]].rankHist[1][6] < GRMsyncGlobals.PDReceivedTemp[i][5] then
                         -- Received Data happened more recently! Need to update change!
                         addReceived = true;         -- In other words, don't add my own data, add the received data.
@@ -4607,27 +4619,27 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
                     else
                         changeData = { guildData[exactIndexes[2][j]].name , guildData[exactIndexes[2][j]].rankHist[1][2] , guildData[exactIndexes[2][j]].rankHist[1][3] , guildData[exactIndexes[2][j]].rankHist[1][4] , guildData[exactIndexes[2][j]].rankHist[1][5] , guildData[exactIndexes[2][j]].rankHist[1][6] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
                     end
+                end
 
-                    -- Need to check if change has not already been added, or if another player added info that is more recent! (Might need review for increased performance)
-                    local needToAdd = true;
-                    for r = #GRMsyncGlobals.PDChanges , 1 , -1 do
-                        if changeData[1] == GRMsyncGlobals.PDChanges[r][1] then
-                            -- If dates are the same, no need to change em!
-                            if changeData[2] <= GRMsyncGlobals.PDChanges[r][6] then
-                                needToAdd = false;
-                            end
+                -- Need to check if change has not already been added, or if another player added info that is more recent! (Might need review for increased performance)
+                local needToAdd = true;
+                for r = #GRMsyncGlobals.PDChanges , 1 , -1 do
+                    if changeData[1] == GRMsyncGlobals.PDChanges[r][1] then
+                        -- If dates are the same, no need to change em!
+                        if changeData[2] <= GRMsyncGlobals.PDChanges[r][6] then
+                            needToAdd = false;
+                        end
 
-                            -- If needToAdd is still true, then we need to remove the old index.
-                            if needToAdd then
-                                table.remove ( GRMsyncGlobals.PDChanges , r );
-                            end
+                        -- If needToAdd is still true, then we need to remove the old index.
+                        if needToAdd then
+                            table.remove ( GRMsyncGlobals.PDChanges , r );
                         end
                     end
+                end
 
-                    -- If needToAdd is still true, then we need to remove the old index.
-                    if needToAdd then
-                        table.insert ( GRMsyncGlobals.PDChanges , changeData );
-                    end
+                -- If needToAdd is still true, then we need to remove the old index.
+                if needToAdd then
+                    table.insert ( GRMsyncGlobals.PDChanges , changeData );
                 end
                 break;
             end
@@ -5626,7 +5638,7 @@ GRMsync.ReportSyncCompletion = function ( currentSyncer , finalAnnounce )
     end
 end
 
--- Method:          GRM.AuditRefreshTracker()
+-- Method:          GRM.AuditRefreshTracker( bool )
 -- What it Does:    Every 100 updates it sends the audit an update request. Due to sync speed limitations, this is just an internal throttle on updating the audit
 -- Purpose:         Quality of life audit update when syncing.
 GRM.AuditRefreshTracker = function ( force )
@@ -5636,13 +5648,13 @@ GRM.AuditRefreshTracker = function ( force )
     end
     if ( ( GRMsyncGlobals.refreshCount % 50 ) == 0 or force ) and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
         GRM.RefreshAuditFrames ( true , true );
-        if not force then
-            C_Timer.After ( 3 , function()
-                if ( time() - GRMsyncGlobals.refreshCountTimer ) >= 3 then
-                    GRM.AuditRefreshTracker ( true );
-                end
-            end);
-        end
+    end
+    if not force then
+        C_Timer.After ( 3 , function()
+            if ( time() - GRMsyncGlobals.refreshCountTimer ) >= 3 then
+                GRM.AuditRefreshTracker ( true );
+            end
+        end);
     end
 end
 

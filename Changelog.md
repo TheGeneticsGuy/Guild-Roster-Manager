@@ -1,3 +1,11 @@
+## **VERSION 1.950 RELEASE - Nov 30th, 2022**
+
+* Fixed a critical issue with join/promo date sync that was overlooked due to some significant recent changes - oops!
+
+* Fixed an issue where if a player adds/removes a rank in the guild, it doesn't overwrite the whole guild's ranks as they shift, and become unverified promotion dates :(
+    -- If this did affect you, I encourage you to use this tool - WARNING - Only use you if this affected you DB recently -- `/run GRM_API.ClearAllUnverifiedPromoteDates()`  -- Copy that into chat and hit ENTER.
+
+
 ## **VERSION R1.949 RELEASE - Nov 29th, 2022*
 
 ***BUG FIXES***

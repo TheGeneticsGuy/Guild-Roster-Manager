@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.949";
-GRM_G.PatchDay = 1669768503;             -- In Epoch Time
-GRM_G.PatchDayString = "1669768503";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.950";
+GRM_G.PatchDay = 1669784007;             -- In Epoch Time
+GRM_G.PatchDayString = "1669784007";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -127,6 +127,7 @@ GRM_G.numAccounts = 0;
 GRM_G.guildCreationDate = "";
 GRM_G.DesignateMain = false;
 GRM_G.numRanksHasChanged = false;
+GRM_G.rankChangeShift = 0;
 
 -- Time control gates
 GRM_G.RosterClickTimer = 0;
@@ -2642,7 +2643,7 @@ end
 -- Method:          GetListOfGuildRanks( bool )
 -- What it Does:    Gets a list of all rank names for dropdown menu
 -- Purpose:         For building the macro dropdown menu for destination rank
-GRM.GetListOfGuildRanks = function( includeLeader , descending , asString , test )
+GRM.GetListOfGuildRanks = function( includeLeader , descending , asString )
     local numRanks = GuildControlGetNumRanks(); -- minus 1 because we are not including the guild leader
     local result = {};
     local resultString = "";
@@ -10725,6 +10726,7 @@ GRM.FinalReport = function()
         GRM_G.TimeAtCompletion = time();
         GRM_G.OnFirstLoad = false;
         GRM_G.numRanksHasChanged = false;
+        GRM_G.rankChangeShift = 0;
         GRM_G.changeHappenedExitScan = false;
         GRM_G.CurrentlyScanning = false;
 
@@ -13262,58 +13264,71 @@ GRM.CheckPlayerChanges = function ( roster )
                                     local timestamp , dateArray = GRM.GetTimestamp();
                                     local epochTime = time();
                                     local logEntryroster = {};
+                                    local rankShift = false;
 
-                                    if roster[x].rankName ~= player.rankName or ( roster[x].rankName == player.rankName and not GRM_G.numRanksHasChanged ) then
-                                        -- Promotion Obtained                                
-                                        if roster[x].rankIndex < player.rankIndex then
+                                    if GRM_G.numRanksHasChanged then
 
-                                            added , logEntryroster = GRM.GetGuildEventString ( 2 , roster[x].name , player.rankName , roster[x].rankName );
-                                            if added then
-                                                timestamp = logEntryroster[6][1];
-                                                epochTime = logEntryroster[6][2];
-                                                dateArray = logEntryroster[6][3];
-                                            end
-                                            GRM.RecordChanges ( 2 , roster[x] , player , logEntryroster , dateArray );
-                                            
-                                        -- Demotion Obtained
-                                        elseif roster[x].rankIndex > player.rankIndex then
-                                            added , logEntryroster = GRM.GetGuildEventString ( 1 , roster[x].name , player.rankName , roster[x].rankName );
-                                            if added then
-                                                timestamp = logEntryroster[6][1];
-                                                epochTime = logEntryroster[6][2];
-                                                dateArray = logEntryroster[6][3];
-                                            end
-                                            
-                                            if roster[x].rankName ~= player.rankName then
-                                                GRM.RecordChanges ( 9 , roster[x] , player , logEntryroster , dateArray );
+                                        if roster[x].rankIndex == ( player.rankIndex + GRM_G.rankChangeShift ) then -- number of ranks added or removed - shift up or down.
+                                        -- Adjust new rank index - make rank change good.
+                                            if roster[x].rankName == player.rankName then
+                                                player.rankIndex = roster[x].rankIndex; -- Saving new rank Index Info
+                                                rankShift = true;
+                                                -- No need to ad
                                             end
                                         end
-                                        
-                                        player.rankName = roster[x].rankName; -- Saving new rank Info
-                                        player.rankIndex = roster[x].rankIndex; -- Saving new rank Index Info
+                                    end
+                         
+                                    -- Promotion Obtained
+                                    if roster[x].rankIndex < player.rankIndex then
 
-                                        -- Clear if set to unknown
-                                        player.promoteDateUnknown = false;
-
-                                        -- For SYNC
-                                        local isVerified = false;
-                                        local verifiedTime = 0;
-                                        local dates , eTime;
-                                        
+                                        added , logEntryroster = GRM.GetGuildEventString ( 2 , roster[x].name , player.rankName , roster[x].rankName );
                                         if added then
-                                            dates = { logEntryroster[6][3][1] , logEntryroster[6][3][2] , logEntryroster[6][3][3] };
-                                            eTime = epochTime;
-                                        else
-                                            dates = GRM.ConvertGenericTimestampToIntValues ( timestamp );
-                                            eTime = GRM.TimeStampToEpoch ( timestamp , false );
+                                            timestamp = logEntryroster[6][1];
+                                            epochTime = logEntryroster[6][2];
+                                            dateArray = logEntryroster[6][3];
                                         end
-
+                                        GRM.RecordChanges ( 2 , roster[x] , player , logEntryroster , dateArray );
                                         
+                                    -- Demotion Obtained
+                                    elseif roster[x].rankIndex > player.rankIndex then
+                                        added , logEntryroster = GRM.GetGuildEventString ( 1 , roster[x].name , player.rankName , roster[x].rankName );
                                         if added then
-                                            isVerified = true;
-                                            verifiedTime = epochTime;
+                                            timestamp = logEntryroster[6][1];
+                                            epochTime = logEntryroster[6][2];
+                                            dateArray = logEntryroster[6][3];
                                         end
+                                        
+                                        if roster[x].rankName ~= player.rankName then
+                                            GRM.RecordChanges ( 9 , roster[x] , player , logEntryroster , dateArray );
+                                        end
+                                    end
+                                    
+                                    player.rankName = roster[x].rankName; -- Saving new rank Info
+                                    player.rankIndex = roster[x].rankIndex; -- Saving new rank Index Info
 
+                                    -- Clear if set to unknown
+                                    player.promoteDateUnknown = false;
+
+                                    -- For SYNC
+                                    local isVerified = false;
+                                    local verifiedTime = 0;
+                                    local dates , eTime;
+                                    
+                                    if added then
+                                        dates = { logEntryroster[6][3][1] , logEntryroster[6][3][2] , logEntryroster[6][3][3] };
+                                        eTime = epochTime;
+                                    else
+                                        dates = GRM.ConvertGenericTimestampToIntValues ( timestamp );
+                                        eTime = GRM.TimeStampToEpoch ( timestamp , false );
+                                    end
+
+                                    
+                                    if added then
+                                        isVerified = true;
+                                        verifiedTime = epochTime;
+                                    end
+
+                                    if not rankShift then
                                         if player.rankHist[1][5] == 0 then
 
                                             player.rankHist[1][1] = player.rankName;
@@ -13331,14 +13346,8 @@ GRM.CheckPlayerChanges = function ( roster )
                                         
                                         -- Update the player index if it is the player themselves that received the change in rank.
                                         if roster[x].name == GRM_G.addonUser then
-
                                             GRM.AddonPlayerRankChange ( roster[x].rankIndex );
-                                            
                                         end
-
-                                    -- Adjust new rank index - make rank change good.
-                                    elseif GRM_G.numRanksHasChanged and roster[x].rankName == player.rankName then
-                                        player.rankIndex = roster[x].rankIndex; -- Saving new rank Index Info
                                     end
 
                                 elseif k == 2 and roster[x].rankName ~= player.rankName and roster[x].rankIndex == player.rankIndex then
@@ -13667,37 +13676,45 @@ end
 GRM.CheckGuildRanks = function()
     -- If the ranks are set, let's check if they do not match now.
     local numRanks = GuildControlGetNumRanks();
+    
+    if numRanks == 0 or numRanks == nil then   -- To prevent an error here, as this is critical, we wil not continue forward.
+        return false;
+    end
+
     GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks or GRM.GetListOfGuildRanks ( true , true , true );
     
     GRM_G.guildRankNames = GRM_G.guildRankNames or GRM.ParseGuildRanks();
 
     if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks == nil or GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks == 0 then
-        GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks = numRanks or 0;
+        GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks = numRanks;
+    end
+
+    if numRanks ~= GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks then
+        
+        GRM_G.rankChangeShift = numRanks - GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks;
+        GRM.AddRankRenameEntry ( GRM_G.rankChangeShift , nil , nil , select ( 2 , GRM.GetTimestamp() ) );
+        GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks = numRanks;
+        GRM_G.numRanksHasChanged = true;
+        
     else
-        if numRanks ~= GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks then
-            
-            GRM.AddRankRenameEntry ( ( numRanks - GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks ) , nil , nil , select ( 2 , GRM.GetTimestamp() ) );
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks = numRanks;
-            GRM_G.numRanksHasChanged = true;
+        
+        local rankNames = GRM.GetListOfGuildRanks ( true , true );
+        local changeMade = false;
 
-        else
-            
-            local rankNames = GRM.GetListOfGuildRanks ( true , true );
-            local changeMade = false;
-
-            for i = 1 , #rankNames do
-                if rankNames[i] ~= GRM_G.guildRankNames[i] then
-                    changeMade = true;
-                    GRM.AddRankRenameEntry ( nil , GRM_G.guildRankNames[i] , rankNames[i] , select ( 2 , GRM.GetTimestamp() ) );
-                end
-            end
-
-            if changeMade then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks = GRM.GetListOfGuildRanks ( true , true , true );
-                GRM_G.guildRankNames = GRM.ParseGuildRanks();
+        for i = 1 , #rankNames do
+            if rankNames[i] ~= GRM_G.guildRankNames[i] then
+                changeMade = true;
+                GRM.AddRankRenameEntry ( nil , GRM_G.guildRankNames[i] , rankNames[i] , select ( 2 , GRM.GetTimestamp() ) );
             end
         end
-    end        
+
+        if changeMade then
+            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks = GRM.GetListOfGuildRanks ( true , true , true );
+            GRM_G.guildRankNames = GRM.ParseGuildRanks();
+        end
+    end
+
+    return true;
 end
 
 -- Method:          GRM.LiveDetectionReset ( string )

@@ -987,16 +987,19 @@ GRM.DemoteFromMain = function ( mainName , timestamp , forceChange )
 
         player.isMain = false;
 
-        if #GRM_Alts[GRM_G.guildName][player.altGroup] == 1 then
-            -- Just 1, since no longer a main, let's purge this.
-            GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
-            player.altGroup = "";
+        if player.altGroup ~= "" then
 
-        elseif GRM_Alts[GRM_G.guildName][player.altGroup].main == player.name then
-            GRM_Alts[GRM_G.guildName][player.altGroup].main = "";
+            if #GRM_Alts[GRM_G.guildName][player.altGroup] == 1 then
+                -- Just 1, since no longer a main, let's purge this.
+                GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+                player.altGroup = "";
 
-            if player.name == GRM_G.currentName then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
+            elseif GRM_Alts[GRM_G.guildName][player.altGroup].main == player.name then
+                GRM_Alts[GRM_G.guildName][player.altGroup].main = "";
+
+                if player.name == GRM_G.currentName then
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
+                end
             end
         end
 

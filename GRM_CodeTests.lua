@@ -40,3 +40,9 @@ GRM_T.TestJoinWithSameNameButDifferent = function()
         end
     end
 end
+
+GRM_T.TestRankNumChange = function()
+    local ranks = GRM.GetListOfGuildRanks ( true , true , true );
+    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].ranks = string.sub ( ranks , string.find ( ranks , "|" ) + 2 )
+    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmNumRanks = 9;
+end
