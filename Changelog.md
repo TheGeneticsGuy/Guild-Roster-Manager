@@ -1,4 +1,4 @@
-## **VERSION R1.949 RELEASE - Nov 20th, 2022*
+## **VERSION R1.949 RELEASE - Nov 29th, 2022*
 
 ***BUG FIXES***
 
@@ -19,6 +19,8 @@
 * Fixed an issue where if a player deleted a toon or say, transfered servers, then joined the guild on a new toon with same name, it was not detecting it as a new join.
 
 * Fixed an issue that could cause sync to fail when syncing ban data
+
+* Fixed an issue where main tags were being lost during sync repeatedly. This should now be resolved. I have run my unit tests as well as tried to break it with some various edge cases, unsuccessfully, so we should be good, but there are a lot of moving parts during the sync process so please report if this is not fully resolved. Thank you!
 
 ## **VERSION R1.948 RELEASE - Nov 17th, 2022*
 

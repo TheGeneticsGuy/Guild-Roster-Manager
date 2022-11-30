@@ -2939,9 +2939,6 @@ GRMsync.SendBANPackets = function()
             for i = GRMsyncGlobals.SyncCountBan , 1 , -1 do
                 messageReady = false;
 
-                if leftGuildData[i] == nil then
-                    print ( "Error Name: " .. i)
-                end
                 timeStampOfBanChange = tostring ( leftGuildData[i].bannedInfo[2] );
                 msgTag = "ban";
                 -- Let's see if someone was unbanned.
@@ -5639,14 +5636,10 @@ GRM.AuditRefreshTracker = function ( force )
     end
     if ( ( GRMsyncGlobals.refreshCount % 50 ) == 0 or force ) and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
         GRM.RefreshAuditFrames ( true , true );
-        print("Refreshing")
         if not force then
             C_Timer.After ( 3 , function()
                 if ( time() - GRMsyncGlobals.refreshCountTimer ) >= 3 then
                     GRM.AuditRefreshTracker ( true );
-                    print("Refreshing2")
-                else
-                    print("No Extra Refresh: " .. ( time() - GRMsyncGlobals.refreshCountTimer ) .. " seconds")
                 end
             end);
         end
