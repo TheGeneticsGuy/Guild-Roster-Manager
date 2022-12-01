@@ -16179,19 +16179,6 @@ GRM_UI.BuildLogFrames = function()
 
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].colorizeClassicRosterNames then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetChecked ( true );
-        if GRM_G.BuildVersion < 40000 then
-            SetCVar("chatClassColorOverride" , 0 );
-            if GRM_G.BuildVersion >= 30000 then
-                GRM.SetChatClassColoringInWrath ( true );
-            end
-        end
-    else
-        if GRM_G.BuildVersion < 40000 then
-            SetCVar("chatClassColorOverride" , 1 );
-            if GRM_G.BuildVersion >= 30000 then
-                GRM.SetChatClassColoringInWrath ( false );
-            end
-        end
     end
 
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncBDays then

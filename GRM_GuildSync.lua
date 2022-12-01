@@ -4517,7 +4517,6 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
     local isFound = false;
     local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
     local changeData;
-    local addReceived = false;      -- AM I going to add received data, or my own. One or the other needs 
 
     for j = 1 , #exactIndexes[1] do
         isFound = false;
@@ -4525,29 +4524,21 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
             if guildData[exactIndexes[1][j]].name == GRMsyncGlobals.JDReceivedTemp[i][1] then
                 isFound = true;
                 -- Ok player identified, now let's compare data.
-                addReceived = false;
                 changeData = {};
 
                 if not guildData[exactIndexes[1][j]].joinDateHist[1][6] then
-                    addReceived = true;
                     changeData = GRMsyncGlobals.JDReceivedTemp[i];
 
-                elseif guildData[exactIndexes[1][j]].joinDateHist[1][1] ~= GRMsyncGlobals.JDReceivedTemp[i][2] or guildData[exactIndexes[1][j]].joinDateHist[1][2] ~= GRMsyncGlobals.JDReceivedTemp[i][3] or guildData[exactIndexes[1][j]].joinDateHist[1][3] ~= GRMsyncGlobals.JDReceivedTemp[i][4] then
+                else
 
-                    -- Player dates don't match! Let's compare timestamps to see how made the most recent change, then sync data to that!
                     if guildData[exactIndexes[1][j]].joinDateHist[1][5] < GRMsyncGlobals.JDReceivedTemp[i][5] then
                         -- Received Data happened more recently! Need to update change!
-                        addReceived = true;         -- In other words, don't add my own data, add the received data.
-                    end
-
-                    -- Adding Received from other player
-                    if addReceived then
                         changeData = GRMsyncGlobals.JDReceivedTemp[i];
-                    
                     -- Adding my own data, as it is more current
                     else
                         changeData = { guildData[exactIndexes[1][j]].name , guildData[exactIndexes[1][j]].joinDateHist[1][5] , guildData[exactIndexes[1][j]].joinDateHist[1][1] , guildData[exactIndexes[1][j]].joinDateHist[1][2] , guildData[exactIndexes[1][j]].joinDateHist[1][3] , guildData[exactIndexes[1][j]].joinDateHist[1][4] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
-                    end
+                    end     
+
                 end
                 -- Need to check if change has not already been added, or if another player added info that is more recent! (Might need review for increased performance)
                 local needToAdd = true;
@@ -4588,33 +4579,23 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
     local guildData = GRMsyncGlobals.guildData;
     local isFound = false;
     local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
+    local changeData = {};
 
     for j = 1 , #exactIndexes[2] do
         isFound = false;
         for i = 1 , #GRMsyncGlobals.PDReceivedTemp do
             if guildData[exactIndexes[2][j]].name == GRMsyncGlobals.PDReceivedTemp[i][1] then
                 isFound = true;
-
-                addReceived = false;
                 changeData = {};
 
                 if not guildData[exactIndexes[1][j]].rankHist[1][7] then
-                    addReceived = true;
                     changeData = GRMsyncGlobals.PDReceivedTemp[i];
 
-                elseif guildData[exactIndexes[2][j]].rankHist[1][2] ~= GRMsyncGlobals.PDReceivedTemp[i][2] or guildData[exactIndexes[2][j]].rankHist[1][3] ~= GRMsyncGlobals.PDReceivedTemp[i][3] or guildData[exactIndexes[2][j]].rankHist[1][4] ~= GRMsyncGlobals.PDReceivedTemp[i][4] then
-
+                else
+                    
                     if guildData[exactIndexes[2][j]].rankHist[1][6] < GRMsyncGlobals.PDReceivedTemp[i][5] then
                         -- Received Data happened more recently! Need to update change!
-                        addReceived = true;         -- In other words, don't add my own data, add the received data.
-                    end
-
-                    -- Setting the change data properly.
-                    local changeData;
-                    -- Adding Received from other player
-                    if addReceived then
-                        changeData = GRMsyncGlobals.PDReceivedTemp[i];
-                    
+                        changeData = GRMsyncGlobals.PDReceivedTemp[i];         -- In other words, don't add my own data, add the received data.
                     -- Adding my own data, as it is more current
                     else
                         changeData = { guildData[exactIndexes[2][j]].name , guildData[exactIndexes[2][j]].rankHist[1][2] , guildData[exactIndexes[2][j]].rankHist[1][3] , guildData[exactIndexes[2][j]].rankHist[1][4] , guildData[exactIndexes[2][j]].rankHist[1][5] , guildData[exactIndexes[2][j]].rankHist[1][6] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
@@ -4644,7 +4625,7 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
                 break;
             end
         end
-        if not isFound and guildData[exactIndexes[2][j]].rankHist[1][7] and guildData[exactIndexes[2][j]].rankHist[1][6] ~= 0 then
+        if not isFound and guildData[exactIndexes[2][j]].rankHist[1][7] then
             table.insert ( GRMsyncGlobals.PDChanges , { guildData[exactIndexes[2][j]].name , guildData[exactIndexes[2][j]].rankHist[1][2] , guildData[exactIndexes[2][j]].rankHist[1][3] , guildData[exactIndexes[2][j]].rankHist[1][4] , guildData[exactIndexes[2][j]].rankHist[1][5] , guildData[exactIndexes[2][j]].rankHist[1][6] , GRMsyncGlobals.DesignatedLeader , syncRankFilter } );
         end
     end

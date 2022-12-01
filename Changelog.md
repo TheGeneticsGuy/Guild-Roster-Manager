@@ -1,3 +1,10 @@
+## **VERSION 1.951 RELEASE - Nov 30th, 2022**
+
+* Sync bug fix that was reported - seems to be affecting some people, not all. It shouldn't occur anymore.
+
+* (Vanilla Classic) Class coloring was not triggering in the chat until you opened the GRM window. So, if you logged in, the class chat coloring was not working until that was triggered. Slight load order error that has been fixed.
+
+
 ## **VERSION 1.950 RELEASE - Nov 30th, 2022**
 
 * Fixed a critical issue with join/promo date sync that was overlooked due to some significant recent changes - oops!

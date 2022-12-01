@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.950";
-GRM_G.PatchDay = 1669784007;             -- In Epoch Time
-GRM_G.PatchDayString = "1669784007";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.951";
+GRM_G.PatchDay = 1669933425;             -- In Epoch Time
+GRM_G.PatchDayString = "1669933425";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -1136,6 +1136,7 @@ GRM.FinalSettingsConfigurations = function()
 
     -- Classic Chat coloring
     GRM.SetClassChatColoring()
+    GRM.SetChatColoring();
 
     GRM_G.AddonIsFullyConfigured = true;
     GRM_API.Initialized = true;
@@ -1274,6 +1275,29 @@ GRM.SetChatClassColoringInWrath = function ( enable )
     end
 
 end
+
+-- Method:          GRM.SetChatColoring()
+-- What it Does:    Initializes the chat coloring of names
+-- Purpose:         To give the ability to colorize the names in chat and the roster on control - as the default interface in Classic did not have that.
+GRM.SetChatColoring = function()
+    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].colorizeClassicRosterNames then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetChecked ( true );
+        if GRM_G.BuildVersion < 40000 then
+            SetCVar("chatClassColorOverride" , 0 );
+            if GRM_G.BuildVersion >= 30000 then
+                GRM.SetChatClassColoringInWrath ( true );
+            end
+        end
+    else
+        if GRM_G.BuildVersion < 40000 then
+            SetCVar("chatClassColorOverride" , 1 );
+            if GRM_G.BuildVersion >= 30000 then
+                GRM.SetChatClassColoringInWrath ( false );
+            end
+        end
+    end
+end
+
 
 -- method:          GRM.RefreshNumberOfHoursTilRecommend()
 -- What it Does:    Rebuilds the time on the recommends for the macro tool and the log.
