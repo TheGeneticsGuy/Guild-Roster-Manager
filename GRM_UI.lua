@@ -5599,7 +5599,7 @@ GRM_UI.PreAddonLoadUI = function()
 
     GRM_UI.GRM_MinimapButtonInit  = function()
 
-        if not LibStub or not LibStub("LibDataBroker-1.1", true ) then
+        if not LibStub or not LibStub("LibDataBroker-1.1", true ) or not LibStub("LibDBIcon-1.0", true) then
             GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].minimapRad = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].minimapRad or 78;
             GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].minimapPos = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].minimapPos or 345;
             GRM_UI.GRM_MinimapButtonUpdatePos();
@@ -5607,17 +5607,19 @@ GRM_UI.PreAddonLoadUI = function()
 
             -- Broker Compatibility
             if LibStub then
-                local LDB = LibStub("LibDataBroker-1.1", true)
-                GRM_UI.GRM_MinimapButton = LDB and LibStub("LibDBIcon-1.0", true)
-                if LDB then
-                    local GRM_Initialize = LDB:NewDataObject ( "Guild_Roster_Manager", {
+                local MinimapDataBroker = LibStub("LibDataBroker-1.1", true)
+                GRM_UI.GRM_MinimapButton = MinimapDataBroker and LibStub("LibDBIcon-1.0", true)
+                if MinimapDataBroker then
+                    local GRM_Initialize = MinimapDataBroker:NewDataObject ( "Guild_Roster_Manager", {
                         type = "launcher",
                         icon = "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp",
                         OnClick = MinimapButtonClick,
                         OnTooltipShow = MinimapOnEnter,
                     } );
+
                     if GRM_UI.GRM_MinimapButton then
                         GRM_UI.GRM_MinimapButton:Register("Guild_Roster_Manager", GRM_Initialize, GRM_MinimapPosition )
+                        
                     end
                 end
             end
@@ -5626,16 +5628,16 @@ GRM_UI.PreAddonLoadUI = function()
 
         -- Initialise defaults if not present
         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].minimapEnabled == false then
-            GRM_UI.GRM_MinimapButton:Hide("Guild_Roster_Manager");
+            GRM_UI.GRM_MinimapButton:Hide ( "Guild_Roster_Manager" );
             GRM_MinimapPosition.hide = true;
         else
-            GRM_UI.GRM_MinimapButton:Show("Guild_Roster_Manager");
+            GRM_UI.GRM_MinimapButton:Show ("Guild_Roster_Manager" );
             GRM_MinimapPosition.hide = false;
         end
 
     end
 
-    if not LibStub or not LibStub("LibDataBroker-1.1", true ) then
+    if not LibStub or not LibStub("LibDataBroker-1.1", true ) or not LibStub("LibDBIcon-1.0", true) then
         -- Initialize the Minimap
         GRM_UI.GRM_MinimapButton:EnableMouse ( true );
         GRM_UI.GRM_MinimapButton:SetMovable ( false );
@@ -5768,6 +5770,8 @@ GRM_UI.PreAddonLoadUI = function()
     
         GRM_UI.GRM_MinimapButton:SetScript ( "OnLeave" , GRM_UI.MinimapOnLeave );
 
+        GRM_UI.GRM_MinimapButton:SetScript ( "OnClick" , MinimapButtonClick );
+        
     end
 
     ---- END TOOLTIP ----

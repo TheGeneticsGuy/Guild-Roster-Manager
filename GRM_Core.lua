@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.951";
-GRM_G.PatchDay = 1669933425;             -- In Epoch Time
-GRM_G.PatchDayString = "1669933425";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.952";
+GRM_G.PatchDay = 1670218854;             -- In Epoch Time
+GRM_G.PatchDayString = "1670218854";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -5868,6 +5868,10 @@ end
 -- Purpose:         Useful for checking if the player has been, for example, offline X number of months, if the time has passed, since the server gives time in hours since last online.
 GRM.GetNumHoursTilRecommend = function( numMonths , specialYear )
     local month , day , year = select ( 2 , GRM.GetTodaysDate() );
+
+    if numMonths == 0 then
+        return 0;
+    end
 
     if specialYear then
         year = specialYear;

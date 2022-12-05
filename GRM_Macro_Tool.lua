@@ -3135,14 +3135,27 @@ GRM_UI.LoadToolFrames = function ( isManual )
             self:HighlightText ( 0 , 0 );
 
             local numMonths = tonumber ( self:GetText() );
-            if numMonths > 0 and numMonths < 100 then
+            local lowerLimit = 0;
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                lowerLimit = -1;
+            end
+
+            if numMonths > lowerLimit and numMonths < 100 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths = numMonths;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox.value = numMonths;
             else
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
-                    GRM.Report ( GRM.L ( "Please choose a month between 1 and 99" ) );
+                    if lowerLimit == 0 then
+                        GRM.Report ( GRM.L ( "Please choose a month between 1 and 99" ) );
+                    else
+                        GRM.Report ( GRM.L ( "Please choose a month between 0 and 99" ) );
+                    end
                 elseif not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
-                    GRM.Report ( GRM.L ( "Please choose a day between 1 and 99" ) );
+                    if lowerLimit == 0 then
+                        GRM.Report ( GRM.L ( "Please choose a day between 1 and 99" ) );
+                    else
+                        GRM.Report ( GRM.L ( "Please choose a day between 0 and 99" ) );
+                    end
                 end
             end   
             self:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox.value );
@@ -7429,13 +7442,13 @@ GRM.GetSingularOrPluralFormattingForMacroToolMsg = function ( isMonths , num , i
     local result = "";
 
     if isMonths then
-        if num > 1 then
+        if num > 1 or num == 0 then
             result = choice[4];
         else
             result = choice[3];
         end
     else
-        if num > 1 then
+        if num > 1 or num == 0 then
             result = choice[2];
         else
             result = choice[1];

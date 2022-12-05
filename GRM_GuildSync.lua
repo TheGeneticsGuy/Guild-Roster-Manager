@@ -4588,7 +4588,7 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
                 isFound = true;
                 changeData = {};
 
-                if not guildData[exactIndexes[1][j]].rankHist[1][7] then
+                if not guildData[exactIndexes[2][j]].rankHist[1][7] then
                     changeData = GRMsyncGlobals.PDReceivedTemp[i];
 
                 else

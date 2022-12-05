@@ -1,3 +1,16 @@
+## **VERSION 1.952 RELEASE - December 4th, 2022**
+
+***QUALITY OF LIFE***
+
+* Super minor adjustment to the GRM Macro tool for promotions/demotions. You can now set the promotion to apply to a player at 0 days or months. In other words, you don't want to promote them until they become active again, so they may be at an "inactive" rank. Well, now, as soon as they come back to being active, with no delay, they can immediately be promoted from the rank. Prior to this you could not set the value to be zero days.
+
+***BUG FIXES***
+
+* Fixed a bug that could cause sync to fail, or in some cases, just not sync all of the join dates.
+
+* Fixed an issue that was affecting GRM from loading if you were running ElvUI - this would not affect all people, just some. Not really a conflict, but a load order issue around the minimap causing GRM to crash. This has been fixed.
+
+
 ## **VERSION 1.951 RELEASE - Nov 30th, 2022**
 
 * Sync bug fix that was reported - seems to be affecting some people, not all. It shouldn't occur anymore.
