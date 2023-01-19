@@ -1,3 +1,20 @@
+## **VERSION 1.953 RELEASE - December 7th, 2022**
+
+***QUALITY OF LIFE FEATURES***
+
+* If a player has been removed from the guild, or they quit, it will retain the information on their previous alt group. When they rejoin the guild, GRM will now re-add them to their original alt group. While this is a minor thing, guild leadership has been known to joke around and "fake" kick players on occasion. This will save the hassle of having to re-link them to their alt group when they join. Or, just an alt kicked for inactivity from a guild will now auto-be linked back.
+
+***BUG FIXES***
+
+* Fixed an issue, possibly, where main designations were occasionally getting removed on a sync. This is not well tested yet, but I did find a flaw where in some circumstances the "timestamp" of the action was being changed to the current time() rather than the sync'd time. This would create a problem during sync because if the timstamp was overwritten with the current epoch time(), then the database would be showing as that being the most recent event, thus it would possibly remove the main time tag. There may be more than 1 bug involved here, as I have not been able to personally recreate this on my end, but after digging through the code I did find this one error that could cause this to happen. Please let me know if it is STILL not resolved and maybe we can get it working. Crossing my fingers this minor oversight resolves it, however.
+
+* Fixed a sync bug that would cause sync to fail when it finally got to comparing the alt data. If you noticed the join date and promotion dates syncing fine, but the alt group and main tags not syncing, and getting a "sync failed" message, this bug fix definitely applies to you.
+
+* To improve sync efficiency, due to the heavy server throttling of data, GRM does a "pre-check" of mismatched data between the 2 players to do a cursory check if they differ so that only the differing information will be compared and sync'd, for the sake of efficiency. This is why subsequent syncs should get shorter over time as there is less to sync. There was a bug that was allowing birthday data to show as not differing between the 2 players in a pre-check, so in some cases sync would skip over syncing the birthday information. This has been fixed.
+
+* Fixed an issue where the Event window would not load because if someone was on the events list of upcoming bdays or anniversaries, and they left the guild, it was in some cases not being removed, which ultimately caused an error as it looked up information on the player in the list. They now should properly be auto-removed from the list when they are no longer in the guild.
+
+
 ## **VERSION 1.952 RELEASE - December 4th, 2022**
 
 ***QUALITY OF LIFE***

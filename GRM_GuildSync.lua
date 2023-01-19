@@ -143,6 +143,7 @@ GRMsyncGlobals.HashValuesReceived = { {} , {} , {} , {} , {} , {} , {} };      -
 GRMsyncGlobals.DatabaseMarkers = {};
 GRMsyncGlobals.DatabaseExactIndexes = {};
 GRMsyncGlobals.SyncProgress = { false , false , false , false , false , false , false , true }; -- 8 is completion and always true
+GRMsyncGlobals.SyncTracker = {};
 GRMsyncGlobals.BansCheckFinished = false;
 GRMsyncGlobals.senderBanRankReq = 0;
 GRMsyncGlobals.preCheckControl = { 1 , 1 };
@@ -305,6 +306,48 @@ GRMsync.ResetTempTables = function()
     -- Sync Expected number of values
     GRMsyncGlobals.NumExpectedAlts = 0;
 end
+
+GRMsync.ResetSyncTracker = function()
+
+    GRMsyncGlobals.SyncTracker.numToSync = 0;
+    GRMsyncGlobals.SyncTracker.initialize = false;
+    GRMsyncGlobals.SyncTracker.buildingHashes = false;
+    GRMsyncGlobals.SyncTracker.sendingHashes = false;
+    GRMsyncGlobals.SyncTracker.calculating = false;
+    GRMsyncGlobals.SyncTracker.jd = false;
+    GRMsyncGlobals.SyncTracker.pd = false;
+    GRMsyncGlobals.SyncTracker.alts = false;
+    GRMsyncGlobals.SyncTracker.mains = false;
+    GRMsyncGlobals.SyncTracker.mainCompare = false;
+    GRMsyncGlobals.SyncTracker.customNotes = false;
+    GRMsyncGlobals.SyncTracker.banData = false;
+    GRMsyncGlobals.SyncTracker.compareAlts = false;
+    GRMsyncGlobals.SyncTracker.finalAlts = false;
+    GRMsyncGlobals.SyncTracker.finalMain = false;
+    GRMsyncGlobals.SyncTracker.bdays = false;
+    GRMsyncGlobals.SyncTracker.compareBdays = false; 
+    GRMsyncGlobals.SyncTracker.finish = false;
+    -- GRMsyncGlobals.DatabaseExactIndexes
+    -- 1 = JD
+    -- 2 = PD
+    -- 3 = alt
+    -- 4 = main
+    -- 5 = customNote
+    -- 6 = bday
+    -- 7 = ban
+
+
+end
+
+GRMsync.CalculateTotalSyncVolume = function()
+
+end
+
+GRMsync.ValidateSyncStep = function()
+
+end
+
+
 
 -- For use on doing a hard reset on sync. This is useful like if the addon user themselves changes rank and permissions change. Things would be wonky without force a hard reset of privileges.
 GRMsync.TriggerFullReset = function()
@@ -2346,7 +2389,6 @@ GRMsync.SyncProgressInitialize = function()
     local result = false;
     local banPermissions = ( ( GRMsyncGlobals.IsElectedLeader and GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) or ( not GRMsyncGlobals.IsElectedLeader and GRM_G.playerRankID <= GRMsyncGlobals.senderBanRankReq ) );
 
-    local order = { 1 , 2 , 3 , 4 , 5}
     for i = 1 , #GRMsyncGlobals.DatabaseMarkers do
 
         if i < 7 or banPermissions then
@@ -2425,11 +2467,7 @@ end
 -- Purpose:         Sync efficiency!!!
 GRMsync.BuildFullCheckArray = function()
     for i = 1 , 7 do
-        if i == 5 then
-            GRMsyncGlobals.DatabaseExactIndexes[i] = nil;
-        else
-            GRMsyncGlobals.DatabaseExactIndexes[i] = GRMsync.BuildDatabaseCheckArray(i);
-        end
+        GRMsyncGlobals.DatabaseExactIndexes[i] = GRMsync.BuildDatabaseCheckArray(i);
     end
 end
 
@@ -2443,11 +2481,11 @@ GRMsync.SendCompletionMsg = function()
     GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_STOP?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. result  , GRMsyncGlobals.DesignatedLeader );
     -- Need to Disable error checking now as you will stop communicating with the designated leader
 
-    if GRMsyncGlobals.DatabaseExactIndexes[6] == nil or GRMsyncGlobals.DatabaseExactIndexes[7] == nil then
+    if GRMsyncGlobals.DatabaseExactIndexes[4] == nil or GRMsyncGlobals.DatabaseExactIndexes[6] == nil then
         GRMsync.BuildFullCheckArray();
     end
 
-    if #GRMsyncGlobals.DatabaseExactIndexes[6] == 0 and #GRMsyncGlobals.DatabaseExactIndexes[7] == 0 then
+    if #GRMsyncGlobals.DatabaseExactIndexes[4] == 0 and #GRMsyncGlobals.DatabaseExactIndexes[6] == 0 then
         GRMsyncGlobals.dateSentComplete = true; 
     end
 end
@@ -3138,11 +3176,11 @@ GRMsync.SendCustomNotePackets = function()
         local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
         local customNote;
 
-        for i = GRMsyncGlobals.SyncCountCustom , #exactIndexes[6] do
+        for i = GRMsyncGlobals.SyncCountCustom , #exactIndexes[5] do
             messageReady = false;
             dataShouldBeSent = false;
             if GRMsyncGlobals.SyncOK then
-                if guildData[exactIndexes[6][i]].customNote[1] and guildData[exactIndexes[6][i]].customNote[2] ~= 0 then
+                if guildData[exactIndexes[5][i]].customNote[1] and guildData[exactIndexes[5][i]].customNote[2] ~= 0 then
                     dataShouldBeSent = true;
                     hasAtLeastOne = true;
                 end
@@ -3150,21 +3188,21 @@ GRMsync.SendCustomNotePackets = function()
                 -- Expand the string more... Fill up the full 255 characters for efficiency.
                 if dataShouldBeSent then
 
-                    customNote = guildData[exactIndexes[6][i]].customNote[6];
+                    customNote = guildData[exactIndexes[5][i]].customNote[6];
                     if customNote == "" then
                         customNote = "X&&X";
                     end
 
                     if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
-                        tempMessage = syncMessage .. "?" .. guildData[exactIndexes[6][i]].customNote[4] .. "?#" .. guildData[exactIndexes[6][i]].name .. "?#" .. tostring ( guildData[exactIndexes[6][i]].customNote[2] ) .. "?#" .. guildData[exactIndexes[6][i]].customNote[3] .. "?#" .. customNote;
+                        tempMessage = syncMessage .. "?" .. guildData[exactIndexes[5][i]].customNote[4] .. "?#" .. guildData[exactIndexes[5][i]].name .. "?#" .. tostring ( guildData[exactIndexes[5][i]].customNote[2] ) .. "?#" .. guildData[exactIndexes[5][i]].customNote[3] .. "?#" .. customNote;
                         if ( #tempMessage + GRMsyncGlobals.sizeModifier < 255 ) then
                             syncMessage = tempMessage;
-                            if i == #exactIndexes[6] then
+                            if i == #exactIndexes[5] then
                                 messageReady = true;
                             end
                         else
                             messageReady = true;
-                            tempMsg3 = GRM_G.PatchDayString .. "?GRM_CUSTSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankCustom .. "?" .. guildData[exactIndexes[6][i]].customNote[4] .. "?#" .. guildData[exactIndexes[6][i]].name .. "?#" .. tostring ( guildData[exactIndexes[6][i]].customNote[2] ) .. "?#" .. guildData[exactIndexes[6][i]].customNote[3];
+                            tempMsg3 = GRM_G.PatchDayString .. "?GRM_CUSTSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankCustom .. "?" .. guildData[exactIndexes[5][i]].customNote[4] .. "?#" .. guildData[exactIndexes[5][i]].name .. "?#" .. tostring ( guildData[exactIndexes[5][i]].customNote[2] ) .. "?#" .. guildData[exactIndexes[5][i]].customNote[3];
                             -- Hold this value over...                            
                             if #customNote > 100 and not GRMsyncGlobals.CustomNoteLarge then
                                 tempMessage = tempMsg3 .. "?#" .. string.sub ( customNote , 1 , #customNote - 50 ) .. "?^?";
@@ -3174,7 +3212,7 @@ GRMsync.SendCustomNotePackets = function()
                                 tempMessage = tempMsg3 .. "?#" .. customNote;
                             end
                             -- If we are in the last index it won't loop back around, so we need to send it now...
-                            if i == #exactIndexes[6] then
+                            if i == #exactIndexes[5] then
                                 GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMessage + GRMsyncGlobals.sizeModifier;
                                 GRMsync.SendMessage ( "GRM_SYNC" , tempMessage , GRMsyncGlobals.DesignatedLeader );
                     
@@ -3191,7 +3229,7 @@ GRMsync.SendCustomNotePackets = function()
                     end
 
                     -- Send message
-                    if ( messageReady and dataShouldBeSent ) or ( hasAtLeastOne and i == #exactIndexes[6]) then
+                    if ( messageReady and dataShouldBeSent ) or ( hasAtLeastOne and i == #exactIndexes[5]) then
                         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
                         GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
                         syncMessage = tempMessage;
@@ -5029,15 +5067,15 @@ GRMsync.CheckingCustomNoteChanges = function ( syncRankFilter )
     local isFound;
     local exactIndexes = GRMsyncGlobals.DatabaseExactIndexes;
 
-    if exactIndexes[6] ~= nil then
-        for j = 1 , #exactIndexes[6] do
+    if exactIndexes[5] ~= nil then
+        for j = 1 , #exactIndexes[5] do
             isFound = false;
             for i = 1 , #GRMsyncGlobals.CustomNoteReceivedTemp  do
-                if guildData[exactIndexes[6][j]].name == GRMsyncGlobals.CustomNoteReceivedTemp[i][1] then
+                if guildData[exactIndexes[5][j]].name == GRMsyncGlobals.CustomNoteReceivedTemp[i][1] then
                     
                     isFound = true;
                     local addReceived = false;      -- AM I going to add received data, or my own. One or the other needs to be added for sync
-                    if ( guildData[exactIndexes[6][j]].customNote[2] < GRMsyncGlobals.CustomNoteReceivedTemp[i][2] ) or not guildData[exactIndexes[6][j]].customNote[1] then
+                    if ( guildData[exactIndexes[5][j]].customNote[2] < GRMsyncGlobals.CustomNoteReceivedTemp[i][2] ) or not guildData[exactIndexes[5][j]].customNote[1] then
                         -- Received Data happened more recently! Need to update change!
                         addReceived = true;         -- In other words, don't add my own data, add the received data.
                     end
@@ -5050,11 +5088,11 @@ GRMsync.CheckingCustomNoteChanges = function ( syncRankFilter )
                         changeData = GRMsyncGlobals.CustomNoteReceivedTemp[i];
                     -- Adding my own data, as it is more current
                     else
-                        local customNote = guildData[exactIndexes[6][j]].customNote[6];
+                        local customNote = guildData[exactIndexes[5][j]].customNote[6];
                         if customNote == "" then
                             customNote = "X&&X";
                         end
-                        changeData = { guildData[exactIndexes[6][j]].name , guildData[exactIndexes[6][j]].customNote[2] , guildData[exactIndexes[6][j]].customNote[3] , guildData[exactIndexes[6][j]].customNote[4] , customNote , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
+                        changeData = { guildData[exactIndexes[5][j]].name , guildData[exactIndexes[5][j]].customNote[2] , guildData[exactIndexes[5][j]].customNote[3] , guildData[exactIndexes[5][j]].customNote[4] , customNote , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
                     end
 
                     -- Need to check if change has not already been added, or if another player added info that is more recent! (Might need review for increased performance)
@@ -5080,12 +5118,12 @@ GRMsync.CheckingCustomNoteChanges = function ( syncRankFilter )
                     break;
                 end
             end
-            if not isFound and guildData[exactIndexes[6][j]].customNote[1] and guildData[exactIndexes[6][j]].customNote[2] ~= 0 then
-                local customNote = guildData[exactIndexes[6][j]].customNote[6];
+            if not isFound and guildData[exactIndexes[5][j]].customNote[1] and guildData[exactIndexes[5][j]].customNote[2] ~= 0 then
+                local customNote = guildData[exactIndexes[5][j]].customNote[6];
                 if customNote == "" then
                     customNote = "X&&X";
                 end
-                table.insert ( GRMsyncGlobals.CustomNoteChanges , { guildData[exactIndexes[6][j]].name , guildData[exactIndexes[6][j]].customNote[2] , guildData[exactIndexes[6][j]].customNote[3] , guildData[exactIndexes[6][j]].customNote[4] , customNote , GRMsyncGlobals.DesignatedLeader , syncRankFilter } );
+                table.insert ( GRMsyncGlobals.CustomNoteChanges , { guildData[exactIndexes[5][j]].name , guildData[exactIndexes[5][j]].customNote[2] , guildData[exactIndexes[5][j]].customNote[3] , guildData[exactIndexes[5][j]].customNote[4] , customNote , GRMsyncGlobals.DesignatedLeader , syncRankFilter } );
             end
         end
     end
@@ -5971,6 +6009,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                                     if not string.find ( msg , "FINISH" , 1 , true ) then  
                                         GRMsync.SetReceivedHashValue ( msg );
                                     else
+                                        
                                         -- Establish Database as an array
                                         GRMsyncGlobals.guildData , GRMsyncGlobals.formerGuildData , GRMsyncGlobals.guildAltData = GRM.convertToArrayFormat(); -- Now, we set arrays of the data.
                                         if GRMsync.SyncIsNecessary() then

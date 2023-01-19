@@ -158,6 +158,19 @@ GRM.RemoveAltFromGrouping = function ( groupID , guildName , player )
     end
 end
 
+-- Method:          GRM.PlayerIsAnAlt ( playerTable )
+-- What it Does:    Returns true if the given player is considered an "alt" not a main, or no designation
+-- Purpose:         To inform if the player is an alt more easily.
+GRM.PlayerIsAnAlt = function ( player )
+    local result = false;
+
+    if player and player.altGroup ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= player.name then
+        result = true;
+    end
+
+    return result;
+end
+
 -- Method:          GRM.GetTimeOfAltGroupChange ( table )
 -- What it Does:    Returns the integer epoch timestamp of when the player's last modification to the alt group came.
 -- Purpose:         Syncing alt data generally.
@@ -171,17 +184,36 @@ GRM.GetTimeOfAltGroupChange = function ( player )
     return result;
 end
 
--- Method:          GRM.PlayerIsAnAlt ( playerTable )
--- What it Does:    Returns true if the given player is considered an "alt" not a main, or no designation
--- Purpose:         To inform if the player is an alt more easily.
-GRM.PlayerIsAnAlt = function ( player )
-    local result = false;
+-- Method:          GRM.AltModifiedIntegrityCheck()
+-- What it Does:    Verifies the integrity of certain data
+-- Purpose:         Due to the possibility of sync failing in the middle, like if someone goes offline or the other hits a loading screen in the middle of a sync, it is possible that this data can end up nil, in certain cases. This resolves that bug by rebuilding the variable.
+GRM.AltModifiedIntegrityCheck = function()
+    for _,player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
+        if type ( player ) == "table" then
 
-    if player and player.altGroup ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= player.name then
-        result = true;
+            if not player.altGroupModified then
+
+                if player.altGroup ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup] then
+                    
+                    -- verifi timeOfChange is not nil
+                    if not GRM_Alts[GRM_G.guildName][player.altGroup].timeModified then
+                        GRM_Alts[GRM_G.guildName][player.altGroup].timeModified = 0;
+                    end
+
+                    player.altGroupModified = GRM_Alts[GRM_G.guildName][player.altGroup].timeModified + 1 - 1; -- Disassociate and create new index.
+                else
+                    -- Alt Group has been broken
+                    if not GRM_Alts[GRM_G.guildName][player.altGroup] then
+                        player.altGroup = "";
+                    end
+
+                    player.altGroupModified = 0;    -- nil value, and not in a group, so just set to default.
+                end
+
+            end
+
+        end
     end
-
-    return result;
 end
 
 -- Method:          GRM.PlayerHasAlts ( playerTable )
@@ -367,7 +399,7 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
 
             end
 
-            GRM.RemoveAlt ( memberToAdd.name , false , timeOfChange );
+            GRM.RemoveAlt ( memberToAdd.name , isSync , timeOfChange );
 
             -- Set new altGroup ID 
             memberToAdd.altGroup = groupID;
@@ -540,6 +572,42 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
     end
 
     return addToAltsGroup;
+end
+
+-- Method:          GRM.AddRejoinToAltGroup ( playerTable )
+-- What it Does:    Using the stored player information when someone leaves the guild, it checks their alt group and adds them back to it.
+-- Purpose:         One less thing to do manually if you jokingly kick someone or someone returns.
+GRM.AddRejoinToAltGroup = function ( player )
+
+    local added = false;
+
+    if player and #player.altsAtTimeOfLeaving > 0 then
+
+        local alts = player.altsAtTimeOfLeaving;
+
+        for i = 1 , #alts do
+
+            for _,p in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
+                if type (p) == "table" then
+                    if p.GUID == alts[i][3] then
+                        GRM.AddAlt ( p.name , player.name , true );
+                        added = true;
+                        break;
+                    end
+                end
+            end
+
+            if added then
+                break;
+            end
+
+        end
+
+    end
+
+    player.altsAtTimeOfLeaving = {};    -- No need to carry this info now that they have rejoined.
+
+    return added;
 end
 
 -- Method:          GRM.RemoveAlt (string , boolean , int )
