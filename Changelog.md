@@ -1,3 +1,7 @@
+## **VERSION 1.953 RELEASE - January 18th, 2023**
+
+* WOTLK Compatibility fix for 3.4.1 release - Build for all
+
 ## **VERSION 1.952 RELEASE - December 4th, 2022**
 
 ***QUALITY OF LIFE***

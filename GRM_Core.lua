@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.952";
-GRM_G.PatchDay = 1670218854;             -- In Epoch Time
-GRM_G.PatchDayString = "1670218854";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.953";
+GRM_G.PatchDay = 1674103489;             -- In Epoch Time
+GRM_G.PatchDayString = "1674103489";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -396,7 +396,7 @@ local StatusChecking = CreateFrame ( "Frame" );
 GRM.CreateTexture = function ( frame , name , layer , useFrame )
     local heritableFrame = nil;
 
-    if GRM_G.BuildVersion >= 100000 then
+    if GRM_G.BuildVersion >= 30401 then
         frame[name] = frame:CreateTexture ( nil , layer , nil , 0 );
     else
 
