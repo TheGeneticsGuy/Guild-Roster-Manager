@@ -1,3 +1,7 @@
+## **VERSION 1.954 RELEASE - January 23rd 2023**
+
+* 10.0.5 DF Compatibility Release
+
 ## **VERSION 1.953 RELEASE - January 18th, 2023**
 
 * WOTLK Compatibility fix for 3.4.1 release - Build for all
