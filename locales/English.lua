@@ -734,7 +734,7 @@ GRML.English = function()
     -- R1.30
     GRM_L["Sync With {name} is Complete..."] = true
     GRM_L["|CFFE6CC7FLeft-Click|r and drag to move this button."] = true
-    GRM_L["|CFFE6CC7FCtrl-Left-Click|r and drag to move this button anywhere."] = true
+    GRM_L["{custom1} and drag to move this button anywhere."] = true
     GRM_L["MOTD:"] = true       -- Message Of The Day = M.O.T.D = MOTD - 
     GRM_L["minimap"] = true
 
@@ -1280,6 +1280,7 @@ GRML.English = function()
     GRM_L["Easily remove all Banned players still in the Guild with the Macro Tool"] = true
     GRM_L["GRM will automatically send messages to the \"{name}\" window if you remove all custom channels."] = true
     GRM_L["Multi-Channel support. Just separate with commas"] = true
+    GRM_L["Disable tooltip. Only show popout window."] = true
 
     -- R1.89
     GRM_L["GRM API Error:"] = true
@@ -1418,6 +1419,7 @@ GRML.English = function()
     GRM_L["Ctrl-Shift-Click"] = true
     GRM_L["Alt-Shiift-Click"] = true
     GRM_L["Right-Click"] = true
+    GRM_L["Ctrl-Left-Click"] = true
     
     GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action
     GRM_L["{custom1} to remove player from all 3 macro tool ignore lists"] = true
@@ -1578,5 +1580,7 @@ GRML.English = function()
     GRM_L["Please choose a valid Month"] = true
     GRM_L["Warcraft was not released until 2004. Please choose a valid year."] = true
 
+    --R1.953
+    GRM_L["{name} has rejoined their original alt group."] = true
 
 end

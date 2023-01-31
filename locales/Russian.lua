@@ -734,7 +734,7 @@ GRML.Russian = function()
     -- R1.30
     GRM_L["Sync With {name} is Complete..."] = "Синхронизация с {name} завершена..."
     GRM_L["|CFFE6CC7FLeft-Click|r and drag to move this button."] = "|CFFE6CC7FЛКМ|r и перемещайте эту кнопку."
-    GRM_L["|CFFE6CC7FCtrl-Left-Click|r and drag to move this button anywhere."] = "|CFFE6CC7FCtrl-ЛКМ|r и перемещайте эту кнопку куда угодно."
+    GRM_L["{custom1} and drag to move this button anywhere."] = "{custom1} и перемещайте эту кнопку куда угодно."
     GRM_L["MOTD:"] = "Сообщение дня"      -- Message Of The Day = M.O.T.D = MOTD - 
     GRM_L["minimap"] = "Миникарта"
 
@@ -1280,6 +1280,7 @@ GRML.Russian = function()
     GRM_L["Easily remove all Banned players still in the Guild with the Macro Tool"] = "Легко удалите всех забаненных игроков, которые все еще находятся в гильдии, с помощью макро-тулза."
     GRM_L["GRM will automatically send messages to the \"{name}\" window if you remove all custom channels."] = "ГРМ будет автоматически отправлять сообщения в окно \"{name}\", если вы удалите все пользовательские каналы."
     GRM_L["Multi-Channel support. Just separate with commas"] = "Многоканальная поддержка. Просто разделите запятыми"
+    GRM_L["Disable tooltip. Only show popout window."] = true
 
     -- R1.89
     GRM_L["GRM API Error:"] = "Ошибка ГРМ API:"
@@ -1418,6 +1419,7 @@ GRML.Russian = function()
     GRM_L["Ctrl-Shift-Click"] = true
     GRM_L["Alt-Shiift-Click"] = true
     GRM_L["Right-Click"] = "Щелкните правой кнопкой мыши"
+    GRM_L["Ctrl-Left-Click"] = true
     
     GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action
     GRM_L["{custom1} to remove player from all 3 macro tool ignore lists"] = true

@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 104;
+local totalPatches = 105;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1198,6 +1198,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    --patch 105
+    patchNum = patchNum + 1;
+    if numericV < 1.953 and baseValue < 1.953 then
+
+        GRM_Patch.AltModifiedFix();
+        GRM_Patch.ModifyMemberData ( GRM_Patch.PreviousAltGroupRejoinFix , true , true , false );
+        
+        if loopCheck ( 1.953 ) then
+            return;
+        end
+    end
+    
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -6506,5 +6518,57 @@ GRM_Patch.UpdateYearFormatting = function ( player )
             player.joinDateHist[i][3] = player.joinDateHist[i][3] + 2000;
         end
     end
+    return player;
+end
+
+
+-- Method:          GRM_Patch.AltModifiedFix()
+-- What it Does:    Verifies the integrity of certain data
+-- Purpose:         Due to the possibility of sync failing in the middle, like if someone goes offline or the other hits a loading screen in the middle of a sync, it is possible that this data can end up nil, in certain cases. This resolves that bug by rebuilding the variable.
+GRM_Patch.AltModifiedFix = function()
+
+    for faction in pairs ( GRM_GuildMemberHistory_Save ) do
+        for guild in pairs ( GRM_GuildMemberHistory_Save[faction] ) do
+            for _ , player in pairs ( GRM_GuildMemberHistory_Save[faction][guild] ) do
+                if type ( player ) == "table" then
+
+                    if not player.altGroupModified then
+
+                        if player.altGroup ~= "" and GRM_Alts[guild][player.altGroup] then
+                            
+                            -- verifi timeOfChange is not nil
+                            if not GRM_Alts[guild][player.altGroup].timeModified then
+                                GRM_Alts[guild][player.altGroup].timeModified = 0;
+                            end
+
+                            player.altGroupModified = GRM_Alts[guild][player.altGroup].timeModified + 1 - 1; -- Disassociate and create new index.
+
+                        else
+                            -- Alt Group has been broken
+                            if not GRM_Alts[guild][player.altGroup] then
+                                player.altGroup = "";
+                            end
+
+                            player.altGroupModified = 0;    -- nil value, and not in a group, so just set to default.
+                        end
+
+                    end
+
+                end
+            end
+        end
+    end
+end
+
+-- 1.953
+-- Method:          GRM_Patch.PreviousAltGroupRejoinFix( playerTable )
+-- What it Does:    Adds the member data variable if it doesn't exist as an empty table
+-- Purpose:         This was not properly added to all members previously, prior to feature being implemented.
+GRM_Patch.PreviousAltGroupRejoinFix = function ( player )
+
+    if not player.altsAtTimeOfLeaving then
+        player.altsAtTimeOfLeaving = {};
+    end
+
     return player;
 end

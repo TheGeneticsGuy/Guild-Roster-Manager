@@ -1,12 +1,4 @@
-## **VERSION 1.954 RELEASE - January 23rd 2023**
-
-* 10.0.5 DF Compatibility Release
-
-## **VERSION 1.9531 RELEASE - January 18th, 2023**
-
-* WOTLK Compatibility fix for 3.4.1 release - Build for all
-
-## **VERSION 1.953 RELEASE - December 7th, 2022**
+## **VERSION 1.955 RELEASE - December 7th, 2022**
 
 ***QUALITY OF LIFE FEATURES***
 
@@ -22,6 +14,9 @@
 
 * Fixed an issue where the Event window would not load because if someone was on the events list of upcoming bdays or anniversaries, and they left the guild, it was in some cases not being removed, which ultimately caused an error as it looked up information on the player in the list. They now should properly be auto-removed from the list when they are no longer in the guild.
 
+## **VERSION 1.953 RELEASE - January 18th, 2023**
+
+* WOTLK Compatibility fix for 3.4.1 release - Build for all
 
 ## **VERSION 1.952 RELEASE - December 4th, 2022**
 

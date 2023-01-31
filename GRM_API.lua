@@ -190,7 +190,7 @@ GRM_API.ClearAllOfficerNotes = function()
     end
 end
 
--- Method:          GRM.ClearAllOfficerNotes()
+-- Method:          GRM.ClearAllPublicNotes()
 -- What it Does:    Clears every public note to every player in the guild
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllPublicNotes = function()
@@ -350,6 +350,7 @@ GRM_API.ClearAllUnverifiedPromoteDates = function()
             -- Ok, let's do the rank history first
             if #player.rankHist > 1 and not player.rankHist[1][7] then
                 table.remove ( player.rankHist , 1 );
+
             end
 
         end

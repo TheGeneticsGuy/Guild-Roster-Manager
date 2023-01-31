@@ -45,7 +45,7 @@ GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build lev
 GRM_G.addonName = "Guild_Roster_Manager";
 -- Player Details
 GRM_G.guildName = "";
-GRM_G.realmName = string.gsub ( string.gsub ( GetRealmName() , "-" , "" ) , "%s+" , "" );       -- Remove the space since server return calls don't include space on multi-name servers, also removes a hyphen if server is hyphened.Necessary for backend addon to addon comms formatting sender.
+GRM_G.realmName = string.gsub ( string.gsub ( GetRealmName() , "-" , "" ) , "%s+" , "" );       -- Remove the space since server return calls don't include space on multi-name servers, also removes a hyphen if server is hyphened.Necessary for backend addon to addon comms formatting sende bvcxr.
 GRM_G.addonUser = ( GetUnitName ( "PLAYER" , false ) .. "-" .. GRM_G.realmName );         -- Oddly, GetUnitName set as true will not reliably return realm name on non-merged realms without this formatting.
 GRM_G.faction = UnitFactionGroup ( "PLAYER" );
 GRM_G.FID = 0;                  -- index for Horde = 1; Ally = 2 (semi depricated)
@@ -552,6 +552,42 @@ GRM.GetPlayer = function ( name )
     end
 end
 
+------------------------------
+--- EXTERNAL COMPATIBILITY ---
+------------------------------
+
+-- Method:          GRM.GetWowProgressLink ( string )
+-- What it Does:    Generates an HTML link to the player's WOWPROGRESS page
+-- Purpose:         Easy access to player's wowprogress link
+GRM.GetWowProgressLink = function ( name )
+
+    local charList = { "'" , "%s" };
+    local region = string.lower ( GetCurrentRegionName() );
+    local server = string.lower ( string.match ( name , "-(.+)" ) );
+    name = string.lower ( GRM.SlimName ( name ) );
+
+    for i = 1 , #charList do
+        server = string.gsub ( server , charList[i] , "-" );
+    end
+
+    return "https://www.wowprogress.com/character/" .. region .. "/" .. server .. "/" .. name;
+end
+
+-- Method:          GRM.GetRaiderIOLink ( string )
+-- What it Does:    Returns HTML link for Raider.IO
+-- Purpose:         Easy access to player's raider.io link
+GRM.GetRaiderIOLink = function ( name )
+
+    local region = string.lower ( GetCurrentRegionName() );
+    local server = string.lower ( string.match ( name , "-(.+)" ) );
+    name = string.lower ( GRM.SlimName ( name ) );
+
+    server = string.gsub ( server , "%s" , "-" );
+    server = string.gsub ( server , "'" , "" );
+
+    return "https://raider.io/characters/" .. region .. "/" .. server .. "/" .. name;
+end
+
 --------------------------
 ------- SETTINGS ---------
 --------------------------
@@ -857,6 +893,7 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         player["GIModule"]["InteractDistanceIndicator"] = true
         player["GIModule"]["tradeIndicatorColorAny"] = { 0 , 0.97 , 0.97 };
         player["GIModule"]["tradeIndicatorColorConnectedRealm"] = { 0 , 0.97 , 0.97 };
+        player["GIModule"]["DisableGroupInfoTooltip"] = false;
         
     end
 
@@ -7621,7 +7658,20 @@ GRM.GetPlayerClass = function ( playerName )
 
     return class;
 end
-                  
+
+-- Method:          GRM.GetPlayerClassByGUID ( string )
+-- What it Does:    Returns the non-localized class name of the give player by GUID
+-- Purpose:         In case of a failure in obtaining class in a sync, which has happened and data was lost, this can restore it.
+GRM.GetPlayerClassByGUID = function ( guid )
+    local class = "";
+
+    if guid then
+        class = select ( 2 , GetPlayerInfoByGUID ( guid ) );
+    end
+
+    return class;
+end
+     
 -- Method:          GRM.GetClassColorRGB ( string )
 -- What it Does:    Returns the 0-1 RGB color scale for the player class
 -- Purpose:         Easy class color tagging for UI feature.
@@ -8143,11 +8193,11 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["mainStatusChangeTime"] = 0;                       --
     member["alts"] = {};                                    -- 11
     member["altGroup"] = "";
-    member["altsAtTimeOfLeaving"] = {};                     -- Variable used when a player leaves the guild
+    member[".00"] = {};                     -- Variable used when a player leaves the guild
     member["mainAtTimeOfLeaving"] = {};                     -- Easy way to track who is their previous main when they returned to the guild.
     member["bannedInfo"] = { false , 0 , false , "" };      -- 17
     member["reasonBanned"] = "";                            -- 18
-
+    member["altsAtTimeOfLeaving"] = {};
     member["rankHist"] = { { memberInfo.rankName , 0 , 0 , 0 , 0 , 0 , false , 1 } };      -- { rankName , day , month , year , timeInEpoch , timeChangedManually , isVerified , typeOfRankChange }   
     member["joinDateHist" ] = { { 0 , 0 , 0 , 0 , 0 , false , 1 } };                       -- { day , month , year , timeInEpoch , timeChangedManually , isVerified , join/leave } - 1 = join; 2 = leave;
 
@@ -8191,6 +8241,7 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
             member.joinDateHist = oldMemberInfo.joinDateHist;
             member.race = oldMemberInfo.race;
             member.sex = oldMemberInfo.sex;
+            member.altsAtTimeOfLeaving = oldMemberInfo.altsAtTimeOfLeaving;
 
             local dates = select ( 2 , GRM.GetTimestamp() );
             local epoch = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } ); 
@@ -10285,6 +10336,9 @@ end
 -- What it Does:    Refreshes the details, in case an event happes WHILE the window is open
 -- Purpose:         QOL - Clean user experience. User it not forced to close window and reopen it to trigger updates. This will be used on the fly.
 GRM.RefreshAddEventFrame = function()
+
+    GRM.CleanupEventsFromplayers(); -- This is in case someone has left the guild right before eventFrame is refreshed
+
     -- Clear the buttons first
     if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons ~= nil then
         for i = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons do
@@ -12335,6 +12389,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                             tempJoinStorage[9] , tempJoinStorage[10] , tempJoinStorage[11] , tempJoinStorage[12] , tempJoinStorage[13] , tempJoinStorage[14] , tempJoinStorage[15]
                         }
                     );
+
                 end
 
                 -- Adding timestamp to new Player.
@@ -12417,6 +12472,10 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
 
                 if GRM_G.SystemMsgHolder[member.name] ~= nil then
                     GRM_G.SystemMsgHolder[member.name] = nil;
+                end
+
+                if scanUpdate and GRM.AddRejoinToAltGroup ( GRM_GuildMemberHistory_Save[ GRM_G.F ][GRM_G.guildName][member.name] ) then
+                    GRM.Report ( GRM.L ( "{name} has rejoined their original alt group." , GRM.GetClassColorRGB ( member.class , true ) .. GRM.FormatName ( member.name ) .. "|r" ) );
                 end
                 
                 -- Removing Player from LeftGuild History (Yes, they will be re-added upon leaving the guild.)
@@ -14551,7 +14610,7 @@ end
 -- Purpose:         Cleanup events QoL
 GRM.CleanupEventsFromplayers = function ()
     local cleanupHappened = false;
-    for i = #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] , 2 , -1 do
+    for i = #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] , 1 , -1 do
         if not GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][1] ] then
             table.remove ( GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] , i );
             cleanupHappened = true;
@@ -15519,6 +15578,9 @@ GRM.convertToArrayFormat = function( guildName , faction )
     local guildData = GRM_GuildMemberHistory_Save[ F ][ G ];
     local i = 1;
 
+    -- Trigger cleanup of this issue
+    GRM.AltModifiedIntegrityCheck();
+
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             finalGData[i] = player;
@@ -15559,6 +15621,7 @@ GRM.BuildExportMemberDetails = function( currentMembers , specificGuild , guildF
     local altString = "";
     local isMergedRealm = GRM.IsMergedRealmServer();
     local playerDetails = "";
+
     local sex = "";
     local separator = ",";
     if delimiter == separator then
@@ -20019,6 +20082,14 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
                             if i == #playerDetails and insertIndex == 1 then
                                 insertIndex = i + 1;
                             end
+                        end
+                    end
+
+                    if ( not player.class or player.class == "" ) and player.GUID ~= "" then
+                        player.class = GRM.GetPlayerClassByGUID ( player.GUID );
+    
+                        if player.class == "" then
+                            player.class = "HUNTER";        -- This shouldn't ever happen, but this is edge case if server fails to respond. Placholder class is set.
                         end
                     end
 
