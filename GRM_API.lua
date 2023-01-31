@@ -190,7 +190,7 @@ GRM_API.ClearAllOfficerNotes = function()
     end
 end
 
--- Method:          GRM.ClearAllPublicNotes()
+-- Method:          GRM.ClearAllOfficerNotes()
 -- What it Does:    Clears every public note to every player in the guild
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllPublicNotes = function()

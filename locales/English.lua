@@ -1578,7 +1578,5 @@ GRML.English = function()
     GRM_L["Please choose a valid Month"] = true
     GRM_L["Warcraft was not released until 2004. Please choose a valid year."] = true
 
-    --R1.953
-    GRM_L["{name} has rejoined their original alt group."] = true
 
 end
