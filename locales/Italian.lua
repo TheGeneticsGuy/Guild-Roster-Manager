@@ -381,12 +381,9 @@ GRML.Italian = function()
 	GRM_L["Initiating Sync with {name} Instead!"] = "Sincronizzazione con {name} iniziata"
 	GRM_L["Sync Failed with {name}..."] = "Sincronizzazione con {name} fallita..."
 	GRM_L["The Player Appears to Be Offline."] = "Sembra che il giocatore sia Offline" 
-	GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = "Sincronizzazione manuale in corso... Una volta."
 	GRM_L["Syncing Data With Guildies Now..."] = "Sincronizzazione con i gildani in corso..."
 	GRM_L["(Loading screens may cause sync to fail)"] = "(Le schermate di caricamento possono causare il fallimento della sincronizzazione)"
 	GRM_L["Sync With Guildies Complete..."] = "Sincronizzazione con i gildani completa..."
-	GRM_L["Manual Sync With Guildies Complete..."] = "Sincronizzazione manuale con i gildani completa..."
-	GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = "Nessun giocatore Online con cui effettuare la sincronizzazione. Sincronizzazione disabilitata..." 
 
 	-- ERROR MESSAGES
 	GRM_L["Notification Has Already Been Arranged..."] = "Le notifiche sono già state impostate"
@@ -812,8 +809,6 @@ GRML.Italian = function()
 	GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000ATTENZIONE!!!|r {num} giocatore Bannato è ancora in gilda!"        -- Singular  -- please keep the color coding... this keeps the Warning in red
 	
 	-- R1.41  
-	GRM_L["{num} metadata profiles are being built for people previously in the guild. The data is being requested, but this may take some time."] = "Creazione di {num} profili metadati per gli ex-gildani in corso. Sto richiedendo i dati, ma ci potrebbe volere un po' di tempo."    --WIP               -- PLURAL
-	GRM_L["One metadata profile is being built for a player previously in the guild. The data is being requested, but this may take some time."] = "Creazione del profilo metadati per l'ex-gildano in corso. Sto richiedendo i dati, ma ci potrebbe volere un po' di tempo."    --WIP       -- SINGULAR, same line.
 	GRM_L["Auto-Focus the search box"] = "Auto-focus della casella di ricerca"
 	GRM_L["This will skip the first time if set to load on logon"] = "Non funzionerà all'avvio, se l'impostazione \"Mostra all'avvio\" è attivata"  -- Referring to the auto-focusing on the search box, this is a tooltip helper
 	GRM_L["Please enter a valid level between 1 and {num}"] = "Per favore, inserisci un livello tra 1 e {num}"

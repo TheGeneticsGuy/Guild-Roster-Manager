@@ -380,12 +380,9 @@ GRML.English = function()
     GRM_L["Initiating Sync with {name} Instead!"] = true
     GRM_L["Sync Failed with {name}..."] = true
     GRM_L["The Player Appears to Be Offline."] = true
-    GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = true
     GRM_L["Syncing Data With Guildies Now..."] = true
     GRM_L["(Loading screens may cause sync to fail)"] = true
     GRM_L["Sync With Guildies Complete..."] = true
-    GRM_L["Manual Sync With Guildies Complete..."] = true
-    GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = true
     
     -- ERROR MESSAGES
     GRM_L["Notification Has Already Been Arranged..."] = true
@@ -810,8 +807,6 @@ GRML.English = function()
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = true           -- Singular  -- please keep the color coding... this keeps the Warning in red
 
     -- R1.41
-    GRM_L["{num} metadata profiles are being built for people previously in the guild. The data is being requested, but this may take some time."] = true                   -- PLURAL
-    GRM_L["One metadata profile is being built for a player previously in the guild. The data is being requested, but this may take some time."] = true           -- SINGULAR, same line.
     GRM_L["Auto-Focus the search box"] = true
     GRM_L["This will skip the first time if set to load on logon"] = true  -- Referring to the auto-focusing on the search box, this is a tooltip helper
     GRM_L["Please enter a valid level between 1 and {num}"] = true
@@ -1582,5 +1577,30 @@ GRML.English = function()
 
     --R1.953
     GRM_L["{name} has rejoined their original alt group."] = true
+
+    --R1.96
+    GRM_L["Not Currentlly Syncing"] = true;
+    GRM_L["Sync with {name} Successful"] = true
+    GRM_L["Sync failed at this point:"] = true
+    GRM_L["Sync with {name} next."] = true
+    GRM_L["Sync is Currently Disabled"] = true
+    GRM_L["Sync has failed..."] = true
+    GRM_L["Start Sync"] = true
+    GRM_L["Initializing Sync"] = true
+    GRM_L["No Member is Available to Sync"] = true
+    GRM_L["Outgoing Ban Data Restricted"] = true
+    GRM_L["Incoming Ban Data Restricted"] = true
+    GRM_L["Sync Ok, but their rank is too low to make changes."] = true
+    GRM_L["Sync Ok, but your rank is too low to sync your changes."] = true
+    GRM_L["Their Rank is too Low. All data is restricted."] = true
+    GRM_L["Your Rank is too Low. Player is restricting all data."] = true
+    GRM_L["Sync is Currently Disabled. Do you wish to re-enable?"] = true
+    GRM_L["SYNC DATA"] = true       -- AddonUsers Tab in Options
+    GRM_L["Players"] = true
+    GRM_L["Bans"] = true
+    GRM_L["Details"] = true
+    GRM_L["Syncing all player data."] = true
+    GRM_L["Syncing all data except ban list. Player rank is too low."] = true
+    GRM_L["Syncing all data except ban list. Your rank is too low."] = true
 
 end

@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.954";
-GRM_G.PatchDay = 1674576803;             -- In Epoch Time
-GRM_G.PatchDayString = "1674576803";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.959";
+GRM_G.PatchDay = 1675996231;             -- In Epoch Time
+GRM_G.PatchDayString = "1675996231";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -262,7 +262,6 @@ GRM_G.VersionCheckedNames = {};
 GRM_G.ActiveStatusQue = {};
 
 -- For Temporary Slash Command Actions
-GRM_G.TemporarySync = false;
 GRM_G.ManualScanEnabled = false;
 GRM_G.slashCommandSyncTimer = 0;
 
@@ -302,10 +301,6 @@ GRM_G.AuditWindowRefresh = false;           -- Macro tool check
 -- GameToolTip Helper
 GRM_G.ToolTipTextLeft = {};
 GRM_G.ToolTipTextRight = {};
-
--- Sync
-GRM_G.GroupSyncRestrictionControl = false;
-GRM_G.GroupSyncRestrictionTimerDelay = 0;
 
 -- Addon to Addon Comms, pattern matching for text parsing the comm messages - to be built only on use.
 GRM_G.CheckJoinDatePattern = nil;
@@ -358,6 +353,9 @@ GRM_G.ClassicTaintProtection = false;
 -- GRM Modules.
 GRM_G.Module = {};
 
+-- Group Tracking
+GRM_G.InGroup = false;
+
 -- Useful Lookup Tables for date indexing.
 local monthEnum = { Jan = 1 , Feb = 2 , Mar = 3 , Apr = 4 , May = 5 , Jun = 6 , Jul = 7 , Aug = 8 , Sep = 9 , Oct = 10 , Nov = 11 , Dec = 12 };
 local monthEnum2 = { ['1'] = "Jan" , ['2'] = "Feb" , ['3'] = "Mar", ['4'] = "Apr" , ['5'] = "May" , ['6'] = "Jun" , ['7'] = "Jul" , ['8'] = "Aug" , ['9'] = "Sep" , ['10'] = "Oct" , ['11'] = "Nov" , ['12'] = "Dec" };
@@ -367,7 +365,7 @@ local daysBeforeMonthEnum = { ['1']=0 , ['2']=31 , ['3']=59 , ['4']=90 , ['5']=1
 local daysInMonth = { ['1']=31 , ['2']=28 , ['3']=31 , ['4']=30 , ['5']=31 , ['6']=30 , ['7']=31 , ['8']=31 , ['9']=30 , ['10']=31 , ['11']=30 , ['12']=31 };
 local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Evoker" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" }; -- This is only here as an alphabetized list
 local classFileIDEnum = { ["WARRIOR"]=1 , ["PALADIN"]=2 , ["HUNTER"]=3 , ["ROGUE"]=4 , ["PRIEST"]=5 , ["DEATHKNIGHT"]=6 , ["SHAMAN"]=7 , ["MAGE"]=8 , ["WARLOCK"]=9 , ["MONK"]=10 , ["DRUID"]=11 , ["DEMONHUNTER"]=12 , ["EVOKER"] = 13 };
-raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 , ["Dracthyr"] = 52 };
+local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 , ["Dracthyr"] = 52 };
 
 local GuildRanks = {};  -- Necessary to have the current ranks in a global table for when changed and so they can be carried over each session
 
@@ -383,7 +381,8 @@ local VersionCheck = CreateFrame ( "Frame" );
 local SystemMessageChecking = CreateFrame ( "Frame" );
 local AddonUsersCheck = CreateFrame ( "Frame" );
 local AchievementsChecking = CreateFrame ( "Frame" );
-local StatusChecking = CreateFrame ( "Frame" );
+GRM_G.StatusChecking = CreateFrame ( "Frame" );
+GRM_G.StatusChecking.Timer = 0;
 
 --------------------------------------------
 ----- COMPATIBILITY WITH CLASSIC BUILDS ----
@@ -437,38 +436,52 @@ end
 --- STATUS FUNCTIONS -----
 --------------------------
 
+GRM.InGroupLogic = function()
+
+    if IsInGroup() and not GRM_G.InGroup then
+        GRM_G.RegisterMessage();
+        GRMsyncGlobals.IsElectedLeader = false;
+        GRMsyncGlobals.DesignatedLeader = "";
+        GRM_G.GroupSyncRestrictionControl = true;
+        GRM_G.GroupSyncRestrictionTimerDelay = time();
+
+    elseif not IsInGroup() and GRM_G.InGroup then
+        GRM_G.GroupSyncRestrictionControl = false;
+        GRM_G.GroupSyncRestrictionTimerDelay = time();
+        GRM_G.RegisterMessage();
+    end
+
+end
+
 -- PLAYER STATUS MAINTENANCE FOR INCOMBAT/OUTOFCOMBAT STATUS as well as InGroup and Out of group checks
-StatusChecking:RegisterEvent ( "PLAYER_REGEN_ENABLED" );
-StatusChecking:RegisterEvent ( "PLAYER_REGEN_DISABLED" );
-StatusChecking:RegisterEvent ( "GROUP_ROSTER_UPDATE" );
-StatusChecking:SetScript ( "OnEvent" , function( _ , event )
+GRM_G.StatusChecking:RegisterEvent ( "PLAYER_REGEN_ENABLED" );
+GRM_G.StatusChecking:RegisterEvent ( "PLAYER_REGEN_DISABLED" );
+GRM_G.StatusChecking:RegisterEvent ( "GROUP_ROSTER_UPDATE" );
+GRM_G.StatusChecking:RegisterEvent ( "GROUP_FORMED" );
+GRM_G.StatusChecking:RegisterEvent ( "GROUP_LEFT" );
+GRM_G.StatusChecking:RegisterEvent ( "PLAYER_ROLES_ASSIGNED" );
+GRM_G.StatusChecking:SetScript ( "OnEvent" , function ( _ , event )
+
+    local eventList = { ["GROUP_ROSTER_UPDATE"] = true , ["PLAYER_ROLES_ASSIGNED"] = true , }
+
     if event == "PLAYER_REGEN_ENABLED" then
         GRM_G.inCombat = false;
 
     elseif event == "PLAYER_REGEN_DISABLED" then
         GRM_G.inCombat = true;
 
-    elseif event == "GROUP_ROSTER_UPDATE" then
+    elseif eventList[event] then
 
-        if IsInGroup() then
-            if not GRM_G.GroupSyncRestrictionControl and ( time() - GRM_G.GroupSyncRestrictionTimerDelay ) > 1 then
-                if #GRMsyncGlobals.DesignatedLeader > 0 then
-                    GRM.RegisterGuildAddonUsersRefresh();
-                end
-                GRMsyncGlobals.IsElectedLeader = false;
-                GRMsyncGlobals.DesignatedLeader = "";
-                GRM_G.GroupSyncRestrictionControl = true;
-                GRM_G.GroupSyncRestrictionTimerDelay = time();
-            end
-
-        else
-            if GRM_G.GroupSyncRestrictionControl and ( time() - GRM_G.GroupSyncRestrictionTimerDelay ) > 1 then
-                GRM_G.GroupSyncRestrictionControl = false;
-                GRM_G.GroupSyncRestrictionTimerDelay = time();
-                GRM.RegisterGuildAddonUsersRefresh();
-            end
+        if GRM_G.Module.GroupInfo ~= nil then
+            GRM_GI.EventListener();
         end
 
+    elseif event == "GROUP_FORMED" then
+        GRM.InGroupLogic();
+        GRM_G.InGroup = true;
+    elseif event == "GROUP_LEFT" then
+        GRM.InGroupLogic();
+        GRM_G.InGroup = false;
     end
 end);
 
@@ -476,30 +489,13 @@ end);
 --- Queries -------
 --------------------------
 
--- Method:          GRM.GenericPlayerQuery ( array , string )
--- What it does:    Returns the int index of an array for identifying the player if they are found in the given array
--- Purpose:         Clean the code.. saves a lot of nested loops, just query here, return the index, and avoid issues, like forgetting to break a loop. 
-GRM.GenericPlayerQuery = function ( sortedTable , name )
-    local bottomNum = 1;
-    local topNum = #sortedTable;
-    local mid = 0;
-
-    while topNum >= bottomNum do
-        mid = math.floor ( ( bottomNum + topNum ) / 2 );    -- Cut it in half, and ensure it rounds down like dividing an integer
-
-        if name < sortedTable[mid][1] then        -- It is below!
-            topNum = mid - 1;
-
-        elseif name == sortedTable[mid][1] then   -- It is a match!
-            return mid;
-
-        else                            -- It is above!
-            bottomNum = mid + 1;
-
-        end
+-- Method:          GRM.GetPlayer ( string )
+-- What it Does:    Returns the playerTable
+-- Purpose:         Easier to pull player data.
+GRM.GetPlayer = function ( name )
+    if GRM_G.guildName ~= "" then
+        return GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM.AppendServerName ( name ) ];
     end
-
-    return nil;
 end
 
 -- Method:          GRM.GetIndexOfPlayerOnList ( table , string )
@@ -541,15 +537,6 @@ GRM.GetNumKeyedEntries = function ( t )
     end
 
     return c;
-end
-
--- Method:          GRM.GetPlayer ( string )
--- What it Does:    Returns the playerTable
--- Purpose:         Easier to pull player data.
-GRM.GetPlayer = function ( name )
-    if GRM_G.guildName ~= "" then
-        return GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM.AppendServerName ( name ) ];
-    end
 end
 
 ------------------------------
@@ -747,6 +734,7 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         player["syncBDays"] = true                                          -- 68
         player["autoTriggerSync"] = true                                    -- It will only auto-trigger the sync if this setting is enabled
         player["syncDelay"] = 60                                            -- Seconds after logging in to trigger sync. (Lowest option is 15)
+        player["SyncTrackerPOS"] = { "" , "" , 0 , 0 };                     -- Coordinates for Sync Tracker Position
         
     -- Officer Options Tab
     elseif page == 4 then
@@ -1112,7 +1100,7 @@ GRM.GuildDataIntegrityCheck = function()
                             end
 
                         else
-                            print("GRM: Possible database issue - same guild found on both factions. Please report this to GRM Dev" ); -- Somehow it failed in the check. This should NEVER report, but just in case, I am adding this message.
+                            print("GRM: Possible database issue - same guild found on both factions. Please report this to GRM Dev" ); -- Somehow it failed in the check. This should NEVER report, but just in case, I am adding this message as this might be some weird edge case I'd like to hear about.
                         end
 
                     elseif #GRM_LogReport_Save[F][name] > 0 then
@@ -1533,7 +1521,7 @@ GRM.SyncAddonSettings = function()
 
             if altName ~= GRM_G.addonUser and GRM_AddonSettings_Save[GRM_G.F][altName] ~= nil then
 
-                local tempSettingsHolder = GRM.DeepCopyArray ( { GRM_AddonSettings_Save[GRM_G.F][altName].minimapEnabled , GRM_AddonSettings_Save[GRM_G.F][altName].minimapPos , GRM_AddonSettings_Save[GRM_G.F][altName].minimapRad , GRM_AddonSettings_Save[GRM_G.F][altName].customPos , GRM_AddonSettings_Save[GRM_G.F][altName].minimapCustomPos , GRM_AddonSettings_Save[GRM_G.F][altName].CoreWindowPos , GRM_AddonSettings_Save[GRM_G.F][altName].reportChannel , GRM_AddonSettings_Save[GRM_G.F][altName].macroToolCoordinates } );
+                local tempSettingsHolder = GRM.DeepCopyArray ( { GRM_AddonSettings_Save[GRM_G.F][altName].minimapEnabled , GRM_AddonSettings_Save[GRM_G.F][altName].minimapPos , GRM_AddonSettings_Save[GRM_G.F][altName].minimapRad , GRM_AddonSettings_Save[GRM_G.F][altName].customPos , GRM_AddonSettings_Save[GRM_G.F][altName].minimapCustomPos , GRM_AddonSettings_Save[GRM_G.F][altName].CoreWindowPos , GRM_AddonSettings_Save[GRM_G.F][altName].reportChannel , GRM_AddonSettings_Save[GRM_G.F][altName].macroToolCoordinates , GRM_AddonSettings_Save[GRM_G.F][altName].SyncTrackerPOS } );
 
                 local tempTable = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser] );  -- You need to set these values or else they won't carry over
                 GRM_AddonSettings_Save[GRM_G.F][altName] = tempTable;      -- overwrite each player's settings with the current
@@ -1545,6 +1533,7 @@ GRM.SyncAddonSettings = function()
                 GRM_AddonSettings_Save[GRM_G.F][altName].CoreWindowPos = tempSettingsHolder[6];
                 GRM_AddonSettings_Save[GRM_G.F][altName].reportChannel = tempSettingsHolder[7];
                 GRM_AddonSettings_Save[GRM_G.F][altName].macroToolCoordinates = tempSettingsHolder[8];
+                GRM_AddonSettings_Save[GRM_G.F][altName].SyncTrackerPOS = tempSettingsHolder[9];
             end
         end
     elseif not GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName] then
@@ -2264,6 +2253,22 @@ GRM.DeepCopyArray = function( tableToCopy )
         copy = tableToCopy;         -- Imported data was not a table... just return orig. value - error protection
     end
     return copy;
+end
+
+-- Method:          GRM.ConvertTableTo2DArray ( table , bool ) 
+-- What it Does:    Takes a dictionary table and converts it to a 2D array, then allows you to sort it alphabetically.
+-- Purpose:         Useful when taking apart tables, like in sync - easier to go through in an ordered list.
+GRM.ConvertTableTo2DArray = function ( dataToConvert , needToSort )
+    local result = {};
+    for a , b in pairs ( dataToConvert ) do
+        table.insert ( result , { a , b } );
+    end
+    
+    if needToSort then
+        sort ( result , function ( a , b ) return a[1] < b[1] end );
+    end
+
+    return result;
 end
 
 -- Method:          GRM.AddGuildBackup ( string , string , int )
@@ -4732,78 +4737,106 @@ GRM.AddonUserRegister = function( sender , msg )
     if GRM_G.guildName ~= "" and GRM_G.F ~= "" then
         local rankOfSender = GRM.GetGuildMemberRankID ( sender );
         local playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser )
-        local banRankRequirement = 0;
 
-        -- If rank call fails.
+        -- Error protection.
         if rankOfSender == -1 or playerRankID == -1 then
             return;
         end
-        local result = "Ok!";
-        local grouped = "";
+
+        local senderBanRequirement = 0;
+        local senderRankRequirement = 0;
+        local result = "";
         local isGrouped = false;
+        local badVersion = false;
+        local syncEnabled = false;
+        local exportAllRanks = false;
+        local banDataOk = 1;
+        local syncOk = false;
+        local syncType = 1;
 
         -- Parsed Data
         local version = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
         msg = GRM.Next ( msg );
         local epochTimeVersion = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
-        msg = GRM.Next ( msg );
-        local syncOnlyCurrent = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
-        msg = GRM.Next ( msg );
-        local senderRankRequirement = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
+        msg = GRM.Next ( msg ); -- Skipping old redundant info from older versions...
 
-        if epochTimeVersion >= 1552804021 then          -- data analysis modified with patch 1.45
+        if epochTimeVersion < GRM_G.PatchDay then
+            result = "Outdated Version" -- Outdated Version.
+            badVersion = true;
+        elseif GRM_G.PatchDay < epochTimeVersion then
+            result = "You Need Updated Version"; -- Your version outdated.
+            badVersion = true;
+        end
+
+        if not badVersion then
+
+            senderRankRequirement = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
             msg = GRM.Next ( msg );
-            banRankRequirement = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
 
-            if string.find ( GRM.Next ( msg ) , "?" , 1 , true ) ~= nil then                         -- Pre 1.82
-                msg = GRM.Next ( msg );
-                grouped = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
-                if grouped == "true" then
-                    isGrouped = true;
-                end
-            else
-                result = "Outdated Version";
+            senderBanRequirement = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
+            msg = GRM.Next ( msg );
+
+            if string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) == "true" then
+                isGrouped = true;
             end
-        end
-        
-        local syncIsEnabled = GRM.Next ( msg );
+            msg = GRM.Next ( msg );
+            
+            if string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) == "true" then
+                syncEnabled = true;
+            end
+            
+            if GRM.Next ( msg ) == "true" then
+                exportAllRanks = true;
+            end
 
-        -- Temporary use til I figure out what to do with it
-        if banRankRequirement then
-            banRankRequirement = nil;
-        end
+            if syncEnabled then
 
-        -- Useful logic controls.
-        -- { "Ok!" , "Their Rank too Low" , "Your Rank too Low" , "Outdated Version" , "You Need Updated Version" , "Player Sync Disabled" }
-        -- { sender , syncIsEnabled , syncOnlyCurrent , epochTimeVersion , version , senderRankRequirement , banRankRequirement }
-        -- First, determine if the addon user will sync with you.
-        if result ~= "Outdated Version" then
-            if syncIsEnabled == "true" then
                 if isGrouped then
                     result = "Disabled While Player is Grouped";
                     
-                elseif rankOfSender > GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank or senderRankRequirement < playerRankID then
-                    -- Ranks do not sync, let's get it right.
-                    -- For messaging the reason why.
+                else
+                    -- The person you are syncing with their rank is too low.
                     if rankOfSender > GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank then
-                        result = "Their Rank too Low";
-                    else
-                        result = "Your Rank too Low";
-                    end
-                -- Check if versions are outdated as well.
-                elseif syncOnlyCurrent == "true" then
-                    -- If versions are different. Just filtering out unnecessary computations if verisons are the same.
-                    if epochTimeVersion ~= GRM_G.PatchDay then
-                        -- If their version is older than yours...
-                        if epochTimeVersion < GRM_G.PatchDay then
-                            result = "Outdated Version";
-                        elseif GRM_G.PatchDay < epochTimeVersion and syncOnlyCurrent == "true" then
-                            result = "You Need Updated Version";
+                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
+                            result = "Sync Ok, but their rank is too low to make changes.";
+                            syncOk = true;
+                            syncType = 2;
+                        else
+                            result = "Their Rank is too Low. All data is restricted.";
                         end
+
+                    elseif senderRankRequirement < playerRankID then
+                        if exportAllRanks then
+                            result = "Sync Ok, but your rank is too low to sync your changes.";
+                            syncOk = true;
+                            syncType = 3;
+                        else
+                            result = "Your Rank is too Low. Player is restricting all data."
+                        end
+
+                    else
+                        result = "Syncing all player data.";
+                        syncOk = true;
                     end
-                end 
+
+                    -- Ban
+                    if rankOfSender > GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList then
+                        banDataOk = 2;
+                        if result == "Syncing all player data." then
+                            result = "Syncing all data except ban list. Player rank is too low.";
+                        end
+                    elseif senderBanRequirement < playerRankID then
+                        banDataOk = 3;
+                        if result == "Syncing all player data." then
+                            result = "Syncing all data except ban list. Your rank is too low.";
+                        end
+                    else
+                        banDataOk = 1;
+                    end
+                end
+
             else
-                result = "Player Sync Disabled";
+                result = "Player Sync Disabled"; -- Disabled
             end
         end
         
@@ -4815,17 +4848,24 @@ GRM.AddonUserRegister = function( sender , msg )
                 GRM_G.currentAddonUsers[i][3] = version;
                 GRM_G.currentAddonUsers[i][4] = epochTimeVersion;
                 GRM_G.currentAddonUsers[i][5] = isGrouped;
+                GRM_G.currentAddonUsers[i][6] = syncEnabled;
+                GRM_G.currentAddonUsers[i][7] = exportAllRanks;
+                GRM_G.currentAddonUsers[i][8] = banDataOk;  -- 1 = ok , 2 = Sender Not OK, 3 = You are not ok
+                GRM_G.currentAddonUsers[i][9] = syncOk;
+                GRM_G.currentAddonUsers[i][10] = syncType; -- 1 = ok , 2 = Only outgoing, 3 = Only Incoming
                 isFound = true;
                 break;
             end
         end
 
         if not isFound then
-            table.insert ( GRM_G.currentAddonUsers , { sender , result , version , epochTimeVersion , isGrouped } );
+            table.insert ( GRM_G.currentAddonUsers , { sender , result , version , epochTimeVersion , isGrouped , syncEnabled , exportAllRanks , banDataOk , syncOk , syncType } );
             GRM.RegisterGuildAddonUsersRefresh();
         end
     end    
 end
+
+-- General Data, Ban Data , Reason
 
 -- Method:          GRM.GetNumAddonUsersOutdated()
 -- What it Does:    Returns the integer count of number of addon users with outdated addons
@@ -4842,10 +4882,35 @@ GRM.GetNumAddonUsersOutdated = function()
     return result;
 end
 
+-- Method:          GRM.GetNumAddonUsersAvailableToSync()
+-- What it Does:    Checks available sync users
+-- Purpose:         Useful to know for proper communication with addon user.
+GRM.GetNumAddonUsersAvailableToSync = function()
+    local count = #GRM_G.currentAddonUsers;
+
+    for i = 1 , #GRM_G.currentAddonUsers do
+        if not GRM_G.currentAddonUsers[i][6] or not GRM_G.currentAddonUsers[i][9] or GRM_G.currentAddonUsers[i][5] or GRM_G.currentAddonUsers[i][4] < GRM_G.PatchDay then
+            count = count - 1;
+        end
+    end
+
+    return count;
+end
+
+-- Method:          GRM_G.RegisterMessage()
+-- What it Does:    Registers your current sync status to other GRM users in guild.
+-- Purpose:         This is kept in its own function so it can be called whenever status changes, or as requested.4
+GRM_G.RegisterMessage = function()
+    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser] ~= nil then
+        C_ChatInfo.SendAddonMessage ( "GRMUSER" , "REG?" .. GRM_G.Version .. "?" .. GRM_G.PatchDayString .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank ) .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. "?" .. tostring ( IsInGroup() ) .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled ) .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks ) , "GUILD" );
+    end
+end
+
 -- Method           GRM.RegisterGuildAddonUsers()
 -- What it Does:    Initiates the event listening for sync'd user addon info
 -- Purpose:         So player can see who has the addon installed and if you are good to sync with each other and if not, why not.
 GRM.RegisterGuildAddonUsers = function()
+
     -- Registering frames for event listening.
     C_ChatInfo.RegisterAddonMessagePrefix ( "GRMUSER" );
     AddonUsersCheck:RegisterEvent ( "CHAT_MSG_ADDON" );
@@ -4855,12 +4920,12 @@ GRM.RegisterGuildAddonUsers = function()
             -- parse out the header
             local header = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             msg = GRM.Next ( msg );
-            if header == "INIT" then
+            if header == "REG" or header == "INIT" then
                 GRM.AddonUserRegister ( sender , msg );
 
             elseif header == "REQ" then
                 -- player is requesting info again. Sending update!
-                C_ChatInfo.SendAddonMessage ( "GRMUSER" , "INIT?" .. GRM_G.Version .. "?" .. GRM_G.PatchDayString .. "?true?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank ) .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. "?" .. tostring ( IsInGroup() ) .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled ) , "GUILD" );
+                GRM_G.RegisterMessage();
 
             elseif header == "GRM_MACRO_R" then
                 if not GRMsyncGlobals.RulesSet then
@@ -4876,7 +4941,7 @@ GRM.RegisterGuildAddonUsers = function()
 
     -- Send out initial comms
     -- Name Version , epochTimestamp of update , string version of boolean if player restricts sync only to those with latest version of addon or higher. 
-    C_ChatInfo.SendAddonMessage ( "GRMUSER" , "INIT?" .. GRM_G.Version .. "?" .. GRM_G.PatchDayString .. "?true?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank ) .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. "?" .. tostring ( IsInGroup() ) .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled ) , "GUILD" );
+    GRM_G.RegisterMessage();
     -- Request for their data.
     GRM.RegisterGuildAddonUsersRefresh();
 end
@@ -7666,7 +7731,7 @@ GRM.GetPlayerClassByGUID = function ( guid )
     local class = "";
 
     if guid then
-        class = select ( 2 , GetPlayerInfoByGUID ( guid ) );
+        class = select ( 2 , GetPlayerInfoByGUID ( guid ) ); 
     end
 
     return class;
@@ -8292,8 +8357,9 @@ GRM.AddMemberToLeftPlayers = function ( memberInfo , timeArray , leftGuildMeta ,
 
             if dateOriginallyJoined > 0 then
                 timeData = select ( 2 , GRM.EpochToDateFormat ( dateOriginallyJoined ) );
+                table.insert ( player.joinDateHist , { timeData[1] , timeData[2] , timeData[3] , dateOriginallyJoined , 0  , false , 1 } );
             end
-            table.insert ( player.joinDateHist , { timeData[1] , timeData[2] , timeData[3] , dateOriginallyJoined , 0  , false , 1 } );
+            
         end
 
         -- Update GUID
@@ -8307,9 +8373,14 @@ GRM.AddMemberToLeftPlayers = function ( memberInfo , timeArray , leftGuildMeta ,
             player.bannedInfo[4] = personWhoBanned;
             player.reasonBanned = "";
         end
+
+        player = GRM.JoinAndRankDataCleanup ( player );
+
         -- Adding to LeftGuild Player history library
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][memberInfo.name] = {};
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][memberInfo.name] = GRM.DeepCopyArray ( player );
+
+        
     end
 
     if player.GUID == "" or player.class == "UNKNOWN" then
@@ -8318,6 +8389,31 @@ GRM.AddMemberToLeftPlayers = function ( memberInfo , timeArray , leftGuildMeta ,
 
     -- Now need to remove it
     GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][memberInfo.name] = nil;
+end
+
+-- Method:          GRM.JoinAndRankDataCleanup ( playerTable )
+-- What it Does:    Cleans up a possible extra empty add bug due to some old legacy code errors. 
+-- Purpose:         Prevent downstream errors.
+GRM.JoinAndRankDataCleanup = function ( player )
+
+    if #player.joinDateHist > 1 then
+        for i = #player.joinDateHist , 2 , -1 do
+            if player.joinDateHist[i][1] == 0 then
+                player.joinDateHist[i] = GRM.DeepCopyArray ( player.joinDateHist[i -1] )
+                player.joinDateHist[i][6] = false;
+            end
+        end
+    end
+
+    if #player.rankHist > 1 then
+        for i = #player.rankHist , 2 , -1 do
+            if player.rankHist[i][2] == 0 then
+                table.remove ( player.rankHist , i );
+            end
+        end
+    end
+
+    return player;
 end
 
 ----------------------------------
@@ -8732,6 +8828,7 @@ GRM.BuildAddonUserScrollFrame = function()
     local scrollHeight = 0;
     local scrollWidth = 561;
     local buffer = 15;
+    local okWord = GRM.L ( "Ok!" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings or {};  -- Create a table for the Buttons.
     -- Building all the fontstrings.
@@ -8740,59 +8837,104 @@ GRM.BuildAddonUserScrollFrame = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.GRM_AddonUsersCoreFrameTitleText2:Hide();
         -- if font string is not created, do so.
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] = { GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] = { GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
         end
 
         local AddonUserText1 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1];
         local AddonUserText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][2];
         local AddonUserText3 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][3];
+        local AddonUserText4 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][4];
+        local AddonUserText5 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][5];
         local classColorRGB = GRM.GetClassColorRGB ( GRM.GetPlayerClass ( GRM_G.currentAddonUsers[i][1] ) );
-        AddonUserText1:SetText ( GRM.SlimName ( GRM_G.currentAddonUsers[i][1] ) );
+
+        AddonUserText1:SetText ( GRM.FormatName ( GRM_G.currentAddonUsers[i][1] ) );
         if classColorRGB ~= nil then
             AddonUserText1:SetTextColor ( classColorRGB[1] , classColorRGB[2] , classColorRGB[3] );
         end
+        AddonUserText1:SetWidth ( 100 );
         AddonUserText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 13 );
         AddonUserText1:SetJustifyH ( "LEFT" );
 
         -- Get the right RGB coloring for the text.
         local r , g , b;
-        if GRM_G.currentAddonUsers[i][2] == "Ok!" then
-            r = 0;
-            g = 0.77;
-            b = 0.063;
-        else
-            r = 0.64;
-            g = 0.102;
-            b = 0.102;
-        end
-        AddonUserText2:SetTextColor ( r , g , b , 1.0 ); 
-        AddonUserText2:SetText ( GRM.L ( GRM_G.currentAddonUsers[i][2] ) );
-        AddonUserText2:SetWidth ( 240 );
-        AddonUserText2:SetWordWrap ( false );
-        AddonUserText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 13 );
-        AddonUserText2:SetJustifyH ( "CENTER" );
-        AddonUserText3:SetText ( string.sub ( GRM_G.currentAddonUsers[i][3] , string.find ( GRM_G.currentAddonUsers[i][3] , "R" , -8 ) , #GRM_G.currentAddonUsers[i][3] ) );
-        AddonUserText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 13 );
-        AddonUserText3:SetJustifyH ( "CENTER" );
-        AddonUserText3:SetWidth ( 125 );
+        local greenColor = { 0 , 0.77 , 0.063 };
+        local redColor = { 0.64 , 0.102 , 0.102 };
 
-        local stringHeight = AddonUserText1:GetStringHeight();
+        if GRM_G.currentAddonUsers[i][9] then
+
+            AddonUserText2:SetTextColor ( greenColor[1] , greenColor[2] , greenColor[3] , 1.0 );
+            AddonUserText2:SetText ( okWord );
+
+            AddonUserText3:SetTextColor ( greenColor[1] , greenColor[2] , greenColor[3] , 1.0 );
+            AddonUserText3:SetText ( okWord );
+
+            if GRM_G.currentAddonUsers[i][8] == 1 then
+                AddonUserText4:SetTextColor ( greenColor[1] , greenColor[2] , greenColor[3] , 1.0 );
+                AddonUserText4:SetText ( okWord );
+            else
+                AddonUserText4:SetTextColor ( redColor[1] , redColor[2] , redColor[3] , 1.0 );
+                AddonUserText4:SetText ( "X" );
+            end
+            
+        else
+            AddonUserText2:SetTextColor ( redColor[1] , redColor[2] , redColor[3] , 1.0 );
+            AddonUserText2:SetText ( "X" );
+
+            AddonUserText3:SetTextColor ( redColor[1] , redColor[2] , redColor[3] , 1.0 );
+            AddonUserText3:SetText ( "X" );
+
+            AddonUserText4:SetTextColor ( redColor[1] , redColor[2] , redColor[3] , 1.0 );
+            AddonUserText4:SetText ( "X" );
+
+        end
+
+        AddonUserText2:SetWidth ( 75 );
+        AddonUserText2:SetWordWrap ( false );
+        AddonUserText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+        AddonUserText2:SetJustifyH ( "CENTER" );
+
+        AddonUserText3:SetWidth ( 60 );
+        AddonUserText3:SetWordWrap ( false );
+        AddonUserText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+        AddonUserText3:SetJustifyH ( "CENTER" );
+
+        AddonUserText4:SetWidth ( 60 );
+        AddonUserText4:SetWordWrap ( false );
+        AddonUserText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+        AddonUserText4:SetJustifyH ( "CENTER" );
+
+        if GRM_G.currentAddonUsers[i][2] == "Outdated Version" then
+            AddonUserText5:SetText ( GRM.L ( GRM_G.currentAddonUsers[i][2] ) .. ": " .. GRM_G.currentAddonUsers[i][3] );
+        else
+            AddonUserText5:SetText ( GRM.L ( GRM_G.currentAddonUsers[i][2] ) );
+        end
+
+        AddonUserText5:SetWidth ( 245 );
+        AddonUserText5:SetWordWrap ( true );
+        AddonUserText5:SetSpacing ( 1 );
+        AddonUserText5:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+        AddonUserText5:SetJustifyH ( "LEFT" );
+        
+        local stringHeight = AddonUserText5:GetStringHeight();
 
         -- Now let's pin it!
         if i == 1 then
             AddonUserText1:SetPoint( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame , "TOPLEFT" , 5 , - 15 );
-            AddonUserText2:SetPoint( "TOP" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame , "TOP" , -6 , - 15 );
-            AddonUserText3:SetPoint( "TOPRIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame , "TOPRIGHT" , -2 , - 15 );
             scrollHeight = scrollHeight + stringHeight;
         else
             AddonUserText1:SetPoint( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i - 1][1] , "BOTTOMLEFT" , 0 , - buffer );
-            AddonUserText2:SetPoint( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i - 1][2] , "BOTTOMLEFT" , 0 , - buffer );
-            AddonUserText3:SetPoint( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i - 1][3] , "BOTTOMLEFT" , 0 , - buffer );
             scrollHeight = scrollHeight + stringHeight + buffer;
         end
+        AddonUserText2:SetPoint( "LEFT" , AddonUserText1 , "RIGHT" , 2 , 0 );
+        AddonUserText3:SetPoint( "LEFT" , AddonUserText2 , "RIGHT" , 2 , 0 );
+        AddonUserText4:SetPoint( "LEFT" , AddonUserText3 , "RIGHT" , 2 , 0 );
+        AddonUserText5:SetPoint( "LEFT" , AddonUserText4 , "RIGHT" , 5 , 0 );
+
         AddonUserText1:Show();
         AddonUserText2:Show();
         AddonUserText3:Show();
+        AddonUserText4:Show();
+        AddonUserText5:Show();
     end
             
     -- Hides all the additional strings... if necessary ( necessary because some people may have logged off thus you need to hide those frames)
@@ -8800,6 +8942,8 @@ GRM.BuildAddonUserScrollFrame = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1]:Hide();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][2]:Hide();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][3]:Hide();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][4]:Hide();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][5]:Hide();
     end 
 
     -- Update the size -- it either grows or it shrinks!
@@ -24458,65 +24602,107 @@ GRM.SyncCommandScan = function( count )
         return;
     end
 
-    if GRM_G.HasAccessToGuildChat and not IsInGroup() then
-        if GRMsyncGlobals.currentlySyncing or ( not GRMsyncGlobals.currentlySyncing and ( time() - GRM_G.slashCommandSyncTimer > 13 ) ) then
-
-            if not GRMsyncGlobals.currentlySyncing then
-                GRM_G.slashCommandSyncTimer = time();
-            end
-            -- Enable Temporary Syncing...
-
-            if not GRMsyncGlobals.currentlySyncing then
-                if not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled = true;
-                    GRM_G.TemporarySync = true;
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.CheckButton:SetChecked ( true );
-                end
-                local breakingSync = false;
-
-                GRM.Report ( GRM.L ( "Initializing Sync Action. One Moment..." ) );
-                
-                if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
-                    GRM.RegisterGuildAddonUsersRefresh();
-                end
-
-                C_Timer.After( 4 , GRMsync.Initialize );
-
-                -- Now, let's add a brief delay, 3 seconds, to trigger sync again
-                C_Timer.After ( 7 , function()
-
-                    if #GRM_G.currentAddonUsers == 0 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
-                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "No Players Currently Online to Sync With..." ) );
-
-                    else
-                        if not breakingSync then
-                            C_Timer.After ( GRMsyncGlobals.ErrorCD + 1 , function ()
-                                if not GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.timeOfLastSyncCompletion >= 10 ) then
-                                    GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync has failed to start. Please try again!" ) );
-                                end
-                            end);
-                        end
-                    end
-                end);
-            else
-                local name = "";
-                if GRMsyncGlobals.IsElectedLeader then
-                    name = GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer );
-                else
-                    name = GRM.GetClassifiedName ( GRMsyncGlobals.DesignatedLeader )
-                end
-                GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Currently syncing with {name}. Please wait until after sync completes to activate again." , name ) );
-            end
-
-        else
-            GRM.Report ( GRM.L ( "Please wait {num} more seconds before manually initiating the sync process again." , nil , nil , 15 - ( time() - GRM_G.slashCommandSyncTimer ) ) );
-        end
-    elseif GRM_G.HasAccessToGuildChat and IsInGroup() then
-        GRM.Report ( GRM.L ( "SYNC is currently disabled while you are grouped. Due to server restricted addon to addon talk data caps, and in an effort to avoid clogging up the shared global comm space of all addons, sync will be temporarily restricted while grouped." ) );
-
-    elseif not GRM_G.HasAccessToGuildChat then
-        GRM.Report ( GRM.L ( "SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted." ) );
+    if not GRMsyncGlobals.UILoaded then
+        GRMsync.LoadSyncUI();
     end
+
+    if not GRM_UI.GRM_SyncTrackerWindow:IsVisible() then
+        GRM_UI.GRM_SyncTrackerWindow:Show();
+    else
+        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled and GRM_G.HasAccessToGuildChat and not GRM_G.InGroup then
+
+            if not GRMsyncGlobals.SyncTracker.TriggeringSync then
+                GRMsyncGlobals.SyncTracker.TriggeringSync = true;
+            end
+
+            if ( time() - GRMsyncGlobals.timeAtLogin ) >= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncDelay then
+
+                if GRMsyncGlobals.currentlySyncing or ( not GRMsyncGlobals.currentlySyncing and ( time() - GRM_G.slashCommandSyncTimer > 13 ) ) then
+        
+                    if not GRMsyncGlobals.currentlySyncing then
+                        GRM_G.slashCommandSyncTimer = time();
+                    end
+                    -- Enable Temporary Syncing...
+        
+                    if not GRMsyncGlobals.currentlySyncing then
+                        
+                        local breakingSync = false;
+        
+                        GRM.Report ( GRM.L ( "Initializing Sync Action. One Moment..." ) );
+                        
+                        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
+                            GRM.RegisterGuildAddonUsersRefresh();
+                        end
+
+                        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Hide();
+                        GRMsyncGlobals.initializeTracker = true;
+        
+                        C_Timer.After( 4 , GRMsync.Initialize );
+        
+                        -- Now, let's add a brief delay, 3 seconds, to trigger sync again
+                        C_Timer.After ( 7 , function()
+        
+                            if GRM.GetNumAddonUsersAvailableToSync() == 0 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
+
+                                if #GRM_G.currentAddonUsers == 0 then
+                                    GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "No Players Currently Online to Sync With..." ) );
+                                else
+                                    if #GRM_G.currentAddonUsers == 1 then
+                                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "No Member is Available to Sync" ) );
+                                    else
+
+                                    end
+                                end
+                                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                                GRMsyncGlobals.initializeTracker = false;
+        
+                            else
+                                if not breakingSync then
+                                    C_Timer.After ( GRMsyncGlobals.ErrorCD + 1 , function ()
+                                        if not GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.timeOfLastSyncCompletion >= 10 ) then
+                                            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync has failed to start. Please try again!" ) );
+                                            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                                            GRMsyncGlobals.initializeTracker = false;
+                                        end
+                                    end);
+                                end
+                            end
+                        end);
+                    else
+                        local name = "";
+                        if GRMsyncGlobals.IsElectedLeader then
+                            name = GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer );
+                        else
+                            name = GRM.GetClassifiedName ( GRMsyncGlobals.DesignatedLeader )
+                        end
+                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Currently syncing with {name}. Please wait until after sync completes to activate again." , name ) );
+                    end
+        
+                else
+                    GRM.Report ( GRM.L ( "Please wait {num} more seconds before manually initiating the sync process again." , nil , nil , 15 - ( time() - GRM_G.slashCommandSyncTimer ) ) );
+                end
+            else
+                GRM.Report ( GRM.L ( "Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer." , nil , nil , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncDelay , ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncDelay - ( time() - GRMsyncGlobals.timeAtLogin ) ) ) );
+            end
+
+        elseif not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
+            local restartSync = function()
+                GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled = true;
+                GRM_UI.EnableSyncUIChanges();
+                GRM_G.RegisterMessage();
+                GRM.SyncCommandScan();
+            end
+
+            GRM.SetConfirmationWindow ( restartSync , GRM.L ( "Sync is Currently Disabled. Do you wish to re-enable?" ) );
+
+        elseif GRM_G.HasAccessToGuildChat and GRM_G.InGroup then
+            GRM.Report ( GRM.L ( "SYNC is currently disabled while you are grouped. Due to server restricted addon to addon talk data caps, and in an effort to avoid clogging up the shared global comm space of all addons, sync will be temporarily restricted while grouped." ) );
+    
+        elseif not GRM_G.HasAccessToGuildChat then
+            GRM.Report ( GRM.L ( "SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted." ) );
+        end
+    end
+  
 end
 
 -- Method:          GRM.SlashCommandCenter()
@@ -24538,7 +24724,13 @@ GRM.SlashCommandCenter = function()
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:ClearAllPoints();
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetPoint ( "CENTER" , UIParent );
-    
+
+    if GRMsyncGlobals.UILoaded then
+        GRM_UI.GRM_SyncTrackerWindow:ClearAllPoints();
+        GRM_UI.GRM_SyncTrackerWindow:SetPoint ( "CENTER" , UIParent );
+        GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].SyncTrackerPOS = { "" , "" , 0 , 0 };
+    end
+        
     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].macroToolCoordinates = { "" , "" , 0 , 0 };
 end
 
@@ -25485,7 +25677,7 @@ GRM.finalLoadSteps = function()
 
     -- Important to set this in case player logs in whilst in a group
     if IsInGroup() then
-        GRM_G.GroupSyncRestrictionControl = true;
+        GRM_G.InGroup = true;
     end
 
     if GRM_G.BuildVersion >= 30000 then

@@ -380,13 +380,10 @@ GRML.Russian = function()
     GRM_L["Initiating Sync with {name} Instead!"] = "Инициализация синхронизации с игроком {name}"
     GRM_L["Sync Failed with {name}..."] = "Неудачная синхронизация с игроком {name}"
     GRM_L["The Player Appears to Be Offline."] = "Игрок отключен от сети."
-    GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = "Ручная синхронизация данных с гильдиями..."
     GRM_L["Syncing Data With Guildies Now..."] = "Синхронизация данных с гильдией..."
     GRM_L["(Loading screens may cause sync to fail)"] = "(Загрузочные экраны могут вызвать сбой синхронизации)"
     GRM_L["Sync With Guildies Complete..."] = "Синхронизация с гильдией завершена..."
-    GRM_L["Manual Sync With Guildies Complete..."] = "Ручная синхронизация с гильдией завершена..."
-    GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = "В настоящее время нет игроков в сети для синхронизации. Повторное отключение синхронизации..."
-    
+
     -- ERROR MESSAGES
     GRM_L["Notification Has Already Been Arranged..."] = "Уведомление уже организовано..."
     GRM_L["Failed to add alt for unknown reason. Try closing Roster window and retrying!"] = "Не удалось добавить твинка по неизвестной причине. Попробуйте закрыть окно списка и повторите попытку!"
@@ -810,8 +807,6 @@ GRML.Russian = function()
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000ВНИМАНИЕ!!!|r {num} забаненный игрок в настоящее время состоит в гильдии."        -- Singular  -- please keep the color coding... this keeps the Warning in red
     
     -- R1.41
-    GRM_L["{num} metadata profiles are being built for people previously in the guild. The data is being requested, but this may take some time."] = "Профили метаданных {num} создаются для людей, ранее состоявших в гильдии. Данные запрашиваются, но это может занять некоторое время."                   -- PLURAL
-    GRM_L["One metadata profile is being built for a player previously in the guild. The data is being requested, but this may take some time."] = "Один профиль метаданных создается для игрока, ранее состоявшего в гильдии. Данные запрашиваются, но это может занять некоторое время."           -- SINGULAR, same line.
     GRM_L["Auto-Focus the search box"] = "Автофокусировка окна поиска"
     GRM_L["This will skip the first time if set to load on logon"] = "Это будет пропущено в первый раз, если установлено для загрузки при входе в систему"  -- Referring to the auto-focusing on the search box, this is a tooltip helper
     GRM_L["Please enter a valid level between 1 and {num}"] = "Введите допустимый уровень от 1 до {num}"

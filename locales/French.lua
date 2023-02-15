@@ -381,13 +381,10 @@ GRML.French = function()
     GRM_L["Initiating Sync with {name} Instead!"] = "Initialisation synchronisation avec {name} !"
     GRM_L["Sync Failed with {name}..."] = "Échec de la synchronisation avec {name}..."
     GRM_L["The Player Appears to Be Offline."] = "Le joueur semble être Hors Ligne."
-    GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = "Synchronisation manuelle des données avec les membres de guilde... Une seule fois."
     GRM_L["Syncing Data With Guildies Now..."] = "Synchronisation des données avec les membres de guilde..."
     GRM_L["(Loading screens may cause sync to fail)"] = "(Les écrans de chargement peuvent provoquer l'échec de la synchronisation)"
     GRM_L["Sync With Guildies Complete..."] = "Synchronisation avec les membres de guilde terminée..."
-    GRM_L["Manual Sync With Guildies Complete..."] = "Synchronisation manuelle avec les membres de guilde terminée..."
-    GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = "Aucun joueur en ligne pour une synchronisation. Désactivation synchronisation..."
-    
+
     -- ERROR MESSAGES
     GRM_L["Notification Has Already Been Arranged..."] = "La notification a déjà été planifiée..."
     GRM_L["Failed to add alt for unknown reason. Try closing Roster window and retrying!"] = "Échec de l'enregistrement pour une raison inconnue. Merci de fermer la fenêtre et réessayer !"
@@ -809,8 +806,6 @@ GRML.French = function()
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000AVERTISSEMENT!!!|r {num} joueurs BANNIS sont actuellement dans la guilde."        -- Singular  -- please keep the color coding... this keeps the Warning in red    
 
     -- R1.41
-    GRM_L["{num} metadata profiles are being built for people previously in the guild. The data is being requested, but this may take some time."] = "{num} profils de métadonnées en cours de création pour les joueurs précédemment dans la guilde. Les données ont été demandées mais cela peut prendre un moment."                   -- PLURAL
-    GRM_L["One metadata profile is being built for a player previously in the guild. The data is being requested, but this may take some time."] = "Profil de métadonnées en cours de création pour les joueurs précédemment dans la guilde. Les données ont été demandées mais cela peut prendre un moment."           -- SINGULAR, same line.
     GRM_L["Auto-Focus the search box"] = "Focus auto du champ de recherche à l'ouverture du journal"
     GRM_L["This will skip the first time if set to load on logon"] = "Si l'option 'Afficher au démarrage' est activée, le focus se fera à l'ouverture suivante"  -- Referring to the auto-focusing on the search box, this is a tooltip helper
     GRM_L["Please enter a valid level between 1 and {num}"] = "Merci d'entrée un niveau valide entre 1 et {num}"

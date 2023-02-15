@@ -1,18 +1,46 @@
-## **VERSION 1.955 RELEASE - December 7th, 2022**
+## **VERSION 1.96 RELEASE - February 2023**
+
+**NEW FEATURE**
+
+* Sync Progress Bar - Sync will now show your progress as a % completed. This is a rough estimation to kind of gauge the speed of your sync, based on total volume of information being sync'd. It will also update you with the details of who you are syncing with, and it will even inform you as sync has failed.
+
+    -- You can hide this sync progress window
+    -- You can re-show this window by typing `/grm sync`
+    -- If you wish to manually trigger sync, just either click the "Start Sync" button or type /grm sync again
+    -- I built an API for creating progress bars that can be used for any purpose but I plan on using it to more easily implement my future "Guild stats" feature. This API can be utilitzed by any addon dev for their own projects, however, fairly easily. This can be found in the "GRM_Stats.lua" file and can be used in conjunction with the GRM_API namespace in the "GRM_API.lua" file.
+
+* The "Sync Users" tab will now provide more clear and updated sync information so it is more clear what is being sync'd, what isn't, and why. Please note, due to the significant rewrite, the new SyncUsers page will not be forwards compatible so people with older versions will not be able to see your sync status as being unavailable. You will be able to see the outdated users, of course. This only applies to version prior to the 1.96 release.
+
 
 ***QUALITY OF LIFE FEATURES***
 
 * If a player has been removed from the guild, or they quit, it will retain the information on their previous alt group. When they rejoin the guild, GRM will now re-add them to their original alt group. While this is a minor thing, guild leadership has been known to joke around and "fake" kick players on occasion. This will save the hassle of having to re-link them to their alt group when they join. Or, just an alt kicked for inactivity from a guild will now auto-be linked back.
 
+* On adding custom channels for GRM to report to, you no longer need to hit ENTER after typing. You still can, to trigger window creation, but upon losing focus from the window, either by pressing ESC or clicking something else, it will auto-trigger the creation of window, or save the changes if new chat window already exists.
+
+
 ***BUG FIXES***
+
+* Fixed an issue where in some cases the main data would be completely skipped from being sync.
+
+* Same with birthday data -- fixed an issue where in some cases it would skip from being sync'd
 
 * Fixed an issue, possibly, where main designations were occasionally getting removed on a sync. This is not well tested yet, but I did find a flaw where in some circumstances the "timestamp" of the action was being changed to the current time() rather than the sync'd time. This would create a problem during sync because if the timstamp was overwritten with the current epoch time(), then the database would be showing as that being the most recent event, thus it would possibly remove the main time tag. There may be more than 1 bug involved here, as I have not been able to personally recreate this on my end, but after digging through the code I did find this one error that could cause this to happen. Please let me know if it is STILL not resolved and maybe we can get it working. Crossing my fingers this minor oversight resolves it, however.
 
 * Fixed a sync bug that would cause sync to fail when it finally got to comparing the alt data. If you noticed the join date and promotion dates syncing fine, but the alt group and main tags not syncing, and getting a "sync failed" message, this bug fix definitely applies to you.
 
-* To improve sync efficiency, due to the heavy server throttling of data, GRM does a "pre-check" of mismatched data between the 2 players to do a cursory check if they differ so that only the differing information will be compared and sync'd, for the sake of efficiency. This is why subsequent syncs should get shorter over time as there is less to sync. There was a bug that was allowing birthday data to show as not differing between the 2 players in a pre-check, so in some cases sync would skip over syncing the birthday information. This has been fixed.
+* To improve sync efficiency, due to the heavy server throttling of data, GRM does a "pre-check" of mismatched data between the 2 players to do a cursory check if they differ so that only the differing information will be compared and sync'd, for the sake of efficiency. This is why subsequent syncs should get shorter over time as there is less to sync. There was a bug that was allowing birthday data to show as not differing between the 2 players in a pre-check, so in some cases sync would skip over syncing the birthday information, whilst still sharing the bday changes, wasting sync time. This has been fixed.
 
 * Fixed an issue where the Event window would not load because if someone was on the events list of upcoming bdays or anniversaries, and they left the guild, it was in some cases not being removed, which ultimately caused an error as it looked up information on the player in the list. They now should properly be auto-removed from the list when they are no longer in the guild.
+
+* Fixed a lua error that would occur for some people who were not able to export FORMER MEMBER lists.
+
+* Fixed a lua error that could prevent patching if you haven't patched and updated GRM in several years.
+
+
+## **VERSION 1.954 RELEASE - January 23rd, 2023**
+
+* 10.0.5 Compatibility Retail
 
 ## **VERSION 1.953 RELEASE - January 18th, 2023**
 

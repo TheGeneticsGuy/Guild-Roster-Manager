@@ -273,7 +273,7 @@ GRM.GetAltsGroup = function ( altGroupID )
         return {};
     end
 end
-
+-- /dump GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM.ConvertTableTo2DArray (GRMsyncGlobals.FinalCorrectAltList)[1][1]]
 -- Method:          GRM.GetListOfAlts ( playerTable , bool , table )
 -- What it Does:    Returns the list of all of the alts from the alt Grouping, not including the player's own self, as well as their class Name
 -- Purpose:         Useful to UI function easy lookup

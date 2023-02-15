@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 105;
+local totalPatches = 106;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -185,7 +185,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     -- Cleanup the guild backups feature. This will affect almost no one, but I had the methods in the code, this just protects some smarter coders who noticed it and utilized them.
     if numericV < 1.140 and baseValue < 1.140 then
-        print ( "|CFFFFD100" .. "GRM: Warning!!! Due to a flaw in the database build of the backups that I had missed, the entire backup database had to be wiped and rebuilt. There was a critical flaw in it. I apologize, but this really is the best solution. A new auto-backup will be established the first time you logout, but a manual save is also encouraged." , 1 , 0 , 0 , 1 );
         GRM_Patch.ResetAllBackupsPatch();
         if loopCheck ( 1.140 ) then
             return;
@@ -994,7 +993,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
--- /run local g=GRM_AddonSettings_Save;for f in pairs(g) do for p,r in pairs(g[f]) do if r.promoteRules==nil then print("Error: "..p.." - "..f);end;end;end;
+
     -- patch 90
     patchNum = patchNum + 1;
     if numericV < 1.92995 and baseValue < 1.92995 then
@@ -1177,8 +1176,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.947 and baseValue < 1.947 then
 
         GRM_Patch.ModifyPlayerSetting ( "exportFilters" , GRM_Patch.AddExportOptions );
-        GRM_Patch.AddPlayerSetting ( "promoteOnlineOnly" , false );  
-        GRM_Patch.AddPlayerSetting ( "demoteOnlineOnly" , false );  
+        GRM_Patch.AddPlayerSetting ( "promoteOnlineOnly" , false );
+        GRM_Patch.AddPlayerSetting ( "demoteOnlineOnly" , false );
         
         if loopCheck ( 1.947 ) then
             return;
@@ -1206,6 +1205,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.ModifyMemberData ( GRM_Patch.PreviousAltGroupRejoinFix , true , true , false );
         
         if loopCheck ( 1.953 ) then
+            return;
+        end
+    end
+
+    --patch 106
+    patchNum = patchNum + 1;
+    if numericV < 1.96 and baseValue < 1.96 then
+
+        GRM_Patch.ModifyMemberData ( GRM_Patch.JoinAndRankDataFix , true , true , false );
+        GRM_Patch.AddPlayerSetting ( "SyncTrackerPOS" , { "" , "" , 0 , 0 } );
+        
+        if loopCheck ( 1.96) then
             return;
         end
     end
@@ -1833,7 +1844,11 @@ end
 GRM_Patch.SetProperFontIndex = function()
     for i = 1 , #GRM_AddonSettings_Save do
         for j = 2 , #GRM_AddonSettings_Save[i] do
-            GRM_AddonSettings_Save[i][j][2][44] = GRML.GetFontChoiceIndex( GRM_AddonSettings_Save[i][j][2][43] );
+            if GRM_AddonSettings_Save[i][j][2][43] ~= nil then
+                GRM_AddonSettings_Save[i][j][2][44] = GRML.GetFontChoiceIndex( GRM_AddonSettings_Save[i][j][2][43] );
+            else
+                GRM_AddonSettings_Save[i][j][2][44] = GRML.GetFontChoiceIndex( 1 );
+            end
         end
     end
 end
@@ -3668,6 +3683,17 @@ GRM_Patch.CleanupCustomNoteError = function( player )
     return player
 end
 
+-- method:          GRM_Patch.SlimDate ( string )
+-- What it Does:    Returns the string with the hour/min taken off the end.
+-- Purpose:         For SYNCing, the only important piece of info on the timestamp is the date, and comparing it is the same. I don't want sync to trigger over and over
+--                  Because the hour/min is off on the sync when that is unimportant info, at least in this context.
+GRM_Patch.SlimDate  = function ( date )
+    if date ~= "" then
+        date = string.sub ( date , 1 , string.find( date , "'" ) + 2 );
+    end
+    return date;
+end
+
 -- 1.50
 -- Method:          GRM_Patch.CleanupJoinAndPromosSetUnknownError ( array )
 -- What it Does:    Rebuilds the database properly for a previous "Set as Unknown" bug that existed.
@@ -3675,8 +3701,8 @@ end
 GRM_Patch.CleanupJoinAndPromosSetUnknownError = function( player )
     -- join date
     if #player[20] == 0 and player[36][1] ~= "" and player[35][1] ~= "1 Jan '01" and player[35][1] ~= "1 Jan '01 12:01am" then
-        if player[35][1] ~= GRMsync.SlimDate ( GRM.GetTimestamp() ) then
-            table.insert ( player[20] , GRMsync.SlimDate ( player[35][1] ) );
+        if player[35][1] ~= GRM_Patch.SlimDate ( GRM.GetTimestamp() ) then
+            table.insert ( player[20] , GRM_Patch.SlimDate ( player[35][1] ) );
             table.insert ( player[21] , player[35][2] );
             player[40] = false;     -- unknown set to false
         end
@@ -3684,7 +3710,7 @@ GRM_Patch.CleanupJoinAndPromosSetUnknownError = function( player )
     
     -- promo date
     if player[12] == nil and player[36][1] ~= "" and player[36][1] ~= "1 Jan '01" and player[36][1] ~= "1 Jan '01 12:01am" then
-        player[12] = GRMsync.SlimDate ( player[36][1] );
+        player[12] = GRM_Patch.SlimDate ( player[36][1] );
         player[13] = player[36][2];
         player[41] = false;     -- unknown set to false
     end
@@ -6571,4 +6597,12 @@ GRM_Patch.PreviousAltGroupRejoinFix = function ( player )
     end
 
     return player;
+end
+
+-- 1.96
+-- Method:          GRM_Patch.JoinAndRankDataFix ( playerTable )
+-- What it Does:    Fixes a storage formatting problem of empty tables that should never have been added during ban data sync
+-- Purpose:         Prevent downstream errors by fixing previous error.
+GRM_Patch.JoinAndRankDataFix = function ( player )
+    return GRM.JoinAndRankDataCleanup ( player );
 end

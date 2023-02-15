@@ -384,12 +384,9 @@
         GRM_L["Initiating Sync with {name} Instead!"] = "Starte stattdessen Synchronisation mit {name}!"
         GRM_L["Sync Failed with {name}..."] = "Synchronisation mit {name} gescheitert..."
         GRM_L["The Player Appears to Be Offline."] = "Der Spieler scheint offline zu sein."
-        GRM_L["Manually Syncing Data With Guildies Now... One Time Only."] = "Manuelle einmalige Synchronisation mit Mitgliedern läuft..."
         GRM_L["Syncing Data With Guildies Now..."] = "Synchronisiere jetzt mit Mitgliedern..."
         GRM_L["(Loading screens may cause sync to fail)"] = "(Ladebildschirme können die Synchronisation abbrechen)"
         GRM_L["Sync With Guildies Complete..."] = "Synchronisation abgeschlossen!"
-        GRM_L["Manual Sync With Guildies Complete..."] = "Manuelle Synchronisation abgeschlossen!"
-        GRM_L["No Players Currently Online to Sync With. Re-Disabling Sync..."] = "Keine Spieler online, mit denen synchronisiert werden kann..."
 
         -- ERROR MESSAGES
         GRM_L["Notification Has Already Been Arranged..."] = "Benachrichtigung wurde bereits eingestellt..."
@@ -814,8 +811,6 @@
         GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = true        -- Singular  -- please keep the color coding... this keeps the Warning in red
     
         -- R1.41
-        GRM_L["{num} metadata profiles are being built for people previously in the guild. The data is being requested, but this may take some time."] = true                   -- PLURAL
-        GRM_L["One metadata profile is being built for a player previously in the guild. The data is being requested, but this may take some time."] = true           -- SINGULAR, same line.
         GRM_L["Auto-Focus the search box"] = true
         GRM_L["This will skip the first time if set to load on logon"] = true  -- Referring to the auto-focusing on the search box, this is a tooltip helper
         GRM_L["Please enter a valid level between 1 and {num}"] = true
