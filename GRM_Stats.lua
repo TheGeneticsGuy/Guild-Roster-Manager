@@ -30,14 +30,15 @@ GRM_API.CreateNewProgressBar = function ( parentFrame , frameName , width , heig
     -- OnUpdate
     parentFrame[frameName].Timer = 0;
     parentFrame[frameName].Percent = 0;
+    parentFrame[frameName].killSwitch = false;
     
 end
 
 -- /run GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 5 );
--- Method:          GRM_API.CreateNewProgressBar ( frame , int , int )
+-- Method:          GRM_API.CreateNewProgressBar ( frame , int , int , {r,g,b} )
 -- What it Does:    Enable the progress bar to actual display progress
 -- Purpose:         Useful quality of life feature.
-GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeToProgress )
+GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeToProgress , colorOnComplete )
     local count = 0;
     local loopDelay = 0.1;
     local num = 0;
@@ -45,6 +46,13 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
     local progressBarTexture = progressBar[progressBar:GetName() .. "Texture" ];
     local progressBarText = progressBar[progressBar:GetName() .. "Text" ];
     local barWidth = progressBar:GetWidth();
+    local t = 0;
+
+    if timeToProgress > 0 and timeToProgress < 1 then
+        t = 1;
+    else
+        t = timeToProgress;
+    end
 
     -- Determine what % of total amount needs to go up or down
     if destinationNumber > progressBar.Percent then
@@ -57,37 +65,51 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
     end
 
     -- Instant progress - super speed in 1 second
-    if timeToProgress == 0 then -- Go all the way if time = 0;
-        loopDelay = 1 / math.floor ( num + 0.5 );
+    if t == 0 then -- Go all the way if time = 0;
+        progressBar.Percent = destinationNumber;
+        progressBarText:SetText ( math.floor ( progressBar.Percent + 0.5 ) .. "%" );
+        progressBarTexture:SetSize ( ( progressBar.Percent / 100 ) * barWidth , 20 )
 
     else
         -- Over Time
-        loopDelay = timeToProgress / math.floor ( num + 0.5 );
-        
-    end
+        loopDelay = t / math.floor ( num + 0.5 );
 
-    progressBar:SetScript ( "OnUpdate" , function ( self , elapsed )
-        progressBar.Timer = progressBar.Timer + elapsed;
-        if progressBar.Timer >= loopDelay then
-
-            if ascending then
-                progressBar.Percent = progressBar.Percent + 1;
-            else
-                progressBar.Percent = progressBar.Percent - 1;
-            end
-            
-            progressBarText:SetText ( math.floor ( progressBar.Percent + 0.5 ) .. "%" );
-            progressBarTexture:SetSize ( ( progressBar.Percent / 100 ) * barWidth , 20 )
-
-            if ( ascending and progressBar.Percent >= destinationNumber ) or ( not ascending and progressBar.Percent <= destinationNumber ) then
-                progressBar:SetScript ( "OnUpdate" , nil );
-                print("Progress Complete!!")
-            end
-
-            progressBar.Timer = 0;
+        -- Dealing with sub 1 second time
+        if timeToProgress > 0 and timeToProgress < 1 then
+            loopDelay = loopDelay / ( 1 / timeToProgress );
         end
 
-    end);
+        progressBar:SetScript ( "OnUpdate" , function ( self , elapsed )
+            self.Timer = self.Timer + elapsed;
+            if not self.killSwitch then
+                if self.Timer >= loopDelay then
+        
+                    if ascending then
+                        self.Percent = self.Percent + 1;
+                    else
+                        self.Percent = self.Percent - 1;
+                    end
+                    
+                    progressBarText:SetText ( math.floor ( self.Percent + 0.5 ) .. "%" );
+                    progressBarTexture:SetSize ( ( self.Percent / 100 ) * barWidth , 20 )
+        
+                    if ( ascending and progressBar.Percent >= destinationNumber ) or ( not ascending and self.Percent <= destinationNumber ) then
+                        self:SetScript ( "OnUpdate" , nil );
+                        if colorOnComplete then
+                            progressBarTexture:SetColorTexture ( colorOnComplete[1] , colorOnComplete[2] , colorOnComplete[3] , 1 );
+                        end
+                        self.killSwitch = true;
+                    end
+        
+                    self.Timer = 0;
+                end
+            else
+                self:SetScript ( "OnUpdate" , nil );
+                self.killSwitch = true;
+            end
+    
+        end);
+    end
 
 end
 
@@ -98,6 +120,27 @@ GRM_API.SetProgressBarColor = function ( progressBar , colors )
 
     if colors and type ( colors ) == "table" and #colors == 3 then
         local progressBarTexture = progressBar[progressBar:GetName() .. "Texture" ];
+    
+        progressBarTexture:SetColorTexture ( colors[1] , colors[2] , colors[3] , 1 );
+    end
+
+end
+
+-- Method:          GRM_API.ResetProgressBar ( object , table {r,g,b} , bool )
+-- What it Does:    Resets the progress bar to 0% and adjusts the color how you want
+-- Purpose:         Reusable control to reset bar quickly.
+GRM_API.ResetProgressBar = function ( progressBar , colors , isVert )
+    local progressBarTexture = progressBar[progressBar:GetName() .. "Texture" ];
+    progressBar[progressBar:GetName() .. "Text" ]:SetText ( "0%" );
+    progressBar.Percent = 0;
+
+    if isVert then
+        progressBarTexture:SetSize ( progressBarTexture:GetWidth() , 1 );
+    else
+        progressBarTexture:SetSize ( 1 , progressBarTexture:GetHeight() );
+    end
+
+    if colors and type ( colors ) == "table" and #colors == 3 then
     
         progressBarTexture:SetColorTexture ( colors[1] , colors[2] , colors[3] , 1 );
     end

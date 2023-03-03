@@ -5948,6 +5948,10 @@ GRM_Patch.BuildNewAltLists = function()
         if #player.alts > 0 then
 
             for i = 1 , #player.alts do
+                if not player.alts[i][6] then
+                    player.alts[i][6] = 0;
+                end
+                
                 if player.alts[i][6] > time then
                     time = player.alts[i][6];
                 end

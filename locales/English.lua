@@ -1587,6 +1587,7 @@ GRML.English = function()
     GRM_L["Sync has failed..."] = true
     GRM_L["Start Sync"] = true
     GRM_L["Initializing Sync"] = true
+    GRM_L["Initializing Sync. One Moment..."] = true
     GRM_L["No Member is Available to Sync"] = true
     GRM_L["Outgoing Ban Data Restricted"] = true
     GRM_L["Incoming Ban Data Restricted"] = true
@@ -1602,5 +1603,6 @@ GRML.English = function()
     GRM_L["Syncing all player data."] = true
     GRM_L["Syncing all data except ban list. Player rank is too low."] = true
     GRM_L["Syncing all data except ban list. Your rank is too low."] = true
+    GRM_L["Currently Syncing With: {name}"] = true
 
 end

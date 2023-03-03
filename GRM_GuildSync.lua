@@ -94,7 +94,6 @@ GRMsyncGlobals.errorCheckEnabled = false;   -- To know when to reactivate the re
 GRMsyncGlobals.ErrorCheckControl = false;   -- For quick exit of the sync
 GRMsyncGlobals.TimeSinceLastSyncAction = 0; -- Evertime sync action occurs, timer is reset!
 GRMsyncGlobals.ErrorCD = 5;                -- 5 seconds delay... if no action detected, sync failed and it will retrigger...
-GRMsyncGlobals.numSyncAttempts = 0;         -- If sync fails, it will retry 1 time. This is the counter for attempts.
 GRMsyncGlobals.dateSentComplete = false;    -- If player is not designated leader, this boolean is used to exit the error check loop.
 GRMsyncGlobals.syncTempDelay = false;
 GRMsyncGlobals.syncTempDelay2 = false;
@@ -173,7 +172,7 @@ GRMsyncGlobals.syncCompleteTimer = 0;
 GRMsyncGlobals.TrackerData = {};
 GRMsyncGlobals.syncFailed = false;
 GRMsyncGlobals.trackerPoint = "";
-GRMsyncGlobals.initializeTracker = false;
+GRMsyncGlobals.finishResetDelay = false;
 
 -- Prefixes for tagging info as it is sent and picked up across server channel to other players in guild.
 GRMsyncGlobals.listOfPrefixes = { 
@@ -283,6 +282,7 @@ GRMsync.ResetDefaultValuesOnSyncReEnable = function()
     GRMsyncGlobals.InitializeTime = 0;
     GRMsyncGlobals.firstSync = true
     GRMsyncGlobals.refreshCount = 0;
+
 end
 
 -- Resetting after broadcasting the changes.
@@ -360,10 +360,19 @@ GRMsync.ResetSyncTracker = function()
     GRMsyncGlobals.SyncTracker.finalBdays = false;
     GRMsyncGlobals.SyncTracker.finish = false;
 
+    if GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar then
+        GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+    end
+
+    if not GRMsyncGlobals.currentlySyncing then
+        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
+    end
+
     GRMsyncGlobals.BanValue = 0;
-    GRMsyncGlobals.TrackerData = {};
     GRMsyncGlobals.syncFailed = false;
     GRMsyncGlobals.trackerPoint = "";
+    GRMsyncGlobals.finishResetDelay = false;
+    GRMsyncGlobals.totalEstTime = 0;
 
 end
 
@@ -413,18 +422,22 @@ end
 
 -- Method:          GRMsync.CalculateTotalSyncVolume()
 -- What it Does:    Calculates the sync data total number of items
--- Purpose:         To attempt to track the progress of the sync and by giving weights to each type of data syncing.
+-- Purpose:         To attempt to track the progress of the sync by giving weights to each type of data syncing.
 GRMsync.CalculateTotalSyncVolume = function()
     GRMsyncGlobals.SyncTracker.calculating = true;
 
     local total = 0;
     local result = {};
+    local initLength = 10;
+    local totalSeconds = 0;
     
     for i = 1 , #GRMsyncGlobals.DatabaseExactIndexes do
-        if i == 3 or i == 4 then
+        if i == 3 then
+            total = total + ( #GRMsyncGlobals.DatabaseExactIndexes[i] * 3);
+        elseif i == 4 then
             total = total + ( #GRMsyncGlobals.DatabaseExactIndexes[i] * 2);
         elseif i == 5 then
-            total = total + ( #GRMsyncGlobals.DatabaseExactIndexes[i] * 3);
+            total = total + ( #GRMsyncGlobals.DatabaseExactIndexes[i] * 4);
         else
             total = total + #GRMsyncGlobals.DatabaseExactIndexes[i];
         end
@@ -435,15 +448,94 @@ GRMsync.CalculateTotalSyncVolume = function()
     
     if total ~= 0 then
         result.JD = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[1] / total ) * 100 ) + 0.5 ) , GRMsync.SyncTimeEstimation ( "JD" , #GRMsyncGlobals.DatabaseExactIndexes[1] ) };
+        if result.JD[1] > 0 and result.JD[1] < initLength then    -- Just for quality of life - can't have it go backwards in time.
+            result.JD[1] = initLength;
+        end
+        totalSeconds = totalSeconds + result.JD[2];
+
         result.PD = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[2] / total ) * 100 ) + 0.5 ) + result.JD[1] , GRMsync.SyncTimeEstimation ( "PD" , #GRMsyncGlobals.DatabaseExactIndexes[2] ) };
+        if result.PD[1] > 0 and result.PD[1] < initLength then
+            result.PD[1] = initLength;
+        end
+        totalSeconds = totalSeconds + result.PD[2];
+
         result.ALT = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[3] * 3) / total ) * 100 ) + 0.5 ) + result.PD[1] , GRMsync.SyncTimeEstimation ( "ALT" , #GRMsyncGlobals.DatabaseExactIndexes[3] ) };
-        result.MAIN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[4] * 2) / total ) * 100 ) + 0.5 ) + result.ALT[1] , GRMsync.SyncTimeEstimation ( "MAIN" , #GRMsyncGlobals.DatabaseExactIndexes[4] ) };
-        result.CUSTOMNOTE = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[5] * 5) / total ) * 100 ) + 0.5 ) + result.MAIN[1] , GRMsync.SyncTimeEstimation ( "CUSTOMNOTE" , #GRMsyncGlobals.DatabaseExactIndexes[5] ) };
+        if result.ALT[1] > 0 and result.ALT[1] < initLength then
+            result.ALT[1] = initLength;
+        end
+        totalSeconds = totalSeconds + result.ALT[2];
+
+        result.MAIN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[4] * 2 ) / total ) * 100 ) + 0.5 ) + result.ALT[1] , GRMsync.SyncTimeEstimation ( "MAIN" , #GRMsyncGlobals.DatabaseExactIndexes[4] ) };
+        if result.MAIN[1] > 0 and result.MAIN[1] < initLength then
+            result.MAIN[1] = initLength;
+        end
+        totalSeconds = totalSeconds + result.MAIN[2];
+
+        result.CUSTOMNOTE = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[5] * 4) / total ) * 100 ) + 0.5 ) + result.MAIN[1] , GRMsync.SyncTimeEstimation ( "CUSTOMNOTE" , #GRMsyncGlobals.DatabaseExactIndexes[5] ) };
+        if result.CUSTOMNOTE[1] > 0 and result.CUSTOMNOTE[1] < initLength then
+            result.CUSTOMNOTE[1] = initLength;
+        end
+        totalSeconds = totalSeconds + result.CUSTOMNOTE[2];
+
         result.BDAY = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[6] / total ) * 100 ) + 0.5 ) + result.CUSTOMNOTE[1] , GRMsync.SyncTimeEstimation ( "BDAY" , #GRMsyncGlobals.DatabaseExactIndexes[6] ) };
+        totalSeconds = totalSeconds + result.BDAY[2];
+
         -- result.BAN = #GRMsyncGlobals.DatabaseExactIndexes[7];
     end
 
-    return result;
+    return result , totalSeconds;
+end
+
+-- Method:          GRMsync.SendTrackerCalculation()
+-- What it Does:    Sends over the calculated tracker data points for progress bar.
+-- Purpose:         To ensure both sync players' progress bar alligns, as well as the fact that the non Sync Leader calculates this all whilst the syncer just sends their data over. This ensures that the sync leader has calculated progression timers as well.
+GRMsync.SendTrackerCalculation = function()
+    local result = "";
+
+    -- JD
+    result = GRMsyncGlobals.TrackerData.JD[1] .. "?" .. GRMsyncGlobals.TrackerData.JD[2] .. "?";
+    -- PD
+    result = result .. GRMsyncGlobals.TrackerData.PD[1] .. "?" .. GRMsyncGlobals.TrackerData.PD[2] .. "?";
+    -- ALT
+    result = result .. GRMsyncGlobals.TrackerData.ALT[1] .. "?" .. GRMsyncGlobals.TrackerData.ALT[2] .. "?";
+    -- MAIN
+    result = result .. GRMsyncGlobals.TrackerData.MAIN[1] .. "?" .. GRMsyncGlobals.TrackerData.MAIN[2] .. "?";
+    -- CUSTOMNOTE
+    result = result .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] .. "?" .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] .. "?";
+    -- BDAY
+    result = result .. GRMsyncGlobals.TrackerData.BDAY[1] .. "?" .. GRMsyncGlobals.TrackerData.BDAY[2] .. "?";
+    -- -- BAN
+    -- result = result .. GRMsyncGlobals.TrackerData.BAN[1] .. "?" .. GRMsyncGlobals.TrackerData.BAN[2] .. "?";
+
+    result = result .. GRMsyncGlobals.totalEstTime;
+
+    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_TRACKER?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. result  , GRMsyncGlobals.DesignatedLeader );
+end
+
+-- Method:          GRMsync.CollectTrackerCalculation ( string )
+-- What it Does:    Parses the given messages and saves them to the tracker data table
+-- Purpose:         Ensure sync progress is unified between 2 players.
+GRMsync.CollectTrackerCalculation = function ( msg )
+    GRM_G.CheckTrackerPattern = GRM_G.CheckTrackerPattern or GRM.BuildComPattern ( 13 , "?" , false );  -- 14 when adding ban
+
+    GRMsyncGlobals.TrackerData.JD = {};
+    GRMsyncGlobals.TrackerData.PD = {};
+    GRMsyncGlobals.TrackerData.ALT = {};
+    GRMsyncGlobals.TrackerData.MAIN = {};
+    GRMsyncGlobals.TrackerData.CUSTOMNOTE = {};
+    GRMsyncGlobals.TrackerData.BDAY = {};
+    -- GRMsyncGlobals.TrackerData.BAN = {};
+
+    GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[2] , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[2] , GRMsyncGlobals.TrackerData.ALT[1] , GRMsyncGlobals.TrackerData.ALT[2] , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[2] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[2] , GRMsyncGlobals.totalEstTime = GRM.ParseComMsg ( msg , GRM_G.CheckTrackerPattern );  -- Ban needs to be pared when added.
+
+    for _ , y in pairs ( GRMsyncGlobals.TrackerData ) do
+        for i = 1 , #y do
+            y[i] = tonumber ( y[i] );
+        end
+    end
+
+    GRMsyncGlobals.totalEstTime = tonumber ( GRMsyncGlobals.totalEstTime );
+    
 end
 
 -- Method:          GRMsync.SyncTimeEstimation ( string , int )
@@ -466,18 +558,6 @@ GRMsync.SyncTimeEstimation = function ( dataType , total )
         seconds = seconds + ( math.floor ( ( total / 5 ) + 1 ) * 5 );
 
     end
-
-    for i = 1 , #list do
-        if list[i] == dataType then
-            if i == 1 then
-                GRMsyncGlobals.trackerPoint = list[i];
-            else
-                GRMsyncGlobals.trackerPoint = list[i-1]
-            end
-        end
-    end
-
-    
 
     return seconds;
 end
@@ -538,59 +618,28 @@ end
 -- What it Does:    Checks status of the window and updates the info.
 -- Purpose:         Quality of life feature.
 GRMsync.LiveTracking = function()
+
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
 
-        if not GRM_G.InGroup then
-
-            if GRMsyncGlobals.syncFailed then
-
-                -- Change texture to RED
-                GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync has failed..." ) );
-            else
-
-                if not GRMsyncGlobals.initializeTracker then
-                    local progressPoint = GRMsync.SyncProgressPoint();
-
-                    if GRMsyncGlobals.SyncTracker.jd and GRMsyncGlobals.trackerPoint ~= "" then
-
-                        if not GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:IsVisible() then
-                            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Show();
-                        end
-
-                        --- SYNC IS IN PROGRESS
-                        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( "Sync Point: " .. progressPoint );  -- For testing
-
-
-
-
-
-
-
-
-
-                    else
-                        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
-                    end
-                else
-                    GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Initializing Sync" ) );
-                end
-            end
-        else
+        if GRM_G.InGroup then
+            GRMsync.ResetSyncTracker();
             GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Disabled While Player is Grouped" ) );
+
+        elseif GRMsyncGlobals.SyncTracker.finish and not GRMsyncGlobals.finishResetDelay then
+            GRMsyncGlobals.finishResetDelay = true;
+            GRMsync.ProgressCompleteReport();
+
+        elseif not GRMsyncGlobals.SyncTracker.TriggeringSync and not GRMsyncGlobals.currentlySyncing and not GRMsyncGlobals.finishResetDelay then
+
+            GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
+            
         end
+
     else
-        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync is Currently Disabled" ) );
-    end
 
-    -- This will hold the sync complete message on the frame for 10 seconds;
-    if not GRM_G.InGroup and GRMsyncGlobals.syncComplete then
-        
-        GRMsync.ProgressCompleteReport();
-
-    elseif GRM_G.InGroup then       -- Instantly reset this if in a group
-        GRMsyncGlobals.syncComplete = false;
-        GRMsyncGlobals.syncCompleteTimer = 0;
         GRMsync.ResetSyncTracker();
+        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync is Currently Disabled" ) );
+
     end
         
 end
@@ -602,7 +651,7 @@ GRMsync.TimeDelayResetTracker = function()
     if GRMsyncGlobals.syncCompleteTimer == 0 then
         GRMsyncGlobals.syncCompleteTimer = time();
 
-        C_Timer.After ( 10 , function()
+        C_Timer.After ( 8 , function()
             GRMsyncGlobals.syncComplete = false;
             GRMsyncGlobals.syncCompleteTimer = 0;
             if GRMsyncGlobals.SyncTracker.finish then
@@ -620,16 +669,77 @@ end
 GRMsync.ProgressCompleteReport = function ()
     -- This will hold the sync complete message on the frame for 10 seconds;
     GRMsync.TimeDelayResetTracker();
-    local name = "";
-    if GRMsyncGlobals.IsElectedLeader then
-        name = GRMsyncGlobals.CurrentSyncPlayer;
+    
+end
+
+GRMsync.SyncTrackerOnShow = function()
+
+    if GRMsyncGlobals.syncFailed then
+        -- Change texture to RED
+        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync has failed..." ) );
+        if GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:IsVisible() then
+            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Hide();    -- This will logic OnShow
+        end
+        if not GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:IsVisible() then
+            GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Show();
+        end
+
+        GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+
     else
-        name = GRMsyncGlobals.DesignatedLeader;
+
+        if GRMsyncGlobals.SyncTracker.TriggeringSync then
+            
+            if GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:IsVisible() then
+                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Hide();    -- This will logic OnShow
+            end
+            if not GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:IsVisible() then
+                GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Show();
+            end
+
+            local progressPoint = GRMsync.SyncProgressPoint();
+
+            local name = "";
+            if GRMsyncGlobals.IsElectedLeader then
+                name = GRMsyncGlobals.CurrentSyncPlayer;
+            else
+                name = GRMsyncGlobals.DesignatedLeader;
+            end
+            
+            if GRMsyncGlobals.SyncTracker.finish then
+                GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync with {name} Successful" , GRM.GetClassifiedName ( name ) ) );
+                GRM_API.SetProgressBarColor ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 0.42 , 0.92 , 1 } );
+                GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 0 );
+
+            else
+
+                -- If at least syncing join dates - no longer initializing
+                if not GRMsyncGlobals.SyncTracker.jd then
+
+                    GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Initializing Sync. One Moment..." ) );
+                    GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+
+                else
+                    --- SYNC IS IN PROGRESS
+
+                    GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Currently Syncing With: {name}" , GRM.GetClassifiedName ( name ) ) );
+
+                    GRM_API.SetProgressBarColor ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } );
+                    -- GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , syncProgress[GRMsyncGlobals.trackerPoint][1] , syncProgress[GRMsyncGlobals.trackerPoint][2] );
+                    
+                end
+                
+            end
+
+        else
+            GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
+            if not GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:IsVisible() then
+                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();    -- This will logic OnShow
+            end
+        end
     end
-    GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync with {name} Successful" , GRM.GetClassifiedName ( name ) ) );
-
-    GRM_API.SetProgressBarColor ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 0.42 , 0.92 , 1 } );
-
 end
 
 -- Method:          GRMsync.LoadSyncUI()
@@ -646,7 +756,7 @@ GRMsync.LoadSyncUI = function()
         GRM_UI.GRM_SyncTrackerWindow.timer = 0;
         GRM_UI.GRM_SyncTrackerWindow:SetPoint ( "CENTER" , UIParent );
         GRM_UI.GRM_SyncTrackerWindow:SetFrameStrata ( "MEDIUM" );
-        GRM_UI.GRM_SyncTrackerWindow:SetSize ( 300 , 60 );
+        GRM_UI.GRM_SyncTrackerWindow:SetSize ( 375 , 60 );
         GRM_UI.GRM_SyncTrackerWindow:EnableMouse ( true );
         GRM_UI.GRM_SyncTrackerWindow:SetMovable ( true );
         GRM_UI.GRM_SyncTrackerWindow:SetUserPlaced ( true );
@@ -670,13 +780,13 @@ GRMsync.LoadSyncUI = function()
         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton.GRM_SyncTrackerWindowButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton );
         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton.GRM_SyncTrackerWindowButtonText:SetText ( GRM.L ( "Start Sync" ) )
         
-        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerCloseButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_SyncTrackerWindow , "TOPRIGHT" , -4 , -4 );
+        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerCloseButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_SyncTrackerWindow , "TOPRIGHT" , -1 , -2 );
         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerCloseButton:SetSize ( 18 , 18 );
 
         GRM_UI.CoreSyncTrackerInit();
 
         -- Progress tracker
-        GRM_API.CreateNewProgressBar ( GRM_UI.GRM_SyncTrackerWindow , "GRM_SyncProgressBar" , 230 , 20 , { 1 , 0 , 0 } );
+        GRM_API.CreateNewProgressBar ( GRM_UI.GRM_SyncTrackerWindow , "GRM_SyncProgressBar" , GRM_UI.GRM_SyncTrackerWindow:GetWidth() - 70 , 18 , { 1 , 0 , 0 } );
         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_SyncTrackerWindow , "BOTTOMLEFT" , 50 , 10 );
         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar.GRM_SyncProgressBarTexture:SetSize ( 1 , 20 );
         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Hide();
@@ -686,8 +796,6 @@ GRMsync.LoadSyncUI = function()
         GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetWidth ( GRM_UI.GRM_SyncTrackerWindow:GetWidth() - 30 );
         GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetTextColor ( 0.64 , 0.102 , 0.102 );
         GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
-
-        GRMsyncGlobals.UILoaded = true;
         
         -- FRAME SCRIPTS
         GRM_UI.GRM_SyncTrackerWindow:SetScript ( "OnUpdate" , function ( self , elapsed )
@@ -700,38 +808,35 @@ GRMsync.LoadSyncUI = function()
         end);
 
         GRM_UI.GRM_SyncTrackerWindow:SetScript ( "OnShow" , function()
-            if GRMsyncGlobals.SyncTracker.jd and GRMsyncGlobals.trackerPoint ~= "" then
-
-                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Show();
-
-                if GRMsyncGlobals.SyncTracker.finish then
-                    GRM_API.SetProgressBarColor ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 0.42 , 0.92 , 1 } );
-                    GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 0 );
-                else
-                    local syncProgress = GRMsync.CalculateTotalSyncVolume();
-                    GRM_API.SetProgressBarColor ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } );
-                    GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , syncProgress[GRMsyncGlobals.trackerPoint][1] , syncProgress[GRMsyncGlobals.trackerPoint][2] );
-
-                end
-            else
-                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Hide();
-                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
-            end
+            GRMsync.SyncTrackerOnShow();
         end);
 
-        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:SetScript ( "OnClick" , function( _ , button )
+        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:SetScript ( "OnClick" , function( self , button )
             if button == "LeftButton" then
+                self:Hide();
+                GRMsync.ResetSyncTracker();
                 GRM.SyncCommandScan();
             end
         end);
-        
+
+        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:SetScript ( "OnHide" , function()
+            if not GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:IsVisible() then
+                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Show();
+            end
+        end);
+
+        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:SetScript ( "OnShow" , function()
+            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Hide();
+        end);
+
+        GRMsyncGlobals.UILoaded = true;
     end
 
-    
+    -- Kept outside of brackets so they can be recalled if font adjustments as needed.
     GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar.GRM_SyncProgressBarText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton.GRM_SyncTrackerWindowButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-
+    
 end
 
 ---------------------------------
@@ -744,7 +849,6 @@ GRMsync.TriggerFullReset = function()
     GRMsync.ResetDefaultValuesOnSyncReEnable();
     GRMsync.ResetReportTables();
     GRMsync.ResetTempTables();
-    GRMsync.ResetSyncTracker();
     GRMsyncGlobals.SyncOK = true;
 end
 
@@ -1037,13 +1141,16 @@ GRMsync.SetLeader = function ( leader )
         -- Non leader sends request to sync
         if GRMsyncGlobals.SyncOK then
             if not GRMsyncGlobals.reloadControl then
-
-                GRMsyncGlobals.SyncTracker.TriggeringSync = true;
+                
                 GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_REQUESTSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. "" , GRMsyncGlobals.channelName );
 
                 if not GRMsyncGlobals.syncTempDelay then
                     -- Disable sync again if necessary!
+                    
                     if GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline() or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
+                        
+                        GRMsyncGlobals.SyncTracker.TriggeringSync = true;
+                        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Currently Syncing With: {name}" , GRM.GetClassifiedName ( GRMsyncGlobals.DesignatedLeader ) ) );
                         
                         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
                             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Syncing Data With Guildies Now..." ) .. "\n" .. GRM.L ( "(Loading screens may cause sync to fail)" ) );
@@ -2434,7 +2541,6 @@ GRMsync.GetCustomPseudoHash = function()
     local year = 0;
 
     GRMsyncGlobals.SyncTracker.buildingHashes = true;
-    GRMsyncGlobals.initializeTracker = false;       -- This can be flipped to false since it no longer applies.
 
     local getHashPrecision = function ( rNum1 , rString2 )
         table.insert ( rString2 , tostring ( rNum1 ) );
@@ -2716,8 +2822,6 @@ GRMsync.SendNonLeaderDatabaseMarkers = function ( markers )
 
             GRMsyncGlobals.ErrorCheckControl = false;
         end
-
-        GRMsyncGlobals.TrackerData = GRMsync.CalculateTotalSyncVolume();
 
         GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_PHASH?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.SyncQue[1] .. "?FINISH?" , GRMsyncGlobals.CurrentSyncPlayer );
 
@@ -3934,49 +4038,40 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
             -- We already tried to sync, now aboard to 2nd.
             if playerIsOnline then
 
-                if forceStop or GRMsyncGlobals.numSyncAttempts == 1 then
-                    table.remove ( GRMsyncGlobals.SyncQue , 1 );
-                    GRMsyncGlobals.numSyncAttempts = 0;
-                    GRMsyncGlobals.currentlySyncing = false;
-                    GRMsyncGlobals.errorCheckEnabled = false;
-                    GRMsyncGlobals.firstSync = true 
-                    -- Sync failed, this is 2nd attempt, AND, another person is in que.
-                    
-                    if GRM_G.DebugEnabled then
-                        GRM.Report ( GRM.L ( "Sync failed at this point:" .. " " .. GRMsync.SyncProgressPoint() ) );
+                table.remove ( GRMsyncGlobals.SyncQue , 1 );
+                GRMsyncGlobals.currentlySyncing = false;
+                GRMsyncGlobals.errorCheckEnabled = false;
+                GRMsyncGlobals.firstSync = true 
+                -- Sync failed, this is 2nd attempt, AND, another person is in que.
+                
+                if GRM_G.DebugEnabled then
+                    GRM.Report ( GRM.L ( "Sync failed at this point:" .. " " .. GRMsync.SyncProgressPoint() ) );
+                end
+                
+                if #GRMsyncGlobals.SyncQue > 0 then
+                    GRM.RegisterGuildAddonUsersRefresh();
+                    C_Timer.After ( 4.1 , function()
+                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
+                            if GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline() then
+                                GRM.Report ( msg .. "\n" .. GRM.L ( "Initiating Sync with {name} Instead!" , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
+                            end
+                        end
+                        GRMsync.InitiateDataSync();
+                    end);
+                -- Sync failed, this is 2nd attempt, but no one else is in the que. Just end it.
+                else
+                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
+                        GRM.Report ( msg );
                     end
                     
-                    if #GRMsyncGlobals.SyncQue > 0 then
-                        GRM.RegisterGuildAddonUsersRefresh();
-                        C_Timer.After ( 4.1 , function()
-                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
-                                if GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline() then
-                                    GRM.Report ( msg .. "\n" .. GRM.L ( "Initiating Sync with {name} Instead!" , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
-                                end
-                            end
-                            GRMsync.InitiateDataSync();
-                        end);
-                    -- Sync failed, this is 2nd attempt, but no one else is in the que. Just end it.
-                    else
-                        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
-                            GRM.Report ( msg );
-                            C_Timer.After ( 3 , GRMsync.ResetSyncTracker );
-                        end
-                        
-                        GRMsyncGlobals.currentlySyncing = false;
-                    end   
-                elseif #GRMsyncGlobals.SyncQue > 0 then
-                    GRMsyncGlobals.numSyncAttempts = GRMsyncGlobals.numSyncAttempts + 1;
                     GRMsyncGlobals.currentlySyncing = false;
-                    GRMsyncGlobals.errorCheckEnabled = false;
-                    GRMsync.InitiateDataSync();
-                end
+                    GRMsyncGlobals.ProgressControl ( "FINISH");
+                end  
 
             else
 
                 table.remove ( GRMsyncGlobals.SyncQue , 1 );
 
-                GRMsyncGlobals.numSyncAttempts = 0;
                 GRMsyncGlobals.currentlySyncing = false;
                 GRMsyncGlobals.errorCheckEnabled = false;
 
@@ -3995,6 +4090,8 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
                             GRM.Report ( msg .. "\n" .. GRM.L ( "The Player Appears to Be Offline." ) );
                         end
                         GRMsyncGlobals.currentlySyncing = false;
+                        GRMsyncGlobals.syncFailed = true;
+                        GRMsyncGlobals.ProgressControl ( "FINISH");
                     end
                 end);
 
@@ -4028,6 +4125,7 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
             local msg = GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync Failed with {name}..." , GRM.GetClassifiedName ( GRMsyncGlobals.DesignatedLeader , true ) );
 
             GRMsyncGlobals.syncFailed = true
+            GRMsyncGlobals.ProgressControl ( "FINISH"); 
 
             if not playerIsOnline then
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
@@ -4045,8 +4143,6 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
             if sendMessage then
                 GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_ENDSYNC?" , GRMsyncGlobals.DesignatedLeader );
             end
-
-            C_Timer.After ( 3 , GRMsync.ResetSyncTracker );
 
         elseif GRMsyncGlobals.currentlySyncing and not GRMsyncGlobals.ErrorCheckControl then
 
@@ -4066,6 +4162,10 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
                     GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync Failed with {name}..." , GRM.GetClassifiedName ( GRMsyncGlobals.DesignatedLeader ) ) .. "\n" .. GRM.L ( "The Player Appears to Be Offline." ) );
                 end
+
+                GRMsyncGlobals.currentlySyncing = false;
+                GRMsyncGlobals.syncFailed = true;
+                GRMsyncGlobals.ProgressControl ( "FINISH");
                 GRMsync.TriggerFullReset();
                 -- Now, let's add a brief delay, 11,1 seconds, to trigger sync again
                 C_Timer.After ( 15 , function()
@@ -4107,7 +4207,7 @@ end
 GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline = function()
     local result = false;
     for i = 1 , #GRM_G.currentAddonUsers do
-        if GRM_G.currentAddonUsers[i][2] == "Ok!" then
+        if GRM_G.currentAddonUsers[i][9] then
             result = true;
             break;
         end
@@ -4142,6 +4242,7 @@ end
 -- What it Does:    Begins the sync process going through the sync que
 -- Purpose:         To Sync data!
 GRMsync.InitiateDataSync = function ()
+
     if not GRM.IsCalendarEventEditOpen() then
         GRM.GuildRoster();
     end
@@ -4161,25 +4262,28 @@ GRMsync.InitiateDataSync = function ()
                 if GRMsyncGlobals.SyncOK then
                     GRMsync.ResetReportTables();
                     GRMsync.ResetTempTables();
-                    GRMsync.ResetSyncTracker();
                     GRMsyncGlobals.guildData , GRMsyncGlobals.formerGuildData , GRMsyncGlobals.guildAltData = GRM.convertToArrayFormat(); -- Now, we set arrays of the data.
                     
                     GRMsyncGlobals.TimeSinceLastSyncAction = time();
 
                     if GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline() or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
+
+                        GRMsyncGlobals.SyncTracker.TriggeringSync = true;
+                        GRMsyncGlobals.SyncTracker.EstablishingLeader = true;
+                        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Currently Syncing With: {name}" , GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer ) ) );
+
                         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled and GRMsyncGlobals.firstSync then
                             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Syncing Data With Guildies Now..." ) .. "\n" .. GRM.L ( "(Loading screens may cause sync to fail)" ) );
                         end
                     end
-
-                    GRMsyncGlobals.SyncTracker.TriggeringSync = true;
-                    GRMsyncGlobals.SyncTracker.EstablishingLeader = true;
 
                     GRMsyncGlobals.firstSync = false;
 
                     GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_REQJDDATA?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.SyncQue[1] , GRMsyncGlobals.CurrentSyncPlayer );
 
                     -- Build Hash Comparison string
+                    -- Initializing 
+                    GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 10 , 5 );
                     GRMsync.SendNonLeaderDatabaseMarkers();
 
                 else
@@ -4193,7 +4297,6 @@ GRMsync.InitiateDataSync = function ()
                 
             else
 
-                GRMsyncGlobals.numSyncAttempts = 0;
                 GRMsyncGlobals.currentlySyncing = false;
                 GRMsyncGlobals.errorCheckEnabled = false;
                 GRMsyncGlobals.guildData = {};          -- Clearing the sync DB backup as it is a lot of info to just have sitting in memory
@@ -4209,18 +4312,22 @@ GRMsync.InitiateDataSync = function ()
         
                     GRMsyncGlobals.currentlySyncing = false;
                     C_Timer.After ( 3 , function()
+                        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Currently Syncing With: {name}" , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
                         GRMsync.InitiateDataSync();
                     end);
                 else
 
                     table.remove ( GRMsyncGlobals.SyncQue , 1 );
                     GRMsyncGlobals.firstSync = true;
+                    GRM_G.slashCommandSyncTimer = time();
+                    GRMsyncGlobals.timeOfLastSyncCompletion = time();
+
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
                         if GRMsync.IsPlayerDataSyncCompatibleWithAnyOnline() or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync With Guildies Complete..." ) );
                             GRMsync.ReportAuditMessage();
                         end
-                        GRMsyncGlobals.timeOfLastSyncCompletion = time();
+                        
                     end
 
                     -- Progress tracking
@@ -4683,10 +4790,6 @@ GRMsync.FinalSyncComplete = function()
         GRMsync.SendMessage ( "GRM_SYNC" , tempMsg , GRMsyncGlobals.CurrentSyncPlayer );
 
         -- We made it... remove from the syncQue
-        
-        GRMsyncGlobals.numSyncAttempts = 0;
-
-
         if #GRMsyncGlobals.SyncQue > 1 then
             table.remove ( GRMsyncGlobals.SyncQue , 1 );
 
@@ -4694,8 +4797,11 @@ GRMsync.FinalSyncComplete = function()
                 GRM.Report ( GRM.L ( "Sync with {name} complete." , GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer ) ) );
                 GRM.Report ( GRM.L ( "Sync with {name} next." , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
             end
-            GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync with {name} Successful" , GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer ) ) );
-            GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 0 );
+
+            if GRM_UI.GRM_SyncTrackerWindow:IsVisible() then
+                GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Sync with {name} Successful" , GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer ) ) );
+                GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 0.5 , { 0.42 , 0.92 , 1 } );
+            end
 
             GRMsyncGlobals.currentlySyncing = false;
             C_Timer.After ( 3 , function()
@@ -6238,7 +6344,10 @@ GRMsync.ReportSyncCompletion = function ( currentSyncer , finalAnnounce )
             GRMsync.ReportResults();
             GRMsync.ReportAuditMessage();
 
+            GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 0.5 , { 0.42 , 0.92 , 1 } );
+
             GRMsyncGlobals.syncComplete = true;
+            GRM_G.slashCommandSyncTimer = time();
             
         end
 
@@ -6572,6 +6681,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                                     end
                                 end
                             end)
+                            
                             -- PLAYER DATA REQ FROM LEADERS
                         -- Leader has requesated your Join Date Data!
                         elseif comms.prefix2 == "GRM_REQJDDATA" and msg == GRM_G.addonUser and not GRMsyncGlobals.currentlySyncing then
@@ -6594,7 +6704,11 @@ GRMsync.RegisterCommunicationProtocols = function()
                                 GRMsyncGlobals.ErrorCheckControl = false;
                             end
 
-                            
+                            GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 10 , 5 );
+
+                        elseif comms.prefix2 == "GRM_TRACKER" then
+                            GRMsync.CollectTrackerCalculation ( msg );
+                            GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , GRMsyncGlobals.totalEstTime );
 
                         elseif comms.prefix2 == "GRM_REQBFINALDATA" then
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
@@ -6627,12 +6741,16 @@ GRMsync.RegisterCommunicationProtocols = function()
                                             -- Build the values first
                                             GRMsync.BuildFullCheckArray();
 
-                                            GRMsyncGlobals.TrackerData = GRMsync.CalculateTotalSyncVolume();
+                                            GRMsyncGlobals.TrackerData , GRMsyncGlobals.totalEstTime = GRMsync.CalculateTotalSyncVolume();
+                                            GRMsync.SendTrackerCalculation();
+                                            GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , GRMsyncGlobals.totalEstTime );
 
+                                            
                                             -- Now, determine where to start in database.
                                             C_Timer.After ( GRMsyncGlobals.ThrottleDelay , function()
                                                 GRMsync.NextSyncStep ( 1 );
                                             end);
+
                                         else
                                             GRMsync.SendCompletionMsg();
                                         end
@@ -6805,14 +6923,17 @@ GRMsync.BuildSyncNetwork = function( forMacro , requestForTime )
         -- We need to set leadership at this point.
         if not GRM_G.InGroup then
             if GRMsyncGlobals.DatabaseLoaded and GRMsyncGlobals.RulesSet and not GRMsyncGlobals.LeadershipEstablished and not GRMsyncGlobals.LeadSyncProcessing then
-                GRMsyncGlobals.LeadSyncProcessing = true;
-                GRMsync.EstablishLeader();
-                -- Reset the reload control 1blocker...
+
                 if GRMsyncGlobals.reloadControl then
                     C_Timer.After ( 10 , function()
                         GRMsyncGlobals.reloadControl = false;
-                    end);
+                    end);                      
                 end
+
+                GRMsyncGlobals.LeadSyncProcessing = true;
+                GRMsync.EstablishLeader();
+                -- Reset the reload control 1blocker...
+                
             end
         end
     end

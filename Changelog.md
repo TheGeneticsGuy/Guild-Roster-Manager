@@ -37,6 +37,8 @@
 
 * Fixed a lua error that could prevent patching if you haven't patched and updated GRM in several years.
 
+* Fixed an issue on updating the database to new format would not work for some people so GRM would never load.
+
 
 ## **VERSION 1.954 RELEASE - January 23rd, 2023**
 

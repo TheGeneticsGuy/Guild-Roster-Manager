@@ -24611,23 +24611,20 @@ GRM.SyncCommandScan = function( count )
     else
         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled and GRM_G.HasAccessToGuildChat and not GRM_G.InGroup then
 
-            if not GRMsyncGlobals.SyncTracker.TriggeringSync then
-                GRMsyncGlobals.SyncTracker.TriggeringSync = true;
-            end
-
             if ( time() - GRMsyncGlobals.timeAtLogin ) >= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncDelay then
 
-                if GRMsyncGlobals.currentlySyncing or ( not GRMsyncGlobals.currentlySyncing and ( time() - GRM_G.slashCommandSyncTimer > 13 ) ) then
-        
+                if GRMsyncGlobals.currentlySyncing or ( not GRMsyncGlobals.currentlySyncing and ( time() - GRM_G.slashCommandSyncTimer > 10 ) ) then
+       
                     if not GRMsyncGlobals.currentlySyncing then
+
+                        if not GRMsyncGlobals.SyncTracker.TriggeringSync then
+                            GRMsyncGlobals.SyncTracker.TriggeringSync = true;
+                            GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Initializing Sync. One Moment..." ) );
+                            GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+                        end
+
                         GRM_G.slashCommandSyncTimer = time();
-                    end
-                    -- Enable Temporary Syncing...
-        
-                    if not GRMsyncGlobals.currentlySyncing then
-                        
-                        local breakingSync = false;
-        
+                               
                         GRM.Report ( GRM.L ( "Initializing Sync Action. One Moment..." ) );
                         
                         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
@@ -24635,7 +24632,6 @@ GRM.SyncCommandScan = function( count )
                         end
 
                         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Hide();
-                        GRMsyncGlobals.initializeTracker = true;
         
                         C_Timer.After( 4 , GRMsync.Initialize );
         
@@ -24646,26 +24642,27 @@ GRM.SyncCommandScan = function( count )
 
                                 if #GRM_G.currentAddonUsers == 0 then
                                     GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "No Players Currently Online to Sync With..." ) );
+                                    GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                                    GRMsync.ResetSyncTracker();
                                 else
                                     if #GRM_G.currentAddonUsers == 1 then
                                         GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "No Member is Available to Sync" ) );
+                                        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                                        GRMsync.ResetSyncTracker();
                                     else
 
                                     end
                                 end
                                 GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
-                                GRMsyncGlobals.initializeTracker = false;
         
                             else
-                                if not breakingSync then
-                                    C_Timer.After ( GRMsyncGlobals.ErrorCD + 1 , function ()
-                                        if not GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.timeOfLastSyncCompletion >= 10 ) then
-                                            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync has failed to start. Please try again!" ) );
-                                            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
-                                            GRMsyncGlobals.initializeTracker = false;
-                                        end
-                                    end);
-                                end
+                                C_Timer.After ( GRMsyncGlobals.ErrorCD + 1 , function ()
+                                    if not GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.timeOfLastSyncCompletion >= 10 ) then
+                                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync has failed to start. Please try again!" ) );
+                                        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                                        GRMsync.ResetSyncTracker();
+                                    end
+                                end);
                             end
                         end);
                     else
@@ -24680,9 +24677,15 @@ GRM.SyncCommandScan = function( count )
         
                 else
                     GRM.Report ( GRM.L ( "Please wait {num} more seconds before manually initiating the sync process again." , nil , nil , 15 - ( time() - GRM_G.slashCommandSyncTimer ) ) );
+                    GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                    GRMsync.ResetSyncTracker();
+
                 end
             else
                 GRM.Report ( GRM.L ( "Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer." , nil , nil , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncDelay , ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncDelay - ( time() - GRMsyncGlobals.timeAtLogin ) ) ) );
+                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                GRMsync.ResetSyncTracker();
+
             end
 
         elseif not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
