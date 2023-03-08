@@ -7731,7 +7731,7 @@ GRM.GetPlayerClassByGUID = function ( guid )
     local class = "";
 
     if guid then
-        class = select ( 2 , GetPlayerInfoByGUID ( guid ) ); 
+        class = select ( 2 , GetPlayerInfoByGUID ( guid ) );
     end
 
     return class;
@@ -7743,6 +7743,15 @@ end
 GRM.GetClassColorRGB = function ( className , getHex )
     -- Defaults to color white if unable to identify.
     local result = { 1 , 1 , 1 };
+
+    if not className then
+        if getHex then
+            return "";
+        else
+            return result;
+        end
+    end
+    
     className = string.upper ( string.gsub ( className , " " , "" ) ); -- just to ensure formatting properly
 
     if getHex then
@@ -20097,6 +20106,49 @@ GRM.GetBannedPlayersStillInGuild = function()
         end
     end
     return playerDetails;
+end
+
+-- Method:          GRM.GetListBannedAndUnbannedPlayers ( guildData )
+-- What it Does:    Pulls the list of all players banned and unbanned.
+-- Purpose:         For sync use - only need to compare timestamp. If not the same, then will tag it as needed to be shown. 
+GRM.GetListBannedAndUnbannedPlayers = function( guildAndFormer )
+    -- data = { guildData , leftGuildData } -- temp files to scan through.
+    local result = {};
+    local data = guildAndFormer or { GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] , GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ] };
+
+    if guildAndFormer then
+
+        -- In a linear array, not in linked table
+        for i = 1 , #data do
+            for j = 1 , #data[i] do
+                if data[i][j].bannedInfo[1] or data[i][j].bannedInfo[3] then
+                    -- Banned or Unbanned
+
+                    table.insert ( result , { data[i][j].name , data[i][j].bannedInfo[2] } );   -- name and timestamp is all that is needed
+
+                end
+            end
+        end
+
+    else
+
+        for i = 1 , #data do
+            for _ , player in pairs ( data[i] ) do
+                if type ( player ) == "table" then
+
+                    if player.bannedInfo[1] or player.bannedInfo[3] then
+                        -- Banned or Unbanned
+
+                        table.insert ( result , { player.name , player.bannedInfo[2] } );   -- name and timestamp is all that is needed
+
+                    end
+                end
+            end
+        end
+
+    end
+
+    return result;
 end
 
 -- Method:          GRM.SyncRemoveCurrentPlayerBan ( string , int )

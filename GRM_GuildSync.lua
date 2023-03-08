@@ -63,8 +63,6 @@ GRMsyncGlobals.CurrentLeaderRankID = -1;
 GRMsyncGlobals.firstSync = true;
 GRMsyncGlobals.currentlySyncing = false;
 GRMsyncGlobals.JDSyncComplete = false               
-GRMsyncGlobals.SyncCount7 = 1;
-GRMsyncGlobals.SyncCountBan = 0;              -- For the ban list sync.
 GRMsyncGlobals.timeOfLastSyncCompletion = 0;
 -- For more efficient sync tracking
 GRMsyncGlobals.SyncCountJD = 1;             -- For Join Date loop
@@ -74,6 +72,7 @@ GRMsyncGlobals.SyncCountAltAdd2 = 1;
 GRMsyncGlobals.SyncCountMain = 1;
 GRMsyncGlobals.SyncCountCustom = 1;
 GRMsyncGlobals.SyncCountBday = 1;
+GRMsyncGlobals.SyncCountBan = 1;
 GRMsyncGlobals.SyncCountAdd1 = 1;
 GRMsyncGlobals.SyncCountAdd2 = 1;
 GRMsyncGlobals.BanCount = 2;
@@ -173,6 +172,8 @@ GRMsyncGlobals.TrackerData = {};
 GRMsyncGlobals.syncFailed = false;
 GRMsyncGlobals.trackerPoint = "";
 GRMsyncGlobals.finishResetDelay = false;
+GRMsyncGlobals.totalEstTime = 0;
+GRMsyncGlobals.progStart = 0;
 
 -- Prefixes for tagging info as it is sent and picked up across server channel to other players in guild.
 GRMsyncGlobals.listOfPrefixes = { 
@@ -373,6 +374,7 @@ GRMsync.ResetSyncTracker = function()
     GRMsyncGlobals.trackerPoint = "";
     GRMsyncGlobals.finishResetDelay = false;
     GRMsyncGlobals.totalEstTime = 0;
+    GRMsyncGlobals.progStart = 0;
 
 end
 
@@ -430,6 +432,7 @@ GRMsync.CalculateTotalSyncVolume = function()
     local result = {};
     local initLength = 10;
     local totalSeconds = 0;
+    local secondsSoFar = 0;
     
     for i = 1 , #GRMsyncGlobals.DatabaseExactIndexes do
         if i == 3 then
@@ -438,6 +441,8 @@ GRMsync.CalculateTotalSyncVolume = function()
             total = total + ( #GRMsyncGlobals.DatabaseExactIndexes[i] * 2);
         elseif i == 5 then
             total = total + ( #GRMsyncGlobals.DatabaseExactIndexes[i] * 4);
+        elseif i == 7 then
+            total = total + ( #GRMsyncGlobals.DatabaseExactIndexes[i] * 3);
         else
             total = total + #GRMsyncGlobals.DatabaseExactIndexes[i];
         end
@@ -447,40 +452,53 @@ GRMsync.CalculateTotalSyncVolume = function()
     -- Also, each point is the finalDestination precent, so an accumulation of all previous -- The index 2 of the array is the total number ofitems. This will help estimate the time needed to sync this info.
     
     if total ~= 0 then
-        result.JD = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[1] / total ) * 100 ) + 0.5 ) , GRMsync.SyncTimeEstimation ( "JD" , #GRMsyncGlobals.DatabaseExactIndexes[1] ) };
+        result.JD = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[1] / total ) * 100 ) + 0.5 ) , GRMsync.SyncTimeEstimation ( "JD" , #GRMsyncGlobals.DatabaseExactIndexes[1] ) , 0 };
         if result.JD[1] > 0 and result.JD[1] < initLength then    -- Just for quality of life - can't have it go backwards in time.
             result.JD[1] = initLength;
         end
+        result.JD[3] = totalSeconds + result.JD[2]      -- Position 3 helps mark where in passed time this percent should lie
         totalSeconds = totalSeconds + result.JD[2];
 
-        result.PD = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[2] / total ) * 100 ) + 0.5 ) + result.JD[1] , GRMsync.SyncTimeEstimation ( "PD" , #GRMsyncGlobals.DatabaseExactIndexes[2] ) };
+        result.PD = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[2] / total ) * 100 ) + 0.5 ) + result.JD[1] , GRMsync.SyncTimeEstimation ( "PD" , #GRMsyncGlobals.DatabaseExactIndexes[2] ) , 0 };
         if result.PD[1] > 0 and result.PD[1] < initLength then
             result.PD[1] = initLength;
         end
+        result.PD[3] = totalSeconds + result.PD[2]
         totalSeconds = totalSeconds + result.PD[2];
 
-        result.ALT = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[3] * 3) / total ) * 100 ) + 0.5 ) + result.PD[1] , GRMsync.SyncTimeEstimation ( "ALT" , #GRMsyncGlobals.DatabaseExactIndexes[3] ) };
+        result.ALT = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[3] * 3) / total ) * 100 ) + 0.5 ) + result.PD[1] , GRMsync.SyncTimeEstimation ( "ALT" , #GRMsyncGlobals.DatabaseExactIndexes[3] ) , 0 };
         if result.ALT[1] > 0 and result.ALT[1] < initLength then
             result.ALT[1] = initLength;
         end
+        result.ALT[3] = totalSeconds + result.ALT[2]
         totalSeconds = totalSeconds + result.ALT[2];
 
-        result.MAIN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[4] * 2 ) / total ) * 100 ) + 0.5 ) + result.ALT[1] , GRMsync.SyncTimeEstimation ( "MAIN" , #GRMsyncGlobals.DatabaseExactIndexes[4] ) };
+        result.MAIN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[4] * 2 ) / total ) * 100 ) + 0.5 ) + result.ALT[1] , GRMsync.SyncTimeEstimation ( "MAIN" , #GRMsyncGlobals.DatabaseExactIndexes[4] ) , 0 };
         if result.MAIN[1] > 0 and result.MAIN[1] < initLength then
             result.MAIN[1] = initLength;
         end
+        result.MAIN[3] = totalSeconds + result.MAIN[2]
         totalSeconds = totalSeconds + result.MAIN[2];
 
-        result.CUSTOMNOTE = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[5] * 4) / total ) * 100 ) + 0.5 ) + result.MAIN[1] , GRMsync.SyncTimeEstimation ( "CUSTOMNOTE" , #GRMsyncGlobals.DatabaseExactIndexes[5] ) };
+        result.CUSTOMNOTE = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[5] * 4) / total ) * 100 ) + 0.5 ) + result.MAIN[1] , GRMsync.SyncTimeEstimation ( "CUSTOMNOTE" , #GRMsyncGlobals.DatabaseExactIndexes[5] ) , 0 };
         if result.CUSTOMNOTE[1] > 0 and result.CUSTOMNOTE[1] < initLength then
             result.CUSTOMNOTE[1] = initLength;
         end
+        result.CUSTOMNOTE[3] = totalSeconds + result.CUSTOMNOTE[2]
         totalSeconds = totalSeconds + result.CUSTOMNOTE[2];
+        
+        result.BAN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[7] * 3 ) / total ) * 100 ) + 0.5 ) + result.CUSTOMNOTE[1] , GRMsync.SyncTimeEstimation ( "BAN" , #GRMsyncGlobals.DatabaseExactIndexes[7] ) , 0 };
+        if result.BAN[1] > 0 and result.BAN[1] < initLength then
+            result.BAN[1] = initLength;
+        end
+        result.BAN[3] = totalSeconds + result.BAN[2]
+        totalSeconds = totalSeconds + result.BAN[2];
 
-        result.BDAY = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[6] / total ) * 100 ) + 0.5 ) + result.CUSTOMNOTE[1] , GRMsync.SyncTimeEstimation ( "BDAY" , #GRMsyncGlobals.DatabaseExactIndexes[6] ) };
+        result.BDAY = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[6] / total ) * 100 ) + 0.5 ) + result.BAN[1] , GRMsync.SyncTimeEstimation ( "BDAY" , #GRMsyncGlobals.DatabaseExactIndexes[6] ) , 0 };
+
+        result.BDAY[3] = totalSeconds + result.BDAY[2]
         totalSeconds = totalSeconds + result.BDAY[2];
 
-        -- result.BAN = #GRMsyncGlobals.DatabaseExactIndexes[7];
     end
 
     return result , totalSeconds;
@@ -493,19 +511,25 @@ GRMsync.SendTrackerCalculation = function()
     local result = "";
 
     -- JD
-    result = GRMsyncGlobals.TrackerData.JD[1] .. "?" .. GRMsyncGlobals.TrackerData.JD[2] .. "?";
+    result = GRMsyncGlobals.TrackerData.JD[1] .. "?" .. GRMsyncGlobals.TrackerData.JD[2] .."?" .. GRMsyncGlobals.TrackerData.JD[3] .. "?";
+
     -- PD
-    result = result .. GRMsyncGlobals.TrackerData.PD[1] .. "?" .. GRMsyncGlobals.TrackerData.PD[2] .. "?";
+    result = result .. GRMsyncGlobals.TrackerData.PD[1] .. "?" .. GRMsyncGlobals.TrackerData.PD[2] .. "?" .. GRMsyncGlobals.TrackerData.PD[3] .. "?";
+    
     -- ALT
-    result = result .. GRMsyncGlobals.TrackerData.ALT[1] .. "?" .. GRMsyncGlobals.TrackerData.ALT[2] .. "?";
+    result = result .. GRMsyncGlobals.TrackerData.ALT[1] .. "?" .. GRMsyncGlobals.TrackerData.ALT[2] .. "?" .. GRMsyncGlobals.TrackerData.ALT[3] .. "?";
+
     -- MAIN
-    result = result .. GRMsyncGlobals.TrackerData.MAIN[1] .. "?" .. GRMsyncGlobals.TrackerData.MAIN[2] .. "?";
+    result = result .. GRMsyncGlobals.TrackerData.MAIN[1] .. "?" .. GRMsyncGlobals.TrackerData.MAIN[2] .. "?" .. GRMsyncGlobals.TrackerData.MAIN[3] .. "?";
+
     -- CUSTOMNOTE
-    result = result .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] .. "?" .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] .. "?";
+    result = result .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] .. "?" .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] .. "?" .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] .. "?";
+
     -- BDAY
-    result = result .. GRMsyncGlobals.TrackerData.BDAY[1] .. "?" .. GRMsyncGlobals.TrackerData.BDAY[2] .. "?";
-    -- -- BAN
-    -- result = result .. GRMsyncGlobals.TrackerData.BAN[1] .. "?" .. GRMsyncGlobals.TrackerData.BAN[2] .. "?";
+    result = result .. GRMsyncGlobals.TrackerData.BDAY[1] .. "?" .. GRMsyncGlobals.TrackerData.BDAY[2] .. "?" .. GRMsyncGlobals.TrackerData.BDAY[3] .. "?";
+
+    -- BAN
+    result = result .. GRMsyncGlobals.TrackerData.BAN[1] .. "?" .. GRMsyncGlobals.TrackerData.BAN[2] .. "?" .. GRMsyncGlobals.TrackerData.BAN[3] .. "?";
 
     result = result .. GRMsyncGlobals.totalEstTime;
 
@@ -516,7 +540,7 @@ end
 -- What it Does:    Parses the given messages and saves them to the tracker data table
 -- Purpose:         Ensure sync progress is unified between 2 players.
 GRMsync.CollectTrackerCalculation = function ( msg )
-    GRM_G.CheckTrackerPattern = GRM_G.CheckTrackerPattern or GRM.BuildComPattern ( 13 , "?" , false );  -- 14 when adding ban
+    GRM_G.CheckTrackerPattern = GRM_G.CheckTrackerPattern or GRM.BuildComPattern ( 22 , "?" , false );
 
     GRMsyncGlobals.TrackerData.JD = {};
     GRMsyncGlobals.TrackerData.PD = {};
@@ -526,7 +550,7 @@ GRMsync.CollectTrackerCalculation = function ( msg )
     GRMsyncGlobals.TrackerData.BDAY = {};
     -- GRMsyncGlobals.TrackerData.BAN = {};
 
-    GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[2] , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[2] , GRMsyncGlobals.TrackerData.ALT[1] , GRMsyncGlobals.TrackerData.ALT[2] , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[2] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[2] , GRMsyncGlobals.totalEstTime = GRM.ParseComMsg ( msg , GRM_G.CheckTrackerPattern );  -- Ban needs to be pared when added.
+    GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[2] , GRMsyncGlobals.TrackerData.JD[3] , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[2] , GRMsyncGlobals.TrackerData.PD[3] , GRMsyncGlobals.TrackerData.ALT[1] , GRMsyncGlobals.TrackerData.ALT[2] , GRMsyncGlobals.TrackerData.ALT[3] , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[2] , GRMsyncGlobals.TrackerData.MAIN[3] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[2] , GRMsyncGlobals.TrackerData.BDAY[3] , GRMsyncGlobals.TrackerData.BAN[1] , GRMsyncGlobals.TrackerData.BAN[2] , GRMsyncGlobals.TrackerData.BAN[3] , GRMsyncGlobals.totalEstTime = GRM.ParseComMsg ( msg , GRM_G.CheckTrackerPattern );  -- Ban needs to be pared when added.
 
     for _ , y in pairs ( GRMsyncGlobals.TrackerData ) do
         for i = 1 , #y do
@@ -2616,24 +2640,16 @@ GRMsync.GetCustomPseudoHash = function()
         end
         bday1 , bday2 = getHashPrecision ( bday1 , bday2 );
 
-        -- Ban Data
-        if player.bannedInfo[1] then
-            -- player is banned and still in the guild.
-            ban1 = ban1 + byteVal + guidVal;
-        end
-
     end
 
-    -- Add the remaining ban data
-    for i = 1 , #leftData do
-        player = leftData[i];
-        if player.bannedInfo[1] then
-            byteVal = GRM.ConvertStringToVal ( player.name );                  -- Get the byte of the first character of the first name... Adds increased uniqueness to the string
-            ban1 = ban1 + byteVal;
-        end
+    -- Ban Info
+    -- List and total byteValue
+    local bans = GRM.GetListBannedAndUnbannedPlayers ( GRMsyncGlobals.guildData , GRMsyncGlobals.formerGuildData );
+    for i = 1 , #bans do
+        ban1 = ban1 + GRM.ConvertStringToVal ( bans[i][1] ) + bans[i][2];
     end
 
-    table.insert ( ban2 , ban1 );
+    ban2 = { ban1 , bans };
 
     return { jd2 , pd2 , alt2 , main2 , cust2 , bday2 , ban2 };
 end
@@ -2648,6 +2664,7 @@ GRMsync.BuildMessagePreCheck = function()
     local temp = "";
     local preTemp = "";
     local commMsgHeader = GRM_G.PatchDayString .. "?GRM_PHASH?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.SyncQue[1] .. "?";
+    local commMsgHeaderBan = GRM_G.PatchDayString .. "?GRM_PHASHBAN?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.SyncQue[1] .. "?";
     local c;
 
     GRMsyncGlobals.SyncTracker.sendingHashes = true;
@@ -2655,7 +2672,12 @@ GRMsync.BuildMessagePreCheck = function()
     for i = 1 , #values do
 
         -- new DB item
-        c = 1;
+        if i < 7 then
+            c = 1;
+        else
+            c = 2;      -- On bans, index 1 is total byte value - just a single integer. Data starts ind 2
+        end
+
         result[i] = {};
 
         while c <= #values[i] do
@@ -2663,13 +2685,18 @@ GRMsync.BuildMessagePreCheck = function()
             -- new comms msg
             temp = "";
             if i == 7 then
-                preTemp = commMsgHeader .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. "?" .. tags[i] .. "?";
+                preTemp = commMsgHeaderBan .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. "?" .. tags[i] .. "?" .. values[i][1] .. "?";
             else
                 preTemp = commMsgHeader .. tags[i] .. "?";
             end
 
             for j = c , #values[i] do
-                preTemp = preTemp .. values[i][j] .. "?";
+
+                if i == 7 then
+                    preTemp = preTemp .. values[i][j][1] .. "--" .. tostring ( values[i][j][2] ) .. "?";
+                else
+                    preTemp = preTemp .. values[i][j] .. "?";
+                end
 
                 if ( #preTemp + GRMsyncGlobals.sizeModifier ) < 255 then
                     c = c + 1;
@@ -2698,32 +2725,37 @@ GRMsync.BuildLeaderPreCheckString = function()
     local value = 0;
     local c;    -- count
     local commMsgHeader = GRM_G.PatchDayString .. "?GRM_PHASHL?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.DesignatedLeader .. "?";
+    local commMsgHeaderBan = GRM_G.PatchDayString .. "?GRM_PHASHLBAN?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsyncGlobals.DesignatedLeader .. "?";
 
     for i = 1 , #GRMsyncGlobals.DatabaseMarkers do
         c = 1;  -- new Database item, let's reset the count
         result[i] = {};
 
-        while c <= #GRMsyncGlobals.DatabaseMarkers[i] do
-            -- new comm msg
-            temp = "";
-            preTemp = commMsgHeader .. tags[i] .. "?";
+        if i < 7 then
+            while c <= #GRMsyncGlobals.DatabaseMarkers[i] do
+                -- new comm msg
+                temp = "";
+                preTemp = commMsgHeader .. tags[i] .. "?";
 
-            for j = c , #GRMsyncGlobals.DatabaseMarkers[i] do
-                if GRMsyncGlobals.DatabaseMarkers[i][j] then
-                    value = 1;
-                else
-                    value = 0;
-                end
-                preTemp = preTemp .. tostring ( value );
+                for j = c , #GRMsyncGlobals.DatabaseMarkers[i] do
+                    if GRMsyncGlobals.DatabaseMarkers[i][j] then
+                        value = 1;
+                    else
+                        value = 0;
+                    end
+                    preTemp = preTemp .. tostring ( value );
 
-                if ( #preTemp + GRMsyncGlobals.sizeModifier ) < 255 then
-                    c = c + 1;
-                    temp = preTemp;
-                else
-                    break;
+                    if ( #preTemp + GRMsyncGlobals.sizeModifier ) < 255 then
+                        c = c + 1;
+                        temp = preTemp;
+                    else
+                        break;
+                    end
                 end
+                table.insert ( result[i] , temp );
             end
-            table.insert ( result[i] , temp );
+        else
+            result[i] = GRMsyncGlobals.DatabaseMarkers[i];
         end
     end
     return result;
@@ -2829,43 +2861,93 @@ GRMsync.SendNonLeaderDatabaseMarkers = function ( markers )
     
 end
 
--- Method:          GRMsync.BuildLeaderDatabaseMarkers ( string )
+-- Method:          GRMsync.BuildLeaderDatabaseMarkers ( string , bool )
 -- What it Does:    Takes the string of received values usually like "JD?10101010111001", parses out that tag, converts the string of numebrs into an array, converts 1 to true, and 0 to false
 --                  and then sets the Sync leaders DatabaseMarkers appropriately
 -- Purpose:         So the sync leader can also see what is needed to be compared without needeing to reprocess all.
-GRMsync.BuildLeaderDatabaseMarkers = function( received )
-    local tagEnum = { JD = 1 , PD = 2 , ALT = 3 , MAIN = 4 , CUST = 5 , BDAY = 6 , BAN = 7  };
-    local index = tagEnum [ string.match ( received , "%a+" ) ];
-    received = string.match ( received , "?(%d+)" );
+GRMsync.BuildLeaderDatabaseMarkers = function( received , isBan )
+    local tagEnum = { JD = 1 , PD = 2 , ALT = 3 , MAIN = 4 , CUST = 5 , BDAY = 6 };
+    local index;
+    local DBresults;
 
-    local DBresults = GRM.ConvertStringNumArrayToBoolArray ( GRM.StringToCharArray ( received ) );
-  
-    if not GRMsyncGlobals.DatabaseMarkers[index] then
-        GRMsyncGlobals.DatabaseMarkers[index] = {};
-    end
+    
+    if not isBan then
+        index = tagEnum [ string.match ( received , "%a+" ) ];
+        received = string.match ( received , "?(%d+)" );
+        DBresults = GRM.ConvertStringNumArrayToBoolArray ( GRM.StringToCharArray ( received ) );
+        -- merge the tables
 
-    -- merge the tables
-    for i = 1 , #DBresults do
-        table.insert ( GRMsyncGlobals.DatabaseMarkers[index] , DBresults[i] );
-    end
+        if not GRMsyncGlobals.DatabaseMarkers[index] then
+            GRMsyncGlobals.DatabaseMarkers[index] = {};
+        end
+
+        for i = 1 , #DBresults do
+            table.insert ( GRMsyncGlobals.DatabaseMarkers[index] , DBresults[i] );
+        end
+    else
+        index = 7;
+
+        if not GRMsyncGlobals.DatabaseMarkers[index] then
+            GRMsyncGlobals.DatabaseMarkers[index] = {};
+        end
+
+        local name = "";
+        
+        while string.find ( received , "?" ) ~= nil do
+            name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
+            msg = GRM.Next ( msg );
+
+            table.insert ( GRMsyncGlobals.DatabaseMarkers[index] , name );
+        end
+
+    end   
+    
 end
 
--- Method:          GRMsync.SetReceivedHashValue ( string )
+-- Method:          GRMsync.SetReceivedHashValue ( string , bool )
 -- What it Does:    Converts the received sendAddonMessage string to an array of the values
 -- Purpose:         For easier comparison of own database to received.
-GRMsync.SetReceivedHashValue = function ( hashReceived )
+GRMsync.SetReceivedHashValue = function ( hashReceived , isBan )
     GRMsyncGlobals.TimeSinceLastSyncAction = time();
     local resultReceived = {};
-    local tagEnum = { JD = 1 , PD = 2 , ALT = 3 , MAIN = 4 , CUST = 5 , BDAY = 6 , BAN = 7 };
-    local index = tagEnum [ string.match ( hashReceived , "%a+" ) ];
-    
-    hashReceived = string.match ( hashReceived , "?%d+.+" );
+    local tagEnum = { JD = 1 , PD = 2 , ALT = 3 , MAIN = 4 , CUST = 5 , BDAY = 6 };
+    local index;
+    local banValue = 0;
+    local name , num = "" , 0;
+    local c = 1;    -- for the final for loop
 
-    while string.find ( hashReceived , "?" ) ~= nil do
-        table.insert ( resultReceived , string.match ( hashReceived , "%d+" ) );
-        hashReceived = string.match ( hashReceived , "?%d+(.+)" );
-        if hashReceived == "?" then
-            break;
+    if not isBan then
+        index = tagEnum [ string.match ( hashReceived , "%a+" ) ];
+        hashReceived = string.match ( hashReceived , "?%d+.+" );
+
+        while string.find ( hashReceived , "?" ) ~= nil do
+            table.insert ( resultReceived , string.match ( hashReceived , "%d+" ) );
+            hashReceived = string.match ( hashReceived , "?%d+(.+)" );
+            if hashReceived == "?" then
+                break;
+            end
+        end
+    else
+        index = 7;
+        banValue = tonumber ( string.sub ( hashReceived , 1 , string.find ( hashReceived , "?" ) - 1 ) );
+        hashReceived = GRM.Next ( hashReceived );
+        c = 2;
+
+        table.insert ( resultReceived , banValue );
+
+        while string.find ( hashReceived , "?" ) ~= nil do
+
+            name = string.sub ( hashReceived , 1 , string.find ( hashReceived , "--" ) - 1 );
+            hashReceived = string.match ( msg , "--(.+)" );
+            num = tonumber ( string.sub ( hashReceived , 1 , string.find ( hashReceived , "?" ) - 1 ) );
+            hashReceived = GRM.Next ( hashReceived );
+
+            table.insert ( resultReceived , { name , num } );
+
+            if hashReceived == "?" then
+                break;
+            end
+
         end
     end
     
@@ -2874,8 +2956,13 @@ GRMsync.SetReceivedHashValue = function ( hashReceived )
     end
 
     -- merging the tables
-    for i = 1 , #resultReceived do
-        table.insert ( GRMsyncGlobals.HashValuesReceived[index] , resultReceived[i] );
+    for i = c , #resultReceived do
+
+        if isBan and c >= 2 then
+            table.insert ( GRMsyncGlobals.HashValuesReceived[index] , resultReceived[i] );
+        else
+            table.insert ( GRMsyncGlobals.HashValuesReceived[index] , resultReceived[i] );
+        end
     end
 end
 
@@ -2888,6 +2975,7 @@ GRMsync.CompareDatabaseMarkers = function ()
     local isSame = false;
     local result = {};
     local banPermissions = ( GRM_G.playerRankID <= GRMsyncGlobals.senderBanRankReq and GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
+    local bans = {};
 
     -- Databases do not currently align... Need another roster scan to align the changes.
     if #GRMsyncGlobals.HashValuesReceived ~= #HashValuesMine then
@@ -2896,7 +2984,7 @@ GRMsync.CompareDatabaseMarkers = function ()
 
     for i = 1 , #HashValuesMine do
         temp = {};
-        if i < 7 or banPermissions then
+        if i < 7 then
 
             for j = 1 , #HashValuesMine[i] do
                 isSame = false;
@@ -2913,11 +3001,57 @@ GRMsync.CompareDatabaseMarkers = function ()
                 table.insert ( temp , isSame );
             end
 
-        elseif i == 7 and not banPermissions then
-            table.insert ( temp , false );
         end
         result[i] = temp;
     end
+
+    -- Compare ban information now...
+    if HashValuesMine[7][1] ~= GRMsyncGlobals.HashValuesReceived[7][1] then
+        -- Has values differ, now let's see which are different.
+
+        local isFound = false;
+        for i = 2 , #HashValuesMine[7] do
+            isFound = false;
+            for j = 2 , #GRMsyncGlobals.HashValuesReceived[7] do
+
+                if GRMsyncGlobals.HashValuesReceived[7][j][1] == HashValuesMine[7][i][1] then
+                    if GRMsyncGlobals.HashValuesReceived[7][j][2] ~= HashValuesMine[7][i][2] then   -- Epoch times differ, need sync
+                        bans[GRMsyncGlobals.HashValuesReceived[7][j][1]] = {};
+                    end
+                    isFound = true;
+                    break;
+                end
+            end
+
+            if not isFound then
+                bans[HashValuesMine[7][i][1]] = {};
+            end
+        end
+
+        for i = 2 , #GRMsyncGlobals.HashValuesReceived[7] do
+            isFound = false;
+            for j = 2 , #HashValuesMine[7] do
+
+                if not bans[HashValuesMine[7][j][1]] and HashValuesMine[7][j][1] == GRMsyncGlobals.HashValuesReceived[7][i][1] then
+                    if HashValuesMine[7][j][2] ~= GRMsyncGlobals.HashValuesReceived[7][i][2] then   -- Epoch times differ, need sync
+                        bans[HashValuesMine[7][j][1]] = {};
+                    end
+                    isFound = true;
+                    break;
+                end
+            end
+
+            if not isFound and not bans[GRMsyncGlobals.HashValuesReceived[7][i][1]] then
+                bans[GRMsyncGlobals.HashValuesReceived[7][i][1]] = {};
+            end
+        end
+
+        result[7] = bans;
+        
+    else
+        result[7] = {};
+    end
+
     return result;
 end
 
@@ -2943,19 +3077,17 @@ GRMsync.SyncProgressInitialize = function()
 
     for i = 1 , #GRMsyncGlobals.DatabaseMarkers do
 
-        if i < 7 or banPermissions then
+        if i < 7 then
 
             for j = 1 , #GRMsyncGlobals.DatabaseMarkers[i] do
                 if not GRMsyncGlobals.DatabaseMarkers[i][j] then
                     result = true;
 
-                    -- Some messy code needs to be reorganized
+                    -- Some messy code needed to be reorganized
                     if i < 6 then                                   -- Join, Promote, Alt, Main , custom
                         GRMsyncGlobals.SyncProgress[i] = true;
                     elseif i == 6 then                              -- Bday
                         GRMsyncGlobals.SyncProgress[7] = true;
-                    elseif i == 7 then                              -- Ban 
-                        GRMsyncGlobals.SyncProgress[6] = true;  
                     end
                     break;
 
@@ -2964,6 +3096,14 @@ GRMsync.SyncProgressInitialize = function()
 
         end
     end
+
+    if banPermissions and GRM.TableLength ( GRMsyncGlobals.DatabaseMarkers[7] ) > 0 then
+        result = true;
+
+    else
+        GRMsyncGlobals.SyncProgress[6] = false; 
+    end
+
     return result;
 end
 
@@ -2984,10 +3124,6 @@ GRMsync.NextSyncStep = function( nextStep )
                 end
             else
                 GRMsyncGlobals.ThrottleCap = GRMsyncGlobals.normalMessage;
-                if i == 6 then
-                    GRMsyncGlobals.SyncCountBan = GRM.GetNumStoredFormerMembers ( GRM_G.guildName , GRM_G.F );
-                    GRMsyncGlobals.SyncCount7 = GRM.GetNumGuildiesInGuild ( GRM_G.guildName , GRM_G.F );
-                end
             end
             actions[i]();
             break;
@@ -3505,21 +3641,6 @@ GRMsync.SendMainPackets = function()
     end
 end
 
--- Method:          GRMsync.BanPacketsThrottleControl ( int )
--- What it Does:    Re-trigger ban loop if necessary to prevent breaking throttle.
--- Purpose:         There seems to be an as yet unidentified edge case reported on the ban breaking throttle limits and I have been unable to
---                  on-hand test this with the people having the issue so this is just a brute force method layer of protection only to prevent it, as a stop-gap solution for
-GRMsync.BanPacketsThrottleControl = function ( isFirst , i )
-    GRMsyncGlobals.syncTempDelay = true;
-    if isFirst then
-        GRMsyncGlobals.SyncCountBan = i;
-    else
-        GRMsyncGlobals.SyncCount7 = i;
-    end
-    GRMsyncGlobals.SyncCount = 0;
-    C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SendBANPackets );       -- Add a 1 second delay on packet sending.
-end
-
 -- Method:          GRMsync.SendBANPackets()
 -- What it Does:    Broadcasts to the leader all Ban information
 -- Purpose:         Data sync
@@ -3534,204 +3655,145 @@ GRMsync.SendBANPackets = function()
         GRMsyncGlobals.SyncBanDelay = time();
         -- Initiate Data sending
         GRMsyncGlobals.TimeSinceLastSyncAction = time();
-        -- For sync error check help
-        local tempMsg = GRM_G.PatchDayString .. "?GRM_BANSYNC4?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. " ?";
+
+        local messageHeader = GRM_G.PatchDayString .. "?GRM_BANSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
+        local syncMessage = "";
+        local tempMessage = "";
+        local messageReady;
         local guildData = GRMsyncGlobals.guildData;
         local leftGuildData = GRMsyncGlobals.formerGuildData;
+        local banNames = GRMsyncGlobals.DatabaseExactIndexes[7];
+        local j;
 
-        GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMsg + GRMsyncGlobals.sizeModifier;
-        GRMsync.SendMessage ( "GRM_SYNC" , tempMsg , GRMsyncGlobals.DesignatedLeader );
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncBanList then
+        -- Banned info to send.
+        local timeStampOfBanChange = "";
+        local banType = "3";  -- 1 = ban , 2 = unban , 3 = noBan  -- string format for sending
+        local reason = "";
+        local playerWhoBanned = "";
+        local class = "";
+        local GUID = "";
+        local formerMember = "1"; -- 0 = currentMember , 1 = former
 
-                -- Messages need to be throttled, but sending them under controls.
-            local syncMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
-            local errorSyncCheckMsg = GRM_G.PatchDayString .. "?GRM_BANSYNC2?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
-            local tempMessage = "";
-            local tempMessage2 = "";
-            local tempMessage3 = "";
-            local messageReady;
-            local timeStampOfBanChange;
-            local msgTag;
-            local reason = "";
-            local playerWhoBanned = "";
-            local errorProtectionCount = 0;
-            
-            for i = GRMsyncGlobals.SyncCountBan , 1 , -1 do
-                messageReady = false;
+        for i = GRMsyncGlobals.SyncCountBan , #banNames do
+            messageReady = false;
+            local player;
 
-                timeStampOfBanChange = tostring ( leftGuildData[i].bannedInfo[2] );
-                msgTag = "ban";
-                -- Let's see if someone was unbanned.
-                if leftGuildData[i].bannedInfo[3] then
-                    msgTag = "unban";
-                elseif not leftGuildData[i].bannedInfo[1] and not leftGuildData[i].bannedInfo[3] then
-                    msgTag = "noban";
+            if GRMsyncGlobals.SyncOK then
+
+                j = GRM.GetIndexOfPlayerOnList ( guildData , banNames[i] );
+
+                if not j then
+                    j = GRM.GetIndexOfPlayerOnList ( leftGuildData , banNames[i] );
+                    if j then
+                        player =  leftGuildData[j];
+                        formerMember = "1";
+                    end
+                else
+                    player = guildData[j];
+                    formerMember = "0";
                 end
-                
-                if GRMsyncGlobals.SyncOK then
-                    -- Expand the string more... Fill up the full 255 characters for efficiency.
+
+                if player then
+
+                    -- CLASS
+                    if player.class == nil or player.class == "" then
+                        class = "0";        -- zero so it is just 1 char long.
+                    else
+                        class = tostring ( allClassesEnum[ player.class ] )
+                    if not class then
+                        class = "0";
+                    end
+
+                    -- OLD META EPOCH
+                    oldJoinDateMeta = 0;
+                    if player.joinDateHist[1][4] > 0 then
+                        oldJoinDateMeta = player.joinDateHist[1][4];
+                    elseif player.rankHist[1][5] > 0 then
+                        oldJoinDateMeta = player.rankHist[1][5]; -- for some reason no join leave data recorded so default
+                    end
+
+                    -- GUID
+                    GUID = player.GUID;
+                    if player.GUID == "" or player.GUID == nil then
+                        GUID = "X";
+                    end
+                    
+                    -- BANTYPE
+                    if player.bannedInfo[1] then
+                        banType = "1";
+                    elseif player.bannedInfo[3] then
+                        banType = "2";
+                    else
+                        banType = "3";
+                    end
+
+                    -- REASON FOR BAN
+                    if player.reasonBanned == "" or player.reasonBanned == nil then
+                        reason = "X";
+                    else
+                        reason = player.reasonBanned;
+                    end
+
+                    -- PERSON WHO BANNED
+                    if player.bannedInfo[4] == "" or player.bannedInfo[4] == nil then
+                        playerWhoBanned = "X";
+                    else
+                        playerWhoBanned = player.bannedInfo[4];
+                    end
+
+                    
+                    -- name , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned
+
+                    tempMessage = messageHeader .. "?" .. player.name .. "?" .. tostring ( player.rankIndex ) ..  "?" .. tostring ( player.level ) .. "?" .. class .. "?" .. tostring ( player.joinDateHist[1][4] ) .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. GUID .. "?" .. tostring ( player.bannedInfo[2] ) .. "?" .. banType .. "?" .. reason .. "?" .. playerWhoBanned .. "?" .. formerMember;
+
+        
                     if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
+                        syncMessage = tempMessage;
+                        messageReady = true;
 
-                        if leftGuildData[i].reasonBanned == "" or leftGuildData[i].reasonBanned == nil then
-                            reason = GRM.L ( "No Reason Given" );
-                        else
-                            reason = leftGuildData[i].reasonBanned;
-                        end
-                        if leftGuildData[i].bannedInfo[4] == "" or leftGuildData[i].bannedInfo[4] == nil then
-                            playerWhoBanned = "X";
-                        else
-                            playerWhoBanned = leftGuildData[i].bannedInfo[4];
-                        end
-                        if msgTag == "ban" or msgTag == "unban" then
-                            
-                            -- # will represent the GRM_BanSync2 - that player needs to be added to the database...]
-                            local class = leftGuildData[i].class;
-                            if class == nil or class == "" then
-                                class = "0";        -- zero so it is just 1 char long.
-                            else
-                                class = tostring ( allClassesEnum[ class ] )
-                                if not class then
-                                    class = "0";
-                                end
-                            end
-                            local guid = leftGuildData[i].GUID;
-                            if guid == "" or guid == nil then
-                                guid = "X";
-                            end
-
-                            local oldJoinDateMeta = 0;
-                            if leftGuildData[i].joinDateHist[1][4] > 0 then
-                                oldJoinDateMeta = leftGuildData[i].joinDateHist[1][4];
-                            elseif leftGuildData[i].rankHist[1][5] > 0 then
-                                oldJoinDateMeta = leftGuildData[i].rankHist[1][5]; -- for some reason no join leave data recorded so defaulting to the first promotion held date.
-                            end
-
-                            tempMessage3 = "?#" .. leftGuildData[i].name .. "?" .. tostring ( leftGuildData[i].rankIndex ) .. "?" .. tostring ( leftGuildData[i].level ) .. "?" .. class .. "?" .. tostring ( leftGuildData[i].joinDateHist[1][4] ) .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. guid .. "?&" .. leftGuildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. reason .. "?" .. playerWhoBanned;
-
-                            tempMessage = syncMessage .. tempMessage3;
-
-                            -- partial string for carryover without the header
-                            tempMessage2 = tempMessage3;
-                        else
-                            tempMessage = syncMessage .. "?&" .. leftGuildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. reason .. "?" .. playerWhoBanned;
-
-                            tempMessage2 = "?&" .. leftGuildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. reason .. "?" .. playerWhoBanned;                        
-                        end
+                    else
+                        -- Possibly reason is too long, just slim it.
+                        local trimAmount = 
+                        reason = string.sub ( reason , 1 , #reason - ( ( #tempMessage + GRMsyncGlobals.sizeModifier ) - 254 ) );
+                        -- Reprocess the string
+                        tempMessage = syncMessage .. "?" .. player.name .. "?" .. tostring ( player.rankIndex ) ..  "?" .. tostring ( player.level ) .. "?" .. class .. "?" .. tostring ( player.joinDateHist[1][4] ) .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. GUID .. "?" .. tostring ( player.bannedInfo[2] ) .. "?" .. banType .. "?" .. reason .. "?" .. playerWhoBanned .. "?" .. formerMember;
 
                         if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
                             syncMessage = tempMessage;
-                            if i == 2 then
-                                messageReady = true;
-                            end
-                        else
                             messageReady = true;
-                            -- Hold this value over...
-                            tempMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. tempMessage2;
-                            -- If we are in the last index it won't loop back around, so we need to send it now...
-                            if i == 2 then
-                                GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMessage + GRMsyncGlobals.sizeModifier;
-                                errorProtectionCount = errorProtectionCount + 1;
-                                GRMsync.SendMessage ( "GRM_SYNC" , tempMessage , GRMsyncGlobals.DesignatedLeader );
-                            end
+                        else
+                            -- This shouldn't happen, but in theory it could if someone bypasses the "reason" string limit"
+                            print("GRM error on syncing the banned player: " .. player.name .. " - Please report to GRM author" )
                         end
-                    else
-                        -- ??
                     end
 
-                    -- Send message
-                    if messageReady then
-                        GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
-                        errorProtectionCount = errorProtectionCount + 1;
-                        GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
-                        syncMessage = tempMessage;
-                    end
+                end
 
-                    -- Check if there needs to be a throttled delay
-                    if ( GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap ) or errorProtectionCount > 12 then
-                        GRMsync.BanPacketsThrottleControl ( true , i );
-                        return;
-                    end
-                else
-                    GRMsync.EndSync();
+
+                -- Send message
+                if messageReady then
+                    GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+                    GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+                    syncMessage = "";
+                    tempMessage = "";
+                end
+
+                -- Check if there needs to be a throttled delay
+                if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
+                    GRMsyncGlobals.syncTempDelay = true;
+                    GRMsyncGlobals.SyncCountBan = i;
+                    GRMsyncGlobals.SyncCount = 0; 
+                    C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SendPDPackets );       -- Add a delay on packet sending.
                     return;
                 end
-            end
-            -- reset values to new list...
-            syncMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC2?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
-            tempMessage = "";
-            -- if I get here... let's do the in-guild sync too!
-            for i = GRMsyncGlobals.SyncCount7 , 1 , -1 do
-                messageReady = false;
-
-                timeStampOfBanChange = tostring ( guildData[i].bannedInfo[2] );
-                msgTag = "ban";
-                -- Let's see if someone was unbanned.
-                if guildData[i].bannedInfo[3] then
-                    msgTag = "unban";
-                elseif not guildData[i].bannedInfo[1] and not guildData[i].bannedInfo[3] then
-                    msgTag = "noban";
-                end
-
-                if guildData[i].bannedInfo[4] == "" or guildData[i].bannedInfo[4] == nil then
-                    playerWhoBanned = "X";
-                else
-                    playerWhoBanned = guildData[i].bannedInfo[4];
-                end
-
-                if GRMsyncGlobals.SyncOK then
-                    -- Expand the string more... Fill up the full 255 characters for efficiency.
-                    if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
-
-                        if msgTag == "ban" or msgTag == "unban" then
-                            -- % will represent the GRM_BanSync2 - that player needs to be added to the database...]
-                            tempMessage = syncMessage .. "?" .. guildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. guildData[i].reasonBanned .. "?" .. playerWhoBanned;
-                        end
-
-                        if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
-                            if tempMessage ~= "" then
-                                syncMessage = tempMessage;
-                            end
-                            if i == 2 and not ( syncMessage == errorSyncCheckMsg ) then
-                                messageReady = true;
-                            end
-                        else
-                            messageReady = true;
-                            -- Hold this value over...
-                            tempMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC2?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. "?" .. guildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. guildData[i].reasonBanned .. "?" .. playerWhoBanned;
-
-                            -- If we are in the last index it won't loop back around, so we need to send it now...
-                            if i == 2 and not tempMessage == ( errorSyncCheckMsg ) then
-                                GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMessage + GRMsyncGlobals.sizeModifier;
-                                errorProtectionCount = errorProtectionCount + 1;
-                                GRMsync.SendMessage ( "GRM_SYNC" , tempMessage , GRMsyncGlobals.DesignatedLeader );
-                            end
-                        end
-                    end
-                    -- Send message
-                    if messageReady then
-                        GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
-                        if syncMessage ~= errorSyncCheckMsg then
-                            errorProtectionCount = errorProtectionCount + 1;
-                            GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
-                        end
-                        syncMessage = tempMessage;
-                    end
-
-                    -- Check if there needs to be a throttled delay
-                    if ( GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap ) or errorProtectionCount > 12 then
-                        GRMsync.BanPacketsThrottleControl ( false , i );
-                        return;
-                    end
-                else
-                    GRMsync.EndSync();
-                    return;
-                end
+            else
+                GRMsync.EndSync();
+                return;
             end
         end
+        
         -- Close the Data stream
-
-        GRMsyncGlobals.SyncCountBan = #GRMsyncGlobals.formerGuildData;
-        GRMsyncGlobals.SyncCount7 = #GRMsyncGlobals.guildData;
+        GRMsyncGlobals.SyncCountBan = 1;
         GRMsyncGlobals.syncTempDelay = false;
         if GRMsyncGlobals.SyncOK then
             GRMsync.NextSyncStep ( 7 );
@@ -3741,6 +3803,240 @@ GRMsync.SendBANPackets = function()
         end
     end
 end
+
+
+-- -- Method:          GRMsync.BanPacketsThrottleControl ( int )
+-- -- What it Does:    Re-trigger ban loop if necessary to prevent breaking throttle.
+-- -- Purpose:         There seems to be an as yet unidentified edge case reported on the ban breaking throttle limits and I have been unable to on-hand test this with the people having the issue so this is just a brute force method layer of protection only to prevent it, as a stop-gap solution for
+-- GRMsync.BanPacketsThrottleControl = function ( isFirst , i )
+--     GRMsyncGlobals.syncTempDelay = true;
+--     if isFirst then
+--         GRMsyncGlobals.SyncCountBan = i;
+--     else
+--         GRMsyncGlobals.SyncCount7 = i;
+--     end
+--     GRMsyncGlobals.SyncCount = 0;
+--     C_Timer.After ( GRMsyncGlobals.ThrottleDelay , GRMsync.SendBANPackets );       -- Add a 1 second delay on packet sending.
+-- end
+
+-- -- Method:          GRMsync.SendBANPackets()
+-- -- What it Does:    Broadcasts to the leader all Ban information
+-- -- Purpose:         Data sync
+-- GRMsync.SendBANPackets = function()
+--     if time() - GRMsyncGlobals.SyncBanDelay >= 0.9 then
+
+--         -- Progress tracking
+--         if not GRMsyncGlobals.SyncTracker.banData then
+--             GRMsyncGlobals.ProgressControl ( "BAN" );
+--         end
+
+--         GRMsyncGlobals.SyncBanDelay = time();
+--         -- Initiate Data sending
+--         GRMsyncGlobals.TimeSinceLastSyncAction = time();
+--         -- For sync error check help
+--         local guildData = GRMsyncGlobals.guildData;
+--         local leftGuildData = GRMsyncGlobals.formerGuildData;
+
+--         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncBanList then
+
+--                 -- Messages need to be throttled, but sending them under controls.
+--             local syncMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
+--             local errorSyncCheckMsg = GRM_G.PatchDayString .. "?GRM_BANSYNC2?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
+--             local tempMessage = "";
+--             local tempMessage2 = "";
+--             local tempMessage3 = "";
+--             local messageReady;
+--             local timeStampOfBanChange;
+--             local msgTag;
+--             local reason = "";
+--             local playerWhoBanned = "";
+--             local errorProtectionCount = 0;
+            
+--             for i = GRMsyncGlobals.SyncCountBan , 1 , -1 do
+--                 messageReady = false;
+
+--                 timeStampOfBanChange = tostring ( leftGuildData[i].bannedInfo[2] );
+--                 msgTag = "ban";
+--                 -- Let's see if someone was unbanned.
+--                 if leftGuildData[i].bannedInfo[3] then
+--                     msgTag = "unban";
+--                 elseif not leftGuildData[i].bannedInfo[1] and not leftGuildData[i].bannedInfo[3] then
+--                     msgTag = "noban";
+--                 end
+                
+--                 if GRMsyncGlobals.SyncOK then
+--                     -- Expand the string more... Fill up the full 255 characters for efficiency.
+--                     if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
+
+--                         if leftGuildData[i].reasonBanned == "" or leftGuildData[i].reasonBanned == nil then
+--                             reason = GRM.L ( "No Reason Given" );
+--                         else
+--                             reason = leftGuildData[i].reasonBanned;
+--                         end
+--                         if leftGuildData[i].bannedInfo[4] == "" or leftGuildData[i].bannedInfo[4] == nil then
+--                             playerWhoBanned = "X";
+--                         else
+--                             playerWhoBanned = leftGuildData[i].bannedInfo[4];
+--                         end
+--                         if msgTag == "ban" or msgTag == "unban" then
+                            
+--                             -- # will represent the GRM_BanSync2 - that player needs to be added to the database...]
+--                             local class = leftGuildData[i].class;
+--                             if class == nil or class == "" then
+--                                 class = "0";        -- zero so it is just 1 char long.
+--                             else
+--                                 class = tostring ( allClassesEnum[ class ] )
+--                                 if not class then
+--                                     class = "0";
+--                                 end
+--                             end
+--                             local guid = leftGuildData[i].GUID;
+--                             if guid == "" or guid == nil then
+--                                 guid = "X";
+--                             end
+
+--                             local oldJoinDateMeta = 0;
+--                             if leftGuildData[i].joinDateHist[1][4] > 0 then
+--                                 oldJoinDateMeta = leftGuildData[i].joinDateHist[1][4];
+--                             elseif leftGuildData[i].rankHist[1][5] > 0 then
+--                                 oldJoinDateMeta = leftGuildData[i].rankHist[1][5]; -- for some reason no join leave data recorded so defaulting to the first promotion held date.
+--                             end
+
+--                             tempMessage3 = "?#" .. leftGuildData[i].name .. "?" .. tostring ( leftGuildData[i].rankIndex ) .. "?" .. tostring ( leftGuildData[i].level ) .. "?" .. class .. "?" .. tostring ( leftGuildData[i].joinDateHist[1][4] ) .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. guid .. "?&" .. leftGuildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. reason .. "?" .. playerWhoBanned;
+
+--                             tempMessage = syncMessage .. tempMessage3;
+
+--                             -- partial string for carryover without the header
+--                             tempMessage2 = tempMessage3;
+--                         else
+--                             tempMessage = syncMessage .. "?&" .. leftGuildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. reason .. "?" .. playerWhoBanned;
+
+--                             tempMessage2 = "?&" .. leftGuildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. reason .. "?" .. playerWhoBanned;                        
+--                         end
+
+--                         if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
+--                             syncMessage = tempMessage;
+--                             if i == 2 then
+--                                 messageReady = true;
+--                             end
+--                         else
+--                             messageReady = true;
+--                             -- Hold this value over...
+--                             tempMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. tempMessage2;
+--                             -- If we are in the last index it won't loop back around, so we need to send it now...
+--                             if i == 2 then
+--                                 GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMessage + GRMsyncGlobals.sizeModifier;
+--                                 errorProtectionCount = errorProtectionCount + 1;
+--                                 GRMsync.SendMessage ( "GRM_SYNC" , tempMessage , GRMsyncGlobals.DesignatedLeader );
+--                             end
+--                         end
+--                     else
+--                         -- ??
+--                     end
+
+--                     -- Send message
+--                     if messageReady then
+--                         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+--                         errorProtectionCount = errorProtectionCount + 1;
+--                         GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+--                         syncMessage = tempMessage;
+--                     end
+
+--                     -- Check if there needs to be a throttled delay
+--                     if ( GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap ) or errorProtectionCount > 12 then
+--                         GRMsync.BanPacketsThrottleControl ( true , i );
+--                         return;
+--                     end
+--                 else
+--                     GRMsync.EndSync();
+--                     return;
+--                 end
+--             end
+--             -- reset values to new list...
+--             syncMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC2?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList );
+--             tempMessage = "";
+--             -- if I get here... let's do the in-guild sync too!
+--             for i = GRMsyncGlobals.SyncCount7 , 1 , -1 do
+--                 messageReady = false;
+
+--                 timeStampOfBanChange = tostring ( guildData[i].bannedInfo[2] );
+--                 msgTag = "ban";
+--                 -- Let's see if someone was unbanned.
+--                 if guildData[i].bannedInfo[3] then
+--                     msgTag = "unban";
+--                 elseif not guildData[i].bannedInfo[1] and not guildData[i].bannedInfo[3] then
+--                     msgTag = "noban";
+--                 end
+
+--                 if guildData[i].bannedInfo[4] == "" or guildData[i].bannedInfo[4] == nil then
+--                     playerWhoBanned = "X";
+--                 else
+--                     playerWhoBanned = guildData[i].bannedInfo[4];
+--                 end
+
+--                 if GRMsyncGlobals.SyncOK then
+--                     -- Expand the string more... Fill up the full 255 characters for efficiency.
+--                     if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
+
+--                         if msgTag == "ban" or msgTag == "unban" then
+--                             -- % will represent the GRM_BanSync2 - that player needs to be added to the database...]
+--                             tempMessage = syncMessage .. "?" .. guildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. guildData[i].reasonBanned .. "?" .. playerWhoBanned;
+--                         end
+
+--                         if #tempMessage + GRMsyncGlobals.sizeModifier < 255 then
+--                             if tempMessage ~= "" then
+--                                 syncMessage = tempMessage;
+--                             end
+--                             if i == 2 and not ( syncMessage == errorSyncCheckMsg ) then
+--                                 messageReady = true;
+--                             end
+--                         else
+--                             messageReady = true;
+--                             -- Hold this value over...
+--                             tempMessage = GRM_G.PatchDayString .. "?GRM_BANSYNC2?" .. GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank .. "?" .. tostring ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRankBanList ) .. "?" .. guildData[i].name .. "?" .. timeStampOfBanChange .. "?" .. msgTag .. "?" .. guildData[i].reasonBanned .. "?" .. playerWhoBanned;
+
+--                             -- If we are in the last index it won't loop back around, so we need to send it now...
+--                             if i == 2 and not tempMessage == ( errorSyncCheckMsg ) then
+--                                 GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMessage + GRMsyncGlobals.sizeModifier;
+--                                 errorProtectionCount = errorProtectionCount + 1;
+--                                 GRMsync.SendMessage ( "GRM_SYNC" , tempMessage , GRMsyncGlobals.DesignatedLeader );
+--                             end
+--                         end
+--                     end
+--                     -- Send message
+--                     if messageReady then
+--                         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+--                         if syncMessage ~= errorSyncCheckMsg then
+--                             errorProtectionCount = errorProtectionCount + 1;
+--                             GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+--                         end
+--                         syncMessage = tempMessage;
+--                     end
+
+--                     -- Check if there needs to be a throttled delay
+--                     if ( GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap ) or errorProtectionCount > 12 then
+--                         GRMsync.BanPacketsThrottleControl ( false , i );
+--                         return;
+--                     end
+--                 else
+--                     GRMsync.EndSync();
+--                     return;
+--                 end
+--             end
+--         end
+--         -- Close the Data stream
+
+--         GRMsyncGlobals.SyncCountBan = #GRMsyncGlobals.formerGuildData;
+--         GRMsyncGlobals.SyncCount7 = #GRMsyncGlobals.guildData;
+--         GRMsyncGlobals.syncTempDelay = false;
+--         if GRMsyncGlobals.SyncOK then
+--             GRMsync.NextSyncStep ( 7 );
+--         else
+--             GRMsync.EndSync();
+--             return;
+--         end
+--     end
+-- end
 
 -- Method:          GRMsync.SendCustomNotePackets()
 -- What it Does:    Broadcasts to the leader all CUSTOM NOTES set to sync
@@ -4408,11 +4704,14 @@ GRMsync.SubmitFinalSyncData = function ()
         return;
     end
 
+    GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[3] );
+
     -- Promo date sync!
     if not GRMsyncGlobals.finalSyncProgress[2] and #GRMsyncGlobals.PDChanges > 0 then
 
         if not GRMsyncGlobals.SyncTracker.finalPD then
             GRMsyncGlobals.ProgressControl ( "FINALPD" );
+            -- GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , GRMsyncGlobals.totalEstTime );
         end
 
         for i = GRMsyncGlobals.finalSyncDataCount , #GRMsyncGlobals.PDChanges do
@@ -4449,6 +4748,8 @@ GRMsync.SubmitFinalSyncData = function ()
         GRMsync.EndSync();
         return;
     end
+
+    GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[3] );
 
     -- GRM.TableLength ( GRMsyncGlobals.FinalCorrectAltList )
     -- GRM.TableLength ( GRMsyncGlobals.FinalAltListReeceived )
@@ -4563,6 +4864,8 @@ GRMsync.SubmitFinalSyncData = function ()
         return;
     end
 
+    GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.ALT[1] , GRMsyncGlobals.TrackerData.ALT[3] );
+
     -- CUSTOM NOTE CHECK!
     if not GRMsyncGlobals.finalSyncProgress[4] and #GRMsyncGlobals.CustomNoteChanges > 0 then
 
@@ -4615,6 +4918,8 @@ GRMsync.SubmitFinalSyncData = function ()
         GRMsync.EndSync();
         return;
     end
+
+    GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] );
 
     -- BAN changes sync!
     if not GRMsyncGlobals.finalSyncProgress[5] and #GRMsyncGlobals.BanChanges > 0 then
@@ -4716,6 +5021,9 @@ GRMsync.SubmitFinalMainData = function()
     end
 
     GRMsyncGlobals.finalSyncProgress[6] = true;
+
+    GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[3] );
+
     GRMsync.SubmitFinalBdayData();
 end
 
@@ -4764,6 +5072,8 @@ GRMsync.SubmitFinalBdayData = function()
         end
         GRMsyncGlobals.finalSyncDataCount = 1;
     end
+
+    GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[3] );
 
     GRMsyncGlobals.finalSyncProgress[7] = true;
     GRMsync.FinalSyncComplete();
@@ -6620,9 +6930,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                                         GRMsync.UpdateCurrentPlayerBanReason ( msg );
                                     end
                                 end
-                            end
-                        elseif comms.prefix2 == "GRM_BANSYNC4" and GRMsyncGlobals.IsElectedLeader and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                            GRMsyncGlobals.TimeSinceLastSyncAction = time();                    -- In case lots of data to cycle through, this is just a checkin with the sync leader to let you know its still sending data.                        
+                            end           
                         elseif comms.prefix2 == "GRM_ADDLEFT" then
                             GRMsync.UpdateLeftPlayerInfo ( msg , false );
                                         
@@ -6709,6 +7017,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                         elseif comms.prefix2 == "GRM_TRACKER" then
                             GRMsync.CollectTrackerCalculation ( msg );
                             GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , GRMsyncGlobals.totalEstTime );
+                            GRMsyncGlobals.progStart = time();
 
                         elseif comms.prefix2 == "GRM_REQBFINALDATA" then
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
@@ -6717,19 +7026,22 @@ GRMsync.RegisterCommunicationProtocols = function()
                             GRMsync.NextSyncStep( 8 );
 
                         -- Pseudo Hash for comparison
-                        elseif comms.prefix2 == "GRM_PHASH" or comms.prefix2 == "GRM_PHASHL" then
-                            if comms.prefix2 == "GRM_PHASH" then
+                        elseif comms.prefix2 == "GRM_PHASH" or comms.prefix2 == "GRM_PHASHBAN" or comms.prefix2 == "GRM_PHASHL" or comms.prefix2 == "GRM_PHASHLBAN" then
+                            if comms.prefix2 == "GRM_PHASH" or comms.prefix2 == "GRM_PHASHBAN" then
                                 if string.sub ( msg , 1 , string.find ( msg , "?" ) -1 ) == GRM_G.addonUser and GRMsyncGlobals.currentlySyncing then
                                     msg = GRM.Next ( msg );
-                                    local tested = string.sub ( msg , string.find ( msg , "?" ) + 1 , string.find ( msg , "?" ) + 3 );
 
                                     if string.sub ( msg , string.find ( msg , "?" ) + 1 , string.find ( msg , "?" ) + 3 ) == "BAN" then 
                                         GRMsyncGlobals.senderBanRankReq = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
                                         msg = GRM.Next ( msg );
                                     end
 
-                                    if not string.find ( msg , "FINISH" , 1 , true ) then  
-                                        GRMsync.SetReceivedHashValue ( msg );
+                                    if not string.find ( msg , "FINISH" , 1 , true ) then
+                                        if comms.prefix2 == "GRM_PHASHBAN" then
+                                            GRMsync.SetReceivedHashValue ( msg , true );
+                                        else
+                                            GRMsync.SetReceivedHashValue ( msg , false );
+                                        end
                                     else
 
                                         -- Establish Database as an array
@@ -6744,6 +7056,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                                             GRMsyncGlobals.TrackerData , GRMsyncGlobals.totalEstTime = GRMsync.CalculateTotalSyncVolume();
                                             GRMsync.SendTrackerCalculation();
                                             GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , GRMsyncGlobals.totalEstTime );
+                                            GRMsyncGlobals.progStart = time();
 
                                             
                                             -- Now, determine where to start in database.
@@ -6757,10 +7070,14 @@ GRMsync.RegisterCommunicationProtocols = function()
                                     end
                                 end
 
-                            elseif comms.prefix2 == "GRM_PHASHL" and string.sub ( msg , 1 , string.find ( msg , "?" ) -1 ) == GRM_G.addonUser and GRMsyncGlobals.IsElectedLeader and sender == GRMsyncGlobals.CurrentSyncPlayer then
+                            elseif ( comms.prefix2 == "GRM_PHASHL" or comms.prefix2 == "GRM_PHASHLBAN" ) and string.sub ( msg , 1 , string.find ( msg , "?" ) -1 ) == GRM_G.addonUser and GRMsyncGlobals.IsElectedLeader and sender == GRMsyncGlobals.CurrentSyncPlayer then
 
                                 if not string.find ( msg , "FINISH" , 1 , true ) then
-                                    GRMsync.BuildLeaderDatabaseMarkers ( string.sub ( string.match ( msg , "?%a+.+" ) , 2 ) );
+                                    if comms.prefix2 == "GRM_PHASHLBAN" then
+                                        GRMsync.BuildLeaderDatabaseMarkers ( string.sub ( string.match ( msg , "?BAN.+" ) , 2 ) , true );
+                                    else
+                                        GRMsync.BuildLeaderDatabaseMarkers ( string.sub ( string.match ( msg , "?%a+.+" ) , 2 ) , false );
+                                    end
                                 else
                                     GRMsync.BuildFullCheckArray();
                                 end
@@ -6802,6 +7119,7 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                             if not GRMsyncGlobals.SyncTracker.finalJD then
                                 GRMsyncGlobals.ProgressControl ( "FINALJD" );
+                                GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[3] );
                             end
 
                             GRMsync.CheckJoinDateChange ( msg , sender , comms.prefix2 );
@@ -6812,6 +7130,7 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                             if not GRMsyncGlobals.SyncTracker.finalPD then
                                 GRMsyncGlobals.ProgressControl ( "FINALPD" );
+                                GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[3] );
                             end
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
                             GRMsync.CheckPromotionDateChange ( msg , sender , comms.prefix2 );
@@ -6832,6 +7151,7 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                             if not GRMsyncGlobals.SyncTracker.finalAlts then
                                 GRMsyncGlobals.ProgressControl ( "FINALALT" );
+                                GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.ALT[1] , GRMsyncGlobals.TrackerData.ALT[3] );
                             end
 
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
@@ -6842,6 +7162,7 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                             if not GRMsyncGlobals.SyncTracker.finalMain then
                                 GRMsyncGlobals.ProgressControl ( "FINALMAIN" );
+                                GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[3] );
                             end
 
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
@@ -6853,6 +7174,7 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                             if not GRMsyncGlobals.SyncTracker.finalCustom then
                                 GRMsyncGlobals.ProgressControl ( "FINALCUSTOM" );
+                                GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] );
                             end
 
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
@@ -6863,6 +7185,7 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                             if not GRMsyncGlobals.SyncTracker.finalBdays then
                                 GRMsyncGlobals.ProgressControl ( "FINALBDAYS" );
+                                GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[3] );
                             end
 
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
