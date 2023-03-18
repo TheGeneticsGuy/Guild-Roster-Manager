@@ -1604,5 +1604,6 @@ GRML.English = function()
     GRM_L["Syncing all data except ban list. Player rank is too low."] = true
     GRM_L["Syncing all data except ban list. Your rank is too low."] = true
     GRM_L["Currently Syncing With: {name}"] = true
+    GRM_L["{num}{custom1}: Bans"] = true
 
 end

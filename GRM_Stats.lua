@@ -44,7 +44,7 @@ end
 -- Purpose:         Useful quality of life feature.
 GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeToProgress , colorOnComplete , hold , finalNumbers )
 
-    if not parentFrame[frameName].Hold or destinationNumber > 0 then       -- Hold a call and ignore all others.
+    if not progressBar.Hold or destinationNumber > 0 then       -- Hold a call and ignore all others.
         local count = 0;
         local loopDelay = 0.1;
         local num = 0;
@@ -90,7 +90,7 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
             
             progressBar.StartTime = time();
             if hold and destinationNumber > 0 then
-                parentFrame[frameName].Hold = true;
+                progressBar.Hold = true;
             end
 
             progressBar:SetScript ( "OnUpdate" , function ( self , elapsed )
@@ -115,8 +115,8 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
                                 progressBarTexture:SetColorTexture ( progressBar.colorOnComplete[1] , progressBar.colorOnComplete[2] , progressBar.colorOnComplete[3] , 1 );
                             end
                             self.killSwitch = true;
-                            if parentFrame[frameName].Hold then
-                                parentFrame[frameName].Hold = false;
+                            if progressBar.Hold then
+                                progressBar.Hold = false;
                                 GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , finalNumbers[1] , finalNumbers[2] , progressBar.colorOnComplete , false );
                             end
 

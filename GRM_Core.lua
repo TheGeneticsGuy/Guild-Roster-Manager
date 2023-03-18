@@ -302,7 +302,7 @@ GRM_G.AuditWindowRefresh = false;           -- Macro tool check
 GRM_G.ToolTipTextLeft = {};
 GRM_G.ToolTipTextRight = {};
 
--- Addon to Addon Comms, pattern matching for text parsing the comm messages - to be built only on use.
+-- Addon to Addon Comms, pattern matching for text parsing the comm messages - to be built only on use - Just for reference here.
 GRM_G.CheckJoinDatePattern = nil;
 GRM_G.CheckPromoDatePattern = nil;
 GRM_G.CheckAddToCalendarPattern = nil;
@@ -314,9 +314,9 @@ GRM_G.CheckAltMainToAltPattern = nil;
 GRM_G.CheckCustomNotePattern = nil;
 GRM_G.CheckCustomNoteSyncPattern = nil;
 GRM_G.CheckBanListPattern = nil;
+GRM_G.BanSyncPattern = nil;
+GRM_G.BanSyncPattern2 = nil;
 GRM_G.CheckBanManagementPattern = nil;
-GRM_G.UpdateCurrentPlayerInfoPattern = nil;
-GRM_G.UpdateLeftPlayerInfoPattern = nil;
 GRM_G.UpdateCurrentPlayerBanReasonPattern = nil;
 GRM_G.CreationDatePattern = nil;
 GRM_G.GlobalControlPermissionPattern = nil;
@@ -357,6 +357,8 @@ GRM_G.Module = {};
 GRM_G.InGroup = false;
 
 -- Useful Lookup Tables for date indexing.
+
+GRM_G.classFileIDEnum = { ["WARRIOR"]=1 , ["PALADIN"]=2 , ["HUNTER"]=3 , ["ROGUE"]=4 , ["PRIEST"]=5 , ["DEATHKNIGHT"]=6 , ["SHAMAN"]=7 , ["MAGE"]=8 , ["WARLOCK"]=9 , ["MONK"]=10 , ["DRUID"]=11 , ["DEMONHUNTER"]=12 , ["EVOKER"] = 13 };
 local monthEnum = { Jan = 1 , Feb = 2 , Mar = 3 , Apr = 4 , May = 5 , Jun = 6 , Jul = 7 , Aug = 8 , Sep = 9 , Oct = 10 , Nov = 11 , Dec = 12 };
 local monthEnum2 = { ['1'] = "Jan" , ['2'] = "Feb" , ['3'] = "Mar", ['4'] = "Apr" , ['5'] = "May" , ['6'] = "Jun" , ['7'] = "Jul" , ['8'] = "Aug" , ['9'] = "Sep" , ['10'] = "Oct" , ['11'] = "Nov" , ['12'] = "Dec" };
 local monthsFullnameEnum = { January = 1 , February = 2 , March = 3 , April = 4 , May = 5 , June = 6 , July = 7 , August = 8 , September = 9 , October = 10 , November = 11 , December = 12 };
@@ -364,7 +366,6 @@ local monthAbbrev = { "Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "A
 local daysBeforeMonthEnum = { ['1']=0 , ['2']=31 , ['3']=59 , ['4']=90 , ['5']=120 , ['6']=151 , ['7']=181 , ['8']=212 , ['9']=243 , ['10']=273 , ['11']=304 , ['12']=334 };
 local daysInMonth = { ['1']=31 , ['2']=28 , ['3']=31 , ['4']=30 , ['5']=31 , ['6']=30 , ['7']=31 , ['8']=31 , ['9']=30 , ['10']=31 , ['11']=30 , ['12']=31 };
 local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Evoker" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" }; -- This is only here as an alphabetized list
-local classFileIDEnum = { ["WARRIOR"]=1 , ["PALADIN"]=2 , ["HUNTER"]=3 , ["ROGUE"]=4 , ["PRIEST"]=5 , ["DEATHKNIGHT"]=6 , ["SHAMAN"]=7 , ["MAGE"]=8 , ["WARLOCK"]=9 , ["MONK"]=10 , ["DRUID"]=11 , ["DEMONHUNTER"]=12 , ["EVOKER"] = 13 };
 local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 , ["Dracthyr"] = 52 };
 
 local GuildRanks = {};  -- Necessary to have the current ranks in a global table for when changed and so they can be carried over each session
@@ -1243,7 +1244,7 @@ end
 -- What it Does:    Returns the localized class name using the NON-localized classname -- "DEATHKNIGHT" input: "Death Knight" output - if in English
 -- Purpose:         Single function to get localized class names
 GRM.GetClassName = function ( className )
-    return C_CreatureInfo.GetClassInfo ( classFileIDEnum[ className ] ).className
+    return C_CreatureInfo.GetClassInfo ( GRM_G.classFileIDEnum[ className ] ).className
 end
 
 ---------------------------------------
@@ -2639,7 +2640,7 @@ end
 GRM.GetFullNameClubMember = function( memberGUID )
     local result = "";
 
-    if memberGUID and memberGUID ~= "" then
+    if memberGUID and memberGUID ~= "" and C_PlayerInfo.GUIDIsPlayer ( memberGUID ) then
         local name , realm = select ( 6 , GetPlayerInfoByGUID ( memberGUID ) );
         
 
@@ -4074,7 +4075,7 @@ end
 -- Purpose:         Useful info to know when a player leaves or older list information.
 GRM.IsPlayerStillOnServerByGUID = function ( name , guid , isBanCheck )
 
-    if guid ~= nil and guid ~= "" then
+    if guid ~= nil and guid ~= "" and C_PlayerInfo.GUIDIsPlayer ( guid ) then
         local needToCallOnceToTrigger = GetPlayerInfoByGUID ( guid );
 
         -- Call Again
@@ -6737,7 +6738,7 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
                         if isMobile then
                             presence = 2;
                         end
-                        GRM.MemberListBlizTooltip_Update ( button , true , classFileIDEnum[classFile] , name , rank , raceIDEnum [ select ( 4 , GetPlayerInfoByGUID ( guid ) ) ] , level , presence , zone , memberNote , officerNote );
+                        GRM.MemberListBlizTooltip_Update ( button , true , GRM_G.classFileIDEnum[classFile] , name , rank , raceIDEnum [ select ( 4 , GetPlayerInfoByGUID ( guid ) ) ] , level , presence , zone , memberNote , officerNote );
                     end
                     
                     GRM_G.currentName = name;
@@ -7730,8 +7731,13 @@ end
 GRM.GetPlayerClassByGUID = function ( guid )
     local class = "";
 
-    if guid then
+    if guid and guid ~= "" and C_PlayerInfo.GUIDIsPlayer ( guid ) then
         class = select ( 2 , GetPlayerInfoByGUID ( guid ) );
+        if not class then
+            -- try 2nd time
+            class = select ( 2 , GetPlayerInfoByGUID ( guid ) );
+        end
+            
     end
 
     return class;
@@ -8389,7 +8395,6 @@ GRM.AddMemberToLeftPlayers = function ( memberInfo , timeArray , leftGuildMeta ,
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][memberInfo.name] = {};
         GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][memberInfo.name] = GRM.DeepCopyArray ( player );
 
-        
     end
 
     if player.GUID == "" or player.class == "UNKNOWN" then
