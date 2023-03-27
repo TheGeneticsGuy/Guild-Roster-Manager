@@ -1605,5 +1605,7 @@ GRML.English = function()
     GRM_L["Syncing all data except ban list. Your rank is too low."] = true
     GRM_L["Currently Syncing With: {name}"] = true
     GRM_L["{num}{custom1}: Bans"] = true
-
+    GRM_L["Sync has begun after waiting in queue for {num} seconds"] = true
+    GRM_L["Not Determined"] = true  -- Ban List
+    
 end

@@ -34,7 +34,7 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.959";
+GRM_G.Version = "R1.96";
 GRM_G.PatchDay = 1675996231;             -- In Epoch Time
 GRM_G.PatchDayString = "1675996231";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
@@ -320,6 +320,9 @@ GRM_G.CheckBanManagementPattern = nil;
 GRM_G.UpdateCurrentPlayerBanReasonPattern = nil;
 GRM_G.CreationDatePattern = nil;
 GRM_G.GlobalControlPermissionPattern = nil;
+GRM_G.PreCheckSyncPattern = nil;
+GRM_G.ElectionPattern = nil;
+GRM_G.NewLeaderPattern = nil;
 
 -- GRM Management Promo/Demote/kick too
 GRM_G.HK = false;
@@ -2256,6 +2259,23 @@ GRM.DeepCopyArray = function( tableToCopy )
     return copy;
 end
 
+-- Method:          GRM.ConvertTableToArray ( table , bool )
+-- What it Does:    Takes a Lua table and converts it to a standard array, with option to sort
+-- Purpose:         Useful when needing to cycle through a table alphabetically.
+GRM.ConvertTableToArray = function ( data , needToSort )
+    local result = {};
+
+    for a in pairs ( data ) do
+        table.insert ( result , a );
+    end
+    
+    if needToSort and #result > 0 then
+        sort ( result );
+    end
+
+    return result;
+end
+
 -- Method:          GRM.ConvertTableTo2DArray ( table , bool ) 
 -- What it Does:    Takes a dictionary table and converts it to a 2D array, then allows you to sort it alphabetically.
 -- Purpose:         Useful when taking apart tables, like in sync - easier to go through in an ordered list.
@@ -2265,7 +2285,7 @@ GRM.ConvertTableTo2DArray = function ( dataToConvert , needToSort )
         table.insert ( result , { a , b } );
     end
     
-    if needToSort then
+    if needToSort and #result > 0 then
         sort ( result , function ( a , b ) return a[1] < b[1] end );
     end
 
@@ -2876,8 +2896,7 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
 
     return result;
 end
--- /dump GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName]["Darsceey-Zul'jin"].joinDateHist[1]
--- /dump GRM_GuildMemberHistory_Save[ GRM_G.F ][GRM_G.guildName]["Darsceey-Zul'jin"].joinDateHist[1]
+
 -- Method:          GRM.SetSystemMessageFilter ( self , string , string )
 -- What it Does:    Starts tracking the system messages for filtering. This is only triggered on the audit frame initialization or if a player has left the guild
 -- Purpose:         To control system message spam when doing server inquiries
@@ -2944,7 +2963,7 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
         elseif ( GRM_G.MsgFilterDelay or GRM_G.MsgFilterDelay2 ) and ( msg == GRM.L ( "Player not found." ) or string.find ( msg , GRM.L ( "added to friends" ) ) ~= nil or string.find ( msg , GRM.L ( "is already your friend" ) ) ~= nil ) then
             result = true;
 
-        elseif GRM.SystemMessagePatternMatchCheck ( 1 , msg ) then
+        elseif GRMsyncGlobals.currentlySyncing and GRM.SystemMessagePatternMatchCheck ( 1 , msg ) then
             GRMsync.EndSync ( true );
             result = true;
 
@@ -2979,7 +2998,9 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
     return result , msg , ... ;
 end
 
--- /run GRMsync.SendMessage("GRM_SYNC","TEST", "Neutron-Zul'jin")
+-- Method:          GRM.SystemMessagePatternMatchCheck ( string , string )
+-- What it Does:    Return true if the pattern matches
+-- Purpose:         During sync, if a player goes offline then you will be notified that sync has failed using this.
 GRM.SystemMessagePatternMatchCheck = function( pattern , msg )
 
     local result = false;
@@ -7928,7 +7949,7 @@ GRM.SetAltAsMainDropDownMenuLogic = function ( altDetails )
             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                 syncRankFilter = GuildControlGetNumRanks() - 1;
             end
-            GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] , "GUILD");
+            GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] .. "?" .. tostring ( time() ) , "GUILD");
         end
     else
         -- No need to set as main yet... let's set player to main here.
@@ -7948,7 +7969,7 @@ GRM.SetAltAsMainDropDownMenuLogic = function ( altDetails )
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. alts[1][1] .. "?" .. altDetails[1] , "GUILD");
+                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. alts[1][1] .. "?" .. altDetails[1] .. "?" .. tostring ( time() ) , "GUILD");
                 end
             else
 
@@ -7957,7 +7978,7 @@ GRM.SetAltAsMainDropDownMenuLogic = function ( altDetails )
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] , "GUILD");
+                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_MAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] .. "?" .. tostring ( time() ) , "GUILD");
                 end
             end
             -- Now send Comm to sync details.
@@ -7984,20 +8005,20 @@ end
 -- Purpose:         Flexibility and quality of life for the player
 GRM.DemoteMainToAltDropDownMenuLogic = function ( altDetails )
     if altDetails[1] ~= altDetails[2] then
-        GRM.DemoteFromMain ( altDetails[2] );
+        GRM.DemoteFromMain ( altDetails[2] , time() );
 
         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
             local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
             if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                 syncRankFilter = GuildControlGetNumRanks() - 1;
             end
-            GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] , "GUILD");
+            GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] .. "?" .. tostring ( time() ) , "GUILD");
         end
     else
         -- No need to set as main yet... let's set player to main here.
         local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ altDetails[1] ];
         if player then
-            GRM.DemoteFromMain ( altDetails[1] );
+            GRM.DemoteFromMain ( altDetails[1] , time() );
             if not GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously then
                 GRM_UI.Unpause();
             end
@@ -8011,7 +8032,7 @@ GRM.DemoteMainToAltDropDownMenuLogic = function ( altDetails )
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. alts[1][1] .. "?" .. altDetails[1] , "GUILD");
+                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. alts[1][1] .. "?" .. altDetails[1] .. "?" .. tostring ( time() ) , "GUILD");
                 end
             else
                 if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
@@ -8019,7 +8040,7 @@ GRM.DemoteMainToAltDropDownMenuLogic = function ( altDetails )
                     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] , "GUILD");        -- both alt details will be same name...
+                    GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_RMVMAIN?" .. syncRankFilter .. "?" .. altDetails[1] .. "?" .. altDetails[2] .. "?" .. tostring ( time() ) , "GUILD");        -- both alt details will be same name...
                 end
             end
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
@@ -20240,13 +20261,18 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
     local playerDetails = {};
     local isAdded = false
     local count = 0;
+    local rankName = "";
 
 -- Add bans of people still in the guild
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             if player.bannedInfo[1] then
                 if not textSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , textSearch , 1 , true ) or string.find ( string.lower ( player.name ) , textSearch , 1 , true ) then
-                    table.insert ( playerDetails  , { player.name , player.class , player.bannedInfo[2] , player.rankName , player.rankIndex , player.reasonBanned , true , player.isUnknown , player.GUID } );
+                    rankName = player.rankName;
+                    if rankName == "" or player.rankIndex == 99 then
+                        rankName = GRM.L ( "Not Determined" );
+                    end
+                    table.insert ( playerDetails  , { player.name , player.class , player.bannedInfo[2] , rankName , player.rankIndex , player.reasonBanned , true , player.isUnknown , player.GUID } );
                     count = count + 1;
                 end
             end
@@ -20294,7 +20320,12 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
                         end
                     end
 
-                    table.insert ( playerDetails  , insertIndex , { player.name , player.class , player.bannedInfo[2] , player.rankName , player.rankIndex , player.reasonBanned , false , isUnknown , player.GUID } );
+                    rankName = player.rankName;
+                    if rankName == "" or player.rankIndex == 99 then
+                        rankName = GRM.L ( "Not Determined" );
+                    end
+
+                    table.insert ( playerDetails  , insertIndex , { player.name , player.class , player.bannedInfo[2] , rankName , player.rankIndex , player.reasonBanned , false , isUnknown , player.GUID } );
                     count = count + 1;
                 end
             end
@@ -24663,16 +24694,18 @@ GRM.SyncCommandScan = function( count )
         GRMsync.LoadSyncUI();
     end
 
-    if not GRM_UI.GRM_SyncTrackerWindow:IsVisible() then
-        GRM_UI.GRM_SyncTrackerWindow:Show();
-    else
+    -- if not GRM_UI.GRM_SyncTrackerWindow:IsVisible() then
+    --     GRM_UI.GRM_SyncTrackerWindow:Show();
+    -- else
         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled and GRM_G.HasAccessToGuildChat and not GRM_G.InGroup then
 
             if ( time() - GRMsyncGlobals.timeAtLogin ) >= GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncDelay then
 
                 if GRMsyncGlobals.currentlySyncing or ( not GRMsyncGlobals.currentlySyncing and ( time() - GRM_G.slashCommandSyncTimer > 10 ) ) then
-       
+        
                     if not GRMsyncGlobals.currentlySyncing then
+
+                        GRMsyncGlobals.reloadControl = false;       -- Remove the hold on the first sync if it applies.
 
                         if not GRMsyncGlobals.SyncTracker.TriggeringSync then
                             GRMsyncGlobals.SyncTracker.TriggeringSync = true;
@@ -24681,7 +24714,7 @@ GRM.SyncCommandScan = function( count )
                         end
 
                         GRM_G.slashCommandSyncTimer = time();
-                               
+                                
                         GRM.Report ( GRM.L ( "Initializing Sync Action. One Moment..." ) );
                         
                         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
@@ -24690,10 +24723,10 @@ GRM.SyncCommandScan = function( count )
 
                         GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Hide();
         
-                        C_Timer.After( 4 , GRMsync.Initialize );
+                        C_Timer.After( 3 , GRMsync.Initialize );
         
                         -- Now, let's add a brief delay, 3 seconds, to trigger sync again
-                        C_Timer.After ( 7 , function()
+                        C_Timer.After ( 10 , function()
         
                             if GRM.GetNumAddonUsersAvailableToSync() == 0 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
 
@@ -24714,10 +24747,12 @@ GRM.SyncCommandScan = function( count )
         
                             else
                                 C_Timer.After ( GRMsyncGlobals.ErrorCD + 1 , function ()
-                                    if not GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.timeOfLastSyncCompletion >= 10 ) then
-                                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync has failed to start. Please try again!" ) );
-                                        GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
-                                        GRMsync.ResetSyncTracker();
+                                    if not GRMsyncGlobals.WaitingInQue then
+                                        if not GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.timeOfLastSyncCompletion >= 10 ) then
+                                            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync has failed to start. Please try again!" ) );
+                                            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Show();
+                                            GRMsync.ResetSyncTracker();
+                                        end
                                     end
                                 end);
                             end
@@ -24757,11 +24792,11 @@ GRM.SyncCommandScan = function( count )
 
         elseif GRM_G.HasAccessToGuildChat and GRM_G.InGroup then
             GRM.Report ( GRM.L ( "SYNC is currently disabled while you are grouped. Due to server restricted addon to addon talk data caps, and in an effort to avoid clogging up the shared global comm space of all addons, sync will be temporarily restricted while grouped." ) );
-    
+
         elseif not GRM_G.HasAccessToGuildChat then
             GRM.Report ( GRM.L ( "SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted." ) );
         end
-    end
+    -- end
   
 end
 
@@ -25632,7 +25667,7 @@ GRM.SystemMessageHookControl = function()
         if events[#events] ~= GRM.SetSystemMessageFilter then
             -- Let's unregister, then re-register!
             ChatFrame_RemoveMessageEventFilter ( "CHAT_MSG_SYSTEM" , GRM.SetSystemMessageFilter );
-            -- Now Re-Add it!
+            -- Now Re-Add it! We want GRM to be FINAL one added to ensure no overlapping compatibility or prioritization of other devs. By unregistering and registering, it adds it to tail end last position.
             ChatFrame_AddMessageEventFilter ( "CHAT_MSG_SYSTEM" , GRM.SetSystemMessageFilter );
         end
     end

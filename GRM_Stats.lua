@@ -42,7 +42,7 @@ end
 -- Method:          GRM_API.CreateNewProgressBar ( frame , int , int , {r,g,b} , bool )
 -- What it Does:    Enable the progress bar to actual display progress
 -- Purpose:         Useful quality of life feature.
-GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeToProgress , colorOnComplete , hold , finalNumbers )
+GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeToProgress , colorOnComplete , hold )
 
     if not progressBar.Hold or destinationNumber > 0 then       -- Hold a call and ignore all others.
         local count = 0;
@@ -117,7 +117,7 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
                             self.killSwitch = true;
                             if progressBar.Hold then
                                 progressBar.Hold = false;
-                                GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , finalNumbers[1] , finalNumbers[2] , progressBar.colorOnComplete , false );
+                                GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , destinationNumber , timeToProgress , progressBar.colorOnComplete , false );
                             end
 
                         end

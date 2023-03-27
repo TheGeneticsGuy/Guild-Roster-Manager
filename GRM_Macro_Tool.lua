@@ -8149,7 +8149,7 @@ GRM.GetSafePlayers = function( getCountAndPlayers )
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
         for _ , player in pairs ( guildData ) do
-            if type ( player ) == "table" and player.safeList[rule][1] and player.name ~= GRM_G.addonuser then
+            if type ( player ) == "table" and player.safeList[rule][1] and player.name ~= GRM_G.addonUser then
 
                 count = count + 1;
                 -- Default just gets the count - otherwise it returns the list of players as well.

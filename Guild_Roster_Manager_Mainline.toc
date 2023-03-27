@@ -1,5 +1,5 @@
 
-## Interface: 100005
+## Interface: 100007
 ## Author: Arkaan
 ## Version: 1.96
 ## Title: Guild Roster Manager

@@ -5764,7 +5764,7 @@ GRM_UI.PreAddonLoadUI = function()
             GameTooltip:AddLine ( versionLine );
             GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
             GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
-            GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Left-Click|r and drag to move this button anywhere." ) );
+            GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
             GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
     
             local MOTD = GetGuildRosterMOTD();
@@ -13046,7 +13046,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             if GRMsyncGlobals.UILoaded and GRM_UI.GRM_SyncTrackerWindow:IsVisible() then
                 GRM_UI.GRM_SyncTrackerWindow:Hide();
             else
-                GRM.SyncCommandScan();   
+                -- GRM.SyncCommandScan();   
+                GRM.Report ( "Feature is pending - still need to debug it.")
             end
         end
     end);
@@ -16537,6 +16538,7 @@ if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calenda
     -- What it Does:    Calls to the event update for the calendar invite scrollframe
     -- Purpose:         Keep code bloat down... multiple use.
     GRM_UI.CalendarEventCreateRefresh = function()
+        
         GRM_UI.UpdateCalendarInviteNames ( CalendarCreateEventInviteListScrollFrame );
         GRM_UI.InitializeCalendarButtons ( CalendarCreateEventInviteListScrollFrame );
     end
