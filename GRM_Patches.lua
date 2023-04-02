@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 106;
+local totalPatches = 107;
 local startTime = 0;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
@@ -1011,7 +1011,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     if numericV < 1.92996 and baseValue < 1.92996 then
         -- Quick Data Integrity Check
-        GRM.GuildDataIntegrityCheck();
+        GRM_Patch.GuildDataIntegrityCheck();
         GRM_Patch.ConfigureNewAltGroups();
         GRM_Patch.AddMemberMetaData ( "altGroup" , "" );
         GRM_Patch.AddMemberMetaData ( "altGroupModified" , 0 );
@@ -1071,7 +1071,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- ONLY DO THIS IF PATCH HAS BEEN COMPLETELY SUCCESSFUL!!! If we get this far it has!
         
-        GRM.ResetAllBackups ( true , true );        -- Clearing the manual - unfortunately it needs to be done. Mostly unused feature anyway.
+        GRM_Patch.ResetBackups();        -- Clearing the manual - unfortunately it needs to be done. Mostly unused feature anyway.
+
         GRM_G.ForceAuto = true;                 -- We want to force auto-backup this session so it backs up the alt groups.
         if loopCheck ( 1.93 ) then
             return;
@@ -1220,6 +1221,21 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    -- patch 107
+    patchNum = patchNum + 1;
+    if numericV < 1.97 and baseValue < 1.97 then
+
+        GRM_Patch.ModifyMemberData ( GRM_Patch.FixPersonWhoBanned , true , true , false );
+        GRM_Misc = {};  -- Rebuilding the way this is handled.
+        GRM_Patch.ModifyPlayerSetting ( "allowAutoBackups" , nil );
+        GRM_Patch.ModifyPlayerSetting ( "autoIntervalDays" , nil );
+        GRM_Patch.ConvertGuildBackups();
+
+        if loopCheck ( 1.97 ) then
+            return;
+        end
+    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -1249,6 +1265,118 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
     end
 
     C_Timer.After ( 1 , GRM.FinalSettingsConfigurations );
+end
+
+---------------------------
+-- CORE TOOLS -------------
+---------------------------
+
+-- 1.97
+-- Method:          GRM_Patch.AddMemberSpecificData ( string , anyVar )
+-- What it Does:    Goes through the entire account wide database and adds the player's metadata a new setting
+-- Purpose:         Reusable function for error work and to avoid on code bloat spam.
+GRM_Patch.AddMemberSpecificData = function ( settingName , value )
+    for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+        for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+            for _ , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild
+                if type ( player ) == "table" then 
+                    player[settingName] = value;
+                end
+            end
+        end
+    end
+
+    -- Former memebrs
+    for F in pairs ( GRM_PlayersThatLeftHistory_Save ) do                         -- Horde and Alliance
+        for guildName in pairs ( GRM_PlayersThatLeftHistory_Save[F] ) do                  -- The guilds in each faction
+            for _ , player in pairs ( GRM_PlayersThatLeftHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                if type ( player ) == "table" then 
+                    player[settingName] = value;
+                end
+            end
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "members" , "formerMembers" };
+
+    for guild in pairs ( GRM_GuildDataBackup_Save ) do
+        for i = 1 , #backup do        -- Member vs formerMember
+
+            if GRM_GuildDataBackup_Save[guildName][backup[i]] == nil or #GRM_GuildDataBackup_Save[guildName][backup[i]] > 0 then
+                GRM_GuildDataBackup_Save[guildName][backup[i]] = {};                                
+            else
+                for _ , player in pairs ( GRM_GuildDataBackup_Save[guildName][backup[i]] ) do
+                    if type ( player ) == "table" then 
+                        player[settingName] = value;
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- R1.97
+-- Method:          GRM_Patch.ModifyMemberSpecificData ( function , bool , bool , bool , object or var )
+-- What it Does:    Goes through the entire account wide database and modifies a player's or guild's metadata based on the actions of the given function
+-- Purpose:         Reusable function for error work and to avoid on code bloat spam.
+GRM_Patch.ModifyMemberSpecificData = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData , modifier )
+
+    if editCurrentPlayers then
+        for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+            for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+                for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                    if type ( player ) == "table" then 
+                        if includeAllGuildData then
+                            GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( GRM_GuildMemberHistory_Save[F][guildName] , player , modifier );
+                        else
+                            GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( player , modifier );
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    -- Former memebrs
+    if editLeftPlayers then
+        for F in pairs ( GRM_PlayersThatLeftHistory_Save ) do                         -- Horde and Alliance
+            for guildName in pairs ( GRM_PlayersThatLeftHistory_Save[F] ) do                  -- The guilds in each faction
+                for name , player in pairs ( GRM_PlayersThatLeftHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                    if type ( player ) == "table" then 
+                        if includeAllGuildData then
+                            GRM_PlayersThatLeftHistory_Save[F][guildName][name] = databaseChangeFunction ( GRM_PlayersThatLeftHistory_Save[F][guildName] , player , modifier );
+                        else
+                            GRM_PlayersThatLeftHistory_Save[F][guildName][name] = databaseChangeFunction ( player , modifier );
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "members" , "formerMembers" };
+    for guild in pairs ( GRM_GuildDataBackup_Save ) do
+        for i = 1 , #backup do        -- Member vs formerMember
+
+            if ( i == 1 and editCurrentPlayers ) or ( i == 2 and editLeftPlayers ) then
+                if GRM_GuildDataBackup_Save[guildName][backup[i]] == nil or #GRM_GuildDataBackup_Save[guildName][backup[i]] > 0 then
+                    GRM_GuildDataBackup_Save[guildName][backup[i]] = {};                                
+                else
+                    for name , player in pairs ( GRM_GuildDataBackup_Save[guildName][backup[i]] ) do
+                        if type ( player ) == "table" then 
+                            if includeAllGuildData then
+                                GRM_GuildDataBackup_Save[guildName][backup[i]][name] = databaseChangeFunction ( GRM_GuildDataBackup_Save[guildName][backup[i]] , player , modifier );
+                            else
+                                GRM_GuildDataBackup_Save[guildName][backup[i]][name] = databaseChangeFunction ( player , modifier );
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 ---------------------
@@ -6609,4 +6737,234 @@ end
 -- Purpose:         Prevent downstream errors by fixing previous error.
 GRM_Patch.JoinAndRankDataFix = function ( player )
     return GRM.JoinAndRankDataCleanup ( player );
+end
+
+-- 1.97
+-- Method:          GRM_Patch.ConvertGuildBackups()
+-- What it Does:    Due to the 10.1 changes, faction being removed, this now converts DB to not matter about factions...
+-- Purpose:         Convert DB
+GRM_Patch.ConvertGuildBackups = function()
+
+    local newBackups = {};
+
+    if GRM_GuildDataBackup_Save["H"] ~= nil then
+        for f in pairs ( GRM_GuildDataBackup_Save ) do
+            for guild in pairs ( GRM_GuildDataBackup_Save[f] ) do
+                if type ( guild ) == "string" then
+
+                    if not newBackups[guild] then
+
+                        newBackups[guild] = {};
+
+                        if GRM_GuildDataBackup_Save[f][guild]["Manual"].date == "" then
+                            newBackups[guild].date = "";
+                            newBackups[guild].epochDate = 0;
+                            newBackups[guild].numGuildies = 0;
+                            newBackups[guild].members = {};
+                            newBackups[guild].formerMembers = {};
+                            newBackups[guild].log = {};
+                            newBackups[guild].alts = {};
+                            if ( GRM_GuildDataBackup_Save[f][guild][1] and GRM_GuildDataBackup_Save[f][guild][1] ~= "" ) then
+                                newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild][1];
+                            elseif ( GRM_GuildMemberHistory_Save[f][guild].grmCreationDate and GRM_GuildMemberHistory_Save[f][guild].grmCreationDate ~= "" ) then
+                                newBackups[guild].guildCreationDate = GRM_GuildMemberHistory_Save[f][guild].grmCreationDate;
+                            else
+                                newBackups[guild].guildCreationDate = "";
+                            end
+
+                        else
+
+                            newBackups[guild].date = GRM_GuildDataBackup_Save[f][guild]["Manual"].date;
+                            newBackups[guild].epochDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].epochDate;
+                            newBackups[guild].numGuildies = GRM.GetNumGuildiesInGuild ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
+                            newBackups[guild].members = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
+                            newBackups[guild].formerMembers = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].formerMembers );
+                            newBackups[guild].log = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].log );
+                            newBackups[guild].alts = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].alts );
+
+                            if GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate and GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate ~= "" then
+                                newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate;
+
+                            elseif GRM_GuildDataBackup_Save[f][guild][1] and GRM_GuildDataBackup_Save[f][guild][1] ~= "" then
+                                newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild][1];
+                            else
+                                newBackups[guild].guildCreationDate = "";
+                            end
+
+                        end
+                    end
+                end
+            end
+        end
+
+        GRM_GuildDataBackup_Save = nil;
+        GRM_GuildDataBackup_Save = {};
+        GRM_GuildDataBackup_Save = newBackups;
+    end
+
+end
+
+-- 1.93 -- Old function needed to be preserved...
+GRM_Patch.ResetBackups = function()
+    for guild in pairs ( GRM_GuildDataBackup_Save ) do
+        for guild in pairs ( GRM_GuildDataBackup_Save[f] ) do
+            if type ( guild ) == "string" then
+                GRM_GuildDataBackup_Save[f][guild] = {};
+
+                if includeManual then
+                    GRM_GuildDataBackup_Save[f][guild].Manual = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Manual"].date = "";
+                    GRM_GuildDataBackup_Save[f][guild]["Manual"].epochDate = 0;
+                    GRM_GuildDataBackup_Save[f][guild]["Manual"].members = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Manual"].formerMembers = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Manual"].log = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Manual"].alts = {};
+                end
+                if includeAuto then
+                    GRM_GuildDataBackup_Save[f][guild].Auto = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Auto"].date = "";
+                    GRM_GuildDataBackup_Save[f][guild]["Auto"].epochDate = 0;
+                    GRM_GuildDataBackup_Save[f][guild]["Auto"].members = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Auto"].formerMembers = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Auto"].log = {};
+                    GRM_GuildDataBackup_Save[f][guild]["Auto"].alts = {};
+                end
+            end
+        end
+    end
+end
+
+-- R1.97
+-- Method:          GRM_Patch.FixPersonWhoBanned ( playerObject )
+-- What it Does:    Fixes banned Info discrepancy due to a sync bug error previously.
+-- Purpose:         The "reason banned" was erroneously added to the "person who banned" name, which complicates some things. As such, the reason is removed from the index and the bannedPlayer info is reset.
+GRM_Patch.FixPersonWhoBanned = function ( player )
+
+    if player.bannedInfo and player.bannedInfo[4] ~= nil then
+        if player.bannedInfo[4] ~= "" and string.find ( player.bannedInfo[4] , "-" ) == nil then
+            player.bannedInfo[4] = "";
+        end
+    else
+        player.bannedInfo = { false , 0 , false , "" };
+    end
+
+    return player;
+end
+
+-- 1.92996
+-- Method:          GRM_Patch.GuildDataIntegrityCheck()
+-- What it Does:    Performs a check to see if the same guild name is on Horde and Alliance. If so, it purges the guild data from the database that is the most outdated.
+-- Purpose:         An unexpected error occurred when transferring from one classic expansion to the next, like Vanilla to TBC. The SavedVariables would be transferred by the client, but then a person could go and create a new guild on opposite faction with the same name, and GRM would then detect it as a new guild. As of Oct 24, 2022, I have only ever gotten 1 report of this ever happening, but it is possible others just never report it. This is just some logic to check against this, clean it up, and future proof against this happening in the future. Thanks @Kreun on Discord for the report!
+GRM_Patch.GuildDataIntegrityCheck = function()
+
+    local guildName = "";
+    local F2 = "A";
+    local indexTable = {
+        [1] = 8 , [2] = 8 , [3] = 7 , [4] = 6 , [5] = 6 , [7] = 6 , [8] = 6 , [9] = 6 , [10] = 11 , [11] = 5 , [14] = 5 , [16] = 5 , [17] = 7 , [19] = 7
+    }
+    local log1Date , log2Date = {} , {};
+
+    for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
+        for name in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
+
+            if F == "H" then
+                F2 = "A";
+            else
+                F2 = "H";
+            end
+
+            for n in pairs ( GRM_GuildMemberHistory_Save[F2] ) do
+
+                if n == name then
+
+                    -- There is a match. Let's look at the log
+                    if #GRM_LogReport_Save[F][name] > 0 and #GRM_LogReport_Save[F2][name] > 0 then
+                        -- Both have logs
+
+                        local found = false;
+                        local found2 = false;
+
+                        for i = #GRM_LogReport_Save[F][name] , 1 , -1 do
+                            if indexTable[GRM_LogReport_Save[F][name][i][1]] and GRM_LogReport_Save[F][name][i][indexTable[GRM_LogReport_Save[F][name][i][1]]] ~= nil then
+                                found = true;
+                                log1Date = GRM_LogReport_Save[F][name][i][indexTable[GRM_LogReport_Save[F][name][i][1]]];
+                                break;
+                            end
+                        end
+
+                        for i = #GRM_LogReport_Save[F2][name] , 1 , -1 do
+                            if indexTable[GRM_LogReport_Save[F2][name][i][1]] and GRM_LogReport_Save[F2][name][i][indexTable[GRM_LogReport_Save[F2][name][i][1]]] ~= nil then
+                                found2 = true;
+                                log2Date = GRM_LogReport_Save[F2][name][i][indexTable[GRM_LogReport_Save[F2][name][i][1]]];
+                                break;
+                            end
+                        end
+
+                        if found and found2 then
+                            
+                            if GRM.TimeStampToEpoch ( log1Date ) < GRM.TimeStampToEpoch ( log2Date ) then
+                                -- The F1 one is most recent, delete the other
+                                GRM_Patch.PurgeGuildFromDatabase ( name , F , true );
+                            else
+                                GRM_Patch.PurgeGuildFromDatabase ( name , F2 , true );
+                            end
+
+                        else
+                            print("GRM: Possible database issue - same guild found on both factions. Please report this to GRM Dev" ); -- Somehow it failed in the check. This should NEVER report, but just in case, I am adding this message as this might be some weird edge case I'd like to hear about.
+                        end
+
+                    elseif #GRM_LogReport_Save[F][name] > 0 then
+                        GRM_Patch.PurgeGuildFromDatabase ( name , F2 , true );    -- purging the guild with no log
+                    else
+                        GRM_Patch.PurgeGuildFromDatabase ( name , F , true );
+                    end
+
+                    break;
+                end
+            end
+        end
+    end
+end
+
+-- Method:          GRM_Patch.PurgeGuildFromDatabase( string , string , bool )
+-- What it Does:    Completely purges a guild from the player database... that it is not currently logged into
+-- Purpose:         Cleanup old guild data from a guild the player is no longer a part of.
+GRM_Patch.PurgeGuildFromDatabase = function ( guildName , faction , special )
+
+    if guildName == GRM_G.guildName or guildName == GRM.SlimName ( GRM_G.guildName ) then
+        if not special then
+            GRM.Report ( "\n" .. GRM.L ( "Player Cannot Purge the Guild Data they are Currently In!!!" ) .. "\n" .. GRM.L( "To reset your current guild data type '/grm clearguild'" ) );
+        end
+    else
+
+        if GRM_GuildMemberHistory_Save[faction][guildName] ~= nil then
+
+            GRM_GuildMemberHistory_Save[faction][guildName] = nil;
+            GRM_PlayersThatLeftHistory_Save[faction][guildName] = nil;
+            GRM_CalendarAddQue_Save[faction][guildName] = nil;
+            GRM_LogReport_Save[faction][guildName] = nil;
+            GRM_GuildDataBackup_Save[faction][guildName] = nil;
+            GRM_PlayerListOfAlts_Save[faction][guildName] = nil;
+            GRM_Alts[guildName] = nil;
+
+            if not special then
+                GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
+            end
+
+        else
+            -- remove the saved data if any exists as well
+            -- Do a purge of the guild regardless, if it's showing up here, it means it's get lingering bad data.
+            if GRM_GuildDataBackup_Save[faction][guildName] ~= nil then
+                GRM_GuildDataBackup_Save[faction][guildName] = nil;
+                if not special then
+                    GRM.Report ( GRM.L ( "Error: Guild Not Found..." ) );
+                end
+            else
+                if not special then
+                    GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
+                end
+            end
+
+        end
+    end
 end

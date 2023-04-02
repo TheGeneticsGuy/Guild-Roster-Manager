@@ -531,7 +531,6 @@ GRML.SpanishEU = function()
     GRM_L["Alliance"] = true
     GRM_L["Creation Date"] = true
     GRM_L["Members"] = true
-    GRM_L["Backup {num}:"] = true           -- As in, the number of backups... so "Backup 1:"
     GRM_L["None"] = true
     GRM_L["Restore"] = true
     GRM_L["Set Backup"] = true
@@ -539,9 +538,6 @@ GRML.SpanishEU = function()
 
     -- Update 1.137
     GRM_L["GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database."] = true
-    GRM_L["Enable Auto-Backup Once Every"] = true
-    GRM_L["Auto {num}:"] = true
-    GRM_L["Please Choose a Time Interval Between 1 and 99 Days!"] = true
     GRM_L["Really restore {name} Backup Point?"] = true
     GRM_L["Check All"] = true
 

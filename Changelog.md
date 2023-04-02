@@ -1,3 +1,29 @@
+## **VERSION 1.97 RELEASE - APRIL, 2023**
+
+***BUG FIXES***
+
+* Sync message on the que was not properly localized so would through a chat message error.
+
+* Fixed an error if you did a search, or tried to add a person to friends list, if the system message triggered that the person was no online, it would crash the sync and force it to end. Sort of a weird bug, but I had something gated wrong and it is now resolved and shouldn't cause sync to stop and fail mid-sync.
+
+* Fixed an issue where on a merged realm the incorrect serverName was being tagged to a player that logged in so it was failing to add their chat tags, like the main tag, to their name. This ONLY affected some people on a different realm than you, for people on merged realms. It would not always happen, but in some cases it could. This shouldn't happen anymore.
+
+* GRM_FullBackup_Save was a deprecated saved variable that will no longer appear as a nil in the savedVariables file.
+
+* Fixed an error where if you are using the GRM > Options > UI > Tab fade feature a lua error could occur when selecting any tab but the Log tab. It didn't break anything, but it was a lua error needlessly.
+
+
+***QUALITY OF LIFE***
+
+* The "GRM_Misc" global variable is cleaned up and made a little more efficient and will cleanup the saved file a little. It's mostly redundant info and should ONLY be carried over between saves if a player logs off in the middle of an action.
+
+* The Guild Backups window has been rebuilt. First, the "backups" was a bit misleading and I think confused some people. They were not a "true" backup of the addon data since WOW addons do not have write to file access to your OS like Windows. They were just an internal restore point that oculd be used.
+  * Ability to prepare the guild data for a guild transfer
+  * Set restore point
+  * When the guild is transferred, login and then go and "Transfer Guild" when you are ready (preferrably when more members have also transferred, or else it will say they have left the guild when not found yet).
+  * Player dates, main designations, alt groups, log entries, and so on will all be preserved in the transfer and all names will be modifed to match the destination server.      
+
+
 ## **VERSION 1.96 RELEASE - March 27th, 2023**
 
 **NEW FEATURE**

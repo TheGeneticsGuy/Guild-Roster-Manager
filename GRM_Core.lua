@@ -225,7 +225,6 @@ GRM_G.CurrentCalendarHexCode = "";
 GRM_G.toolTipScale = 1.0;
 
 -- Backup Controls
-GRM_G.selectedFID = "";
 GRM_G.BackupEntries = {};
 GRM_G.BackupLoadedOnce = false;
 GRM_G.BackupFrameSelectDetails = {};
@@ -622,9 +621,7 @@ end
 -- Purpose:         In case a player logs out in the middle of critical things, both front and backend, it has a marker stored on where to restart from.
 GRM.ConfigureMiscForPlayer = function( playerFullName )
     GRM_Misc[playerFullName] = {
-        {},                 -- 1) To hold the details on Added Friends that might need to be removed from recruit list (if added and player logged in that 1 second window)
-        {},                 -- 2) Same as above, except now in regards to the Players who left the guild check
-        {},                 -- 3) GUID rebuild check - former member, by adding to friends list you can rebuild GUID
+        { false , {} },                 -- 1) To hold the details on Added Friends that might need to be removed from logging off
     };
 
 end
@@ -873,8 +870,7 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         
     -- Backups
     elseif page == 14 then
-        player["allowAutoBackups"] = true;                                  -- 34
-        player["autoIntervalDays"] = 7;                                     -- 41
+        -- Nothing here yet.
 
     -- Modules
     elseif page == 15 then
@@ -907,11 +903,9 @@ GRM.LoadSettings = function()
     if GRM_G.FID == 0 then
         if GRM_G.faction == "Horde" then
             GRM_G.FID = 1;
-            GRM_G.selectedFID = "H";
             GRM_G.F = "H";
         else
             GRM_G.FID = 2;
-            GRM_G.selectedFID = "A";
             GRM_G.F = "A";
         end
     end
@@ -919,10 +913,8 @@ GRM.LoadSettings = function()
     if GRM_G.F == "" then
         if GRM_G.faction == "Horde" then
             GRM_G.F = "H";
-            GRM_G.selectedFID = "H";
         else
             GRM_G.F = "A";
-            GRM_G.selectedFID = "A";
         end
     end
 
@@ -1044,80 +1036,6 @@ GRM.LoadSettings = function()
         GRM.FinalSettingsConfigurations();
     end
 
-end
-
--- Method:          GRM.GuildDataIntegrityCheck()
--- What it Does:    Performs a check to see if the same guild name is on Horde and Alliance. If so, it purges the guild data from the database that is the most outdated.
--- Purpose:         An unexpected error occurred when transferring from one classic expansion to the next, like Vanilla to TBC. The SavedVariables would be transferred by the client, but then a person could go and create a new guild on opposite faction with the same name, and GRM would then detect it as a new guild. As of Oct 24, 2022, I have only ever gotten 1 report of this ever happening, but it is possible others just never report it. This is just some logic to check against this, clean it up, and future proof against this happening in the future. Thanks @Kreun on Discord for the report!
-GRM.GuildDataIntegrityCheck = function()
-
-    local guildName = "";
-    local F2 = "A";
-    local indexTable = {
-        [1] = 8 , [2] = 8 , [3] = 7 , [4] = 6 , [5] = 6 , [7] = 6 , [8] = 6 , [9] = 6 , [10] = 11 , [11] = 5 , [14] = 5 , [16] = 5 , [17] = 7 , [19] = 7
-    }
-    local log1Date , log2Date = {} , {};
-
-    for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
-        for name in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
-
-            if F == "H" then
-                F2 = "A";
-            else
-                F2 = "H";
-            end
-
-            for n in pairs ( GRM_GuildMemberHistory_Save[F2] ) do
-
-                if n == name then
-
-                    -- There is a match. Let's look at the log
-                    if #GRM_LogReport_Save[F][name] > 0 and #GRM_LogReport_Save[F2][name] > 0 then
-                        -- Both have logs
-
-                        local found = false;
-                        local found2 = false;
-
-                        for i = #GRM_LogReport_Save[F][name] , 1 , -1 do
-                            if indexTable[GRM_LogReport_Save[F][name][i][1]] and GRM_LogReport_Save[F][name][i][indexTable[GRM_LogReport_Save[F][name][i][1]]] ~= nil then
-                                found = true;
-                                log1Date = GRM_LogReport_Save[F][name][i][indexTable[GRM_LogReport_Save[F][name][i][1]]];
-                                break;
-                            end
-                        end
-
-                        for i = #GRM_LogReport_Save[F2][name] , 1 , -1 do
-                            if indexTable[GRM_LogReport_Save[F2][name][i][1]] and GRM_LogReport_Save[F2][name][i][indexTable[GRM_LogReport_Save[F2][name][i][1]]] ~= nil then
-                                found2 = true;
-                                log2Date = GRM_LogReport_Save[F2][name][i][indexTable[GRM_LogReport_Save[F2][name][i][1]]];
-                                break;
-                            end
-                        end
-
-                        if found and found2 then
-                            
-                            if GRM.TimeStampToEpoch ( log1Date ) < GRM.TimeStampToEpoch ( log2Date ) then
-                                -- The F1 one is most recent, delete the other
-                                GRM.PurgeGuildFromDatabase ( name , F , true );
-                            else
-                                GRM.PurgeGuildFromDatabase ( name , F2 , true );
-                            end
-
-                        else
-                            print("GRM: Possible database issue - same guild found on both factions. Please report this to GRM Dev" ); -- Somehow it failed in the check. This should NEVER report, but just in case, I am adding this message as this might be some weird edge case I'd like to hear about.
-                        end
-
-                    elseif #GRM_LogReport_Save[F][name] > 0 then
-                        GRM.PurgeGuildFromDatabase ( name , F2 , true );    -- purging the guild with no log
-                    else
-                        GRM.PurgeGuildFromDatabase ( name , F , true );
-                    end
-
-                    break;
-                end
-            end
-        end
-    end
 end
 
 -- Method:          GRM.FinalSettingsConfigurations()
@@ -2194,15 +2112,6 @@ GRM.L = function ( key , playerName , playerName2 , num , custom1 , custom2 )
     end
 end
 
--- Method:          GRM.NormalizeHitRects ( button , fontstring )
--- What it Does:    It ensures that no matter what the localization/translation, the hitRects mnatch up to the text length perfectly
--- Purpose:         Quality of life 
-GRM.NormalizeHitRects = function ( checkButton , checkButtonFontstring , modifier )
-    local n = modifier or 0;
-
-    checkButton:SetHitRectInsets ( 0 , n - checkButtonFontstring:GetWidth() -2 , 0 , 0 );
-end
-
 -- Method:          GRM.OrigL ( string )
 -- What it Does:    Takes a hash result and returns the key. It's essentially a dictionary lookup in reverse
 -- Purpose:         Some of the code needs to be localized only on the front end, but the backend code is based on some English variables
@@ -2221,9 +2130,15 @@ GRM.OrigL = function ( localizedString )
     return result;
 end
 
---------------------------------------
---- DATA BACKUP AND SAVE LOGIC -------
---------------------------------------
+-- Method:          GRM.NormalizeHitRects ( button , fontstring )
+-- What it Does:    It ensures that no matter what the localization/translation, the hitRects mnatch up to the text length perfectly
+-- Purpose:         Quality of life 
+GRM.NormalizeHitRects = function ( checkButton , checkButtonFontstring , modifier )
+    local n = modifier or 0;
+
+    checkButton:SetHitRectInsets ( 0 , n - checkButtonFontstring:GetWidth() -2 , 0 , 0 );
+end
+
 
 -- Method:          GRM.Round ( float , int )
 -- What it Does:    Returns a given number with the given number of requested decimals places.
@@ -2292,152 +2207,13 @@ GRM.ConvertTableTo2DArray = function ( dataToConvert , needToSort )
     return result;
 end
 
--- Method:          GRM.AddGuildBackup ( string , string , int )
--- What it Does:    Adds a backup point of the given selected guild.
--- Purpose:         Save your database as needed.
-GRM.AddGuildBackup = function( guildName , creationDate , faction )
-    if creationDate ~= GRM.L ( "Unknown" ) then
-
-        if GRM_GuildMemberHistory_Save[faction][guildName] ~= nil then
-            GRM_GuildDataBackup_Save[faction][guildName].Manual = { 1 };
-            GRM_GuildDataBackup_Save[faction][guildName]["Manual"].date = GRM.GetTimestamp();
-            GRM_GuildDataBackup_Save[faction][guildName]["Manual"].epochDate = time();
-            GRM_GuildDataBackup_Save[faction][guildName]["Manual"].members = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[faction][guildName] );
-            GRM_GuildDataBackup_Save[faction][guildName]["Manual"].formerMembers = GRM.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[faction][guildName] );
-            GRM_GuildDataBackup_Save[faction][guildName]["Manual"].log = GRM.DeepCopyArray ( GRM_LogReport_Save[faction][guildName] );
-            GRM_GuildDataBackup_Save[faction][guildName]["Manual"].alts = GRM.DeepCopyArray ( GRM_Alts[guildName] );
-
-            GRM.Report ( GRM.L ( "Backup Point Set for Guild \"{name}\"" , guildName ) );
-
-        else
-            GRM.Report ( GRM.L ( "Unable to properly locate guild for backup" ) );
-        end
-
-    else
-        GRM.Report ( "GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database." );
-    end
-end
-
--- Method:          GRM.RemoveGuildBackup ( string , int , string , boolean )
--- What it Does:    Removes a Backup Point for the guild...
--- Purpose:         Database Backup Management
-GRM.RemoveGuildBackup = function( guildName , faction , backupPoint , reportChange )
-    if GRM_G.DebugEnabled then
-        GRM.AddDebugMessage ( time() .. "GRM.RemoveGuildBackup()?" .. guildName .. "?" .. backupPoint );
-    end
-    local backupRemoved = false;
-    if #GRM_GuildDataBackup_Save[ faction ][ guildName].Manual > 0 and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[faction][guildName]["Manual"].date , true ) == backupPoint then
-        GRM_GuildDataBackup_Save[ faction ][ guildName ].Manual = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Manual"].date = "";
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Manual"].epochDate = 0;
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Manual"].members = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Manual"].formerMembers = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Manual"].log = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Manual"].alts = {};
-        backupRemoved = true;
-
-    elseif #GRM_GuildDataBackup_Save[faction][guildName].Auto > 0 and GRM.FormatTimeStamp ( string.gsub ( GRM_GuildDataBackup_Save[faction][guildName]["Auto"].date , "AUTO_" , "" ) , true ) == backupPoint then
-        GRM_GuildDataBackup_Save[faction][guildName].Auto = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Auto"].date = "";
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Auto"].epochDate = 0;
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Auto"].members = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Auto"].formerMembers = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Auto"].log = {};
-        GRM_GuildDataBackup_Save[ faction ][ guildName ]["Auto"].alts = {};
-        backupRemoved = true;
-    end
-
-    if backupRemoved and reportChange then
-        GRM.Report ( GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
-    end
-end
-
--- Method:          GRM.LoadGuildBackup ( string , string , int , string)
--- What it Does:    Restores backup point of a guild
--- Purpose:         Database Backup Management
-GRM.LoadGuildBackup = function( guildName , creationDate , faction , backupPoint )
-
-    if GRM_G.DebugEnabled then
-        GRM.AddDebugMessage ( time() .. "GRM.LoadGuildBackup()?" .. guildName .. "?" .. creationDate .. "?" .. backupPoint );
-    end
-
-    local target = "";
-    if #GRM_GuildDataBackup_Save[faction][guildName]["Manual"] > 0 and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[faction][guildName]["Manual"].date , true ) == backupPoint then
-        target = "Manual";
-    elseif #GRM_GuildDataBackup_Save[faction][guildName]["Auto"] > 0 and GRM.FormatTimeStamp ( string.gsub ( GRM_GuildDataBackup_Save[faction][guildName]["Auto"].date , "AUTO_" , "" ) , true ) == backupPoint then
-        target = "Auto";
-    end
-
-    if GRM_GuildMemberHistory_Save[faction][guildName] ~= nil then
-        -- Updating to save data...
-        GRM_GuildMemberHistory_Save[faction][guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[faction][guildName][target].members );
-        GRM_PlayersThatLeftHistory_Save[faction][guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[faction][guildName][target].formerMembers );
-        GRM_LogReport_Save[faction][guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[faction][guildName][target].log );
-        GRM_Alts[guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[faction][guildName][target].alts );
-
-        GRM.Report ( GRM.L ( "Backup Point Restored for Guild \"{name}\"" , guildName ) );
-        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-            GRM.ClearAllFrames( false );
-            GRM.PopulateMemberDetails ( GRM_G.currentName );
-        end
-
-        GRM.RefreshAllMacroToolFrames();
-
-        if GRM_UI.GRM_AuditJDTool:IsVisible() then
-            GRM.AuditRefresh( true );
-        end
-
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame:IsVisible() then
-            GRM_UI.SetExportTabHighlights ();
-        end;
-
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText ( "" );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText ( GRM.L ( "Search Filter" ) );  -- By clearing it and restoring it, it triggers the build log action
-        
-        GRM_G.changeHappenedExitScan = true;
-    end
-end
-
--- Method:          GRM.ResetAllBackups ( bool , bool )
--- What it Does:    Wipes all backup data, but then reinitializes an index for each guild
--- Purpose:         For managing the database of guild backups
-GRM.ResetAllBackups = function( includeManual , includeAuto )
-    -- Reset the backup data in case any player was messing around with it...
-    for f in pairs ( GRM_GuildDataBackup_Save ) do
-        for guild in pairs ( GRM_GuildDataBackup_Save[f] ) do
-            if type ( guild ) == "string" then
-                GRM_GuildDataBackup_Save[f][guild] = {};
-
-                if includeManual then
-                    GRM_GuildDataBackup_Save[f][guild].Manual = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Manual"].date = "";
-                    GRM_GuildDataBackup_Save[f][guild]["Manual"].epochDate = 0;
-                    GRM_GuildDataBackup_Save[f][guild]["Manual"].members = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Manual"].formerMembers = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Manual"].log = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Manual"].alts = {};
-                end
-                if includeAuto then
-                    GRM_GuildDataBackup_Save[f][guild].Auto = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Auto"].date = "";
-                    GRM_GuildDataBackup_Save[f][guild]["Auto"].epochDate = 0;
-                    GRM_GuildDataBackup_Save[f][guild]["Auto"].members = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Auto"].formerMembers = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Auto"].log = {};
-                    GRM_GuildDataBackup_Save[f][guild]["Auto"].alts = {};
-                end
-            end
-        end
-    end
-end
-
--- Method:          GRM.GetNumGuildiesInGuild ( string , string )
+-- Method:          GRM.GetNumGuildiesInGuild ( table )
 -- What it Does:    Returns the number of current guildies there are
 -- Purpose:         For accurate reporting on most recent current snapshot of a guild in the database
-GRM.GetNumGuildiesInGuild = function ( guildName , faction )
+GRM.GetNumGuildiesInGuild = function ( guildData )
     local c = 0;
 
-    for _ , p in pairs ( GRM_GuildMemberHistory_Save[faction][guildName] ) do
+    for _ , p in pairs ( guildData ) do
         if type ( p ) == "table" then
             c = c + 1;
         end
@@ -2459,37 +2235,6 @@ GRM.GetNumStoredFormerMembers = function ( guildName , faction )
     end
 
     return c;
-end
-
--- Method:          GRM.AutoSetBackup()
--- What it Does:    Checks every guild in the game you have saved and sets an Auto
--- Purpose:         To help the user protect their data, an autobackup point is set...
-GRM.AutoSetBackup = function()
-    local needsAutoBackup = false;
-    -- Ability to Enable Auto-Save function...
-    -- First, determine if backup has been auto-saved already by identifying last save point.
-
-    if GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName][1] ~= "" then
-        if #GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName].Auto == 0 then
-            needsAutoBackup = true;
-        elseif GRM_G.ForceAuto or ( ( time() - GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName]["Auto"].epochDate ) >= ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].autoIntervalDays * 86400 ) ) then
-            needsAutoBackup = true;
-        end
-
-        if needsAutoBackup then
-            -- Now, let's save it...
-            if GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ~= nil then
-                GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName].Auto = { 1 };
-                GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName]["Auto"].date = ( "AUTO_" .. GRM.GetTimestamp() );
-                GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName]["Auto"].epochDate = time();
-                GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName]["Auto"].members = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] );
-                GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName]["Auto"].formerMembers = GRM.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[GRM_G.F][GRM_G.guildName] );
-                GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName]["Auto"].log = GRM.DeepCopyArray ( GRM_LogReport_Save[GRM_G.F][GRM_G.guildName] );
-                GRM_GuildDataBackup_Save[GRM_G.F][GRM_G.guildName]["Auto"].alts = GRM.DeepCopyArray ( GRM_Alts[GRM_G.guildName] );
-            end
-
-        end
-    end
 end
 
 -- Method:          GRM.IsMergedRealmServer()
@@ -2514,15 +2259,199 @@ GRM.GetAllConnectedRealms = function()
     return realms;
 end
 
--- Method:          GRM.PurgeGuildFromDatabase( string , string , bool )
+--------------------------------
+-- TRANSFER/RESTORE POINT ------
+--------------------------------
+
+-- Method:          GRM.AddGuildBackup ( string , string )
+-- What it Does:    Adds a backup point of the given selected guild.
+-- Purpose:         Save your database as needed.
+GRM.AddGuildBackup = function( guildName , creationDate )
+    if creationDate ~= GRM.L ( "Unknown" ) then
+
+        if GRM_GuildMemberHistory_Save[GRM_G.F][guildName] ~= nil then
+            GRM_GuildDataBackup_Save[guildName].date = GRM.GetTimestamp();
+            GRM_GuildDataBackup_Save[guildName].epochDate = time();
+            GRM_GuildDataBackup_Save[guildName].numGuildies = GRM.GetNumGuildies();
+            GRM_GuildDataBackup_Save[guildName].members = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[GRM_G.F][guildName] );
+            GRM_GuildDataBackup_Save[guildName].formerMembers = GRM.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[GRM_G.F][guildName] );
+            GRM_GuildDataBackup_Save[guildName].log = GRM.DeepCopyArray ( GRM_LogReport_Save[GRM_G.F][guildName] );
+            GRM_GuildDataBackup_Save[guildName].alts = GRM.DeepCopyArray ( GRM_Alts[guildName] );
+
+            GRM.Report ( GRM.L ( "Backup Point Set for Guild \"{name}\"" , guildName ) );
+
+        else
+            GRM.Report ( GRM.L ( "Unable to properly locate guild for backup" ) );
+        end
+
+    else
+        GRM.Report ( "GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database." );
+    end
+end
+
+-- Method:          GRM.RemoveGuildBackup ( string , bool )
+-- What it Does:    Removes a Backup Point for the guild...
+-- Purpose:         Database Backup Management
+GRM.RemoveGuildBackup = function( guildName , isTransfer )
+
+    if GRM_GuildDataBackup_Save[guildName] ~= nil then
+        local creationDate = GRM_GuildDataBackup_Save[guildName].guildCreationDate;
+        GRM_GuildDataBackup_Save[guildName] = {};
+        GRM_GuildDataBackup_Save[guildName].guildCreationDate = creationDate;   -- Need to keep this.
+        GRM_GuildDataBackup_Save[guildName].date = "";
+        GRM_GuildDataBackup_Save[guildName].epochDate = 0;
+        GRM_GuildDataBackup_Save[guildName].numGuildies = 0;
+        GRM_GuildDataBackup_Save[guildName].members = {};
+        GRM_GuildDataBackup_Save[guildName].formerMembers = {};
+        GRM_GuildDataBackup_Save[guildName].log = {};
+        GRM_GuildDataBackup_Save[guildName].alts = {};
+        if not isTransfer then
+            GRM.Report ( GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
+        end
+    end
+
+end
+
+-- Method:          GRM.LoadRestorePoint ( string , string , string )
+-- What it Does:    Restores backup point of a guild
+-- Purpose:         Database Backup Management
+GRM.LoadRestorePoint = function( guild , guildTransfer , oldName )
+
+    local guildName = guild or GRM_G.guildName;
+
+    if GRM_GuildMemberHistory_Save[GRM_G.F][guildName] ~= nil then
+        
+        if guildTransfer then
+
+            local newServerName = string.match ( guild , "-(.+)" );
+
+            GRM_GuildMemberHistory_Save[GRM_G.F][guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].members ) , newServerName , false );
+            GRM_PlayersThatLeftHistory_Save[GRM_G.F][guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].formerMembers ) , newServerName , false );
+            GRM_LogReport_Save[GRM_G.F][guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].log );
+            GRM_Alts[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].alts ) , newServerName , true );
+            GRM_CalendarAddQue_Save[GRM_G.F][guildName] = {};
+
+            -- need to purge the old backup
+            GRM.RemoveGuildBackup ( guildName , true );
+            if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
+                GRM.BuildBackupScrollFrame ( true , true );
+            end
+
+            GRM.Report ( GRM.L ( "Data has been transferred from the old Guild \"{name}\"" , oldName ) );
+
+        else
+
+            GRM_GuildMemberHistory_Save[GRM_G.F][guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[guildName].members );
+            GRM_PlayersThatLeftHistory_Save[GRM_G.F][guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[guildName].formerMembers );
+            GRM_LogReport_Save[GRM_G.F][guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[guildName].log );
+            GRM_Alts[guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[guildName].alts );
+            GRM.Report ( GRM.L ( "Backup Point Restored for Guild \"{name}\"" , guildName ) );
+            GRM_CalendarAddQue_Save[GRM_G.F][guildName] = {};
+
+        end
+
+        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+            GRM.ClearAllFrames( false );
+            GRM.PopulateMemberDetails ( GRM_G.currentName );
+        end
+
+        GRM.RefreshAllMacroToolFrames();
+
+        if GRM_UI.GRM_AuditJDTool:IsVisible() then
+            GRM.AuditRefresh( true );
+        end
+
+        if GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame:IsVisible() then
+            GRM_UI.SetExportTabHighlights ();
+        end;
+
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText ( "" );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText ( GRM.L ( "Search Filter" ) );  -- By clearing it and restoring it, it triggers the build log action
+        
+        GRM_G.changeHappenedExitScan = true;
+    end
+end
+
+-- Method:          GRM.ChangeServerNameOfAll ( table , string , bool )
+-- What it Does:    Converts all of the server names of the players on the saved guild DB to the new server, in case of a guild transfer
+-- Purpose:         Restore all guild data easily when transferring servers.
+GRM.ChangeServerNameOfAll = function( guildData , newServerName , isAlts )
+
+    local newGuildData = {};
+
+    if not isAlts then
+
+        for name , player in pairs ( guildData ) do
+            if type(player) == "table" then
+
+                player.name = string.match ( player.name , "(.+-)" ) .. newServerName;
+
+                if player.customNote[3] ~= "" then
+                    player.customNote[3] = string.match ( player.customNote[3] , "(.+-)" ) .. newServerName;
+                end
+
+                if player.bannedInfo[4] ~= "" and string.find ( player.bannedInfo[4] , "-" ) ~= nil then
+                    player.bannedInfo[4] = string.match ( player.bannedInfo[4] , "(.+-)" ) .. newServerName;
+                else
+                    player.bannedInfo[4] = "";
+                end
+
+                newGuildData[player.name] = GRM.DeepCopyArray ( player );
+
+            else
+                newGuildData[name] = player;
+
+            end
+        end
+    else
+
+        for _ , altGroup in pairs ( guildData ) do
+            if altGroup.main ~= "" then
+                altGroup.main = string.match ( altGroup.main , "(.+-)" ) .. newServerName;
+            end
+
+            for i = 1 , #altGroup do
+                altGroup[i].name = string.match ( altGroup[i].name , "(.+-)" ) .. newServerName;
+            end
+        end
+        newGuildData = guildData;
+
+    end
+    return newGuildData;
+end
+
+-- Method:          GRM.ResetAllBackups()
+-- What it Does:    Wipes all backup data, but then reinitializes an index for each guild
+-- Purpose:         For managing the database of guild backups
+GRM.ResetAllBackups = function()
+    -- Reset the backup data in case any player was messing around with it...
+    for guild in pairs ( GRM_GuildDataBackup_Save ) do
+        GRM_GuildDataBackup_Save[guild] = {};
+    end
+end
+
+GRM.CreateTransferRestorePoint = function()
+
+
+
+end
+
+GRM.TransferGuildFromRestorePoint = function ( oldGuildName , newGuildName , f )
+    local guildName = newGuildName or GRM_G.guildName;
+    local faction = f or GRM_G.F;
+    
+
+end
+
+-- Method:          GRM.PurgeGuildFromDatabase( string )
 -- What it Does:    Completely purges a guild from the player database... that it is not currently logged into
 -- Purpose:         Cleanup old guild data from a guild the player is no longer a part of.
-GRM.PurgeGuildFromDatabase = function ( guildName , faction , special )
+GRM.PurgeGuildFromDatabase = function ( guildName )
 
-    if guildName == GRM_G.guildName or guildName == GRM.SlimName ( GRM_G.guildName ) then
-        if not special then
-            GRM.Report ( "\n" .. GRM.L ( "Player Cannot Purge the Guild Data they are Currently In!!!" ) .. "\n" .. GRM.L( "To reset your current guild data type '/grm clearguild'" ) );
-        end
+    local faction = GRM_G.F;
+
+    if guildName == GRM_G.guildName then
+        GRM.Report ( "\n" .. GRM.L ( "Player Cannot Purge the Guild Data they are Currently In!!!" ) .. "\n" .. GRM.L( "To reset your current guild data type '/grm clearguild'" ) );
     else
 
         if GRM_GuildMemberHistory_Save[faction][guildName] ~= nil then
@@ -2531,31 +2460,29 @@ GRM.PurgeGuildFromDatabase = function ( guildName , faction , special )
             GRM_PlayersThatLeftHistory_Save[faction][guildName] = nil;
             GRM_CalendarAddQue_Save[faction][guildName] = nil;
             GRM_LogReport_Save[faction][guildName] = nil;
-            GRM_GuildDataBackup_Save[faction][guildName] = nil;
+            GRM_GuildDataBackup_Save[guildName] = nil;
             GRM_PlayerListOfAlts_Save[faction][guildName] = nil;
             GRM_Alts[guildName] = nil;
 
-            if not special then
-                GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
-            end
+            GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
 
         else
             -- remove the saved data if any exists as well
             -- Do a purge of the guild regardless, if it's showing up here, it means it's get lingering bad data.
-            if GRM_GuildDataBackup_Save[faction][guildName] ~= nil then
-                GRM_GuildDataBackup_Save[faction][guildName] = nil;
-                if not special then
-                    GRM.Report ( GRM.L ( "Error: Guild Not Found..." ) );
-                end
+            if GRM_GuildDataBackup_Save[guildName] ~= nil then
+                GRM_GuildDataBackup_Save[guildName] = nil;
+                GRM.Report ( GRM.L ( "Error: Guild Not Found..." ) );
             else
-                if not special then
-                    GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
-                end
+                GRM.Report ( GRM.L ( "{name} has been removed from the database." , guildName ) );
             end
 
         end
     end
 end
+
+--------------------------------
+--- END OF RESTORE POINT -------
+--------------------------------
 
 --------------------------------------
 -------- DEBUGGING -------------------
@@ -2685,9 +2612,62 @@ end
 -- Purpose:    AppendServerName = fun     In some cases you need the full name-serverName to do some actions, when the server only gives you the name of players you are on same realm with trimmed of server. This adds it back.
 GRM.AppendServerName = function ( memberName )
     if memberName ~= nil and memberName ~= "" and not string.find ( memberName , "-" ) then
-        memberName = memberName .. "-" .. GRM_G.realmName;
+        memberName = memberName .. "-" .. GRM.GetPlayerServer ( memberName );
     end
     return memberName;
+end
+
+-- Method:          GRM.GetPlayerServer ( string )
+-- What it Does:    Attempts to determine the player's serverName, for database purposes.
+-- Purpose:         Unfortunately, some system messages do not inlcude the metadata to determine a player's name
+GRM.GetPlayerServer = function ( name )
+    local server = GRM_G.realmName;
+
+    if string.find ( name , "-" ) then
+        server = string.match ( name , "-(.+)" );
+    else
+
+        -- Logic on merged realms is a bit more complicated.
+        if GRM.IsMergedRealmServer() then
+            local realms = GRM.GetAllConnectedRealms();
+            local listOfNames = {};
+            local player = {};
+
+            for i = 1 , #realms do
+                player = GRM.GetPlayer ( name .. "-" .. realms[i] );
+                
+                if player then
+                    table.insert ( listOfNames , player.name );
+                end
+
+            end
+
+            -- More than 1 player found with same name, but different servers...
+            if #listOfNames > 1 then
+
+                for i = 1 , #listOfNames do
+                    player = GRM.GetPlayer ( listOfNames[i] );
+
+                    if player then
+
+                        -- Logic isn't perfect, but I will just default if player is online.
+                        if player.isOnline then
+                            server = string.match ( listOfNames[i] , "-(.+)" );
+                            break;
+                        end
+
+                    end
+
+                end
+                
+            elseif #listOfNames == 1 then
+                server = string.match ( listOfNames[1] , "-(.+)" );
+            end
+
+        end
+    end
+
+    return server;
 end
 
 -- Method:          GRM.GetNumGuildies()
@@ -2964,7 +2944,6 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
             result = true;
 
         elseif GRMsyncGlobals.currentlySyncing and GRM.SystemMessagePatternMatchCheck ( 1 , msg ) then
-            GRMsync.EndSync ( true );
             result = true;
 
         elseif string.find ( msg , GRM.L ( "has promoted" ) ) ~= nil or string.find ( msg , GRM.L ( "has demoted" ) ) ~= nil or string.find ( msg , GRM.L ( "joined the guild." ) ) ~= nil or string.find ( msg , GRM.L ( "left the guild." ) ) ~= nil or string.find ( msg , GRM.L ( "has been kicked" ) ) ~= nil then
@@ -2985,9 +2964,14 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
                     end);
 
                 elseif string.find ( msg , GRM.L ( "has gone offline." ) ) ~= nil then
+                    if GRMsyncGlobals.currentlySyncing and GRM.SyncPlayerGoneOffline( msg ) then
+                        GRMsync.EndSync ( true );
+                    end
                     msg = GRM.AddMainTagToGoneOfflineSystemMessage ( msg );
                 end
             end
+        elseif GRM_G.MainNameSystemMsgControl and string.find ( msg , GRM.L ( "has gone offline." ) ) ~= nil and GRMsyncGlobals.currentlySyncing and GRM.SyncPlayerGoneOffline( msg ) then
+            GRMsync.EndSync ( true );
         end
     else
         result = true;
@@ -2996,6 +2980,29 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
     GRM.SystemMessageHookControl()
 
     return result , msg , ... ;
+end
+
+-- Method:          GRM.SyncPlayerGoneOffline ( string )
+-- What it Does:    Reports back if player you are syncing with has gone offline.
+-- Purpose:         Will need to break sync if players has gone offline.
+GRM.SyncPlayerGoneOffline = function ( msg )
+    local result = false;
+
+    local breakIndex = string.find ( msg , " " );                  -- This format fits almost all
+    if breakIndex == nil then
+        breakIndex = string.find ( msg , "下線了。" );              -- Taiwanese
+        if breakIndex == nil then
+            breakIndex = string.find ( msg , "下线了。" );          -- Mandarin
+        end
+    end
+
+    local fullName = GRM.AppendServerName ( string.sub ( msg , 1 , breakIndex - 1 ) );
+
+    if ( GRMsyncGlobals.IsElectedLeader and GRMsyncGlobals.CurrentSyncPlayer == fullName ) or ( not GRMsyncGlobals.IsElectedLeader and GRMsyncGlobals.DesignatedLeader == fullName ) then
+        result = true;
+    end
+
+    return result;
 end
 
 -- Method:          GRM.SystemMessagePatternMatchCheck ( string , string )
@@ -4159,29 +4166,34 @@ GRM.MiscCleanupOnLogin = function()
     end
 
     -- Friends list actions...
-    GRM_G.MsgFilterDelay = true
-    if GRM_Misc[GRM_G.addonUser] == nil then
-        GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
+    if GRM_Misc[GRM_G.addonUser] ~= nil then
+        GRM_G.MsgFilterDelay = true
+        for i = 1 , #GRM_Misc[GRM_G.addonUser] do
+            if GRM_Misc[GRM_G.addonUser][i][1] then
+
+                -- Friends List Fix
+                if i == 1 then
+                    C_Timer.After ( 1 , function()
+                        for j = 1 , #GRM_Misc[GRM_G.addonUser][i][2] do
+                            GRM_G.MsgFilterDelay = true
+                            GRM_G.MsgFilterDelay2 = true;
+                            C_FriendList.RemoveFriend ( GRM_Misc[GRM_G.addonUser][i][2][j] );
+                            C_FriendList.RemoveFriend ( GRM.SlimName ( GRM_Misc[GRM_G.addonUser][i][2][j] ) );          -- On reload of the server, it refreshes the names and purges the server from some...
+                        end
+                        GRM_Misc[GRM_G.addonUser][i] = { false , {} };
+                    end);
+                end
+
+            end
+        end
+        GRM_Misc[GRM_G.addonUser] = nil;
     end
 
-    for i = 1 , 3 do
-        if GRM_Misc[GRM_G.addonUser][i][1] then
-            C_Timer.After ( 1 , function()
-                for j = 1 , #GRM_Misc[GRM_G.addonUser][i][2] do
-                    GRM_G.MsgFilterDelay = true
-                    GRM_G.MsgFilterDelay2 = true;
-                    C_FriendList.RemoveFriend ( GRM_Misc[GRM_G.addonUser][i][2][j] );
-                    C_FriendList.RemoveFriend ( GRM.SlimName ( GRM_Misc[GRM_G.addonUser][i][2][j] ) );          -- On reload of the server, it refreshes the names and purges the server from some...
-                end
-                GRM_Misc[GRM_G.addonUser][i] = { false , {} };
-            end);
-        end
-    end
     GRM_G.MsgFilterDelay = false;
     C_Timer.After ( 2 , function()
         GRM_G.MsgFilterDelay2 = false;
     end);
-    end
+end
 
 -- Method:          GRM.GetPlayersWithoutGUID();
 -- What it Does:    Gets a list of names of all players no longer in the guild who do not have GUIDs
@@ -4220,7 +4232,12 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
             local startValue = initialValue or 1;       -- For some reason recursively it shows the initialValue as a nil, so reset it to 1
             GRM_G.TempListNamesAddedGUIDCheck = {};              -- This list will be used to determine who to remove from friend's list.
             if #playerNames > 0 then
-                GRM_Misc[GRM_G.addonUser][3] = { true , {} };      -- for backup incase player logs off in the middle of adding names...
+
+                if GRM_Misc[GRM_G.addonUser] == nil then
+                    GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
+                end
+
+                GRM_Misc[GRM_G.addonUser][1] = { true , {} };      -- for backup incase player logs off in the middle of adding names...
                 local toAddNumber = #playerNames;
                 if C_FriendList.GetNumFriends() + #playerNames > 100 then 
                     toAddNumber = 100 - C_FriendList.GetNumFriends();
@@ -4239,7 +4256,7 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
                         break;
                     end
                 end
-                GRM_Misc[GRM_G.addonUser][3][2] = GRM_G.TempListNamesAddedGUIDCheck;
+                GRM_Misc[GRM_G.addonUser][1][2] = GRM_G.TempListNamesAddedGUIDCheck;
             end
 
             -- Now we need to pull the data!!!
@@ -4304,7 +4321,7 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
                     -- FINISHED!!!
                 end
                 -- For restoring on logging off in middle of group friend adding...
-                GRM_Misc[GRM_G.addonUser][3] = { false , {} };
+                GRM_Misc[GRM_G.addonUser] = nil
             end);
         else
             C_Timer.After ( 2 , function()
@@ -8294,11 +8311,10 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["mainStatusChangeTime"] = 0;                       --
     member["alts"] = {};                                    -- 11
     member["altGroup"] = "";
-    member[".00"] = {};                     -- Variable used when a player leaves the guild
+    member["altsAtTimeOfLeaving"] = {};                     -- Variable used when a player leaves the guild
     member["mainAtTimeOfLeaving"] = {};                     -- Easy way to track who is their previous main when they returned to the guild.
     member["bannedInfo"] = { false , 0 , false , "" };      -- 17
     member["reasonBanned"] = "";                            -- 18
-    member["altsAtTimeOfLeaving"] = {};
     member["rankHist"] = { { memberInfo.rankName , 0 , 0 , 0 , 0 , 0 , false , 1 } };      -- { rankName , day , month , year , timeInEpoch , timeChangedManually , isVerified , typeOfRankChange }   
     member["joinDateHist" ] = { { 0 , 0 , 0 , 0 , 0 , false , 1 } };                       -- { day , month , year , timeInEpoch , timeChangedManually , isVerified , join/leave } - 1 = join; 2 = leave;
 
@@ -9396,40 +9412,39 @@ GRM.ConfigureSlider = function ( scrollFrame , childFrame , slider , scrollWidth
 end
 
 
--- Method:          GRM.GetBackupEntries ( int )
+-- Method:          GRM.GetBackupEntries ()
 -- What it Does:    Gets all of the guild information for all guilds' saved data.
 -- Purpose:         Hybrid scrollframe load of the backup features.
-GRM.GetBackupEntries = function ( faction )
+GRM.GetBackupEntries = function ()
     local result = {};
-    local tempGuildCreationDate = "";
+    local guildCreationDate = "";
     local numGuildies = 0;
-    local autoDate = "";
-    local manualDate = "";
+    local date = "";
 
-    for guildName in pairs ( GRM_GuildDataBackup_Save[faction] ) do
-        tempGuildCreationDate = GRM_GuildDataBackup_Save[faction][guildName][1];
-        autoDate = "";
-        manualDate = "";
-        numGuildies = GRM.GetNumGuildiesInGuild ( guildName , faction );
+    for guildName in pairs ( GRM_GuildDataBackup_Save ) do
 
-        if #GRM_GuildDataBackup_Save[faction][guildName].Auto > 0 then
-            autoDate = GRM.FormatTimeStamp ( string.gsub ( GRM_GuildDataBackup_Save[faction][guildName]["Auto"].date , "AUTO_" , "" ) , true );
+        numGuildies = GRM_GuildDataBackup_Save[guildName].numGuildies;
+
+        if GRM_GuildDataBackup_Save[guildName].guildCreationDate ~= "" then
+            local day , month , year = string.match ( GRM_GuildDataBackup_Save[guildName].guildCreationDate , "(%d+)-(%d+)-(%d+)" );
+            guildCreationDate = GRM.FormatTimeStamp ( { tonumber ( day ) , tonumber ( month ) , tonumber ( year ) } );
+        else
+            guildCreationDate = "";
         end
 
-        if #GRM_GuildDataBackup_Save[faction][guildName].Manual > 0 then
-            manualDate = GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[faction][guildName]["Manual"].date  , true );
+        if GRM_GuildDataBackup_Save[guildName].date ~= "" then
+            date = GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[guildName].date );
+        else
+            date = "";
         end
-
 
         -- Set the current guild you are in as first entries.
-        if faction == GRM_G.F and guildName == GRM_G.guildName then
-            table.insert ( result , 1 , { 1 , guildName , tempGuildCreationDate , numGuildies } );
-            table.insert ( result , 2 , { 2 , GRM.L ( "Backup {num}:" , nil , nil , 1 ) , manualDate } );
-            table.insert ( result , 3 , { 3 , GRM.L ( "Auto {num}:" , nil , nil , 1 ) , autoDate } );
+        if guildName == GRM_G.guildName then
+            table.insert ( result , 1 , { 1 , guildName , guildCreationDate , numGuildies } );
+            table.insert ( result , 2 , { 2 , GRM.L ( "Restore Date:" ) , date } );
         else
-            table.insert ( result , { 1 , guildName , tempGuildCreationDate , numGuildies } );
-            table.insert ( result , { 2 , GRM.L ( "Backup {num}:" , nil , nil , 1 ) , manualDate } );
-            table.insert ( result , { 3 , GRM.L ( "Auto {num}:" , nil , nil , 1 ) , autoDate } );
+            table.insert ( result , { 1 , guildName , guildCreationDate , numGuildies } );
+            table.insert ( result , { 2 , GRM.L ( "Restore Date:" ) , date } );
         end
 
     end
@@ -9579,11 +9594,7 @@ end
 GRM.UpdateBackupTooltip = function( ind )
     if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:IsVisible() and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][2]:IsVisible() and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][1]:IsMouseOver() then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:SetOwner( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][1] , "ANCHOR_CURSOR" );
-        if GRM_G.selectedFID == "H" then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][2]:GetText() , 0.61 , 0.14 , 0.137 );
-        elseif GRM_G.selectedFID == "A" then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][2]:GetText() , 0.078 , 0.34 , 0.73 );
-        end
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][2]:GetText() , 0 , 0.8 , 1 );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine ( GRM.L ( "Right-Click for options to remove this guild from the addon database completely" ) , 1 , 0.84 , 0 , true );
 
         if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][5]:GetText() == GRM.L ( "Unknown" ) and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][6]:GetText() == GRM.L ( "Unknown" ) then
@@ -9605,29 +9616,21 @@ GRM.SetBackupValues = function ( ind , ind2 )
     -- Main top Line
     if GRM_G.BackupEntries[ind2][1] == 1 then
         line[2]:SetText ( GRM_G.BackupEntries[ind2][2] );
-        if GRM_G.selectedFID == "H" then
-            line[2]:SetTextColor ( 0.61 , 0.14 , 0.137 );
-        else
-            line[2]:SetTextColor ( 0.078 , 0.34 , 0.73 );
-        end
+        line[2]:SetTextColor ( 0 , 0.8 , 1 );
 
         if GRM_G.BackupEntries[ind2][3] == "" then
             line[5]:SetText ( GRM.L ( "Unknown" ) );
         else
             line[5]:SetText ( GRM_G.BackupEntries[ind2][3] );
         end
-        if GRM_G.BackupEntries[ind2][4] == 0 then
-            line[6]:SetText ( GRM.L ( "Unknown" ) );
-        else
-            line[6]:SetText ( GRM_G.BackupEntries[ind2][4] );
-        end
+        line[6]:SetText ( GRM_G.BackupEntries[ind2][4] );
 
-        line[2]:Show();
-        line[3]:Hide();
+        line[2]:Show(); -- GuildName
+        line[3]:Hide(); 
         line[4]:Hide();
-        line[5]:Show();
-        line[6]:Show();
-        line[7]:Hide();
+        line[5]:Show(); -- CreationDate
+        line[6]:Show(); -- NumGUildies
+        line[7]:Hide(); -- Button Overlay
         line[8]:Hide();
 
     -- Manual Backup Line
@@ -9646,7 +9649,12 @@ GRM.SetBackupValues = function ( ind , ind2 )
             line[8]:Hide();
         else
             line[4]:SetText ( GRM_G.BackupEntries[ind2][3] );
-            line[7]:SetText ( GRM.L ( "Restore" ) );
+
+            if GRM_G.BackupEntries[ind2 - 1 ][2] == GRM_G.guildName then
+                line[7]:SetText ( GRM.L ( "Restore" ) );
+            else
+                line[7]:SetText ( GRM.L ( "Transfer Data" ) );
+            end
             line[7]:Show();
             line[8]:Show();
         end
@@ -9677,27 +9685,14 @@ GRM.BuildBackupScrollFrame = function ( showAll , fullRefresh )
     local buttonWidth = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollFrame:GetWidth() - 5;
 
     if showAll and fullRefresh then
-        GRM_G.BackupEntries = GRM.GetBackupEntries ( GRM_G.selectedFID );
+        GRM_G.BackupEntries = GRM.GetBackupEntries();
         -- Establish the memory use...
         UpdateAddOnMemoryUsage();
 
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_MemoryUsageText:SetText ( 
             GRM.L ( "Memory Usage: {num} MB" , nil , nil , GRM.Round ( GetAddOnMemoryUsage ( GRM_G.addonName ) / 1000 , 2 ) )
         );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_AutoBackupTimeOverlayNoteText:SetText ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].autoIntervalDays );
-        -- AutoBackupSettings
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].autoIntervalDays > 1 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.DaysOnAutoBackupText2:SetText ( GRM.L ( "Days" ) );
-        else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.DaysOnAutoBackupText2:SetText ( GRM.L ( "Day" ) );
-        end
 
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].allowAutoBackups then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_AutoBackupCheckBox:SetChecked( true );
-        else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_AutoBackupCheckBox:SetChecked( false );
-        end
-        -- Hide any popups
     end
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Hide();
@@ -9800,14 +9795,14 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
     buttonText3:SetWordWrap ( false );
 
     -- Date
-    buttonText4:SetPoint ( "LEFT" , buttonText1 , "RIGHT" , 0 , 0 );
+    buttonText4:SetPoint ( "LEFT" , buttonText1 , "RIGHT" , 12 , 0 );
     buttonText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
-    buttonText4:SetWidth ( 110 );
+    buttonText4:SetWidth ( 130 );
     buttonText4:SetJustifyH ( "CENTER" );
     buttonText4:SetWordWrap ( false );
 
     -- Num Guildies
-    buttonText5:SetPoint ( "LEFT" , buttonText4 , "RIGHT" , 50 , 0 );
+    buttonText5:SetPoint ( "LEFT" , buttonText4 , "RIGHT" , 22 , 0 );
     buttonText5:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
     buttonText5:SetWidth ( 110 );
     buttonText5:SetJustifyH ( "CENTER" );
@@ -9815,7 +9810,7 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
     
     if not isResizeAction then
 
-        button1:SetSize ( 110 , 21 );
+        button1:SetSize ( 130 , 21 );
         button1:SetPoint ( "CENTER" , buttonText4 );
 
         button2:SetSize ( 110 , 21 );
@@ -9841,20 +9836,8 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
         -- Restore or Set Backup
         button1:SetScript ( "OnClick" , function ( self , buttonClicked )
             if buttonClicked == "LeftButton" then
-                local index = tonumber ( string.sub ( self:GetName() , string.find ( self:GetName() , "_" ) + 1 ) );    -- Get index of the AllBackupButtons 
-                local backupEntryFinal = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset - numButtons + index;
-
-                if backupEntryFinal > 3 then
-                    if backupEntryFinal % 3 == 0 then
-                        backupEntryFinal = backupEntryFinal - 2;
-                    elseif backupEntryFinal % 3 == 2 then
-                        backupEntryFinal = backupEntryFinal - 1;
-                    end
-                else
-                    backupEntryFinal = 1;
-                end
-                
-                local guildName = GRM_G.BackupEntries[ backupEntryFinal ][2];
+                local index = tonumber ( string.match ( self:GetName() , "_(%d+)" ) );    -- Get index of the AllBackupButtons 
+                local guildName = GRM_G.BackupEntries[ index - 1 ][2];
 
                 -- For retore
                 if self:GetText() == GRM.L ( "Restore" ) then
@@ -9864,17 +9847,38 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
                     -- Popup window logic control
                     GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
                         if button == "LeftButton" then
-                            GRM.LoadGuildBackup ( string.gsub ( guildName , "\"" , "" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][5]:GetText() , GRM_G.selectedFID , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][4]:GetText() );
+                            local gName = string.gsub ( guildName , "\"" , "" ); -- I only want to pass 1 value not 2
+                            GRM.LoadRestorePoint ( gName );
                             GRM.BuildBackupScrollFrame ( true , true );
                             GRM_UI.GRM_RosterConfirmFrame:Hide();
                         end
                     end);
                     GRM_UI.GRM_RosterConfirmFrame:Show();
 
+                elseif self:GetText() == GRM.L ( "Transfer Data" ) then
+                    -- Not my guild
+                    
+                    local buttonLogic = function()
+                        local gName = string.gsub ( guildName , "\"" , "" );
+                        GRM.LoadRestorePoint ( GRM_G.guildName , true , gName  );
+                        GRM.BuildBackupScrollFrame ( true , true );
+                        GRM_UI.GRM_RosterConfirmFrame:Hide();
+                    end
+
+                    GRM.InitiateConfirmFrame( GRM.L ( "Please confirm that \"{name}\" has transferred. Clicking YES will import all guild data." , guildName ) , buttonLogic , nil , nil , nil , nil , 300 , 120 )
+
+                    -- Need to trigger scan
+                    GRM.GuildRoster();
+                    if GRM_G.BuildVersion >= 30000 then
+                        QueryGuildEventLog();
+                    end
+
+                    C_Timer.After ( 2 , GRM.TriggerTrackingCheck );
+
                 -- For manually setting the backup
                 elseif self:GetText() == GRM.L ( "Set Backup" ) then
-
-                    GRM.AddGuildBackup ( string.gsub ( guildName , "\"" , "" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index - 1][5]:GetText() , GRM_G.selectedFID );
+                    local gName = string.gsub ( guildName , "\"" , "" );
+                    GRM.AddGuildBackup ( gName , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index - 1][5]:GetText() );
                     GRM.BuildBackupScrollFrame ( true , true );
                 end
             end
@@ -9883,26 +9887,15 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
         -- Remove a Backup
         button2:SetScript ( "OnClick" , function ( self , buttonClicked )
             if buttonClicked == "LeftButton" then
-                local index = tonumber ( string.sub ( self:GetName() , string.find ( self:GetName() , "_" ) + 1 ) );    -- Get index of the AllBackupButtons
-                local backupEntryFinal = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset - numButtons + index;
-
-                if backupEntryFinal > 3 then
-                    if backupEntryFinal % 3 == 0 then
-                        backupEntryFinal = backupEntryFinal - 2;
-                    elseif backupEntryFinal % 3 == 2 then
-                        backupEntryFinal = backupEntryFinal - 1;
-                    end
-                else
-                    backupEntryFinal = 1;
-                end
-
-                local guildName = GRM_G.BackupEntries[ backupEntryFinal ][2];
+                local index = tonumber ( string.match ( self:GetName() , "_(%d+)" ) );    -- Get index of the AllBackupButtons 
+                local guildName = GRM_G.BackupEntries[ index - 1 ][2];
 
                 GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Really remove {name} Backup Point?" , guildName ) );
                 GRM_UI.GRM_RosterConfirmYesButtonText:SetText ( GRM.L ( "Yes!" ) );
                 GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
                     if button == "LeftButton" then
-                        GRM.RemoveGuildBackup ( string.gsub ( guildName , "\"" , "" ) , GRM_G.selectedFID , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][4]:GetText() , true );
+                        local gName = string.gsub ( guildName , "\"" , "" );
+                        GRM.RemoveGuildBackup ( gName );
                         GRM.BuildBackupScrollFrame ( true , true );
                         GRM_UI.GRM_RosterConfirmFrame:Hide();
                     end
@@ -9913,10 +9906,11 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
 
         coreButton:SetScript ( "OnMouseDown" , function ( self , button )
             if button == "RightButton" then
-                local index = tonumber ( string.sub ( self:GetName() , string.find ( self:GetName() , "_" ) + 1 ) );
+                local index = tonumber ( string.match ( self:GetName() , "_(%d+)" ) );
 
                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][2]:IsVisible() and self:IsMouseOver() then
-                    GRM_G.BackupFrameSelectDetails = { string.gsub ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][2]:GetText() , "\"" , "" ) , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][5]:GetText() };
+                    local gName = string.gsub ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][2]:GetText() , "\"" , "" );
+                    GRM_G.BackupFrameSelectDetails = { gName , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][5]:GetText() };
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:ClearAllPoints();
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:SetPoint( "TOPRIGHT" , self , "TOPLEFT" , -12 , -5 );
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Show();
@@ -14178,23 +14172,17 @@ GRM.BuildNewGuildOrNameChange = function ( roster , forceRebuild )
             GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["grmClubID"] = clubID or 0;
             
             GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ] = {};
-            GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["grmName"] = GRM_G.guildName;
-            GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ]["grmCreationDate"] = GRM_G.guildCreationDate;
             
             -- Configure and initialize the backup tables.
-            GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ] = { GRM_G.guildCreationDate };                                       -- Creates a backup index for this guild
-            local type = "Auto";
-            for i = 1 , 2 do
-                if i == 2 then
-                    type = "Manual";
-                end
-                GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type] = {};
-                GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["date"] = "";
-                GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["epochDate"] = 0;
-                GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["members"] = {};
-                GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["formerMembers"] = {};
-                GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["log"] = {};
-            end
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ] = {};
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].guildCreationDate = GRM_G.guildCreationDate;
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].numGuildies = 0;
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].date = "";
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].epochDate = 0;
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].members = {};
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].formerMembers = {};
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].log = {};
+            GRM_GuildDataBackup_Save[ GRM_G.guildName ].alts = {};
 
             -- Make sure guild is not already added.
             if GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName] == nil then
@@ -14233,7 +14221,6 @@ GRM.ProcessGuildNameChange = function ( currentGuildName , oldGuildName )
 
     GRM_PlayersThatLeftHistory_Save[GRM_G.F][currentGuildName] = {};
     GRM_PlayersThatLeftHistory_Save[GRM_G.F][currentGuildName] = GRM.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[GRM_G.F][oldGuildName] );
-    GRM_PlayersThatLeftHistory_Save[GRM_G.F][currentGuildName].grmName = currentGuildName;
     GRM_PlayersThatLeftHistory_Save[GRM_G.F][oldGuildName] = nil;
 
     GRM_GuildMemberHistory_Save[GRM_G.F][currentGuildName] = {};
@@ -14257,18 +14244,13 @@ GRM.ProcessGuildNameChange = function ( currentGuildName , oldGuildName )
     GRM_Alts[oldGuildName] = nil;
 
     -- Also need to change the guild's name in the saved database...
-    for x in pairs ( GRM_GuildDataBackup_Save[GRM_G.F][oldGuildName] ) do
-        if type ( x ) == "string" then
-            if #GRM_GuildDataBackup_Save[GRM_G.F][oldGuildName][x] > 0 then
-                GRM_GuildDataBackup_Save[GRM_G.F][oldGuildName][x]["members"].grmName = currentGuildName;
-                GRM_GuildDataBackup_Save[GRM_G.F][oldGuildName][x]["formerMembers"].grmName = currentGuildName;
-            end
-        end
+    if GRM_GuildDataBackup_Save[oldGuildName].date ~= "" then
+        GRM_GuildDataBackup_Save[oldGuildName].members.grmName = currentGuildName;
     end
 
-    GRM_GuildDataBackup_Save[GRM_G.F][currentGuildName] = {};
-    GRM_GuildDataBackup_Save[GRM_G.F][currentGuildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[GRM_G.F][oldGuildName] );
-    GRM_GuildDataBackup_Save[GRM_G.F][oldGuildName] = nil;
+    GRM_GuildDataBackup_Save[currentGuildName] = {};
+    GRM_GuildDataBackup_Save[currentGuildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldGuildName] );
+    GRM_GuildDataBackup_Save[oldGuildName] = nil;
 
     local tempName = GRM.GetStringClassColorByName( GRM_G.addonUser ) .. GRM.SlimName( GRM_G.addonUser ) .. "|r";
     local logEntryWithTime , logEntry = GRM.GetGuildNameChangeString ( tempName , GRM.SlimName ( currentGuildName ) , select ( 2 , GRM.GetTimestamp() ) );
@@ -18758,8 +18740,6 @@ GRM.ResetAllSavedData = function()
 
     GRM_GuildDataBackup_Save = nil;
     GRM_GuildDataBackup_Save = {};
-    GRM_GuildDataBackup_Save["H"] = {};
-    GRM_GuildDataBackup_Save["A"] = {};
 
     GRM_CalendarAddQue_Save = nil;
     GRM_CalendarAddQue_Save = {};
@@ -18773,7 +18753,7 @@ GRM.ResetAllSavedData = function()
     GRM_Misc = {};
 
     GRM_Alts = nil;
-    GRM_Alts = {};
+    
 
     GRM.ConfigureAnnounceOnLogin ( true );
 
@@ -18827,7 +18807,7 @@ GRM.ResetGuildSavedData = function ( guildName )
     GRM_LogReport_Save[GRM_G.F][guildName] = nil;
 
     -- Clear the backups... they gotta go too!
-    GRM_GuildDataBackup_Save[GRM_G.F][guildName] = nil;
+    GRM_GuildDataBackup_Save[guildName] = nil;
 
     GRM_Alts[guildName] = nil;
 
@@ -18835,6 +18815,8 @@ GRM.ResetGuildSavedData = function ( guildName )
 
     -- Hide the window frame so it can quickly be reloaded.
     GRM_UI.GRM_MemberDetailMetaData:Hide();
+
+    GRM_G.BackupLoadedOnce = false;
 
     -- Now, let's rebuild...
     if IsInGuild() then
@@ -18855,6 +18837,11 @@ GRM.ResetGuildSavedData = function ( guildName )
 
         if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
             GRM.RefreshAuditFrames ( true , true );
+        end
+
+        if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
+            GRM_G.BackupLoadedOnce = true;
+            GRM.BuildBackupScrollFrame ( true , true );
         end
         
         --Let's re-initiate syncing!
@@ -19290,21 +19277,6 @@ GRM.GetPlayerKickedFromButton = function( nameOrGUID )
     end
 
     GRM.BanAndKickingAltsByPlayer ( playerThatWasKicked );
-end
-
--- Method:          GRM.SetName ( string  )
--- What it Does:    Formats the name based on the player settings
--- Purpose:         Reusable function for all future name formatting.
-GRM.SetName = function ( name )
-    if name ~= nil and name ~= "" then
-
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].useFullName then
-            name = GRM.AppendServerName ( name );
-        else
-            name = GRM.SlimName ( name );
-        end
-    end
-    return name;
 end
 
 -- The leave/kick buttons that are protected
@@ -24368,15 +24340,19 @@ GRM.FrameTransition = function( fadeInName , fadeOutName , isOptionsTab , isOpti
     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].useFade then 
         if fadeInName ~= nil then
             fadeInName:Show();
-            fadeInName:SetAlpha( fadeInName:GetAlpha() + 0.04 );
+
             if fadeInName:GetAlpha() + 0.04 >= 1 then
                 fadeInName:SetAlpha(1);
+            else
+                fadeInName:SetAlpha( fadeInName:GetAlpha() + 0.04 );
             end
         end
         if fadeOutName ~= nil then
-            fadeOutName:SetAlpha( fadeOutName:GetAlpha() - 0.04 );
+
             if fadeOutName:GetAlpha() - 0.04 <= 0 then
                 fadeOutName:SetAlpha(0);
+            else
+                fadeOutName:SetAlpha( fadeOutName:GetAlpha() - 0.04 );
             end
         end
 
@@ -25060,10 +25036,17 @@ GRM.SlashCommandSearch = function ( text )
     end
 end
 
--- Method:          GRM.InitiateConfirmFrame ( string , function , string , string )
+-- Method:          GRM.InitiateConfirmFrame ( string , function , string , string , function , bool , int , int )
 -- What it Does:    Configures the generic popup window for confirmation of an action
 -- Purpose:         Repeat use of the popup window without needing to keep copying and pasting the configuration window.
-GRM.InitiateConfirmFrame = function ( InfoText , buttonFunction , button1Text , button2Text , cancelButtonFunction , disableCloseFunctionOnHide )
+GRM.InitiateConfirmFrame = function ( InfoText , buttonFunction , button1Text , button2Text , cancelButtonFunction , disableCloseFunctionOnHide , width , height )
+    
+    local w = width or 275;
+    local h = height or 90;
+
+    GRM_UI.GRM_RosterConfirmFrame:SetSize ( w , h );
+    GRM_UI.GRM_RosterConfirmFrameText:SetWidth ( GRM_UI.GRM_RosterConfirmFrame:GetWidth() - 10 );
+
     GRM_UI.GRM_RosterChangeLogFrame:EnableMouse( false );
     GRM_UI.GRM_RosterChangeLogFrame:SetMovable( false );
     -- Configure info text
@@ -25329,10 +25312,6 @@ GRM.AllRemainingNonDelayFrameInitialization = function()
                     GRM.SyncAddonSettings();
                 end
 
-                -- Backup Guild data!
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].allowAutoBackups then
-                    GRM.AutoSetBackup();
-                end
             end
 
             -- Clear the macro in case it hasn't been cleared yet (GRM tool is open on a reload or logout.)
@@ -25409,15 +25388,10 @@ GRM.ConfigureGuild = function()
             guildData.grmCreationDate = GRM_G.guildCreationDate;
         end
 
-        -- Left player info
-        if GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmCreationDate == "" then
-            GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ].grmCreationDate = GRM_G.guildCreationDate;
-        end
-
         -- Backup
-        if GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ] ~= nil then
-            if GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][1] == 0 or GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][1] == "" then
-                GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][1] = GRM_G.guildCreationDate;
+        if GRM_GuildDataBackup_Save[ GRM_G.guildName ] ~= nil then
+            if GRM_GuildDataBackup_Save[ GRM_G.guildName ].guildCreationDate == nil or GRM_GuildDataBackup_Save[ GRM_G.guildName ].guildCreationDate == "" then
+                GRM_GuildDataBackup_Save[ GRM_G.guildName ].guildCreationDate = GRM_G.guildCreationDate;
             end
         else
             GRM.FixBackups();
@@ -25434,19 +25408,18 @@ end
 -- What it Does:    Fixes an old issue of guild backups not properly converting on a name change by rebuilding the backup.
 -- Purpose:         To Fix guild backups.
 GRM.FixBackups = function()
-    GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ] = { GRM_G.guildCreationDate };                                       -- Creates a backup index for this guild
-    local type = "Auto";
-    for i = 1 , 2 do
-        if i == 2 then
-            type = "Manual";
-        end
-        GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type] = {};
-        GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["date"] = "";
-        GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["epochDate"] = 0;
-        GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["members"] = {};
-        GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["formerMembers"] = {};
-        GRM_GuildDataBackup_Save[ GRM_G.F ][ GRM_G.guildName ][type]["log"] = {};
-    end
+      -- Creates a backup index for this guild
+      
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ] = {};
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ].guildCreationDate = GRM_G.guildCreationDate;
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ]["date"] = "";
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ]["epochDate"] = 0;
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ]["numGuildies"] = 0;
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ]["members"] = {};
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ]["formerMembers"] = {};
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ]["log"] = {};
+    GRM_GuildDataBackup_Save[ GRM_G.guildName ]["alts"] = {};
+
 end
 
 -- Method:          GRM.ConfigureAnnounceOnLogin( bool )
@@ -25798,21 +25771,17 @@ GRM.ReactivateAddon = function()
 
     if GRM_G.faction == "Horde" then
         GRM_G.FID = 1;
-        GRM_G.selectedFID = "H";
         GRM_G.F = "H";
     else
         GRM_G.FID = 2;
-        GRM_G.selectedFID = "A";
         GRM_G.F = "A";
     end
 
     if GRM_G.F == "" then
         if GRM_G.faction == "Horde" then
             GRM_G.F = "H";
-            GRM_G.selectedFID = "H";
         else
             GRM_G.F = "A";
-            GRM_G.selectedFID = "A";
         end
     end
 
@@ -25906,21 +25875,17 @@ GRM.ActivateAddon = function ( _ , event , addon , isReload )
 
         if GRM_G.faction == "Horde" then
             GRM_G.FID = 1;
-            GRM_G.selectedFID = "H";
             GRM_G.F = "H";
         else
             GRM_G.FID = 2;
-            GRM_G.selectedFID = "A";
             GRM_G.F = "A";
         end
 
         if GRM_G.F == "" then
             if GRM_G.faction == "Horde" then
                 GRM_G.F = "H";
-                GRM_G.selectedFID = "H";
             else
                 GRM_G.F = "A";
-                GRM_G.selectedFID = "A";
             end
         end
 

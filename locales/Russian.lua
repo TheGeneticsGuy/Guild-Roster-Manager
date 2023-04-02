@@ -533,7 +533,6 @@ GRML.Russian = function()
     GRM_L["Alliance"] = "Альянс"
     GRM_L["Creation Date"] = "Дата создания"
     GRM_L["Members"] = "Участников"
-    GRM_L["Backup {num}:"] = "Бэкап {num}:"           -- As in, the number of backups... so "Backup 1:"
     GRM_L["None"] = "None"
     GRM_L["Restore"] = "Восстановить"
     GRM_L["Set Backup"] = "Создать бэкап"
@@ -541,9 +540,6 @@ GRML.Russian = function()
 
     -- Update 1.137
     GRM_L["GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database."] = "ГРМ: невозможно создать резервную копию гильдии с неизвестной датой создания! Войдите в эту гильдию с любого твинка, чтобы обновить старую базу данных."
-    GRM_L["Enable Auto-Backup Once Every"] = "Включить автобекап каждые"
-    GRM_L["Auto {num}:"] = "Авто {num}:"
-    GRM_L["Please Choose a Time Interval Between 1 and 99 Days!"] = "Пожалуйста, выберите временной интервал от 1 до 99 дней!"
     GRM_L["Really restore {name} Backup Point?"] = "Вы действительно хотите восстановить бэкап игрока {name}?" 
     GRM_L["Check All"] = "Выбрать все"
 

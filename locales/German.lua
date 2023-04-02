@@ -537,7 +537,6 @@
         GRM_L["Alliance"] = "Allianz"
         GRM_L["Creation Date"] = "Erstellungsdatum"
         GRM_L["Members"] = "Mitglieder"
-        GRM_L["Backup {num}:"] = "Backup {num}:"           -- As in, the number of backups... so "Backup 1:"
         GRM_L["None"] = "leer"
         GRM_L["Restore"] = "Wiederherstellen"
         GRM_L["Set Backup"] = "Backup erstellen"
@@ -545,9 +544,6 @@
     
         -- Update 1.137
         GRM_L["GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database."] = "Kann kein Backup für eine Gilde ohne Erstellungsdatum anlegen. Bitte logge auf einen Char in der Gilde, um veraltete Daten zu aktualisieren."
-        GRM_L["Enable Auto-Backup Once Every"] = "Aktiviere Auto-Backup alle"
-        GRM_L["Auto {num}:"] = "Auto {num}:"
-        GRM_L["Please Choose a Time Interval Between 1 and 99 Days!"] = "Bitte wähle einen Intervall zwischen 1 und 99 Tagen!"
         GRM_L["Really restore {name} Backup Point?"] = "Wirklich {name} wiederherstellen?"
         GRM_L["Check All"] = "Alle auswählen"
     

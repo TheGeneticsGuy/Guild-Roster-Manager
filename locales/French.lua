@@ -533,7 +533,6 @@ GRML.French = function()
     GRM_L["Alliance"] = "Alliance"
     GRM_L["Creation Date"] = "Date de création"
     GRM_L["Members"] = "Membres"
-    GRM_L["Backup {num}:"] = "Sauvegarde {num} :"           -- As in, the number of backups... so "Backup 1:"
     GRM_L["None"] = "Aucune"
     GRM_L["Restore"] = "Restaurer"
     GRM_L["Set Backup"] = "Sauvegarder"
@@ -541,9 +540,6 @@ GRML.French = function()
 
     -- Update 1.137
     GRM_L["GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database."] = "Impossible de créer une sauvegarde pour une guilde avec une date de création inconnue! Connectez-vous à cette guilde sur n'importe quel Alt pour mettre à jour l'ancienne base de données."
-    GRM_L["Enable Auto-Backup Once Every"] = "Activer Sauvegarde auto tous les"
-    GRM_L["Auto {num}:"] = "Auto {num}:"
-    GRM_L["Please Choose a Time Interval Between 1 and 99 Days!"] = "Choisir un intervalle de temps entre 1 et 99 jours !"
     GRM_L["Really restore {name} Backup Point?"] = "Voulez-vous vraiment restaurer le point de sauvegarde {name} ?"
     GRM_L["Check All"] = "Cocher tout"
 

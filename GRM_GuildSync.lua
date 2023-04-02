@@ -6908,11 +6908,11 @@ end
 GRMsync.BusyMessage = function ( positionInQue )
     
     if not GRMsyncGlobals.WaitingInQue then
-        GRM.Report ( GRM.L ( "You are added to the sync queue. Position: {num} " , nil , nil , positionInQue ) );
+        GRM.Report ( GRM.L ( "You are added to the sync queue. Position: {num}" , nil , nil , positionInQue ) );
         GRMsyncGlobals.WaitingInQue = true;
         GRMsyncGlobals.WaitingInQueTimer = time();
     else
-        GRM.Report ( GRM.L ( "Sync Queue Position Update: {num} " , nil , nil , positionInQue ) );
+        GRM.Report ( GRM.L ( "Sync Queue Position Update: {num}" , nil , nil , positionInQue ) );
     end
         
 end

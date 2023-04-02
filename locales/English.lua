@@ -533,7 +533,6 @@ GRML.English = function()
     GRM_L["Alliance"] = true
     GRM_L["Creation Date"] = true
     GRM_L["Members"] = true
-    GRM_L["Backup {num}:"] = true           -- As in, the number of backups... so "Backup 1:"
     GRM_L["None"] = true
     GRM_L["Restore"] = true
     GRM_L["Set Backup"] = true
@@ -541,9 +540,6 @@ GRML.English = function()
 
     -- Update 1.137
     GRM_L["GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database."] = true
-    GRM_L["Enable Auto-Backup Once Every"] = true
-    GRM_L["Auto {num}:"] = true
-    GRM_L["Please Choose a Time Interval Between 1 and 99 Days!"] = true
     GRM_L["Really restore {name} Backup Point?"] = true
     GRM_L["Check All"] = true
 
@@ -1607,5 +1603,15 @@ GRML.English = function()
     GRM_L["{num}{custom1}: Bans"] = true
     GRM_L["Sync has begun after waiting in queue for {num} seconds"] = true
     GRM_L["Not Determined"] = true  -- Ban List
-    
+
+    --R1.97
+    GRM_L["You are added to the sync queue. Position: {num}"] = true
+    GRM_L["Sync Queue Position Update: {num}"] = true
+    GRM_L["Data has been transferred from the old Guild \"{name}\""] = true
+    GRM_L["Restore Date:"] = true
+    GRM_L["Guild Name"] = true
+    GRM_L["Sync with {name} complete."] = true
+    GRM_L["Transfer Data"] = true
+    GRM_L["Please confirm that \"{name}\" has transferred. Clicking YES will import all guild data."] = true
+
 end
