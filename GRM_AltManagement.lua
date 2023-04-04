@@ -574,10 +574,10 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
     return addToAltsGroup;
 end
 
--- Method:          GRM.AddRejoinToAltGroup ( playerTable )
+-- Method:          GRM.AddRejoinToAltGroup ( playerTable , bool )
 -- What it Does:    Using the stored player information when someone leaves the guild, it checks their alt group and adds them back to it.
 -- Purpose:         One less thing to do manually if you jokingly kick someone or someone returns.
-GRM.AddRejoinToAltGroup = function ( player )
+GRM.AddRejoinToAltGroup = function ( player , isTransfer )
 
     local added = false;
 
@@ -587,13 +587,22 @@ GRM.AddRejoinToAltGroup = function ( player )
 
         for i = 1 , #alts do
 
-            for _,p in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
-                if type (p) == "table" then
-                    if p.GUID == alts[i][3] then
-                        GRM.AddAlt ( p.name , player.name , true );
-                        added = true;
-                        break;
+            if not isTransfer then
+                for _ , p in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
+                    if type (p) == "table" then
+                        if p.GUID == alts[i][3] then
+                            GRM.AddAlt ( p.name , player.name , true );
+                            added = true;
+                            break;
+                        end
                     end
+                end
+            else
+                local p = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][alts[i][1]];
+                if p and p.class == alts[i][2] then
+                    -- alt found
+                    GRM.AddAlt ( p.name , player.name , true );
+                    added = true;
                 end
             end
 
@@ -811,7 +820,7 @@ GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , year , dat
                 GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
 
                 -- Update frames if looking at them on the spot...
-                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and tempAlt.name == GRM_G.currentName and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBDay then
+                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and tempAlt.name == GRM_G.currentName and GRM.S().showBDay then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
                     GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.FormatTimeStamp ( date , false , true ) );
                     GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
@@ -874,9 +883,9 @@ GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isU
 
         -- No need to run this
         if not isLiveSync then
-            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncBDays and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
-                local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
+            if GRM.S().syncBDays and GRM.S().syncEnabled then
+                local syncRankFilter = GRM.S().syncRank;
+                if GRM.S().exportAllRanks then
                     syncRankFilter = GuildControlGetNumRanks() - 1;
                 end
                 GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_BDAYREM?" .. syncRankFilter .. "?" .. name .. "?" .. tostring ( timestamp ) , "GUILD" );
@@ -885,7 +894,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isU
             GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
             GRMsyncGlobals.updatesEach[6] = GRMsyncGlobals.updatesEach[6] + 1;
         -- elseif not isUnknown then
-            -- if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
+            -- if GRM.S().syncChatEnabled then
             --     if #alts > 0 then
             --         GRM.Report ( GRM.L ( "{name}'s alt grouping has had their Birthday removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
             --     else
@@ -948,7 +957,7 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt )
             end
 
             -- Update frames if looking at them on the spot...
-            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and name == GRM_G.currentName and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].showBDay and tempAlt.events[2][3] ~= "" then
+            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and name == GRM_G.currentName and GRM.S().showBDay and tempAlt.events[2][3] ~= "" then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.FormatTimeStamp ( tempAlt.events[2][3] , false , true ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
@@ -1085,8 +1094,8 @@ end
 -- Purpose:         For taggin the autocomplete names to make it easier to see who is and isn't and alt/main
 GRM.GetAltTag = function ( value )
     local result = "";
-    local mainDisplay = GRM.GetMainTags ( false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].mainTagIndex );
-    local altDisplay = GRM.GetAltTags ( false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].mainTagIndex );
+    local mainDisplay = GRM.GetMainTags ( false , GRM.S().mainTagIndex );
+    local altDisplay = GRM.GetAltTags ( false , GRM.S().mainTagIndex );
     if value == 1 then
         result = "|cffab0000 " .. mainDisplay;
     elseif value == 2 then
@@ -1306,7 +1315,7 @@ GRM.PopulateAltFrames = function ( playerName )
         AltButtonsText:SetTextColor ( color[1] , color[2] , color[3] , 1.0 );
         AltButtonsText:SetWidth ( 60 );
 
-        if i == 1 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].fontModifier > 0 and string.find ( name , GRM.L ( "(main)" ) ) ~= nil then
+        if i == 1 and GRM.S().fontModifier > 0 and string.find ( name , GRM.L ( "(main)" ) ) ~= nil then
             AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
         else
             AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
@@ -1580,7 +1589,7 @@ end
 -- Purpose:         No need to announce inactive return if it is just an old alt...
 GRM.IsAnyAltActive = function ( listOfAlts , hours )
     local result = false;
-    local inactiveHours = hours or GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].inactiveHours;
+    local inactiveHours = hours or GRM.S().inactiveHours;
     local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local player;
 
@@ -1678,25 +1687,25 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
 
                 -- Let's set those officer/public notes as well!
                 local noteDestination = "none";
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].addTimestampToNote and ( GRM.CanEditOfficerNote() or GRM.CanEditPublicNote() ) then
+                if GRM.S().addTimestampToNote and ( GRM.CanEditOfficerNote() or GRM.CanEditPublicNote() ) then
                     for h = 1 , GRM.GetNumGuildies() do
                         local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( h );
                         if tempAlt.name == guildieName then
                             local noteDate = "";
-                            local t = GRM.FormatTimeStamp ( { date[1] , date[2] , date[3] } , false , false , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].globalDateFormat );
-                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].includeTag then
+                            local t = GRM.FormatTimeStamp ( { date[1] , date[2] , date[3] } , false , false , GRM.S().globalDateFormat );
+                            if GRM.S().includeTag then
                                 noteDate = GRM_G.customHeaderJoin .. " " .. t;
                             else
                                 noteDate = t;
                             end
                             
-                            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
+                            if GRM.S().joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                                 noteDestination = "officer";
                                 GuildRosterSetOfficerNote( h , noteDate );
-                            elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 2 and GRM.CanEditPublicNote() and ( note == "" or note == nil ) then
+                            elseif GRM.S().joinDateDestination == 2 and GRM.CanEditPublicNote() and ( note == "" or note == nil ) then
                                 noteDestination = "public";
                                 GuildRosterSetPublicNote ( h , noteDate );
-                            elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].joinDateDestination == 3 then
+                            elseif GRM.S().joinDateDestination == 3 then
                                 noteDestination = "custom";
                                 GRM.SetJoinDateToCustomNote ( guildieName , noteDate );
                             end  
@@ -1716,9 +1725,9 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                 -- To Avoid the spam, we are going to treat this like a SYNC message
                 -- Let's send the changes out as well!
                 
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncEnabled then
-                    local syncRankFilter = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncRank;
-                    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].exportAllRanks then
+                if GRM.S().syncEnabled then
+                    local syncRankFilter = GRM.S().syncRank;
+                    if GRM.S().exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
                     GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_JDSYNCUP?" .. GRM_G.addonUser .. "?" .. syncRankFilter .. "?" .. tempAlt.name .. "?" .. tostring ( finalTStampEpoch ) .. "?" .. tostring ( date[1] ) .. "?" .. tostring ( date[2] ) .. "?" .. tostring ( date[3] ) .. "?" .. tostring ( syncEpochStamp ) .. "?" .. noteDestination , "GUILD");

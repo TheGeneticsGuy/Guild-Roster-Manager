@@ -6,6 +6,10 @@ local patchNeeded = false;
 local DBGuildNames = {};
 local totalPatches = 107;
 local startTime = 0;
+local FID = 0;
+local PID = 0;
+local F = "";
+local oldDB = false;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
 -- What it Does:    Holds the patch logic for when people upgrade the addon
@@ -15,6 +19,28 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     local numActions = count or 0;
     local baseValue = patch or 0;
     local patchNum = 0;
+
+    if FID == 0 then
+        if UnitFactionGroup ( "PLAYER" ) == "Horde" then
+            FID = 1;
+            F = "H";
+        else
+            FID = 2;
+            F = "A";
+        end
+    end
+
+    if PID == 0 and GRM_AddonSettings_Save[FID] and GRM_AddonSettings_Save[FID][1] then
+        
+        for k = 2 , #GRM_AddonSettings_Save[FID] do
+            if GRM_AddonSettings_Save[FID][k][1] == GRM_G.addonUser then
+                isFound = true;
+                PID = k;
+                break;
+            end
+        end
+
+    end
     
     -- Purpose of this function...
     -- Updates are not that computationally intensive on their own, but I'd imagine if a player has not updated GRM is a very very long time the process might cause the game to hang for several seconds and possible
@@ -71,7 +97,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     -- Introduced Patch R1.111
     -- Added some more booleans to the options for future growth.
-    if numericV < 1.111 and baseValue < 1.111 and #GRM_AddonSettings_Save[GRM_G.FID][2][2] == 26 then
+    if numericV < 1.111 and baseValue < 1.111 and #GRM_AddonSettings_Save[FID][2][2] == 26 then
         GRM_Patch.ExpandOptions();
         if loopCheck ( 1.111 ) then
             return;
@@ -91,7 +117,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     -- Introduced Patch R1.125
     -- Bug fix... need to purge of repeats
-    if numericV < 1.125 and baseValue < 1.125 and GRM_AddonSettings_Save[GRM_G.FID][2][2][24] == 0 then
+    if numericV < 1.125 and baseValue < 1.125 and GRM_AddonSettings_Save[FID][2][2][24] == 0 then
         GRM_Patch.RemoveRepeats();
         GRM_Patch.EstablishThrottleSlider();
         if loopCheck ( 1.125 ) then
@@ -105,16 +131,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.126 and baseValue < 1.126 then
         GRM_Patch.CleanupSettings ( 30 );
         
-        if #GRM_AddonSettings_Save[GRM_G.FID][2][2] == 30 then
+        if #GRM_AddonSettings_Save[FID][2][2] == 30 then
             GRM_Patch.ExpandOptionsScalable( 10 , 30 , true );  -- Adding 10 boolean spots
         end
         -- Need some more options int placeholders for dropdown menus
-        if #GRM_AddonSettings_Save[GRM_G.FID][2][2] == 40 then
+        if #GRM_AddonSettings_Save[FID][2][2] == 40 then
             GRM_Patch.ExpandOptionsScalable( 5 , 40 , false );  -- Adding 5 boolean spots
         end
 
         -- Minimap Created!!!
-        if GRM_AddonSettings_Save[GRM_G.FID][2][2][25] == 0 or GRM_AddonSettings_Save[GRM_G.FID][2][2][26] == 0 then
+        if GRM_AddonSettings_Save[FID][2][2][25] == 0 or GRM_AddonSettings_Save[FID][2][2][26] == 0 then
             GRM_Patch.SetMinimapValues();
         end
 
@@ -241,7 +267,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.1480 and baseValue < 1.1480 then
         GRM_Patch.ExpandOptionsType ( 1 , 2 , 48 );
         GRM_Patch.ModifyNewDefaultSetting ( 49 , 2 );
-        GRM_Patch.ModifyPlayerMetadata ( 23 , { true , 0 , "" , GRM_AddonSettings_Save[GRM_G.FID][GRM_G.setPID][2][49] , false , "" } , false , -1 );  -- Adding custom note logic
+        GRM_Patch.LanguageSettingModify();                          -- Adding custom note logic
         GRM_Patch.AddNewDefaultSetting ( 3 , true , true );         -- Print log report for custom note boolean
         GRM_Patch.AddNewDefaultSetting ( 13 , true , true );        -- Chat log report for custom note boolean
         GRM_Patch.SetProperRankRestrictions();
@@ -1264,6 +1290,10 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         end
     end
 
+    if oldDB then
+        GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
+    end
+
     C_Timer.After ( 1 , GRM.FinalSettingsConfigurations );
 end
 
@@ -1380,8 +1410,78 @@ GRM_Patch.ModifyMemberSpecificData = function ( databaseChangeFunction , editCur
 end
 
 ---------------------
--- INTEGRITY CHECK --
+-- old db settings work --
 ---------------------
+
+-- Method:          GRM_Patch.ManageOldSettingsDB()
+-- What it Does:    Preps settings DB for conversion 
+-- Purpose:         Cleanup the "LoadSettings" function in GRM_Core as it had a lot of old legacy code. Let's shift it over to patches.
+GRM_Patch.ManageOldSettingsDB = function()
+    local FIDD = 0;
+    local PIDD = 0;
+    local isFound = false;
+    local playerV = "";
+
+    oldDB = true;   -- Class global.
+
+    if GRM_G.faction == "Horde" then
+        FIDD = 1;
+    else
+        FIDD = 2;
+    end
+
+    for j = 2 , #GRM_AddonSettings_Save[FIDD] do
+        if GRM_AddonSettings_Save[FIDD][j][1] == GRM_G.addonUser then
+            isFound = true;
+
+            if GRM_AddonSettings_Save[FIDD][j][2][1] ~= nil and GRM_AddonSettings_Save[FIDD][j][2][1] ~= GRM_G.Version then
+                playerV = GRM_AddonSettings_Save[FIDD][j][2][1];
+            end
+            break;
+        end
+    end
+    
+    -- Verify at least one profile needs to be updated. This is done to account for new toons as well on an update.
+    if not isFound then
+        for i = 1 , #GRM_AddonSettings_Save do
+            for j = 2 , #GRM_AddonSettings_Save[i] do
+                if GRM_AddonSettings_Save[i][j][2][1] ~= nil and GRM_AddonSettings_Save[i][j][2][1] ~= GRM_G.Version then
+                    playerV = GRM_AddonSettings_Save[i][j][2][1];
+                    break;
+                end
+            end
+            if playerV ~= "" then
+                break;
+            end
+        end
+
+    -- Integrity check on the addon settings.
+    else
+        isFound =  GRM_Patch.PlayerSettingsIntegrityCheck();        
+    end
+
+    if not isFound then
+        GRM.Report ( "\n" .. GRM.L ( "Configuring Guild Roster Manager for {name} for the first time." , GetUnitName ( "PLAYER" , false ) ) );
+
+        -- Old Database so still have FID outdated system - legacy code compatibility so it can be fully updated.
+        -- Add new player
+        table.insert ( GRM_AddonSettings_Save[FIDD] , { GRM_G.addonUser } );
+        PIDD = #GRM_AddonSettings_Save[FIDD];                                -- We know what the ID is...
+        
+        -- Unique Settings added to the player.
+        table.insert ( GRM_AddonSettings_Save[FID][PIDD] , GRM_Patch.GetDefaultAddonSettings() );
+
+        GRM_G.IsNewToon = true;
+        -- Forcing core log window/options frame to load on the first load ever as well
+        GRM_G.ChangesFoundOnLoad = true;
+        
+    elseif not IsInGuild() then
+        GRM_G.IsNewToon = true;
+        GRM_G.ChangesFoundOnLoad = true;
+    end
+    
+    return playerV;
+end
 
 -- Only applies to updating much older databases so mostly deprecated, but if someone has a significantly old version they will need to run it through this on their update.
 -- Method:          GRM_Patch.PlayerSettingsIntegrityCheck()
@@ -1443,8 +1543,8 @@ GRM_Patch.SetupAltTracking = function()
     -- Need to check if already added to the guild...
     local guildNotFound = true;
     if GRM_G.guildName ~= nil then
-        for i = 2 , #GRM_GuildMemberHistory_Save[ GRM_G.FID ] do
-            if GRM_GuildMemberHistory_Save[GRM_G.FID][i][1][1] == GRM_G.guildName then
+        for i = 2 , #GRM_GuildMemberHistory_Save[ FID ] do
+            if GRM_GuildMemberHistory_Save[FID][i][1][1] == GRM_G.guildName then
                 guildNotFound = false;
                 break;
             end
@@ -1457,7 +1557,7 @@ GRM_Patch.SetupAltTracking = function()
 
     if IsInGuild() and not guildNotFound then
         -- guild is found, let's add the guild!
-        table.insert ( GRM_PlayerListOfAlts_Save[ GRM_G.FID ] , { { GRM_G.guildName , GRM_G.guildCreationDate } } );  -- alts list, let's create an index for the guild!
+        table.insert ( GRM_PlayerListOfAlts_Save[ FID ] , { { GRM_G.guildName , GRM_G.guildCreationDate } } );  -- alts list, let's create an index for the guild!
 
         -- Insert player name too...
     end
@@ -1601,7 +1701,7 @@ end
 -- TEST HELPERS
 -- Introduced Patch R1.126
 GRM_Patch.CleanupSettings = function ( anyValueGreaterThanThisIndex )
-    local settings = GRM_AddonSettings_Save[GRM_G.FID];
+    local settings = GRM_AddonSettings_Save[FID];
     for i = 2 , #settings do
         if #settings[i][2] > anyValueGreaterThanThisIndex then
             while #settings[i][2] > anyValueGreaterThanThisIndex do
@@ -1609,7 +1709,7 @@ GRM_Patch.CleanupSettings = function ( anyValueGreaterThanThisIndex )
             end
         end
     end
-    GRM_AddonSettings_Save[GRM_G.FID] = settings;
+    GRM_AddonSettings_Save[FID] = settings;
 end
 
 -- Some Promo dates were erroneously added with a ": 14 Jan '18" format. This fixes that.
@@ -1909,16 +2009,16 @@ GRM_Patch.ModifyNewDefaultSetting = function ( index , newSetting )
 
                 -- Double check if it is current player still is found
                 local isFound = false;
-                for k = 2 , #GRM_AddonSettings_Save[GRM_G.FID] do
-                    if GRM_AddonSettings_Save[GRM_G.FID][k][1] == GRM_G.addonUser then
+                for k = 2 , #GRM_AddonSettings_Save[FID] do
+                    if GRM_AddonSettings_Save[FID][k][1] == GRM_G.addonUser then
                         isFound = true;
                         break;
                     end
                 end
                 if not isFound then -- Edge case scenario of addon settings being lost thus are replaced with defaults.
-                    table.insert ( GRM_AddonSettings_Save[GRM_G.FID] , { GRM_G.addonUser } );
-                    GRM_G.setPID = #GRM_AddonSettings_Save[GRM_G.FID];
-                    table.insert ( GRM_AddonSettings_Save[GRM_G.FID][GRM_G.setPID] , GRM_Patch.GetDefaultAddonSettings() );
+                    table.insert ( GRM_AddonSettings_Save[FID] , { GRM_G.addonUser } );
+                    PID = #GRM_AddonSettings_Save[FID];
+                    table.insert ( GRM_AddonSettings_Save[FID][PID] , GRM_Patch.GetDefaultAddonSettings() );
                     GRM_G.IsNewToon = true;
                     -- Forcing core log window/options frame to load on the first load ever as well
                     GRM_G.ChangesFoundOnLoad = true;
@@ -2421,7 +2521,7 @@ end
 -- Purpose:         Human error protection retroactive that is now implemented live.
 GRM_Patch.FixBanListNameGrammar = function()
     -- Only need to do this for non-Asian languages.
-    if GRM_AddonSettings_Save[GRM_G.FID][GRM_G.setPID][2][43] < 9 then
+    if GRM_AddonSettings_Save[FID][PID][2][43] < 9 then
         -- need to update the left player's database too...
         for i = 1 , #GRM_PlayersThatLeftHistory_Save do                         -- Horde and Alliance
             for j = 2 , #GRM_PlayersThatLeftHistory_Save[i] do                  -- The guilds in each faction
@@ -2918,7 +3018,7 @@ end
 -- what it Does:    Checks if the anniversary date formatting has been properly reset, and if so, rebuilds it.
 -- Purpose:         Patch 1.33 had some unexpected bugs and some people's databases did not convert. This resolves that.
 GRM_Patch.EventDatabaseIntegrityCheckAndRebuild = function()
-    if GRM_GuildMemberHistory_Save[GRM_G.FID][2][2][22][1][1] ~= nil and type ( GRM_GuildMemberHistory_Save[GRM_G.FID][2][2][22][1][1] ) == "table" and #GRM_GuildMemberHistory_Save[GRM_G.FID][2][2][22][1][1] == 3 then
+    if GRM_GuildMemberHistory_Save[FID][2][2][22][1][1] ~= nil and type ( GRM_GuildMemberHistory_Save[FID][2][2][22][1][1] ) == "table" and #GRM_GuildMemberHistory_Save[FID][2][2][22][1][1] == 3 then
         -- do nothing...
     else
         GRM_Patch.ConvertAndModifyAnniversaryStorageFormat();
@@ -3804,7 +3904,7 @@ end
 GRM_Patch.CleanupCustomNoteError = function( player )
     if player[23][6] == nil then
         -- let's fix it if it's broken!!!
-        player[23] = { true , 0 , "" , GRM_AddonSettings_Save[GRM_G.FID][GRM_G.setPID][2][49] , false , "" };
+        player[23] = { true , 0 , "" , GRM_AddonSettings_Save[FID][PID][2][49] , false , "" };
     elseif #player[23][6] > 2 and string.sub ( player[23][6] , #player[23][6] , #player[23][6] ) == "?" and tonumber ( string.sub ( player[23][6] , #player[23][6] - 1 , #player[23][6] -1 ) ) ~= nil then
         player[23][6] = string.sub ( player[23][6] , 1 , #player[23][6] - 2 );
     end
@@ -3989,16 +4089,16 @@ GRM_Patch.ConvertRecommendedKickDateToRule = function( index )
 
                 -- Double check if it is current player still is found
                 local isFound = false;
-                for k = 2 , #GRM_AddonSettings_Save[GRM_G.FID] do
-                    if GRM_AddonSettings_Save[GRM_G.FID][k][1] == GRM_G.addonUser then
+                for k = 2 , #GRM_AddonSettings_Save[FID] do
+                    if GRM_AddonSettings_Save[FID][k][1] == GRM_G.addonUser then
                         isFound = true;
                         break;
                     end
                 end
                 if not isFound then -- Edge case scenario of addon settings being lost thus are replaced with defaults.
-                    table.insert ( GRM_AddonSettings_Save[GRM_G.FID] , { GRM_G.addonUser } );
-                    GRM_G.setPID = #GRM_AddonSettings_Save[GRM_G.FID];
-                    table.insert ( GRM_AddonSettings_Save[GRM_G.FID][GRM_G.setPID] , GRM_Patch.GetDefaultAddonSettings() );
+                    table.insert ( GRM_AddonSettings_Save[FID] , { GRM_G.addonUser } );
+                    PID = #GRM_AddonSettings_Save[FID];
+                    table.insert ( GRM_AddonSettings_Save[FID][PID] , GRM_Patch.GetDefaultAddonSettings() );
                     GRM_G.IsNewToon = true;
                     -- Forcing core log window/options frame to load on the first load ever as well
                     GRM_G.ChangesFoundOnLoad = true;
@@ -6834,6 +6934,34 @@ GRM_Patch.ResetBackups = function()
     end
 end
 
+-- 1.97
+-- Nethod:          GRM_Patch.ConvertSettings()
+-- What it Does:    Converts all the databases and removes the faction designation from them
+-- Purpose:         Patch 10.1 allows cross faction guilds. This needed to be done.
+GRM_Patch.ConvertSettings = function()
+
+    local data = { GRM_AddonSettings_Save } -- , GRM_LogReport_Save , GRM_CalendarAddQue_Save , GRM_PlayerListOfAlts_Save , GRM_GuildMemberHistory_Save , GRM_PlayersThatLeftHistory_Save }; 
+    local newSettingsTable = {};
+
+    for i = 1 , #data do
+        newSettingsTable = {};
+
+        if data[i]["H"] then
+
+            for F in pairs ( data[i] ) do
+                for name in pairs ( data[i][F] ) do
+                    newSettingsTable[name] = data[i][F][name];
+                end
+            end
+
+            data[i] = nil;
+            data[i] = newSettingsTable;
+        end
+
+    end
+
+end
+
 -- R1.97
 -- Method:          GRM_Patch.FixPersonWhoBanned ( playerObject )
 -- What it Does:    Fixes banned Info discrepancy due to a sync bug error previously.
@@ -6966,5 +7094,27 @@ GRM_Patch.PurgeGuildFromDatabase = function ( guildName , faction , special )
             end
 
         end
+    end
+end
+
+-- 1.97 (Retro cleanup of old setting smod)
+GRM_Patch.LanguageSettingModify = function()
+    local isFound = false;
+    for k = 2 , #GRM_AddonSettings_Save[FID] do
+        if GRM_AddonSettings_Save[FID][k][1] == GRM_G.addonUser then
+            isFound = true;
+            PID = k;
+            break;
+        end
+    end
+    if not isFound then -- Edge case scenario of addon settings being lost thus are replaced with defaults.
+        table.insert ( GRM_AddonSettings_Save[FID] , { GRM_G.addonUser } );
+        PID = #GRM_AddonSettings_Save[FID]
+        table.insert ( GRM_AddonSettings_Save[FID][#GRM_AddonSettings_Save[FID]] , GRM_Patch.GetDefaultAddonSettings() );
+        GRM_G.IsNewToon = true;
+        -- Forcing core log window/options frame to load on the first load ever as well
+        GRM_G.ChangesFoundOnLoad = true;
+    else
+        GRM_Patch.ModifyPlayerMetadata ( 23 , { true , 0 , "" , GRM_AddonSettings_Save[FID][PID][2][49] , false , "" } , false , -1 );
     end
 end

@@ -579,10 +579,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetScript ( "OnClick", function()
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:GetChecked() then
-                GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter = true;
+                GRM.S().ignoreFilter = true;
                 GRM.TriggerIgnoredQueuedWindowRefresh();
             else
-                GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter = false;
+                GRM.S().ignoreFilter = false;
                 GRM.TriggerIgnoredQueuedWindowRefresh();
             end
             GRM.SyncSettings();
@@ -593,9 +593,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetScript ( "OnClick", function( self , button )
             if button == "LeftButton" then
                 if self:GetChecked() then
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam = true;                 
+                    GRM.S().disableMacroToolLogSpam = true;                 
                 else
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam = false;
+                    GRM.S().disableMacroToolLogSpam = false;
                 end
                 GRM.SyncSettings();
             end
@@ -609,15 +609,15 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() then
                     if self:GetChecked() then
                         if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly = true;
+                            GRM.S().promoteOnlineOnly = true;
                         else
-                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly = true;
+                            GRM.S().demoteOnlineOnly = true;
                         end
                     else
                         if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly = false;
+                            GRM.S().promoteOnlineOnly = false;
                         else
-                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly = false;
+                            GRM.S().demoteOnlineOnly = false;
                         end
                     end
 
@@ -672,7 +672,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries == 0 then
                         local c = #( select ( 2 , GRM.GetSafePlayers ( true ) ) );
-                        if c > 0 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter then
+                        if c > 0 and GRM.S().ignoreFilter then
                             if c > 1 then
                                 msg = GRM.L ( "There are no names to select. {num} players are filtered" , nil , nil , c );
                             else
@@ -1145,7 +1145,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly then
+                if GRM.S().promoteOnlineOnly then
                     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
@@ -1158,7 +1158,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly then
+                if GRM.S().demoteOnlineOnly then
                     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
@@ -1739,39 +1739,39 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.ruleIndex = GRM.GetRulesCount( GRM_UI.GRM_ToolCoreFrame.TabPosition ) + 1;
                     end
 
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule );
+                    GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule );
 
                     -- Configure editTime for sync purposes
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].editTime = time();
+                    GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].editTime = time();
 
                     -- Set the GUID
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].GUID = GRM.GetMacroRuleGUID ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] );
+                    GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].GUID = GRM.GetMacroRuleGUID ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] );
 
                     GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = {};
-                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString = GRM.ConvertMacroRuleToString ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] , GRM_UI.GRM_ToolCoreFrame.TabPosition );
-                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex;
+                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString = GRM.ConvertMacroRuleToString ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] , GRM_UI.GRM_ToolCoreFrame.TabPosition );
+                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex = GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex;
 
                     -- Clear it from removed rules if it is there...
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = nil;
+                    GRM.S().removedMacroRules[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = nil;
 
                     if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit then
                         if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal ~= GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name then
                             -- It's an Edit and it has been renamed... In that case we are going to send a message to show it different name;
                         
                             -- First, add it to our own removedRules so it can be referenced to be removed against.
-                            -- GRM.AddToRemovedRules ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] , time() , nil );
+                            -- GRM.AddToRemovedRules ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal , GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] , time() , nil );
 
                             -- Next, we now add the new rule
                             -- GRM.SendRuleRemove ( GRM_UI.GRM_ToolCoreFrame.TabPosition , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal , time() , GRM_G.addonUser , false );
 
 
-                            GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] = nil;
+                            GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] = nil;
                             -- Configure the sync saved data as well
                             GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal] = nil;   -- removed the saved format here - no need to store it anymore.
                         end
                     end
 
-                    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].macroSyncKickEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].macroSyncPromoteEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].macroSyncDemoteEnabled ) then
+                    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and GRM.S().macroSyncKickEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and GRM.S().macroSyncPromoteEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and GRM.S().macroSyncDemoteEnabled ) then
                         -- GRM.SendRuleAdd ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name , GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString , true );
                     end
 
@@ -4343,7 +4343,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "BOTTOMLEFT" , 0 , -15 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -10 );
                 
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
+                if GRM.S().selectedLang == 5 then -- Russian
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
@@ -4375,7 +4375,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText , "BOTTOMLEFT" , -5 , -10 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -80 );
 
-                if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
+                if GRM.S().selectedLang == 5 then -- Russian
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
@@ -4396,7 +4396,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.LocalizationMModifications = function()
                     -- Localization adjustments
-            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].selectedLang == 5 then -- Russian
+            if GRM.S().selectedLang == 5 then -- Russian
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -6 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton:ClearAllPoints();
@@ -4578,9 +4578,9 @@ GRM.SetKickQueuedValues = function ( ind , ind2 )
     if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action == GRM.L ( "Kick" )then
         line[3]:SetTextColor ( 1 , 0 , 0 , 1 );
     elseif GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action == GRM.L ( "Promote" ) then
-        line[3]:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][3] , 1 );
+        line[3]:SetTextColor ( GRM.S().logColor[4][1] , GRM.S().logColor[4][2] , GRM.S().logColor[4][3] , 1 );
     elseif GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action ==  GRM.L ( "Demote" ) then
-        line[3]:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][3] , 1 );
+        line[3]:SetTextColor ( GRM.S().logColor[5][1] , GRM.S().logColor[5][2] , GRM.S().logColor[5][3] , 1 );
     end
 
     -- Update the tooltip if underlying data changes
@@ -5745,7 +5745,7 @@ GRM.SetIgnoredButtonText = function()
         if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries == 0 then
             -- there ARE players on the safe list, but they are currently being filtered out to only show those with active actions being filtered.
             local c = #( select ( 2 , GRM.GetSafePlayers ( true ) ) );
-            if c > 0 and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter then
+            if c > 0 and GRM.S().ignoreFilter then
                 if c > 1 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreClearSelectionButton.GRM_ToolIgnoreClearSelectionButtonText:SetText ( GRM.L ( "No players to select. {num} players filtered" , nil , nil , c ) );
                 else
@@ -5783,7 +5783,7 @@ end
 -- Purpose:         Proper sorting of players in the guild to be added to the GRM Tool
 GRM.GetIgnoredEntries = function ()
     local result = {};
-    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter then
+    if GRM.S().ignoreFilter then
         result = GRM.GetOnlySafePlayersWithIgnoredAction();
     else
         result = select ( 2 , GRM.GetSafePlayers ( true ) );
@@ -6131,7 +6131,7 @@ GRM.TriggerIgnoredQueuedWindowRefresh = function()
     GRM_UI.RestoreTooltipScale();
     GameTooltip:Hide();
     
-    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].ignoreFilter then
+    if GRM.S().ignoreFilter then
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreCheckButton:SetChecked( true );
     end
 
@@ -6312,7 +6312,7 @@ end
 GRM.GetRulesCount = function ( RulesType )
     local count = 0;
 
-    for _ in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[RulesType]] ) do
+    for _ in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[RulesType]] ) do
         count = count + 1;
     end
 
@@ -6326,11 +6326,11 @@ GRM.RemoveRuleButtonLogic = function ( ruleType , name )
     local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 };
     local epochTime = time();
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
-    GRM.AdjustRuleNumbers ( name , ruleType , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][name].ruleIndex );
-    -- GRM.AddToRemovedRules ( ruleType , name , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][name] , epochTime , nil );
+    GRM.AdjustRuleNumbers ( name , ruleType , GRM.S()[ruleType][name].ruleIndex );
+    -- GRM.AddToRemovedRules ( ruleType , name , GRM.S()[ruleType][name] , epochTime , nil );
     -- Send message out to remove the rule
     -- GRM.SendRuleRemove ( typeEnum[ruleType] , name , epochTime , GRM_G.addonUser , true );
-    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][name] = nil;
+    GRM.S()[ruleType][name] = nil;
     GRM_UI.FullMacroToolRefresh();
 end
 
@@ -6338,7 +6338,7 @@ end
 -- What it Does:    Adjusts the given rule number
 -- Purpose:         Auto-adjust the rule numbers when deleting to keep them properly sorted
 GRM.AdjustRuleNumbers = function ( name , ruleType , number )
-    for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType] ) do
+    for ruleName , rule in pairs ( GRM.S()[ruleType] ) do
         if ruleName ~= name and rule.ruleIndex > number then
             rule.ruleIndex = rule.ruleIndex - 1;
         end
@@ -6356,37 +6356,37 @@ end
 -- GRM.AddToRemovedRules = function ( ruleType , name , rule , epochTime , removedBy )
 --     local remover = removedBy or GRM_G.addonUser;
 --     local rule = GRM.ConvertMacroRuleToString ( rule , ruleType )
---     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][name] = { epochTime , remover , rule };
+--     GRM.S().removedMacroRules[ ruleType ][name] = { epochTime , remover , rule };
 -- end
 
 -- Method:          GRM.GetKickRule()
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetKickRule = function ( name )
-    return GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["kickRules"][name] );
+    return GRM.DeepCopyArray ( GRM.S()["kickRules"][name] );
 end
 
 -- Method:          GRM.GetPromoteRule()
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetPromoteRule = function ( name )
-    return GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["promoteRules"][name] );
+    return GRM.DeepCopyArray ( GRM.S()["promoteRules"][name] );
 end
 
 -- Method:          GRM.GetDemoteRule()
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetDemoteRule = function ( name )
-    return GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["demoteRules"][name] );
+    return GRM.DeepCopyArray ( GRM.S()["demoteRules"][name] );
 end
 
 -- Method:          GRM.ChangeRuleName ( string , string , string )
 -- What it Does:    Copies the old rule and sets the new one.
 -- Purpose:         Allow the editing of the rule names
 GRM.ChangeRuleName = function ( ruleType , newName , oldName )
-    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][newName] = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][oldName] );
-    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][newName].name = newName;
-    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][oldName] = nil;
+    GRM.S()[ruleType][newName] = GRM.DeepCopyArray ( GRM.S()[ruleType][oldName] );
+    GRM.S()[ruleType][newName].name = newName;
+    GRM.S()[ruleType][oldName] = nil;
 end
 
 -- Method:          GRM.GetMacroRuleGUID ( table )
@@ -6411,7 +6411,7 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
 
         while not nameSet do
             ruleName = GRM.L ( "{name}'s Kick Rule {num}" , GRM.SlimName ( GRM_G.addonUser ) , nil , tempNum );
-            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser]["kickRules"][ruleName] ~= nil then
+            if GRM.S()["kickRules"][ruleName] ~= nil then
                 tempNum = tempNum + 1;
             else
                 nameSet = true;
@@ -6480,7 +6480,7 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
         local tempNum = ruleNumber;
         while not nameSet do 
             ruleName = GRM.L ( ruleNameString[position] , GRM.SlimName ( GRM_G.addonUser ) , nil , tempNum );
-            if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[position]][ruleName] ~= nil then
+            if GRM.S()[GRM_UI.ruleTypeEnum[position]][ruleName] ~= nil then
                 tempNum = tempNum + 1;
             else
                 nameSet = true;
@@ -6616,11 +6616,11 @@ GRM.RuleIntegrityCheck = function()
     end
 
     for i = 1 , 3 do
-        for name , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[i]] ) do
+        for name , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[i]] ) do
             isValid , missingValues = GRM.ValidateRule ( rule , i );
 
             if not isValid then
-                GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[i]][name] = nil;
+                GRM.S()[GRM_UI.ruleTypeEnum[i]][name] = nil;
             end
 
         end
@@ -6697,7 +6697,7 @@ end
 -- What it Does:    Does a quick integrity check on the rule makes sure it is good for us. This will be expanded upon
 -- Purpose:         Ensure integrity of data due to syncing.
 GRM.RulesIntegrityCheck = function ( ruleType )
-    for _ , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
+    for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
         if rule.createdBy[1] == "" then
             rule.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
         end
@@ -6714,11 +6714,11 @@ GRM.GetRuleEntries = function ( ruleType )
     GRM.RulesIntegrityCheck ( ruleType );
 
     if ruleType == 1 then
-        tempTable = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules );
+        tempTable = GRM.DeepCopyArray ( GRM.S().kickRules );
     elseif ruleType == 2 then
-        tempTable = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteRules );
+        tempTable = GRM.DeepCopyArray ( GRM.S().promoteRules );
     elseif ruleType == 3 then
-        tempTable = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteRules );
+        tempTable = GRM.DeepCopyArray ( GRM.S().demoteRules );
     end
 
     for _ , rule in pairs ( tempTable ) do
@@ -6776,7 +6776,7 @@ end
 -- What it Does:    As it says, shifts the rule up in the rule list
 -- Purpose:         Custom organization of the rules list
 GRM.ShiftRuleUp = function ( ruleName )
-    local ruleData = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]];
+    local ruleData = GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]];
     ruleData[ruleName].ruleIndex = ruleData[ruleName].ruleIndex - 1;
     local ruleType = GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
@@ -6802,7 +6802,7 @@ end
 -- What it Does:    As it says, shifts the rule up in the rule list
 -- Purpose:         Custom organization of the rules list
 GRM.ShiftRuleDown = function ( ruleName )
-    local ruleData = GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]];
+    local ruleData = GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]];
     -- Increment up by 1
     ruleData[ruleName].ruleIndex = ruleData[ruleName].ruleIndex + 1;
     local ruleType = GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition];
@@ -6977,10 +6977,10 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
             if button == "LeftButton" then
                 local ruleName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2]:GetText();
                 if self:GetChecked() then
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = true;
+                    GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = true;
                     refreshTooltip( self );
                 else
-                    GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = false;
+                    GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = false;
                     refreshTooltip( self );
                 end
                 GRM_UI.FullMacroToolRefresh();
@@ -7530,7 +7530,7 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
         if type ( player ) == "table" and player.name ~= GRM_G.addonUser then
             -- reset for this player.
 
-            for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ GRM_UI.ruleTypeEnum[ruleCount] ] ) do
+            for ruleName , rule in pairs ( GRM.S()[ GRM_UI.ruleTypeEnum[ruleCount] ] ) do
                 if rule.isEnabled then
                     ruleConfirmedCheck = true;
                     tempRuleCollection = {};
@@ -7769,13 +7769,13 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                                         
                                     elseif rule.ruleType == 2 then
                                         
-                                        if ( not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
+                                        if ( not GRM.S().promoteOnlineOnly ) or ( GRM.S().promoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
                                             playerMatch = true;
                                         end
 
                                     elseif rule.ruleType == 3 then
 
-                                        if ( not GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly ) or ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
+                                        if ( not GRM.S().demoteOnlineOnly ) or ( GRM.S().demoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
                                             playerMatch = true;
                                         end
                                         
@@ -7893,7 +7893,7 @@ GRM.GetKickNamesByFilterRules = function()
         if type ( player ) == "table" and player.name ~= GRM_G.addonUser then
             -- reset for this player.
 
-            for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules ) do
+            for ruleName , rule in pairs ( GRM.S().kickRules ) do
                 if rule.isEnabled then
                     ruleConfirmedCheck = true;
                     tempRuleCollection = {};
@@ -8202,14 +8202,14 @@ GRM.RefreshMacroToolRuleCount = function()
         if GRM_G.counts[2] == 0 then
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( 0 , 0.8 , 1 );
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[4][3] );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( GRM.S().logColor[4][1] , GRM.S().logColor[4][2] , GRM.S().logColor[4][3] );
         end
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetText ( GRM_G.counts[2] );
 
         if GRM_G.counts[3] == 0 then
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( 0 , 0.8 , 1 );
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][1] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][2] , GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].logColor[5][3] );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( GRM.S().logColor[5][1] , GRM.S().logColor[5][2] , GRM.S().logColor[5][3] );
         end
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetText ( GRM_G.counts[3] );
     end
@@ -8382,13 +8382,13 @@ GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
         GRM_UI.RefreshManagementTool( false , false );
     end
 
-    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam then
+    if GRM.S().disableMacroToolLogSpam then
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( true );
     else
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( false );
     end
 
-    if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].disableMacroToolLogSpam then
+    if GRM.S().disableMacroToolLogSpam then
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( true );
     else
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( false );
@@ -8400,7 +8400,7 @@ GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
 
     elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
 
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteOnlineOnly then
+        if GRM.S().promoteOnlineOnly then
             GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
         else
             GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
@@ -8409,7 +8409,7 @@ GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
 
     elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
 
-        if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteOnlineOnly then
+        if GRM.S().demoteOnlineOnly then
             GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
         else
             GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
@@ -8939,7 +8939,7 @@ end
 --         sendDetails = { ["kickRules"] = 7 , ["promoteRules"] = 8 , ["demoteRules"] = 9 };
 --     end
 
---     local msg = ruleString or GRM.ConvertMacroRuleToString ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][ruleName] , ruleType );
+--     local msg = ruleString or GRM.ConvertMacroRuleToString ( GRM.S()[ruleType][ruleName] , ruleType );
 
 --     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRM_G.macroSizeMod;
 --     GRM.MacroSyncSend ( sendDetails[ruleType] , msg );
@@ -8985,7 +8985,7 @@ end
 -- -- Purpose:         Part of macro sync algorithm
 -- GRM.RemoveMacroRule = function ( ruleName , ruleType , liveUpdate , sender )
 --     print ("Removing Rule: " .. ruleName )
---     -- GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][ruleName] = nil;
+--     -- GRM.S()[ruleType][ruleName] = nil;
     
 
 --     if liveUpdate then
@@ -9134,7 +9134,7 @@ end
 --     local listOfRules = {};
 --     local tempTable = {};
 
---     for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].kickRules ) do
+--     for ruleName , rule in pairs ( GRM.S().kickRules ) do
 --         if rule.sync then
 --             if not GRM_G.MacroRuleSyncFormat.kickRules[ruleName] then
 --                 GRM_G.MacroRuleSyncFormat.kickRules[ruleName] = {};
@@ -9156,7 +9156,7 @@ end
 -- GRM.CompilePromoteRules = function()
 --     local listOfRules = {};
 
---     for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].promoteRules ) do
+--     for ruleName , rule in pairs ( GRM.S().promoteRules ) do
 --         if rule.sync then
 --             if not GRM_G.MacroRuleSyncFormat.promoteRules[ruleName] then
 --                 GRM_G.MacroRuleSyncFormat.promoteRules[ruleName] = {};
@@ -9179,7 +9179,7 @@ end
 -- GRM.CompileDemoteRules = function()
 --     local listOfRules = {};
 
---     for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].demoteRules ) do
+--     for ruleName , rule in pairs ( GRM.S().demoteRules ) do
 --         if rule.sync then
 --             if not GRM_G.MacroRuleSyncFormat.demoteRules[ruleName] then
 --                 GRM_G.MacroRuleSyncFormat.demoteRules[ruleName] = {};
@@ -9270,8 +9270,8 @@ end
 --     local senderNeedsToRemove = false;
 
 --     -- Check if it already exists
---     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ ruleType ][ ruleName ] then
---         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ ruleType ][ ruleName ].editTime < rule[28] and GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ ruleType ][ ruleName ].sync then
+--     if GRM.S()[ ruleType ][ ruleName ] then
+--         if GRM.S()[ ruleType ][ ruleName ].editTime < rule[28] and GRM.S()[ ruleType ][ ruleName ].sync then
 --             -- Rule needs to be added / overwrite existing
 --             addRule = true;
 --             print("Need to add it")
@@ -9280,9 +9280,9 @@ end
 --         end
 
 --     -- Rule exists, but you removed it, let's see who is more recent.
---     elseif GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][ ruleName ] then
+--     elseif GRM.S().removedMacroRules[ ruleType ][ ruleName ] then
         
---         if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][ ruleName ][1] <= rule[28] then
+--         if GRM.S().removedMacroRules[ ruleType ][ ruleName ][1] <= rule[28] then
 --             addRule = true;
 --         else
 --             senderNeedsToRemove = true;
@@ -9411,9 +9411,9 @@ end
 
 --     end
 
---     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleType][rule.name] = GRM.DeepCopyArray ( rule );
+--     GRM.S()[ruleType][rule.name] = GRM.DeepCopyArray ( rule );
 --     -- Clear it from removed rules if it is there...
---     GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].removedMacroRules[ ruleType ][rule.name] = nil;
+--     GRM.S().removedMacroRules[ ruleType ][rule.name] = nil;
 --     -- Don't refresh UI until sender confirms they sent last rule
 --     GRM.RefreshNumberOfHoursTilRecommend();
 -- end
@@ -9433,7 +9433,7 @@ end
 --     local ruleGroup = { "kickRules" , "promoteRules" , "demoteRules" };
 
 --     for i = 1 , #ruleGroup do
---         for ruleName , rule in pairs ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleGroup[i]] ) do
+--         for ruleName , rule in pairs ( GRM.S()[ruleGroup[i]] ) do
 
 --             -- If it was not received, but you have this rule, then send it back as a LIVE update to specific person
 --             if not GRM_G.macroSyncRulesReceived[ruleGroup[i]][ruleName] then
@@ -9443,7 +9443,7 @@ end
 --                     -- CPU cycle logic saving
 --                     if not GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName] then
 --                         GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName] = {};
---                         GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName].ruleString = GRM.ConvertMacroRuleToString ( GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser][ruleGroup[i]][ruleName] , i );
+--                         GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName].ruleString = GRM.ConvertMacroRuleToString ( GRM.S()[ruleGroup[i]][ruleName] , i );
 --                         GRM_G.MacroRuleSyncFormat[ruleGroup[i]][ruleName].ruleIndex = tonumber ( rule.ruleIndex );
 --                     end
 
@@ -9468,7 +9468,7 @@ end
 --     end
     
 --     -- REPORTING TO CHAT
---     if GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].syncChatEnabled then
+--     if GRM.S().syncChatEnabled then
 --         local isAnyCount = false;
 --         local i = 0;
 --         for ruleGroup in pairs ( GRM_G.macroSyncRulesReceived ) do

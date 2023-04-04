@@ -1,6 +1,32 @@
 ## **VERSION 1.97 RELEASE - APRIL, 2023**
 
-***BUG FIXES***
+**NEW FEATURE - Guild Transfer - Preservation of Data**
+
+* The Guild Backups window has been rebuilt. First, the "backups" was a bit misleading and I think confused some people. They were not a "true" backup of the addon data since WOW addons do not have write to file access to say, Windows. It did however provide a restore point if you had maybe an officer go rogue and mess up all your data. I don't want to confuse anyone further so I have rebuilt this feature more as a tool to preserve your guild's GRM data if you decide to transfer servers. This will also clear a lot of the overall GRM memory usage that was storing a copy of all GRM data mostly needlessly to now only be used when transferring guilds.
+
+> STEP BY STEP GUIDE FOR USE: 
+  * STEP 1: Login to the guild you are planning on transferring BEFORE you transfer.
+  * STEP 2: Open the GRM window *(/grm)* > Click Options Tab > Click Restore Tab
+  * STEP 3: Click "Set Restore Point" to the guild you are currently in (remove the old if necessary)
+  * STEP 4: Initiate the guild transfer process.
+  * STEP 5: Log into the new guild on the new server.
+  * STEP 6: Ensure that the new guild rank structure is identical to the previous (name changes are fine), otherwise it may can only "guess" a player was promoted/demoted if the tier structure has been changed.
+  * STEP 7: Open the Restore Tab again and click "Transfer Data" from your old guild. Confirm YES.
+  * STEP 8: If you are satisfied with the transfer, remove the restore point to lower your memory usage next session.
+  * **NOTE:**
+    
+  -- It is recommended to WAIT to transfer and import the data to the guild until the majority of your members have also transferred, otherwise they will be designated as having left the guild since they are not found. Also, please be aware that the server GUID tag of each player changes on a guild transfer, so if your guild members change their names on the transfer, GRM will be unable to detect this and count them only has new members once they transfer. GRM will note them as a returning member who transferred, however, if they rejoin after the fact and are protected, but it can only do this if their name is still the same (I do check a few additional metadata points to verify other than name as then any person could change name to old member and join).
+
+  -- Also, BAN DATA IS NOW REDUNDANT. The ban data will be transferred, but because you are on a new server, the GUIDs will no longer match, so even if they changed servers and tried to join your guild, GRM will be unable to flag them if they have changed their names. While GRM will not automatically purge your old and now redundant ban list, I do recommend going into it and doing it yourself.
+
+
+***QUALITY OF LIFE***
+
+* For those that monitor the .toc or savedVariable file, just a heads up, the "GRM_Misc" global variable is cleaned up and made a little more efficient and will cleanup the saved file a little and will NOT be stored needlessly. It's mostly redundant info and should ONLY be carried over between saves if a player logs off in the middle of an action.
+
+* 10.1 is going to be a fairly significant update due to the ability to have cross-faction guilds. I had my data storage tree separated by factions. This is forcing me to rebuild the database to remove faction separation since that is a bit redundant. Not hard, but we are talking about literally thousands of points of data. I wish it were as simple as mass-eliminating "editing all" but it isn't. Just to prevent any error, I do need to look at each line of code it affects and ensure it's not broken after I convert the DB. This is simple, but it will take some time. DF has had so so SOOO many changes it is just a huge time-sink.
+
+  ***BUG FIXES***
 
 * Sync message on the que was not properly localized so would through a chat message error.
 
@@ -11,17 +37,6 @@
 * GRM_FullBackup_Save was a deprecated saved variable that will no longer appear as a nil in the savedVariables file.
 
 * Fixed an error where if you are using the GRM > Options > UI > Tab fade feature a lua error could occur when selecting any tab but the Log tab. It didn't break anything, but it was a lua error needlessly.
-
-
-***QUALITY OF LIFE***
-
-* The "GRM_Misc" global variable is cleaned up and made a little more efficient and will cleanup the saved file a little. It's mostly redundant info and should ONLY be carried over between saves if a player logs off in the middle of an action.
-
-* The Guild Backups window has been rebuilt. First, the "backups" was a bit misleading and I think confused some people. They were not a "true" backup of the addon data since WOW addons do not have write to file access to your OS like Windows. They were just an internal restore point that oculd be used.
-  * Ability to prepare the guild data for a guild transfer
-  * Set restore point
-  * When the guild is transferred, login and then go and "Transfer Guild" when you are ready (preferrably when more members have also transferred, or else it will say they have left the guild when not found yet).
-  * Player dates, main designations, alt groups, log entries, and so on will all be preserved in the transfer and all names will be modifed to match the destination server.      
 
 
 ## **VERSION 1.96 RELEASE - March 27th, 2023**

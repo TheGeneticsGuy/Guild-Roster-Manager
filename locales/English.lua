@@ -1613,5 +1613,18 @@ GRML.English = function()
     GRM_L["Sync with {name} complete."] = true
     GRM_L["Transfer Data"] = true
     GRM_L["Please confirm that \"{name}\" has transferred. Clicking YES will import all guild data."] = true
+    GRM_L["Set Restore Point"] = true
+    GRM_L["Guild Transfer Tool"] = true
+    GRM_L["Transfer Tool Guide"] = true
+    GRM_L["Step-by-Step guide on how to use transfer tool"] = true
+    GRM_L["Step {num}:"] = true  -- Step 1: , Step 2: etc...
+    GRM_L["Click \"Set Restore Point\" to the guild you are currently in (remove the old if necessary)."] = true
+    GRM_L["Initiate the guild transfer process."] = true
+    GRM_L["Log into the new guild on the new server."] = true
+    GRM_L["Open the Restore Tab again and click \"Transfer Data\" from your old guild. Confirm YES."] = true
+    GRM_L["If you are satisfied with the transfer, remove the restore point to lower memory use next session."] = true
+    GRM_L["Ensure that the new guild rank structure is identical to the previous (name changes are fine)."] = true
+    GRM_L["Transferred from old server"] = true
+    GRM_L["{name} has transferred servers and REJOINED the Guild."] = true
 
 end

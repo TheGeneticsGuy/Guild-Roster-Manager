@@ -7,12 +7,12 @@
 ** SCAN FOR CHANGES ** Trigger on GUILD_ROSTER_UPDATE - this will only check for changes to notes, leveling, etc...
     --Event_Log_Update - check for promotion/demotion/kick/join/etc...
     -- THIS IS GOING TO BE REBUILT in 1.97 -- 
+
+** SYNC PROGRESS BAR
+
+** Ghost minimap icon
     
 ** SYNC ISSUES SOME STILL FAILING
-
-** GUILD TRANSFER TOOL
-
-** RENAME BACKUPS TO RESTORE POINTS -- EMPHASISE NOT A TRUE BACKUP - STILL NEED TO MANUALLY BACKUP YOUR FILE.
 
 ** GRM GROUP INFO proximity icon not showing
 
@@ -23,6 +23,12 @@
 ** ADD MYTHIC+ OPTION for macro tool on promotions/demotions...
 
 * Compress and decompress sync data.
+
+* Update ElvUI AddonSkins.
+    * Progress Bar for sync
+    * Backup window button
+
+
 
 # **BUG FIXES**
 
