@@ -13,8 +13,9 @@ GRM.GetAltGroupMain = function ( altGroup , includeGUID )
     if altGroup ~= "" and GRM_Alts[GRM_G.guildName][altGroup] then
         main = GRM_Alts[GRM_G.guildName][altGroup].main;
 
-        if includeGUID and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][main] then
-            GUID = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][main].GUID;
+        local player = GRM.GetPlayer ( main );
+        if includeGUID and player then
+            GUID = player.GUID;
         end
     end
 
@@ -25,7 +26,7 @@ end
 -- What it Does:    Returns the full player of the toon's main, or himself if he is main, or an empty string if no main.
 -- Purpose:         Useful lookup for many purposes...
 GRM.GetPlayerMain = function ( playerName )
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName);
     local result = "";
 
     if player then
@@ -61,8 +62,10 @@ end
 -- Purpose:         Easy lookup tool to query it.
 GRM.GetPlayerAltGroupID = function ( name )
     local id;
-    if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] then
-        id = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name].altGroup;
+    local player = GRM.GetPlayer ( name );
+
+    if player then
+        id = player.altGroup;
     end
     return id
 end
@@ -188,7 +191,7 @@ end
 -- What it Does:    Verifies the integrity of certain data
 -- Purpose:         Due to the possibility of sync failing in the middle, like if someone goes offline or the other hits a loading screen in the middle of a sync, it is possible that this data can end up nil, in certain cases. This resolves that bug by rebuilding the variable.
 GRM.AltModifiedIntegrityCheck = function()
-    for _,player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ) do
+    for _ , player in pairs ( GRM.GetGuild() ) do
         if type ( player ) == "table" then
 
             if not player.altGroupModified then
@@ -285,10 +288,12 @@ GRM.GetListOfAlts = function ( player , includeGUID , syncTable )
     if player.altGroup ~= "" then
         for i = 1 , #altData[player.altGroup] do
             if altData[player.altGroup][i].name ~= player.name then
-                if not includeGUID or ( includeGUID and not GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altData[player.altGroup][i].name] ) then
+
+                local p = GRM.GetPlayer ( altData[player.altGroup][i].name );
+                if not includeGUID or ( includeGUID and not p ) then
                     table.insert ( names , { altData[player.altGroup][i].name , altData[player.altGroup][i].class , altData[player.altGroup].timeModified } );
                 else
-                    table.insert ( names , { altData[player.altGroup][i].name , altData[player.altGroup][i].class , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altData[player.altGroup][i].name].GUID , altData[player.altGroup].timeModified } );
+                    table.insert ( names , { altData[player.altGroup][i].name , altData[player.altGroup][i].class , p.GUID , altData[player.altGroup].timeModified } );
                 end
             end
         end
@@ -324,12 +329,12 @@ end
 -- What it Does:    Returns the main name of the given alt from the alt grouping, or returns "" if none is established for the given player.
 -- Purpose:         To have a cleaner, simpler way of obtaining the main name.
 GRM.GetMainName = function ( fullName , includeParentheses )
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][fullName];
+    local player = GRM.GetPlayer ( fullName );
     local playerHasAlts = false;
     local main = "";
 
     if not player then
-        player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][fullName];
+        player = GRM.GetFormerPlayer ( fullName );
         if player then
             if #player.altsAtTimeOfLeaving > 0 then
                 playerHasAlts = true;
@@ -369,8 +374,8 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
         end
 
     else
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
-        local alt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altName];
+        local player = GRM.GetPlayer ( playerName );
+        local alt = GRM.GetPlayer ( altName );
         local classMain , classAlt = "" , "";
         local timeOfChange = syncTimeStamp or time();
         
@@ -564,7 +569,7 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
         -- LIVE UPDATE THE FRAMES
         if GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
 
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == alt.altGroup then
+            if GRM.GetPlayer ( GRM_G.currentName ).altGroup == alt.altGroup then
                 GRM.PopulateAltFrames ( GRM_G.currentName );
             end
         end
@@ -588,17 +593,19 @@ GRM.AddRejoinToAltGroup = function ( player , isTransfer )
         for i = 1 , #alts do
 
             if not isTransfer then
-                for _ , p in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
+                for _ , p in pairs ( GRM.GetGuild() ) do
                     if type (p) == "table" then
+
                         if p.GUID == alts[i][3] then
                             GRM.AddAlt ( p.name , player.name , true );
                             added = true;
                             break;
                         end
+                        
                     end
                 end
             else
-                local p = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][alts[i][1]];
+                local p = GRM.GetPlayer ( alts[i][1] );
                 if p and p.class == alts[i][2] then
                     -- alt found
                     GRM.AddAlt ( p.name , player.name , true );
@@ -630,7 +637,7 @@ GRM.RemoveAlt = function ( playerName , isSync , epochTime )
         return;
     end
 
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName );
 
     if player and player.altGroup ~= "" then
 
@@ -658,9 +665,12 @@ GRM.RemoveAlt = function ( playerName , isSync , epochTime )
             
             -- no main left, with only one person means to disband the group
             if #GRM_Alts[GRM_G.guildName][player.altGroup] == 1 and GRM_Alts[GRM_G.guildName][player.altGroup].main == "" then
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][1].name] then
-                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][1].name].altGroup = "";
-                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][1].name].altGroupModified = timestamp;
+
+                local p = GRM.GetPlayer ( GRM_Alts[GRM_G.guildName][player.altGroup][1].name );
+                if p then
+
+                    p.altGroup = "";
+                    p.altGroupModified = timestamp;
 
                     if GRM_Alts[GRM_G.guildName][player.altGroup][1].name == GRM_G.currentName then
                         needsRefresh = true;
@@ -715,7 +725,7 @@ GRM.UpdateAltGroupModifiedTime = function ( altGroup , timestamp )
 
         if GRM_Alts[GRM_G.guildName][altGroup] then
             for i = 1 , #GRM_Alts[GRM_G.guildName][altGroup] do
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][altGroup][i].name].altGroupModified = timestamp;
+                GRM.GetPlayer ( GRM_Alts[GRM_G.guildName][altGroup][i].name ).altGroupModified = timestamp;
             end
         end
     end
@@ -729,26 +739,29 @@ GRM.AddPlayerToOwnAltList = function()
     -- First, find the player in member save and determine if they are the main, if not, check his alt list, determine who is main.
     -- if no main, first person on list can add.
     -- if main, then main will add this player.
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.addonUser];
+    local player = GRM.GetPlayer ( GRM_G.addonUser );
 
     if player then
         -- Ok, adding the player!
-        GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName][GRM_G.addonUser] = {};
-
+        local officialToons = GRM.GetAddOnUserGuildAlts();
+        officialToons[GRM_G.addonUser] = {};
 
         -- if the player already is on a list, let's not add them automatically.
         if player.altGroup == "" then
             -- Ok, good, let's check the alt list!
 
-            if GRM.GetNumKeyedEntries ( GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName] ) > 1 then    -- No need if it is just myself - if number of entries == 1 then it is just me
+            if GRM.GetNumKeyedEntries ( officialToons ) > 1 then    -- No need if it is just myself - if number of entries == 1 then it is just me
                 -- Ok great, there is already another player in the guild! Let's put them into the same alt grouping!
 
                 local isAdded = false;
-                for altName in pairs ( GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName] ) do
-                    -- Make sure it is not the player.
-                    if altName ~= GRM_G.addonUser and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altName] then
 
-                        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][altName].isMain then
+                for altName in pairs ( officialToons ) do
+                    -- Make sure it is not the player.
+
+                    player = GRM.GetPlayer ( altName );
+                    if altName ~= GRM_G.addonUser and player then
+
+                        if player.isMain then
                             -- ADD ALT HERE!!!!!!
                             local addToAltsGroup = GRM.AddAlt ( GRM_G.addonUser , altName , false , time() );
                             GRM.SyncBirthdayWithNewAlt ( GRM_G.addonUser , altName , addToAltsGroup );
@@ -761,7 +774,7 @@ GRM.AddPlayerToOwnAltList = function()
 
                 -- if it was not added, then add it here! No alt was set as main.
                 if not isAdded then
-                    for altName in pairs ( GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName] ) do
+                    for altName in pairs ( officialToons ) do
                         -- Make sure it is not the player.
                         if altName ~= GRM_G.addonUser then
                             local addToAltsGroup = GRM.AddAlt ( GRM_G.addonUser , altName , false , time() );
@@ -786,8 +799,9 @@ end
 -- Purpose:         For alt auto-tagging for the addon.
 GRM.CheckIfNeedToAddAlt = function()
     local result = true;
-
-    if GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName] ~= nil and GRM_PlayerListOfAlts_Save[GRM_G.F][GRM_G.guildName][GRM_G.addonUser] ~= nil then
+    local officialToons = GRM.GetAddOnUserGuildAlts();
+    
+    if officialToons ~= nil and officialToons[GRM_G.addonUser] ~= nil then
         result = false;
     end
 
@@ -798,14 +812,14 @@ end
 -- What it Does:    Sets all of the alts to the same birthday as well when there is a modification
 -- Purpose:         Ensure birthdays are set for all alts, as it is assumed it is one player
 GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , year , date , timeStamp )
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName );
     local tempAlt;
 
     if player and GRM.PlayerHasAlts ( player ) then
         local alts = GRM.GetListOfAlts ( player );
         for i = 1 , #alts do
 
-            tempAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][alts[i][1]];
+            tempAlt = GRM.GetPlayer ( alts[i][1] );
             if tempAlt then
                 -- Alt found!
                 tempAlt.events[2][1] = { day , month , year };
@@ -837,7 +851,7 @@ end
 --                  This is a unique removal to just yourself.
 GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isUnknown )
 
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
+    local player = GRM.GetPlayer ( name );
 
     if player then
 
@@ -866,7 +880,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isU
         local alts = GRM.GetListOfAlts ( player );
 
         for i = 1 , #alts do
-            tempAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][alts[i][1]];
+            tempAlt = GRM.GetPlayer ( alts[i][1] );
             if tempAlt then
                 tempAlt.events[2] = { { 0 , 0 , 0 } , false , "" , timestamp };
                 GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
@@ -915,20 +929,21 @@ end
 -- What it Does:    Sets the new alt to the same birthday as the previous alts
 -- Purpose:         Keep alts all in sync on the birthday.
 GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt )
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-    local player = guildData[name];
+    local player = {};
     local tempAlt;
     local needToRemoveFromQue = false;
 
     if useAlt then
-        player = guildData[newAlt]
+        player = GRM.GetPlayer ( newAlt );
+    else
+        player = GRM.GetPlayer ( name );
     end
 
     if player and GRM.PlayerHasAlts ( player ) then  -- Validate player found in databse AND player has alts.
         local alts = GRM.GetListOfAlts ( player , false );
 
         for i = 1 , #alts do
-            tempAlt = guildData[alts[i][1]];
+            tempAlt = GRM.GetPlayer ( alts[i][1] );
 
             needToRemoveFromQue = false;
 
@@ -978,7 +993,7 @@ GRM.SetMain = function ( mainName , timestamp )
         return;
     end
 
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][mainName]
+    local player = GRM.GetPlayer ( mainName );
     local timeS = timestamp or time();
 
     -- Protectection in case they join and then immediately quit
@@ -998,10 +1013,11 @@ GRM.SetMain = function ( mainName , timestamp )
             if player.altGroup ~= "" then
 
                 -- Set old main to NOT alt.
-                if GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= player.name and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main] then
+                local p = GRM.GetPlayer ( GRM_Alts[GRM_G.guildName][player.altGroup].main );
+                if GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= player.name and p then
 
-                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].isMain = false;
-                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup].main].mainStatusChangeTime = timeS;
+                    p.isMain = false;
+                    p.mainStatusChangeTime = timeS;
 
                     if GRM_Alts[GRM_G.guildName][player.altGroup].main == GRM_G.currentName and GRM_UI.GRM_MemberDetailMetaData ~= nil and GRM_UI.GRM_MemberDetailMetaData:IsVisible()  then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
@@ -1033,7 +1049,7 @@ GRM.SetMain = function ( mainName , timestamp )
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
                 end
 
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then
+                if GRM.GetPlayer ( GRM_G.currentName ).altGroup == player.altGroup then
                     GRM.PopulateAltFrames ( GRM_G.currentName );
                 end
             end
@@ -1051,7 +1067,7 @@ GRM.DemoteFromMain = function ( mainName , timestamp )
         return;
     end
 
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][mainName];
+    local player = GRM.GetPlayer ( mainName );
     local timeS = timestamp or time();
     
     if player then
@@ -1082,7 +1098,7 @@ GRM.DemoteFromMain = function ( mainName , timestamp )
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
             end
 
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].altGroup == player.altGroup then
+            if GRM.GetPlayer ( GRM_G.currentName ).altGroup == player.altGroup then
                 GRM.PopulateAltFrames ( GRM_G.currentName );
             end
         end
@@ -1109,11 +1125,10 @@ end
 -- Purpose:         Eliminates the possibility of a person entering a fake name of a player no longer in the guild.
 GRM.AddAltAutoComplete = function()
     local partName = GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:GetText();
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local tag = 0;
     local players = {};
 
-    for _ , player in pairs ( guildData ) do
+    for _ , player in pairs ( GRM.GetGuild() ) do
         if type ( player ) == "table" then
             if player.name ~= GRM_G.currentName then   -- no need to go through player's own window
                 -- Determine alt/main tag
@@ -1181,7 +1196,7 @@ end
 -- Purpose:             QoL. Option to ban players' alts as well if they are getting banned.
 GRM.KickAllAlts = function ( playerName , banReason )
     GRM_G.KickAllAltsTable = {};
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName );
 
     if player then
     -- Ok, let's parse the player's data!
@@ -1195,7 +1210,7 @@ GRM.KickAllAlts = function ( playerName , banReason )
 
             for i = 1 , #listOfAlts do
                 if listOfAlts[i].name ~= player.name and listOfAlts[i].name ~= GRM_G.addonUser then
-                    tempAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][listOfAlts[i].name];
+                    tempAlt = GRM.GetPlayer ( listOfAlts[i].name );
 
                     -- The banning...
                     if GRM_G.isChecked or GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() then
@@ -1265,7 +1280,7 @@ end
 -- Purpose:         Clean formatting of the alt frames.
 GRM.PopulateAltFrames = function ( playerName )
     -- let's start by prepping the frames.
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName );
     local alts = GRM.GetListOfAlts ( player );
     local numAlts = #alts;
     local main = "";
@@ -1353,8 +1368,7 @@ GRM.PopulateAltFrames = function ( playerName )
                 GRM_UI.GRM_MemberDetailMetaData.GRM_altDropDownOptions:Show();
 
                 -- Set the Global info now!
-                local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName];
-                if player then
+                if GRM.GetPlayer ( GRM_G.currentName ) then
                     GRM_G.selectedName = { GRM_G.currentName , tostring ( GRM_G.tempAltName ) , GRM_G.guildName , isMain };
                 end
 
@@ -1468,7 +1482,7 @@ GRM.GetSortedAltNamesWithDetails = function ( playerName )
     local type = GRM_G.altDetailsControl[1];
     local descending = GRM_G.altDetailsControl[2];
     local isAdded = false;
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName );
     local playerDetails;
     local tempAlt = {};
 
@@ -1478,7 +1492,7 @@ GRM.GetSortedAltNamesWithDetails = function ( playerName )
 
         -- Build the list of alts.
         for r = 1 , #alts do
-            tempAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][alts[r][1]];
+            tempAlt = GRM.GetPlayer ( alts[r][1] )
 
             if tempAlt then
                 
@@ -1590,11 +1604,12 @@ end
 GRM.IsAnyAltActive = function ( listOfAlts , hours )
     local result = false;
     local inactiveHours = hours or GRM.S().inactiveHours;
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local player;
 
     for i = 1 , #listOfAlts do
-        player = guildData[listOfAlts[i][1]];
+
+        player = GRM.GetPlayer ( listOfAlts[i][1] );
+
         if player then
             if player.lastOnline < inactiveHours then
                 result = true;
@@ -1611,11 +1626,12 @@ end
 -- Purpose:         No need to announce inactive return if it is just an old alt...
 GRM.IsAnyAltActiveForRecommendKicks = function ( listOfAlts , ruleName )
     local result = false;
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
     local player;
 
     for i = 1 , #listOfAlts do
-        player = guildData[listOfAlts[i][1]];
+
+        player = GRM.GetPlayer ( listOfAlts[i][1] );
+
         if player then
 
             if GRM_G.NumberOfHoursTilRecommend.kick[ruleName] == nil then
@@ -1654,8 +1670,7 @@ end
 -- What it Does:    Tales the player name and makes ALL of their alts share the same timestamp on joining.
 -- Purpose:         Ease for the addon user to be able to sync the join dates among all alts rather than have to manually do them 1 at a time.6
 GRM.SyncJoinDatesOnAllAlts = function ( playerName )
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-    local player = guildData[playerName];
+    local player = GRM.GetPlayer ( playerName );
 
     if player then
         -- now, let's check the alt info.
@@ -1669,7 +1684,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
         for i = 1 , #alts do
             -- Now, need to match the alt to the real database
 
-            tempAlt = guildData[alts[i][1]];
+            tempAlt = GRM.GetPlayer ( alts[i][1] );
 
             if tempAlt then
                 -- Let's match the values now...
@@ -1774,7 +1789,7 @@ end
 -- What it Does:    Returns the name of the player with the oldest join date in his grouping of main/alts
 -- Purpose:         When syncing join dates among a grouping of alts, it would be nice to have an option to sync to the oldest join date.
 GRM.GetAltWithOldestJoinDate = function ( playerName )
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
+    local player = GRM.GetPlayer ( playerName );
     local oldestPlayer = { playerName , 0 };
     local day , nonth, year = 0 , 0 , 0;
     local oldestDate = "";
@@ -1790,7 +1805,7 @@ GRM.GetAltWithOldestJoinDate = function ( playerName )
         end
 
         for i = 1 , #alts do
-            playerAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ alts[i][1] ];
+            playerAlt = GRM.GetPlayer ( alts[i][1] );
             if playerAlt then
                 if playerAlt.joinDateHist[1][4] > 0 then                           -- First, double check it is set
                     
@@ -1811,7 +1826,7 @@ end
 -- What it Does:    Returns true if the player has already sync'd all of the alt data.
 -- Purpose:         Quality of Life... no need to ask the player to sync alt data if already sync'd
 GRM.IsAltJoinDatesSynced = function ( playerName )
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName );
     local result = false;
 
     if player then
@@ -1823,7 +1838,7 @@ GRM.IsAltJoinDatesSynced = function ( playerName )
             local isNotSync = false;
 
             for i = 1 , #alts do
-                playerAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ alts[i][1] ];
+                playerAlt = GRM.GetPlayer ( alts[i][1] );
                 if playerAlt then
                     if playerAlt.joinDateHist[1][4] == 0 or ( playerAlt.joinDateHist[1][4] > 0 and ( playerAlt.joinDateHist[1][1] ~= player.joinDateHist[1][1] or playerAlt.joinDateHist[1][2] ~= player.joinDateHist[1][2] or playerAlt.joinDateHist[1][3] ~= player.joinDateHist[1][3] ) ) then
                         isNotSync = true;
@@ -1848,7 +1863,7 @@ end
 -- NOTE:            Note, if the player has NO alts... it will return as false.
 GRM.PlayerOrAltHasJD = function ( playerName )
     local result = false
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][playerName];
+    local player = GRM.GetPlayer ( playerName );
 
     if player then
         local alts = GRM.GetListOfAlts ( player );
@@ -1860,7 +1875,7 @@ GRM.PlayerOrAltHasJD = function ( playerName )
             else
                 -- player does not have a JD... let's check if any of the alts do.
                 for i = 1 , #alts do       -- cycle through the alts
-                    playerAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ alts[i][1] ];
+                    playerAlt = GRM.GetPlayer ( alts[i][1] );
                     if playerAlt then
                         if playerAlt.joinDateHist[1][4] > 0 then
                             result = true;

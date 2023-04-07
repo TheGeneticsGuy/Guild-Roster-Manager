@@ -5254,7 +5254,7 @@ end
 -- Purpose:         To ensure integrity of the roster
 GRM.ValidateMacroRecordingSuccess = function( isReScan )
     local ranksAllMatching = true;
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local guildData = GRM.GetGuild();
 
     for name , rankIndex in pairs ( GRM_UI.GRM_ToolCoreFrame.ValidatedNames ) do
         if guildData[name].rankIndex ~= rankIndex then
@@ -5806,7 +5806,7 @@ end
 -- What it Does:    Removes the highlights from the selected names, and sets them to no longer be ignored, and then rebuilds teh frames with that data.
 -- Purpose:         Ability to manage ignore list in mass.
 GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local guildData = GRM.GetGuild();
     local player;
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
@@ -5818,6 +5818,7 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
 
             -- Now scan through the roster and update.
             player = guildData[ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries[i].name ];
+
             if player then
                 player.safeList[rule][1] = false;
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , i );
@@ -5846,7 +5847,7 @@ end
 -- What it Does:    Removes all players from the ignore list
 -- Purpose:         Ease of allowing the player to easily remove all from the ignore list.
 GRM.ClearAllPlayersFromIgnoreList = function()
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local guildData = GRM.GetGuild();
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local count = 0;
 
@@ -5886,7 +5887,7 @@ end
 -- What it Does:    Returns the count of total ignored people
 -- Purpose:         To determine the number ignored for UI purposes.
 GRM.GetNumIgnored = function()
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local guildData = GRM.GetGuild();
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local count = 0;
 
@@ -5905,7 +5906,7 @@ end
 -- What it Does:    Returns true if at least one can be ignored - easy check rather than relying on a full count
 -- Purpose:         UX
 GRM.IsAnyIgnored = function()
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local guildData = GRM.GetGuild();
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
     local result = false;
 
@@ -7526,7 +7527,7 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
         return result , numRankPlacesToMove;
     end
 
-    for _ , player in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
+    for _ , player in pairs ( GRM.GetGuild() ) do
         if type ( player ) == "table" and player.name ~= GRM_G.addonUser then
             -- reset for this player.
 
@@ -7889,7 +7890,7 @@ GRM.GetKickNamesByFilterRules = function()
     local ruleConfirmedCheck = true
     local listOfPlayers , tempRuleCollection = {} , {};
 
-    for _ , player in pairs ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] ) do
+    for _ , player in pairs ( GRM.GetGuild() ) do
         if type ( player ) == "table" and player.name ~= GRM_G.addonUser then
             -- reset for this player.
 
@@ -8145,7 +8146,7 @@ end
 GRM.GetSafePlayers = function( getCountAndPlayers )
     local count = 0;
     local names = {};
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local guildData = GRM.GetGuild();
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
         for _ , player in pairs ( guildData ) do

@@ -29,7 +29,6 @@
     * Backup window button
 
 
-
 # **BUG FIXES**
 
 * StaticPopup is closing on Escape, which is bad if you die and hit escape. It should only on the GRM one. This seems to be affecting Classic Vanilla only, but I haven't been able to reproduce though I saw it once lol.

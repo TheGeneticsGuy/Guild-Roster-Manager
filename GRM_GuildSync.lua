@@ -1333,7 +1333,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
 
     -- set the timestamp
     local joinDate = GRM.FormatTimeStamp ( { day , month , year } );
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
+    local player = GRM.GetPlayer ( playerName );
 
     if player then
         -- Let's see if there was a change
@@ -1408,7 +1408,7 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
     GRM_G.MatchPattern6 = GRM_G.MatchPattern6 or GRM.BuildComPattern ( 6 , "?" , false );
 
     local playerName , day , month , year , epochDate , epochTimeOfChange = GRM.ParseComMsg ( msg , GRM_G.MatchPattern6 );
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
+    local player = GRM.GetPlayer ( playerName );
 
     if player then
 
@@ -1499,7 +1499,7 @@ GRMsync.CheckAddAltChange = function ( msg , sender , prefix )
 
     if name ~= altName then         -- To avoid spam message to all players...
 
-        local alt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ altName ];
+        local alt = GRM.GetPlayer ( altName );
 
         if alt and altNameEpochTime >= alt.altGroupModified then
 
@@ -1620,8 +1620,7 @@ GRMsync.ConvertToNamesList = function ( list )
 
     return result;
 end
--- GRMsync.ClearAltGroupsthatMatch ( GRMsyncGlobals.FinalCorrectAltList , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] , GRMsyncGlobals.guildAltData );
--- GRMsync.ClearAltGroupsthatMatch ( GRMsyncGlobals.FinalAltListReeceived , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] , GRMsyncGlobals.guildAltData );
+
 -- Method:          GRMsync.ClearAltGroupsthatMatch ( table , table , table )
 -- What it Does:    Cleans up the final list of alts so you don't process logic of adding/removing if groups already are the same.
 -- Purpose:         Keep the data sync'd properly.
@@ -1673,7 +1672,7 @@ GRMsync.CheckAddAltSyncChange = function ( finalList , countExpected )
 
     if countExpected == GRM.TableLength ( finalList ) then
         -- Now, we need to update the current database
-        local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ]
+        local guildData = GRM.GetGuild();
         local altData = GRMsyncGlobals.guildAltData;
         local player = {};
         local currentAlts = {};
@@ -1803,7 +1802,7 @@ GRMsync.CheckRemoveAltChange = function ( msg , sender )
     altName , altChangeTimeStamp , name = GRM.ParseComMsg ( msg , GRM_G.MatchPattern3 );
     altChangeTimeStamp = tonumber ( altChangeTimeStamp );
 
-    local alt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ altName ];
+    local alt = GRM.GetPlayer ( altName );
 
     if alt and altChangeTimeStamp >= alt.altGroupModified then
 
@@ -1859,7 +1858,7 @@ GRMsync.CheckAltMainChange = function ( msg , sender )
 
     GRM.SetMain ( mainName , timestamp );
 
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ mainName ];
+    local player = GRM.GetPlayer ( mainName );
 
     -- We need to add the timestamps our selves as well! In the main program, the timestamps are only triggered on manually clicking and adding/removing
     if player then
@@ -1906,7 +1905,7 @@ GRMsync.CheckMainSyncChange = function ( msg )
 
     end
 
-    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ mainName ];
+    local player = GRM.GetPlayer ( mainName );
 
     if player then
         if tostring ( player.isMain ) ~= mainStatus then
@@ -1997,7 +1996,8 @@ GRMsync.CheckCustomNoteChange = function ( msg , sender )
             end
 
             -- Check for changes!
-            local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
+            local player = GRM.GetPlayer ( playerName );
+
             if player then
                 -- No need to check if this one note has sync turned off
                 if player.customNote[1] then
@@ -2070,7 +2070,8 @@ GRMsync.CheckCustomNoteSyncChange = function ( msg , isReceivedSync )
             end
 
             -- Check for changes!
-            local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
+            local player = GRM.GetPlayer ( playerName );
+
             if player then
                 -- Player identified... now we need to find out what sync restriction you have on them.
                 if player.customNote[1] then
@@ -2202,8 +2203,8 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         reason = "";
     end
 
-    local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-    local leftGuildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
+    local guildData = GRM.GetGuild();
+    local leftGuildData = GRM.GetFormerMembers();
     local altData = GRMsyncGlobals.guildAltData;
     local player = guildData[ name ];
     
@@ -2397,7 +2398,7 @@ GRMsync.CheckUnbanListChangeLive = function ( msg , sender )
 
     -- Message
     if GRM.S().syncChatEnabled then
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] ~= nil then
+        if GRM.GetPlayer ( name ) ~= nil then
             isInGuild = true;
         end
         if not isInGuild then
@@ -2479,11 +2480,11 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
 
     end
 
-    local player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
+    local player = GRM.GetFormerPlayer ( playerName );
     local isAnEdit = false;
     
     if not player then
-        player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerName ];
+        player = GRM.GetPlayer ( playerName );
     end
 
     if player then
@@ -5136,7 +5137,7 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
         
     end
     -- Ok, let's check if this player is already known...
-    local player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][ playerName ];
+    local player = GRM.GetFormerPlayer ( playerName );
 
     if not player then
 
@@ -5200,8 +5201,9 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
         GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , joinDateEpoch , originalJoinEpoch , nil );
 
         -- Need to be added to the temp tables to during sync.  
-        if GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][ playerName ] then
-            table.insert ( GRMsyncGlobals.formerGuildData , GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][GRM_G.guildName][ playerName ] );
+        local player = GRM.GetFormerPlayer ( playerName );
+        if player then
+            table.insert ( GRMsyncGlobals.formerGuildData , player );
             sort ( GRMsyncGlobals.formerGuildData , function ( a , b ) return a.name < b.name end );
         end
     end
@@ -5998,10 +6000,11 @@ GRMsync.CheckingBdayChanges = function ( syncRankFilter )
     local alts;
     local player;
     local count = #GRMsyncGlobals.BDayChanges
+    local guildData = GRM.GetGuild();
 
     while count > 0 do
 
-        player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRMsyncGlobals.BDayChanges[count][1]];
+        player = guildData[GRMsyncGlobals.BDayChanges[count][1]];
 
         if player then
 
@@ -6236,9 +6239,9 @@ GRMsync.CompareAltLists = function()
         local listOfAlts = {};
         for name , alts in pairs ( GRMsyncGlobals.FinalCorrectAltList ) do
             
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] then
+            if GRM.GetPlayer ( name ) then
                 -- Ok, collect the alts so we can compare.
-                listOfAlts = GRM.GetListOfAlts ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] , false , GRM_Alts[GRM_G.guildName] )
+                listOfAlts = GRM.GetListOfAlts ( GRM.GetPlayer ( name ) , false , GRM_Alts[GRM_G.guildName] )
                 if not GRMsync.IsListTheSame ( alts , listOfAlts ) then
                     GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
                     GRMsyncGlobals.updatesEach[3] = GRMsyncGlobals.updatesEach[3] + 1;

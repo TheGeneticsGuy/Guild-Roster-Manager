@@ -1766,7 +1766,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     -- Right Click menu configuration for promotion rank history or editing
     GRM_UI.ConfigurePromoteDateRightClickMenu = function()
         local height = 85;
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
+        local player = GRM.GetPlayer ( GRM_G.currentName );
 
         GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:ClearAllPoints();
         GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt , "BOTTOM" );
@@ -1833,7 +1833,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     -- Right Click menu configuration for promotion rank history or editing
     GRM_UI.ConfigureJoinDateRightClickMenu = function()
         local height = 85;
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
+        local player = GRM.GetPlayer ( GRM_G.currentName );
 
         GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:ClearAllPoints();
         GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText , "BOTTOM" );
@@ -1903,7 +1903,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     GRM_UI.ConfigureBirthDayRightClickMenu = function()
         local height = 85;
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
+        local player = GRM.GetPlayer ( GRM_G.currentName );
 
         GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:ClearAllPoints();
         GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText , "BOTTOM" );
@@ -2891,7 +2891,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         local playerDetails = {};
         playerDetails.newNote = self:GetText();
         playerDetails.name = GRM_G.currentName;
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerDetails.name ];
+        local player = GRM.GetPlayer ( playerDetails.name );
     
         if player then
             -- -- First, let's add the change to the official server-sde note
@@ -2992,7 +2992,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         playerDetails.newNote = self:GetText();
         playerDetails.name = GRM_G.currentName;
         
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ playerDetails.name ];
+        local player = GRM.GetPlayer ( playerDetails.name );
     
         if player then
             -- First, let's add the change to the official server-sde note
@@ -3073,22 +3073,23 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         local disabled = "|CFFFF0000" .. GRM.L ( "Disabled at Current Rank" ) .. "|r"; 
         local color1 , color2 , color3 = "" , "" , "";
         local baseHeight = 184;
-
-        GRM.ValidateIgnoreExpireDates ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName] );
-
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[1] then
+        local player = GRM.GetPlayer ( GRM_G.currentName );
+        
+        GRM.ValidateIgnoreExpireDates ( player );
+    
+        if player.safeList.kick[1] then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBox:SetChecked( true );
             GRM_UI.ReEnableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireEditBox );
             color1 = "|CFF00CCFF";
-
+    
         else
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBox:SetChecked ( false );
             color1 = "|CFF7F7F7F";
             -- Adjust coloring and use of sub option
             GRM_UI.DisableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireEditBox );
         end
-
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[1] then
+    
+        if player.safeList.promote[1] then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox:SetChecked( true );
             GRM_UI.ReEnableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireEditBox );
             color2 = "|CFF00CCFF";
@@ -3097,8 +3098,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             GRM_UI.DisableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireEditBox );
             color2 = "|CFF7F7F7F";
         end
-
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1] then
+    
+        if player.safeList.demote[1] then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:SetChecked( true );
             GRM_UI.ReEnableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox );
             color3 = "|CFF00CCFF";
@@ -3107,33 +3108,33 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             GRM_UI.DisableSubIgnoreOption ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox );
             color3 = "|CFF7F7F7F";
         end
-
+    
         -- Kick ignore list tiime expire config
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[2] then
+        if player.safeList.kick[2] then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton:SetChecked ( true );
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox:ClearAllPoints();
             
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[1] then
+            if player.safeList.kick[1] then
                 local date = "";
                 local timeLeft = "";
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] > 0 then
-                    date = GRM.EpochToDateFormat ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] - ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[3] * 86400 ) );
-                    timeLeft = GRM.GetTimePassedInZone ( nil , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] - time() , true );
+                if player.safeList.kick[4] > 0 then
+                    date = GRM.EpochToDateFormat ( player.safeList.kick[4] - ( player.safeList.kick[3] * 86400 ) );
+                    timeLeft = GRM.GetTimePassedInZone ( nil , player.safeList.kick[4] - time() , true );
                 end
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonDateSetText:SetText ( GRM.L ( "Configured: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. date .. "|r" ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. timeLeft .. "|r" ) );
-
+    
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonDateSetText:Show();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:Show();
                 baseHeight = baseHeight + GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.modifier;
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton , "BOTTOMLEFT" , 10 , - ( 1 + GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.modifier ) );
-
+    
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonDateSetText:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton , "BOTTOMLEFT" , 10 , -1 );
             end
-
+    
             
         else
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton:SetChecked ( false );
@@ -3142,19 +3143,19 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonDateSetText:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:Hide();
         end
-
-
+    
+    
         -- PROMOTE FILTERS
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[2] then
+        if player.safeList.promote[2] then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton:SetChecked ( true );
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:ClearAllPoints();
             
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[1] then
+            if player.safeList.promote[1] then
                 local date = "";
                 local timeLeft = "";
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] > 0 then
-                    date = GRM.EpochToDateFormat ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] - ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[3] * 86400 ) );
-                    timeLeft = GRM.GetTimePassedInZone ( nil , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] - time() , true );
+                if player.safeList.promote[4] > 0 then
+                    date = GRM.EpochToDateFormat ( player.safeList.promote[4] - ( player.safeList.promote[3] * 86400 ) );
+                    timeLeft = GRM.GetTimePassedInZone ( nil , player.safeList.promote[4] - time() , true );
                 end
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonDateSetText:SetText ( GRM.L ( "Configured: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. date .. "|r" ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. timeLeft .. "|r" ) );
@@ -3172,26 +3173,26 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         
             
         else
-
+    
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton:SetChecked ( false );
-
+    
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:ClearAllPoints();
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton , "BOTTOMLEFT" , 10 , -1 );
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonDateSetText:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:Hide();
         end
-
-
+    
+    
         -- DEMOTE FILTERS
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[2] then
+        if player.safeList.demote[2] then
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton:SetChecked ( true );
             
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1] then
+            if player.safeList.demote[1] then
                 local date = "";
                 local timeLeft = "";
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] > 0 then
-                    date = GRM.EpochToDateFormat ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] - ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] * 86400 ) );
-                    timeLeft = GRM.GetTimePassedInZone ( nil , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] - time() , true );
+                if player.safeList.demote[4] > 0 then
+                    date = GRM.EpochToDateFormat ( player.safeList.demote[4] - ( player.safeList.demote[3] * 86400 ) );
+                    timeLeft = GRM.GetTimePassedInZone ( nil , player.safeList.demote[4] - time() , true );
                 end
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonDateSetText:SetText ( GRM.L ( "Configured: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. date .. "|r" ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. timeLeft .. "|r" ) );
@@ -3199,7 +3200,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonDateSetText:Show();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:Show();
                 baseHeight = baseHeight + GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.modifier;
-
+    
         
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonDateSetText:Hide();
@@ -3216,40 +3217,40 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
              
         -- Monitoring/Ignored text
         local kickMsg , promoteMsg, demoteMsg = "" , "" , "";
-
+    
         if CanGuildRemove() then
-            kickMsg = ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[1]];
+            kickMsg = ruleEnum[player.safeList.kick[1]];
         else
             kickMsg = disabled;
         end
-
+    
         if CanGuildPromote() then
-            promoteMsg = ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[1]];
+            promoteMsg = ruleEnum[player.safeList.promote[1]];
         else
             promoteMsg = disabled;
         end
-
+    
         if CanGuildDemote() then
-            demoteMsg = ruleEnum[GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1]];
+            demoteMsg = ruleEnum[player.safeList.demote[1]];
         else
             demoteMsg = disabled;
         end
-
+    
         GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetText ( kickMsg );
         GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetText ( promoteMsg );
         GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetText ( demoteMsg );
-
+    
         -- Expire checkboxs
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireEditBox:SetText ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[3] );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color1 .. GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireEditBox:SetText ( player.safeList.kick[3] );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color1 .. player.safeList.kick[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
         GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonText );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireEditBox:SetText ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[3] );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color2 .. GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireEditBox:SetText ( player.safeList.promote[3] );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color2 .. player.safeList.promote[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
         GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonText );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox:SetText ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color3 .. GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox:SetText ( player.safeList.demote[3] );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText:SetText ( GRM.L ( "Reactivate monitoring after {num} days." , nil , nil , color3 .. player.safeList.demote[3] .. "|r" ) .. "  " .. GRM.L ( "Set Days:" ) );
         GRM.NormalizeHitRects ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonText );
-
+    
         -- Frame positions and sizing
         GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetHeight ( baseHeight );
     end
@@ -3257,27 +3258,27 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate = function( self , elapsed )
         self.Timer = self.Timer + elapsed;
         if self.Timer >= 1 then
-
+            local player = GRM.GetPlayer ( GRM_G.currentName );
             -- Kick
-            if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:IsVisible() and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] > 0 then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] - time() , true ) .. "|r" ) );
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:IsVisible() and player.safeList.kick[4] > 0 then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , player.safeList.kick[4] - time() , true ) .. "|r" ) );
             end
-
+    
             -- Promote
-            if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:IsVisible() and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] > 0 then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] - time() , true ) .. "|r" ) );
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:IsVisible() and player.safeList.promote[4] > 0 then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , player.safeList.promote[4] - time() , true ) .. "|r" ) );
             end
-
-
+    
+    
             -- Demote
-            if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:IsVisible() and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] > 0 then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] - time() , true ) .. "|r" ) );
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:IsVisible() and player.safeList.demote[4] > 0 then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , player.safeList.demote[4] - time() , true ) .. "|r" ) );
             end
-
-            if ( time() >= GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] ) or  ( time() >= GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] ) or  ( time() >= GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] ) then
-                GRM.ValidateIgnoreExpireDates ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName] );
+    
+            if ( time() >= player.safeList.kick[4] ) or  ( time() >= player.safeList.kick[4] ) or  ( time() >= player.safeList.kick[4] ) then
+                GRM.ValidateIgnoreExpireDates ( player );
             end
-
+    
             self.Timer = 0;
         end
     end
@@ -3325,11 +3326,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameKickCheckBox:SetScript ( "OnClick" , function ( self , button )
-        if button == "LeftButton" then           
+        if button == "LeftButton" then   
+            
+            local player = GRM.GetPlayer ( GRM_G.currentName );
             if self:GetChecked() then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[1] = true;
+                player.safeList.kick[1] = true;
             else
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[1] = false;
+                player.safeList.kick[1] = false;
             end
 
             GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
@@ -3351,18 +3354,19 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonDateSetText , "BOTTOMLEFT" , 0 , -6 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetTextColor ( 0.90 , 0.80 , 0.50 , 1.0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton:SetScript ( "OnClick", function( self ) 
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton:SetScript ( "OnClick", function( self )
+        local player = GRM.GetPlayer ( GRM_G.currentName );
         if self:GetChecked() then
-            if not GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[2] then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[2] = true;
+            if not player.safeList.kick[2] then
+                player.safeList.kick[2] = true;
 
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[3] > 0 then
-                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] = time() + ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[3] * 86400 );
+                if player.safeList.kick[3] > 0 then
+                    player.safeList.kick[4] = time() + ( player.safeList.kick[3] * 86400 );
                 end
             end
         else
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[2] then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[2] = false;
+            if player.safeList.kick[2] then
+                player.safeList.kick[2] = false;
                 GRM.RestoreTooltip();
             end
         end
@@ -3371,7 +3375,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton:SetScript ( "OnEnter" , function( self )
 
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[2] and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] > 0 then
+        local player = GRM.GetPlayer ( GRM_G.currentName );
+
+        if player.safeList.kick[2] and player.safeList.kick[4] > 0 then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine ( GRM.L ( "WARNING! Unchecking this setting will reset the timer upon re-enabling." ) );
@@ -3400,8 +3406,10 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireEditBox:SetScript ( "OnEnterPressed" , function( self )
         local numDays = tonumber ( self:GetText() );
         if numDays > 0 and numDays < 1000 then
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[3] = numDays;
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.kick[4] = time() + ( numDays * 86400 );
+            local player = GRM.GetPlayer ( GRM_G.currentName );
+
+            player.safeList.kick[3] = numDays;
+            player.safeList.kick[4] = time() + ( numDays * 86400 );
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireEditBox.value = numDays;
         else
             GRM.Report ( GRM.L ( "Please choose a day between {num} and {custom1}" , nil , nil , 1 , 999 ) );
@@ -3427,10 +3435,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox:SetScript ( "OnClick" , function ( self , button )
         if button == "LeftButton" then
+
+            local player = GRM.GetPlayer ( GRM_G.currentName );
+
             if self:GetChecked() then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[1] = true;
+                player.safeList.promote[1] = true;
             else
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[1] = false;
+                player.safeList.promote[1] = false;
             end
 
             GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
@@ -3452,18 +3463,19 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonDateSetText , "BOTTOMLEFT" , 0 , -6 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetTextColor ( 0.90 , 0.80 , 0.50 , 1.0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton:SetScript ( "OnClick", function( self ) 
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton:SetScript ( "OnClick", function( self )
+        local player = GRM.GetPlayer ( GRM_G.currentName );
         if self:GetChecked() then
-            if not GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[2] then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[2] = true;
+            if not player.safeList.promote[2] then
+                player.safeList.promote[2] = true;
 
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[3] > 0 then
-                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] = time() + ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[3] * 86400 );
+                if player.safeList.promote[3] > 0 then
+                    player.safeList.promote[4] = time() + ( player.safeList.promote[3] * 86400 );
                 end
             end
         else
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[2] then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[2] = false;
+            if player.safeList.promote[2] then
+                player.safeList.promote[2] = false;
                 GRM.RestoreTooltip();
             end
         end
@@ -3471,8 +3483,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButton:SetScript ( "OnEnter" , function( self )
-
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[2] and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] > 0 then
+        local player = GRM.GetPlayer ( GRM_G.currentName );
+        if player.safeList.promote[2] and player.safeList.promote[4] > 0 then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine ( GRM.L ( "WARNING! Unchecking this setting will reset the timer upon re-enabling." ) );
@@ -3501,8 +3513,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireEditBox:SetScript ( "OnEnterPressed" , function( self )
         local numDays = tonumber ( self:GetText() );
         if numDays > 0 and numDays < 1000 then
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[3] = numDays;
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.promote[4] = time() + ( numDays * 86400 );
+            local player = GRM.GetPlayer ( GRM_G.currentName );
+            player.safeList.promote[3] = numDays;
+            player.safeList.promote[4] = time() + ( numDays * 86400 );
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireEditBox.value = numDays;
         else
             GRM.Report ( GRM.L ( "Please choose a day between {num} and {custom1}" , nil , nil , 1 , 999 ) );
@@ -3528,10 +3541,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFrameDemoteCheckBox:SetScript ( "OnClick" , function ( self , button )
         if button == "LeftButton" then
+            local player = GRM.GetPlayer ( GRM_G.currentName );
             if self:GetChecked() then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1] = true;
+                player.safeList.demote[1] = true;
             else
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[1] = false;
+                player.safeList.demote[1] = false;
             end
 
             GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
@@ -3553,18 +3567,19 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonDateSetText , "BOTTOMLEFT" , 0 , -6 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetTextColor ( 0.90 , 0.80 , 0.50 , 1.0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton:SetScript ( "OnClick", function( self ) 
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton:SetScript ( "OnClick", function( self )
+        local player = GRM.GetPlayer ( GRM_G.currentName );
         if self:GetChecked() then
-            if not GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[2] then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[2] = true;
-
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] > 0 then
-                    GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] = time() + ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] * 86400 );
+            if not player.safeList.demote[2] then
+                player.safeList.demote[2] = true;
+        
+                if player.safeList.demote[3] > 0 then
+                    player.safeList.demote[4] = time() + ( player.safeList.demote[3] * 86400 );
                 end
             end
         else
-            if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[2] then
-                GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[2] = false;
+            if player.safeList.demote[2] then
+                player.safeList.demote[2] = false;
                 GRM.RestoreTooltip();
             end
         end
@@ -3573,7 +3588,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButton:SetScript ( "OnEnter" , function( self )
 
-        if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[2] and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] > 0 then
+        local player = GRM.GetPlayer ( GRM_G.currentName );
+        if player.safeList.demote[2] and player.safeList.demote[4] > 0 then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine ( GRM.L ( "WARNING! Unchecking this setting will reset the timer upon re-enabling." ) );
@@ -3602,8 +3618,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox:SetScript ( "OnEnterPressed" , function( self )
         local numDays = tonumber ( self:GetText() );
         if numDays > 0 and numDays < 1000 then
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[3] = numDays;
-            GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].safeList.demote[4] = time() + ( numDays * 86400 );
+            local player = GRM.GetPlayer ( GRM_G.currentName );
+            player.safeList.demote[3] = numDays;
+            player.safeList.demote[4] = time() + ( numDays * 86400 );
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireEditBox.value = numDays;
         else
             GRM.Report ( GRM.L ( "Please choose a day between {num} and {custom1}" , nil , nil , 1 , 999 ) );
@@ -3625,7 +3642,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:GetWidth() , GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton.GRM_SafeFromRulesButtonText , 2 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetScript ( "OnClick", function ( _ , button )
         if button == "LeftButton" then
-            local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName];
+            local player = GRM.GetPlayer ( GRM_G.currentName );
 
             if IsControlKeyDown() then
                 -- Set All settings to Enable
@@ -3667,7 +3684,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     GRM_UI.SetIgnoreCheckButtonTooltip = function()
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName];
+        local player = GRM.GetPlayer ( GRM_G.currentName );
         if player and player.altGroup ~= nil then
 
             local ruleEnum = { [false] = "|CFF00CCFF" .. GRM.L ( "Monitoring" ) .. "|r" , [true] = "|CFFFF0000" .. GRM.L ( "Ignoring" ) .. "|r" }
@@ -3743,7 +3760,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             local safeList = GRM.DeepCopyArray ( player.safeList );
 
             for i = 1 , #GRM_Alts[GRM_G.guildName][player.altGroup] do              -- Loop through all alts
-                tempAlt = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_Alts[GRM_G.guildName][player.altGroup][i].name];
+                tempAlt = GRM.GetPlayer ( GRM_Alts[GRM_G.guildName][player.altGroup][i].name );
                 if tempAlt ~= nil then
                     -- No point in adding yourself.
                     tempAlt.safeList.kick = safeList.kick;
@@ -3791,7 +3808,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     
     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetScript ( "OnClick", function( self , button )
         if button == "LeftButton" then
-            local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
+            local player = GRM.GetPlayer ( GRM_G.currentName );
             if player then
                 if self:GetChecked() then
                     player.customNote[1] = true;
@@ -3883,14 +3900,14 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     -- EditBox tooltip
     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetScript ( "OnEnter" , function( self )
         if not self:HasFocus() then
-            local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
+            local player = GRM.GetPlayer ( GRM_G.currentName );
     
             if player then
                 -- No need to bother with tooltip if there is no editor.
                 if player.customNote[3] ~= "" then
                     local isFound = false;
                     -- Need to check if the person who edited is still in the guild
-                    if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ player.customNote[3] ] ~= nil then
+                    if GRM.GetPlayer ( player.customNote[3] ) then
                         isFound = true;
                     end
                     GRM_UI.SetTooltipScale();
@@ -4023,7 +4040,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     -- Purpose:         Reusuable tool for many locations... avoid code bloat.
     GRM_UI.CustomNoteEditBoxOnFocusLost = function()
         -- Check if group invite button is necessary to come back.
-        if not ( GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsVisible() and GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsMouseOver() and IsMouseButtonDown ( 1 ) ) or ( GRM.Trim ( GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText() ) == GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ].customNote[6] ) then
+        local player = GRM.GetPlayer ( GRM_G.currentName );
+
+        if not ( GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsVisible() and GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsMouseOver() and IsMouseButtonDown ( 1 ) ) or ( GRM.Trim ( GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText() ) == player.customNote[6] ) then
             GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_CancelCustomNoteButton:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetText ( GRM_G.OriginalEditBoxValue );
@@ -4032,14 +4051,12 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             
             if GRM_G.currentName ~= GRM_G.addonUser then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Show();
-                local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
-                if player then
-                    if player.isOnline then
-                        GRM.SetGroupInviteButton ( GRM_G.currentName );
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:Show();
-                    end
+
+                if player.isOnline then
+                    GRM.SetGroupInviteButton ( GRM_G.currentName );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:Show();
                 end
-            end
+        end
             
             GRM.BuildCustomNoteScrollFrame ( GRM_G.OriginalEditBoxValue );
             if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
@@ -4216,9 +4233,9 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
             GRM_UI.GRM_DropDownList1AttachmentFrame.name = "";
             GRM_UI.GRM_DropDownList1AttachmentFrame.pausedPreviously = false;
             
-            if isOver and name ~= nil and name ~= "" and GRM_G.guildName ~= "" then
+            if isOver and name ~= nil and name ~= "" then
 
-                local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ name ];
+                local player = GRM.GetPlayer ( name );
                 if player then
                     -- Alright! Player is a guildie that we are right-clicking... now, we determine if he is a main or an alt...
                     self:SetHeight ( self:GetHeight() + 50 );
@@ -4280,8 +4297,7 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
                     if button == "LeftButton" and IsInGuild() and IsControlKeyDown() then
 
                         local name = string.match ( link , "player:(.+):%d+:.+" );
-
-                        if name and GRM_G.guildName ~= "" and GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name] then
+                        if name and GetPlayer ( name ) then
 
                             if IsShiftKeyDown() then
                                 GRM.RestoreTooltip();
@@ -4334,7 +4350,7 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
 
     GRM_UI.GRM_PopupWindowCheckButton1:SetScript ( "OnShow" , function ()
         -- Check if player has alts
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
+        local player = GRM.GetPlayer ( GRM_G.currentName );
         if player then
             local numAlts = GRM.GetNumAlts ( player.altGroup );
             if numAlts > 0 then
@@ -4358,8 +4374,9 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
             -- Let's quickly determine if there are a number of alts.
             local numAlts = 0;
             if GRM_UI.GRM_PopupWindowCheckButton2:IsVisible() then
-                if GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ] then
-                    numAlts = GRM.GetNumAlts ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ].altGroup );
+                local player = GetPlayer ( GRM_G.currentName );
+                if player then
+                    numAlts = GRM.GetNumAlts ( player.altGroup );
                 end
             end
             if self:GetChecked() ~= true then
@@ -4682,7 +4699,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     GRM_UI.AddAltButtonControls = function ( _ , button )
         if button == "LeftButton" then
             -- Let's see if player is at hard cap first!
-            local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][ GRM_G.currentName ];
+            local player = GRM.GetPlayer ( GRM_G.currentName );
             if player then
                 if GRM.GetNumAlts ( player.altGroup ) >= 75 then
                     GRM.Report ( GRM.L ( "Addon does not currently support more than 75 alts!" ) );
@@ -4948,7 +4965,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     -- Purpose:         Easier UX for confirming dates, especially in Classic
     GRM_UI.ConfirmPromoDate = function()
         local name = GRM_G.currentName;
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
+        local player = GetPlayer ( name );
 
         if player then
             -- For SYNC
@@ -4980,7 +4997,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     -- Purpose:         Easier UX for confirming dates, especially in Classic
     GRM_UI.ConfirmJoinDate = function()
         local name = GRM_G.currentName;
-        local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
+        local player = GetPlayer ( name );
 
         if player then
             -- For SYNC
@@ -5354,9 +5371,11 @@ GRM_UI.PreAddonLoadUI = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:SetScript ( "OnUpdate" , function( self , elapsed )
         self.timer = self.timer + elapsed;
         if self.timer >= 10 then
-            if GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ~= nil then
-                if #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] > 0 and GRM.S().allowEventsToCalendar and GRM.S().calendarAnnouncements then
-                    self:SetText ( GRM.L ( "EVENTS" ) .. ": " .. #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] );     -- First index will be nil.
+            local calendarQ = GRM.GetEvents();
+
+            if calendarQ ~= nil then
+                if #calendarQ > 0 and GRM.S().allowEventsToCalendar and GRM.S().calendarAnnouncements then
+                    self:SetText ( GRM.L ( "EVENTS" ) .. ": " .. #calendarQ );     -- First index will be nil.
                 else
                     self:SetText ( GRM.L ( "EVENTS" ) );
                 end
@@ -5421,7 +5440,7 @@ GRM_UI.PreAddonLoadUI = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:SetScript ( "OnUpdate" , function( self , elapsed )
         self.timer = self.timer + elapsed;
         if self.timer >= 60 then
-            if GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ~= nil then
+            if GRM.GetGuild() then
                 GRM_UI.UpdateBanTabCurrentlyInGuild();
             end
             self.timer = 0;
@@ -5470,7 +5489,7 @@ GRM_UI.PreAddonLoadUI = function()
     -- Purpose:         Quality of life improvenent
     GRM_UI.RefreshAuditTab = function( self )
 
-        if GRM_GuildMemberHistory_Save[GRM_G.F][GRM_G.guildName] ~= nil then
+        if GRM.GetGuild() then
             local numIncomplete = GRM.GetIncompleteGuildDataCounts()[5];
 
             if numIncomplete > 0 then
@@ -7639,7 +7658,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:Show();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportFilter21:Show();
 
-            GRM_G.CounterCap = GRM.GetNumGuildiesInGuild ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ] );
+            GRM_G.CounterCap = GRM.GetNumGuildiesInGuild ( GRM.GetGuild() );
 
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 8 , -25 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Members: {num}" , nil , nil , GRM_G.CounterCap ) );
@@ -7679,7 +7698,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportSizeMaxText:SetText ( GRM.L ( "*Max Export is 500 Former Members at a Time" ) );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Select Member Range:" ) );
 
-            GRM_G.CounterCap = GRM.GetNumStoredFormerMembers ( GRM_G.guildName , GRM_G.F );  
+            GRM_G.CounterCap = GRM.GetNumStoredFormerMembers ();  
 
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 8 , -25 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_ExportLogBorderFrame.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Former Members: {num}" , nil , nil , GRM_G.CounterCap ) );
@@ -9456,7 +9475,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if self:GetChecked() then
                 GRM.S().viewGuildRep = true;
                 if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_ReputationLevelText:SetText ( GRM.GetReputationTextLevel ( GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName].guildRep ) );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_ReputationLevelText:SetText ( GRM.GetReputationTextLevel ( GRM.GetPlayer ( GRM_G.currentName ).guildRep ) );
                     GRM_UI.GRM_MemberDetailMetaData.GRM_ReputationLevelText:Show();
                 end
             else
@@ -9479,7 +9498,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM.S().showBDay = true;
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText:Show();
                 if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                    local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][GRM_G.currentName];
+                    local player = GRM.GetPlayer ( GRM_G.currentName );
 
                     if player then
                         if player.events[2][1][1] ~= 0 then
@@ -11653,8 +11672,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_CustomRankResetButtonText:SetText ( GRM.L ( "Reset" ) );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_CustomRankResetButton:SetScript ( "OnClick" , function( _ , button )
         if button == "LeftButton" and not ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:IsMouseOver ( 1 , -1 , -1 , 1 ) and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:IsVisible() ) then
-            local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-            for _ , player in pairs ( guildData ) do
+
+            for _ , player in pairs ( GRM.GetGuild() ) do
                 if type ( player ) == "table" then
                     player.customNote[1] = true;
                     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and player.name == GRM_G.currentName then
@@ -11662,6 +11681,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     end
                 end
             end
+            
             GRM.Report ( GRM.L ( "Custom note Sync has been reset to default." ) );
             GRM.Report ( GRM.L ( "All player custom notes re-enabled for sync and their checkboxes set." ) );        
         end
@@ -14437,9 +14457,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             -- Now, we check the class...
             local isFound = false;
             foundInfo = {};
-            local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
         
-            for _ , player in pairs ( guildData ) do
+            for _ , player in pairs ( GRM.GetGuild() ) do
         
                 if type ( player ) == "table" then
 
@@ -14453,11 +14472,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     end
                 end
             end
-        
-            guildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-        
+               
             if ( isServerSelection and not isFound ) or not isServerSelection then
-                for _ , player in pairs ( guildData ) do
+                for _ , player in pairs ( GRM.GetFormerMembers() ) do
             
                     if type ( player ) == "table" then
                         if ( isServerSelection and player.name == name ) or ( not isServerSelection and GRM.SlimName ( player.name ) == name ) then
@@ -14809,7 +14826,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 -- Check if there are alts.
                 local isFound = false;
                 local numAlts = 0;
-                local player = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
+                local player = GRM.GetPlayer ( name );
 
                 if player then
                     isFound = true;
@@ -14822,7 +14839,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
                 if not isFound then
 
-                    player = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ][name];
+                    player = GRM.GetFormerPlayer ( name );
                     if player then
                         isFound = true;
                         if GRM_G.tempAddBanClass ~= player.class and GRM_G.tempAddBanClass ~= nil and GRM_G.tempAddBanClass ~= "" then
@@ -14892,9 +14909,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             local isFoundInGuild = false;
             local isAnEdit = false;
             local originalClass = "";
-            local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-            local leftGuildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-            local player = leftGuildData[ fullName ];
+            local guildData = GRM.GetGuild();
+            local oldMemberData = GRM.GetFormerMembers();
+            local player = oldMemberData[ fullName ];
         
             if player then
                 isFoundInLeft = true;
@@ -14915,7 +14932,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             local listOfAlts = {};
             local guid = "";
             if isFoundInLeft then
-                player = leftGuildData[ fullName ];
+                player = oldMemberData[ fullName ];
                 if player.bannedInfo[1] then
                     -- Player was previously banned! This is just an update!
                     GRM.Report ( GRM.L ( "{name}'s Ban Info has Been Updated!" , GRM.GetStringClassColorByName ( fullName ) .. GRM.SlimName ( fullName ) .. "|r" ) );
@@ -14979,7 +14996,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , time() , time() - 5000 , GRM_G.addonUser );
         
                 -- Now, let's implement the ban!
-                player = leftGuildData[ fullName ];
+                player = oldMemberData[ fullName ];
                 if player then
                     player.bannedInfo[1] = true;
                     player.bannedInfo[2] = time();
@@ -15201,26 +15218,19 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( GRM.SlimName ( GRM_G.TempBanTarget[1] ) );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected.GRM_BanServerSelectedText:SetText ( string.sub ( GRM_G.TempBanTarget[1] , string.find ( GRM_G.TempBanTarget[1] , "-" ) + 1 ) );
                 
-                local isFound = false;
                 GRM_G.tempAddBanClass = "DEATHKNIGHT"; -- Placeholder
                 local banReason = "";
-                local guildData = GRM_GuildMemberHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-                local player = guildData[ GRM_G.TempBanTarget[1] ];
+                local player = GRN.GetPlayer ( GRM_G.TempBanTarget[1] );
 
                 if player then
                     GRM_G.tempAddBanClass = player.class;
                     banReason = player.reasonBanned;
-                    isFound = true;
-                end
-
-                if not isFound then
-                    guildData = GRM_PlayersThatLeftHistory_Save[ GRM_G.F ][ GRM_G.guildName ];
-                    player = guildData[ GRM_G.TempBanTarget[1] ];
+                else
+                    player = GRM.GetFormerPlayer ( GRM_G.TempBanTarget[1] );
 
                     if player then
                         GRM_G.tempAddBanClass = player.class;
                         banReason = player.reasonBanned;
-                        isFound = true;
                     end
                 end
 
@@ -15403,21 +15413,23 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 if GRM_G.BuildVersion >= 30000 and CanEditGuildEvent() then
                     local tempTime = time();
                     if tempTime - self.timer > 5 then
-                        for i = #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] , 1 , -1 do
+                        local calendarQ = GRM.GetEvents();
 
-                            if GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i] == nil or GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][1] == nil then
-                                table.remove ( GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] , i );
+                        for i = #calendarQ , 1 , -1 do
+
+                            if calendarQ[i] == nil or calendarQ[i][1] == nil then
+                                table.remove ( calendarQ , i );
                             else
-                                local name = GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][1];
-                                local title = GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][2];
+                                local name = calendarQ[i][1];
+                                local title = calendarQ[i][2];
                                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddTitleText:GetText() == GRM.SlimName ( name ) and GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() == title then
         
                                     -- Ensure it is not already on the calendar ( playerName , eventName , day , month , year , index )
-                                    if not GRM.IsCalendarEventAlreadyAdded ( GRM.SlimName ( name ) , title , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][4] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][3] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][5], GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][7] ) then
+                                    if not GRM.IsCalendarEventAlreadyAdded ( GRM.SlimName ( name ) , title , calendarQ[i][4] , calendarQ[i][3] , calendarQ[i][5], calendarQ[i][7] ) then
                                         -- Add to Calendar
-                                        GRM.AddAnnouncementToCalendar ( title , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][3] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][4] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][5] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][6] );
+                                        GRM.AddAnnouncementToCalendar ( title , calendarQ[i][3] , calendarQ[i][4] , calendarQ[i][5] , calendarQ[i][6] );
                                         -- Do I really need a "SlimName" here?
-                                        GRM.Report ( GRM.L ( "Event Added to Calendar: {custom1}" , nil , nil , nil , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][2] ) );
+                                        GRM.Report ( GRM.L ( "Event Added to Calendar: {custom1}" , nil , nil , nil , calendarQ[i][2] ) );
                                         
                                         -- Let's Broadcast the change to the other users now!
                                         if GRM.S().syncEnabled then
@@ -15425,11 +15437,11 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                                             if GRM.S().exportAllRanks then
                                                 syncRankFilter = GuildControlGetNumRanks() - 1;
                                             end
-                                            GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_AC?" .. syncRankFilter .. "?" .. name .. "?" .. GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][2] .. "?" .. tostring ( GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][7] ) , "GUILD");
+                                            GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?GRM_AC?" .. syncRankFilter .. "?" .. name .. "?" .. calendarQ[i][2] .. "?" .. tostring ( calendarQ[i][7] ) , "GUILD");
                                         end
         
                                         -- Remove from que
-                                        GRM.RemoveFromCalendarQue ( name , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][7] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][2] );
+                                        GRM.RemoveFromCalendarQue ( name , calendarQ[i][7] , calendarQ[i][2] );
                                         -- Reset Frames
                                         -- Clear the buttons first
                                         if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons ~= nil then
@@ -15438,7 +15450,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                                             end
                                         end
                                         -- Status Notification logic
-                                        if #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] > 0 then
+                                        if #calendarQ > 0 then
                                             GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:SetText ( GRM.L ( "Please Select Event to Add to Calendar" ) );
                                             GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Show();
                                             GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Hide();
@@ -15461,7 +15473,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                                         break;
                                     else
                                         GRM.Report ( GRM.L ( "{name}'s event has already been added to the calendar!" , GRM.SlimName ( name ) ) );
-                                        GRM.RemoveFromCalendarQue ( name , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][7] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][2] );
+                                        GRM.RemoveFromCalendarQue ( name , calendarQ[i][7] , calendarQ[i][2] );
                                         GRM.RefreshAddEventFrame();
                                     end
                                 end
@@ -15506,12 +15518,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             if not GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:IsVisible() then
                 GRM.Report ( GRM.L ( "No Player Event Has Been Selected" ) );
             else
-                for i = 1 , #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] do
-                    local name = GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][1];
-                    local title = GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][2];
+                local calendarQ = GRM.GetEvents();
+                for i = 1 , #calendarQ do
+                    local name = calendarQ[i][1];
+                    local title = calendarQ[i][2];
                     if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddTitleText:GetText() == GRM.SlimName ( name ) and GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() == title then
                         -- Remove from que
-                        GRM.RemoveFromCalendarQue ( name , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][7] , GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName][i][2] );
+                        GRM.RemoveFromCalendarQue ( name , calendarQ[i][7] , calendarQ[i][2] );
                         -- Reset Frames
                         -- Clear the buttons first
                         if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons ~= nil then
@@ -15520,7 +15533,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                             end
                         end
                         -- Status Notification logic
-                        if #GRM_CalendarAddQue_Save[GRM_G.F][GRM_G.guildName] > 0 then
+                        if #calendarQ > 0 then
                             GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:SetText ( GRM.L ( "Please Select Event to Add to Calendar" ) );
                             GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Show();
                             GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Hide();
