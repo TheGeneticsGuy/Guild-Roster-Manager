@@ -22,9 +22,13 @@
 
 ***QUALITY OF LIFE***
 
+* GRM will now auto-import, from the Blizzard servers, the date that you personally joined the guild. This will apply ONLY to retail Warcraft, as the data is tied to "communities" launched in 8.0 and the server provides no information prior to communities. You cannot pull this information from others in your guild, as the server will only provide your own information. There is also a limitation that if you were in the guild prior to July 7, 2018, 8.0 BFA patch day, then it cannot provide an accurate date you joined the guild, unfortunately. I had mostly ignored this feature since almost everyone was basically grandfathered into communities from their current guilds, but now that nearly 5 years has past, I will not import this data automatically. You will need to login to each of your alts for it to work. If you already have a date set, then GRM will ignore automation of this process. It is only for new toons you make going forward, or ones that have not yet been configured.
+
 * For those that monitor the .toc or savedVariable file, just a heads up, the "GRM_Misc" global variable is cleaned up and made a little more efficient and will cleanup the saved file a little and will NOT be stored needlessly. It's mostly redundant info and should ONLY be carried over between saves if a player logs off in the middle of an action.
 
 * 10.1 is going to be a fairly significant update due to the ability to have cross-faction guilds. I had my data storage tree separated by factions. This is forcing me to rebuild the database to remove faction separation since that is a bit redundant. Not hard, but we are talking about literally thousands of points of data. I wish it were as simple as mass-eliminating "editing all" but it isn't. Just to prevent any error, I do need to look at each line of code it affects and ensure it's not broken after I convert the DB. This is simple, but it will take some time. DF has had so so SOOO many changes it is just a huge time-sink.
+
+* Added a new memberData point -- "MythicScore" is the variable name and it will represent your Mythic+ Score. Of course, this only applies to retail WOW, not Classic. 
 
   ***BUG FIXES***
 
@@ -37,6 +41,14 @@
 * GRM_FullBackup_Save was a deprecated saved variable that will no longer appear as a nil in the savedVariables file.
 
 * Fixed an error where if you are using the GRM > Options > UI > Tab fade feature a lua error could occur when selecting any tab but the Log tab. It didn't break anything, but it was a lua error needlessly.
+
+* Fixed in issue where if you were to ban someone who is still in the guild, in some cases it wouldn't sync if the person requesting the sync did not have the data.
+
+* Fixed a bug that could prvent someone who had not installed GRM since 2017 from updating to the current version.
+
+***MISC***
+
+* Massive database rewrite has been done and refactoring of much of the code. This was done as a necessity due to the massive changes in 10.1 that will allow cross-faction guilds, something I had never ocnsidered. I originally had compartmentalized the data in the guilds by faction, so this needed a rewrite, but I also was not using queries to pull data fro mthe saved variables, so I ended up having to edit > 1000 lines of code for this patch. To save myself the hassle, and to cleanup the code, I wrote a bunch of GET queries for data from teh which clean things up a bit, but did take significant effor to rewrite.
 
 
 ## **VERSION 1.96 RELEASE - March 27th, 2023**

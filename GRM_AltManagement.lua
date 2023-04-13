@@ -744,7 +744,7 @@ GRM.AddPlayerToOwnAltList = function()
     if player then
         -- Ok, adding the player!
         local officialToons = GRM.GetAddOnUserGuildAlts();
-        officialToons[GRM_G.addonUser] = {};
+        officialToons[GRM_G.addonUser] = { false };
 
         -- if the player already is on a list, let's not add them automatically.
         if player.altGroup == "" then

@@ -181,13 +181,15 @@ end
 -- Method:          GRML.GetFontChoice() -- Not necessary for the most part as I can use "STANDARD_TEXT_FONT" - but, just in case...
 -- What it Does:    Selects the proper font for the given locale of the addon user.
 -- Purpose:         To ensure no ???? are in place and all characters are accounted for.
-GRML.GetFontChoiceIndex = function( localizationIndex )
+GRML.GetFontChoiceIndex = function( localizationIndex , selectedFont )
     local result = 1;
-    if GRM.S().selectedFont ~= 1 then
+    local fontIndex = selectedFont or GRM.S().selectedFont;
+
+    if fontIndex ~= 1 then
         if ( localizationIndex < 5 or ( localizationIndex > 5 and localizationIndex < 10 ) or result > 13 ) then
             result = 2
         else
-            result = GRM.S().selectedFont;
+            result = fontIndex;
         end
         -- For Russian, need Cyrilic compatible font.
         if localizationIndex == 5 and GRM_G.Region ~= "ruRU" then

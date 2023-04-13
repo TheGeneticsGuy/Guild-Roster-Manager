@@ -1624,5 +1624,6 @@ GRML.English = function()
     GRM_L["Ensure that the new guild rank structure is identical to the previous (name changes are fine)."] = true
     GRM_L["Transferred from old server"] = true
     GRM_L["{name} has transferred servers and REJOINED the Guild."] = true
-
+    GRM_L["Group Info Module is Outdated."] = true
+    
 end

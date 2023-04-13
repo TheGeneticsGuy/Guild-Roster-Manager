@@ -2898,7 +2898,6 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             for h = 1 , GRM.GetNumGuildies() do
                 local playerName ,_,_,_,_,_, publicNote = GetGuildRosterInfo( h );
                 if playerName == playerDetails.name and publicNote ~= playerDetails.newNote and ( GRM.CanEditPublicNote() or GRM_G.currentName == GRM_G.addonUser ) then      -- No need to update old note if it is the same.
-                    GRM_G.changeHappenedExitScan = true;
     
                     -- Saving the changes!
                     player.note = playerDetails.newNote;                        -- Metadata
@@ -2999,7 +2998,6 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             for h = 1 , GRM.GetNumGuildies() do
                 local playerName ,_,_,_,_,_,_, officerNote = GetGuildRosterInfo( h );
                 if playerName == playerDetails.name and officerNote ~= playerDetails.newNote and GRM.CanEditOfficerNote() then      -- No need to update old note if it is the same.
-                    GRM_G.changeHappenedExitScan = true;
     
                     -- Saving the new note details!
                     player.officerNote = playerDetails.newNote;      -- to addon metadata
@@ -10540,7 +10538,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.Report ( GRM.L ( "Reactivating SCAN for Guild Member Changes..." ) );
 
             GRM.GuildRoster();
-            C_Timer.After ( 5 , GRM.TriggerTrackingCheck );     -- 5 sec delay necessary to trigger server call.
+            GRM_G.IntegrityTackingEnabled = false;
+            GRM.TriggerTrackingCheck();
         else
             GRM.S().scanEnabled = false;
             GRM_G.changeHappenedExitScan = true;
@@ -10592,7 +10591,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_G.TimeAtCompletion = time();
             GRM.GuildRoster();
             GRM.SyncSettings();
-            C_Timer.After ( 5 , GRM.TriggerTrackingCheck );     -- 5 sec delay necessary to trigger server call.
         else
             GRM.Report ( GRM.L ( "Please choose a scan interval {num} seconds or higher!" , nil , nil , 20 ) .. " " .. GRM.L ( "{num} is too Low!" , nil , nil , numSeconds ) );
         end      
@@ -15220,7 +15218,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 
                 GRM_G.tempAddBanClass = "DEATHKNIGHT"; -- Placeholder
                 local banReason = "";
-                local player = GRN.GetPlayer ( GRM_G.TempBanTarget[1] );
+                local player = GRM.GetPlayer ( GRM_G.TempBanTarget[1] );
 
                 if player then
                     GRM_G.tempAddBanClass = player.class;
@@ -16508,7 +16506,7 @@ if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calenda
                 local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
 
                 if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
-                    local name = GRM.FormatNameWithPlayerServer ( inviteInfo.name );
+                    local name = GRM.AppendServerName ( inviteInfo.name );
                     GRM_G.CurrentCalendarName = name;
 
                     local classHexCode = GRM.GetClassColorRGB ( inviteInfo.classFilename , true );
@@ -16595,7 +16593,7 @@ if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calenda
                     local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
 
                     if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
-                        local name = GRM.FormatNameWithPlayerServer ( inviteInfo.name );
+                        local name = GRM.AppendServerName ( inviteInfo.name );
                         local classColor = ( inviteInfo.classFilename and RAID_CLASS_COLORS [ inviteInfo.classFilename ] ) or NORMAL_FONT_COLOR;
                         local buttonFontString = _G [ buttonName .. "Name" ];
                         buttonFontString:SetText ( GRM.GetNameWithMainTags ( name , true , false , true , false ) );

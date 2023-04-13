@@ -5268,7 +5268,6 @@ GRM.ValidateMacroRecordingSuccess = function( isReScan )
             GRM.Report ( GRM.L ( "GRM:" ) .. " : " .. GRM.L ( "Not all macro changes validated. One moment..." ) );
             GRM_G.ManualScanEnabled = true;
             GRM_UI.GRM_ToolCoreFrame.MacroSuccess = false
-            GRM_G.changeHappenedExitScan = false;
             C_Timer.After ( 1 , function()
                 GRM.BuildNewRoster();
             end);
@@ -5279,7 +5278,6 @@ GRM.ValidateMacroRecordingSuccess = function( isReScan )
         end
     else
         GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;
-        GRM_G.changeHappenedExitScan = false;       -- This doesn't need to be set when using macro tool
         GRM.Report ( GRM.L ( "Macro rank changes have been validated!" ) );
     end
 

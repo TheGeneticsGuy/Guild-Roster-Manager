@@ -2342,7 +2342,11 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         memberInfoToAdd.GUID = guid;                                            -- 15
         memberInfoToAdd.race = "";                                              -- 16
         memberInfoToAdd.sex = 1;                                                -- 17
-        memberInfoToAdd.rosterSelection = 0;                                    -- 18
+        memberInfoToAdd.rosterSelection = 0;                                    -- 18]
+        
+        if GRM_G.BuildVersion >= 90000 then
+            memberInfoToAdd.MythicScore = 0;
+        end
         
         local _ , timeArray = GRM.EpochToDateFormat ( time() );
         GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , time() , time() - 5000 , sender );
@@ -2463,7 +2467,24 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
 
         GRMsync.UpdateLeftPlayerInfo ( { playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID } );
 
-    else
+    elseif prefix == "GRM_BANSYNCUPT" then
+
+        GRM_G.MatchPattern5 = GRM_G.MatchPattern5 or GRM.BuildComPattern ( 5 , "?" , false );
+        playerName , banTimeEpoch , banType , reason , playerWhoBanned = GRM.ParseComMsg ( msg , GRM_G.MatchPattern5 );
+
+        banTimeEpoch = tonumber ( banTimeEpoch );
+
+        if reason == "X" then
+            reason = "";
+        else
+            reason = string.gsub ( reason , "##" , "?" );   -- Returning the punctuation as this is user-input.
+        end
+
+        if playerWhoBanned == "X" then
+            playerWhoBanned = sender;
+        end
+
+    elseif prefix == "GRM_BANSYNCUP" then
         playerName = msg[1];
         banTimeEpoch = tonumber ( msg[2] );
         banType = msg[3];
@@ -3833,9 +3854,8 @@ GRMsync.SendBANPackets = function()
                             player.GUID = "";
                         end
                     elseif string.find ( GUID , "Player-.+" ) then
-                        GUID = string.match ( player.GUID , "Player-(.+)" );
+                        GUID = string.sub ( player.GUID , 8 )
                     end
-                    
                     -- BANTYPE
                     if player.bannedInfo[1] then
                         banType = "1";
@@ -4898,7 +4918,7 @@ GRMsync.SubmitFinalSyncData = function ()
                             msg = GRMsyncGlobals.BanChanges[i][1] .. "?" .. GRMsyncGlobals.BanChanges[i][8][1] .. "?" .. GRMsyncGlobals.BanChanges[i][8][2] ..  "?" .. GRMsyncGlobals.BanChanges[i][8][3] .. "?" .. GRMsyncGlobals.BanChanges[i][8][4] .. "?" .. GRMsyncGlobals.BanChanges[i][8][5] .. "?" .. GRMsyncGlobals.BanChanges[i][8][6] .. "?" .. GRMsyncGlobals.BanChanges[i][8][7] .. "?" .. tostring ( GRMsyncGlobals.BanChanges[i][2] ) .. "?" .. GRMsyncGlobals.BanChanges[i][3] .. "?" .. reason .. "?" .. playerWhoBanned;
 
                         else
-                            prefix = "?GRM_BANSYNCUP?";
+                            prefix = "?GRM_BANSYNCUPT?";
 
                             msg = GRMsyncGlobals.BanChanges[i][1] .. "?" .. tostring ( GRMsyncGlobals.BanChanges[i][2] ) .. "?" .. GRMsyncGlobals.BanChanges[i][3] .. "?" .. reason .. "?" .. playerWhoBanned;
 
@@ -5196,6 +5216,10 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
         memberInfoToAdd.race = "";                                              -- 16
         memberInfoToAdd.sex = 1;                                                -- 17
         memberInfoToAdd.rosterSelection = 0;                                    -- 18
+
+        if GRM_G.BuildVersion >= 90000 then
+            memberInfoToAdd.MythicScore = 0;
+        end
         
         local _ , timeArray = GRM.EpochToDateFormat ( joinDateEpoch );
         GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , joinDateEpoch , originalJoinEpoch , nil );
@@ -5274,10 +5298,12 @@ GRMsync.CollectData = function ( msg , prefix )
             GRMsyncGlobals.ProgressControl ( "BAN" );
         end
 
+        local playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned;
+
         if prefix == "GRM_BANSYNC" then
             GRM_G.MatchPattern12 = GRM_G.MatchPattern12 or GRM.BuildComPattern ( 12 , "?" , false );
 
-            local playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned = GRM.ParseComMsg ( msg , GRM_G.MatchPattern12 );
+            playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned = GRM.ParseComMsg ( msg , GRM_G.MatchPattern12 );
 
             if reason == "X" then
                 reason = "";
@@ -5289,10 +5315,22 @@ GRMsync.CollectData = function ( msg , prefix )
                 playerWhoBanned = "";
             end
 
+            if GUID == "X" then
+                GUID = "";
+            else
+                GUID = "Player-" .. GUID;
+            end
+
         else
             GRM_G.MatchPattern10 = GRM_G.MatchPattern10 or GRM.BuildComPattern ( 10 , "?" , false );
 
-            local playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType = GRM.ParseComMsg ( msg , GRM_G.MatchPattern10 );
+            playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType = GRM.ParseComMsg ( msg , GRM_G.MatchPattern10 );
+
+            if GUID == "X" then
+                GUID = "";
+            else
+                GUID = "Player-" .. GUID;
+            end
         end
 
         rankIndex = tonumber ( rankIndex );
@@ -5302,13 +5340,6 @@ GRMsync.CollectData = function ( msg , prefix )
         originalJoinEpoch = tonumber ( originalJoinEpoch );
         banTimeEpoch = tonumber ( banTimeEpoch );
         
-
-        if GUID == "X" then
-            GUID = "";
-        else
-            GUID = "Player-" .. GUID;
-        end
-
         if rankIndex == 99 or rankName == "###" then
             rankName = "";
             rankIndex = 99
@@ -5799,7 +5830,7 @@ GRMsync.CheckingBANChanges = function ()
 
                         playerData = { rankName , tostring ( rankIndex ) , tostring ( player.level ) , classIndex , tostring ( player.joinDateHist[1][4] ) , tostring ( oldJoinDateMeta ) , GUID }
                     end
-
+                    print("Adding Ban Change: " .. player.name)
                     table.insert ( GRMsyncGlobals.BanChanges , { player.name , player.bannedInfo[2] , banType , player.reasonBanned , GRMsyncGlobals.DesignatedLeader , GRM.S().syncRankBanList , player.bannedInfo[4] , playerData , true } );  -- Final position bool - if leader data
                 else
                     table.insert ( GRMsyncGlobals.BanChanges , { GRMsyncGlobals.BanReceivedTemp[i][1] , GRMsyncGlobals.BanReceivedTemp[i][2] , GRMsyncGlobals.BanReceivedTemp[i][3] , GRMsyncGlobals.BanReceivedTemp[i][4] , GRMsyncGlobals.BanReceivedTemp[i][5] , GRMsyncGlobals.BanReceivedTemp[i][6] , GRMsyncGlobals.BanReceivedTemp[i][7] , playerData , false } );
@@ -6504,7 +6535,7 @@ comms.senderRankRequirement = 0;
 
 -- For eash call to.
 local commsLive = { ["GRM_JD"] = true , ["GRM_PD"] = true , ["GRM_ADDALT"] = true , ["GRM_AC"] = true , ["GRM_RMVALT"] = true , ["GRM_MAIN"] = true , ["GRM_RMVMAIN"] = true , ["GRM_BDAY"] = true , ["GRM_BDAYREM"] = true };
-local commsSyncUp = { ["GRM_JDSYNCUP"] = true , ["GRM_PDSYNCUP"] = true , ["GRM_ALTSYNCUP"] = true , ["GRM_MAINSYNCUP"] = true , ["GRM_BDSYNCUP"] = true , ["GRM_BANSYNCUP"] = true , ["GRM_BANSYNCUPX"] = true , ["GRM_FINALALTSYNCUP"] = true };
+local commsSyncUp = { ["GRM_JDSYNCUP"] = true , ["GRM_PDSYNCUP"] = true , ["GRM_ALTSYNCUP"] = true , ["GRM_MAINSYNCUP"] = true , ["GRM_BDSYNCUP"] = true , ["GRM_BANSYNCUP"] = true , ["GRM_BANSYNCUPX"] = true , ["GRM_BANSYNCUPT"] = true ,["GRM_FINALALTSYNCUP"] = true };
 local commsLead = { ["GRM_WHOISLEADER"] = true , ["GRM_IAMLEADER"] = true , ["GRM_ELECT"] = true , ["GRM_ELECTINFO"] = true , ["GRM_NEWLEADER"] = true , ["GRM_STARTMSG"] = true };
 local macroSync = { ["GRM_MACRO_T"] = true , ["GRM_Macro_SK"] = true , ["GRM_Macro_SP"] = true , ["GRM_Macro_SD"] = true , ["GRM_Macro_RK"] = true , ["GRM_Macro_RP"] = true , ["GRM_Macro_RD"] = true , ["GRM_Macro_LK"] = true , ["GRM_Macro_LP"] = true , ["GRM_Macro_LD"] = true , ["GRM_Macro_PQ"] = true , ["GRM_Macro_FN"] = true , ["GRM_Macro_XX"] = true , ["GRM_Macro_MK"] = true , ["GRM_Macro_MP"] = true , ["GRM_Macro_MD"] = true }; -- Received, sentKick , sentPromote , sentDemote , sentCustom
 
@@ -6668,7 +6699,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                     elseif not GRM_G.InGroup then
 
                         -- For ensuring ban information is controlled!
-                        if ( comms.prefix2 == "GRM_BAN" or comms.prefix2 == "GRM_UNBAN" or comms.prefix2 == "GRM_BANSYNCUP" or comms.prefix2 == "GRM_BANSYNCUPX" or comms.prefix2 == "GRM_BANSYNC" or comms.prefix2 == "GRM_BANSYNCX" or comms.prefix2 == "GRM_BANSYNCXX" or comms.prefix2 == "GRM_BANSYNCSP" or comms.prefix2 == "GRM_BANSYNCSPX" ) and GRM.S().syncBanList then
+                        if ( comms.prefix2 == "GRM_BAN" or comms.prefix2 == "GRM_UNBAN" or comms.prefix2 == "GRM_BANSYNCUP" or comms.prefix2 == "GRM_BANSYNCUPX" or comms.prefix2 == "GRM_BANSYNCUPT" or comms.prefix2 == "GRM_BANSYNC" or comms.prefix2 == "GRM_BANSYNCX" or comms.prefix2 == "GRM_BANSYNCXX" or comms.prefix2 == "GRM_BANSYNCSP" or comms.prefix2 == "GRM_BANSYNCSPX" ) and GRM.S().syncBanList then
                             if tonumber ( msg ) == nil then -- Error protection on some edge cases for older versions talking to each other.
                                 local senderBanControlRankRequirement = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
                                 msg = GRM.Next ( msg );
@@ -6681,7 +6712,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                                         GRMsync.CheckBanListChange ( msg , sender );                        -- For live ban occurences
                                     elseif comms.prefix2 == "GRM_UNBAN" then
                                         GRMsync.CheckUnbanListChangeLive ( msg , sender );                  -- For live unban occurrences
-                                    elseif comms.prefix2 == "GRM_BANSYNCUP" or comms.prefix2 == "GRM_BANSYNCUPX" then
+                                    elseif comms.prefix2 == "GRM_BANSYNCUP" or comms.prefix2 == "GRM_BANSYNCUPX" or comms.prefix2 == "GRM_BANSYNCUPT" then
                                         GRMsync.BanManagement ( msg , comms.prefix2 , sender );    -- For sync analysis final report changes!
                                         GRMsyncGlobals.TimeSinceLastSyncAction = time();
                                     elseif comms.prefix2 == "GRM_BANSYNC" or comms.prefix2 == "GRM_BANSYNCX" or comms.prefix2 == "GRM_BANSYNCXX" or comms.prefix2 == "GRM_BANSYNCSP" or comms.prefix2 == "GRM_BANSYNCSPX" then

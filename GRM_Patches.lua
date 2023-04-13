@@ -1279,6 +1279,10 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.EditSetting ( "autoIntervalDays" , nil );
         GRM_Misc = {};  -- Rebuilding the way this is handled. Wiping it.
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixPersonWhoBanned , true , true , false );    -- DB change - for edge case if player's DB converted
+        
+        if GRM_G.BuildVersion >= 90000 then
+            GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
+        end
 
         if loopCheck ( 1.97 ) then
             return;
@@ -1294,19 +1298,22 @@ end
 -- Note, these are purposefully "PRINTED" as they are not necessary to be stored in the chat logs which other addons might save.
 GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
     if patchNeeded then
+
+        -- Ok, let's update the version!
+        print ( "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 ) );
+
         if numActions > 1 then
             print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... {num} patches applied." , nil , nil , numActions ) );
         else
             print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... 1 patch applied." ) );
         end
         print ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.GetTimePassedInZone ( startTime ) );
+
+        
     end
 
-    -- Ok, let's update the version!
-    print ( "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 ) );
-
     -- Updating the version for ALL saved accoutns.
-    for p in pairs ( GRM_AddonSettings_Save ) do
+    for p, s in pairs ( GRM_AddonSettings_Save ) do
         GRM_AddonSettings_Save[p].version = GRM_G.Version;
     end
 
@@ -1552,7 +1559,7 @@ GRM_Patch.ManageOldSettingsDB = function()
             PIDD = #GRM_AddonSettings_Save[FIDD];                                -- We know what the ID is...
             
             -- Unique Settings added to the player.
-            table.insert ( GRM_AddonSettings_Save[FID][PIDD] , GRM_Patch.GetDefaultAddonSettings() );
+            table.insert ( GRM_AddonSettings_Save[FIDD][PIDD] , GRM_Patch.GetDefaultAddonSettings() );
     
             GRM_G.IsNewToon = true;
             -- Forcing core log window/options frame to load on the first load ever as well
@@ -2157,9 +2164,9 @@ GRM_Patch.SetProperFontIndex = function()
     for i = 1 , #GRM_AddonSettings_Save do
         for j = 2 , #GRM_AddonSettings_Save[i] do
             if GRM_AddonSettings_Save[i][j][2][43] ~= nil then
-                GRM_AddonSettings_Save[i][j][2][44] = GRML.GetFontChoiceIndex( GRM_AddonSettings_Save[i][j][2][43] );
+                GRM_AddonSettings_Save[i][j][2][44] = GRML.GetFontChoiceIndex( GRM_AddonSettings_Save[i][j][2][43] , GRM_AddonSettings_Save[i][j][2][43] );
             else
-                GRM_AddonSettings_Save[i][j][2][44] = GRML.GetFontChoiceIndex( 1 );
+                GRM_AddonSettings_Save[i][j][2][44] = GRML.GetFontChoiceIndex( 1 , 1 );
             end
         end
     end
@@ -6953,25 +6960,26 @@ GRM_Patch.JoinAndRankDataFix = function ( player )
 end
 
 -- 1.97
--- Nethod:          GRM_Patch.ConvertSaveFiles()
+-- Nethod:          GRM_Patch.ConvertSaveFiles( int )
 -- What it Does:    Converts all the databases and removes the faction designation from them
 -- Purpose:         Patch 10.1 allows cross faction guilds. This needed to be done.
-GRM_Patch.ConvertSaveFiles = function()
+GRM_Patch.ConvertSaveFiles = function( index )
 
     local data = { GRM_LogReport_Save , GRM_CalendarAddQue_Save , GRM_PlayerListOfAlts_Save , GRM_GuildMemberHistory_Save , GRM_PlayersThatLeftHistory_Save }; 
     local newDataTable = {};
     delayTrigger = true;
+    local i = index or 1;
 
     for i = 1 , #data do
 
         if data[i]["H"] then
-            
+            newDataTable = {};
             for F in pairs ( data[i] ) do
-                for name in pairs ( data[i][F] ) do
+                for guildName in pairs ( data[i][F] ) do
 
-                    if not newDataTable[name] then
-                        newDataTable[name] = {};
-                        newDataTable[name] = GRM.DeepCopyArray ( data[i][F][name] );
+                    if not newDataTable[guildName] then
+                        newDataTable[guildName] = {};
+                        newDataTable[guildName] = GRM.DeepCopyArray ( data[i][F][guildName] );
                     end
 
                 end
@@ -6996,7 +7004,7 @@ GRM_Patch.ConvertSaveFiles = function()
 
             if i == 1 or i > 3 then
                 C_Timer.After ( 2 , function()
-                    GRM_Patch.ConvertSaveFiles();
+                    GRM_Patch.ConvertSaveFiles( i + 1 );
                 end);
                 return;
             end
@@ -7284,3 +7292,4 @@ GRM_Patch.LanguageSettingModify = function()
         GRM_Patch.ModifyPlayerMetadata ( 23 , { true , 0 , "" , GRM_AddonSettings_Save[FID][PID][2][49] , false , "" } , false , -1 );
     end
 end
+

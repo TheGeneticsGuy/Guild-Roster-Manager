@@ -14,8 +14,6 @@
     
 ** SYNC ISSUES SOME STILL FAILING
 
-** GRM GROUP INFO proximity icon not showing
-
 ** HYBRID SCROLLFRAME FOR BANS
 
 ** RESCALABLE WINDOWS
@@ -85,9 +83,6 @@
 * Add slash command /grm search to bring up audit window with search
 
 * When configuring a guild for the first time, scan the log for recent changes and add those to the log immediately.
-
-* Auto set join date when installing GRM or configuring for a guild for the first time.
--- GRM.EpochToDateFormat ( math.floor (C_Club.GetClubInfo(GRM_G.gClubID).joinTime ) / 1000000 )
 
 
 # **SUGGESTIONS**
@@ -238,29 +233,29 @@
 
 *Code Notes:
 ```Lua
-/dump C_ClubFinder.ReturnClubApplicantList(GRM_G.clubID)
-C_ClubFinder.ReturnPendingClubApplicantList(GRM_G.clubID)
-/run for x in pairs (CommunitiesFrame.ApplicantList) do print(x) end
-/dump CommunitiesFrame.ApplicantList.ApplicantInfoList[1].playerGUID
-C_ClubFinder.RespondToApplicant(self:GetParent().Info.clubFinderGUID, self:GetParent().Info.playerGUID, shouldInvite, applicantType, self:GetParent().Info.name, forceAccept);
-/run GRM.CancelPendingInvite ("PlayerTextName")
-GRM.CancelPendingInvite = function ( playerName )
-    local applicants = C_ClubFinder.ReturnPendingClubApplicantList(GRM_G.gClubID);
-    local isFound = false;
+-- /dump C_ClubFinder.ReturnClubApplicantList(GRM_G.clubID)
+-- C_ClubFinder.ReturnPendingClubApplicantList(GRM_G.clubID)
+-- /run for x in pairs (CommunitiesFrame.ApplicantList) do print(x) end
+-- /dump CommunitiesFrame.ApplicantList.ApplicantInfoList[1].playerGUID
+-- C_ClubFinder.RespondToApplicant(self:GetParent().Info.clubFinderGUID, self:GetParent().Info.playerGUID, shouldInvite, applicantType, self:GetParent().Info.name, forceAccept);
+-- /run GRM.CancelPendingInvite ("PlayerTextName")
+-- GRM.CancelPendingInvite = function ( playerName )
+--     local applicants = C_ClubFinder.ReturnPendingClubApplicantList(GRM_G.gClubID);
+--     local isFound = false;
 
-    for i = 1 , #applicants do
-        if applicants[i].name == playerName then
-            isFound = true;
-            print(i)
-            C_ClubFinder.RespondToApplicant ( applicants[i].clubFinderGUID , applicants[i].playerGUID , false , 1 , applicants[i].name , false )
-            break;
-        end
-    end
+--     for i = 1 , #applicants do
+--         if applicants[i].name == playerName then
+--             isFound = true;
+--             print(i)
+--             C_ClubFinder.RespondToApplicant ( applicants[i].clubFinderGUID , applicants[i].playerGUID , false , 1 , applicants[i].name , false )
+--             break;
+--         end
+--     end
 
-    if not isFound then
-        GRM.Report ( "Player not Found in Pending Applicant List" );
-    end
-end
+--     if not isFound then
+--         GRM.Report ( "Player not Found in Pending Applicant List" );
+--     end
+-- end
 
 -- Events:
 -- CLUB FINDER APPLICANT INVITE RECIEVED

@@ -1,10 +1,10 @@
 
 -- CLASSIC Specific functions
 
--- Method:          GRM.ClassicCheckForNewMember ( name )
+-- Method:          GRM.ClassicCheckForNewMember ( string , int )
 -- What it Does:    Live checks when a player joins the guild and reports on it
 -- Purpose:         For specific use on Classic. In Retail there is the new, vastly more efficient, community API. Here we aree forced to be somewhat limited.
-GRM.ClassicCheckForNewMember = function ( name )
+GRM.ClassicCheckForNewMember = function ( name , scanNumber )
     local rosterName , rank , rankInd , level , zone , note , oNote , classFile , pts , rep , guid , _ ;
     local isFound = false;
     local rosterIndex = 0;
@@ -56,7 +56,6 @@ GRM.ClassicCheckForNewMember = function ( name )
         memberInfoToAdd.sex = 1;                                                    -- 17
         memberInfoToAdd.rosterSelection = rosterIndex;                                        -- 18
 
-        GRM_G.changeHappenedExitScan = true;
         GRM.RecordJoinChanges ( memberInfoToAdd , GRM.GetClassColorRGB ( classFile , true ) .. GRM.SlimName ( name ) .. "|r" , true , select ( 2 , GRM.GetTimestamp() ) , true );
 
         -- Check Main Auto tagging...
@@ -72,16 +71,23 @@ GRM.ClassicCheckForNewMember = function ( name )
             end
         end);
 
-    elseif GRM_G.RejoinControlCheck <= 90 then
+    elseif GRM_G.RejoinControlCheck <= 50 then
         GRM_G.RejoinControlCheck = GRM_G.RejoinControlCheck + 1;
+
+        -- Try to refresh the roster
+        if GRM_G.RejoinControlCheck % 10 == 0 then
+            GRM.GuildRoster();
+        end
+
         C_Timer.After ( 0.1 , function()
             -- Re-Check 1 time.
-            GRM.ClassicCheckForNewMember( name );
+            GRM.ClassicCheckForNewMember( name , scanNumber );
         end);
         return;
     end
 
     GRM_G.RejoinControlCheck = 0;
+    GRM_G.LiveScanningBlock.joinC[scanNumber] = false;
 end
 
 -- Method:          GRM.GetParsedNameFromInviteAnnouncementWithoutServer ( string )
