@@ -22,17 +22,19 @@
 
 ***QUALITY OF LIFE***
 
-* GRM will now auto-import, from the Blizzard servers, the date that you personally joined the guild. This will apply ONLY to retail Warcraft, as the data is tied to "communities" launched in 8.0 and the server provides no information prior to communities. You cannot pull this information from others in your guild, as the server will only provide your own information. There is also a limitation that if you were in the guild prior to July 7, 2018, 8.0 BFA patch day, then it cannot provide an accurate date you joined the guild, unfortunately. I had mostly ignored this feature since almost everyone was basically grandfathered into communities from their current guilds, but now that nearly 5 years has past, I will not import this data automatically. You will need to login to each of your alts for it to work. If you already have a date set, then GRM will ignore automation of this process. It is only for new toons you make going forward, or ones that have not yet been configured.
+* You will notice that the GRM scanning for changes and ackownledgment of things that change, like notes edited, or anything, will be far more responsive and quick. If you were to try a /grm scan, you will notice how quickly it makes it through the process now compared to before. The entire scanning logic has been rewritten. A lot of it was very old legacy code from when I was just tinkering with the idea of GRM, so it really could have used a revisit for a long time now. GRM should feel a bit more responsive now as a result. The code is also a LOT leaner.
 
-* For those that monitor the .toc or savedVariable file, just a heads up, the "GRM_Misc" global variable is cleaned up and made a little more efficient and will cleanup the saved file a little and will NOT be stored needlessly. It's mostly redundant info and should ONLY be carried over between saves if a player logs off in the middle of an action.
+* GRM will now auto-import, from the Blizzard servers, the date that you personally joined the guild. This will apply ONLY to retail Warcraft, as the data is tied to "communities" launched in 8.0 and the server provides no information prior to communities. You cannot pull this information from others in your guild, as the server will only provide your own information. There is also a limitation that if you were in the guild prior to July 7, 2018, 8.0 BFA patch day, then it cannot provide an accurate date you joined the guild, unfortunately. I had mostly ignored this feature since almost everyone was basically grandfathered into communities from their current guilds, but now that nearly 5 years has past, I will not import this data automatically. You will need to login to each of your alts for it to work. If you already have a date set, then GRM will ignore automation of this process. It is only for new toons you make going forward, or ones that have not yet been configured.
 
 * 10.1 is going to be a fairly significant update due to the ability to have cross-faction guilds. I had my data storage tree separated by factions. This is forcing me to rebuild the database to remove faction separation since that is a bit redundant. Not hard, but we are talking about literally thousands of points of data. I wish it were as simple as mass-eliminating "editing all" but it isn't. Just to prevent any error, I do need to look at each line of code it affects and ensure it's not broken after I convert the DB. This is simple, but it will take some time. DF has had so so SOOO many changes it is just a huge time-sink.
 
-* Added a new memberData point -- "MythicScore" is the variable name and it will represent your Mythic+ Score. Of course, this only applies to retail WOW, not Classic. 
+* If you logged in and players had left or were kicked, it was spamming your chat window. These should ONLY appear in the log now after immediately logging in.
 
   ***BUG FIXES***
 
 * Sync message on the que was not properly localized so would through a chat message error.
+
+* Fixed a long-time bug that could cause erroneous reporting when player joined or left the guild, promoted or demoted. Basically, if you removed someone from the guild, for some people, and in some cases, it would report them as having rejoined the guild moments later, then it would FINALLY, some time later, correcelt re-report that they were no longer in the guild. This is just one example. It was due to an overlapping scan when something "live" happened. This has been rewritten and fixed.
 
 * Fixed an error if you did a search, or tried to add a person to friends list, if the system message triggered that the person was no online, it would crash the sync and force it to end. Sort of a weird bug, but I had something gated wrong and it is now resolved and shouldn't cause sync to stop and fail mid-sync.
 
@@ -46,10 +48,23 @@
 
 * Fixed a bug that could prvent someone who had not installed GRM since 2017 from updating to the current version.
 
+* Fixed an issue with the minimap icon where it was leaving a "ghost" empty icon, in addition to a correct one, if you were using certain minimap brokers like Azilroka. This should no longer be any issue with ANY minimap brokers. 
+
+* Fixed an issue where the minimap icon did not path around the minimap properly as of 10.0 changes in DF. I didn't notice this since mainly LibD minimap broker took it over, but if you disabled all addons but GRM and let GRM management, the pathing had changed on the minimap so this has now been fixed.
+
+* Noticed that the Export window (/grm export) was scaling with the core GRM window as a child frame. They should have been independent. This is now fixed and can be scaled separately.
+
+* Fixed an issue where the scaling on the windows was not scaling ALL text objects properly. Most was getting scaled, but some were not proper child frames to the core frame and were sister frames, so the logic of scaling applies to the given frame and all child frames. This is now resolved.
+
+* The mouseover window was incorrectly scaled as default. I don't know how I didn't notice this, or I messed it up and got lazy to change it back in the day, I don't remember, but the scaling was default at 1.33, which is incorrect. It should be 1.0 -- or 100% scale. This 1.33 messed with my new logic on scaling all the windows I wrote with the drag corner button so I had to manually go and rebuild the entire mouseover window's sizing to ensure it could now scale properly to 1.0 -- this likely will cause zero difference to addon user, but it COULD have been a problem for anyone that used custom addons that affected scaling of any frame.
+
 ***MISC***
 
 * Massive database rewrite has been done and refactoring of much of the code. This was done as a necessity due to the massive changes in 10.1 that will allow cross-faction guilds, something I had never ocnsidered. I originally had compartmentalized the data in the guilds by faction, so this needed a rewrite, but I also was not using queries to pull data fro mthe saved variables, so I ended up having to edit > 1000 lines of code for this patch. To save myself the hassle, and to cleanup the code, I wrote a bunch of GET queries for data from teh which clean things up a bit, but did take significant effor to rewrite.
 
+* For those that monitor the .toc or savedVariable file, just a heads up, the "GRM_Misc" global variable is cleaned up and made a little more efficient and will cleanup the saved file a little and will NOT be stored needlessly. It's mostly redundant info and should ONLY be carried over between saves if a player logs off in the middle of an action.
+
+* Added a new memberData point -- "MythicScore" is the variable name and it will represent your Mythic+ Score. Of course, this only applies to retail WOW, not Classic. 
 
 ## **VERSION 1.96 RELEASE - March 27th, 2023**
 

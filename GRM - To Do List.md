@@ -4,9 +4,6 @@
 
 
 **PRIORITY BUILD CHANGES**
-** SCAN FOR CHANGES ** Trigger on GUILD_ROSTER_UPDATE - this will only check for changes to notes, leveling, etc...
-    --Event_Log_Update - check for promotion/demotion/kick/join/etc...
-    -- THIS IS GOING TO BE REBUILT in 1.97 -- 
 
 ** SYNC PROGRESS BAR
 

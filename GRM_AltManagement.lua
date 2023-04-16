@@ -1124,7 +1124,7 @@ end
 -- What it Does:    Takes the entire list of guildies, then sorts them as player types to be added to alts list
 -- Purpose:         Eliminates the possibility of a person entering a fake name of a player no longer in the guild.
 GRM.AddAltAutoComplete = function()
-    local partName = GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:GetText();
+    local partName = GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:GetText();
     local tag = 0;
     local players = {};
 
@@ -1154,40 +1154,40 @@ GRM.AddAltAutoComplete = function()
     if partName ~= nil and partName ~= "" then
 
         if #matchingList > 0 then
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Hide();
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Show();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Show();
             GRM.BuildAutoCompleteAltSelectionScrollFrame ( matchingList );
             GRM_G.currentHighlightIndex = 1;
             GRM.ResetAutoCompleteHighlights();
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[1][1]:LockHighlight();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[1][1]:LockHighlight();
         else
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Show();
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Show();
-            GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Show();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Show();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Hide();
             -- Hide the buttons
-            if GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons then
-                for i = 1 , #GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons do
-                    GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i][1]:Hide();
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons then
+                for i = 1 , #GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons do
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i][1]:Hide();
                 end
             end
             if string.lower ( GRM_G.currentName ) == string.lower ( partName ) then
-                GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Cannot Add Themselves as an Alt" ) );
-                GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Cannot Add Themselves as an Alt" ) );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
             else
-                GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Not Found" ) );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Not Found" ) );
             end
         end          
     else
-        if GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons then
-            for i = 1 , #GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons do
-                GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i][1]:Hide();
+        if GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons then
+            for i = 1 , #GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons do
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i][1]:Hide();
             end
         end
-        GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Hide();
-        GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Please Type the Name of the alt" ) );
-        GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Show();
-        GRM_UI.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Show();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Hide();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Please Type the Name of the alt" ) );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Show();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Show();
     end
 end
 
@@ -1290,31 +1290,31 @@ GRM.PopulateAltFrames = function ( playerName )
     end
     local color = {};
 
-    GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:Show();
-    GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:Show();
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:Show();
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:Show();
     local scrollHeight = 0;
-    local scrollWidth = 128;
+    local scrollWidth = 170;
     local buffer = 1;
 
-    GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons or {};  -- Create a table for the Buttons.
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons or {};  -- Create a table for the Buttons.
     -- populating the window correctly.
     for i = 1 , numAlts do
         -- if font string is not created, do so.
-        if not GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] then
-            local tempButton = CreateFrame ( "Button" , "GRM_AltAdded" .. i , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame ); -- Names each Button 1 increment up
+        if not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] then
+            local tempButton = CreateFrame ( "Button" , "GRM_AltAdded" .. i , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame ); -- Names each Button 1 increment up
 
-            GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
         end
 
-        if i == numAlts and #GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons > numAlts then
-            for j = numAlts + 1 , #GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
-                GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[j][1]:Hide();
+        if i == numAlts and #GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons > numAlts then
+            for j = numAlts + 1 , #GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[j][1]:Hide();
             end
         end
 
-        local AltButtons = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1];
-        local AltButtonsText = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][2];
-        AltButtons:SetSize ( 65 , 15 );
+        local AltButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1];
+        local AltButtonsText = GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][2];
+        AltButtons:SetSize ( 86.5 , 20 );
         AltButtons:RegisterForClicks( "RightButtonDown" , "LeftButtonDown" );
 
         -- Check if main
@@ -1328,12 +1328,12 @@ GRM.PopulateAltFrames = function ( playerName )
         AltButtonsText:SetText ( name );
         color = GRM.GetClassColorRGB ( alts[i][2] , false );
         AltButtonsText:SetTextColor ( color[1] , color[2] , color[3] , 1.0 );
-        AltButtonsText:SetWidth ( 60 );
+        AltButtonsText:SetWidth ( 80 );
 
         if i == 1 and GRM.S().fontModifier > 0 and string.find ( name , GRM.L ( "(main)" ) ) ~= nil then
-            AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
+            AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
         else
-            AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.5 );
+            AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
         end
         
         AltButtonsText:SetPoint ( "CENTER" , AltButtons );
@@ -1397,12 +1397,12 @@ GRM.PopulateAltFrames = function ( playerName )
         
         -- Now let's pin it!
         if i == 1 then
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame , 0 , - 1 );
+            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame , 0 , - 1 );
             scrollHeight = scrollHeight + AltButtons:GetHeight();
         elseif i == 2 then
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 1][1] , "TOPRIGHT" , 1 , 0 );
+            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 1][1] , "TOPRIGHT" , 1 , 0 );
         else
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 2][1] , "BOTTOMLEFT" , 0 , - buffer );
+            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 2][1] , "BOTTOMLEFT" , 0 , - buffer );
             if i % 2 ~= 0 then
                 scrollHeight = scrollHeight + AltButtons:GetHeight() + buffer;
             end
@@ -1413,15 +1413,15 @@ GRM.PopulateAltFrames = function ( playerName )
     -- Pin the button
     if numAlts == 0 then
         GRM_UI.GRM_AddAltButton2:ClearAllPoints();
-        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame , "TOP" , 0 , - 1 );
+        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame , "TOP" , 0 , - 1 );
     elseif numAlts == 1 then
         GRM_UI.GRM_AddAltButton2:ClearAllPoints();
-        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[1][1] , "TOPRIGHT" , 1 , 0 );
+        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[1][1] , "TOPRIGHT" , 1 , 0 );
     else
         GRM_UI.GRM_AddAltButton2:ClearAllPoints();
-        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1] , "BOTTOM" , 0 , - buffer);
+        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1] , "BOTTOM" , 0 , - buffer);
         if numAlts % 2 == 0 and numAlts > 12 then
-            scrollHeight = scrollHeight + GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer;
+            scrollHeight = scrollHeight + GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer;
         end
     end
     GRM_UI.GRM_AddAltButton2:Show();
@@ -1433,28 +1433,28 @@ GRM.PopulateAltFrames = function ( playerName )
     end
 
     -- Update the size -- it either grows or it shrinks!
-    GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:SetSize ( scrollWidth , scrollHeight );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:SetSize ( scrollWidth , scrollHeight );
 
     --Set Slider Parameters ( has to be done after the above details are placed )
-    local scrollMax = ( scrollHeight - GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:GetHeight() ) + ( buffer * .5 );
+    local scrollMax = ( scrollHeight - GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:GetHeight() ) + ( buffer * .5 );
     if scrollMax < 0 then
         scrollMax = 0;
     end
     
-    GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetMinMaxValues ( 0 , scrollMax );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetMinMaxValues ( 0 , scrollMax );
     -- Mousewheel Scrolling Logic
-    GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:EnableMouseWheel( true );
-    GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:SetScript( "OnMouseWheel" , function( _ , delta )
-        local current = GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:GetValue();
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:EnableMouseWheel( true );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:SetScript( "OnMouseWheel" , function( _ , delta )
+        local current = GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:GetValue();
         
         if IsShiftKeyDown() and delta > 0 then
-            GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( 0 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( 0 );
         elseif IsShiftKeyDown() and delta < 0 then
-            GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( scrollMax );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( scrollMax );
         elseif delta < 0 and current < scrollMax then
-            GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current + 20 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current + 20 );
         elseif delta > 0 and current > 1 then
-            GRM_UI.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current - 20 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current - 20 );
         end
     end);
 
@@ -1471,7 +1471,7 @@ GRM.PopulateAltFrames = function ( playerName )
         GRM_UI.GRM_MemberDetailMetaData.GRM_SyncDateArrowButton:Hide();
     end
     
-    GRM_UI.GRM_CoreAltFrame:Show();
+    GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame:Show();
 end
 
 -- Method:          GRM.GetSortedAltNamesWithDetails ( string )

@@ -1279,7 +1279,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.EditSetting ( "autoIntervalDays" , nil );
         GRM_Misc = {};  -- Rebuilding the way this is handled. Wiping it.
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixPersonWhoBanned , true , true , false );    -- DB change - for edge case if player's DB converted
-        
+        GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.ResetUIScaling );
         if GRM_G.BuildVersion >= 90000 then
             GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
         end
@@ -7293,3 +7293,33 @@ GRM_Patch.LanguageSettingModify = function()
     end
 end
 
+-- 1.97
+-- Method:          GRM_Patch.ResetUIScaling ( table )
+-- What it Does:    Converts the UI SCaling variables to the new format that allows frame scaling with corner
+-- Purpose:         Quality of Life UI feature.
+GRM_Patch.ResetUIScaling = function( scaling )
+    local W , H , S = 0 , 0 , 0;
+
+    for i = 1 , 5 do
+        if type ( scaling[i] ) ~= "table" then
+            S = 1;
+
+            if i == 1 then
+                W , H = 600 , 535;
+            elseif i == 2 then
+                W , H = 300 , 330;
+                S = 1.33
+            elseif i == 3 then
+                W , H = 1200 , 515;
+            elseif i == 4 then
+                W , H = 1000 , 490;
+            else
+                W , H = 875 , 400;
+            end
+
+            scaling[i] = { W , H , S };
+        end
+    end
+    
+    return scaling;
+end

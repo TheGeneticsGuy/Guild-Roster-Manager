@@ -41,35 +41,6 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedName
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton = CreateFrame( "Button" , "GRM_ToolIgnoreRemoveAllButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton.GRM_ToolIgnoreRemoveAllButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreRemoveAllButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
 
--- Text
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" )
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2 = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText = GRM_UI.GRM_ToolCoreFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
-
 -- Optional spam control
 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton = CreateFrame ( "CheckButton" , "GRM_MacroToolDisableLogSpamCheckbutton" , GRM_UI.GRM_ToolCoreFrame , GRM_G.CheckButtonTemplate );
 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText = GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
@@ -131,6 +102,35 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame = CreateFrame ( "Frame" ,
 -- SLIDER
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolRulesScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrame , "UIPanelScrollBarTemplate" )
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder:Hide();
+
+-- Text
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText2 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText5 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText8 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText9 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" )
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2 = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
 
 ----------------------
 -- Custom Rules ------
@@ -445,114 +445,114 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         -- Text
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPLEFT" , 17 , -2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1:SetWidth ( 146 )
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPLEFT" , 17 , -2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetWidth ( 146 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetWordWrap ( false );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1 , "RIGHT" , 6 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetWidth ( 85 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText2:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1 , "RIGHT" , 6 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText2:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText2:SetWidth ( 85 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText2:SetWordWrap ( false );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPRIGHT" , -10 , -2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetJustifyH ( "RIGHT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetWidth ( 110 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPRIGHT" , -10 , -2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetJustifyH ( "RIGHT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetWidth ( 110 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetWordWrap ( false );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOMRIGHT" , -10 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:Hide();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOMRIGHT" , -10 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3:Hide();
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOPLEFT" , 17 , -2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetWidth ( 146 )
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOPLEFT" , 17 , -2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4:SetWidth ( 146 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4:SetWordWrap ( false );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4 , "RIGHT" , 5 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetWidth ( 101 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText5:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4 , "RIGHT" , 5 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText5:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText5:SetWidth ( 101 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText5:SetWordWrap ( false );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOMLEFT" , 5 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOMLEFT" , 5 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOM" , 0 , -20 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWidth ( 320 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetWordWrap ( true );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetSpacing ( 1 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOM" , 0 , -20 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetWidth ( 320 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetWordWrap ( true );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetSpacing ( 1 )
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPRIGHT" , 2 , -19 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWidth ( 160 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetWordWrap ( true );
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetSpacing ( 1 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetTextColor ( 1 , 0 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOPRIGHT" , 2 , -19 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetWidth ( 160 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetWordWrap ( true );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetSpacing ( 1 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetTextColor ( 1 , 0 , 0 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOP" , 0 , 17 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText8:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOP" , 0 , 17 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText8:SetJustifyH ( "CENTER" );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOP" , 0 , 17 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText9:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "TOP" , 0 , 17 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText9:SetJustifyH ( "LEFT" );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMLEFT" , -20 , -35 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 18 , -35 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText , "BOTTOMLEFT" , 0 , -2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 18 , -49 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMLEFT" , -20 , -35 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 18 , -35 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText , "BOTTOMLEFT" , 0 , -2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOMRIGHT" , 18 , -49 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetJustifyH ( "LEFT" );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , "TOP" , 0 , 2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , "TOP" , 0 , 2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , "TOP" , 0 , 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , "TOP" , 0 , 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , "TOP" , 0 , 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , "TOP" , 0 , 2 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton , "BOTTOM" , 0 , -12 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton , "BOTTOM" , 0 , -12 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame , "TOPLEFT" , 110 , -35 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame , "TOPLEFT" , 110 , -35 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions:SetWidth ( 150 );
         
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions , "BOTTOM" , 0 , -5 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1:SetWidth ( 150 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1:SetTextColor ( 0 , 0.77 , 0.063 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions , "BOTTOM" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1:SetTextColor ( 0 , 0.77 , 0.063 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1 , "BOTTOM" , 0 , -5 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2:SetWidth ( 150 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2:SetTextColor ( 0 , 0.77 , 0.063 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1 , "BOTTOM" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2:SetTextColor ( 0 , 0.77 , 0.063 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2 , "BOTTOM" , 0 , -5 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3:SetWidth ( 150 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3:SetTextColor ( 0 , 0.77 , 0.063 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2 , "BOTTOM" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3:SetTextColor ( 0 , 0.77 , 0.063 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1 , "BOTTOM" , 0 , 10 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:SetWidth ( 150 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:SetTextColor ( 0.64 , 0.102 , 0.102 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:SetText ( "____________" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1 , "BOTTOM" , 0 , 10 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:SetTextColor ( 0.64 , 0.102 , 0.102 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:SetText ( "____________" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2 , "BOTTOM" , 0 , 10 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:SetWidth ( 150 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:SetTextColor ( 0.64 , 0.102 , 0.102 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:SetText ( "____________" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2 , "BOTTOM" , 0 , 10 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:SetTextColor ( 0.64 , 0.102 , 0.102 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:SetText ( "____________" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3 , "BOTTOM" , 0 , 10 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:SetJustifyH ( "CENTER" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:SetWidth ( 150 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:SetTextColor ( 0.64 , 0.102 , 0.102 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:SetText ( "____________" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3 , "BOTTOM" , 0 , 10 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:SetTextColor ( 0.64 , 0.102 , 0.102 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:SetText ( "____________" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
         -- Safe List Text
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText1:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollBorderFrame , "TOPLEFT" , 17 , -2 );
@@ -589,7 +589,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetPoint ( "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText , "LEFT" , - 2 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame , "BOTTOMRIGHT" , -12 , 14 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame , "BOTTOMRIGHT" , -32 , 14 );
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetScript ( "OnClick", function( self , button )
             if button == "LeftButton" then
                 if self:GetChecked() then
@@ -602,7 +602,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetPoint ( "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText , "LEFT" , - 2 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText , "BOTTOM" , 0 , -15 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButtonText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText , "BOTTOM" , 0 , -15 );
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetScript ( "OnClick", function( self , button )
             if button == "LeftButton" then
 
@@ -838,9 +838,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
         
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3 , "BOTTOM" , -85 , -12 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText:SetJustifyH ( "LEFT" );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText:SetWidth ( 150 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3 , "BOTTOM" , -85 , -12 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText:SetJustifyH ( "LEFT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText:SetWidth ( 150 );
 
         -- Buttons
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "BOTTOM" , 0 , -5 );
@@ -1011,7 +1011,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.RestoreTooltip();
         end);
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText , "BOTTOMLEFT" , 0 , -42 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText , "BOTTOMLEFT" , 0 , -42 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetSize ( 80 , 25 );
         GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 80 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 0 , -5 );
@@ -1136,14 +1136,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Hide();
 
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
                 if GRM.S().promoteOnlineOnly then
                     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
@@ -1156,7 +1156,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
                 if GRM.S().demoteOnlineOnly then
                     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
@@ -1350,37 +1350,37 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end
     end);
 
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1:SetText( GRM.L ( "Name:" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetText( GRM.L ( "Macro:" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetText( GRM.L ( "# Moves:" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetText( GRM.L ( "Name:" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetText( GRM.L ( "Action" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText5:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetText( GRM.L ( "Hot Key: {name}" , GRM_G.MacroHotKey ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText6:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText8:SetText( GRM.L ( "Queued Actions" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText9:SetText( GRM.L ( "Current Actions" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameRankRestrictionText:SetText( GRM.L ( "Players the same rank or higher will not be shown" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:SetText ( GRM.L ( "Due to limitations with macros a player can only move 1 rank at a time." ))
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetText( GRM.L ( "Name:" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText2:SetText( GRM.L ( "Macro:" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetText( GRM.L ( "# Moves:" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4:SetText( GRM.L ( "Name:" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText5:SetText( GRM.L ( "Action" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText5:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetText( GRM.L ( "Hot Key: {name}" , GRM_G.MacroHotKey ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText8:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText8:SetText( GRM.L ( "Queued Actions" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText9:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText9:SetText( GRM.L ( "Current Actions" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetText( GRM.L ( "Players the same rank or higher will not be shown" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:SetText ( GRM.L ( "Due to limitations with macros a player can only move 1 rank at a time." ))
 
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetText ( GRM.L ( "Permissions" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1:SetText ( GRM.L ( "Kick" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2:SetText ( GRM.L ( "Promote" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3:SetText ( GRM.L ( "Demote" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions:SetText ( GRM.L ( "Permissions" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1:SetText ( GRM.L ( "Kick" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2:SetText ( GRM.L ( "Promote" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3:SetText ( GRM.L ( "Demote" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
     -- Safe List Tool
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolCoreIgnoreFrameText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -1412,19 +1412,19 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolClearSelectedMacrodNamesButton.GRM_ToolClearSelectedMacrodNamesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonText:SetText ( GRM.L ( "View Ignore List" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText:SetText ( GRM.L ( "Total Queued:" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText:SetText ( GRM.L ( "Actions Ignored:" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText:SetText ( GRM.L ( "Total Queued:" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText:SetText ( GRM.L ( "Actions Ignored:" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
     -- Rules
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText:SetText ( GRM.L ( "Rules" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickRulesText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText:SetText ( GRM.L ( "Rules" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimedText );
     GRM_UI.GRM_ToolCoreFrame.GRM_CustomRuleAddButton.GRM_CustomRuleAddButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -4523,21 +4523,21 @@ end
 GRM_UI.RefreshToolPermissionReport = function()
     if GRM_UI.GRM_ToolCoreFrame.IsInitialized and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
         if CanGuildRemove() then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:Hide();
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions1_K:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions1_K:Show();
         end
 
         if CanGuildPromote() then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:Hide();
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions2_P:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions2_P:Show();
         end
 
         if CanGuildDemote() then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:Hide();
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTextPermissions3_D:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTextPermissions3_D:Show();
         end
     end
 end
@@ -4833,8 +4833,8 @@ GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , b
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetText( GRM.L ( "No Current Names to Add" ) );
     end
 
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalQueText2:SetText ( #GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetText ( #GRM_UI.GRM_ToolCoreFrame.Safe );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2:SetText ( #GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetText ( #GRM_UI.GRM_ToolCoreFrame.Safe );
 
 end
 
@@ -5543,24 +5543,24 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
 
     -- Macro text
     if #GRM_UI.GRM_ToolCoreFrame.MacroEntries > 0 then
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:SetText ( GRM.L ( "Macro Size: {num}/255" , nil , nil , size ) );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:Show();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:SetText ( GRM.GetHotKeyRecommendationScript ( count ) );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3:SetText ( GRM.L ( "Macro Size: {num}/255" , nil , nil , size ) );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3:Show();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetText ( GRM.GetHotKeyRecommendationScript ( count ) );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:Show();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:Show();
 
         if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
-            GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:Show();
         end
     else
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText3:Hide();
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameText7:Hide();
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Hide();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText3:Hide();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:Hide();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:Hide();
     end
 
     -- Not relevant for kicks, only macros and demotions - kicks == 1
     if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
-        GRM_UI.GRM_ToolCoreFrame.GRM_TooCoreFrameLimitationText:Hide();
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText:Hide();
     end
 
     -- Permissions Text
@@ -8191,26 +8191,26 @@ GRM.RefreshMacroToolRuleCount = function()
     -- let's set the indicator text above the macro tool rule tabs
     if GRM_UI.GRM_ToolCoreFrame and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
         if GRM_G.counts[1] == 0 then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetTextColor ( 0 , 0.8 , 1 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText:SetTextColor ( 0 , 0.8 , 1 );
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetTextColor ( 1 , 0 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText:SetTextColor ( 1 , 0 , 0 );
         end
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameKickQueText:SetText ( GRM_G.counts[1] );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText:SetText ( GRM_G.counts[1] );
 
         if GRM_G.counts[2] == 0 then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( 0 , 0.8 , 1 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( 0 , 0.8 , 1 );
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( GRM.S().logColor[4][1] , GRM.S().logColor[4][2] , GRM.S().logColor[4][3] );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText:SetTextColor ( GRM.S().logColor[4][1] , GRM.S().logColor[4][2] , GRM.S().logColor[4][3] );
         end
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFramePromoteQueText:SetText ( GRM_G.counts[2] );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText:SetText ( GRM_G.counts[2] );
 
         if GRM_G.counts[3] == 0 then
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( 0 , 0.8 , 1 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( 0 , 0.8 , 1 );
         else
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( GRM.S().logColor[5][1] , GRM.S().logColor[5][2] , GRM.S().logColor[5][3] );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( GRM.S().logColor[5][1] , GRM.S().logColor[5][2] , GRM.S().logColor[5][3] );
         end
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameDemoteQueText:SetText ( GRM_G.counts[3] );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetText ( GRM_G.counts[3] );
     end
 end
 
