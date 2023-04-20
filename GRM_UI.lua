@@ -1195,11 +1195,6 @@ GRM_UI.GRM_DropDownList1AttachmentFrame = CreateFrame ( "Frame" , "GRM_DropDownL
 GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton = CreateFrame ( "Button" , "GRM_DropDownAltMainSetButton" , GRM_UI.GRM_DropDownList1AttachmentFrame );
 GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText = GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 
--- GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownPromoteButton= CreateFrame ( "Button" , "GRM_DropDownPromoteButton" , GRM_UI.GRM_DropDownList1AttachmentFrame );
--- GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownPromoteButton.GRM_DropDownPromoteButtonText = GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownPromoteButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
--- GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownDemoteButton = CreateFrame ( "Button" , "GRM_DropDownDemoteButton" , GRM_UI.GRM_DropDownList1AttachmentFrame );
--- GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownDemoteButton.GRM_DropDownDemoteButtonText = GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownDemoteButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-
 GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownListTitleText = GRM_UI.GRM_DropDownList1AttachmentFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownListMouseControlText1 = GRM_UI.GRM_DropDownList1AttachmentFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownListMouseControlText2 = GRM_UI.GRM_DropDownList1AttachmentFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );

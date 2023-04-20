@@ -873,6 +873,10 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
 
     -- UI Options Tab
     elseif page == 7 then
+
+        player["showLevel"] = true;
+        player["showLevelMaxOnly"] = false;
+        player["showMythicRating"] = true;
         player["useFade"] = false;                                          -- 52
         
         -- No guild rep pre-Cataclysm expansion.
@@ -881,7 +885,7 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         else
             player["viewGuildRep"] = true;                                  -- 53
         end
-        
+
         player["showBorders"] = true;                                       -- 58
         player["showBDay"] = true                                           -- 67
         player["colorizeNames"] = true;                                     -- 9 System Messages Class Colored
