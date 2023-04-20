@@ -1291,7 +1291,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.972 and baseValue < 1.972 then
 
         if GRM_G.BuildVersion >= 90000 then
-            GRM_Patch.AddMemberSpecificData ( "MythicScore" , {} );
+            GRM_Patch.AddMemberSpecificData ( "MythicScore" , { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 } );
         end
         GRM_Patch.AddNewSetting ( "showLevel" , true );
         GRM_Patch.AddNewSetting ( "showMythicRating" , true );

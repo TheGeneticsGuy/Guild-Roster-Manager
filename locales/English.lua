@@ -1626,6 +1626,7 @@ GRML.English = function()
     GRM_L["M+ Rating:" ] = true
     GRM_L["Do Not Show if at Max Level {num}"] = true
     GRM_L["Not on Server"] = true
+    GRM_L["Mythic+ rating will only appear on members at max level {num}."] = true
 
 
 end

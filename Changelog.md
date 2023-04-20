@@ -1,4 +1,4 @@
-## **VERSION 1.97 RELEASE - APRIL 19th, 2023**
+## **VERSION 1.972 RELEASE - APRIL 20th, 2023**
 
 **NEW FEATURE - Guild Transfer - Preservation of Data**
 
@@ -28,7 +28,11 @@
 
 ![Window Scaling Example](https://i.imgur.com/rGoKvRG.gif)
 
-* Added the a
+* Added the ability to show Mythic+ Rating on the player mouseover window. I should note, that there is a flaw in the built-in guild roster in that if someone logs off and doesn't log back in, it only shows their M+ rating from when they last logged off. If this was say, over a year ago, it's just not accurate. So, GRM will ignore an outdated M+ rating on the mouseover and ONLY show the current rating for the current season, which I was able to deduce by just checking if the last time they logged in was AFTER the start of the current season. NOTE - THIS ONLY SHOWS WHEN A PLAYER IS MAX LEVEL.
+
+!["Enable or Disable showing Mythic Rating"](https://i.imgur.com/DYCA2cm.gif)
+
+
 * You will notice that the GRM scanning for changes and ackownledgment of things that change, like notes edited, or anything, will be far more responsive and quick. If you were to try a /grm scan, you will notice how quickly it makes it through the process now compared to before. The entire scanning logic has been rewritten. A lot of it was very old legacy code from when I was just tinkering with the idea of GRM, so it really could have used a revisit for a long time now. GRM should feel a bit more responsive now as a result. The code is also a LOT leaner.
 
 * GRM will now auto-import, from the Blizzard servers, the date that you personally joined the guild. This will apply ONLY to retail Warcraft, as the data is tied to "communities" launched in 8.0 and the server provides no information prior to communities. You cannot pull this information from others in your guild, as the server will only provide your own information. There is also a limitation that if you were in the guild prior to July 7, 2018, 8.0 BFA patch day, then it cannot provide an accurate date you joined the guild, unfortunately. I had mostly ignored this feature since almost everyone was basically grandfathered into communities from their current guilds, but now that nearly 5 years has past, I will not import this data automatically. You will need to login to each of your alts for it to work. If you already have a date set, then GRM will ignore automation of this process. It is only for new toons you make going forward, or ones that have not yet been configured.
@@ -66,6 +70,8 @@
 * The mouseover window was incorrectly scaled as default. I don't know how I didn't notice this, or I messed it up and got lazy to change it back in the day, I don't remember, but the scaling was default at 1.33, which is incorrect. It should be 1.0 -- or 100% scale. This likely caused zero difference to addon user, but it COULD have been a problem for anyone that used custom addons that affected scaling of any frame.
 
 * Fixed a bug where a lot of "ghost" entries were added to the AltGroup savedvariable for people when they left the guild. This should no longer happen and all old entries will be cleaned up automatically from them.
+
+* Fixed a bug where the player status tooltip was ultra small in the text (size 1 font for some reason lol). This has been fixed. Probably an accidental typo some patch back.
 
 ***MISC***
 

@@ -35,8 +35,8 @@ SLASH_GRM2 = '/grm';
 
 -- Addon Details:
 GRM_G.Version = "R1.972";
-GRM_G.PatchDay = 1681805675;             -- In Epoch Time
-GRM_G.PatchDayString = "1681805675";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.PatchDay = 1682031355;             -- In Epoch Time
+GRM_G.PatchDayString = "1682031355";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -346,7 +346,7 @@ local daysInMonth = { ['1']=31 , ['2']=28 , ['3']=31 , ['4']=30 , ['5']=31 , ['6
 local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Evoker" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" }; -- This is only here as an alphabetized list
 local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 , ["Dracthyr"] = 52 };
 
-local MythicSeasonDates = { [9] = 1670846400 }
+local MythicSeasonDates = { [9] = 1670803201 }
 
 local GuildRanks = {};  -- Necessary to have the current ranks in a global table for when changed and so they can be carried over each session
 
@@ -984,7 +984,7 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         
     -- Backups
     elseif page == 14 then
-        -- Nothing here yet.Xw
+        -- Nothing here yet.
 
     -- Modules
     elseif page == 15 then
@@ -1072,10 +1072,6 @@ GRM.LoadSettings = function()
     else
         -- No need to delay
         GRM.FinalSettingsConfigurations();
-    end
-
-    if GRM_G.BuildVersion >= 80000 and #GRM_G.MythicSeasonInfo == 0 then
-        GRM.ConfigureMythicPlusInfo();
     end
 
 end
@@ -6397,27 +6393,24 @@ end
 -- What it Does:    Establishes the current M+ season on
 -- Purpose:         To track M+ histories
 GRM.ConfigureMythicPlusInfo = function()
-    local expansion , season = GRM.GetMythicSeason();
-
-    GRM_G.MythicSeasonInfo = { expansion , season };
+    GRM_G.MythicSeasonInfo = { GRM.GetMythicSeason() };
 end
 
--- Method:          GRM.GetPreviousSeason()
--- What it Does:    Sets to previous season
--- Purpose:         In case a player has been offline prior to season, it shows their old info. We want the addon to inform that it was an OLD rating.
-GRM.GetPreviousSeason = function()
-    local expansion , season;
+-- Method:          GRM.UpdateMythicScore( int , int )
+-- What it Does:    Adds an entry into the mythic Score
+-- Purpose:         Only need to show the current numbers.
+GRM.UpdateMythicScore = function ( lastOnline , score )
 
-    if season == 1 then
-        season = 4
-        expansion = GRM_G.MythicSeasonI[1] - 1;
+    if lastOnline and MythicSeasonDates[ GRM_G.MythicSeasonInfo[2] ] ~= nil then
+        if ( time() - ( lastOnline * 3600 ) ) < MythicSeasonDates[ GRM_G.MythicSeasonInfo[2] ] then
+            score = 0;
+        end
+        return { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , score };
     else
-        season = GRM_G.MythicSeasonI[2] - 1;
-        expansion = GRM_G.MythicSeasonI[1];
+        return { 9 , 1 , 0 };
     end
-
-    return expansion , season;
-end 
+    
+end
 
 ------------------------------------
 ------ UI FORMATTING HELPERS -------
@@ -8297,14 +8290,7 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["sex"] = memberInfo.sex;                         -- 47                                                                
     
     if GRM_G.BuildVersion >= 80000 then
-                -- Convert hrs to sec
-        if ( member.lastOnline * 3600 )>= MythicSeasonDates[GRM_G.MythicSeasonInfo[2]] then
-            member["MythicScore"] = { { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , memberInfo.MythicScore } };     -- Expansion# , season # , MythicScore
-        else
-            local expansion , season = GRM.GetPreviousSeason();
-            member["MythicScore"] = { { expansion , season , memberInfo.MythicScore } };
-            table.insert ( { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 } )
-        end
+        member["MythicScore"] = GRM.UpdateMythicScore ( member.lastOnline , memberInfo.MythicScore );
     end
     
     if isReturningMember then
@@ -8320,8 +8306,6 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
 
             local dates = select ( 2 , GRM.GetTimestamp() );
             local epoch = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } ); 
-
-
 
             -- Remove a rank and join date change
             if logEntryMetaData[1] then
@@ -13370,8 +13354,8 @@ GRM.CheckRosterChanges = function ( updatedPlayer , player , rosterName )
         player.timeEnteredZone = time();   -- Resetting the time on hitting this zone.
     end
 
-    if GRM_G.BuildVersion >= 80000 then
-        player.MythicScore = updatedPlayer.MythicScore;
+    if GRM_G.BuildVersion >= 80000 and player.MythicScore[3] ~= updatedPlayer.MythicScore and updatedPlayer.lastOnline ~= -1 then
+        player.MythicScore = GRM.UpdateMythicScore ( updatedPlayer.lastOnline , updatedPlayer.MythicScore );
     end
 
     if updatedPlayer.race ~= "" then
@@ -19892,12 +19876,12 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
             end
 
             -- MYTHINC+ SCORE
-            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating then
+            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating and player.level == GRM_G.LvlCap then
 
                 if levelAndMythicText ~= "" then
-                    levelAndMythicText = levelAndMythicText .. " | " .. GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore;
+                    levelAndMythicText = levelAndMythicText .. " | " .. GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore[3];
                 else
-                    levelAndMythicText = GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore;
+                    levelAndMythicText = GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore[3];
                 end
             end
 
@@ -26037,18 +26021,21 @@ end
 --                  Finally, it delays 5 seconds upon querying server as often initial Roster and Guild Event Log query takes a moment to return info.
 -- Purpose:         To ensure the smooth handling and loading of the addon so all information is accurate before attempting to parse guild info.
 GRM.ActivateAddon = function ( _ , event , addon , isReload )
-    if event == "ADDON_LOADED" then
-    -- initiate addon once all variable are loaded.
-        if addon == GRM_G.addonName then
-            Initialization:RegisterEvent ( "PLAYER_ENTERING_WORLD" ); -- Ensures this check does not occur until after Addon is fully loaded. By registering, it acts recursively throug hthis method
-        end
+    if event == "ADDON_LOADED" and addon == GRM_G.addonName then
+        Initialization:UnregisterEvent ("ADDON_LOADED");
+        Initialization:RegisterEvent ( "PLAYER_ENTERING_WORLD" ); -- Ensures this check does not occur until after Addon is fully loaded.
     elseif event == "PLAYER_ENTERING_WORLD" then
+        Initialization:UnregisterEvent ("PLAYER_ENTERING_WORLD");
 
         if isReload then
             GRMsyncGlobals.reloadControl = true;
         end
 
         GRM.ConfigureAnnounceOnLogin();                         -- So no repeat announcements
+
+        if GRM_G.BuildVersion >= 80000 and #GRM_G.MythicSeasonInfo == 0 then
+            GRM.ConfigureMythicPlusInfo();
+        end
 
         GRM_G.OStimeOffset = GRM.GetTimeOffesets();             -- One time configuration of gameTime Offsets;
         GRM.DataLoadDelayProtection();
@@ -26085,7 +26072,6 @@ GRM.SettingsLoadedFinishDataLoad = function()
     end
 
     if IsInGuild() then
-        Initialization:UnregisterEvent ("PLAYER_ENTERING_WORLD");
         GRM.GuildRoster();                                       -- Initial queries...
         if GRM_G.BuildVersion >= 30000 then
             QueryGuildEventLog();

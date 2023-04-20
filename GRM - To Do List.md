@@ -5,11 +5,11 @@
 
 **PRIORITY BUILD CHANGES**
 
-** SYNC PROGRESS BAR
+** SYNC PROGRESS BAR - Finish getting it working.
     
-** SYNC ISSUES SOME STILL FAILING
+** SYNC ISSUES SOME STILL FAILING, particularly on manual triger
 
-** HYBRID SCROLLFRAME FOR BANS
+** HYBRID SCROLLFRAME FOR BAN window...
 
 ** ADD MYTHIC+ OPTION for macro tool on promotions/demotions...
 
@@ -36,8 +36,6 @@
 
 * UI 2.0 - See Discord for details
 
-* Re-scalable frames by dragging corner - NOT RESIZABLE, just scaling by dragging larger/smaller.
-
 * Occasionally GRM's window is appearing when a player is logging out, the ban attachment. That should not happen. This seems to be happening in Classic Vanilla, mainly.
 
 * Make a video guide for the macro tool
@@ -60,12 +58,6 @@
  -- EXPORT: 'Excel: Paste data into Excel, Click the Data Tab, Click "Text to Columns" '
 - - 'Google Sheets: Paste data into Google Sheets, Click the Data Tab, Click Split "text to columns" ' 
 
-* Video on how to easily use the main tagging.
-
-* Expand addon users window, features, tooltips stating what rank they need to be, etc...
-- { "Ok!" , "Their Rank too Low" , "Your Rank too Low" , "Outdated Version" , "You Need Updated Version" , "Player Sync Disabled" }
-
-
 # **CODE IMPROVEMENTS**
 
 * BanList is outdated scrollframe format - just realized it is NOT a hybridscrollframe and needs to be updated. Completely forgot about this.
@@ -73,8 +65,6 @@
 * Replace GRM.SlimName everywhere with GRM.FormatName -- this is to give player the option choose the full name or the slimname, and only force the full name as needed on the backend database. Right now it is my own discretionary use and should me normalized.
 
 * Leverage LibAlts data if it is found. Not relying on it, just pulling the data to help the alt lists automatically.
-
-* Auto set verified join date when you self join a guild.
 
 * Auto-select proper font when adjusting the language.
 

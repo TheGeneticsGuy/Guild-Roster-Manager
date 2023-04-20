@@ -1609,7 +1609,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     -- Right click menu for mouseover status
     GRM_UI.ConfigureStatusContextMenuSize = function( height )
-        local width = 133;
+        local width = 177;
     
         if ( GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameTopText:GetStringWidth() >= width ) or ( width < ( GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameTopText:GetStringWidth() + 15 ) ) then       -- For scaling the frame based on size of player name.
             width = GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameTopText:GetStringWidth() + 15;
@@ -4457,23 +4457,23 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameTopText:SetText ( GRM.L ( "Options" ) );
     
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1:SetPoint ("TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame , 7 , -22 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1:SetSize ( 106 , 26 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1:SetSize ( 151 , 26 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1:SetHighlightTexture ( "Interface\\Buttons\\UI-Panel-Button-Highlight" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1Text:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 1 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton1 , "BOTTOMLEFT" , 0 , 4 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2:SetSize ( 106 , 26 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2:SetSize ( 151 , 26 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2:SetHighlightTexture ( "Interface\\Buttons\\UI-Panel-Button-Highlight" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2Text:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 1 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameDividerText:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButton , "TOPLEFT" , 0 , -2 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameDividerText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameDividerText:SetText ("__");
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame , "BOTTOMLEFT" , 7 , 4 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButton:SetHighlightTexture ( "Interface\\Buttons\\UI-Panel-Button-Highlight" );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButton:SetSize ( 106 , 26 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButton:SetSize ( 151 , 26 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButton );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButtonText:SetText ( GRM.L ( "Cancel" ) );
@@ -8192,6 +8192,15 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
     end);
 
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine ( GRM.L ( "Mythic+ rating will only appear on members at max level {num}." , nil , nil , GRM_G.LvlCap ) );
+        GameTooltip:Show();
+    end)
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton , "BOTTOMLEFT" , 0 , -6 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton , "RIGHT" , 2 , 0 );

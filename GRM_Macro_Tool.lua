@@ -860,7 +860,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
             if button == "LeftButton" then
 
                 local resetSettings = function()
-                    GRM.ResetDefaultSettings( 10 );
+                    local index = 10;
+                    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                        index = 11;
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                        index = 12;
+                    end
+                    GRM.ResetDefaultSettings( index );
                 end
 
                 if IsShiftKeyDown() and IsControlKeyDown() then
