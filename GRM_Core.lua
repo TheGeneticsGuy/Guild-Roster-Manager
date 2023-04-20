@@ -34,9 +34,9 @@ SLASH_GRM2 = '/grm';
 
 
 -- Addon Details:
-GRM_G.Version = "R1.97";
-GRM_G.PatchDay = 1680853048;             -- In Epoch Time
-GRM_G.PatchDayString = "1680853048";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.972";
+GRM_G.PatchDay = 1681805675;             -- In Epoch Time
+GRM_G.PatchDayString = "1681805675";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -324,11 +324,15 @@ GRM_G.ClassicTaintWarning = false;
 GRM_G.RosterHotKey = "";
 GRM_G.ClassicTaintProtection = false;
 
+-- MYTHIC+ Tracking
+GRM_G.MythicSeasonInfo = {};
+
 -- GRM Modules.
 GRM_G.Module = {};
 
 -- Group Tracking
 GRM_G.InGroup = false;
+
 
 -- Useful Lookup Tables for date indexing.
 
@@ -341,6 +345,8 @@ local daysBeforeMonthEnum = { ['1']=0 , ['2']=31 , ['3']=59 , ['4']=90 , ['5']=1
 local daysInMonth = { ['1']=31 , ['2']=28 , ['3']=31 , ['4']=30 , ['5']=31 , ['6']=30 , ['7']=31 , ['8']=31 , ['9']=30 , ['10']=31 , ['11']=30 , ['12']=31 };
 local AllClasses = { "Deathknight" , "Demonhunter" , "Druid" , "Evoker" , "Hunter" , "Mage" , "Monk" , "Paladin" , "Priest" , "Rogue" , "Shaman" , "Warlock" , "Warrior" }; -- This is only here as an alphabetized list
 local raceIDEnum = { ["Human"]=1 , ["Orc"]=2 , ["Dwarf"]=3 , ["NightElf"]=4 , ["Scourge"]=5 , ["Tauren"]=6 , ["Gnome"]=7 , ["Troll"]=8 , ["Goblin"]=9 , ["BloodElf"]=10 , ["Draenei"]=11 , ["Worgen"]=22 , ["Pandaren"]=24 , ["Nightborne"]=27 , ["HighmountainTauren"]=28 , ["VoidElf"]=29 , ["LightforgedDraenei"]=30 , ["ZandalariTroll"]=31 , ["KulTiran"]=32 , ["DarkIronDwarf"]=34 , ["Vulpera"]=35 , ["MagharOrc"]=36 , ["Mechagnome"]=37 , ["Dracthyr"] = 52 };
+
+local MythicSeasonDates = { [9] = 1670846400 }
 
 local GuildRanks = {};  -- Necessary to have the current ranks in a global table for when changed and so they can be carried over each session
 
@@ -1066,6 +1072,10 @@ GRM.LoadSettings = function()
     else
         -- No need to delay
         GRM.FinalSettingsConfigurations();
+    end
+
+    if GRM_G.BuildVersion >= 80000 and #GRM_G.MythicSeasonInfo == 0 then
+        GRM.ConfigureMythicPlusInfo();
     end
 
 end
@@ -2334,16 +2344,39 @@ GRM.LoadRestorePoint = function( guild , guildTransfer , oldName )
 
             local newServerName = string.match ( guild , "-(.+)" );
 
-            GRM_GuildMemberHistory_Save[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].members ) , newServerName , false , true );
-            GRM_PlayersThatLeftHistory_Save[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].formerMembers ) , newServerName , false , false );
+            GRM_GuildMemberHistory_Save[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].members ) , newServerName , false , true , false );
+            GRM_GuildMemberHistory_Save[guildName].grmName = guildName; -- Need to update the saved name too.
+
+            if GRM_G.BuildVersion >= 80000 then
+                GRM_GuildMemberHistory_Save[guildName].grmClubID = C_Club.GetGuildClubId();
+            else
+                GRM_GuildMemberHistory_Save[guildName].grmClubID= GRM.CreateCustomGUIDValue( guildName );
+            end
+
+            GRM_PlayersThatLeftHistory_Save[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].formerMembers ) , newServerName , false , true , true );
             GRM_LogReport_Save[guildName] = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].log );
-            GRM_Alts[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].alts ) , newServerName , true , false );
+            GRM_Alts[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].alts ) , newServerName , true , false , false );
             GRM_CalendarAddQue_Save[guildName] = {};
+
+            -- Clear the backup point
+            GRM_GuildDataBackup_Save[guildName] = {};
+            GRM_GuildDataBackup_Save[guildName].guildCreationDate = GRM_GuildDataBackup_Save[oldName].guildCreationDate;   -- Need to keep this.
+            GRM_GuildDataBackup_Save[guildName].date = "";
+            GRM_GuildDataBackup_Save[guildName].epochDate = 0;
+            GRM_GuildDataBackup_Save[guildName].numGuildies = 0;
+            GRM_GuildDataBackup_Save[guildName].members = {};
+            GRM_GuildDataBackup_Save[guildName].formerMembers = {};
+            GRM_GuildDataBackup_Save[guildName].log = {};
+            GRM_GuildDataBackup_Save[guildName].alts = {};
 
             -- need to purge the old backup
             GRM.RemoveGuildBackup ( guildName , true );
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
                 GRM.BuildBackupScrollFrame ( true , true );
+            end
+
+            if not GRM_PlayerListOfAlts_Save[guildName] then
+                GRM_PlayerListOfAlts_Save[guildName] = {};
             end
 
             GRM.Report ( GRM.L ( "Data has been transferred from the old Guild \"{name}\"" , oldName ) );
@@ -2381,10 +2414,10 @@ GRM.LoadRestorePoint = function( guild , guildTransfer , oldName )
     end
 end
 
--- Method:          GRM.ChangeServerNameOfAll ( table , string , bool , bool )
+-- Method:          GRM.ChangeServerNameOfAll ( table , string , bool , bool , bool )
 -- What it Does:    Converts all of the server names of the players on the saved guild DB to the new server, in case of a guild transfer
 -- Purpose:         Restore all guild data easily when transferring servers.
-GRM.ChangeServerNameOfAll = function( guildData , newServerName , isAlts , addFlag )
+GRM.ChangeServerNameOfAll = function( guildData , newServerName , isAlts , addFlag , oldRoster )
 
     local newGuildData = {};
 
@@ -2393,10 +2426,7 @@ GRM.ChangeServerNameOfAll = function( guildData , newServerName , isAlts , addFl
         for name , player in pairs ( guildData ) do
             if type(player) == "table" then
 
-                -- Fix player name
-                player.name = string.match ( player.name , "(.+-)" ) .. newServerName;
-
-                -- Update whoever left the custom note
+                    -- Update whoever left the custom note
                 if player.customNote[3] ~= "" then
                     player.customNote[3] = string.match ( player.customNote[3] , "(.+-)" ) .. newServerName;
                 end
@@ -2415,14 +2445,23 @@ GRM.ChangeServerNameOfAll = function( guildData , newServerName , isAlts , addFl
                     end
                 end
 
-                newGuildData[player.name] = GRM.DeepCopyArray ( player );
-
-                if addFlag then
-                    newGuildData[player.name].isTransfer = true;
-                end
+                -- Fix player name
+                -- Only want to change the player name if they are banned
+                if not oldRoster or ( oldRoster and not player.bannedInfo[1] ) then
+                    player.name = string.match ( player.name , "(.+-)" ) .. newServerName;
+                    newGuildData[player.name] = GRM.DeepCopyArray ( player );
+                    if addFlag then
+                        newGuildData[player.name].isTransfer = true;
+                    end
+                else
+                    newGuildData[player.name] = GRM.DeepCopyArray ( player );
+                    if addFlag then
+                        newGuildData[player.name].isTransfer = true;
+                    end
+                end                
 
             else
-                newGuildData[name] = player;
+                newGuildData[name] = GRM.DeepCopyArray ( player );
 
             end
         end
@@ -3826,7 +3865,7 @@ end
 GRM.GetGuildMemberRankID = function( name )
     local result = -1;
     -- Prevents errors if the other players sends a sync call too early, it will just ignore it.
-    if GRM.GetGuild() then
+    if GRM.GetGuild() and GRM.GetPlayer ( name ) then
         result = GRM.GetPlayer ( name ).rankIndex;
     end
     return result;
@@ -4076,13 +4115,12 @@ GRM.MiscCleanupOnLogin = function()
                             C_FriendList.RemoveFriend ( GRM_Misc[GRM_G.addonUser][i][2][j] );
                             C_FriendList.RemoveFriend ( GRM.SlimName ( GRM_Misc[GRM_G.addonUser][i][2][j] ) );          -- On reload of the server, it refreshes the names and purges the server from some...
                         end
-                        GRM_Misc[GRM_G.addonUser][i] = { false , {} };
+                        GRM_Misc[GRM_G.addonUser] = nil;
                     end);
                 end
 
             end
         end
-        GRM_Misc[GRM_G.addonUser] = nil;
     end
 
     GRM_G.MsgFilterDelay = false;
@@ -4120,6 +4158,7 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
             ChatFrame_AddMessageEventFilter ( "CHAT_MSG_SYSTEM" , GRM.SetSystemMessageFilter );
         end
         GRM_G.TempBanSystemMessage = true;
+        local count = 0;
 
         if C_FriendList.GetNumFriends() < 100 then
             -- Add the names!!!
@@ -4174,6 +4213,7 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
                             end
                             player.class = isFound[3];               -- Updates Class properly
                             player.GUID = isFound[4];              -- Updates GUID since this was not obtainable until post 8.0 launch
+                            count = count + 1;
                         end
 
                         GRM_G.MsgFilterDelay2 = true;
@@ -4199,8 +4239,8 @@ GRM.QueryPlayersGUIDByFriendsList = function ( playerNames , initialValue , clea
                 end
 
                 -- In case it finds anything, it updates
-                if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:IsVisible() then
-                    GRM.RefreshBanListFrames();
+                if count > 0 then
+                    C_Timer.After ( 2 , GRM.RefreshBanListFrames );
                 end
 
                 -- Do a recursive re-check if necessary...
@@ -6338,6 +6378,47 @@ end
 ------ END OF TIME METHODS ---------
 ------------------------------------
 
+------ MYTHIC + TRACKING -----------
+------------------------------------
+
+-- Method:          GRM.GetMythicSeason()
+-- What it Does:    Pulls the current expansion by Index, and the season number ID; 1 = BFA season 1. 9 = DF season 1, etc..
+-- Purpose:         Be able to track a player's M+ History.
+GRM.GetMythicSeason = function()
+    C_MythicPlus.RequestMapInfo();          -- Need to run at least once before the season request works.
+
+    local expansion = math.floor ( select ( 4 , GetBuildInfo()) / 10000 );
+    local season = C_MythicPlus.GetCurrentSeason();
+
+    return expansion , season;
+end
+
+-- Method           GRM.ConfigureMythicPlusInfo()
+-- What it Does:    Establishes the current M+ season on
+-- Purpose:         To track M+ histories
+GRM.ConfigureMythicPlusInfo = function()
+    local expansion , season = GRM.GetMythicSeason();
+
+    GRM_G.MythicSeasonInfo = { expansion , season };
+end
+
+-- Method:          GRM.GetPreviousSeason()
+-- What it Does:    Sets to previous season
+-- Purpose:         In case a player has been offline prior to season, it shows their old info. We want the addon to inform that it was an OLD rating.
+GRM.GetPreviousSeason = function()
+    local expansion , season;
+
+    if season == 1 then
+        season = 4
+        expansion = GRM_G.MythicSeasonI[1] - 1;
+    else
+        season = GRM_G.MythicSeasonI[2] - 1;
+        expansion = GRM_G.MythicSeasonI[1];
+    end
+
+    return expansion , season;
+end 
+
 ------------------------------------
 ------ UI FORMATTING HELPERS -------
 ------------------------------------
@@ -6602,7 +6683,6 @@ GRM.RosterButton_OnUpdate = function ( self , elapsed )
     GRM_G.ButtonRosterTimer = GRM_G.ButtonRosterTimer + elapsed;
     if GRM_G.ButtonRosterTimer > 0.05 and GetMouseFocus() == self and CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID then
         
-        local cFrame = CommunitiesFrame;
         local name = GRM.GetRosterName ( self , true );
 
         if name ~= "" and name ~= nil and name ~= GRM_G.currentName and not GRM_G.pause and not CommunitiesFrame.RecruitmentDialog:IsVisible() then
@@ -6610,14 +6690,14 @@ GRM.RosterButton_OnUpdate = function ( self , elapsed )
             GRM_G.currentName = name;
             GRM.SubFrameCheck();
 
-            if cFrame:GetSelectedClubId() == GRM_G.gClubID then
+            if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID then
                 GRM.PopulateMemberDetails ( name  , self.memberInfo );
                 if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                     if not GRM_G.CurrentPinCommunity then
                         if GRM_UI.MemberDetailFrame:IsVisible() then
                             GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
                         else
-                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , cFrame , "TOPRIGHT" , 22.5 , 5 );
+                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
                         end
                         GRM_G.CurrentPinCommunity = true;
                     end
@@ -8188,7 +8268,11 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["events"] = { { { 0 , 0 , 0 } , false , "" } , { { 0 , 0 , 0 } , false , "" , 0 } };                                 -- 22 Position 1 = anniversary , Position 2 = birthday = { { day , month , year } , reportedToCalendar , customDescription , timestamp }
     member["customNote"] = { true , 0 , "" , GRM.S().syncRankCustom , false , "" };    -- 23 { syncEnabled , epochStampOfEdit , "NameOfPlayerWhoEdited" , rankFilterIndex , rankModifiedAtleastOnce , "customNoteString" }
     
-    member["lastOnline"] = 0;                               -- 24
+    if memberInfo.lastOnline then
+        member["lastOnline"] = memberInfo.lastOnline
+    else
+        member["lastOnline"] = 0;                               -- 24
+    end
     
     member["recommendToKick"] = false;                      -- 27
     member["recommendToDemote"] = false;
@@ -8212,10 +8296,17 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["race"] = memberInfo.race;                       -- 46
     member["sex"] = memberInfo.sex;                         -- 47                                                                
     
-    if GRM_G.BuildVersion >= 90000 then
-        member["MythicScore"] = memberInfo.MythicScore;     -- Mythic + score.
+    if GRM_G.BuildVersion >= 80000 then
+                -- Convert hrs to sec
+        if ( member.lastOnline * 3600 )>= MythicSeasonDates[GRM_G.MythicSeasonInfo[2]] then
+            member["MythicScore"] = { { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , memberInfo.MythicScore } };     -- Expansion# , season # , MythicScore
+        else
+            local expansion , season = GRM.GetPreviousSeason();
+            member["MythicScore"] = { { expansion , season , memberInfo.MythicScore } };
+            table.insert ( { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 } )
+        end
     end
-
+    
     if isReturningMember then
         if oldMemberInfo.rankIndex ~= 99 then
             
@@ -8230,28 +8321,20 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
             local dates = select ( 2 , GRM.GetTimestamp() );
             local epoch = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } ); 
 
-            -- Remove a rank and join date change
 
-            if not isTransfer then
-                if logEntryMetaData[1] then
-                    if logEntryMetaData[4][1] then
-                        table.insert ( member.joinDateHist , 1 , { logEntryMetaData[4][3][1] , logEntryMetaData[4][3][2] , logEntryMetaData[4][3][3] , logEntryMetaData[4][2] , time() , true , 1 } );
-                    else
-                        table.insert ( member.joinDateHist , 1 , { dates[1] , dates[2] , dates[3] , epoch , 0 , liveJoinDetected , 1 } );
-                    end
+
+            -- Remove a rank and join date change
+            if logEntryMetaData[1] then
+                if logEntryMetaData[4][1] then
+                    table.insert ( member.joinDateHist , 1 , { logEntryMetaData[4][3][1] , logEntryMetaData[4][3][2] , logEntryMetaData[4][3][3] , logEntryMetaData[4][2] , time() , true , 1 } );
                 else
                     table.insert ( member.joinDateHist , 1 , { dates[1] , dates[2] , dates[3] , epoch , 0 , liveJoinDetected , 1 } );
                 end
-
-                table.insert ( member.rankHist , 1 , { memberInfo.rankName , dates[1] , dates[2] , dates[3] , epoch , 0 , false , 1 } );      -- 3 means left guild
-
             else
-                -- Rejoin transfer - we are going to undo a couple of things...
-                table.remove ( member.joinDateHist , 1 );
-                table.remove ( member.rankHist , 1 );
-
-
+                table.insert ( member.joinDateHist , 1 , { dates[1] , dates[2] , dates[3] , epoch , 0 , liveJoinDetected , 1 } );
             end
+
+            table.insert ( member.rankHist , 1 , { memberInfo.rankName , dates[1] , dates[2] , dates[3] , epoch , 0 , false , 1 } );      -- 3 means left guild
             
         end
         member.bannedInfo = oldMemberInfo.bannedInfo;
@@ -8314,7 +8397,7 @@ GRM.AddMemberToLeftPlayers = function ( memberInfo , timeArray , leftGuildMeta ,
     end
 
     if player.GUID == "" or player.class == "UNKNOWN" then
-        C_Timer.After ( 5 , GRM_Patch.BuildGUIDProfilesForAllNoLongerInGuild );
+        GRM_Patch.BuildGUIDProfilesForAllNoLongerInGuild();
     end
 
     -- Now need to remove it
@@ -9814,12 +9897,11 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
                         GRM.LoadRestorePoint ( GRM_G.guildName , true , gName  );
                         GRM.BuildBackupScrollFrame ( true , true );
                         GRM_UI.GRM_RosterConfirmFrame:Hide();
+                        -- Need to trigger scan
+                        GRM.SlashCommandScan();
                     end
 
                     GRM.InitiateConfirmFrame( GRM.L ( "Please confirm that \"{name}\" has transferred. Clicking YES will import all guild data." , guildName ) , buttonLogic , nil , nil , nil , nil , 300 , 120 )
-
-                    -- Need to trigger scan
-                    GRM.SlashCommandScan();
 
                 -- For manually setting the backup
                 elseif self:GetText() == GRM.L ( "Set Restore Point" ) then
@@ -10376,7 +10458,6 @@ GRM.GetIncompleteGuildDataCounts = function()
         if type ( player ) == "table" then
             isComplete = true;
 
-            -- Join Date
             if not player.joinDateHist[1][6] then
                 if player.joinDateUnknown then
                     numJoinUnknown = numJoinUnknown + 1;
@@ -11747,29 +11828,28 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
             player.reasonBanned = "";
         end
         
-        playerLevel = player.level;
         -- Adding to LeftGuild Player history library
         oldMemberData[unitName] = {};
         oldMemberData[unitName] = GRM.DeepCopyArray ( player );
 
-        local main , GUID = GRM.GetAltGroupMain ( player.altGroup , true );
-
+        playerLevel = oldMemberData[unitName].level;
+        
+        local main , GUID = GRM.GetAltGroupMain ( oldMemberData[unitName].altGroup , true );
+        
         -- I don't want to set the main history to be themselves because if they rejoin the guild later, with themselves set as main that could be irrelevant because things change...
-        if main ~= "" and main ~= unitName and oldMemberData[unitName] then
+        if main ~= "" and main ~= unitName then
             oldMemberData[unitName].mainAtTimeOfLeaving = { main , GUID };
         end
-        
+
         -- Removing it from the alt list
         if GRM.PlayerHasAlts ( player ) then
 
             -- Let's add them to the end of the report
-            local alts = GRM.GetListOfAlts ( player , true );
+            local alts = GRM.DeepCopyArray ( GRM.GetListOfAlts ( player , true ) );
             local isFound = false;
 
             -- Ok, for lookup if they ever rejoin
-            if oldMemberData[unitName] then
-                oldMemberData[unitName].altsAtTimeOfLeaving = alts;
-            end
+            oldMemberData[unitName].altsAtTimeOfLeaving = alts;
 
             for m = 1 , #alts do
                 isFound = false;
@@ -11792,21 +11872,33 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
             
             -- Let's overwrite the listOfAts
             GRM.RemoveAlt ( unitName , false , 0 );
-            
+
             -- Set alt to main if it is only one left.
             if oldMemberData[unitName].isMain and #alts == 1 then
                 local tempEpochTime = 1;
                 if added then
                     tempEpochTime = timeEpoch;
                 end
+                
                 GRM.SetMain ( alts[1][1], tempEpochTime );
             end
 
+            if player.altGroup ~= "" then
+
+                GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+                oldMemberData[unitName].altGroup = "";
+            end
+
+        elseif player.altGroup ~= "" then
+
+            GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+            oldMemberData[unitName].altGroup = "";
         end
 
         oldMemberData[unitName].altGroup = "";
         -- removing from active member library
-        GRM.GetGuild()[unitName] = nil;
+        GRM_GuildMemberHistory_Save[GRM_G.guildName][unitName] = nil;
+        
     end
     table.insert ( tempStorage , listOfAlts );
 
@@ -11945,9 +12037,20 @@ GRM.RecordLeftGuildChanges = function ( unitName , isLiveDetection )
             GRM.RemoveAlt ( player.name , false , 0 );
 
             -- Set alt to main if it is only one left.
-            if  oldMemberData[unitName] and oldMemberData[unitName].isMain and #alts == 1 then
+            if oldMemberData[unitName] and oldMemberData[unitName].isMain and #alts == 1 then
                 GRM.SetMain ( alts[1][1], 1 );
             end
+
+            if player.altGroup ~= "" then
+            
+                GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+                oldMemberData[unitName].altGroup = "";
+            end
+
+        elseif player.altGroup ~= "" then
+            
+            GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
+            oldMemberData[unitName].altGroup = "";
 
         end
         -- removing from active member library
@@ -11982,11 +12085,10 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
     tempJoinStorage[15] = "";                   -- Custom Notes
     tempJoinStorage[16] = false;                -- Guild transfer - Rejoin
 
-    
-    for formerMember , player in pairs ( oldMemberData ) do -- Number of players that have left the guild.
+    for formerMember , player in pairs ( oldMemberData ) do -- Number of players that have left the guild.z
         if type ( player ) == "table" then
 
-            if member.GUID == player.GUID or ( player.isTransfer and member.class == player.class ) then  -- GUID comparison check - cannot rely purely on the name.
+            if member.GUID == player.GUID or ( player.isTransfer and member.name == player.name and member.class == player.class ) then  -- GUID comparison check - cannot rely purely on the name.
                 tempJoinStorage[5] = true;
                 -- MATCH FOUND - Player is RETURNING to the guild!
                 -- Player has name-changed?
@@ -12031,7 +12133,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                 end
 
                 if player.isTransfer then
-                    tempJoinStorage[16] = player.customNote[6];
+                    tempJoinStorage[16] = true;
                 end
 
                 -- isBanned
@@ -12197,12 +12299,10 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                 if scanUpdate and GRM.AddRejoinToAltGroup ( GRM.GetPlayer ( member.name ) , player.isTransfer ) then
                     GRM.Report ( GRM.L ( "{name} has rejoined their original alt group." , GRM.GetClassColorRGB ( member.class , true ) .. GRM.FormatName ( member.name ) .. "|r" ) );
                 end
-
-                player = GRM.GetPlayer ( member.name );
                 
                 -- Removing Player from LeftGuild History (Yes, they will be re-added upon leaving the guild.)
-                GRM_PlayersThatLeftHistory_Save[formerMember] = nil;
-                
+                GRM_PlayersThatLeftHistory_Save[GRM_G.guildName][formerMember] = nil;
+                player = GRM.GetPlayer ( formerMember );
 
                 -- It must be done AFTER the record has been added
                 -- Promotion Info
@@ -13270,7 +13370,7 @@ GRM.CheckRosterChanges = function ( updatedPlayer , player , rosterName )
         player.timeEnteredZone = time();   -- Resetting the time on hitting this zone.
     end
 
-    if GRM_G.BuildVersion >= 90000 then
+    if GRM_G.BuildVersion >= 80000 then
         player.MythicScore = updatedPlayer.MythicScore;
     end
 
@@ -13288,6 +13388,11 @@ GRM.CheckRosterChanges = function ( updatedPlayer , player , rosterName )
     player.isOnline = updatedPlayer.isOnline;                       -- online Status
     player.status = updatedPlayer.status;                           -- Active Status
     player.GUID = updatedPlayer.GUID;                               -- GUID
+
+    -- No need to keep this info once player has been imported.
+    if player.isTransfer then
+        player.isTransfer = nil;
+    end
 end
 
 -- Method:          GRM.CheckLogJoinOrLeave ( table )
@@ -13358,21 +13463,21 @@ GRM.CheckLogJoinOrLeave = function ( roster , data )
         end
 
     elseif #GRM_G.leavingPlayers > 0 then
-        for k = 1 , #GRM_G.leavingPlayers do
-            GRM.RecordChanges ( 11 , GRM_G.leavingPlayers[k] , GRM_G.leavingPlayers[k] , nil , select ( 2 , GRM.GetTimestamp() ) );
+        for i = 1 , #GRM_G.leavingPlayers do
+            GRM.RecordChanges ( 11 , GRM_G.leavingPlayers[i] , GRM_G.leavingPlayers[i] , nil , select ( 2 , GRM.GetTimestamp() ) );
         end
     end
 
     if #GRM_G.newPlayers > 0 then
-        for k = 1 , #GRM_G.newPlayers do
-            GRM.RecordChanges ( 10 , GRM_G.newPlayers[k] , nil , nil , select ( 2 , GRM.GetTimestamp() ) );
+        for i = 1 , #GRM_G.newPlayers do
+            GRM.RecordChanges ( 10 , GRM_G.newPlayers[i] , nil , nil , select ( 2 , GRM.GetTimestamp() ) );
         end
     end
 
     -- Now that we have collected all the players to be kicked... Let's not spam the log with alt info by parsing it properly.
     if #GRM_G.TempLeftGuildPlaceholder > 0 then
-        for k = 1 , #GRM_G.TempLeftGuildPlaceholder do
-            GRM.AddLeftOrKickEntry ( GRM.RecordKickChanges ( GRM_G.TempLeftGuildPlaceholder[k][1] , GRM_G.TempLeftGuildPlaceholder[k][3] , GRM_G.TempLeftGuildPlaceholder[k][4] ) );
+        for i = 1 , #GRM_G.TempLeftGuildPlaceholder do
+            GRM.AddLeftOrKickEntry ( GRM.RecordKickChanges ( GRM_G.TempLeftGuildPlaceholder[i][1] , GRM_G.TempLeftGuildPlaceholder[i][3] , GRM_G.TempLeftGuildPlaceholder[i][4] ) );
         end
     end
 
@@ -13402,9 +13507,9 @@ GRM.CheckPlayerChanges = function ( roster )
             updatedPlayer = roster[rosterName];
     
             if player then
-    
-                if player.GUID == updatedPlayer.GUID then  -- In case someone deleted a toon, then joined a new toon with same name, need to confirm it is the same.
-    
+                
+                if player.GUID == updatedPlayer.GUID or ( player.isTransfer and updatedPlayer.name == player.name and updatedPlayer.class == player.class ) then  -- In case someone deleted a toon, then joined a new toon with same name, need to confirm it is the same.
+
                     newPlayerFound = false;
                     GRM.CheckLogChanges ( updatedPlayer , player , rosterName );
                     GRM.CheckRosterChanges ( updatedPlayer , player , rosterName );
@@ -13420,6 +13525,7 @@ GRM.CheckPlayerChanges = function ( roster )
     
             -- NEW PLAYER FOUND! (Maybe)
             if newPlayerFound then
+
                 table.insert ( GRM_G.newPlayers , updatedPlayer );
             end
         end
@@ -14028,7 +14134,6 @@ GRM.BuildNewRoster = function ()
         return;
     end
 
-    print("BuildingNewRoster - ");
     local roster = {};
     -- Checking if Guild Found or Not Found, to pre-check for Guild name tag.
     local guildNotFound = false;
@@ -14077,7 +14182,7 @@ GRM.BuildNewRoster = function ()
             roster[name].sex = sex;                                     -- 17
             roster[name].rosterSelection = i;                           -- 18
 
-            if GRM_G.BuildVersion >= 90000 then
+            if GRM_G.BuildVersion >= 80000 then
                 roster[name].MythicScore = 0;
             end
 
@@ -14086,7 +14191,7 @@ GRM.BuildNewRoster = function ()
 
     end
 
-    if GRM_G.BuildVersion >= 90000 then
+    if GRM_G.BuildVersion >= 80000 then
 
         local clubID = C_Club.GetGuildClubId();
         if clubID and clubID ~= "" then
@@ -15310,6 +15415,10 @@ GRM.GetSearchLog = function ( isSearch , searchString )
     local totalCount = 0;
     local gLog = GRM.GetLog();
 
+    if not gLog then
+        return;
+    end
+
     -- Keept it simple and reusable add tool
     local addLogEntry = function( tempLog , text , uneditedText , ind , point , count )
         if string.find ( text , "\n" ) ~= nil then
@@ -15766,7 +15875,6 @@ GRM.convertToArrayFormat = function( guildName )
     return finalGData , formerGuildData , altData;
 end
 
--- /run GRM.BuildExportMemberDetails ( true , "The Anti Drama Society-Atiesh" , "A" );
 -- Method:          GRM.BuildExportMemberDetails( int , string , string )
 -- What it Does:    Exports the player details as a text stirng with a delimitter
 -- Purpose:         Allow the player to easily export the information.
@@ -17127,8 +17235,8 @@ GRM.SetDateButtonConfiguration = function ( formatNum )
             GRM_G.formatNumber = formatNum;
             
             -- Formatting
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt , "BOTTOM" , -60 , -4 );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected , "BOTTOM" , -20 , -3 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt , "BOTTOM" , -86.5 , -4 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected , "BOTTOM" , -22 , -3 );
             GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton , "RIGHT" , 6 , 0 );
 
         end
@@ -17139,8 +17247,8 @@ GRM.SetDateButtonConfiguration = function ( formatNum )
             GRM_G.formatNumber = formatNum;
 
             -- Formatting
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt , "BOTTOM" , -15 , -4 );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected , "BOTTOM" , -65 , -3 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt , "BOTTOM" , -20 , -4 );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected , "BOTTOM" , -86.5 , -3 );
             GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton , "RIGHT" , 3 , 0 );            
 
         end
@@ -18661,7 +18769,7 @@ GRM.ResetPlayerMetaData = function ( playerName )
                 member.sex = sex;                                     -- 17
                 member.rosterSelection = i;                           -- 18
 
-                if GRM_G.BuildVersion >= 90000 then
+                if GRM_G.BuildVersion >= 80000 then
                     local player = GRM.GetClubMemberInfo ( member.name )
 
                     if player and player.overallDungeonScore then
@@ -18677,9 +18785,6 @@ GRM.ResetPlayerMetaData = function ( playerName )
 
         if GRM.PlayerHasAlts ( player ) then
             GRM.RemoveAlt ( playerName , false , 0 );
-        elseif player.altGroup ~= "" then
-            GRM_Alts[GRM_G.guildName][player.altGroup] = nil;
-            player.altGroup = "";
         end
 
         GRM_GuildMemberHistory_Save[GRM_G.guildName][playerName] = nil;         -- Remove the player!
@@ -18902,7 +19007,7 @@ GRM.CheckForNewPlayer = function( clubID , scanNumber , memberID )
         player.sex = sex;                                           -- 17
         player.rosterSelection = 0;                                 -- 18
 
-        if GRM_G.BuildVersion >= 90000 then
+        if GRM_G.BuildVersion >= 80000 then
 
             if memberInfo.overallDungeonScore then
                 player.MythicScore = memberInfo.overallDungeonScore;
@@ -19773,11 +19878,30 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
             end
 
             --- LEVEL
-            if GRML.Languages[GRM.S().selectedLang] == "Russian" or GRML.Languages[GRM.S().selectedLang] == "Korean" then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLevel:SetText (  tostring ( player.level ) .. GRM.L ( "Level: " ) );
-            else
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLevel:SetText ( GRM.L ( "Level: " ) .. player.level );
+            local levelAndMythicText = "";
+
+            if GRM.S().showLevel then
+
+                if not GRM.S().showLevelMaxOnly or ( GRM.S().showLevelMaxOnly and player.level < GRM_G.LvlCap ) then
+                    if GRML.Languages[GRM.S().selectedLang] == "Russian" or GRML.Languages[GRM.S().selectedLang] == "Korean" then
+                        levelAndMythicText = tostring ( player.level ) .. GRM.L ( "Level: " );
+                    else
+                        levelAndMythicText = GRM.L ( "Level: " ) .. player.level;
+                    end
+                end
             end
+
+            -- MYTHINC+ SCORE
+            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating then
+
+                if levelAndMythicText ~= "" then
+                    levelAndMythicText = levelAndMythicText .. " | " .. GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore;
+                else
+                    levelAndMythicText = GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore;
+                end
+            end
+
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLevel:SetText ( levelAndMythicText );
 
             -- Rank Text Info...
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt:SetText ( "\"" .. player.rankName .. "\"");
@@ -20310,7 +20434,7 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
                     if rankName == "" or player.rankIndex == 99 then
                         rankName = GRM.L ( "Not Determined" );
                     end
-                    table.insert ( playerDetails  , { player.name , player.class , player.bannedInfo[2] , rankName , player.rankIndex , player.reasonBanned , true , player.isUnknown , player.GUID } );
+                    table.insert ( playerDetails  , { player.name , player.class , player.bannedInfo[2] , rankName , player.rankIndex , player.reasonBanned , true , player.isUnknown , player.GUID , player.isTransfer } );
                     count = count + 1;
                 end
             end
@@ -20363,7 +20487,7 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
                         rankName = GRM.L ( "Not Determined" );
                     end
 
-                    table.insert ( playerDetails  , insertIndex , { player.name , player.class , player.bannedInfo[2] , rankName , player.rankIndex , player.reasonBanned , false , isUnknown , player.GUID } );
+                    table.insert ( playerDetails  , insertIndex , { player.name , player.class , player.bannedInfo[2] , rankName , player.rankIndex , player.reasonBanned , false , isUnknown , player.GUID , player.isTransfer } );
                     count = count + 1;
                 end
             end
@@ -20531,11 +20655,19 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
 
         local classColor = GRM.GetClassColorRGB ( banList[i][2] );
         local nameDetails = banList[i][1];
-        if banList[i][8] then
+
+        -- Is Transfer
+        if banList[i][10] then
+            nameDetails = nameDetails .. " |CFFFF0000(" .. GRM.L ( "Not on Server" ) .. ")";
+
+        -- No GUID found
+        elseif banList[i][8] then
             -- Player was unable to be identified on the server
             nameDetails = nameDetails .. " |CFFFF0000" .. GRM.L ( "(Unable to Identify)" );
+
+        -- GUID, but no longer valid
         elseif listNeedingUpdate and GRM.IsBanNameOnList ( nameDetails , listNeedingUpdate ) then
-            nameDetails = nameDetails .. " |CFFFF0000(" .. GRM.L ( "Player no longer on Server" ) .. ")";
+            nameDetails = nameDetails .. " |CFFFF0000(" .. GRM.L ( "Not on Server" ) .. ")";
         end
 
         BanButtons:SetWidth ( 555 );
@@ -20558,6 +20690,8 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
         BanNameText:SetTextColor ( classColor[1] , classColor[2] , classColor[3] , 1 );
         BanNameText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
         BanNameText:SetJustifyH ( "LEFT" );
+        BanNameText:SetWidth ( 295 );
+        BanNameText:SetWordWrap ( false );
         BanRankText:SetText ( banList[i][4] );
         BanRankText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
         BanRankText:SetJustifyH ( "CENTER" );
@@ -20747,11 +20881,11 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
         local names = GRM.GetBannedPlayersWithGUIDs();
         GRM.SetplayersStillOnServer ( names , true );
 
-        C_Timer.After ( 1.5 , function()
-            local listNeedingUpdate = GRM.ValidateBanGUIDs ( textSearch );
+        C_Timer.After ( 5 , function()
+            local list = GRM.ValidateBanGUIDs ( textSearch );
 
-            if #listNeedingUpdate > 0 then
-                GRM.RefreshBanListFrames( listNeedingUpdate , textSearch , banList , count );
+            if #list > 0 then
+                GRM.RefreshBanListFrames( list , textSearch , banList , count );
             end
         end);
     end

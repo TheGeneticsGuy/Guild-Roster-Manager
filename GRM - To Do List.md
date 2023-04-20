@@ -6,22 +6,23 @@
 **PRIORITY BUILD CHANGES**
 
 ** SYNC PROGRESS BAR
-
-** Ghost minimap icon
     
 ** SYNC ISSUES SOME STILL FAILING
 
 ** HYBRID SCROLLFRAME FOR BANS
 
-** RESCALABLE WINDOWS
-
 ** ADD MYTHIC+ OPTION for macro tool on promotions/demotions...
 
 * Compress and decompress sync data.
 
-* Update ElvUI AddonSkins.
-    * Progress Bar for sync
-    * Backup window button
+* Lightweight Note tool that does the following:
+
+  -- Auto sets iLvl to the note
+  -- [+XX] or [+20] highest M rating
+  -- RBG rating
+  -- Arena rating
+
+  -- Possibly give option to set it to custom note if you are in GRM, share alt data as well. 
 
 
 # **BUG FIXES**

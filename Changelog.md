@@ -1,6 +1,8 @@
-## **VERSION 1.97 RELEASE - APRIL, 2023**
+## **VERSION 1.97 RELEASE - APRIL 19th, 2023**
 
 **NEW FEATURE - Guild Transfer - Preservation of Data**
+
+![Easier Guild Transfer - Keep your GRM Data!](https://imgur.com/GdtWI1z)
 
 * The Guild Backups window has been rebuilt. First, the "backups" was a bit misleading and I think confused some people. They were not a "true" backup of the addon data since WOW addons do not have write to file access to say, Windows. It did however provide a restore point if you had maybe an officer go rogue and mess up all your data. I don't want to confuse anyone further so I have rebuilt this feature more as a tool to preserve your guild's GRM data if you decide to transfer servers. This will also clear a lot of the overall GRM memory usage that was storing a copy of all GRM data mostly needlessly to now only be used when transferring guilds.
 
@@ -22,6 +24,11 @@
 
 ***QUALITY OF LIFE***
 
+* Scaling corner drag has been added to the major frames, like the macro tool, the core /GRM frame, export window, etc... This is something I have wanted to implement for a while, but the logic of wrapping my head around "Drag-to-Scale" was sort of wonky as it required me to kind of hijack the "drag-to-size" ability, which doesn't really help GRM. I wanted the ability to quickly scale larger or smaller but keep frame sizing proportions consistent. It is now implemented. Just right-click to reset your scaling, or type /grm reset to manually reset ALL frames (this also re-centers your frames you have dragged). 50% to 150% is the acceptable scaling range.
+
+![Window Scaling Example](https://i.imgur.com/rGoKvRG.gif)
+
+* Added the a
 * You will notice that the GRM scanning for changes and ackownledgment of things that change, like notes edited, or anything, will be far more responsive and quick. If you were to try a /grm scan, you will notice how quickly it makes it through the process now compared to before. The entire scanning logic has been rewritten. A lot of it was very old legacy code from when I was just tinkering with the idea of GRM, so it really could have used a revisit for a long time now. GRM should feel a bit more responsive now as a result. The code is also a LOT leaner.
 
 * GRM will now auto-import, from the Blizzard servers, the date that you personally joined the guild. This will apply ONLY to retail Warcraft, as the data is tied to "communities" launched in 8.0 and the server provides no information prior to communities. You cannot pull this information from others in your guild, as the server will only provide your own information. There is also a limitation that if you were in the guild prior to July 7, 2018, 8.0 BFA patch day, then it cannot provide an accurate date you joined the guild, unfortunately. I had mostly ignored this feature since almost everyone was basically grandfathered into communities from their current guilds, but now that nearly 5 years has past, I will not import this data automatically. You will need to login to each of your alts for it to work. If you already have a date set, then GRM will ignore automation of this process. It is only for new toons you make going forward, or ones that have not yet been configured.
@@ -56,7 +63,9 @@
 
 * Fixed an issue where the scaling on the windows was not scaling ALL text objects properly. Most was getting scaled, but some were not proper child frames to the core frame and were sister frames, so the logic of scaling applies to the given frame and all child frames. This is now resolved.
 
-* The mouseover window was incorrectly scaled as default. I don't know how I didn't notice this, or I messed it up and got lazy to change it back in the day, I don't remember, but the scaling was default at 1.33, which is incorrect. It should be 1.0 -- or 100% scale. This 1.33 messed with my new logic on scaling all the windows I wrote with the drag corner button so I had to manually go and rebuild the entire mouseover window's sizing to ensure it could now scale properly to 1.0 -- this likely will cause zero difference to addon user, but it COULD have been a problem for anyone that used custom addons that affected scaling of any frame.
+* The mouseover window was incorrectly scaled as default. I don't know how I didn't notice this, or I messed it up and got lazy to change it back in the day, I don't remember, but the scaling was default at 1.33, which is incorrect. It should be 1.0 -- or 100% scale. This likely caused zero difference to addon user, but it COULD have been a problem for anyone that used custom addons that affected scaling of any frame.
+
+* Fixed a bug where a lot of "ghost" entries were added to the AltGroup savedvariable for people when they left the guild. This should no longer happen and all old entries will be cleaned up automatically from them.
 
 ***MISC***
 
@@ -64,7 +73,7 @@
 
 * For those that monitor the .toc or savedVariable file, just a heads up, the "GRM_Misc" global variable is cleaned up and made a little more efficient and will cleanup the saved file a little and will NOT be stored needlessly. It's mostly redundant info and should ONLY be carried over between saves if a player logs off in the middle of an action.
 
-* Added a new memberData point -- "MythicScore" is the variable name and it will represent your Mythic+ Score. Of course, this only applies to retail WOW, not Classic. 
+* Added a new memberData point -- "MythicScore" is the variable name and it will represent your Mythic+ Score. Of course, this only applies to retail WOW, not Classic. People parsing the save data, the player value is "MythicScore".
 
 ## **VERSION 1.96 RELEASE - March 27th, 2023**
 

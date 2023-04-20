@@ -7110,7 +7110,9 @@ GRMsync.Initialize = function()
                 GRMsync.MessageTracking = GRMsync.MessageTracking or CreateFrame ( "Frame" , "GRMsyncMessageTracking" );
                 GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
 
-                GRMsync.BuildSyncNetwork();
+                if GRM_G.playerRankID and GRM_G.playerRankID ~= -1 then
+                    GRMsync.BuildSyncNetwork();
+                end
 
             else
 

@@ -589,27 +589,19 @@ GRM.AddRejoinToAltGroup = function ( player , isTransfer )
     if player and #player.altsAtTimeOfLeaving > 0 then
 
         local alts = player.altsAtTimeOfLeaving;
+        local guildData = GRM.GetGuild();
 
         for i = 1 , #alts do
 
-            if not isTransfer then
-                for _ , p in pairs ( GRM.GetGuild() ) do
-                    if type (p) == "table" then
+            for _ , p in pairs ( guildData ) do
+                if type (p) == "table" then
 
-                        if p.GUID == alts[i][3] then
-                            GRM.AddAlt ( p.name , player.name , true );
-                            added = true;
-                            break;
-                        end
-                        
+                    if p.GUID == alts[i][3] or ( isTransfer and p.name == alts[i][1] and p.class == alts[i][2] ) then
+                        GRM.AddAlt ( p.name , player.name , true );
+                        added = true;
+                        break;
                     end
-                end
-            else
-                local p = GRM.GetPlayer ( alts[i][1] );
-                if p and p.class == alts[i][2] then
-                    -- alt found
-                    GRM.AddAlt ( p.name , player.name , true );
-                    added = true;
+                    
                 end
             end
 

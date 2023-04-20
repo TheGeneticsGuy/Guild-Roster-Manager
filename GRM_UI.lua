@@ -473,7 +473,13 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_Def
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected.GRM_DefaultTabSelectedText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu = CreateFrame ( "Frame" , "GRM_DefaultTabMenu" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected , "InsetFrameTemplate" );
 
--- Tab Fade options
+-- UX Options
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton = CreateFrame ( "CheckButton" , "GRM_ShowLevelCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame , GRM_G.CheckButtonTemplate );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2 = CreateFrame ( "CheckButton" , "GRM_ShowLevelCheckButton2" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame , GRM_G.CheckButtonTemplate );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton = CreateFrame ( "CheckButton" , "GRM_ShowMythicRatingButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame , GRM_G.CheckButtonTemplate );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton = CreateFrame ( "CheckButton" , "GRM_FadeCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame , GRM_G.CheckButtonTemplate );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 -- Borders option
@@ -968,6 +974,7 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText 
 
 -- LOG EXPORT AND TOOLS
 GRM_UI.GRM_ExportLogBorderFrame = CreateFrame ( "Frame" , "GRM_ExportLogBorderFrame" , UIParent , "TranslucentFrameTemplate" );
+GRM_UI.GRM_ExportLogBorderFrame:Hide();
 GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame = CreateFrame ( "Frame" , "GRM_ExportLogScrollBorderFrame" , GRM_UI.GRM_ExportLogBorderFrame , "TranslucentFrameTemplate" );
 GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton = CreateFrame ( "Button" , "GRM_BorderFrameCloseButton" , GRM_UI.GRM_ExportLogBorderFrame , "UIPanelCloseButton" );
 GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox = CreateFrame ( "EditBox" , "GRM_ExportLogFrameEditBox" , GRM_UI.GRM_ExportLogBorderFrame );
@@ -1065,6 +1072,10 @@ GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:Hide();
 GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText = GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu = CreateFrame ( "Frame" , "GRM_DelimiterDropdownMenu" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected , "InsetFrameTemplate" );
 
+-- Export Reset Defaults Button
+GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton = CreateFrame ( "Button" , "GRM_ExportResetOptionsButton" , GRM_UI.GRM_ExportLogBorderFrame , "UIPanelButtonTemplate" );
+GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
+
 -- Log Frame OPTIONS BOX
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame = CreateFrame ( "Frame" , "GRM_LogExtraOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame , "TranslucentFrameTemplate" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton = CreateFrame ( "Button" , "GRM_LogExtraOptionsButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame , "UIPanelButtonTemplate" );
@@ -1096,9 +1107,6 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExt
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider = CreateFrame ( "Slider" , "GRM_FontSizeSlider" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame , "OptionsSliderTemplate" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
--- Export Reset Defaults Button
-GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton = CreateFrame ( "Button" , "GRM_ExportResetOptionsButton" , GRM_UI.GRM_ExportLogBorderFrame , "UIPanelButtonTemplate" );
-GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 
 -- MISC UI EVENTS TEXT
 GRM_UI.GRM_GroupInfo = CreateFrame ( "Frame" );
@@ -2253,7 +2261,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     -- Month dropdown
     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetSize ( 110 , 24 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt , "BOTTOM" , -60 , -4 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt , "BOTTOM" , -86.5 , -4  );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:SetFrameStrata ( "HIGH" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected , "BOTTOM" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetWidth ( 106 );
@@ -2371,7 +2379,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton , "RIGHT" , 6 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton:SetWidth( 74 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton:SetWidth( 98.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton.GRM_SetUnknownButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton );
     GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton.GRM_SetUnknownButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton.GRM_SetUnknownButtonText:SetText ( GRM.L ( "Unknown" ) );
@@ -2442,11 +2450,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     -- LEVEL Text
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLevel:SetPoint ( "TOP" , 0 , -38 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLevel:SetFont (  GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLevel:SetFont (  GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
     -- Rank promotion date text
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt:SetPoint ( "TOP" , 0 , -54 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt:SetFont (  GRM_G.FontChoice , GRM_G.FontModifier + 19 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt:SetFont (  GRM_G.FontChoice , GRM_G.FontModifier + 18 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankTxt:SetTextColor ( 0.90 , 0.80 , 0.50 , 1.0 );
 
     -- Reputation text
@@ -2596,7 +2604,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailDateJoinedTitleTxt:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 , "THICKOUTLINE" );
     end
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailDateJoinedTitleTxt , "BOTTOM" , -2 , -2 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton:SetSize ( 141 , 30 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton:SetSize ( 106 , 22.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButtonText:SetText ( GRM.L ( "Join Date?" ) )
@@ -2621,13 +2629,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     -- Birthday Button and text
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailDateJoinedTitleTxt , "BOTTOM" , 0 , -20 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton , "BOTTOM" , 0 , -5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText:SetText ( GRM.L ( "Birthday" ) );
     if not isManualUpdate then
         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 , "THICKOUTLINE" );
     end
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText , "BOTTOM" , -2 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:SetSize ( 106 , 18 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText , "BOTTOM" , 0 , 0 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:SetSize ( 106 , 22.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton.GRM_MemberDetailBirthdayButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton.GRM_MemberDetailBirthdayButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton.GRM_MemberDetailBirthdayButtonText:SetText ( GRM.L ( "Set Birthday" ) );
@@ -5612,188 +5620,190 @@ GRM_UI.PreAddonLoadUI = function()
     GRM_UI.GRM_MinimapButtonInit  = function()
 
         -- If LibDBICon is already available, use it.
-        if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
-            
-            -- Broker Compatibility
-            if LibStub then
-                local MinimapDataBroker = LibStub("LibDataBroker-1.1", true)
-                GRM_UI.GRM_MinimapButton = MinimapDataBroker and LibStub("LibDBIcon-1.0", true)
-                if MinimapDataBroker then
-                    local GRM_Initialize = MinimapDataBroker:NewDataObject ( "Guild_Roster_Manager", {
-                        type = "launcher",
-                        icon = "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp",
-                        OnClick = MinimapButtonClick,
-                        OnTooltipShow = MinimapOnEnter,
-                    } );
+        if IsInGuild() then
+            if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
+                
+                -- Broker Compatibility
+                if LibStub then
+                    local MinimapDataBroker = LibStub("LibDataBroker-1.1", true)
+                    GRM_UI.GRM_MinimapButton = MinimapDataBroker and LibStub("LibDBIcon-1.0", true)
+                    if MinimapDataBroker then
+                        local GRM_Initialize = MinimapDataBroker:NewDataObject ( "Guild_Roster_Manager", {
+                            type = "launcher",
+                            icon = "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp",
+                            OnClick = MinimapButtonClick,
+                            OnTooltipShow = MinimapOnEnter,
+                        } );
 
-                    if GRM_UI.GRM_MinimapButton then
-                        GRM_UI.GRM_MinimapButton:Register("Guild_Roster_Manager", GRM_Initialize, GRM_MinimapPosition )
-                        
+                        if GRM_UI.GRM_MinimapButton then
+                            GRM_UI.GRM_MinimapButton:Register("Guild_Roster_Manager", GRM_Initialize, GRM_MinimapPosition )
+                            
+                        end
                     end
                 end
-            end
-        else
+            else
 
-            -- MINIMAP BUTTON if creating from scratch.
-            GRM_UI.GRM_MinimapButton = CreateFrame ( "Button" , "GRM_MinimapButton" , Minimap );
-            GRM.CreateTexture ( GRM_UI.GRM_MinimapButton , "GRM_MinimapButtonIcon" , "BORDER" , false );
-            GRM.CreateTexture ( GRM_UI.GRM_MinimapButton , "GRM_MinimapButtonBorder" , "OVERLAY" , false );
+                -- MINIMAP BUTTON if creating from scratch.
+                GRM_UI.GRM_MinimapButton = CreateFrame ( "Button" , "GRM_MinimapButton" , Minimap );
+                GRM.CreateTexture ( GRM_UI.GRM_MinimapButton , "GRM_MinimapButtonIcon" , "BORDER" , false );
+                GRM.CreateTexture ( GRM_UI.GRM_MinimapButton , "GRM_MinimapButtonBorder" , "OVERLAY" , false );
 
-            GRM_UI.GRM_MinimapButton:EnableMouse ( true );
-            GRM_UI.GRM_MinimapButton:SetMovable ( false );
-            GRM_UI.GRM_MinimapButton:SetFrameStrata ( "HIGH" );
-            GRM_UI.GRM_MinimapButton:SetWidth ( 33 );
-            GRM_UI.GRM_MinimapButton:SetHeight ( 33 );
-            GRM_UI.GRM_MinimapButton:SetHighlightTexture ( "Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight" );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetPoint ( "CENTER" , GRM_UI.GRM_MinimapButton , -2 , 1 );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp" );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetWidth ( 20 );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetHeight ( 20 );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetWidth ( 52 );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetHeight ( 52 );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MinimapButton );
-            GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetTexture ( "Interface\\Minimap\\MiniMap-TrackingBorder" );
-        
-            GRM_UI.GRM_MinimapButtonUpdatePos = function()
-                if not GRM.S().customPos then
-                    GRM_UI.GRM_MinimapButton:ClearAllPoints();
-                    local mod , mod2 = 74 , 75;
-                    if GRM_G.BuildVersion >= 100000 then
-                        mod , mod2 = 80 , 81;
-                    end
-                    GRM_UI.GRM_MinimapButton:SetPoint ( "TOPLEFT" , Minimap , "TOPLEFT" , mod - ( GRM.S().minimapRad * cos ( GRM.S().minimapPos ) ) , ( GRM.S().minimapRad * sin ( GRM.S().minimapPos ) ) - mod2 );
-                else
-                    GRM_UI.GRM_MinimapButton:ClearAllPoints();
-                    GRM_UI.GRM_MinimapButton:SetPoint ( GRM.S().minimapCustomPos[1] , UIParent , GRM.S().minimapCustomPos[2] , GRM.S().minimapRad , GRM.S().minimapPos );
-                end
-            end
-        
-            -- Method:          GRM_UI.ResetMinimapPositionToDefault()
-            -- What it Does:    Sets the minimap icon back to default position.
-            GRM_UI.ResetMinimapPositionToDefault = function()
-
-                if GRM_G.BuildVersion >= 100000 then
-                    GRM.S().minimapRad = 105;
-                else
-                    GRM.S().minimapRad = 78;
-                end
-                GRM.S().minimapPos = 345;
-                GRM.S().customPos = false;
-                GRM_UI.GRM_MinimapButtonUpdatePos();
-            end
-        
-            -- Thanks to Yatlas for this code
-            GRM_UI.GRM_MinimapButtonDuringDrag = function()
-                local x , y = GetCursorPosition()
-                local scale = Minimap:GetEffectiveScale();
-                local xmin , ymin = Minimap:GetLeft() , Minimap:GetBottom();
-
-                x = xmin - x / scale + 70;
-                y = y / scale - ymin - 70;
-        
-                local vector = math.deg ( math.atan2 ( y , x ) );
-                if vector < 0 then
-                    vector = vector + 360
-                end
-        
-                GRM.S().minimapPos = vector;
-                GRM_UI.GRM_MinimapButtonUpdatePos();
-            end
-        
-            GRM_UI.GRM_MinimapButton:RegisterForDrag ( "LeftButton" );
-            GRM_UI.GRM_MinimapButton:SetScript ( "OnDragStart" , function ( self )
-                if not GRM.S().customPos and not IsControlKeyDown() then
-                    -- Circular motion.
-                    self:SetScript ( "OnUpdate" , GRM_UI.GRM_MinimapButtonDuringDrag );
-                elseif not IsControlKeyDown() then
-                    -- Reset Position
-                    GRM_UI.ResetMinimapPositionToDefault();
-                else
-                    -- Draggable anywhere.
-                    GRM_UI.GRM_MinimapButton:SetMovable ( true );
-                    GRM.S().customPos = true;
-                    self:StartMoving();
-                end
-            end);
-        
-            GRM_UI.GRM_MinimapButton:SetScript ( "OnDragStop" , function ( self )
-                self:SetScript ( "OnUpdate" , nil );
-                self:StopMovingOrSizing();
-                if GRM.S().customPos then
-                    local side1, _ , side2 , point1 , point2 = GRM_UI.GRM_MinimapButton:GetPoint();
-                    GRM.S().minimapCustomPos[1] = side1;
-                    GRM.S().minimapCustomPos[2] = side2;
-                    GRM.S().minimapRad = point1;
-                    GRM.S().minimapPos = point2;
-                end
+                GRM_UI.GRM_MinimapButton:EnableMouse ( true );
                 GRM_UI.GRM_MinimapButton:SetMovable ( false );
-            end)
+                GRM_UI.GRM_MinimapButton:SetFrameStrata ( "HIGH" );
+                GRM_UI.GRM_MinimapButton:SetWidth ( 33 );
+                GRM_UI.GRM_MinimapButton:SetHeight ( 33 );
+                GRM_UI.GRM_MinimapButton:SetHighlightTexture ( "Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight" );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetPoint ( "CENTER" , GRM_UI.GRM_MinimapButton , -2 , 1 );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp" );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetWidth ( 20 );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetHeight ( 20 );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetWidth ( 52 );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetHeight ( 52 );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MinimapButton );
+                GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetTexture ( "Interface\\Minimap\\MiniMap-TrackingBorder" );
             
-            GRM_UI.GRM_MinimapButton:SetScript ( "OnEnter" , function ( self )
-                GRM_UI.SetTooltipScale();
-                GameTooltip:SetOwner ( self , "ANCHOR_LEFT" );
-                local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 );
-                if GRM_G.BuildVersion < 80000 then
-                    versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
+                GRM_UI.GRM_MinimapButtonUpdatePos = function()
+                    if not GRM.S().customPos then
+                        GRM_UI.GRM_MinimapButton:ClearAllPoints();
+                        local mod , mod2 = 74 , 75;
+                        if GRM_G.BuildVersion >= 100000 then
+                            mod , mod2 = 80 , 81;
+                        end
+                        GRM_UI.GRM_MinimapButton:SetPoint ( "TOPLEFT" , Minimap , "TOPLEFT" , mod - ( GRM.S().minimapRad * cos ( GRM.S().minimapPos ) ) , ( GRM.S().minimapRad * sin ( GRM.S().minimapPos ) ) - mod2 );
+                    else
+                        GRM_UI.GRM_MinimapButton:ClearAllPoints();
+                        GRM_UI.GRM_MinimapButton:SetPoint ( GRM.S().minimapCustomPos[1] , UIParent , GRM.S().minimapCustomPos[2] , GRM.S().minimapRad , GRM.S().minimapPos );
+                    end
                 end
-                GameTooltip:AddLine ( versionLine );
-                GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
-                GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
-                GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
-                GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
-        
-                local MOTD = GetGuildRosterMOTD();
-                if MOTD ~= "" and MOTD ~= nil then
-                    MOTD = GRM.Trim ( MOTD );          -- Cleans it up since I noticed in some cases Blizz doesn't.
-                    local maxLength = 65;
-                    -- Logic to split the MOTD if necessary...
-                    if #MOTD > maxLength then
-                        local breakIndex = 1;
-                        -- Check if space before, and if so, set break point.
-                        if string.find ( string.sub ( string.sub (  MOTD , 1 , maxLength ) , maxLength - 25 ) , " " , -25 ) ~= nil then
-                            for i = maxLength , maxLength - 25 , -1 do
-                                if string.sub ( MOTD , i , i ) == " " then
-                                    breakIndex = i;
-                                    break;
+            
+                -- Method:          GRM_UI.ResetMinimapPositionToDefault()
+                -- What it Does:    Sets the minimap icon back to default position.
+                GRM_UI.ResetMinimapPositionToDefault = function()
+
+                    if GRM_G.BuildVersion >= 100000 then
+                        GRM.S().minimapRad = 105;
+                    else
+                        GRM.S().minimapRad = 78;
+                    end
+                    GRM.S().minimapPos = 345;
+                    GRM.S().customPos = false;
+                    GRM_UI.GRM_MinimapButtonUpdatePos();
+                end
+            
+                -- Thanks to Yatlas for this code
+                GRM_UI.GRM_MinimapButtonDuringDrag = function()
+                    local x , y = GetCursorPosition()
+                    local scale = Minimap:GetEffectiveScale();
+                    local xmin , ymin = Minimap:GetLeft() , Minimap:GetBottom();
+
+                    x = xmin - x / scale + 70;
+                    y = y / scale - ymin - 70;
+            
+                    local vector = math.deg ( math.atan2 ( y , x ) );
+                    if vector < 0 then
+                        vector = vector + 360
+                    end
+            
+                    GRM.S().minimapPos = vector;
+                    GRM_UI.GRM_MinimapButtonUpdatePos();
+                end
+            
+                GRM_UI.GRM_MinimapButton:RegisterForDrag ( "LeftButton" );
+                GRM_UI.GRM_MinimapButton:SetScript ( "OnDragStart" , function ( self )
+                    if not GRM.S().customPos and not IsControlKeyDown() then
+                        -- Circular motion.
+                        self:SetScript ( "OnUpdate" , GRM_UI.GRM_MinimapButtonDuringDrag );
+                    elseif not IsControlKeyDown() then
+                        -- Reset Position
+                        GRM_UI.ResetMinimapPositionToDefault();
+                    else
+                        -- Draggable anywhere.
+                        GRM_UI.GRM_MinimapButton:SetMovable ( true );
+                        GRM.S().customPos = true;
+                        self:StartMoving();
+                    end
+                end);
+            
+                GRM_UI.GRM_MinimapButton:SetScript ( "OnDragStop" , function ( self )
+                    self:SetScript ( "OnUpdate" , nil );
+                    self:StopMovingOrSizing();
+                    if GRM.S().customPos then
+                        local side1, _ , side2 , point1 , point2 = GRM_UI.GRM_MinimapButton:GetPoint();
+                        GRM.S().minimapCustomPos[1] = side1;
+                        GRM.S().minimapCustomPos[2] = side2;
+                        GRM.S().minimapRad = point1;
+                        GRM.S().minimapPos = point2;
+                    end
+                    GRM_UI.GRM_MinimapButton:SetMovable ( false );
+                end)
+                
+                GRM_UI.GRM_MinimapButton:SetScript ( "OnEnter" , function ( self )
+                    GRM_UI.SetTooltipScale();
+                    GameTooltip:SetOwner ( self , "ANCHOR_LEFT" );
+                    local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 );
+                    if GRM_G.BuildVersion < 80000 then
+                        versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
+                    end
+                    GameTooltip:AddLine ( versionLine );
+                    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
+                    GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
+                    GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
+                    GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
+            
+                    local MOTD = GetGuildRosterMOTD();
+                    if MOTD ~= "" and MOTD ~= nil then
+                        MOTD = GRM.Trim ( MOTD );          -- Cleans it up since I noticed in some cases Blizz doesn't.
+                        local maxLength = 65;
+                        -- Logic to split the MOTD if necessary...
+                        if #MOTD > maxLength then
+                            local breakIndex = 1;
+                            -- Check if space before, and if so, set break point.
+                            if string.find ( string.sub ( string.sub (  MOTD , 1 , maxLength ) , maxLength - 25 ) , " " , -25 ) ~= nil then
+                                for i = maxLength , maxLength - 25 , -1 do
+                                    if string.sub ( MOTD , i , i ) == " " then
+                                        breakIndex = i;
+                                        break;
+                                    end
+                                end
+                            else
+                                -- Set break point any point after...
+                                if string.find ( string.sub ( MOTD , maxLength + 1 ) , " " ) ~= nil then
+                                    breakIndex = string.find ( string.sub ( MOTD , maxLength + 1 ) , " " );
                                 end
                             end
-                        else
-                            -- Set break point any point after...
-                            if string.find ( string.sub ( MOTD , maxLength + 1 ) , " " ) ~= nil then
-                                breakIndex = string.find ( string.sub ( MOTD , maxLength + 1 ) , " " );
+                            if breakIndex ~= 1 then
+                                MOTD = string.sub ( MOTD , 1 , breakIndex - 1 ) .. "\n" .. string.sub ( MOTD , breakIndex + 1 );
                             end
                         end
-                        if breakIndex ~= 1 then
-                            MOTD = string.sub ( MOTD , 1 , breakIndex - 1 ) .. "\n" .. string.sub ( MOTD , breakIndex + 1 );
-                        end
+                        GameTooltip:AddLine ( " " );
+                        GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
+                        GameTooltip:AddLine ( MOTD );
                     end
-                    GameTooltip:AddLine ( " " );
-                    GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
-                    GameTooltip:AddLine ( MOTD );
+                    GameTooltip:Show();
+                end)
+            
+                GRM_UI.MinimapOnLeave = function ()
+                    GRM.RestoreTooltip()
                 end
-                GameTooltip:Show();
-            end)
-        
-            GRM_UI.MinimapOnLeave = function ()
-                GRM.RestoreTooltip()
+            
+                GRM_UI.GRM_MinimapButton:SetScript ( "OnLeave" , GRM_UI.MinimapOnLeave );
+
+                GRM_UI.GRM_MinimapButton:SetScript ( "OnClick" , MinimapButtonClick );
+
+                GRM.S().minimapRad = GRM.S().minimapRad or 78;
+                GRM.S().minimapPos = GRM.S().minimapPos or 345;
+                GRM_UI.GRM_MinimapButtonUpdatePos();
             end
-        
-            GRM_UI.GRM_MinimapButton:SetScript ( "OnLeave" , GRM_UI.MinimapOnLeave );
 
-            GRM_UI.GRM_MinimapButton:SetScript ( "OnClick" , MinimapButtonClick );
-
-            GRM.S().minimapRad = GRM.S().minimapRad or 78;
-            GRM.S().minimapPos = GRM.S().minimapPos or 345;
-            GRM_UI.GRM_MinimapButtonUpdatePos();
-        end
-
-        -- Initialise defaults if not present
-        if GRM.S().minimapEnabled == false then
-            GRM_UI.GRM_MinimapButton:Hide ( "Guild_Roster_Manager" );
-            GRM_MinimapPosition.hide = true;
-        else
-            GRM_UI.GRM_MinimapButton:Show ("Guild_Roster_Manager" );
-            GRM_MinimapPosition.hide = false;
+            -- Initialise defaults if not present
+            if GRM.S().minimapEnabled == false then
+                GRM_UI.GRM_MinimapButton:Hide ( "Guild_Roster_Manager" );
+                GRM_MinimapPosition.hide = true;
+            else
+                GRM_UI.GRM_MinimapButton:Show ("Guild_Roster_Manager" );
+                GRM_MinimapPosition.hide = false;
+            end
         end
 
     end
@@ -6445,1287 +6455,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             self:SetText ( "0" );
         end
         self:ClearFocus();
-    end);
-
-
-    -- LOG EXPORT 
-    GRM_UI.GRM_ExportLogBorderFrame:Hide();
-    GRM_UI.GRM_ExportLogBorderFrame:ClearAllPoints();
-    GRM_UI.GRM_ExportLogBorderFrame:SetPoint ( "CENTER" , UIParent );
-    GRM_UI.GRM_ExportLogBorderFrame:SetSize ( 1000 , 490 );
-    GRM_UI.GRM_ExportLogBorderFrame:SetFrameStrata ( "HIGH");
-    GRM_UI.GRM_ExportLogBorderFrame:SetToplevel ( true );
-    GRM_UI.GRM_ExportLogBorderFrame:SetMovable ( true );
-    GRM_UI.GRM_ExportLogBorderFrame:EnableMouse ( true );
-    GRM_UI.GRM_ExportLogBorderFrame:RegisterForDrag ( "LeftButton" );
-    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnDragStart" , GRM_UI.GRM_ExportLogBorderFrame.StartMoving );
-    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnDragStop" , GRM_UI.GRM_ExportLogBorderFrame.StopMovingOrSizing );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPRIGHT" , 2, 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "BOTTOMRIGHT" , -35 , 15 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetSize ( 130 , 30 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetWordWrap ( true );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetText ( GRM.L ( "Restore Defaults" ) );
-    GRM_UI.ScaleFontStringToObjectSize ( true , 130 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText , 2 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetScript ( "OnClick" , function( _ , button )
-        if button == "LeftButton" then
-            GRM.ResetDefaultSettings( 9 );
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetScript ( "OnEnter" , function ( self )
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine ( GRM.L ( "Resets only the Export Settings" ) );
-        GameTooltip:AddLine( "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r - " .. GRM.L ( "Resets ALL settings, not just the ones on this page" ) );
-        GameTooltip:Show();
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetScript ( "OnLeave" , function ()
-        GRM.RestoreTooltip()
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame:SetSize ( 550 , 350 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPRIGHT" , -35 , -50 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetWidth ( 30 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportLogText:SetPoint ( "TOP" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , 0 , 15 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportLogText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportLogText:SetText ( GRM.L ( "Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All" ) );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:SetText ( GRM.L ( "Building Log for Export..." ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetSize ( 527 , 321 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetAutoFocus ( false );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:ClearFocus();
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetMultiLine ( true );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:EnableMouse ( true );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetFontObject ( "GameFontWhiteTiny" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetSpacing ( 2 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetTextInsets ( 2 , 3 , 3 , 2 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetScrollChild ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox );
-    -- Slider Parameters
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetSize ( 532 , 326 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetPoint (  "Bottom" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , "BOTTOM" , 3 , 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetHitRectInsets ( 0 , -30 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetOrientation ( "VERTICAL" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetSize ( 20 , 307 )
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , "TOPRIGHT" , -5 , -22 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetValue ( 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetValueStep ( 20 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetStepsPerPage ( 14 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetScript ( "OnValueChanged" , function ( self )
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetVerticalScroll ( self:GetValue() );          
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:SetSize ( 120 , 25 );
-    GRM.TabResize ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , 120 , 25 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPLEFT" , 25 , - 50 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetText ( GRM.L ( "Guild Log" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetWidth ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:GetWidth() - 5 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:SetSize ( 120 , 25 );
-    GRM.TabResize ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , 120 , 25 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , "RIGHT" , 1 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetText ( GRM.L ( "Members" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetWidth ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:GetWidth() - 5 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:SetSize ( 120 , 25 );
-    GRM.TabResize ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab , 120 , 25 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , "RIGHT" , 1 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetText ( GRM.L ( "Former Members" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetWidth ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:GetWidth() - 5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetWordWrap ( true );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:SetSize ( 362 , 315 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , "BOTTOMLEFT" , 0 , -5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:SetSize ( 362 , 315 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , "BOTTOMLEFT" , 0 , -5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:SetSize ( 362 , 315 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab , "BOTTOMLEFT" , 0 , -5 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , "TOP" , 0 , 8 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetJustifyH ( "CENTER" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetText ( GRM.L ( "Data Export" ) );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , "BOTTOMLEFT" , 1 , -7 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetTextColor ( 1 , 0 , 0 , 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetWidth ( 350 )
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetSpacing ( 1 );
-
-    -- Export Log Filters and Details
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 0 , -5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetTextColor ( 1 , 0 , 0 , 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetWidth ( 350 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetSpacing ( 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetText ( GRM.L ( "*Export obeys the current log display filters" ) );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Clear Lines:" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 11.5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText , "BOTTOMLEFT" , 1 , -10 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1 , "RIGHT" , 8 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2:SetText ( GRM.L ( "To" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 11.5 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetWidth ( 180 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetJustifyH ( "LEFT" );
-
-    -- Delimiter Dropdown Menu
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton , "RIGHT" , 10 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetText ( GRM.L ( "Delimiter:" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetSize ( 60 , 30 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText , "RIGHT" , 5 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetFrameStrata ( "DIALOG" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetPoint ( "TOP" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected , "BOTTOM" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetWidth ( 60 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetFrameStrata ( "DIALOG" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnEnter" , function( self )
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine( GRM.L ( "The selected delimiter will be removed from all notes on export" ) );
-        GameTooltip:AddLine ( GRM.L ( "Choose thoughtfully" ) );
-        GameTooltip:AddLine( GRM.L ( "Feel free to recommend a delimiter you wish to use to the author" ) );
-        GameTooltip:Show();
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-    end);
-
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
-            self:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:Show();
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnShow" , function() 
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Hide();
-    end)
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnMouseDown" , function( _ , button )
-        if button == "LeftButton" then
-            if  GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:IsVisible() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Hide();
-            else
-                GRM.BuildExportDelimiterDropdownMenu();
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Show();
-            end
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetScript ( "OnShow" , function()
-        if GameTooltip:IsVisible() then
-            GRM.RestoreTooltip();
-        end
-    end);
-    
-    --Generic buttons
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetText ( GRM.L ( "Export Selection" ) );
-    if GRM.S().selectedLang == 5 then -- Russian
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
-    else
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    end
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1 , "BOTTOMLEFT" , -2 , -10 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton:SetSize ( 140 , 40 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton:SetScript ( "OnClick" , function ( _ , button ) 
-        if button == "LeftButton" then
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:HasFocus() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
-            elseif GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:HasFocus() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
-            end
-            GRM_UI.ExportButtonLogic();
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton );
-    if GRM.S().selectedLang == 5 then -- Russian
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
-    else
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    end
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton , "RIGHT" , 10 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:SetSize ( 140 , 40 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = 0;
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:SetScript ( "OnClick" , function ( _ , button )
-        if button == "LeftButton" then
-            -- Make sure focus is cleared...
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:HasFocus() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
-            end
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:HasFocus() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
-            end
-
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:IsEnabled() then
-
-                -- Setting button value logic.
-                local num2 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( num2 + 1 );
-
-                -- Trigger a 2nd time to auto-set the logic on the numbering
-                GRM_UI.ExportRangeEditBox1( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1 );
-
-                -- the final log export.
-                GRM_UI.ExportButtonLogic();
-            end
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    if GRM.S().selectedLang == 5 then -- Russian
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
-    else
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    end
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton , "BOTTOMLEFT" , 0 , -10 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:SetSize ( 140 , 40 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = 0;
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:SetScript ( "OnClick" , function ( _ , button ) 
-        if button == "LeftButton" then
-
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:HasFocus() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
-            end
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:HasFocus() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
-            end
-
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:IsEnabled() then
-
-                -- Setting button value logic.
-                local num1 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( num1 - 1 );
-
-                -- Trigger a 2nd time to auto-set the logic on the numbering
-                GRM_UI.ExportRangeEditBox2( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2 );
-
-                -- the final log export.
-                GRM_UI.ExportButtonLogic();
-            end
-
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText:SetText ( GRM.L ( "Spreadsheet Headers" ) );
-    
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , "BOTTOMLEFT" , 5 , -5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:SetSize ( 175 , 30 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:SetScript ( "OnClick" , function ( _ , button )
-        if button == "LeftButton" then
-            GRM.ExportMemberDetailsHeaders( false );
-        end
-    end);
-    GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:GetWidth() , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText , 2 );
-
-    -- EXPORT CHECKBUTTONS
-    -- 15 of them so far!
-    -------------------------
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton , "RIGHT" , 5 , 10 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetText ( GRM.L ( "Auto Include Headers" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().columnHeaders = true;
-        else
-            GRM.S().columnHeaders = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnEnter" , function( self )
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine( GRM.L ( "These will only be included if exporting from the top of the table" ) );
-        GameTooltip:Show();
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetText ( GRM.L ( "Player GUID" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetWidth ( 105 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetSpacing ( 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetWordWrap ( true );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[20] = true;
-        else
-            GRM.S().exportFilters[20] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton , "BOTTOMLEFT" , 0 , -10 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1.GRM_ExportFilter1Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1.GRM_ExportFilter1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1.GRM_ExportFilter1Text:SetText ( GRM.L ( "Name" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[1] = true;
-        else
-            GRM.S().exportFilters[1] = false;
-        end
-        GRM.SyncSettings();
-    end);
-    
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2.GRM_ExportFilter2Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2.GRM_ExportFilter2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2.GRM_ExportFilter2Text:SetText ( GRM.L ( "Rank" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[2] = true;
-        else
-            GRM.S().exportFilters[2] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3.GRM_ExportFilter3Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3.GRM_ExportFilter3Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3.GRM_ExportFilter3Text:SetText ( GRM.L ( "Level" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[3] = true;
-        else
-            GRM.S().exportFilters[3] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4.GRM_ExportFilter4Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4.GRM_ExportFilter4Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4.GRM_ExportFilter4Text:SetText ( GRM.L ( "Class" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[4] = true;
-        else
-            GRM.S().exportFilters[4] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15.GRM_ExportFilter15Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15.GRM_ExportFilter15Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15.GRM_ExportFilter15Text:SetText ( GRM.L ( "Race" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[15] = true;
-        else
-            GRM.S().exportFilters[15] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16.GRM_ExportFilter16Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16.GRM_ExportFilter16Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16.GRM_ExportFilter16Text:SetText ( GRM.L ( "Sex" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[16] = true;
-        else
-            GRM.S().exportFilters[16] = false;
-        end
-        GRM.SyncSettings();
-    end);
-    
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5.GRM_ExportFilter5Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5.GRM_ExportFilter5Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5.GRM_ExportFilter5Text:SetText ( GRM.L ( "Last Online" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[5] = true;
-        else
-            GRM.S().exportFilters[5] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetScript ( "OnEnter" , function( self )
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine( GRM.L ( "This will be rounded to the nearest day" ) );
-        GameTooltip:Show();
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1 , "RIGHT" , 100 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6.GRM_ExportFilter6Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6.GRM_ExportFilter6Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6.GRM_ExportFilter6Text:SetText ( GRM.L ( "Main/Alt" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[6] = true;
-        else
-            GRM.S().exportFilters[6] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7.GRM_ExportFilter7Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7.GRM_ExportFilter7Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7.GRM_ExportFilter7Text:SetText ( GRM.L ( "Join Date" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[7] = true;
-        else
-            GRM.S().exportFilters[7] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8.GRM_ExportFilter8Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8.GRM_ExportFilter8Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8.GRM_ExportFilter8Text:SetText ( GRM.L ( "Promo Date" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[8] = true;
-        else
-            GRM.S().exportFilters[8] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18.GRM_ExportFilter18Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18.GRM_ExportFilter18Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18.GRM_ExportFilter18Text:SetText ( GRM.L ( "Rank History" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[18] = true;
-        else
-            GRM.S().exportFilters[18] = false;
-        end
-        GRM.SyncSettings();
-        if GameTooltip:IsVisible() then
-            GRM.RestoreTooltip();
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetScript ( "OnEnter" , function( self )
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine( GRM.L ( "Only the 10 most recent rank changes will be included" ) );
-        GameTooltip:Show();
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-    end);
-
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9.GRM_ExportFilter9Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9.GRM_ExportFilter9Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9.GRM_ExportFilter9Text:SetText ( GRM.L ( "Birthday" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[9] = true;
-        else
-            GRM.S().exportFilters[9] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    if GRM_G.BuildVersion < 40000 then
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetText ( GRM.L ( "Guild Rep" ) .. " |CFFFF0000" .. GRM.L ( "(Disabled in Classic)" ) );
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:Disable();
-    else
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetText ( GRM.L ( "Guild Rep" ) );
-    end
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[10] = true;
-        else
-            GRM.S().exportFilters[10] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6 , "RIGHT" , 100 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetText ( GRM.L ( "Public Note" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetWidth ( 105 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetSpacing ( 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetWordWrap ( true );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[11] = true;
-        else
-            GRM.S().exportFilters[11] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetText ( GRM.L ( "Officer Note" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetWidth ( 105 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetSpacing ( 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetWordWrap ( true );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[12] = true;
-        else
-            GRM.S().exportFilters[12] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetText ( GRM.L ( "Custom Note" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetWidth ( 105 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetJustifyH ( "LEFT" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetSpacing ( 1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetWordWrap ( true );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[13] = true;
-        else
-            GRM.S().exportFilters[13] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    if GRM.S().selectedLang == 5 then -- Russian
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetScript ( "OnEnter" , function( self )
-            GRM_UI.SetTooltipScale();
-            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            GameTooltip:AddLine( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:GetText() );
-            GameTooltip:Show();
-        end);
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetScript ( "OnLeave" , function()
-            GRM.RestoreTooltip()
-        end);
-    end
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14:SetHitRectInsets( 0 , -75 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14.GRM_ExportFilter14Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14.GRM_ExportFilter14Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14.GRM_ExportFilter14Text:SetText ( GRM.L ( "Player Alts" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[14] = true;
-        else
-            GRM.S().exportFilters[14] = false;
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton , "BOTTOMLEFT" , 0 , -1 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetText ( GRM.L ( "Remove Alt-Code Letters From Names" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetJustifyH ( "LEFT" );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[21] = true;
-        else
-            GRM.S().exportFilters[21] = false;
-        end
-        GRM.SyncSettings();
-    end);
-    
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20 , "BOTTOMLEFT" , 0 , -4 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetHitRectInsets( 0 , 0 , 0 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[17] = true;
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Enable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 1 , 0.82 , 0 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Enable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 1 , 0.82 , 0 );
-        else
-            GRM.S().exportFilters[17] = false;
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Disable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Disable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
-        end
-        GRM.SyncSettings();
-        if GameTooltip:IsVisible() then
-            GRM.RestoreTooltip();
-        end
-    end);
-    
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetScript ( "OnEnter" , function( self )
-        GRM_UI.SetTooltipScale()
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine( GRM.L ( "Leave unchecked to export every member of the guild" ) );
-        GameTooltip:Show();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-    end)
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17 , "RIGHT" , 5 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetText ( GRM.L ( "Mains Only" ) );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[19] = true;
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetChecked ( false );
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1 , "BOTTOMLEFT" , 0 , -2 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetText ( GRM.L ( "Alts Only" ) );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetScript ( "OnClick", function( self )
-        if self:GetChecked() then
-            GRM.S().exportFilters[19] = false;
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetChecked ( false );
-        end
-        GRM.SyncSettings();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected , "BOTTOMRIGHT" , 7 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetText ( "> " .. GRM.L ( "Check All" ) );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetWidth ( 65 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetWordWrap ( false );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetSpacing ( 0.5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetJustifyH ( "LEFT" );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText );
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetScript ( "OnClick" , function ( self )
-        if self:GetChecked() then
-            -- check all
-
-            for i = 1 , 20 do
-
-                if i ~= 19 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) then
-                    GRM.S().exportFilters[i] = true;
-                    _G[ "GRM_ExportFilter" .. i ]:SetChecked ( true );
-                end
-            end
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Enable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 1 , 0.82 , 0 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Enable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 1 , 0.82 , 0 );
-        else
-            for i = 1 , 20 do
-                if i ~= 19 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) then
-                    GRM.S().exportFilters[i] = false;
-                    _G[ "GRM_ExportFilter" .. i ]:SetChecked ( false );
-                end
-            end
-            
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Disable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Disable();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetScript ( "OnEnter" , function( self )
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:GetText() );
-        GameTooltip:Show();
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-    end);
-
-    --- END OF CHECKBUTTONS FOR EXPORT WINDOW
-    -------------------------------------------
-    
-    -- Method:          GRM_UI.CheckButtonsAllChecked()
-    -- What it Does:    Returns true if all the export member list details check buttons are checked.
-    -- Purpose:         For the check all or uncheck all button
-    GRM_UI.CheckButtonsAllChecked = function()
-        local result = true;
-        
-        for i = 1 , 18 do
-            
-            if ( i ~= 10 and GRM_G.BuildVersion < 40000 ) and not GRM.S().exportFilters[i] then
-                result = false;
-                break;
-            end
-        end
-
-        return result;
-    end
-
-    -- Setting the checkboxes in the export filter
-    GRM_UI.SetExportFilters = function()
-
-        if GRM_UI.GRM_ExportLogBorderFrame.TabPosition > 1 then
-            local frame;
-            for i = 1 , 21 do
-
-                if i ~= 19 then
-                    frame = _G[ "GRM_ExportFilter" .. i ];
-                    if GRM.S().exportFilters[i] then
-
-                        frame:SetChecked ( true );
-                        if i == 17 then
-                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Enable();
-                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 1 , 0.82 , 0 );
-                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Enable();
-                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 1 , 0.82 , 0 );
-                        end
-                    elseif i == 17 then
-                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Disable();
-                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
-                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Disable();
-                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
-                    end
-                    frame:Show();
-                end
-            end
-
-            if GRM.S().exportFilters[19] then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetChecked ( true );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetChecked ( false );
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetChecked ( false );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetChecked ( true );
-            end
-
-            if GRM_UI.CheckButtonsAllChecked() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetChecked ( true );
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetChecked ( false );
-            end
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:Show();
-        else
-            for i = 1 , 21 do
-                if i ~= 19 then
-                    _G[ "GRM_ExportFilter" .. i ]:Hide();
-                end
-            end
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:Hide();
-        end
-    end
-
-    -- Extra Log Options Editboxes
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetSize ( 65 , 18 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1 , "RIGHT" , 12 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetNumeric ( true );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetMaxLetters ( 5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetAutoFocus( false )
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetTextInsets( 2 , 3 , 3 , 2 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetFontObject ( "GameFontWhite" );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:EnableMouse( true );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetJustifyH ( "CENTER" );
-    
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetSize ( 65 , 18 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2 , "RIGHT" , 10 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetNumeric ( true );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetMaxLetters ( 5 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetAutoFocus( false )
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetTextInsets( 2 , 3 , 3 , 2 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetFontObject ( "GameFontWhite" );    
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:EnableMouse( true );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetJustifyH ( "CENTER" );
-
-    -- Method:          GRM_UI.ExportButtonLogic()
-    -- What it Does:    Clears focus on the eidt boxes, if any, then builds the export frame
-    -- Purpose:         UX
-    GRM_UI.ExportButtonLogic = function()
-        
-        if GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 1 then
-            GRM.BuildExportLogFrame();
-        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 2 then
-            GRM.BuildExportMemberDetails ( true );
-        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 3 then
-            GRM.BuildExportMemberDetails ( false );
-        end
-    end
-
-    -- Box 1 --
-    GRM_UI.ExportRangeEditBox1 = function( editBox )
-        local num1 = tonumber ( editBox:GetText() );
-        local num2 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
-
-        if GRM_G.CounterCap > 0 then
-
-            if num1 == nil or num1 == 0 then
-                num1 = 1;
-                editBox:SetText ( "1" );
-            end
-                -- Number is too high.
-            if num1 > GRM_G.CounterCap then
-                editBox:SetText ( tostring ( GRM_G.CounterCap ) );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.CounterCap ) );
-                num1 = GRM_G.CounterCap;
-
-                -- Box 1 > box 2
-            elseif num1 > num2 then
-                if ( num1 + GRM_G.ExportCap - 1 ) > GRM_G.CounterCap then
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.CounterCap ) );
-                    num2 = GRM_G.CounterCap;
-                else
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( num1 + GRM_G.ExportCap - 1 ) );
-                    num2 = ( num1 + GRM_G.ExportCap - 1 );
-                end
-            end
-
-            if num1 < num2 and ( ( num2 - ( GRM_G.ExportCap - 1 ) ) > num1 ) then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( num1 + GRM_G.ExportCap - 1 ) );
-            end
-
-        else
-            editBox:SetText ( "0" );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( "0" );
-        end
-
-        GRM_UI.SetExportButtonText();
-    end
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEditFocusLost" , function ( self )
-        self:HighlightText ( 0 , 0 );
-        GRM_UI.ExportRangeEditBox1 ( self );
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEscapePressed" , function( self )
-        self:ClearFocus();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEditFocusGained" , function ( self )
-        self:HighlightText( 0 );
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnTabPressed" , function ( self )
-        self:ClearFocus();
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetFocus();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEnterPressed" , function( self )
-        self:ClearFocus();
-    end);
-
-    ----- BOX 2 ----
-    GRM_UI.ExportRangeEditBox2 = function( editBox )
-        local num1 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
-        local num2 = tonumber ( editBox:GetText() );
-
-        if GRM_G.CounterCap > 0 then
-
-            if num2 == nil then
-                if num1 + GRM_G.ExportCap - 1 > GRM_G.CounterCap then
-                    editBox:SetText ( GRM_G.CounterCap );
-                    num2 = GRM_G.CounterCap;
-                else
-                    editBox:SetText ( tostring ( num1 + GRM_G.ExportCap - 1 ) );
-                    num2 = ( num1 + GRM_G.ExportCap - 1 );
-                end
-            elseif num2 == 0 then
-                num2 = 1;
-            end
-
-                -- Entered # is too high
-            if num2 > GRM_G.CounterCap then
-                editBox:SetText ( tostring ( GRM_G.CounterCap ) );
-                num2 = GRM_G.CounterCap;
-
-                -- need to reset number 1 box now
-            elseif num2 < num1 then
-                if ( num2 - GRM_G.ExportCap - 1 ) < 0 then
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "1" );
-                    num1 = 1;
-                else
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( tostring ( num2 - GRM_G.ExportCap - 1 ) );
-                    num1 = ( num2 - GRM_G.ExportCap - 1 );
-                end  
-            end
-
-            --Check if the gap isn't too big.
-            if num1 < num2 and ( ( num2 - ( GRM_G.ExportCap - 1 ) ) > num1 ) then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( tostring ( num2 - ( GRM_G.ExportCap - 1 ) ) );
-            end
-
-        else
-            editBox:SetText ( "0" );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "0" );
-        end
-
-        GRM_UI.SetExportButtonText();
-    end
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEditFocusLost" , function ( self )
-        self:HighlightText( 0 , 0 );
-        GRM_UI.ExportRangeEditBox2 ( self );
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEscapePressed" , function( self )
-        self:ClearFocus();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEditFocusGained" , function ( self )
-        self:HighlightText( 0 );
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnTabPressed" , function ( self )
-        self:ClearFocus();
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetFocus();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEnterPressed" , function( self )
-        self:ClearFocus();
-    end);
-
-    -- Method:          GRM_UI.SetExportButtonText()
-    -- What it Does:    Builds dynamic text explanations for the export buttons on the fly
-    -- Purpose:         UX
-    GRM_UI.SetExportButtonText = function()
-        local num1 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
-        local num2 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
-        -- Set Initial Text values
-
-        -- Previous
-        if num1 ~= nil then
-            if num1 < 2 then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetText ( GRM.L ( "Export Prev {num}" , nil , nil , "0" ) );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:Disable();
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = 0;
-            else
-                -- We know num1 > 1
-                if ( num1 - GRM_G.ExportCap ) >= 1 then
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetText ( GRM.L ( "Export Prev {num}" , nil , nil , GRM_G.ExportCap ) );
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = GRM_G.ExportCap;
-                else
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetText ( GRM.L ( "Export Prev {num}" , nil , nil , ( num1 - 1 ) ) );
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = ( num1 - 1 )
-                end
-
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:Enable();
-            end
-        end
-
-        -- Next
-        if num2 ~= nil then
-            if GRM_G.CounterCap > num2 then
-
-                if ( num2 + ( GRM_G.ExportCap - 1 ) ) <= GRM_G.CounterCap then
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetText ( GRM.L ( "Export Next {num}" , nil , nil , GRM_G.ExportCap ) );
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = GRM_G.ExportCap;
-                else
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetText ( GRM.L ( "Export Next {num}" , nil , nil , ( GRM_G.CounterCap - num2 ) ) );
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = ( GRM_G.CounterCap - num2 );
-                end
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:Enable();
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetText ( GRM.L ( "Export Next {num}" , nil , nil , "0" ) );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:Disable();
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = 0;
-            end
-        end
-
-    end
-
-    -- Method:          GRM_UI.ResetExportLogSettingsOnChange()
-    -- What it Does:    If a filter has been changed on the log settings, and the export window is open, this clears it.
-    -- Purpose:         Keep the export consistent.
-    GRM_UI.ResetExportLogSettingsOnChange = function()
-        if GRM_UI.GRM_ExportLogBorderFrame:IsVisible() and GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 1 then
-            
-            if #GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:GetText() > 0 then
-                GRM.Report ( GRM.L ( "Clearing Log Export. A filter setting has been changed." ) );
-            end
-
-            GRM_UI.SetExportTabHighlights();
-
-        end
-    end
-
-    -- method:          GRM_UI.SetExportTabHighlights()
-    -- What it Does:    Locks the selected tab highlighted
-    -- Purpose:         UX feature
-    GRM_UI.SetExportTabHighlights = function()
-
-        local setInitialValues = function()
-            if GRM_G.CounterCap > 0 then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "1" );
-
-                -- Now, figure out top value
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( GRM_G.CounterCap );
-                if GRM_G.CounterCap > GRM_G.ExportCap then
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.ExportCap ) );
-                else
-                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.CounterCap ) );
-                end
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "0" );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( "0" );
-            end
-        end
-
-        local resetEditBox = function()
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( "" );
-            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:HasFocus() then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:ClearFocus();
-            end
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetValue ( 0 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetMinMaxValues ( 0 , 0 );
-        end
-
-        GRM_UI.SetExportFilters();
-
-        if GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 1 then
-            resetEditBox();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:LockHighlight();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:UnlockHighlight();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:UnlockHighlight();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:Hide();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:Hide();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetText ( GRM.L ( "*Max Export is 500 Log Entries at a Time" ) );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Select Line Range:" ) );
-
-            GRM_G.CounterCap = GRM_G.CurrentTotalCount;
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText , "BOTTOMLEFT" , 8 , -25 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Entries: {num}" , nil , nil , GRM_G.CounterCap ) );
-
-            setInitialValues();
-            
-            GRM_UI.SetExportButtonText();
-
-        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 2 then
-            resetEditBox();
-
-            -- Highlights
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:LockHighlight();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:UnlockHighlight();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:UnlockHighlight();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetText ( GRM.L ( "*Max Export is 500 Members at a Time" ) );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Select Member Range:" ) );
-
-            if GRM.S().columnHeaders then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( true );
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( false );
-            end
-
-            if GRM.S().exportFilters[21] then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( true );
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( false );
-            end
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:Show();
-
-            GRM_G.CounterCap = GRM.GetNumGuildiesInGuild ( GRM.GetGuild() );
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 8 , -25 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Members: {num}" , nil , nil , GRM_G.CounterCap ) );
-
-            setInitialValues();
-
-            GRM_UI.SetExportButtonText();
-
-        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 3 then
-            resetEditBox();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:LockHighlight();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:UnlockHighlight();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:UnlockHighlight();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:Hide();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
-
-            if GRM.S().columnHeaders then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( true );
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( false );
-            end
-
-            if GRM.S().exportFilters[21] then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( true );
-            else
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( false );
-            end
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:Show();
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:Show();
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetText ( GRM.L ( "*Max Export is 500 Former Members at a Time" ) );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Select Member Range:" ) );
-
-            GRM_G.CounterCap = GRM.GetNumStoredFormerMembers ();  
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 8 , -25 );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Former Members: {num}" , nil , nil , GRM_G.CounterCap ) );
-
-            setInitialValues();
-
-            GRM_UI.SetExportButtonText();
-
-        end
-
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Hide();
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:Show();
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetText ( GRM.S().exportDelimiter[2] );
-        
-    end
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:SetScript ( "OnClick" , function ( _ , button )
-        if button == "LeftButton" then
-            if GRM_UI.GRM_ExportLogBorderFrame.TabPosition ~= 1 then
-                GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
-                GRM_UI.SetExportTabHighlights ();
-            end
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:SetScript ( "OnClick" , function ( _ , button )
-        if button == "LeftButton" then
-            if GRM_UI.GRM_ExportLogBorderFrame.TabPosition ~= 2 then
-                GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 2;
-                GRM_UI.SetExportTabHighlights ();
-            end
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:SetScript ( "OnClick" , function ( _ , button )
-        if button == "LeftButton" then
-            if GRM_UI.GRM_ExportLogBorderFrame.TabPosition ~= 3 then
-                GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 3;
-                GRM_UI.SetExportTabHighlights ();
-            end
-        end
-    end);
-
-
-    -- Export Frames and their logic...
-    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
-            self:Hide();
-        end
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnShow" , function ()
-        GRM_UI.SetExportTabHighlights();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEscapePressed" , function ( self )
-        self:ClearFocus();
-    end);
-
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEnterPressed" , function ( self )
-        self:ClearFocus();
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEditFocusGained" , function ( self )
-        self:HighlightText( 0 );
-    end);
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEditFocusLost" , function ( self )
-        self:HighlightText( 0 , 0 );
     end);
 
     -- OPTIONS TABS
@@ -9394,7 +8123,77 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM.RestoreTooltip()
     end);
     
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_OptionsUXText , "BOTTOMLEFT" , -4 , -4 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_OptionsUXText , "BOTTOMLEFT" , -4 , -4 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButtonText:SetText ( GRM.L ( "Show Player Level" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButtonText );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton:SetScript ( "OnClick" , function( self , button )
+        if button == "LeftButton" then
+            if self:GetChecked() then
+                GRM.S().showLevel = true;
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:Enable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetTextColor ( 1.0 , 0.82 , 0 );
+            else
+                GRM.S().showLevel = false;
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:Disable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            end
+
+            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                GRM.PopulateMemberDetails ( GRM_G.currentName );
+            end
+            GRM.SyncSettings();
+        end
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButtonText , "RIGHT" , 8 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetText ( GRM.L ( "Do Not Show if at Max Level {num}" , nil , nil , GRM_G.LvlCap) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:SetScript ( "OnClick" , function( self , button )
+        if button == "LeftButton" then
+            if self:GetChecked() then
+                GRM.S().showLevelMaxOnly = true;
+            else
+                GRM.S().showLevelMaxOnly = false;
+            end
+
+            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                GRM.PopulateMemberDetails ( GRM_G.currentName );
+            end
+            GRM.SyncSettings();
+        end
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton , "BOTTOMLEFT" , 0 , -6 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+
+    local buttonText = GRM.L ( "Show Mythic+ Rating" );
+    if GRM_G.BuildVersion < 80000 then
+        buttonText = buttonText .. " |CFFFF0000" .. GRM.L ( "(Disabled in Classic)"  );
+    end
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText:SetText ( buttonText );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:SetScript ( "OnClick" , function( self , button )
+        if button == "LeftButton" then
+            if self:GetChecked() then
+                GRM.S().showMythicRating = true;
+            else
+                GRM.S().showMythicRating = false;
+            end
+            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                GRM.PopulateMemberDetails ( GRM_G.currentName );
+            end
+            GRM.SyncSettings();
+        end
+    end);
+
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton , "BOTTOMLEFT" , 0 , -6 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton , "RIGHT" , 2 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButtonText:SetText ( GRM.L ( "Enable Fade on Tab Change" ) );
@@ -11499,15 +10298,15 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.ConfigureLevelFilterMaxTooltip();
 
     -- Need to make new checkbox option to choose to record levels or not
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected , "BOTTOM" , -20 , -3 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetWidth( 74 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButton:SetWidth( 74 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected , "BOTTOM" , -26 , -3 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetWidth( 98.5 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButton:SetWidth( 98.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButton:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_SetUnknownButton , "RIGHT" , 6 , 0 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButtonTxt:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButton );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButtonTxt:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.9 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButtonTxt:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitCancelButtonTxt:SetText ( GRM.L ( "Cancel" ) );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 7.9 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetText ( GRM.L ( "Set Join Date" ) );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetSpacing ( 0 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetWordWrap ( true );
@@ -12152,7 +10951,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_RosterBannedPlayersButtonChatButton:SetChecked( false );
             GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_RosterCustomNoteChatCheckButton:SetChecked ( false );
         end
-        GRM.BuildLogComplete( true , true );
         GRM.SyncSettings();
     end);
 
@@ -12377,7 +11175,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
     GRM_UI.GRM_RosterChangeLogFrame:SetScript ( "OnHide" , function()
         GRM.SyncSettings();
-        GRM_UI.GRM_ExportLogBorderFrame:Hide();
         GRM_G.banListTimer = 60;         -- Just resetting this timer since it is on an internal 60 second clock but I want it to start at zero when refreshing...
         GRM_G.SearchFocusControl = false;
     end);
@@ -13489,6 +12286,1291 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     ------- END JD TOOL ------
     --------------------------
 
+    --------------------------
+    ------- EXPORT TOOL ------
+    --------------------------
+
+    -- LOG EXPORT 
+    GRM_UI.GRM_ExportLogBorderFrame:Hide();
+    GRM_UI.GRM_ExportLogBorderFrame:ClearAllPoints();
+    GRM_UI.GRM_ExportLogBorderFrame:SetPoint ( "CENTER" , UIParent );
+    GRM_UI.GRM_ExportLogBorderFrame:SetSize ( 1000 , 490 );
+    GRM_UI.GRM_ExportLogBorderFrame:SetFrameStrata ( "HIGH");
+    GRM_UI.GRM_ExportLogBorderFrame:SetToplevel ( true );
+    GRM_UI.GRM_ExportLogBorderFrame:SetMovable ( true );
+    GRM_UI.GRM_ExportLogBorderFrame:EnableMouse ( true );
+    GRM_UI.GRM_ExportLogBorderFrame:RegisterForDrag ( "LeftButton" );
+    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnDragStart" , GRM_UI.GRM_ExportLogBorderFrame.StartMoving );
+    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnDragStop" , GRM_UI.GRM_ExportLogBorderFrame.StopMovingOrSizing );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPRIGHT" , 2, 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "BOTTOMRIGHT" , -35 , 15 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetSize ( 130 , 30 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetWordWrap ( true );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText:SetText ( GRM.L ( "Restore Defaults" ) );
+    GRM_UI.ScaleFontStringToObjectSize ( true , 130 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText , 2 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetScript ( "OnClick" , function( _ , button )
+        if button == "LeftButton" then
+            GRM.ResetDefaultSettings( 9 );
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetScript ( "OnEnter" , function ( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine ( GRM.L ( "Resets only the Export Settings" ) );
+        GameTooltip:AddLine( "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r - " .. GRM.L ( "Resets ALL settings, not just the ones on this page" ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip()
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame:SetSize ( 550 , 350 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPRIGHT" , -35 , -50 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetWidth ( 30 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportLogText:SetPoint ( "TOP" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , 0 , 15 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportLogText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportLogText:SetText ( GRM.L ( "Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All" ) );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:SetText ( GRM.L ( "Building Log for Export..." ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetSize ( 527 , 321 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetAutoFocus ( false );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:ClearFocus();
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetMultiLine ( true );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:EnableMouse ( true );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetFontObject ( "GameFontWhiteTiny" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetSpacing ( 2 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetTextInsets ( 2 , 3 , 3 , 2 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetScrollChild ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox );
+    -- Slider Parameters
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetSize ( 532 , 326 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetPoint (  "Bottom" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , "BOTTOM" , 3 , 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetHitRectInsets ( 0 , -30 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetOrientation ( "VERTICAL" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetSize ( 20 , 307 )
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , "TOPRIGHT" , -5 , -22 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetValue ( 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetValueStep ( 20 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetStepsPerPage ( 14 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetScript ( "OnValueChanged" , function ( self )
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:SetVerticalScroll ( self:GetValue() );          
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:SetSize ( 120 , 25 );
+    GRM.TabResize ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , 120 , 25 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPLEFT" , 25 , - 50 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetText ( GRM.L ( "Guild Log" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTabText:SetWidth ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:GetWidth() - 5 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:SetSize ( 120 , 25 );
+    GRM.TabResize ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , 120 , 25 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , "RIGHT" , 1 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetText ( GRM.L ( "Members" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTabText:SetWidth ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:GetWidth() - 5 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:SetSize ( 120 , 25 );
+    GRM.TabResize ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab , 120 , 25 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , "RIGHT" , 1 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetText ( GRM.L ( "Former Members" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetWidth ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:GetWidth() - 5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTabText:SetWordWrap ( true );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:SetSize ( 362 , 315 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , "BOTTOMLEFT" , 0 , -5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:SetSize ( 362 , 315 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , "BOTTOMLEFT" , 0 , -5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:SetSize ( 362 , 315 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab , "BOTTOMLEFT" , 0 , -5 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab , "TOP" , 0 , 8 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetJustifyH ( "CENTER" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportDataHeaderText:SetText ( GRM.L ( "Data Export" ) );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab , "BOTTOMLEFT" , 1 , -7 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetTextColor ( 1 , 0 , 0 , 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetWidth ( 350 )
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetSpacing ( 1 );
+
+    -- Export Log Filters and Details
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 0 , -5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetTextColor ( 1 , 0 , 0 , 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetWidth ( 350 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetSpacing ( 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText:SetText ( GRM.L ( "*Export obeys the current log display filters" ) );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Clear Lines:" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 11.5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText , "BOTTOMLEFT" , 1 , -10 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1 , "RIGHT" , 8 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2:SetText ( GRM.L ( "To" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 11.5 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetWidth ( 180 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetJustifyH ( "LEFT" );
+
+    -- Delimiter Dropdown Menu
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton , "RIGHT" , 10 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText:SetText ( GRM.L ( "Delimiter:" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetSize ( 60 , 30 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterText , "RIGHT" , 5 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetFrameStrata ( "DIALOG" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetPoint ( "TOP" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected , "BOTTOM" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetWidth ( 60 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetFrameStrata ( "DIALOG" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "The selected delimiter will be removed from all notes on export" ) );
+        GameTooltip:AddLine ( GRM.L ( "Choose thoughtfully" ) );
+        GameTooltip:AddLine( GRM.L ( "Feel free to recommend a delimiter you wish to use to the author" ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end);
+
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetScript ( "OnKeyDown" , function ( self , key )
+        self:SetPropagateKeyboardInput ( true );
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput ( false );
+            self:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:Show();
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnShow" , function() 
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Hide();
+    end)
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:SetScript ( "OnMouseDown" , function( _ , button )
+        if button == "LeftButton" then
+            if  GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:IsVisible() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Hide();
+            else
+                GRM.BuildExportDelimiterDropdownMenu();
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Show();
+            end
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetScript ( "OnShow" , function()
+        if GameTooltip:IsVisible() then
+            GRM.RestoreTooltip();
+        end
+    end);
+    
+    --Generic buttons
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetText ( GRM.L ( "Export Selection" ) );
+    if GRM.S().selectedLang == 5 then -- Russian
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
+    else
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    end
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1 , "BOTTOMLEFT" , -2 , -10 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton:SetSize ( 140 , 40 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton:SetScript ( "OnClick" , function ( _ , button ) 
+        if button == "LeftButton" then
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:HasFocus() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
+            elseif GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:HasFocus() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
+            end
+            GRM_UI.ExportButtonLogic();
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton );
+    if GRM.S().selectedLang == 5 then -- Russian
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
+    else
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    end
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton , "RIGHT" , 10 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:SetSize ( 140 , 40 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = 0;
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:SetScript ( "OnClick" , function ( _ , button )
+        if button == "LeftButton" then
+            -- Make sure focus is cleared...
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:HasFocus() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
+            end
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:HasFocus() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
+            end
+
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:IsEnabled() then
+
+                -- Setting button value logic.
+                local num2 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( num2 + 1 );
+
+                -- Trigger a 2nd time to auto-set the logic on the numbering
+                GRM_UI.ExportRangeEditBox1( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1 );
+
+                -- the final log export.
+                GRM_UI.ExportButtonLogic();
+            end
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    if GRM.S().selectedLang == 5 then -- Russian
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );
+    else
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    end
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButton , "BOTTOMLEFT" , 0 , -10 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:SetSize ( 140 , 40 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = 0;
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:SetScript ( "OnClick" , function ( _ , button ) 
+        if button == "LeftButton" then
+
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:HasFocus() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
+            end
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:HasFocus() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
+            end
+
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:IsEnabled() then
+
+                -- Setting button value logic.
+                local num1 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( num1 - 1 );
+
+                -- Trigger a 2nd time to auto-set the logic on the numbering
+                GRM_UI.ExportRangeEditBox2( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2 );
+
+                -- the final log export.
+                GRM_UI.ExportButtonLogic();
+            end
+
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText:SetText ( GRM.L ( "Spreadsheet Headers" ) );
+    
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , "BOTTOMLEFT" , 5 , -5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:SetSize ( 175 , 30 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:SetScript ( "OnClick" , function ( _ , button )
+        if button == "LeftButton" then
+            GRM.ExportMemberDetailsHeaders( false );
+        end
+    end);
+    GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:GetWidth() , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButtonText , 2 );
+
+    -- EXPORT CHECKBUTTONS
+    -- 15 of them so far!
+    -------------------------
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton , "RIGHT" , 5 , 10 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetText ( GRM.L ( "Auto Include Headers" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().columnHeaders = true;
+        else
+            GRM.S().columnHeaders = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "These will only be included if exporting from the top of the table" ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetText ( GRM.L ( "Player GUID" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetWidth ( 105 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetSpacing ( 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetWordWrap ( true );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[20] = true;
+        else
+            GRM.S().exportFilters[20] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton , "BOTTOMLEFT" , 0 , -10 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1.GRM_ExportFilter1Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1.GRM_ExportFilter1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1.GRM_ExportFilter1Text:SetText ( GRM.L ( "Name" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[1] = true;
+        else
+            GRM.S().exportFilters[1] = false;
+        end
+        GRM.SyncSettings();
+    end);
+    
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2.GRM_ExportFilter2Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2.GRM_ExportFilter2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2.GRM_ExportFilter2Text:SetText ( GRM.L ( "Rank" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[2] = true;
+        else
+            GRM.S().exportFilters[2] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter2 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3.GRM_ExportFilter3Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3.GRM_ExportFilter3Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3.GRM_ExportFilter3Text:SetText ( GRM.L ( "Level" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[3] = true;
+        else
+            GRM.S().exportFilters[3] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter3 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4.GRM_ExportFilter4Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4.GRM_ExportFilter4Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4.GRM_ExportFilter4Text:SetText ( GRM.L ( "Class" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[4] = true;
+        else
+            GRM.S().exportFilters[4] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter4 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15.GRM_ExportFilter15Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15.GRM_ExportFilter15Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15.GRM_ExportFilter15Text:SetText ( GRM.L ( "Race" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[15] = true;
+        else
+            GRM.S().exportFilters[15] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter15 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16.GRM_ExportFilter16Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16.GRM_ExportFilter16Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16.GRM_ExportFilter16Text:SetText ( GRM.L ( "Sex" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[16] = true;
+        else
+            GRM.S().exportFilters[16] = false;
+        end
+        GRM.SyncSettings();
+    end);
+    
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter16 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5.GRM_ExportFilter5Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5.GRM_ExportFilter5Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5.GRM_ExportFilter5Text:SetText ( GRM.L ( "Last Online" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[5] = true;
+        else
+            GRM.S().exportFilters[5] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "This will be rounded to the nearest day" ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter5:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter1 , "RIGHT" , 100 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6.GRM_ExportFilter6Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6.GRM_ExportFilter6Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6.GRM_ExportFilter6Text:SetText ( GRM.L ( "Main/Alt" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[6] = true;
+        else
+            GRM.S().exportFilters[6] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7.GRM_ExportFilter7Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7.GRM_ExportFilter7Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7.GRM_ExportFilter7Text:SetText ( GRM.L ( "Join Date" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[7] = true;
+        else
+            GRM.S().exportFilters[7] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter7 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8.GRM_ExportFilter8Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8.GRM_ExportFilter8Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8.GRM_ExportFilter8Text:SetText ( GRM.L ( "Promo Date" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[8] = true;
+        else
+            GRM.S().exportFilters[8] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter8 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18.GRM_ExportFilter18Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18.GRM_ExportFilter18Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18.GRM_ExportFilter18Text:SetText ( GRM.L ( "Rank History" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[18] = true;
+        else
+            GRM.S().exportFilters[18] = false;
+        end
+        GRM.SyncSettings();
+        if GameTooltip:IsVisible() then
+            GRM.RestoreTooltip();
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "Only the 10 most recent rank changes will be included" ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end);
+
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9.GRM_ExportFilter9Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9.GRM_ExportFilter9Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9.GRM_ExportFilter9Text:SetText ( GRM.L ( "Birthday" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[9] = true;
+        else
+            GRM.S().exportFilters[9] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    if GRM_G.BuildVersion < 40000 then
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetText ( GRM.L ( "Guild Rep" ) .. " |CFFFF0000" .. GRM.L ( "(Disabled in Classic)" ) );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:Disable();
+    else
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetText ( GRM.L ( "Guild Rep" ) );
+    end
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[10] = true;
+        else
+            GRM.S().exportFilters[10] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6 , "RIGHT" , 100 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetText ( GRM.L ( "Public Note" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetWidth ( 105 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetSpacing ( 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text:SetWordWrap ( true );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11.GRM_ExportFilter11Text );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[11] = true;
+        else
+            GRM.S().exportFilters[11] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter11 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetText ( GRM.L ( "Officer Note" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetWidth ( 105 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetSpacing ( 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text:SetWordWrap ( true );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12.GRM_ExportFilter12Text );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[12] = true;
+        else
+            GRM.S().exportFilters[12] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter12 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetText ( GRM.L ( "Custom Note" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetWidth ( 105 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetJustifyH ( "LEFT" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetSpacing ( 1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:SetWordWrap ( true );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[13] = true;
+        else
+            GRM.S().exportFilters[13] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    if GRM.S().selectedLang == 5 then -- Russian
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetScript ( "OnEnter" , function( self )
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13.GRM_ExportFilter13Text:GetText() );
+            GameTooltip:Show();
+        end);
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter13:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip()
+        end);
+    end
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter6 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14:SetHitRectInsets( 0 , -75 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14.GRM_ExportFilter14Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14.GRM_ExportFilter14Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14.GRM_ExportFilter14Text:SetText ( GRM.L ( "Player Alts" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter14:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[14] = true;
+        else
+            GRM.S().exportFilters[14] = false;
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton , "BOTTOMLEFT" , 0 , -1 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetText ( GRM.L ( "Remove Alt-Code Letters From Names" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text:SetJustifyH ( "LEFT" );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21.GRM_ExportFilter21Text );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[21] = true;
+        else
+            GRM.S().exportFilters[21] = false;
+        end
+        GRM.SyncSettings();
+    end);
+    
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetHitRectInsets( 0 , 0 , 0 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[17] = true;
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Enable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Enable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 1 , 0.82 , 0 );
+        else
+            GRM.S().exportFilters[17] = false;
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Disable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Disable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+        end
+        GRM.SyncSettings();
+        if GameTooltip:IsVisible() then
+            GRM.RestoreTooltip();
+        end
+    end);
+    
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale()
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "Leave unchecked to export every member of the guild" ) );
+        GameTooltip:Show();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end)
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17 , "RIGHT" , 5 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetText ( GRM.L ( "Mains Only" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[19] = true;
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetChecked ( false );
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1 , "BOTTOMLEFT" , 0 , -2 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2 , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetText ( GRM.L ( "Alts Only" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetScript ( "OnClick", function( self )
+        if self:GetChecked() then
+            GRM.S().exportFilters[19] = false;
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetChecked ( false );
+        end
+        GRM.SyncSettings();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected , "BOTTOMRIGHT" , 7 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton , "RIGHT" , 2 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetText ( "> " .. GRM.L ( "Check All" ) );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetWidth ( 65 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetWordWrap ( false );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetSpacing ( 0.5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetJustifyH ( "LEFT" );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetScript ( "OnClick" , function ( self )
+        if self:GetChecked() then
+            -- check all
+
+            for i = 1 , 20 do
+
+                if i ~= 19 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) then
+                    GRM.S().exportFilters[i] = true;
+                    _G[ "GRM_ExportFilter" .. i ]:SetChecked ( true );
+                end
+            end
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Enable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Enable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 1 , 0.82 , 0 );
+        else
+            for i = 1 , 20 do
+                if i ~= 19 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) then
+                    GRM.S().exportFilters[i] = false;
+                    _G[ "GRM_ExportFilter" .. i ]:SetChecked ( false );
+                end
+            end
+            
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Disable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Disable();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:GetText() );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end);
+
+    --- END OF CHECKBUTTONS FOR EXPORT WINDOW
+    -------------------------------------------
+    
+    -- Method:          GRM_UI.CheckButtonsAllChecked()
+    -- What it Does:    Returns true if all the export member list details check buttons are checked.
+    -- Purpose:         For the check all or uncheck all button
+    GRM_UI.CheckButtonsAllChecked = function()
+        local result = true;
+        
+        for i = 1 , 18 do
+            
+            if ( i ~= 10 and GRM_G.BuildVersion < 40000 ) and not GRM.S().exportFilters[i] then
+                result = false;
+                break;
+            end
+        end
+
+        return result;
+    end
+
+    -- Setting the checkboxes in the export filter
+    GRM_UI.SetExportFilters = function()
+
+        if GRM_UI.GRM_ExportLogBorderFrame.TabPosition > 1 then
+            local frame;
+            for i = 1 , 21 do
+
+                if i ~= 19 then
+                    frame = _G[ "GRM_ExportFilter" .. i ];
+                    if GRM.S().exportFilters[i] then
+
+                        frame:SetChecked ( true );
+                        if i == 17 then
+                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Enable();
+                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 1 , 0.82 , 0 );
+                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Enable();
+                            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 1 , 0.82 , 0 );
+                        end
+                    elseif i == 17 then
+                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Disable();
+                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Disable();
+                        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    end
+                    frame:Show();
+                end
+            end
+
+            if GRM.S().exportFilters[19] then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetChecked ( true );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetChecked ( false );
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetChecked ( false );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetChecked ( true );
+            end
+
+            if GRM_UI.CheckButtonsAllChecked() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetChecked ( true );
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetChecked ( false );
+            end
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:Show();
+        else
+            for i = 1 , 21 do
+                if i ~= 19 then
+                    _G[ "GRM_ExportFilter" .. i ]:Hide();
+                end
+            end
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:Hide();
+        end
+    end
+
+    -- Extra Log Options Editboxes
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetSize ( 65 , 18 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1 , "RIGHT" , 12 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetNumeric ( true );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetMaxLetters ( 5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:ClearFocus();
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetAutoFocus( false )
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetTextInsets( 2 , 3 , 3 , 2 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetFontObject ( "GameFontWhite" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:EnableMouse( true );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetJustifyH ( "CENTER" );
+    
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetSize ( 65 , 18 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2.GRM_ExportRangeText2 , "RIGHT" , 10 , 0 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetNumeric ( true );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetMaxLetters ( 5 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:ClearFocus();
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetAutoFocus( false )
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetTextInsets( 2 , 3 , 3 , 2 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetFontObject ( "GameFontWhite" );    
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:EnableMouse( true );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetJustifyH ( "CENTER" );
+
+    -- Method:          GRM_UI.ExportButtonLogic()
+    -- What it Does:    Clears focus on the eidt boxes, if any, then builds the export frame
+    -- Purpose:         UX
+    GRM_UI.ExportButtonLogic = function()
+        
+        if GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 1 then
+            GRM.BuildExportLogFrame();
+        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 2 then
+            GRM.BuildExportMemberDetails ( true );
+        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 3 then
+            GRM.BuildExportMemberDetails ( false );
+        end
+    end
+
+    -- Box 1 --
+    GRM_UI.ExportRangeEditBox1 = function( editBox )
+        local num1 = tonumber ( editBox:GetText() );
+        local num2 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
+
+        if GRM_G.CounterCap > 0 then
+
+            if num1 == nil or num1 == 0 then
+                num1 = 1;
+                editBox:SetText ( "1" );
+            end
+                -- Number is too high.
+            if num1 > GRM_G.CounterCap then
+                editBox:SetText ( tostring ( GRM_G.CounterCap ) );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.CounterCap ) );
+                num1 = GRM_G.CounterCap;
+
+                -- Box 1 > box 2
+            elseif num1 > num2 then
+                if ( num1 + GRM_G.ExportCap - 1 ) > GRM_G.CounterCap then
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.CounterCap ) );
+                    num2 = GRM_G.CounterCap;
+                else
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( num1 + GRM_G.ExportCap - 1 ) );
+                    num2 = ( num1 + GRM_G.ExportCap - 1 );
+                end
+            end
+
+            if num1 < num2 and ( ( num2 - ( GRM_G.ExportCap - 1 ) ) > num1 ) then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( num1 + GRM_G.ExportCap - 1 ) );
+            end
+
+        else
+            editBox:SetText ( "0" );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( "0" );
+        end
+
+        GRM_UI.SetExportButtonText();
+    end
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEditFocusLost" , function ( self )
+        self:HighlightText ( 0 , 0 );
+        GRM_UI.ExportRangeEditBox1 ( self );
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEscapePressed" , function( self )
+        self:ClearFocus();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEditFocusGained" , function ( self )
+        self:HighlightText( 0 );
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnTabPressed" , function ( self )
+        self:ClearFocus();
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetFocus();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetScript ( "OnEnterPressed" , function( self )
+        self:ClearFocus();
+    end);
+
+    ----- BOX 2 ----
+    GRM_UI.ExportRangeEditBox2 = function( editBox )
+        local num1 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
+        local num2 = tonumber ( editBox:GetText() );
+
+        if GRM_G.CounterCap > 0 then
+
+            if num2 == nil then
+                if num1 + GRM_G.ExportCap - 1 > GRM_G.CounterCap then
+                    editBox:SetText ( GRM_G.CounterCap );
+                    num2 = GRM_G.CounterCap;
+                else
+                    editBox:SetText ( tostring ( num1 + GRM_G.ExportCap - 1 ) );
+                    num2 = ( num1 + GRM_G.ExportCap - 1 );
+                end
+            elseif num2 == 0 then
+                num2 = 1;
+            end
+
+                -- Entered # is too high
+            if num2 > GRM_G.CounterCap then
+                editBox:SetText ( tostring ( GRM_G.CounterCap ) );
+                num2 = GRM_G.CounterCap;
+
+                -- need to reset number 1 box now
+            elseif num2 < num1 then
+                if ( num2 - GRM_G.ExportCap - 1 ) < 0 then
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "1" );
+                    num1 = 1;
+                else
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( tostring ( num2 - GRM_G.ExportCap - 1 ) );
+                    num1 = ( num2 - GRM_G.ExportCap - 1 );
+                end  
+            end
+
+            --Check if the gap isn't too big.
+            if num1 < num2 and ( ( num2 - ( GRM_G.ExportCap - 1 ) ) > num1 ) then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( tostring ( num2 - ( GRM_G.ExportCap - 1 ) ) );
+            end
+
+        else
+            editBox:SetText ( "0" );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "0" );
+        end
+
+        GRM_UI.SetExportButtonText();
+    end
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEditFocusLost" , function ( self )
+        self:HighlightText( 0 , 0 );
+        GRM_UI.ExportRangeEditBox2 ( self );
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEscapePressed" , function( self )
+        self:ClearFocus();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEditFocusGained" , function ( self )
+        self:HighlightText( 0 );
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnTabPressed" , function ( self )
+        self:ClearFocus();
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetFocus();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetScript ( "OnEnterPressed" , function( self )
+        self:ClearFocus();
+    end);
+
+    -- Method:          GRM_UI.SetExportButtonText()
+    -- What it Does:    Builds dynamic text explanations for the export buttons on the fly
+    -- Purpose:         UX
+    GRM_UI.SetExportButtonText = function()
+        local num1 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
+        local num2 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
+        -- Set Initial Text values
+
+        -- Previous
+        if num1 ~= nil then
+            if num1 < 2 then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetText ( GRM.L ( "Export Prev {num}" , nil , nil , "0" ) );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:Disable();
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = 0;
+            else
+                -- We know num1 > 1
+                if ( num1 - GRM_G.ExportCap ) >= 1 then
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetText ( GRM.L ( "Export Prev {num}" , nil , nil , GRM_G.ExportCap ) );
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = GRM_G.ExportCap;
+                else
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButtonText:SetText ( GRM.L ( "Export Prev {num}" , nil , nil , ( num1 - 1 ) ) );
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton.Value = ( num1 - 1 )
+                end
+
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportPreviousRangeButton:Enable();
+            end
+        end
+
+        -- Next
+        if num2 ~= nil then
+            if GRM_G.CounterCap > num2 then
+
+                if ( num2 + ( GRM_G.ExportCap - 1 ) ) <= GRM_G.CounterCap then
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetText ( GRM.L ( "Export Next {num}" , nil , nil , GRM_G.ExportCap ) );
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = GRM_G.ExportCap;
+                else
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetText ( GRM.L ( "Export Next {num}" , nil , nil , ( GRM_G.CounterCap - num2 ) ) );
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = ( GRM_G.CounterCap - num2 );
+                end
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:Enable();
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButtonText:SetText ( GRM.L ( "Export Next {num}" , nil , nil , "0" ) );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton:Disable();
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportNextRangeButton.Value = 0;
+            end
+        end
+
+    end
+
+    -- Method:          GRM_UI.ResetExportLogSettingsOnChange()
+    -- What it Does:    If a filter has been changed on the log settings, and the export window is open, this clears it.
+    -- Purpose:         Keep the export consistent.
+    GRM_UI.ResetExportLogSettingsOnChange = function()
+        if GRM_UI.GRM_ExportLogBorderFrame:IsVisible() and GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 1 then
+            
+            if #GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:GetText() > 0 then
+                GRM.Report ( GRM.L ( "Clearing Log Export. A filter setting has been changed." ) );
+            end
+
+            GRM_UI.SetExportTabHighlights();
+
+        end
+    end
+
+    -- method:          GRM_UI.SetExportTabHighlights()
+    -- What it Does:    Locks the selected tab highlighted
+    -- Purpose:         UX feature
+    GRM_UI.SetExportTabHighlights = function()
+
+        local setInitialValues = function()
+            if GRM_G.CounterCap > 0 then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "1" );
+
+                -- Now, figure out top value
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( GRM_G.CounterCap );
+                if GRM_G.CounterCap > GRM_G.ExportCap then
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.ExportCap ) );
+                else
+                    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( tostring ( GRM_G.CounterCap ) );
+                end
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:SetText ( "0" );
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:SetText ( "0" );
+            end
+        end
+
+        local resetEditBox = function()
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( "" );
+            if GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:HasFocus() then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:ClearFocus();
+            end
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetValue ( 0 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrameSlider:SetMinMaxValues ( 0 , 0 );
+        end
+
+        GRM_UI.SetExportFilters();
+
+        if GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 1 then
+            resetEditBox();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:LockHighlight();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:UnlockHighlight();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:UnlockHighlight();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:Hide();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:Hide();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetText ( GRM.L ( "*Max Export is 500 Log Entries at a Time" ) );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Select Line Range:" ) );
+
+            GRM_G.CounterCap = GRM_G.CurrentTotalCount;
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText , "BOTTOMLEFT" , 8 , -25 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Entries: {num}" , nil , nil , GRM_G.CounterCap ) );
+
+            setInitialValues();
+            
+            GRM_UI.SetExportButtonText();
+
+        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 2 then
+            resetEditBox();
+
+            -- Highlights
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:LockHighlight();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:UnlockHighlight();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:UnlockHighlight();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetText ( GRM.L ( "*Max Export is 500 Members at a Time" ) );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Select Member Range:" ) );
+
+            if GRM.S().columnHeaders then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( true );
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( false );
+            end
+
+            if GRM.S().exportFilters[21] then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( true );
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( false );
+            end
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:Show();
+
+            GRM_G.CounterCap = GRM.GetNumGuildiesInGuild ( GRM.GetGuild() );
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 8 , -25 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Members: {num}" , nil , nil , GRM_G.CounterCap ) );
+
+            setInitialValues();
+
+            GRM_UI.SetExportButtonText();
+
+        elseif GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 3 then
+            resetEditBox();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:LockHighlight();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:UnlockHighlight();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:UnlockHighlight();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame:Hide();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_LeftGuildDataExportFiltersFrame:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
+
+            if GRM.S().columnHeaders then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( true );
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetChecked ( false );
+            end
+
+            if GRM.S().exportFilters[21] then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( true );
+            else
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:SetChecked ( false );
+            end
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportMemberDetailsHeadersButton:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:Show();
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter21:Show();
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText:SetText ( GRM.L ( "*Max Export is 500 Former Members at a Time" ) );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1.GRM_ExportRangeText1:SetText ( GRM.L ( "Select Member Range:" ) );
+
+            GRM_G.CounterCap = GRM.GetNumStoredFormerMembers ();  
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportSizeMaxText , "BOTTOMLEFT" , 8 , -25 );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Former Members: {num}" , nil , nil , GRM_G.CounterCap ) );
+
+            setInitialValues();
+
+            GRM_UI.SetExportButtonText();
+
+        end
+
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:Hide();
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:Show();
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected.GRM_DelimiterDropdownMenuText:SetText ( GRM.S().exportDelimiter[2] );
+        
+    end
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:SetScript ( "OnClick" , function ( _ , button )
+        if button == "LeftButton" then
+            if GRM_UI.GRM_ExportLogBorderFrame.TabPosition ~= 1 then
+                GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
+                GRM_UI.SetExportTabHighlights ();
+            end
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportGuildDataTab:SetScript ( "OnClick" , function ( _ , button )
+        if button == "LeftButton" then
+            if GRM_UI.GRM_ExportLogBorderFrame.TabPosition ~= 2 then
+                GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 2;
+                GRM_UI.SetExportTabHighlights ();
+            end
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLeftGuildDataTab:SetScript ( "OnClick" , function ( _ , button )
+        if button == "LeftButton" then
+            if GRM_UI.GRM_ExportLogBorderFrame.TabPosition ~= 3 then
+                GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 3;
+                GRM_UI.SetExportTabHighlights ();
+            end
+        end
+    end);
+
+
+    -- Export Frames and their logic...
+    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnKeyDown" , function ( self , key )
+        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput ( false );
+            self:Hide();
+        end
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnShow" , function ()
+        GRM_UI.SetExportTabHighlights();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEscapePressed" , function ( self )
+        self:ClearFocus();
+    end);
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEnterPressed" , function ( self )
+        self:ClearFocus();
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEditFocusGained" , function ( self )
+        self:HighlightText( 0 );
+    end);
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEditFocusLost" , function ( self )
+        self:HighlightText( 0 , 0 );
+    end);
+
+
     -- BAN LIST FRAME LOGIC AND INITIALIZATION DETAILS!!!
     -- User with addon installed...
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameTitleText:SetPoint ( "TOP" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame , 0 , - 3.5 );
@@ -14560,7 +14642,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         end
         -- Build the frames...
         GRM.RefreshBanListFrames();
-        GRM_Patch.BuildGUIDProfilesForAllNoLongerInGuild(); -- One Time
+        if not GRM_G.CheckingGUIDThroughFriendsList then
+            GRM.QueryPlayersGUIDByFriendsList ( GRM.GetPlayersWithoutGUID() , 1 , true , true );
+        end
         
     end);
 
@@ -15493,8 +15577,34 @@ GRM_UI.BuildLogFrames = function()
     if GRM.S().syncCustomNote then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_CustomNoteSyncCheckBox:SetChecked ( true );
     end
+
+    if GRM.S().showLevel then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton:SetChecked ( true );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:Enable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetTextColor ( 1.0 , 0.82 , 0 );
+    else
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
+    end
+
+    if GRM.S().showLevelMaxOnly then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:SetChecked ( true );
+    end
+
+    if GRM.S().showMythicRating then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:SetChecked ( true );
+
+        if GRM_G.BuildVersion < 80000 then
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 , 1.0 );
+        else
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:Enable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
+        end
+    end
+
     if GRM.S().useFade then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton:SetChecked ( true )
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_FadeCheckButton:SetChecked ( true );
     end
 
     if GRM.S().viewGuildRep then
@@ -16863,6 +16973,7 @@ GRM_UI.RescaleFrame = function ( frame , hide , tooltips , customCornerPos )
             if button == "RightButton" then
                 local sizeW , sizeH = GRM_UI.GetDefaultFrameSize ( frame:GetName() );
                 frame:SetSize ( sizeW , sizeH );
+
             else
                 cornerFrameTexture:SetTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
                 frame:StartSizing("Right")
@@ -16893,9 +17004,6 @@ GRM_UI.RescaleFrame = function ( frame , hide , tooltips , customCornerPos )
 
             local scale = 0;
             local defTop , defBotton = 1.5 , 0.5;
-            if frame:GetName() == "GRM_MemberDetailMetaData" then
-                defTop , defBotton = 1.83 , 0.83;
-            end
 
             if self:GetWidth() > ( W * defTop ) then
                 scale = ( W * defTop) / W;
@@ -16938,7 +17046,6 @@ GRM_UI.SetAllWindowScales = function ( buildSizingLogic )
 
     local setScaling = function ( frame , scrollFrame , cornerFrame , W , H , scale )
         frame:SetSize ( W , H );
-
         scrollFrame:SetScale ( scale );
         local children = { frame:GetChildren() }
         for _, child in ipairs ( children ) do
@@ -16951,17 +17058,15 @@ GRM_UI.SetAllWindowScales = function ( buildSizingLogic )
     -- Note, the Rescale logic needs to be implemented BEFORE initial scaling, because it will mess up frames and inception the scaling each session if you do not.
     if buildSizingLogic then
         GRM_UI.RescaleFrame ( GRM_UI.GRM_RosterChangeLogFrame , true , nil , { -3 , 4 } );
-        -- GRM_UI.RescaleFrame ( GRM_UI.GRM_MemberDetailMetaData , false );
-        GRM_UI.GRM_MemberDetailMetaData:SetScale ( 1 )
         GRM_UI.RescaleFrame ( GRM_UI.GRM_ToolCoreFrame , false );
         GRM_UI.RescaleFrame ( GRM_UI.GRM_ExportLogBorderFrame , false , { { GRM.L ( "WARNING: Clear the text box before re-scaling or you may lock up your system" ) , 1 , 0 , 0 } } );
         GRM_UI.RescaleFrame ( GRM_UI.GRM_AuditJDTool , false , nil , { -3 , 2 } );
+        GRM_UI.GRM_MemberDetailMetaData:SetScale ( 1 );
+        -- GRM_UI.RescaleFrame ( GRM_UI.GRM_MemberDetailMetaData , false );
     end
    
     -- SetScaling
     setScaling ( GRM_UI.GRM_RosterChangeLogFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameScrollFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale , GRM.S().UIScaling[1][1] , GRM.S().UIScaling[1][2] , GRM.S().UIScaling[1][3] );
-
-    -- setScaling ( GRM_UI.GRM_MemberDetailMetaData , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataScrollFrame , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataReScale , GRM.S().UIScaling[2][1] , GRM.S().UIScaling[2][2] , GRM.S().UIScaling[2][3] );
 
     setScaling ( GRM_UI.GRM_ToolCoreFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameScrollFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameReScale , GRM.S().UIScaling[3][1] , GRM.S().UIScaling[3][3] , GRM.S().UIScaling[3][3] );
 
@@ -16969,9 +17074,43 @@ GRM_UI.SetAllWindowScales = function ( buildSizingLogic )
 
     setScaling ( GRM_UI.GRM_AuditJDTool , GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolScrollFrame , GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolReScale , GRM.S().UIScaling[5][1] , GRM.S().UIScaling[5][2] , GRM.S().UIScaling[5][3] );
 
+    -- setScaling ( GRM_UI.GRM_MemberDetailMetaData , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataScrollFrame , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataReScale , GRM.S().UIScaling[2][1] , GRM.S().UIScaling[2][2] , GRM.S().UIScaling[2][3] );,   
+
 end
 
 GRM_UI.PreAddonLoadUI();
 
 
--- GameTooltip:AddLine (  );
+-- -- CommunitiesFrames
+-- -- Method:          GRM_UI.RePinMouseoverPlayerWindow()
+-- -- What it Does:    Repins this frame since when you rescale it the pinning messes up.
+-- -- Purpose:         Control the pins.
+-- GRM_UI.RePinMouseoverPlayerWindow = function()
+--     if GRM_G.BuildVersion >= 80000 then
+        
+--         if not GRM_G.CurrentPinCommunity then
+            
+--             GRM_UI.GRM_MemberDetailMetaData:ClearAllPoints();
+--             if GRM_UI.MemberDetailFrame:IsVisible() then
+--                 GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+--             else
+--                 GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
+--             end
+--             GRM_G.CurrentPinCommunity = true;
+--         end
+--     end
+
+--     if GRM_G.CurrentPinCommunity then
+--         GRM_UI.GRM_MemberDetailMetaData:ClearAllPoints();
+--         if GRM_UI.MemberDetailFrameClassic:IsVisible() then
+--             GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrameClassic , "TOPRIGHT" , -4 , 5 );
+--         else
+--             GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
+--         end
+--         GRM_G.CurrentPinCommunity = false;            
+--     end
+
+-- end
+
+
+

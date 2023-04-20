@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 109;
+local totalPatches = 110;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1280,11 +1280,25 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Misc = {};  -- Rebuilding the way this is handled. Wiping it.
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixPersonWhoBanned , true , true , false );    -- DB change - for edge case if player's DB converted
         GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.ResetUIScaling );
-        if GRM_G.BuildVersion >= 90000 then
-            GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
-        end
 
         if loopCheck ( 1.97 ) then
+            return;
+        end
+    end
+
+    -- patch 110
+    patchNum = patchNum + 1;
+    if numericV < 1.972 and baseValue < 1.972 then
+
+        if GRM_G.BuildVersion >= 90000 then
+            GRM_Patch.AddMemberSpecificData ( "MythicScore" , {} );
+        end
+        GRM_Patch.AddNewSetting ( "showLevel" , true );
+        GRM_Patch.AddNewSetting ( "showMythicRating" , true );
+        GRM_Patch.AddNewSetting ( "showLevelMaxOnly" , false );
+        GRM_Patch.CleanUpAltGroupsFromError();
+
+        if loopCheck ( 1.972 ) then
             return;
         end
     end
@@ -1424,6 +1438,20 @@ GRM_Patch.ModifyMemberSpecificData = function ( databaseChangeFunction , editCur
                     end
                 end
             end
+        end
+    end
+end
+
+-- 1.971
+-- Method:          GRM_Patch.AddNewSetting ( string , value , function )
+-- What it Does:    Creates a new settings value
+-- Purpose:         Be able to add new tools and controls to player.
+GRM_Patch.AddNewSetting = function ( nameOfNewSetting , value , additionalLogic )
+    for g in pairs ( GRM_AddonSettings_Save ) do
+        if not additionalLogic then
+            GRM_AddonSettings_Save[g][nameOfNewSetting] = value;
+        else
+            GRM_AddonSettings_Save[g] = additionalLogic ( GRM_AddonSettings_Save[g] );
         end
     end
 end
@@ -4462,32 +4490,6 @@ GRM_Patch.IsAnySettingsTooLow = function()
     return false;
 end
 
--- 1.84
--- Method:          GRM_Patch.AddNewSetting ( string , object )
--- What it Does:    Adds a new dictionary settings value
--- Purpose:         Be able to easily add new settings
-GRM_Patch.AddNewSetting = function ( settingName , value )
-    for i = 1 , #GRM_AddonSettings_Save do
-        for j = 2 , #GRM_AddonSettings_Save[i] do
-            GRM_AddonSettings_Save[i][j][settingName] = value;
-        end
-    end
-end
-
--- 1.84
--- Method:          GRM_Patch.ModifySetting ( string , object )
--- What it Does:    Modifies a new dictionary settings value
--- Purpose:         Be able to easily add new settings
-GRM_Patch.ModifySetting = function ( settingName , value )
-    for i = 1 , #GRM_AddonSettings_Save do
-        for j = 2 , #GRM_AddonSettings_Save[i] do
-            if GRM_AddonSettings_Save[i][j][settingName] ~= nil then
-                GRM_AddonSettings_Save[i][j][settingName] = value;
-            end
-        end
-    end
-end
-
 -- 1.84 - Shifted over - only needed as temporary placeholder to normalize creation of a new player before overwriting. This saves a lot of extra code just keeping it here.
 -- Method:          GRM_Patch.GetDefaultAddonSettings()
 -- What it Does:    Establishes the default addon setttings for all of the options and some other misc. stored variables, like minimap position
@@ -7323,3 +7325,35 @@ GRM_Patch.ResetUIScaling = function( scaling )
     
     return scaling;
 end
+
+-- 1.971
+-- Method:          GRM_Patch.CleanUpAltGroupsFromError()
+-- What it Does:    Cleans up old dead alt groups
+-- Purpose:         Realized an issue where if a person left/kicked from the guild whilst having no alts, but they were a main, they would leave but their dead alt group stayed there.
+GRM_Patch.CleanUpAltGroupsFromError = function()
+    for guildName in pairs ( GRM_Alts ) do
+
+        for altGroup in pairs ( GRM_Alts[guildName] ) do
+
+            if GRM_Alts[guildName][altGroup].main ~= "" and not GRM_GuildMemberHistory_Save[ guildName ][ GRM_Alts[guildName][altGroup].main ] then
+                GRM_Alts[guildName][altGroup] = nil;
+            end
+
+        end
+
+    end
+
+    for guildName in pairs ( GRM_GuildDataBackup_Save ) do
+
+        for altGroup in pairs ( GRM_GuildDataBackup_Save[guildName].alts ) do
+
+            if GRM_GuildDataBackup_Save[guildName].alts[altGroup].main ~= "" and not GRM_GuildDataBackup_Save[guildName].members[ GRM_GuildDataBackup_Save[guildName].alts[altGroup].main ] then
+                GRM_GuildDataBackup_Save[guildName].alts[altGroup] = nil;
+            end
+            
+        end
+
+    end
+
+end
+
