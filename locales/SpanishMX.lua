@@ -1621,5 +1621,12 @@ GRML.SpanishMX = function()
     GRM_L["{name} has transferred servers and REJOINED the Guild."] = true
     GRM_L["Group Info Module is Outdated."] = true
     
+    -- R1.972
+    GRM_L["Show Player Level"] = true
+    GRM_L["Show Mythic+ Rating"] = true
+    GRM_L["M+ Rating:" ] = true
+    GRM_L["Do Not Show if at Max Level {num}"] = true
+    GRM_L["Not on Server"] = true
+    GRM_L["Mythic+ rating will only appear on members at max level {num}."] = true
     
 end

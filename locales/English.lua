@@ -1620,7 +1620,7 @@ GRML.English = function()
     GRM_L["{name} has transferred servers and REJOINED the Guild."] = true
     GRM_L["Group Info Module is Outdated."] = true
     
-    -- R1.9712
+    -- R1.972
     GRM_L["Show Player Level"] = true
     GRM_L["Show Mythic+ Rating"] = true
     GRM_L["M+ Rating:" ] = true
