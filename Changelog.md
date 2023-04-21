@@ -2,7 +2,7 @@
 
 **NEW FEATURE - Guild Transfer - Preservation of Data**
 
-![Easier Guild Transfer - Keep your GRM Data!](https://imgur.com/GdtWI1z)
+![Easier Guild Transfer - Keep your GRM Data!](https://i.imgur.com/GdtWI1z.jpg)
 
 * The Guild Backups window has been rebuilt. First, the "backups" was a bit misleading and I think confused some people. They were not a "true" backup of the addon data since WOW addons do not have write to file access to say, Windows. It did however provide a restore point if you had maybe an officer go rogue and mess up all your data. I don't want to confuse anyone further so I have rebuilt this feature more as a tool to preserve your guild's GRM data if you decide to transfer servers. This will also clear a lot of the overall GRM memory usage that was storing a copy of all GRM data mostly needlessly to now only be used when transferring guilds.
 
@@ -12,7 +12,7 @@
   * STEP 3: Click "Set Restore Point" to the guild you are currently in (remove the old if necessary)
   * STEP 4: Initiate the guild transfer process.
   * STEP 5: Log into the new guild on the new server.
-  * STEP 6: Ensure that the new guild rank structure is identical to the previous (name changes are fine), otherwise it may can only "guess" a player was promoted/demoted if the tier structure has been changed.
+  * STEP 6: Ensure that the new guild rank structure is identical to the previous (name changes are fine), otherwise it can only "guess" a player was promoted/demoted if the tier structure has been changed.
   * STEP 7: Open the Restore Tab again and click "Transfer Data" from your old guild. Confirm YES.
   * STEP 8: If you are satisfied with the transfer, remove the restore point to lower your memory usage next session.
   * **NOTE:**
