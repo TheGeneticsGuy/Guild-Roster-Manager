@@ -22,8 +22,8 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton.GRM_ToolViewSafeListButtonTe
 
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton = CreateFrame( "Button" , "GRM_ToolSyncRulesButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
--- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton = CreateFrame( "Button" , "GRM_ToolCopyQuedButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" );
--- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton = CreateFrame( "Button" , "GRM_ToolCopyQuedButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
 
 -- Macro Control Buttons
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolClearSelectedMacrodNamesButton = CreateFrame( "Button" , "GRM_ToolClearSelectedMacrodNamesButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" );
@@ -861,30 +861,57 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetWidth ( 195 )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetWordWrap ( true );
         
-        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOPLEFT" , 2 , -5 );
-        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetSize ( 50 , 25 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame , "TOPLEFT" , 2 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetSize ( 75 , 25 );
 
-        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton );
-        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetJustifyH ( "CENTER" );
-        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetWidth ( 48 )
-        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetJustifyH ( "CENTER" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetWidth ( 48 )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetWordWrap ( false );
 
+        -- Export the list of names in the que.
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetScript ( "OnClick" , function ( _ , button )
 
-        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetScript ( "OnClick" , function ( _ , button )
+            local names = GRM.GetListOfQueuedNames();
+            if #names == 0 then
+                GRM.Report ( GRM.L ( "No Current Names to Add" ) );
+            else
 
-        --     local names = GRM.GetListOfQueuedNames( true );
-        --     if #names == 0 then
-        --         GRM.Report ( GRM.L ( "No Current Names to Add" ) );
-        --     else
+                if not GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
+                    GRM_UI.GRM_ExportLogBorderFrame:Show();
+                end
+                local finalString = "";
+                -- local delim = "";
+                -- if GRM.S().exportDelimiter[1] then
+                --     delim = GRM.S().exportDelimiter[2];
+                -- end
 
-        --         if not GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:IsVisible() then
-        --             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:Hide();
-        --         end
-        --         local finalString = 
+                for i = 1 , #names do
+                    if i < #names then
+                        finalString = finalString .. names[i] .. "\n";
+                    else
+                        finalString = finalString .. names[i];
+                    end
+                end
 
+                if finalString ~= "" then
+                    GRM.BuildExportAnyText ( finalString )
+                end
 
-        --     end
-        -- end);
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetScript ( "OnEnter" , function( self )
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine ( GRM.L ( "Export a full list of names in the queue." ) );
+            GameTooltip:Show();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton:SetScript ( "OnLeave" , function ()
+            GRM.RestoreTooltip();
+        end);
+
 
         
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSettingsButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_CustomRuleAddButton , "BOTTOM" , 0 , -4 );
@@ -1449,8 +1476,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
     end
     GRM.SetMacroButtonText();
 
-    -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetText ( GRM.L ( "Export" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCopyQuedButton.GRM_ToolCopyQuedButtonText:SetText ( GRM.L ( "Export" ) );
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton.GRM_ToolResetSelectedMacroNamesButtonText:SetText ( GRM.L ( "Clear Selection" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton.GRM_ToolResetSelectedMacroNamesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
@@ -4629,25 +4656,14 @@ GRM.GetQueuedEntries = function ()
     return result;
 end
 
--- Method:          GRM.GetListOfQueuedNames( bool )
+-- Method:          GRM.GetListOfQueuedNames()
 -- What it Does:    Returns the list of names in the qued list.
 -- Purpose:         So the player can easily export the names as needed.
 GRM.GetListOfQueuedNames = function( asString )
-    local names;
-    local delim = ",";
-    if GRM.S().exportDelimiter[1] then
-        delim = GRM.S().exportDelimiter[2];
-    end
-    
+    local names = {};
+
     for i = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries do
-        if asString then
-            names = names .. GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i] .. name .. delim;
-            if i == #GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
-                names = string.sub ( names , 1 , #names - 1 );  -- Remove the last deliminator
-            end
-        else
-            table.insert ( names , GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name );
-        end
+        table.insert ( names , GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name );
     end
 
     return names;

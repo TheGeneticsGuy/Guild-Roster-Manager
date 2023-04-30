@@ -87,6 +87,14 @@ GRM.ClassicCheckForNewMember = function ( name , scanNumber )
         -- Try to refresh the roster
         if GRM_G.RejoinControlCheck % 10 == 0 then
             GRM.GuildRoster();
+
+            if GRM_G.RejoinControlCheck % 40 == 0 then
+                if not GRM_G.inCombat and FriendsFrame and not FriendsFrame:IsVisible() then
+                    FriendsFrame:Show();
+                    FriendsFrameCloseButton:Click();
+                end
+            end
+            
         end
 
         C_Timer.After ( 0.1 , function()

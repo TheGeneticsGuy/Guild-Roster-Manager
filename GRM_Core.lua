@@ -33,9 +33,9 @@ SLASH_GRM1 = '/roster';
 SLASH_GRM2 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.974";
-GRM_G.PatchDay = 1682817991;             -- In Epoch Time
-GRM_G.PatchDayString = "1682817991";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.975";
+GRM_G.PatchDay = 1682898040;             -- In Epoch Time
+GRM_G.PatchDayString = "1682898040";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -1180,7 +1180,7 @@ end
 
 GRM.GuildRoster = function()
     if C_GuildInfo.GuildRoster then
-        if ( GRM_G.BuildVersion >= 100100 or ( CommunitiesFrame and CommunitiesFrame.MemberList and not CommunitiesFrame.MemberList:IsVisible() ) ) then
+        if ( GRM_G.BuildVersion >= 100100 or GRM_G.BuildVersion < 100000 or ( CommunitiesFrame and CommunitiesFrame.MemberList and not CommunitiesFrame.MemberList:IsVisible() ) ) then
             C_GuildInfo.GuildRoster();
             
         end
@@ -16299,6 +16299,28 @@ GRM.DelimiterFix = function ( entry , isComma )
     return result;
 end
 
+-- Method:          GRM.BuildExportAnyText ( string )
+-- What it Does:    Opens the export window and pastes whatever text this function is fed into there
+-- Purpose:         Allow easy copying of various data.
+GRM.BuildExportAnyText = function ( stringToExport )
+    local scrollWidth = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:GetWidth() - 3;
+
+    -- Reset the text
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( "" );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetSize ( scrollWidth , 12 );   -- Default Size at one line
+
+    if stringToExport ~= "" then
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( stringToExport );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:HighlightText ( 0 );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:Show();
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
+        C_Timer.After ( 2 , function()
+            GRM.ExportScrollSliderConfigure( scrollWidth );
+        end);
+    end
+
+end
+
 -- Method:          GRM.BuildExportLogFrame()
 -- What it Does:    Exactly as named... adds the entire guild log from the given guild, parses out the coloring, and makes it easy to copy and paste it
 -- Purpose:         To allow players the ability to export their logs to a file somewhere to keep their system from getting too clutters.
@@ -19221,9 +19243,10 @@ end
 GRM.LiveKickDetection = function( text , scanNumber )
     -- In a function to be called immediately or upon a delay
     local playerThatWasKicked , playerThatKicked = GRM.GetParsedKickPlayerNames ( text );
+    local result = false;
 
     if playerThatWasKicked ~= "" then
-
+        result = true;
         if GRM_G.currentName == playerThatWasKicked and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
             GRM_G.pause = false;
             GRM_UI.GRM_MemberDetailMetaData:Hide();
@@ -19236,6 +19259,7 @@ GRM.LiveKickDetection = function( text , scanNumber )
     end
 
     GRM_G.LiveScanningBlock.kick[scanNumber] = false;
+    return result;
 end
 
 -- Method:          GRM.BanAndKickingAltsByPlayer ( string )
@@ -19562,7 +19586,7 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
                 result = GRM.LivePromoteOrDemoteDetection ( msg , true , scanNumber );
             else
                 GRM.AddToLiveScanQue ( 1 , msg , scanNumber );
-                result = true;
+                result = false;
             end 
 
             if result and not GRM.S()["toChat"].promotion then
@@ -19577,7 +19601,7 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
                 result = GRM.LivePromoteOrDemoteDetection ( msg , false , scanNumber );
             else
                 GRM.AddToLiveScanQue ( 2 , msg , scanNumber );
-                result = true;
+                result = false;
             end 
 
             if result and not GRM.S()["toChat"].demotion then
@@ -19585,18 +19609,19 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
             end
 
         elseif string.find ( msg , GRM.L ( "joined the guild." ) ) then
-            result = true;
 
             -- In retail WOW the function to handle this is GRM.JoinPlayerLiveEvent();
             if GRM_G.BuildVersion < 80000 then
         
                 GRM_G.LiveScanningBlock.joinC , scanNumber = GRM.SetNextTrue ( GRM_G.LiveScanningBlock.joinC );
                 if not GRM_G.CurrentlyScanning then
+                    result = true;
                     GRM.GuildRoster();
                     GRM.LiveJoinDetection ( msg , scanNumber );
 
                 else
                     GRM.AddToLiveScanQue ( 3 , msg , scanNumber );
+                    result = false;
                 end
             end
 
@@ -19619,7 +19644,7 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
                 result = GRM.LiveLeaveDetection( msg , scanNumber );
             else
                 GRM.AddToLiveScanQue ( 5 , msg , scanNumber );
-                result = true;
+                result = false;
             end
 
             if result and not GRM.S()["toChat"].left then
@@ -19627,7 +19652,6 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
             end
 
         elseif string.find ( msg , GRM.L ( "has been kicked" ) ) then
-            result = true;
             -- Look at "GRM.GetPlayerKickedFromButton" function for kicks the player does themselves. This just absorbs the ones done by others.
             
             if not string.find ( msg , GRM.SlimName ( GRM_G.addonUser ) , 1 , true ) then
@@ -19635,9 +19659,10 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
 
                 if not GRM_G.CurrentlyScanning then
                     GRM.GuildRoster();
-                    GRM.LiveKickDetection ( msg , scanNumber );
+                    result = GRM.LiveKickDetection ( msg , s1canNumber );
                 else
                     GRM.AddToLiveScanQue ( 6 , msg , scanNumber );
+                    result = false;
                 end
  
             end
@@ -24887,7 +24912,6 @@ end
 -- What it Does:    Loops and rechecks in an interval for integrity tha the scan went off appropriately.
 -- Purpose:         Useful for Classic Guild Roster loop integrity check
 GRM.TrackingIntegrityCheck = function( isLoop )
-
     if GRM.S().scanEnabled then          -- if Scanning is enabled
 
         if isLoop or not GRM_G.IntegrityTackingEnabled then

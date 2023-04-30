@@ -1,3 +1,20 @@
+
+## **VERSION 1.975 RELEASE - APRIL 30th, 2023**
+
+**QUALITY OF LIFE**
+
+* You can now export the qued list from the macro tool, if you wish.
+
+![Export people Queued on Macro Tool](https://i.imgur.com/YYDwyAO.mp4)
+
+**BUG FIXES**
+
+* Fixed an issue with some people who were not able to login to the game due to a patching error that occurred on some backend updates. Should affect minimal people only, but that is now resolved.
+
+* Fixed an issue where join/leave/quit was not reporting to the chat window properly in Classic. It should now properly update and report when someone joins or gets kicked from the guild.
+
+* Fixed an issue where after a sync, if you were stuck waiting in a que to sync, even though it completed the sync, you were never informed. No errors, sync worked, it just failed to trigger the message. This only affected people in guilds where multiple were syncing at same time.
+
 ## **VERSION 1.974 RELEASE - APRIL 30th, 2023**
 
 * BUG fix that prevented some people from being able to update. Oops!

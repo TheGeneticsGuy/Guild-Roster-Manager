@@ -96,7 +96,7 @@ GRMsyncGlobals.syncTempDelay2 = false;
 GRMsyncGlobals.finalSyncDataCount = 1;
 GRMsyncGlobals.finalSyncDataBanCount = 1;
 GRMsyncGlobals.finalSyncProgress = { false , false , false , false , false , false , false }; -- on each of the tables, if submitted fully
-GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
+GRMsyncGlobals.numGuildRanks = 0;
 GRMsyncGlobals.TempRoster = {};
 GRMsyncGlobals.TempAltRoster = {};
 GRMsyncGlobals.altTempRosterCleanedup = false;
@@ -1209,6 +1209,9 @@ end
 -- What it Does:    If message received, designates the sender as the leader
 -- Purpose:         Need to designate a leader!
 GRMsync.SetLeader = function ( leader , initiateSync , banRankRestriction )
+
+    GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
+
     -- Error protection
     if string.find ( leader , "-" ) == nil then
         if GRM.IsMergedRealmServer() then
@@ -5095,14 +5098,14 @@ GRMsync.FinalSyncComplete = function()
     if nameOfCurrentSyncSender ~= nil then
         local tempMsg = GRM_G.PatchDayString .. "?GRM_COMPLETE?" .. GRMsyncGlobals.numGuildRanks .. "?" .. nameOfCurrentSyncSender;
         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMsg + GRMsyncGlobals.sizeModifier;
-        GRMsync.SendMessage ( "GRM_SYNC" , tempMsg , GRMsyncGlobals.CurrentSyncPlayer );
+        GRMsync.SendMessage ( "GRM_SYNC" , tempMsg , nameOfCurrentSyncSender );
 
         -- We made it... remove from the syncQue
         if #GRMsyncGlobals.SyncQue > 1 then
             table.remove ( GRMsyncGlobals.SyncQue , 1 );
 
             if GRM.S().syncChatEnabled then
-                GRM.Report ( GRM.L ( "Sync with {name} complete." , GRM.GetClassifiedName ( GRMsyncGlobals.CurrentSyncPlayer ) ) );
+                GRM.Report ( GRM.L ( "Sync with {name} complete." , GRM.GetClassifiedName ( nameOfCurrentSyncSender ) ) );
                 GRM.Report ( GRM.L ( "Sync with {name} next." , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
             end
 
@@ -7115,6 +7118,7 @@ GRMsync.Initialize = function()
                 GRMsyncGlobals.errorCheckEnabled = false;
                 GRMsync.MessageTracking = GRMsync.MessageTracking or CreateFrame ( "Frame" , "GRMsyncMessageTracking" );
                 GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+                GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
 
                 if GRM_G.playerRankID and GRM_G.playerRankID ~= -1 then
                     GRMsync.BuildSyncNetwork();

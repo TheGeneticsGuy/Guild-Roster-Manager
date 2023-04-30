@@ -1636,5 +1636,8 @@ GRML.SpanishEU = function()
     GRM_L["Show Member Faction"] = true
     GRM_L["Faction"] = true
     GRM_L["Alts:"] = true
+
+    -- R1.975
+    GRM_L["Export a full list of names in the queue."] = true
     
 end

@@ -1236,8 +1236,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     if numericV < 1.96 and baseValue < 1.96 then
 
-        GRM_Patch.ModifyMemberData ( GRM_Patch.JoinAndRankDataFix , true , true , false );
-        GRM_Patch.AddPlayerSetting ( "SyncTrackerPOS" , { "" , "" , 0 , 0 } );
+        if GRM_GuildMemberHistory_Save["H"] then
+            GRM_Patch.ModifyMemberData ( GRM_Patch.JoinAndRankDataFix , true , true , false );
+            GRM_Patch.AddPlayerSetting ( "SyncTrackerPOS" , { "" , "" , 0 , 0 } );
+        end
+        
         
         if loopCheck ( 1.96) then
             return;
