@@ -796,7 +796,6 @@ GRML.French = function()
     GRM_L["{name}'s Ban has been Updated by {name2}!"] = "Le ban de {name} a été mis à jour par {name2}!"
     GRM_L["{name} has Updated {name2}'s BAN and also BANNED all linked alts from the guild!"] = "{name} a mis à jour le ban de {name2} et a également banni tous ses Alts de la guilde !"
     GRM_L["One moment, GRM is still being configured."] = "Un moment, GRM en cours de configuration."
-    GRM_L["Press ENTER to complete"] = "Appuyez sur Entrée pour valider"
     GRM_L["Player Was Banned By: {name}"] = "Joueur banni par : {name}"
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED players are currently in the guild."] = "|cffff0000AVERTISSEMENT!!!|r {num} joueur BANNI est actuellement dans la guilde."     -- plural
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000AVERTISSEMENT!!!|r {num} joueurs BANNIS sont actuellement dans la guilde."        -- Singular  -- please keep the color coding... this keeps the Warning in red    

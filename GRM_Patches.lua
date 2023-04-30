@@ -7476,11 +7476,13 @@ GRM_Patch.FixJoinNameError = function()
                 GRM_GuildDataBackup_Save[guildName][backup[i]] = {};                                
             else
                 for name , player in pairs ( GRM_GuildDataBackup_Save[guildName][backup[i]] ) do
-                    if name == "" or player.name == "" or player.name == nil then
-                        if name == "" then
-                            GRM_GuildDataBackup_Save[guildName][backup[i]][name] = nil;
-                        else
-                            GRM_GuildDataBackup_Save[guildName][backup[i]][name].name = name;
+                    if type ( player ) == "table" then
+                        if name == "" or player.name == "" or player.name == nil then
+                            if name == "" then
+                                GRM_GuildDataBackup_Save[guildName][backup[i]][name] = nil;
+                            else
+                                GRM_GuildDataBackup_Save[guildName][backup[i]][name].name = name;
+                            end
                         end
                     end
                 end
@@ -7497,7 +7499,7 @@ GRM_Patch.AddExportEntry = function ( settings , entryCap )
 
     for i = 1 , entryCap do
         if settings.exportFilters[i] == nil then
-            if GRM_G.BuildVersion < 100000 then
+            if i == 23 and GRM_G.BuildVersion < 100000 then
                 settings.exportFilters[i] = false;
             else
                 settings.exportFilters[i] = true;

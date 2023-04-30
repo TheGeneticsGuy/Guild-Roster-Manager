@@ -33,7 +33,7 @@ SLASH_GRM1 = '/roster';
 SLASH_GRM2 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.973";
+GRM_G.Version = "R1.974";
 GRM_G.PatchDay = 1682817991;             -- In Epoch Time
 GRM_G.PatchDayString = "1682817991";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
@@ -956,7 +956,14 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
     -- Export Options
     elseif page == 9 then
         player["exportDelimiter"] = { true , ";" };                         -- 79
-        player["exportFilters"] = {true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,false,true,true} -- 80 "19 filters so far"
+        player["exportFilters"] = {};
+        for i = 1 , 23 do
+            if i == 17 or i == 21 or ( i == 23 and GRM_G.BuildVersion < 100000 ) then
+                table.insert ( player.exportFilters , false );  -- 17 = Mains or Alts only
+            else
+                table.insert ( player.exportFilters , true );
+            end
+        end
         
         -- Guild rep filter needs to be disabled in Classic
         if GRM_G.BuildVersion < 40000 then
@@ -15967,6 +15974,10 @@ GRM.convertToArrayFormat = function( guildName )
     altData = GRM.DeepCopyArray ( GRM_Alts[G] );
 
     return finalGData , formerGuildData , altData;
+end
+
+GRM.BuildCustomExport = function ( listToExport )
+
 end
 
 -- Method:          GRM.BuildExportMemberDetails( int , string , string )

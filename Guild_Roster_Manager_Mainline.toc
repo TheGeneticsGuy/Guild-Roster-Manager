@@ -1,7 +1,7 @@
 
 ## Interface: 100007
 ## Author: Arkaan
-## Version: 1.973
+## Version: 1.974
 ## Title: Guild Roster Manager
 ## Notes: Manage Guild Roster Changes, Events, with Alt/Main tagging, for ALL guildies
 ## X-Website: https://www.curseforge.com/wow/addons/guild-roster-manager

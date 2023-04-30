@@ -1,3 +1,14 @@
+## **VERSION 1.974 RELEASE - APRIL 30th, 2023**
+
+* BUG fix that prevented some people from being able to update. Oops!
+
+* Fixed an error that only affected *Classic Era* where Deathknight class was accidentally dropped in the ban list and was throwing errors since clearly that doesn't exist yet in that build.
+
+* The "Disabled in Classic" text should no longer overlap on the `/grm export` tool for members/former members.
+
+* The showing of the member faction option should now properly be check'd/set as true by default unless you are in any previous expansion prior to DF. This is in preparation of cross-faction guilds.
+
+
 ## **VERSION 1.973 RELEASE - APRIL 29th, 2023**
 
 **QUALITY OF LIFE**

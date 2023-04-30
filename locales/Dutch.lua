@@ -796,7 +796,6 @@ GRML.Dutch = function()
     GRM_L["{name}'s Ban has been Updated by {name2}!"] = true
     GRM_L["{name} has Updated {name2}'s BAN and also BANNED all linked alts from the guild!"] = true
     GRM_L["One moment, GRM is still being configured."] = true
-    GRM_L["Press ENTER to complete"] = true
     GRM_L["Player Was Banned By: {name}"] = true
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED players are currently in the guild."] = true         -- plural
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = true           -- Singular  -- please keep the color coding... this keeps the Warning in red
