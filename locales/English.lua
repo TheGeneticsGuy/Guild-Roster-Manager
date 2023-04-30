@@ -1485,7 +1485,7 @@ GRML.English = function()
     GRM_L["Kicking {name}'s alts"] = true
     GRM_L["Kicking Banned Player"] = true
     
-    GRM_L["Open any GRM window: {name}, {name2}, {custom1}, etc. "] = true
+    GRM_L["Open any GRM window: {name}, {name2}, {custom1}, etc."] = true
     GRM_L["Does a one-time check for dead accounts"] = true
     GRM_L["Dead player accounts found: {num}"] = true
     GRM_L["Rule Sync Enabled"] = true
@@ -1627,6 +1627,13 @@ GRML.English = function()
     GRM_L["Do Not Show if at Max Level {num}"] = true
     GRM_L["Not on Server"] = true
     GRM_L["Mythic+ rating will only appear on members at max level {num}."] = true
+
+    -- R1.973
+    GRM_L["You are currently syncing. Please wait until sync completes to transfer the guild data."] = true
+    GRM_L["Mythic+ Score"] = true
+    GRM_L["Show Member Faction"] = true
+    GRM_L["Faction"] = true
+    GRM_L["Alts:"] = true
 
 
 end

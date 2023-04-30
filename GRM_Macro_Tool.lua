@@ -403,23 +403,31 @@ GRM_UI.LoadToolFrames = function ( isManual )
             self.Timer = self.Timer + elapsed;
             if self.Timer >= 0.025 then
                 if GRM_G.HK then
+                    GRM_G.MacroInProgress = true;
                     if MacroFrame:IsVisible() then          -- this needs to be hidden or the script won't update the macros.a
                         MacroFrameCloseButton:Click();
                     end
                     GRM_G.HK = false;
                     GRM.PurgeMacrodNames();
 
+                    GRM.GuildRoster();
+                    if GRM_G.BuildVersion >= 30000 then
+                        QueryGuildEventLog();
+                    end
+                    
                     -- Need to validate the names are update now...
                     if GRM.IsMacroActionComplete() then
-                        C_Timer.After ( 1 , function()
+                        
+                        C_Timer.After ( 2 , function()
                             GRM.ValidateMacroRecordingSuccess ( false );
                         end);
+
                     end
                     
                     GRM.BuildQueuedScrollFrame ( true , false , false );
                     GRM.BuildMacrodScrollFrame ( true , true );
                     GRM_G.timeDelayValue = time(); -- resetting delay
-                    GRM.GuildRoster();
+                    
 
                     if not GRM_G.AuditWindowRefresh and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                         GRM_G.AuditWindowRefresh = true;
@@ -438,10 +446,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnHide" , function()
             -- Clear the macro!
             GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );
+            GRM_G.MacroInProgress = false;
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
             GRM.ScanRecommendationsList();
+            
         end);
 
         -- Text
@@ -589,7 +599,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetPoint ( "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText , "LEFT" , - 2 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame , "BOTTOMRIGHT" , -32 , 14 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame , "BOTTOMRIGHT" , -52 , 14 );
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetScript ( "OnClick", function( self , button )
             if button == "LeftButton" then
                 if self:GetChecked() then
@@ -693,8 +703,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             end
         end);
-
-
         
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollBorderFrame , "RIGHT" , 20 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoreResetSelectedNamesButton:SetSize ( 110 , 75 );
@@ -774,7 +782,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
-                print("Pending Feature - Test")
+                print("Pending Feature - Will prioritize soon - about 85% built" )
             end
         end);
 
@@ -1722,6 +1730,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
             if button == "LeftButton" then
 
                 -- Set the values if cursor still focused
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:ClearFocus();
+                end
+
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:HasFocus() then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:ClearFocus();
                 end
@@ -1732,6 +1744,21 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:HasFocus() then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:ClearFocus();
+                end
+
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:ClearFocus();
+                end
+
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:ClearFocus();
+                end
+
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:ClearFocus();
+                end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:ClearFocus();
                 end
 
                 -- This should be auto-disabled if it's an empty string
@@ -1753,9 +1780,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     -- Set the GUID
                     GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].GUID = GRM.GetMacroRuleGUID ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] );
 
-                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = {};
-                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString = GRM.ConvertMacroRuleToString ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] , GRM_UI.GRM_ToolCoreFrame.TabPosition );
-                    GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex = GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex;
+                    -- GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = {};
+                    -- GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString = GRM.ConvertMacroRuleToString ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] , GRM_UI.GRM_ToolCoreFrame.TabPosition );
+                    -- GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex = GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex;
 
                     -- Clear it from removed rules if it is there...
                     GRM.S().removedMacroRules[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = nil;
@@ -1786,6 +1813,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
                     GRM.RefreshNumberOfHoursTilRecommend();
                     GRM_UI.FullMacroToolRefresh();
+                    GRM.SyncAddonSettings();
                 end
             end
         end);
@@ -4575,9 +4603,23 @@ end
 -- Purpose:         Quality of life feature.
 GRM.SetKickQueuedValues = function ( ind , ind2 )
     local line = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind];
+    local mainTag = "|CFFFF0000 (" .. GRM.L ( "M" ) .. ")|r";
+    local altTag = "|CFFFF8080 (" .. GRM.L ( "A" ) .. ")|r";
+    local tag = "";
+    local tab = "";
+
+    if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].isMain then
+        tag = mainTag;
+    elseif GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].isAlt then
+        tag = altTag;
+    end
+
+    if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].tab then
+        tab = "        ";
+    end
 
     -- Player Name
-    line[2]:SetText ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].name );
+    line[2]:SetText ( tab .. GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].name .. tag );
     line[2]:SetTextColor ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].class[1] , GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].class[2] , GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].class[3] , 1 );
     line[3]:SetText ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[ind2].action );
 
@@ -4698,20 +4740,68 @@ GRM.GetToolTipLine = function ( rulePart )
     return result;
 end
 
--- Method:          GRM.UpdateQueuedTooltip()
+-- Method:          GRM.UpdateQueuedTooltip ( int )
 -- What it Does:    Sets the tooltip for the Queued scrollframe in the GRM kick tool
 -- Purpose:         Make it clear the QoL controls.
 GRM.UpdateQueuedTooltip = function ( ind )
-
-    local playerName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText();
+    local taggedName = GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText() );
+    if string.find ( taggedName , "|" ) then
+        taggedName = string.match ( taggedName , "(.+)|CFF" );
+    end
     local details;
+    local mainTag = "|CFFFF0000 (" .. GRM.L ( "M" ) .. ")|r";
+    local altTag = "|CFFFF8080 (" .. GRM.L ( "A" ) .. ")|r";
+    local player = GRM.GetPlayer ( taggedName );
+    local name = "";
+    local tag = "";
+    local mainName = "";
+    local alts = {};
+
+    -- See if main tag is needed.
+    if player.altGroup ~= "" then
+        alts , mainName = GRM.GetListOfAlts ( player );
+        if mainName ~= "" then
+            if mainName == player.name then
+                tag = mainTag;
+            else
+                tag = altTag;
+            end
+        end
+    end
+
+    -- Match the class color
+    name = GRM.GetClassColorRGB ( player.class , true ) .. player.name .. "|r" .. tag;
 
     GRM_UI.SetTooltipScale();
     GameTooltip:SetOwner ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][1] , "ANCHOR_CURSOR" );
-    GameTooltip:AddLine ( playerName , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetTextColor() );
+    GameTooltip:AddLine ( name );
+
+    -- Add Alts
+    local altList = "";
+    for i = 1 , #alts do
+        if i == 1 then
+            altList = GRM.L ( "Alts:" ) .. " |r";
+        end
+
+        tag = "";
+        if alts[i][1] == mainName then
+            tag = mainTag;
+        end
+        altList = altList .. GRM.GetClassColorRGB ( alts[i][2] , true ) .. GRM.FormatName ( alts[i][1] ) .. "|r" .. tag .. ", ";
+
+        if i % 4 == 0 and not ( i == #alts ) then
+            altList = altList .. "\n";
+        end
+
+        if i == #alts then
+            altList = string.sub ( altList , 1 , #altList - 2 );
+            GameTooltip:AddLine ( altList );
+            GameTooltip:AddLine ( " " );
+        end
+    end
 
     for i = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries do
-        if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name == playerName then
+        if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i].name == player.name then
 
             if type ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i][#GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i]] ) == "table" then
                 for j = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries[i] do
@@ -4759,7 +4849,7 @@ GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , b
     if showAll and fullRefresh then
         GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
         if not isBanAltList and not bannedInGuildList and not customKickGroup then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries ();
+            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries();
         elseif isBanAltList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllAltsTable );
             GRM_G.KickAllAltsTable = {};
@@ -4882,7 +4972,10 @@ GRM.BuildKickQueuedScrollButtons = function ( ind , isResizeAction )
         end);
 
         coreButton:SetScript ( "OnMouseDown" , function ( _ , button )
-            local playerName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText();
+            local playerName = GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText() );
+            if string.find ( playerName , "|" ) then
+                playerName = string.match ( playerName , "(.+)|CFF" );
+            end
             if button == "LeftButton" then
                 if IsShiftKeyDown() and IsControlKeyDown() then
                     GRM_UI.RestoreTooltipScale();
@@ -5272,18 +5365,29 @@ GRM.ValidateMacroRecordingSuccess = function( isReScan )
     if not ranksAllMatching then
         if not isReScan then        -- Only going to scan 1 time...
             GRM.Report ( GRM.L ( "GRM:" ) .. " : " .. GRM.L ( "Not all macro changes validated. One moment..." ) );
-            GRM_G.ManualScanEnabled = true;
             GRM_UI.GRM_ToolCoreFrame.MacroSuccess = false
-            C_Timer.After ( 1 , function()
+
+            GRM.GuildRoster();
+            if GRM_G.BuildVersion >= 30000 then
+                QueryGuildEventLog();
+            end
+            
+            C_Timer.After ( 2 , function()
+                GRM_G.ManualScanEnabled = true;
                 GRM.BuildNewRoster();
+                C_Timer.After ( 1 , function()
+                    GRM_G.MacroInProgress = false;
+                end);
             end);
         else
             -- Not able to validate
             GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;
+            GRM_G.MacroInProgress = false;
             GRM.Report ( GRM.L ( "Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further." ) );
         end
     else
         GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;
+        GRM_G.MacroInProgress = false;
         GRM.Report ( GRM.L ( "Macro rank changes have been validated!" ) );
     end
 
@@ -6348,11 +6452,11 @@ GRM.AdjustRuleNumbers = function ( name , ruleType , number )
             rule.ruleIndex = rule.ruleIndex - 1;
         end
     end
-    for ruleName , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
-        if ruleName ~= name and rule.ruleIndex > number then
-            rule.ruleIndex = rule.ruleIndex - 1;
-        end
-    end
+    -- for ruleName , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
+    --     if ruleName ~= name and rule.ruleIndex > number then
+    --         rule.ruleIndex = rule.ruleIndex - 1;
+    --     end
+    -- end
 end
 
 -- -- Method:          GRM.AddToRemovedRules ( string , string , table , int , string )
@@ -6792,14 +6896,14 @@ GRM.ShiftRuleUp = function ( ruleName )
         end
     end
 
-    GRM_G.MacroRuleSyncFormat[ruleType][ruleName].ruleIndex = tonumber ( ruleData[ruleName].ruleIndex );
+    -- GRM_G.MacroRuleSyncFormat[ruleType][ruleName].ruleIndex = tonumber ( ruleData[ruleName].ruleIndex );
 
-    for name , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
-        if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
-            rule.ruleIndex = rule.ruleIndex + 1;
-            break;
-        end
-    end
+    -- for name , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
+    --     if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
+    --         rule.ruleIndex = rule.ruleIndex + 1;
+    --         break;
+    --     end
+    -- end
     GRM_UI.FullMacroToolRefresh();
 end
 
@@ -6818,14 +6922,14 @@ GRM.ShiftRuleDown = function ( ruleName )
             break;
         end
     end
-    GRM_G.MacroRuleSyncFormat[ruleType][ruleName].ruleIndex = tonumber ( ruleData[ruleName].ruleIndex );
+    -- GRM_G.MacroRuleSyncFormat[ruleType][ruleName].ruleIndex = tonumber ( ruleData[ruleName].ruleIndex );
 
-    for name , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
-        if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
-            rule.ruleIndex = rule.ruleIndex - 1;
-            break;
-        end
-    end
+    -- for name , rule in pairs ( GRM_G.MacroRuleSyncFormat[ruleType] ) do
+    --     if ruleName ~= name and rule.ruleIndex == ruleData[ruleName].ruleIndex then
+    --         rule.ruleIndex = rule.ruleIndex - 1;
+    --         break;
+    --     end
+    -- end
     GRM_UI.FullMacroToolRefresh();
 end
 
@@ -8078,8 +8182,10 @@ GRM.GetKickNamesByFilterRules = function()
                                     listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[1];
                                     listOfPlayers[index].macro = "/gremove";
                                     listOfPlayers[index].isHighlighted = false;
-                                    listOfPlayers[index].mainName = GRM.GetMainName ( player , true );
                                     listOfPlayers[index].customMsg = "";
+                                    listOfPlayers[index].isMain = false;
+                                    listOfPlayers[index].isAlt = false;
+                                    listOfPlayers[index].tab = false;
                                 end
                                 
                                 table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
@@ -8106,15 +8212,13 @@ GRM.GetKickNamesByFilterRules = function()
         end
     end
 
-    -- if #listOfPlayers > 1 then
-    --     sort ( listOfPlayers , function ( a , b ) return a.name < b.name end );
+    -- if #listOfPlayers > 0 then
+    --     for i = 1 , #listOfPlayers do
+    --         sort ( listOfPlayers[i] , function ( a , b ) return a[1] < b[1] end );
+    --     end
     -- end
 
-    if #listOfPlayers > 0 then
-        for i = 1 , #listOfPlayers do
-            sort ( listOfPlayers[i] , function ( a , b ) return a[1] < b[1] end );
-        end
-    end
+    listOfPlayers = GRM.SortAltsUnderMain ( listOfPlayers );
 
     if #GRM_UI.GRM_ToolCoreFrame.Safe then
         sort ( GRM_UI.GRM_ToolCoreFrame.Safe , function ( a , b ) return a.name < b.name end );
@@ -8124,6 +8228,97 @@ GRM.GetKickNamesByFilterRules = function()
     GRM_G.counts[1] = #listOfPlayers;
 
     return listOfPlayers;
+end
+
+-- Method:          GRM.SortAltsUnderMain ( table )
+-- What it Does:    Sorts all of the people in the macro tool to be mains, with alts underneath them
+-- Purpose:         Quality of life sorting when looking at the macro tool
+GRM.SortAltsUnderMain = function( listOfPlayers )
+    local result = {}; -- We are going ot build a 2D array
+    local player = {};
+    local alts = {};
+    local mainName = "";
+    local isFound = false;
+    local finalList = {};
+
+    while #listOfPlayers > 0 do
+
+        for i = #listOfPlayers , 1 , -1 do
+            
+            player = GRM.GetPlayer ( listOfPlayers[i].name );
+
+            if player.altGroup == "" then
+                table.insert ( result , { GRM.DeepCopyArray( listOfPlayers[i] ) } );
+                table.remove ( listOfPlayers , i );
+            else
+                alts , mainName = GRM.GetListOfAlts ( player );
+
+                if mainName == "" or mainName == player.name then
+                    -- Main Name found, now let's cycle through and get all the alts too.
+                    table.insert ( result , { GRM.DeepCopyArray( listOfPlayers[i] ) } );
+                    table.remove ( listOfPlayers , i );
+                    
+                    if mainName ~= "" then
+                        result[#result][1].isMain = true;
+                    
+                        for j = 1 , #alts do
+                            for k = #listOfPlayers , 1 , -1 do
+
+                                if listOfPlayers[k].name == alts[j][1] then
+
+                                    local tempMain = GRM.DeepCopyArray ( result[#result][1] );
+                                    listOfPlayers[k].isAlt = true;
+                                    listOfPlayers[k].tab = true;
+
+                                    table.insert ( result[#result] , GRM.DeepCopyArray( listOfPlayers[k] ) );
+                                    table.remove ( result[#result] , 1 );   -- Removing the main
+                                    table.remove ( listOfPlayers , k );
+
+                                    sort ( result[#result] , function ( a , b ) return a.name < b.name end );   -- Sort the alts alphabetically
+
+                                    -- Put the main back on top
+                                    table.insert ( result[#result] , 1 , tempMain );
+                                    break;
+                                end
+                            end
+                        end
+                    end
+
+                    break;
+                elseif mainName ~= "" then
+                    -- We need to verify if mainName is on the list to be kicked
+                    isFound = false;
+                    for j = #listOfPlayers , 1 , -1 do
+                        if listOfPlayers[j].name == mainName then
+                            isFound = true;
+                            break;
+                        end
+                    end
+
+                    if not isFound then
+                        -- This means an alt is being kicked, but not a main.
+                        listOfPlayers[i].isAlt = true;
+                        table.insert ( result , { GRM.DeepCopyArray( listOfPlayers[i] ) } );
+                        table.remove ( listOfPlayers , i );
+                    end
+                end
+
+            end
+
+        end
+
+    end
+
+    sort ( result , function ( a , b ) return a[1].name < b[1].name end );
+
+    -- Now, return it in a linear format in a 1D array
+    for i = 1 , #result do
+        for j = 1 , #result[i] do
+            table.insert ( finalList , result[i][j] );
+        end
+    end
+
+    return finalList
 end
 
 -----------------------------------------------------------
@@ -8439,10 +8634,10 @@ end);
 -- GRM_G.MacroSyncLeads = {};                  -- Collection of names to determine who is the number one person to sync macro rules with
 -- GRM_G.MacroSyncCollecting = false;          -- On the initial timing sync request
 -- GRM_G.MacroSyncTimeOutCheck = { 0 , 0 };    -- to compare on recursive error check. Each step this will be reset to time(). If time goes by between each check then we know sync failed, it will retry. - 2nd number is the step you are at///./
-GRM_G.MacroRuleSyncFormat = {};
-GRM_G.MacroRuleSyncFormat.kickRules = {};
-GRM_G.MacroRuleSyncFormat.promoteRules = {};
-GRM_G.MacroRuleSyncFormat.demoteRules = {};
+-- GRM_G.MacroRuleSyncFormat = {};
+-- GRM_G.MacroRuleSyncFormat.kickRules = {};
+-- GRM_G.MacroRuleSyncFormat.promoteRules = {};
+-- GRM_G.MacroRuleSyncFormat.demoteRules = {};
 -- GRM_G.macroSizeMod = 12;                        -- Static value representing macro prefix size
 -- GRM_G.macroRequestQue = {};
 -- GRM_G.MacroSyncQuePosition = 0;                 -- Tracking the position in que to be used in the tooltip

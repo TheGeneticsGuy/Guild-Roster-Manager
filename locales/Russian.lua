@@ -1629,6 +1629,13 @@ GRML.Russian = function()
     GRM_L["Not on Server"] = true
     GRM_L["Mythic+ rating will only appear on members at max level {num}."] = true
     
+    -- R1.973
+    GRM_L["You are currently syncing. Please wait until sync completes to transfer the guild data."] = true
+    GRM_L["Mythic+ Score"] = true
+    GRM_L["Show Member Faction"] = true
+    GRM_L["Faction"] = true
+    GRM_L["Alts:"] = true
+    
 end
     
     -- Anazing work Максим#0406 on Discord - Incredible work, really!

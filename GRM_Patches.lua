@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 110;
+local totalPatches = 111;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -734,7 +734,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     if numericV < 1.80 and baseValue < 1.80 then
         GRM_Patch.ExpandOptionsType ( 3 , 1 , 81 );
-        GRM_Patch.ModifyNewDefaultSetting ( 82 , { 1.0 , 1.33 , 1.0 , 1.0 , 1.0 } );     -- Adding Scaler controls to the addon settings.
+        GRM_Patch.ModifyNewDefaultSetting ( 82 , { 1.0 , 1.0 , 1.0 , 1.0 , 1.0 } );     -- Adding Scaler controls to the addon settings.
         if loopCheck ( 1.80 ) then
             return;
         end
@@ -751,7 +751,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     patchNum = patchNum + 1;
     if numericV < 1.81 and baseValue < 1.81 then
-        GRM_Patch.FixOptionsSetting ( 82 , { 1.0 , 1.33 , 1.0 , 1.0 , 1.0 } , GRM_Patch.FixScalingOption );
+        GRM_Patch.FixOptionsSetting ( 82 , { 1.0 , 1.0 , 1.0 , 1.0 , 1.0 } , GRM_Patch.FixScalingOption );
         if loopCheck ( 1.81 ) then
             return;
         end
@@ -1302,6 +1302,24 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    -- patch 111
+    patchNum = patchNum + 1;
+    if numericV < 1.973 and baseValue < 1.973 then
+
+        GRM_Patch.AddNewSetting ( "exportFilters" , 23 , GRM_Patch.AddExportEntry );
+        if GRM_G.BuildVersion < 100000 then
+            GRM_Patch.AddNewSetting ( "showFaction" , false );
+        else
+            GRM_Patch.AddNewSetting ( "showFaction" , true );
+        end
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddFaction , true , true , false );
+        GRM_Patch.FixJoinNameError();
+
+        if loopCheck ( 1.973 ) then
+            return;
+        end
+    end
     
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -1451,7 +1469,7 @@ GRM_Patch.AddNewSetting = function ( nameOfNewSetting , value , additionalLogic 
         if not additionalLogic then
             GRM_AddonSettings_Save[g][nameOfNewSetting] = value;
         else
-            GRM_AddonSettings_Save[g] = additionalLogic ( GRM_AddonSettings_Save[g] );
+            GRM_AddonSettings_Save[g] = additionalLogic ( GRM_AddonSettings_Save[g] , value );
         end
     end
 end
@@ -4026,7 +4044,7 @@ end
 -- 1.50
 -- Method:          GRM_Patch.CleanupCustomNoteError()
 -- What it Does:    Checks the end of the custom note for a '?' sendAddonMessage comms divider. If found, it checks if next is an index number, if so, it clears the last 2 markers at end, example, like "9?"
--- Purpose:         This is due to incorrect parsing previously on sync that in some cases added an X number with divider at end of the new custom note, so like "Arkaan's Discord Name is Arkaan9?"
+-- Purpose:         This is due to incorrect parsing previously on sync that in some cases added an X number with divider at end of the new custom note, so like "Arkaan's Discord Name is Arkaan?"
 --                  The source of the error is now resolved, so just cleaning up notes where this may apply
 GRM_Patch.CleanupCustomNoteError = function( player )
     if player[23][6] == nil then
@@ -4577,7 +4595,7 @@ GRM_Patch.GetDefaultAddonSettings = function()
         { true , ";" },                                                                                         -- 79) Export Delimiter selection - it defaults ";"
         { true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true},                     -- 80) Export filters for member and former members (16 items so far)
         false,                                                                                                  -- 81) Auto-include export column headers
-        { 1.0 , 1.33 , 1.0 , 1.0 , 1.0 }                                                                        -- 82) Scale Controls for GRM frames (Core , mouseover , Macro , export , "" )
+        { 1.0 , 1.0 , 1.0 , 1.0 , 1.0 }                                                                        -- 82) Scale Controls for GRM frames (Core , mouseover , Macro , export , "" )
 
     }
 
@@ -6982,6 +7000,20 @@ GRM_Patch.ConvertSaveFiles = function( index )
                     if not newDataTable[guildName] then
                         newDataTable[guildName] = {};
                         newDataTable[guildName] = GRM.DeepCopyArray ( data[i][F][guildName] );
+
+                        -- Update player faction;
+                        if i > 3 then
+                            for _ , player in pairs ( newDataTable[guildName] ) do
+                                if type(player) == "table" then
+                                    if F == "H" then
+                                        player.faction = 0;
+                                    elseif F == "A" then
+                                        player.faction = 1;
+                                    end
+                                end
+                            end
+                        end
+
                     end
 
                 end
@@ -7310,7 +7342,6 @@ GRM_Patch.ResetUIScaling = function( scaling )
                 W , H = 600 , 535;
             elseif i == 2 then
                 W , H = 300 , 330;
-                S = 1.33
             elseif i == 3 then
                 W , H = 1200 , 515;
             elseif i == 4 then
@@ -7335,8 +7366,19 @@ GRM_Patch.CleanUpAltGroupsFromError = function()
 
         for altGroup in pairs ( GRM_Alts[guildName] ) do
 
-            if GRM_Alts[guildName][altGroup].main ~= "" and not GRM_GuildMemberHistory_Save[ guildName ][ GRM_Alts[guildName][altGroup].main ] then
-                GRM_Alts[guildName][altGroup] = nil;
+            if not GRM_GuildMemberHistory_Save[ guildName ] then
+                GRM_Alts[guildName] = nil;
+            else
+                if GRM_Alts[guildName][altGroup].main == nil or ( GRM_Alts[guildName][altGroup].main ~= "" and not GRM_GuildMemberHistory_Save[ guildName ][ GRM_Alts[guildName][altGroup].main ] ) then
+                    GRM_Alts[guildName][altGroup] = nil;
+                    for _,player in pairs ( GRM_GuildMemberHistory_Save[ guildName ] ) do
+                        if type(player) == "table" then
+                            if player.altGroup == altGroup then
+                                player.altGroup = "";
+                            end
+                        end
+                    end
+                end
             end
 
         end
@@ -7357,3 +7399,124 @@ GRM_Patch.CleanUpAltGroupsFromError = function()
 
 end
 
+-- -- 1.971
+-- -- Method:          GRM_Patch.CleanUpAltGroupsFromError()
+-- -- What it Does:    Cleans up old dead alt groups
+-- -- Purpose:         Realized an issue where if a person left/kicked from the guild whilst having no alts, but they were a main, they would leave but their dead alt group stayed there.
+-- GRM_Patch.CleanUpAltGroupsFromError = function()
+--     for guildName in pairs ( GRM_Alts ) do
+
+--         for altGroup in pairs ( GRM_Alts[guildName] ) do
+
+--             if GRM_Alts[guildName][altGroup].main ~= "" and not GRM_GuildMemberHistory_Save[ guildName ][ GRM_Alts[guildName][altGroup].main ] then
+--                 GRM_Alts[guildName][altGroup] = nil;
+--             end
+
+--         end
+
+--     end
+
+--     for guildName in pairs ( GRM_GuildDataBackup_Save ) do
+
+--         for altGroup in pairs ( GRM_GuildDataBackup_Save[guildName].alts ) do
+
+--             if GRM_GuildDataBackup_Save[guildName].alts[altGroup].main ~= "" and not GRM_GuildDataBackup_Save[guildName].members[ GRM_GuildDataBackup_Save[guildName].alts[altGroup].main ] then
+--                 GRM_GuildDataBackup_Save[guildName].alts[altGroup] = nil;
+--             end
+            
+--         end
+
+--     end
+
+-- end
+
+-- 1.973
+-- Method:          GRM_Patch.FixJoinNameError()
+-- What it Does:    Due to a lua error crashing the on-load of a player, this removes it if their name was not stored properly.
+-- Purpose:         Cleans up previous error.
+GRM_Patch.FixJoinNameError = function()
+    for guildName in pairs ( GRM_GuildMemberHistory_Save ) do                  -- The guilds in each faction
+        for name , player in pairs ( GRM_GuildMemberHistory_Save[guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild
+            if type ( player ) == "table" then
+                if name == "" or player.name == "" or player.name == nil then
+                    if name == "" then
+                        GRM_GuildMemberHistory_Save[guildName][name] = nil;
+                    else
+                        GRM_GuildMemberHistory_Save[guildName][name].name = name;
+                    end
+                end
+            end
+        end
+    end
+
+    -- Former memebrs
+    for guildName in pairs ( GRM_PlayersThatLeftHistory_Save ) do                  -- The guilds in each faction
+        for name , player in pairs ( GRM_PlayersThatLeftHistory_Save[guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+            if type ( player ) == "table" then 
+                if type ( player ) == "table" then
+                    if name == "" or player.name == "" or player.name == nil then
+                        if name == "" then
+                            GRM_PlayersThatLeftHistory_Save[guildName][name] = nil;
+                        else
+                            GRM_PlayersThatLeftHistory_Save[guildName][name].name = name;
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "members" , "formerMembers" };
+
+    for guildName in pairs ( GRM_GuildDataBackup_Save ) do
+        for i = 1 , #backup do        -- Member vs formerMember
+
+            if GRM_GuildDataBackup_Save[guildName][backup[i]] == nil or #GRM_GuildDataBackup_Save[guildName][backup[i]] > 0 then
+                GRM_GuildDataBackup_Save[guildName][backup[i]] = {};                                
+            else
+                for name , player in pairs ( GRM_GuildDataBackup_Save[guildName][backup[i]] ) do
+                    if name == "" or player.name == "" or player.name == nil then
+                        if name == "" then
+                            GRM_GuildDataBackup_Save[guildName][backup[i]][name] = nil;
+                        else
+                            GRM_GuildDataBackup_Save[guildName][backup[i]][name].name = name;
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- 1.972
+-- Method:          GRM_G.AddExportEntry( settingsTable , int )
+-- What it Does:    Addes the 22nd entry to the export options
+-- Purpose:         Enable a new setting for Mythic+ exporting.
+GRM_Patch.AddExportEntry = function ( settings , entryCap )
+
+    for i = 1 , entryCap do
+        if settings.exportFilters[i] == nil then
+            if GRM_G.BuildVersion < 100000 then
+                settings.exportFilters[i] = false;
+            else
+                settings.exportFilters[i] = true;
+            end
+        end
+    end
+
+    return settings;
+end
+
+-- 1.973
+-- Method:          GRM_Patch.AddFaction( playerTable )
+-- What it Does:    Adds the faction index as 0 for Horde and 1 for Alliance
+-- Purpose:         Update the faction designation.
+GRM_Patch.AddFaction = function ( player )
+
+    if not player.faction then
+        player.faction = -1.        -- Placeholder faction until it is actually scanned and known.
+    end
+
+    return player;
+end

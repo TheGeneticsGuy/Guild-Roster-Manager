@@ -2343,9 +2343,14 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         memberInfoToAdd.race = "";                                              -- 16
         memberInfoToAdd.sex = 1;                                                -- 17
         memberInfoToAdd.rosterSelection = 0;                                    -- 18]
+        memberInfoToAdd.faction = GRM_G.faction;
         
         if GRM_G.BuildVersion >= 80000 then
             memberInfoToAdd.MythicScore = { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 };
+        end
+
+        if GRM_G.BuildVersion >= 100000 then
+            memberInfoToAdd.faction = GRM_G.faction;
         end
         
         local _ , timeArray = GRM.EpochToDateFormat ( time() );
@@ -5216,11 +5221,12 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
         memberInfoToAdd.race = "";                                              -- 16
         memberInfoToAdd.sex = 1;                                                -- 17
         memberInfoToAdd.rosterSelection = 0;                                    -- 18
+        memberInfoToAdd.faction = GRM_G.faction;
 
         if GRM_G.BuildVersion >= 80000 then
             memberInfoToAdd.MythicScore = { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 };
         end
-        
+
         local _ , timeArray = GRM.EpochToDateFormat ( joinDateEpoch );
         GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , joinDateEpoch , originalJoinEpoch , nil );
 

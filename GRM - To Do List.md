@@ -135,7 +135,7 @@
 
 * Add nickname feature/pronouns.
 
-* Full name control - GRM_AddonSettings_Save[GRM_G.F][GRM_G.addonUser].useFullName
+* Full name control - GRM.S().useFullName
 
 *  Snapping back on the scrolling. Click the player locks the player, but it continues to allow mouseover scrolling, and snaps back when you scroll off... but lock is released if t he player's name is scrolled off.
 
@@ -153,8 +153,6 @@
   - Add join date to note, then fix mismatched dates with note date.
 
 * Add main info to ElvUI player mousover tooltip
-
-* Organize the macro tool names so they show main/alt, or even have alts as collapsable group under the main.
 
 * Pre-set messages you can send to guild chat or guild members, with click of a button, or with a slash command
   -- Example: /grm warn Ted

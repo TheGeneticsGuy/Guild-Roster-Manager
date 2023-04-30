@@ -1,3 +1,60 @@
+## **VERSION 1.973 RELEASE - APRIL 29th, 2023**
+
+**QUALITY OF LIFE**
+
+![Macro Tool - kick sorting](https://i.imgur.com/R8BQuIm.jpg)
+
+* The Macro tool will now group all of the alts of a main underneath it if there are any toons in an alt group being kicked. It will only do this if you have a main designated. If you have an alt group with no main designated it will not do this.
+
+![Macro Tool tooltip with alts](https://i.imgur.com/TORzDCq.jpg)
+
+* The macro tooltip has been updated as well to show all of the player's alts still in the guild as often it is the case that you are kicking one toon, not the whole group, so it might be good for taking notes of that on occasion. Thank you @Poisonenvy for suggestions on these!
+
+* The Macro tool had a slight annoyance in that when setting and changing some of the values of the rules, like the level range, you needed to hit ENTER or tab off them to lose focus on the editbox for the values to be saved. If you just confirmed the rule edit, it would not save the change. This will no longer be an issue going forward as the kick, promote, and demote rule windows will update properly without needing to hit ENTER when making a change. Confirming at the bottom to save the update is all that is necessary.
+
+* Mythic+ Score can now be exported.
+
+* Player faction has been added and will appear on the mouseover, enabled by default in retail, though turned off in classic builds since redundant.
+
+* Player faction has been added to export list as well.
+
+* On transfering a guild, using the transfer tool, it will now import all of your officer and public notes to the new guild. This is necessary for people that did not use the "Follow your guild" transfer option.
+
+* In addition, on importing, it will no longer process it if in the middle of a sync with another player.
+
+
+***BUG FIXES***
+
+* Fixed a bug that affected CLASSIC ERA only, where if someone joined or left the guild it would mass spam it.
+
+* Fixed an issue where you were getting some incorrect join/leave/promo/demote reporting to the log with the recent scanning update changes. I thought this was resolved in last build but I overlooked something. Should be good now.
+
+* Fixed an issue where there was a missing localization key, or type, if you did `/grm help`
+
+* Fixed an issue where the scan for changes would fail and not report to the log.
+
+* Fixed some Lua errors that occurred preventing setting the join date.
+
+* Fixed an issue that would cause GRM not to finish patching and fail.
+
+* Fixed an issue where sorting the macro rules up and down could cause an error and not show properly until you refreshed.
+
+* when opening the macro tool window it was transparent unless you dragged the window. It should now properly load the background translucent texture when opening the first time.
+
+* Fixed an issue if you typed `/grm reset or /grm center` that the mouseover window would shrink really small rather than go back to default size. Oops! This is now resolved. It would self-fix between sessions, but now it is a permanent fix.
+
+* Fixed a bug where the "Time in:" on the zone, on the mouseover window, was overlapping the "Note" wording.
+
+* The Export Log feature the delimiter was not showing on the final line. This is necessary for certain parsing programs. It now should properly show the delimiter of your choice.
+
+* Fixed an issue with the macro tool where if you checked the box to disable chat spam when using the macro tool, it would ALSO disable the chat spam indefinitely as well until you unchecked that, even if not using the tool. Whoops!
+
+* Fixed an issue where if someone else is using the macro in your guild, you were silencing the kick messages from appearing.
+
+* Sort of an edge case, but in some circumstances your settings could get wiped/reset on a player, then get sync'd to your alts. This shouldn't happen now. Sorry about that one!
+
+
+
 ## **VERSION 1.972 RELEASE - APRIL 20th, 2023**
 
 **NEW FEATURE - Guild Transfer - Preservation of Data**

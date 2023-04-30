@@ -19,59 +19,69 @@ GRM.ClassicCheckForNewMember = function ( name , scanNumber )
     end
 
     if isFound then           -- This means it shows successfully 1 found player...
-        local race , sex;
-        if guid ~= "" then
-            race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );
-        end
-        if race == nil or sex == nil then
-            race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );   -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
-            if race == nil or sex == nil then
-                race = "";
-                sex = 1;
+
+        if not GRM_G.liveAddedToons[rosterName] then
+
+            GRM_G.liveAddedToons[rosterName] = {};
+
+            local race , sex;
+            if guid ~= "" then
+                race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );
             end
-        end
-
-        local memberInfoToAdd = {};
-
-        memberInfoToAdd.name = rosterName                                           -- 1
-        memberInfoToAdd.rankName = rank;                                            -- 2
-        memberInfoToAdd.rankIndex = rankInd;                                        -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
-        memberInfoToAdd.level = level;                                              -- 4
-        memberInfoToAdd.note = note;                                                -- 5
-        if CanViewOfficerNote() then
-            memberInfoToAdd.officerNote = oNote;                                    -- 6
-        else
-            memberInfoToAdd.officerNote = nil; 
-        end
-        memberInfoToAdd.class = classFile;                                          -- 7
-        memberInfoToAdd.lastOnline = 0;                                             -- 8 Time since they last logged in in hours.
-        memberInfoToAdd.zone = zone;                                                -- 9
-        memberInfoToAdd.achievementPoints = pts;                                    -- 10    
-        memberInfoToAdd.isMobile = false;                                           -- 11
-        memberInfoToAdd.rep = rep;                                                  -- 12
-        memberInfoToAdd.isOnline = true;                                            -- 13
-        memberInfoToAdd.status = 0;                                                 -- 14
-        memberInfoToAdd.GUID = guid;                                                -- 15
-        memberInfoToAdd.race = "";                                                  -- 16
-        memberInfoToAdd.sex = 1;                                                    -- 17
-        memberInfoToAdd.rosterSelection = rosterIndex;                                        -- 18
-
-        GRM.RecordJoinChanges ( memberInfoToAdd , GRM.GetClassColorRGB ( classFile , true ) .. GRM.SlimName ( name ) .. "|r" , true , select ( 2 , GRM.GetTimestamp() ) , true );
-
-        -- Check Main Auto tagging...
-        GRM.SetGuildInfoDetails();
-        -- -- Delay for time to check "Unique Accounts" change...
-        C_Timer.After ( 10 , function()               
-            if GRM_G.DesignateMain then
-                GRM.SetMain ( name , 1 );
-                GRM.Report ( GRM.L ( "GRM Auto-Detect! {name} has joined the guild and will be set as Main" , GRM.GetClassifiedName ( name , true ) ) );
-                if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-                    GRM.RefreshAuditFrames ( true , true );
+            if race == nil or sex == nil then
+                race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );   -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
+                if race == nil or sex == nil then
+                    race = "";
+                    sex = 1;
                 end
             end
-        end);
 
-    elseif GRM_G.RejoinControlCheck <= 50 then
+            local memberInfoToAdd = {};
+
+            memberInfoToAdd.name = rosterName                                           -- 1
+            memberInfoToAdd.rankName = rank;                                            -- 2
+            memberInfoToAdd.rankIndex = rankInd;                                        -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
+            memberInfoToAdd.level = level;                                              -- 4
+            memberInfoToAdd.note = note;                                                -- 5
+            if CanViewOfficerNote() then
+                memberInfoToAdd.officerNote = oNote;                                    -- 6
+            else
+                memberInfoToAdd.officerNote = nil; 
+            end
+            memberInfoToAdd.class = classFile;                                          -- 7
+            memberInfoToAdd.lastOnline = 0;                                             -- 8 Time since they last logged in in hours.
+            memberInfoToAdd.zone = zone;                                                -- 9
+            memberInfoToAdd.achievementPoints = pts;                                    -- 10    
+            memberInfoToAdd.isMobile = false;                                           -- 11
+            memberInfoToAdd.rep = rep;                                                  -- 12
+            memberInfoToAdd.isOnline = true;                                            -- 13
+            memberInfoToAdd.status = 0;                                                 -- 14
+            memberInfoToAdd.GUID = guid;                                                -- 15
+            memberInfoToAdd.race = "";                                                  -- 16
+            memberInfoToAdd.sex = 1;                                                    -- 17
+            memberInfoToAdd.rosterSelection = rosterIndex;                                        -- 18
+
+            GRM.RecordJoinChanges ( memberInfoToAdd , GRM.GetClassColorRGB ( classFile , true ) .. GRM.SlimName ( name ) .. "|r" , true , select ( 2 , GRM.GetTimestamp() ) , true );
+
+            -- Check Main Auto tagging...
+            -- Check Main Auto tagging...
+            if not GRM_G.OnFirstLoad then
+                GRM.SetGuildInfoDetails();
+            end
+
+            -- -- Delay for time to check "Unique Accounts" change...
+            C_Timer.After ( 10 , function()               
+                if GRM_G.DesignateMain then
+                    GRM.SetMain ( name , 1 );
+                    GRM.Report ( GRM.L ( "GRM Auto-Detect! {name} has joined the guild and will be set as Main" , GRM.GetClassifiedName ( name , true ) ) );
+                    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+                        GRM.RefreshAuditFrames ( true , true );
+                    end
+                end
+            end);
+        end
+
+    elseif GRM_G.RejoinControlCheck <= 90 then
         GRM_G.RejoinControlCheck = GRM_G.RejoinControlCheck + 1;
 
         -- Try to refresh the roster
