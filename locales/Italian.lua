@@ -920,9 +920,6 @@ GRML.Italian = function()
 	GRM_L["1 entry has been removed from the log"] = "1 voce è stata rimossa dal registro"
 	GRM_L["{num} entries have been removed from the log"] = "{num} voci sono state rimosse dal registro"
 
-	-- 1.58
-	GRM_L["|CFFE6CC7FCtrl-Click|r to open the Old Guild Roster Window"] = "|CFFE6CC7FCtrl-Clicca|r per utilizzare la vecchia versione dell'elenco di gilda"
-
 	-- 1.59
 	GRM_L["Adding the Join Date cannot be disabled due to the global setting"] = "È impossibile disabilitare l'inserimento della data di entrata a causa delle impostazioni globali"
 	GRM_L["Due to your current rank, you will be unable to add Join Date Timestamps"] = "A causa del tuo grado attuale non potrai aggiungere le date di Entrata"

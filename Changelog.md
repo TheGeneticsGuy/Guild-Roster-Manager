@@ -1,11 +1,40 @@
 
+## **VERSION 1.976 RELEASE - May 2nd, 2023**
+
+**10.1 Compatibility Update!!**
+
+***Important note for 10.1 Change -- Loss of a staple feature due to UI Changes by Blizz***
+
+> Many of you are aware that in 10.1 Blizz has removed the old roster. Right now, there is the communities window that was introduced in 8.0 BFA. This replaced the old guild roster. However, the old roster you could still access just by typing `/groster` or by typing `Ctrl-J` on your keyboard, as I had GRM configured that way. Well, Blizz has officially removed this old guild roster window and it no longer exists in 10.1 -- this creates a problem for GRM.
+
+> A staple feature is the ability to  Ctrl-click players' names all through the addon and it will auto-bring up their player window, with the built-in side window where you can promote/demote,kick a player. Well, by Blizzard removing that old frame, being forced to use the CommunitiesFrame means this feature can no longer be used. Blizzard has the communitiesFrame so locked down that any action I do to try to auto-find the person in the guild, or even open that side window, introduces "taint" into the game, and thus all subsequent acctions of promote/demote/etc... will be blocked until you reload. Taint from an addon is just not acceptable. Just be aware that as a result of this change, it will now be harder for you to promote/demote as you are once again, forced to scroll to their position in the roster to do any action. 
+
+> The compromise is GRM will still bring up it's own window you can look at and work with, but that side details frame you will have to manually scroll to.
+
+
+***BUG FIXES***
+
+* Fixed sort of an edge case issue that could result in a macro rule getting purged because the data got corrupted. You will know if this happened to you as all other GRM addon data was fine, except you were missing your macro rule(s) only.
+
+* Fixed an issue that could arise in the name of a player joining the guild and GRm capturing an empty text string only.
+
+* Fixed an issue where a live kick detection was throwing a lua error.
+
+* Fixed an issue where a join detection could end up having a missing name with the GUID call to server. GRM will now look for that and recall as needed. For some reason some reason some calls using `GetPlayerInfoByGUID ( GUID )` were returning "nil" on the first 1 or 2, but after that they were correctly returning the player data.
+
+* The Check-all button on the `/grm export` member details window should no longer auto-check the button to replace alt-code chars from people's names.
+
+* In addition, the Main/alt radial buttons for filtering on who to export should now behave properly. You could uncheck both radial buttons by repeat clicking. Now, one should always be marked as selected.
+
+* In some cases GRM wasn't correctly picking up that someone joined the guild as it was rushing through the scan before the guild event log updated, thus GRM couldn't decipher who did the invite to the guild.
+
+
 ## **VERSION 1.975 RELEASE - APRIL 30th, 2023**
 
 **QUALITY OF LIFE**
 
 * You can now export the qued list from the macro tool, if you wish.
 
-![Export people Queued on Macro Tool](https://i.imgur.com/YYDwyAO.mp4)
 
 **BUG FIXES**
 

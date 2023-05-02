@@ -1538,13 +1538,11 @@ end
 GRM_UI.Unpause = function()
     if GRM_G.pause then
         if GRM_G.BuildVersion >= 80000 then
-            if ( GRM_G.CurrentPinCommunity and not GRM_UI.MemberDetailFrame:IsVisible() ) or ( not GRM_G.CurrentPinCommunity and not GRM_UI.MemberDetailFrameClassic:IsVisible() ) then
-                GRM_G.pause = false;
+            if GRM_UI.MemberDetailFrame:IsVisible() then
+                GRM_G.pause = false;    
             end
-        else
-            if not GRM_UI.MemberDetailFrame:IsVisible() then
-                GRM_G.pause = false;
-            end
+        elseif not GRM_UI.MemberDetailFrame:IsVisible() then
+            GRM_G.pause = false;
         end
     end
 end
@@ -2004,9 +2002,12 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnHide" , function()
         GRM.ClearAllFrames( false );
-        if not GRM_UI.MemberDetailFrame:IsVisible() and not GRM_UI.MemberDetailFrameClassic:IsVisible() then
+        if not GRM_UI.MemberDetailFrame:IsVisible() and not GRM_UI.MemberDetailFrame:IsVisible() then
             GRM_G.pause = false;
-            GRM.ClearRosterHighlights();
+
+            if GRM_G.BuildVersion < 80000 then
+                GRM.ClearRosterHighlights();
+            end
 
         else
             if GRM_G.pause then
@@ -2014,16 +2015,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     GRM_UI.MemberDetailFrame.LockedFrameText:Show();
                 end
 
-                if GRM_UI.MemberDetailFrameClassic then
-                    GRM_UI.MemberDetailFrameClassic.LockedFrameText:Show();
-                end
             end                
         end
     end);
 
     GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnShow" , function()
 
-        local configured1 , configured2 = false , false;
+        local configured1 = false;
         -- Configure only once
         if GRM_UI.MemberDetailFrame and not GRM_UI.MemberDetailFrame.LockedFrameText then
             GRM_UI.MemberDetailFrame.LockedFrameText = GRM_UI.MemberDetailFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
@@ -2043,31 +2041,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         else
             configured1 = true;
         end
-
-        if GRM_UI.MemberDetailFrameClassic and not GRM_UI.MemberDetailFrameClassic.LockedFrameText then
-            GRM_UI.MemberDetailFrameClassic.LockedFrameText = GRM_UI.MemberDetailFrameClassic:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetPoint ( "BOTTOMRIGHT" , GRM_UI.MemberDetailFrameClassic , "TOPRIGHT" , -5 , 0 );
-            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetFont (  GRM_G.FontChoice , GRM_G.FontModifier + 13 );
-            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetTextColor ( 1 , 0 , 0 , 1 );
-            GRM_UI.MemberDetailFrameClassic.LockedFrameText:SetText ( GRM.L ( "Locked. Press ESC" ) );
-            GRM_UI.MemberDetailFrameClassic.LockedFrameText:Hide();
-
-            GRM_UI.MemberDetailFrameClassic:HookScript ( "OnHide" , function()
-                if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                    GRM_G.pause = false;
-                    GRM.ClearRosterHighlights();
-                end
-            end);
-
-        else
-            configured2 = true;
-        end
         
         if configured1 then
             GRM_UI.MemberDetailFrame.LockedFrameText:Hide();
-        end
-        if configured2 then
-            GRM_UI.MemberDetailFrameClassic.LockedFrameText:Hide();
         end
 
     end);
@@ -12654,6 +12630,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton , "RIGHT" , 2 , 0 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText:SetText ( GRM.L ( "Auto Include Headers" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton.GRM_ExportAutoIncludeHeadersCheckButtonText );
+    
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportAutoIncludeHeadersCheckButton:SetScript ( "OnClick", function( self )
         if self:GetChecked() then
             GRM.S().columnHeaders = true;
@@ -13100,8 +13078,10 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         if self:GetChecked() then
             GRM.S().exportFilters[19] = true;
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetChecked ( false );
+            GRM.SyncSettings();
+        else
+            self:SetChecked ( true );
         end
-        GRM.SyncSettings();
     end);
 
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1 , "BOTTOMLEFT" , 0 , -2 );
@@ -13113,8 +13093,10 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         if self:GetChecked() then
             GRM.S().exportFilters[19] = false;
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:SetChecked ( false );
+            GRM.SyncSettings();
+        else
+            self:SetChecked ( true );
         end
-        GRM.SyncSettings();
     end);
 
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected , "BOTTOMRIGHT" , 7 , 0 );
@@ -13133,7 +13115,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
             for i = 1 , 23 do
 
-                if i ~= 19 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) and ( i ~= 22 or GRM_G.BuildVersion >= 80000 ) then
+                if i ~= 19 and i ~= 21 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) and ( i ~= 22 or GRM_G.BuildVersion >= 80000 ) then
                     GRM.S().exportFilters[i] = true;
                     _G[ "GRM_ExportFilter" .. i ]:SetChecked ( true );
                 end
@@ -13144,7 +13126,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2Text:SetTextColor ( 1 , 0.82 , 0 );
         else
             for i = 1 , 23 do
-                if i ~= 19 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) and ( i ~= 22 or GRM_G.BuildVersion >= 80000 ) then
+                if i ~= 19 and i ~= 21 and ( i ~= 10 or GRM_G.BuildVersion >= 40000 ) and ( i ~= 22 or GRM_G.BuildVersion >= 80000 ) then
                     GRM.S().exportFilters[i] = false;
                     _G[ "GRM_ExportFilter" .. i ]:SetChecked ( false );
                 end
@@ -16440,7 +16422,7 @@ GRM_UI.OldRosterLog_OnShow = function( isManual )
             else
                 GRM.S().showMouseoverOld = false;
                 GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetTextColor ( 1 , 0 , 0 , 1 );
-                if not GRM_G.CurrentPinCommunity and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                     GRM_UI.GRM_MemberDetailMetaData:Hide();
                 end                
             end
@@ -16509,12 +16491,12 @@ GRM_UI.MainRoster_OnShow = function( isManual )
             else
                 if GRM_G.BuildVersion >= 80000 then
                     GRM.S().showMouseoverRetail = false;
-                    if GRM_G.CurrentPinCommunity and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                         GRM_UI.GRM_MemberDetailMetaData:Hide();
                     end
                 else
                     GRM.S().showMouseoverOld = false;
-                    if not GRM_G.CurrentPinCommunity and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                         GRM_UI.GRM_MemberDetailMetaData:Hide();
                     end
                 end
@@ -16622,7 +16604,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
                             GRM_G.clubID = CommunitiesFrame:GetSelectedClubId();
                         end
 
-                        if ( GRM_G.CurrentPinCommunity and GRM_G.clubID ~= GRM_G.gClubID ) then
+                        if GRM_G.clubID ~= GRM_G.gClubID then
                             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                                 GRM.ClearAllFrames ( true );
                             end
@@ -16639,22 +16621,16 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             CommunitiesFrame:HookScript ( "OnHide" , function ()
                 GRM_UI.GRM_LoadLogButton:Hide();
                 GRM_UI.GRM_LoadToolButton:Hide();
-                if GRM_G.CurrentPinCommunity then
-                    GRM.ClearAllFrames( true );
-                end
+                GRM.ClearAllFrames( true );
             end);
             
             if GRM_G.BuildVersion < 100000 then
                 CommunitiesFrameScrollChild:HookScript ( "OnHide" , function()
-                    if GRM_G.CurrentPinCommunity then
-                        GRM.ClearAllFrames( true );
-                    end
+                    GRM.ClearAllFrames( true );
                 end);
             else
                 CommunitiesFrame.MemberList.ScrollBox:HookScript ( "OnHide" , function()
-                    if GRM_G.CurrentPinCommunity then
-                        GRM.ClearAllFrames( true );
-                    end
+                    GRM.ClearAllFrames( true );
                 end);
             end
 
@@ -16703,7 +16679,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             end
 
             GRM_UI.MemberDetailFrame:SetScript ( "OnShow" , function( self )
-                if not IsShiftKeyDown() and GRM_G.CurrentPinCommunity then
+                if not IsShiftKeyDown() then
                     GRM_G.pause = true;
                     self:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 34 , 0 );
                     GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , self , "TOPRIGHT" , -2 , 5 );
@@ -16713,47 +16689,14 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             end);
         
             GRM_UI.MemberDetailFrame:SetScript ( "OnHide" , function()
-                if GRM_G.CurrentPinCommunity then
-                    GRM_UI.GRM_PopupWindow:Hide();
-                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
-                    if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_G.pause = false;
-                    end
+                GRM_UI.GRM_PopupWindow:Hide();
+                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
+                if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                    GRM_G.pause = false;
                 end
             end);
         
             GRM_UI.MemberDetailFrame:SetScript ( "OnKeyDown" , function ( self , key )
-                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-                if key == "ESCAPE" then
-                    self:SetPropagateKeyboardInput ( false );
-                    self:Hide();
-                end
-            end);
-
-            GRM_UI.MemberDetailFrameClassic:SetScript ( "OnShow" , function( self )
-                if GRM.S().showMouseoverOld then
-                    if not IsShiftKeyDown() and not GRM_G.CurrentPinCommunity then
-                        GRM_G.pause = true;
-                        self:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , 0 , 2 );
-                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , self , "TOPRIGHT" , -4 , 5 );
-                    else
-                        self:Hide();
-                    end
-                end
-            end);
-        
-            GRM_UI.MemberDetailFrameClassic:SetScript ( "OnHide" , function()
-                if GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity then
-                    GRM_UI.GRM_PopupWindow:Hide();
-                    GRM.RemoveOldRosterButtonHighlights();
-                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-                    if GRM_G.pause and not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_G.pause = false;
-                    end
-                end
-            end);
-    
-            GRM_UI.MemberDetailFrameClassic:SetScript ( "OnKeyDown" , function ( self , key )
                 self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
                 if key == "ESCAPE" then
                     self:SetPropagateKeyboardInput ( false );
@@ -16766,7 +16709,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
 
             GRM_UI.MemberDetailFrame:SetScript ( "OnShow" , function( self )
                 if GRM.S().showMouseoverOld then
-                    if not IsShiftKeyDown() and not GRM_G.CurrentPinCommunity then
+                    if not IsShiftKeyDown() then
                         GRM_G.pause = true;
                         self:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , 0 , 2 );
                         GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , self , "TOPRIGHT" , -4 , 5 );
@@ -16777,7 +16720,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             end);
         
             GRM_UI.MemberDetailFrame:SetScript ( "OnHide" , function()
-                if GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity then
+                if GRM.S().showMouseoverOld then
                     GRM_UI.GRM_PopupWindow:Hide();
                     GRM.RemoveOldRosterButtonHighlights();
                     GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
@@ -16798,7 +16741,6 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             GRM_UI.CreateCharacterCountText ( GRM_UI.GuildInfoFrame , GRM_UI.GuildDetailsGuildInformationButton , GRM_UI.GuildInfoEditBox , "GuildINFOcharCount" , -33 , -18 );
 
             GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-            GRM_G.CurrentPinCommunity = false;
 
         end
 
@@ -16820,7 +16762,6 @@ GRM_UI.CommunitesFrame_OnShow = function()
     GRM_UI.GRM_LoadToolButton:Show();
     GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
     GRM_UI.MemberDetailFrame:Hide();
-    GRM_G.CurrentPinCommunity = true;
     GRM.ClearAllFrames ( true );
     GRM_G.pause = false;
     GRM_G.clubID = CommunitiesFrame:GetSelectedClubId();            -- Establish the clubID immediately...
@@ -16831,7 +16772,7 @@ GRM_UI.CommunitesFrame_OnShow = function()
             GRM_UI.MainRoster_OnShow ( false );
             GRM_G.CommunityInitialized = true;
         end
-    else
+    elseif GRM_G.BuildVersion >= 100000 then
         if not GRM_G.CommunityInitialized then
             GRM.InitializeDragonFlightRosterButtons();
             GRM_UI.MainRoster_OnShow ( false );
@@ -16843,79 +16784,95 @@ end
 GRM_UI.InitalizeGuildFrame = function()
     GRM_G.BlizzFramePinsInitialized = true;
     -- what to do on Showing the main roster frame - Classic and Retail Old Roster (/groster)
-    local LoadGuildFrameLockTask = function()
-        if GuildFrame:IsVisible() then
-            GRM_UI.GRM_LoadLogOldRosterButton:Show();
-            GRM_UI.GRM_LoadToolOldRosterButton:Show();
-        end
-        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-        GRM_G.CurrentPinCommunity = false;
-        GRM.ClearAllFrames ( true );
-        GRM_G.pause = false;
 
-        if not GRM_G.ClassicRosterInitialized then
-            GRM_G.ClassicRosterInitialized = true;
-            GRM_G.ClassicTaintWarning = true;           -- No need to report on taint anymore now that the window has been opened
+    if GRM_G.BuildVersion < 80000 then
 
-            if GRM_G.BuildVersion < 80000 then
+        local LoadGuildFrameLockTask = function()
+            if GuildFrame:IsVisible() then
+                GRM_UI.GRM_LoadLogOldRosterButton:Show();
+                GRM_UI.GRM_LoadToolOldRosterButton:Show();
+            end
+            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
+            GRM.ClearAllFrames ( true );
+            GRM_G.pause = false;
+
+            if not GRM_G.ClassicRosterInitialized then
+                GRM_G.ClassicRosterInitialized = true;
+                GRM_G.ClassicTaintWarning = true;           -- No need to report on taint anymore now that the window has been opened
+
                 GRM_UI.MainRoster_OnShow ( false );
                 GRM.InitializeOldRosterButtons();
                 GRM.InitializeOldRosterButtons ( "GuildFrameGuildStatusButton" );
                 GRM_UI.RankShiftInitialize();
                 GRM_G.CommunityInitialized = true;
                 GRM_G.ClassicTaintProtection = true;
-            else
-                GRM_UI.OldRosterLog_OnShow( false );
-                GRM.InitializeOldRosterButtons();
+            end
+
+        end
+        
+        GuildFrame:HookScript ( "OnShow" , function()
+            LoadGuildFrameLockTask();
+            GRM_G.ClassicTanitProtection = false;
+        end);
+
+        -- Close Meta data window
+        GuildFrame:HookScript ( "OnHide" , function ()
+            GRM_UI.GRM_LoadLogOldRosterButton:Hide();
+            GRM_UI.GRM_LoadToolOldRosterButton:Hide();
+            if GRM.S().showMouseoverOld then
+                GRM.ClearAllFrames( true );
+            end
+
+            -- Classic highlight removal.
+            GRM.ClearRosterHighlights();
+
+        end);
+
+        GRM.GRM_CoreUpdateFrameGuildFrame = CreateFrame ( "Frame" , nil , GuildFrame );
+        GRM.GRM_CoreUpdateFrameGuildFrame.timer = 0;
+        
+        -- Method:          GRM.FrameUpdateOldRoster ( self , int )
+        -- What it Does:    On_Update handler for the frames when Communities is open.
+        -- Purpose:         For mouseover to function properly
+        local FrameUpdateOldRoster = function ( _ , elapsed )
+            GRM.GRM_CoreUpdateFrameGuildFrame.timer = GRM.GRM_CoreUpdateFrameGuildFrame.timer + elapsed;
+            if GRM.GRM_CoreUpdateFrameGuildFrame.timer >= 0.05 and IsInGuild() and GuildFrame then
+                GRM.RosterFrame();
+                GRM.GRM_CoreUpdateFrameGuildFrame.timer = 0;
             end
         end
 
-    end
+        GRM.GRM_CoreUpdateFrameGuildFrame:SetScript ( "OnUpdate" , FrameUpdateOldRoster );
 
-    if GRM_G.BuildVersion >= 80000 then
-        LoadGuildFrameLockTask();
-    end
+        -- Old Roster
+        GRM_UI.GuildRosterContainerScrollChild:HookScript ( "OnHide" , function()
+            if GRM.S().showMouseoverOld then
+                GRM.ClearAllFrames( true );
+            end
+        end);
 
-    GuildFrame:HookScript ( "OnShow" , function()
-        LoadGuildFrameLockTask();
-        GRM_G.ClassicTanitProtection = false;
-    end);
-
-    -- Close Meta data window
-    GuildFrame:HookScript ( "OnHide" , function ()
-        GRM_UI.GRM_LoadLogOldRosterButton:Hide();
-        GRM_UI.GRM_LoadToolOldRosterButton:Hide();
-        if GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity then
-            GRM.ClearAllFrames( true );
+        if GRM_G.BuildVersion < 80000 then
+            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
+            GRM.ClearAllFrames ( true );
+            GRM_G.pause = false;
         end
+        GRM_UI.MemberDetailFrameClassic:Hide();
 
-        -- Classic highlight removal.
-        GRM.ClearRosterHighlights();
+    else
 
-    end);
+        CommunitiesFrame.MemberList.ShowOfflineButton.GRM_MemberCount = CommunitiesFrame.MemberList.ShowOfflineButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
+        CommunitiesFrame.MemberList.ShowOfflineButton.GRM_MemberCount:SetPoint ( "RIGHT" , CommunitiesFrame.GuildMemberListDropDownMenu , "LEFT" , -5 , 0 );
+        CommunitiesFrame.MemberList.ShowOfflineButton.GRM_MemberCount:SetFont ( CommunitiesFrame.MemberList.MemberCount:GetFont() , select ( 2 , CommunitiesFrame.MemberList.MemberCount:GetFont() ) );
 
-    GRM.GRM_CoreUpdateFrameGuildFrame = CreateFrame ( "Frame" , nil , GuildFrame );
-    GRM.GRM_CoreUpdateFrameGuildFrame.timer = 0;
-    
-    -- Method:          GRM.FrameUpdateOldRoster ( self , int )
-    -- What it Does:    On_Update handler for the frames when Communities is open.
-    -- Purpose:         For mouseover to function properly
-    GRM.FrameUpdateOldRoster = function ( _ , elapsed )
-        GRM.GRM_CoreUpdateFrameGuildFrame.timer = GRM.GRM_CoreUpdateFrameGuildFrame.timer + elapsed;
-        if GRM.GRM_CoreUpdateFrameGuildFrame.timer >= 0.05 and IsInGuild() and GuildFrame then
-            GRM.RosterFrame();
-            GRM.GRM_CoreUpdateFrameGuildFrame.timer = 0;
+        if CommunitiesFrame:IsVisible() then
+            GRM_UI.CommunitesFrame_OnShow();
         end
+        
+        CommunitiesFrame:HookScript ( "OnShow" , function()
+            GRM_UI.CommunitesFrame_OnShow();
+        end);
+
     end
-
-    GRM.GRM_CoreUpdateFrameGuildFrame:SetScript ( "OnUpdate" , GRM.FrameUpdateOldRoster );
-
-    -- Old Roster
-    GRM_UI.GuildRosterContainerScrollChild:HookScript ( "OnHide" , function()
-        if GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity then
-            GRM.ClearAllFrames( true );
-        end
-    end);
 
     -- Communities
     GRM_UI.CreateCharacterCountText ( GRM_UI.CommunitiesGuildTextEditFrame , GRM_UI.GuildDetailsFrameEditMOTDButton , GRM_UI.MOTDEditBox , "GuildMOTDcharCount" , -33 , -18 , GRM_UI.GuildDetailsGuildInformationButton );
@@ -16939,30 +16896,6 @@ GRM_UI.InitalizeGuildFrame = function()
         GRM_UI.GRM_OfficerNoteTooltip:Hide();
     end);
 
-    if ( GRM.S().showMouseoverOld and GuildFrame and GuildFrame:IsVisible() ) or GRM_G.BuildVersion < 80000 then
-        GRM_G.CurrentPinCommunity = false;
-        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-        GRM.ClearAllFrames ( true );
-        GRM_G.pause = false;
-    end
-
-    GRM_UI.MemberDetailFrameClassic:Hide();
-
-    if GRM_G.BuildVersion >= 80000 then
-        CommunitiesFrame.MemberList.ShowOfflineButton.GRM_MemberCount = CommunitiesFrame.MemberList.ShowOfflineButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
-        CommunitiesFrame.MemberList.ShowOfflineButton.GRM_MemberCount:SetPoint ( "RIGHT" , CommunitiesFrame.GuildMemberListDropDownMenu , "LEFT" , -5 , 0 );
-        CommunitiesFrame.MemberList.ShowOfflineButton.GRM_MemberCount:SetFont ( CommunitiesFrame.MemberList.MemberCount:GetFont() , select ( 2 , CommunitiesFrame.MemberList.MemberCount:GetFont() ) );
-
-        if CommunitiesFrame:IsVisible() then
-            GRM_UI.CommunitesFrame_OnShow();
-        end
-        
-        CommunitiesFrame:HookScript ( "OnShow" , function()
-            GRM_UI.CommunitesFrame_OnShow();
-        end);
-
-    end
-
     GRM_UI.BlizzardFramePinHookInitializations ( false );
 end
 
@@ -16970,10 +16903,16 @@ end
 -- What it Does:    Re-checks over and over until the frames are properly loaded.
 GRM_UI.DefaultFramesRecursiveInit = function( isCommunityLoaded , isGuildFrameLoaded )
 
-    if not isGuildFrameLoaded then
-        if GuildFrame and GuildFrame:IsVisible() then
-            isGuildFrameLoaded = true;
+    if GRM_G.BuildVersion < 80000 then
+        
+        if not isGuildFrameLoaded then
+            if GuildFrame and GuildFrame:IsVisible() then
+                isGuildFrameLoaded = true;
+            end
         end
+
+    else
+        isGuildFrameLoaded = true;
     end
 
     if not isCommunityLoaded then
@@ -17200,38 +17139,3 @@ GRM_UI.SetAllWindowScales = function ( buildSizingLogic )
 end
 
 GRM_UI.PreAddonLoadUI();
-
-
--- -- CommunitiesFrames
--- -- Method:          GRM_UI.RePinMouseoverPlayerWindow()
--- -- What it Does:    Repins this frame since when you rescale it the pinning messes up.
--- -- Purpose:         Control the pins.
--- GRM_UI.RePinMouseoverPlayerWindow = function()
---     if GRM_G.BuildVersion >= 80000 then
-        
---         if not GRM_G.CurrentPinCommunity then
-            
---             GRM_UI.GRM_MemberDetailMetaData:ClearAllPoints();
---             if GRM_UI.MemberDetailFrame:IsVisible() then
---                 GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
---             else
---                 GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
---             end
---             GRM_G.CurrentPinCommunity = true;
---         end
---     end
-
---     if GRM_G.CurrentPinCommunity then
---         GRM_UI.GRM_MemberDetailMetaData:ClearAllPoints();
---         if GRM_UI.MemberDetailFrameClassic:IsVisible() then
---             GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrameClassic , "TOPRIGHT" , -4 , 5 );
---         else
---             GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
---         end
---         GRM_G.CurrentPinCommunity = false;            
---     end
-
--- end
-
-
-

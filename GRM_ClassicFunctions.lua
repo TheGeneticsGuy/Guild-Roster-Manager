@@ -145,12 +145,12 @@ end
 GRM.ClearRosterHighlights = function()
     SetGuildRosterSelection ( 0 );      -- If you do not clear the selection, it will just re-highlight the bar when it updates.\
 
-    if GuildFrame and GuildFrame:IsVisible() then
+    if GRM_G.BuildVersion < 80000 and GuildFrame and GuildFrame:IsVisible() then
         if GRM_G.BuildVersion < 40000 then
             for i = 1 , GRM_UI.ContainerButtonCount do
                 _G[ "GuildFrameButton" .. i ]:UnlockHighlight();
             end
-        else
+        elseif GRM_G.BuildVersion < 80000 then
             for i = 1 , GRM_UI.ContainerButtonCount do
                 _G[ "GuildRosterContainerButton" .. i ]:UnlockHighlight();
             end

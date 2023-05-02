@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 111;
+local totalPatches = 112;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1324,6 +1324,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
     
+    -- patch 112
+    patchNum = patchNum + 1;
+    if numericV < 1.976 and baseValue < 1.976 then
+
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixMissingNames , true , true , false );
+
+        if loopCheck ( 1.976 ) then
+            return;
+        end
+    end
+
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -7521,6 +7533,70 @@ GRM_Patch.AddFaction = function ( player )
 
     if not player.faction then
         player.faction = -1.        -- Placeholder faction until it is actually scanned and known.
+    end
+
+    return player;
+end
+
+-- R1.976
+-- Method:          GRM_Patch.FixMissingNames ( playerTable )
+-- What it Does:    Looks for an empty string for player name and updates it
+-- Purpose:         Restore players' name
+GRM_Patch.FixMissingNames = function ( player )
+
+    for guildName in pairs ( GRM_PlayersThatLeftHistory_Save ) do                  -- The guilds in each faction
+        for name , player in pairs ( GRM_PlayersThatLeftHistory_Save[guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+            if type ( player ) == "table" then
+
+                if name == "" then
+                    GRM_PlayersThatLeftHistory_Save[guildName][name] = nil;
+
+                elseif player.name == "" then
+                    player.name = name;
+                end
+
+            end
+        end
+    end
+
+    for guildName in pairs ( GRM_GuildMemberHistory_Save ) do                  -- The guilds in each faction
+        for name , player in pairs ( GRM_GuildMemberHistory_Save[guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+            if type ( player ) == "table" then
+
+                if name == "" then
+                    GRM_GuildMemberHistory_Save[guildName][name] = nil;
+
+                elseif player.name == "" then
+                    player.name = name;
+                end
+
+            end
+        end
+    end
+
+    -- Check the backup data as well.
+    local backup = { "members" , "formerMembers" };
+    for guildName in pairs ( GRM_GuildDataBackup_Save ) do
+        for i = 1 , #backup do        -- Member vs formerMember
+
+            if GRM_GuildDataBackup_Save[guildName][backup[i]] == nil or #GRM_GuildDataBackup_Save[guildName][backup[i]] > 0 then
+                GRM_GuildDataBackup_Save[guildName][backup[i]] = {};                                
+            else
+                for name , player in pairs ( GRM_GuildDataBackup_Save[guildName][backup[i]] ) do
+                    if type ( player ) == "table" then 
+
+                        if name == "" then
+                            GRM_GuildDataBackup_Save[guildName][backup[i]][name] = nil;
+        
+                        elseif player.name == "" then
+                            player.name = name;
+                        end
+
+                    end
+                end
+            end
+
+        end
     end
 
     return player;

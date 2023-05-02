@@ -4,45 +4,41 @@
 
 GRM_UI.EstablishClassicFrames = function()
 
-    -- Vanilla WOW
-    if GRM_G.BuildVersion > 10000 then
-        -- Guild Roster Frames
-        GRM_UI.GuildRosterContainerScrollChild = GuildListScrollFrameScrollChildFrame;
-        GRM_UI.GuildRosterFrame = GuildFrame;
-        GRM_UI.ContainerButtonCount = GUILDMEMBERS_TO_DISPLAY;
-        GRM_UI.OldRosterButtonName = "GuildFrameButton";
-        GRM_UI.GuildRosterContainer = GuildListScrollFrame;
-        GRM_UI.MemberDetailFrame = GuildMemberDetailFrame;
-        GRM_UI.MemberDetailFrameClassic = GuildMemberDetailFrame;
-        GRM_UI.MemberDetailFrame.RemoveButton = GuildMemberRemoveButton;
-        GRM_UI.MemberDetailFrame.Name = GuildMemberDetailName;
+    if GRM_G.BuildVersion < 80000 then
+        -- Vanilla WOW
+        if GRM_G.BuildVersion > 10000 then
+            -- Guild Roster Frames
+            GRM_UI.GuildRosterContainerScrollChild = GuildListScrollFrameScrollChildFrame;
+            GRM_UI.GuildRosterFrame = GuildFrame;
+            GRM_UI.ContainerButtonCount = GUILDMEMBERS_TO_DISPLAY;
+            GRM_UI.OldRosterButtonName = "GuildFrameButton";
+            GRM_UI.GuildRosterContainer = GuildListScrollFrame;
+            GRM_UI.MemberDetailFrame = GuildMemberDetailFrame;
+            GRM_UI.MemberDetailFrameClassic = GuildMemberDetailFrame;
+            GRM_UI.MemberDetailFrame.RemoveButton = GuildMemberRemoveButton;
+            GRM_UI.MemberDetailFrame.Name = GuildMemberDetailName;
 
-        -- MOTD and GuildInfo Window
-        GRM_UI.CommunitiesGuildTextEditFrame = StaticPopup1;
-        GRM_UI.GuildInfoFrame = GuildInfoFrame;
-        GRM_UI.MOTDEditBox = StaticPopup1EditBox;
-        GRM_UI.GuildInfoEditBox = GuildInfoEditBox;
-        GRM_UI.GuildDetailsFrameEditMOTDButton = GuildMOTDEditButton;
-        GRM_UI.GuildDetailsGuildInformationButton = GuildFrameGuildInformationButton;
-        
-    end
+            -- MOTD and GuildInfo Window
+            GRM_UI.CommunitiesGuildTextEditFrame = StaticPopup1;
+            GRM_UI.GuildInfoFrame = GuildInfoFrame;
+            GRM_UI.MOTDEditBox = StaticPopup1EditBox;
+            GRM_UI.GuildInfoEditBox = GuildInfoEditBox;
+            GRM_UI.GuildDetailsFrameEditMOTDButton = GuildMOTDEditButton;
+            GRM_UI.GuildDetailsGuildInformationButton = GuildFrameGuildInformationButton;
+            
+        end
 
-    -- Cata
-    if GRM_G.BuildVersion >= 40000 then
-        GRM_UI.ContainerButtonCount = 16;
-        GRM_UI.OldRosterButtonName = "GuildRosterContainerButton";
-        GRM_UI.GuildRosterContainer = GuildRosterContainer;
+        -- Cata
+        if GRM_G.BuildVersion >= 40000 then
+            GRM_UI.ContainerButtonCount = 16;
+            GRM_UI.OldRosterButtonName = "GuildRosterContainerButton";
+            GRM_UI.GuildRosterContainer = GuildRosterContainer;
 
-    end
+        end
 
-    -- BFA
-    if GRM_G.BuildVersion >= 80000 then         -- Major Communities Frame introduction
-        
-        -- Guild Roster Frames
-        GRM_UI.GuildRosterContainerScrollChild = GuildRosterContainerScrollChild;
-        GRM_UI.GuildRosterFrame = GuildRosterFrame;
+    elseif GRM_G.BuildVersion >= 80000 then
+
         GRM_UI.MemberDetailFrame = CommunitiesFrame.GuildMemberDetailFrame;
-        GRM_UI.MemberDetailFrameClassic = GuildMemberDetailFrame;
         GRM_UI.MemberDetailFrame.RemoveButton = CommunitiesFrame.GuildMemberDetailFrame.RemoveButton;
         GRM_UI.MemberDetailFrame.Name = CommunitiesFrame.GuildMemberDetailFrame.Name;
 
@@ -54,10 +50,6 @@ GRM_UI.EstablishClassicFrames = function()
         GRM_UI.GuildDetailsFrameEditMOTDButton = CommunitiesFrameGuildDetailsFrameInfo.EditMOTDButton;
         GRM_UI.GuildDetailsGuildInformationButton = CommunitiesFrameGuildDetailsFrameInfo.EditDetailsButton;
 
-        -- When did they improve the guild roster window.
-
-
     end
-
 
 end

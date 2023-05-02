@@ -917,10 +917,7 @@ GRML.SpanishMX = function()
     GRM_L["Log Entry Tooltip"] = true
     GRM_L["1 entry has been removed from the log"] = true
     GRM_L["{num} entries have been removed from the log"] = true
-    
-    -- 1.58
-    GRM_L["|CFFE6CC7FCtrl-Click|r to open the Old Guild Roster Window"] = true
-    
+
     -- 1.59
     GRM_L["Adding the Join Date cannot be disabled due to the global setting"] = true
     GRM_L["Due to your current rank, you will be unable to add Join Date Timestamps"] = true

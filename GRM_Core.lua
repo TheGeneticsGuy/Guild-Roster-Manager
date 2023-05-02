@@ -33,9 +33,9 @@ SLASH_GRM1 = '/roster';
 SLASH_GRM2 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.975";
-GRM_G.PatchDay = 1682898040;             -- In Epoch Time
-GRM_G.PatchDayString = "1682898040";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.976";
+GRM_G.PatchDay = 1683020391;             -- In Epoch Time
+GRM_G.PatchDayString = "1683020391";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -134,7 +134,6 @@ GRM_G.SystemMsgThrottle = 0;             -- To prevent repeat scanning of the sy
 GRM_G.CommunitiesUpdateTimer = 0;        -- Helps control Zone timer on mouseover window easier.
 
 -- MISC argument resource saving globals.
-GRM_G.CurrentPinCommunity = true;        -- Pinned to community or old roster
 GRM_G.playersStillOnServer = {};     -- keeps track of the players that have server transferred off.
 GRM_G.LeftBanPlayersStillOnServer = {};     -- Keeping track of just the ban players who are no longer on the server (or possibly deleted toons too)
 GRM_G.DelayedAtLeastOnce = false;
@@ -335,7 +334,7 @@ GRM_G.MythicSeasonInfo = {};
 GRM_G.Module = {};
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.19;
+GRM_G.GroupInfoV = 1.20;
 
 -- Group Tracking
 GRM_G.InGroup = false;
@@ -2696,16 +2695,21 @@ end
 GRM.GetFullNameClubMember = function( memberGUID )
     local result = "";
 
-    if memberGUID and memberGUID ~= "" and C_PlayerInfo.GUIDIsPlayer ( memberGUID ) then
+    if memberGUID and memberGUID ~= "" then
         local name , realm = select ( 6 , GetPlayerInfoByGUID ( memberGUID ) );
         
-
         -- For some reason the server sometimes fails to give info on the first ask that session.
         if name == nil or name == "" then
-            name , realm = select ( 6 , GetPlayerInfoByGUID ( memberGUID ) );
+            for i = 1 , 10 do
+                name , realm = select ( 6 , GetPlayerInfoByGUID ( memberGUID ) );
+
+                -- if name ~= nil and name ~= "" then
+                --     break;
+                -- end
+            end
         end
-        
-        if name ~= nil and string.find ( name , "-" ) == nil then
+                
+        if name ~= nil and name ~= "" then
             if realm == "" then
                 result = name .. "-" .. GRM_G.realmName;
             else
@@ -6576,13 +6580,10 @@ GRM.InitializeRosterButtons = function()
                         if cFrame:GetSelectedClubId() == GRM_G.gClubID then
                             GRM.PopulateMemberDetails ( name , memberInfo );
                             if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                                if not GRM_G.CurrentPinCommunity then
-                                    if GRM_UI.MemberDetailFrame:IsVisible() then
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                                    else
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
-                                    end
-                                    GRM_G.CurrentPinCommunity = true;
+                                if GRM_UI.MemberDetailFrame:IsVisible() then
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                                else
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
                                 end
                                 if GRM.S().showMouseoverRetail then
                                     if GRM_G.guildName ~= "" then
@@ -6618,13 +6619,10 @@ GRM.InitializeRosterButtons = function()
                                 GRM.PopulateMemberDetails ( name , self.memberInfo );
                                 GRM_G.pause = true;
                                 if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                                    if not GRM_G.CurrentPinCommunity then
-                                        if GRM_UI.MemberDetailFrame:IsVisible() then
-                                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                                        else
-                                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
-                                        end
-                                        GRM_G.CurrentPinCommunity = true;
+                                    if GRM_UI.MemberDetailFrame:IsVisible() then
+                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                                    else
+                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
                                     end
                                     if GRM.S().showMouseoverRetail then
                                         if GRM_G.guildName ~= "" then
@@ -6666,13 +6664,10 @@ GRM.InitializeDragonFlightRosterButtons = function()
                     if cFrame:GetSelectedClubId() == GRM_G.gClubID then
                         GRM.PopulateMemberDetails ( name , memberInfo );
                         if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                            if not GRM_G.CurrentPinCommunity then
-                                if GRM_UI.MemberDetailFrame:IsVisible() then
-                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                                else
-                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
-                                end
-                                GRM_G.CurrentPinCommunity = true;
+                            if GRM_UI.MemberDetailFrame:IsVisible() then
+                                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                            else
+                                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
                             end
                             if GRM.S().showMouseoverRetail then
                                 if GRM_G.guildName ~= "" then
@@ -6705,13 +6700,10 @@ GRM.InitializeDragonFlightRosterButtons = function()
                             GRM.PopulateMemberDetails ( name , self.memberInfo );
                             GRM_G.pause = true;
                             if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                                if not GRM_G.CurrentPinCommunity then
-                                    if GRM_UI.MemberDetailFrame:IsVisible() then
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                                    else
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
-                                    end
-                                    GRM_G.CurrentPinCommunity = true;
+                                if GRM_UI.MemberDetailFrame:IsVisible() then
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                                else
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
                                 end
                                 if GRM.S().showMouseoverRetail then
                                     if GRM_G.guildName ~= "" then
@@ -6751,14 +6743,13 @@ GRM.RosterButton_OnUpdate = function ( self , elapsed )
             if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID then
                 GRM.PopulateMemberDetails ( name  , self.memberInfo );
                 if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                    if not GRM_G.CurrentPinCommunity then
-                        if GRM_UI.MemberDetailFrame:IsVisible() then
-                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                        else
-                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
-                        end
-                        GRM_G.CurrentPinCommunity = true;
+
+                    if GRM_UI.MemberDetailFrame:IsVisible() then
+                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                    else
+                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
                     end
+
                     if GRM.S().showMouseoverRetail then
                         if GRM_G.guildName ~= "" then
                             GRM_UI.GRM_MemberDetailMetaData:Show();
@@ -6821,13 +6812,10 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
                         GRM.SubFrameCheck();
                         GRM.PopulateMemberDetails ( name );
                         if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                            if GRM_G.CurrentPinCommunity then
-                                if GRM_UI.MemberDetailFrame:IsVisible() then
-                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                                else
-                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-                                end
-                                GRM_G.CurrentPinCommunity = false;            
+                            if GRM_UI.MemberDetailFrame:IsVisible() then
+                                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                            else
+                                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
                             end
                             if GRM_G.guildName ~= "" then
                                 GRM_UI.GRM_MemberDetailMetaData:Show();
@@ -6863,13 +6851,10 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
                                 GRM_G.pause = false;
                             end
                             if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                                if GRM_G.CurrentPinCommunity then
-                                    if GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrameClassic , "TOPRIGHT" , -4 , 5 );
-                                    else
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-                                    end
-                                    GRM_G.CurrentPinCommunity = false;
+                                if GRM_UI.MemberDetailFrameClassic:IsVisible() then
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrameClassic , "TOPRIGHT" , -4 , 5 );
+                                else
+                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
                                 end
                                 if GRM_G.guildName ~= "" then
                                     GRM_UI.GRM_MemberDetailMetaData:Show();
@@ -6932,13 +6917,10 @@ GRM.OldRosterButton_OnUpdate = function ( self , elapsed )
                 GRM.SubFrameCheck();
                 GRM.PopulateMemberDetails ( name );
                 if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                    if GRM_G.CurrentPinCommunity then
-                        if GRM_UI.MemberDetailFrame:IsVisible() then
-                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                        else
-                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-                        end
-                        GRM_G.CurrentPinCommunity = false;
+                    if GRM_UI.MemberDetailFrame:IsVisible() then
+                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+                    else
+                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
                     end
                     if GRM_G.guildName ~= "" then
                         GRM_UI.GRM_MemberDetailMetaData:Show();
@@ -7217,28 +7199,6 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noPTT )
             PushToTalkHotKey = C_VoiceChat.GetPushToTalkBinding()[1];
         end
 
-        -- Initialize the hook on the GuildMicroButton
-        GuildMicroButton:HookScript ( "OnClick" , function ()
-            if ( IsControlKeyDown() and IsInGuild() ) or GRM_G.BuildVersion < 80000 then
-                if GRM.S().showMouseoverOld then
-                    GRM_G.CurrentPinCommunity = false;
-                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-                end
-                if GRM_G.BuildVersion < 80000 then
-                    FriendsFrame:Show();
-                else
-                    CommunitiesFrame:Hide();
-                    if GuildFrame_Toggle ~= nil then
-                        GuildFrame_Toggle();
-                        GuildFrame_TabClicked ( GuildFrameTab2 );
-                    end
-                end
-            else
-                GRM_G.CurrentPinCommunity = true;
-                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 22.5 , 5 );
-            end
-        end);
-
         GuildMicroButton:SetScript ( "OnEnter" , function( self )
             local hotkey = select ( 3 , GetBinding(keyNum) );                  -- This is the hotkey to open guild and community interface.
             local tooltipTopLine = GRM.L ( "Guild & Communities" );
@@ -7250,9 +7210,6 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noPTT )
             GameTooltip:SetOwner ( self , "ANCHOR_NONE" );
             GameTooltip:SetPoint( "BOTTOMLEFT" , GuildMicroButton , "TOPRIGHT" , 0 , 0 );   
             GameTooltip:AddLine( tooltipTopLine , 1 , 1 , 1 );
-            if IsInGuild()then
-                GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Click|r to open the Old Guild Roster Window" ) , 1 , 1 , 1 );
-            end
             GameTooltip:Show();
         end);
 
@@ -7385,21 +7342,27 @@ end
 GRM.RosterFrame = function()
     if GRM.GetGuild() then
 
-        if GRM_G.pause and not GRM_UI.GRM_MemberDetailMetaData:IsVisible() and ( ( GRM_G.CurrentPinCommunity and not GRM_UI.MemberDetailFrame:IsVisible() ) or ( GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity and not GuildFrame:IsVisible() ) ) then
+        if GRM_G.pause and not GRM_UI.GRM_MemberDetailMetaData:IsVisible() and not GRM_UI.MemberDetailFrame:IsVisible() then
+
             if not GRM_UI.MemberDetailFrame:IsVisible() then
                 GRM_G.pause = false;
                 if GRM_G.BuildVersion < 80000 then
                     GRM.ClearRosterHighlights();
                 end
             end
+
         end
 
         -- Ensure pinned to correct window.
-        if ( ( GRM_G.CurrentPinCommunity and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) and not GRM_G.pause then
-            if ( ( ( GRM_G.CurrentPinCommunity and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) and not DropDownList1MenuBackdrop:IsMouseOver ( 2 , -2 , -2 , 2 ) and not StaticPopup1:IsMouseOver ( 2 , -2 , -2 , 2 ) and not GRM_UI.GRM_MemberDetailMetaData:IsMouseOver ( 1 , -1 , -30 , 1 ) and not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame:IsMouseOver( 5 , 5 , 5 , 35 ) and not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:IsMouseOver ( 1 , 1 , 1 , 3 ) ) or 
-                ( not GRM_UI.GRM_MemberDetailMetaData:IsVisible() ) then  -- If player is moused over side window, it will not hide it!
+        if not GRM_G.pause and ( ( GRM_G.BuildVersion >= 80000 and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and GRM_G.BuildVersion < 80000 and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) then
+
+            if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() or ( ( ( CommunitiesFrame and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and GRM_G.BuildVersion < 80000 and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) 
+            
+            and not DropDownList1MenuBackdrop:IsMouseOver ( 2 , -2 , -2 , 2 ) and not StaticPopup1:IsMouseOver ( 2 , -2 , -2 , 2 ) and not GRM_UI.GRM_MemberDetailMetaData:IsMouseOver ( 1 , -1 , -30 , 1 ) and not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame:IsMouseOver( 5 , 5 , 5 , 35 ) and not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:IsMouseOver ( 1 , 1 , 1 , 3 ) ) then  -- If player is moused over side window, it will not hide it!
+                
                 if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                     GRM.ClearAllFrames( true );
+                
                 end
             end
         end
@@ -7495,7 +7458,7 @@ GRM.RosterFrame = function()
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:Hide();
         end
 
-        if ( GRM_G.CurrentPinCommunity and not CommunitiesFrame:IsVisible() ) or ( GRM.S().showMouseoverOld and not GRM_G.CurrentPinCommunity and not GuildFrame:IsVisible() ) then
+        if ( CommunitiesFrame and not CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 80000 and GRM.S().showMouseoverOld and GuildFrame and not GuildFrame:IsVisible() ) then
             GRM.ClearAllFrames( true );         -- Reset frames and hide metadata frame...
         end
     end
@@ -8286,7 +8249,9 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     if name == "" or name == nil then
         name = GRM.GetFullNameClubMember ( memberInfo.GUID );
     end
-    
+    if name == "" or name == nil then
+        return;
+    end
     -- Add index to guild table.
     guildData[name] = {};
 
@@ -15895,27 +15860,36 @@ GRM.ExportMemberDetailsHeaders = function ( returnString )
     end
     local completeString = "";
     local index = 1;
+    local add = false;
 
     for i = 1 , #headers do
-        if i == 5 or i == 6 or i == 9 or i == 12 or i == 18 or i == 19 then
-            if ( i == 5 and GRM.S().exportFilters[15] ) then
-                completeString = completeString .. headers[i] .. delimiter;
-            elseif ( i == 6 and GRM.S().exportFilters[16] ) then
-                completeString = completeString .. headers[i] .. delimiter;
-            elseif ( i == 9 and GRM.S().exportFilters[14] ) then
-                completeString = completeString .. headers[i] .. delimiter;
-            elseif ( i == 12 and GRM.S().exportFilters[18] ) then
-                completeString = completeString .. headers[i] .. delimiter;
-            elseif ( i == 18 and GRM.S().exportFilters[22] ) then
-                completeString = completeString .. headers[i] .. delimiter;
-            elseif ( i == 19 and GRM.S().exportFilters[23] ) then
-                completeString = completeString .. headers[i] .. delimiter;
+        add = false;
+        
+        if i == 5 or i == 6 or i == 9 or i == 12 or i == 14 or i == 18 or i == 19 then
+
+            if ( i == 5 and GRM.S().exportFilters[15] ) then                        -- race
+                add = true;
+            elseif ( i == 6 and GRM.S().exportFilters[16] ) then                    -- sex
+                add = true;
+            elseif ( i == 9 and GRM.S().exportFilters[14] ) then                    -- alts
+                add = true;
+            elseif ( i == 12 and GRM.S().exportFilters[18] ) then                   -- rank History
+                add = true;
+            elseif ( i == 14 and GRM.S().exportFilters[10] and GRM_G.BuildVersion >= 40000 ) then
+                add = true;
+            elseif ( i == 18 and GRM.S().exportFilters[22] and GRM_G.BuildVersion >= 80000 ) then     -- Mythic+ Score
+                add = true;
+            elseif ( i == 19 and GRM.S().exportFilters[23] ) then                                   -- faction
+                add = true;
             end
         else
             if GRM.S().exportFilters[index] then
-                completeString = completeString .. headers[i] .. delimiter;
+                add = true;
             end
             index = index + 1;
+        end
+        if add then
+            completeString = completeString .. headers[i] .. delimiter;
         end
     end
 
@@ -19101,8 +19075,12 @@ GRM.CheckForNewPlayer = function( clubID , scanNumber , memberID )
         local memberInfo = C_Club.GetMemberInfo ( clubID , memberID );
         local rosterName = GRM.GetFullNameClubMember ( memberInfo.guid );
 
+        if rosterName == "" then        -- Try Again
+            rosterName = GRM.GetFullNameClubMember ( memberInfo.guid );
+        end
+
         -- This means a system message fired erroneously. This is an edge case that can happen when servers merge.
-        if memberInfo == nil or GRM.GetPlayer ( rosterName ) then
+        if rosterName == "" or memberInfo == nil or GRM.GetPlayer ( rosterName ) then
             GRM_G.LiveScanningBlock.joinR[scanNumber] = false;
             GRM_G.RejoinControlCheck = 0;
             return;
@@ -19623,6 +19601,8 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
                     GRM.AddToLiveScanQue ( 3 , msg , scanNumber );
                     result = false;
                 end
+            else
+                result = true;
             end
 
             -- No need to do this main tag control if someone just joined.
@@ -19659,7 +19639,7 @@ GRM.SystemMessageLiveDetectionControl = function ( msg )
 
                 if not GRM_G.CurrentlyScanning then
                     GRM.GuildRoster();
-                    result = GRM.LiveKickDetection ( msg , s1canNumber );
+                    result = GRM.LiveKickDetection ( msg , scanNumber );
                 else
                     GRM.AddToLiveScanQue ( 6 , msg , scanNumber );
                     result = false;
@@ -19782,19 +19762,27 @@ GRM.JoinPlayerLiveEvent = function ( _ , event , msg , clubMemberID )
         end
 
         if event == "CLUB_MEMBER_ADDED" then
+            GRM_G.changeHappenedExitScan = true;
+            QueryGuildEventLog();
 
             if msg == GRM_G.gClubID then
                 GRM_G.LiveScanningBlock.joinR , scanNumber = GRM.SetNextTrue ( GRM_G.LiveScanningBlock.joinR );
-                if not GRM_G.CurrentlyScanning then
-                    GRM.CheckForNewPlayer ( msg , scanNumber , clubMemberID );
-                else
-                    GRM.AddToLiveScanQue ( 4 , msg , scanNumber, clubMemberID  );
-                end
-
+                GRM_G.TempBanSystemMessage = true;
                 GRM_G.MainNameSystemMsgControl = true;
-                C_Timer.After ( 1 , function()
+                
+                C_Timer.After ( 1 , function()            -- Half a second delay to wait for update (further 3.5 second recursive check loop before given up buried in the next function)
+                    GRM_G.TempBanSystemMessage = false;
                     GRM_G.MainNameSystemMsgControl = false;
+                    GRM_G.changeHappenedExitScan = true;
+
+                    if not GRM_G.CurrentlyScanning then
+                        GRM.CheckForNewPlayer ( msg , scanNumber , clubMemberID );
+                    else
+                        GRM.AddToLiveScanQue ( 4 , msg , scanNumber, clubMemberID  );
+                    end
+
                 end);
+
             end
         end
     end
@@ -24360,9 +24348,7 @@ GRM.OpenPlayerWindow = function ( playerName )
     
         end);
 
-    end
-    
-    if GRM_G.BuildVersion >= 40000 then
+    elseif GRM_G.BuildVersion >= 40000 and GRM_G.BuildVersion < 80000 then
 
         if GuildFrame and not GuildFrame:IsVisible() then
             -- Force community Frame open
@@ -24397,7 +24383,44 @@ GRM.OpenPlayerWindow = function ( playerName )
             GRM_G.pause = true;
 
         end);
+
+
+    elseif GRM_G.BuildVersion >= 80000 then
+
+        if CommunitiesFrame then
+            
+            if not CommunitiesFrame:IsVisible() then
+                -- Force community Frame open
+                CommunitiesFrame:Show()
+            end
+
+        end
+
+        if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
+            GRM_UI.MemberDetailFrame:Hide();
+        end
+
+        local timer = 0.2;
+
+        if not GRM_G.BlizzFramePinsInitialized then
+            timer = 0.5;
+        end
+
+        -- need to set the proper index of selection
+
+        C_Timer.After ( timer , function()
+        
+            GRM_G.pause = false;
+            GRM_G.currentName = playerName;
+            GRM.ClearAllFrames( true );
+            GRM.PopulateMemberDetails ( GRM_G.currentName );
+            GRM_UI.GRM_MemberDetailMetaData:Show();        
+            GRM.UpdateMemberDetailNameClassColor();
+            GRM_G.pause = true;
+
+        end);
     end
+
     
 end
 

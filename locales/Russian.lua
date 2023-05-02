@@ -917,10 +917,7 @@ GRML.Russian = function()
     GRM_L["Log Entry Tooltip"] = "Подсказка о записи в журнале"
     GRM_L["1 entry has been removed from the log"] = "1 запись удалена из журнала"
     GRM_L["{num} entries have been removed from the log"] = "{num} записей(си) были удалены из журнала"
-    
-    -- 1.58
-    GRM_L["|CFFE6CC7FCtrl-Click|r to open the Old Guild Roster Window"] = "|CFFE6CC7FCtrl-Клик|r, чтобы открыть окно состава старой версии гильдии"
-    
+
     -- 1.59
     GRM_L["Adding the Join Date cannot be disabled due to the global setting"] = "Добавление даты присоединения нельзя отключить из-за глобальной настройки"
     GRM_L["Due to your current rank, you will be unable to add Join Date Timestamps"] = "Из-за вашего текущего звания вы не сможете добавлять отметки времени для даты присоединения."
