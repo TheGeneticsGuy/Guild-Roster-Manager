@@ -1241,6 +1241,9 @@ GRM.KickAllAlts = function ( playerName , banReason )
                         GRM_G.KickAllAltsTable[index].isHighlighted = false;
                         GRM_G.KickAllAltsTable[index].mainName = GRM.GetMainName ( tempAlt , true );
                         GRM_G.KickAllAltsTable[index].customMsg = GRM.L ( "Kicking {name}'s alts" , GRM.SlimName ( playerName ) );
+                        GRM_G.KickAllAltsTable[index].isMain = false;
+                        GRM_G.KickAllAltsTable[index].isAlt = false;
+                        GRM_G.KickAllAltsTable[index].tab = false;
                         
                     end
 
@@ -1249,6 +1252,7 @@ GRM.KickAllAlts = function ( playerName , banReason )
             if #GRM_G.KickAllAltsTable > 0 then
                 -- Bring popup reminder to select it...
                 GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Kick macro created. Press \"CTRL-SHIFT-K\" to kick all of {name}'s alts" , GRM.FormatName ( playerName ) ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:Click();
                 GRM_G.KickAltControl = true;
                 GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;
                 if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then

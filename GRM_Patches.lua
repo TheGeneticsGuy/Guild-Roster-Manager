@@ -1326,11 +1326,12 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     
     -- patch 112
     patchNum = patchNum + 1;
-    if numericV < 1.976 and baseValue < 1.976 then
+    if numericV < 1.977 and baseValue < 1.977 then
 
-        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixMissingNames , true , true , false );
+        GRM_Patch.FixMissingNames();
+        GRM_Patch.AddNewSetting ( "RosterFramePOS" , { "" , "" , 0 , 0 } );
 
-        if loopCheck ( 1.976 ) then
+        if loopCheck ( 1.977 ) then
             return;
         end
     end
@@ -7542,7 +7543,7 @@ end
 -- Method:          GRM_Patch.FixMissingNames ( playerTable )
 -- What it Does:    Looks for an empty string for player name and updates it
 -- Purpose:         Restore players' name
-GRM_Patch.FixMissingNames = function ( player )
+GRM_Patch.FixMissingNames = function ()
 
     for guildName in pairs ( GRM_PlayersThatLeftHistory_Save ) do                  -- The guilds in each faction
         for name , player in pairs ( GRM_PlayersThatLeftHistory_Save[guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).

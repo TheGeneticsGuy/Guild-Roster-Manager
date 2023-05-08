@@ -430,6 +430,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM.BuildMacrodScrollFrame ( true , true );
                     GRM_G.timeDelayValue = time(); -- resetting delay
                     
+                    if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+                        GRM_UI.GRM_ToolCoreFrame:Show();
+                    end
+
+                    if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then
+                        GRM_UI.RefreshRosterName();
+                    end
 
                     if not GRM_G.AuditWindowRefresh and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
                         GRM_G.AuditWindowRefresh = true;
@@ -4632,10 +4639,165 @@ GRM_UI.RefreshToolPermissionReport = function()
     end
 end
 
-
 -----------------------------
 ----- QUED SCROLL FRAME -----
 -----------------------------
+
+-- Method::         GRM.BuildCustomKickEntries(table)
+-- What it Does:    Creates a list of players to be fed kicked - You can feed it ANY names and it will build the list
+-- Purpose:         Custom use of the macro tool.
+-- Note:            Names past to the list must be in an array, and they must be the full "Name-ServerName" in roster
+GRM.BuildCustomKickEntries = function( playerList , forceRefresh )
+    local result = {};
+    local index = 1;
+    local player = {};
+
+    for i = 1 , #playerList do
+
+        player = GRM.GetPlayer ( playerList[i] );
+        if player then
+
+            table.insert ( result , {} );
+            index = #result;
+            result[index].name = player.name;
+            result[index].class = GRM.GetClassColorRGB ( player.class );
+            result[index].lastOnline = player.lastOnline;
+            result[index].action = GRM_UI.ruleTypeEnum3[1];
+            result[index].macro = "/gremove";
+            result[index].isHighlighted = false;
+            result[index].customMsg = "";
+            result[index].isMain = false;
+            result[index].isAlt = false;
+            result[index].tab = false;
+            
+        end
+
+    end
+    
+    sort ( result , function ( a , b ) return a.name < b.name end );
+
+    if forceRefresh then
+        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:Click();
+        if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+            GRM_UI.GRM_ToolCoreFrame:Show();
+        end
+
+        GRM_UI.RefreshManagementTool( false , false , true , result );
+    end
+
+    return result;
+end
+
+-- Method::         GRM.BuildCustomPromoteEntries(table , bool , tableButton)
+-- What it Does:    Creates a list of players to be fed to be promoted - You can feed it ANY names and it will build the list
+-- Purpose:         Custom use of the macro tool.
+-- Note:            Names past to the list must be in an array, and they must be the full "Name-ServerName" in roster
+GRM.BuildCustomPromoteEntries = function ( playerList , forceRefresh , button )
+
+    local result = {};
+    local index = 1;
+    local player = {};
+
+    for i = 1 , #playerList do
+
+        player = GRM.GetPlayer ( playerList[i] );
+        if player then
+
+            table.insert ( result , {} );
+            index = #result;
+            result[index].name = player.name;
+            result[index].class = GRM.GetClassColorRGB ( player.class );
+            result[index].lastOnline = player.lastOnline;
+            result[index].action = GRM_UI.ruleTypeEnum3[2];
+            result[index].macro = "/gpromote";
+            result[index].isHighlighted = false;
+            result[index].rankIndex = button.destinationRank;
+            result[index].mainName = ""
+            result[index].customMsg = "";
+            result[index].isMain = false;
+            result[index].isAlt = false;
+            result[index].tab = false;
+
+            local numJumps = 0;
+            numJumps = player.rankIndex - button.destinationRank;
+            if not result[index].numRankJumps then               -- if this doesn't exist
+                result[index].numRankJumps = numJumps;
+            elseif result[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
+                result[index].numRankJumps = numJumps;
+            end
+        end
+    end
+    
+    sort ( result , function ( a , b ) return a.name < b.name end );
+
+    if forceRefresh then
+        GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:Click();
+        if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+            GRM_UI.GRM_ToolCoreFrame:Show();
+        end
+
+        GRM_UI.RefreshManagementTool( false , false , true , result );
+    end
+
+    return result;
+end
+
+-- Method::         GRM.BuildCustomDemoteEntries ( table , bool , tableButton)
+-- What it Does:    Creates a list of players to be fed to be Demoted - You can feed it ANY names and it will build the list
+-- Purpose:         Custom use of the macro tool.
+-- Note:            Names past to the list must be in an array, and they must be the full "Name-ServerName" in roster
+GRM.BuildCustomDemoteEntries = function ( playerList , forceRefresh , button )
+    local result = {};
+    local index = 1;
+    local player = {};
+
+    for i = 1 , #playerList do
+
+        player = GRM.GetPlayer ( playerList[i] );
+        if player then
+
+            table.insert ( result , {} );
+            index = #result;
+            result[index].name = player.name;
+            result[index].class = GRM.GetClassColorRGB ( player.class );
+            result[index].lastOnline = player.lastOnline;
+            result[index].action = GRM_UI.ruleTypeEnum3[3];
+            result[index].macro = "/gdemote";
+            result[index].isHighlighted = false;
+            result[index].rankIndex = button.destinationRank;
+            result[index].mainName = ""
+            result[index].customMsg = "";
+            result[index].isMain = false;
+            result[index].isAlt = false;
+            result[index].tab = false;
+
+            local numJumps = 0;
+            numJumps = button.destinationRank - player.rankIndex;
+            if not result[index].numRankJumps then               -- if this doesn't exist
+                result[index].numRankJumps = numJumps;
+            elseif result[index].numRankJumps < numJumps then    -- Only want to update it if it is more jumps.
+                result[index].numRankJumps = numJumps;
+            end
+        end
+    end
+    
+    sort ( result , function ( a , b ) return a.name < b.name end );
+
+    if forceRefresh then
+        GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:Click();
+        if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+            GRM_UI.GRM_ToolCoreFrame:Show();
+        end
+
+        GRM_UI.RefreshManagementTool( false , false , true , result );
+    end
+
+    return result;
+end
+
+-- GRM.BuildAltGroupEntries = function ( playerList )
+
+-- end
 
 -- Method:          GRM.GetQueuedEntries ( bool )
 -- What it Does:    Determines which grouping to import
@@ -4719,7 +4881,7 @@ GRM.KickQueuedHybridShiftDown = function()
 
             -- Header Line
             buttons[i][2]:SetText( buttons[i+1][2]:GetText() );
-            buttons[i][2]:SetTextColor ( buttons[i+1][2]:GetTextColor ( buttons[i+1][3]:GetText() ) );
+            buttons[i][2]:SetTextColor ( buttons[i+1][2]:GetTextColor ( buttons[i+1][2]:GetText() ) );
             buttons[i][3]:SetText( buttons[i+1][3]:GetText() );
             buttons[i][3]:SetTextColor ( buttons[i+1][3]:GetTextColor ( buttons[i+1][3]:GetText() ) );
 
@@ -4892,7 +5054,7 @@ GRM.UpdateQueuedTooltip = function ( ind )
     end
 
     GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
-    GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+    GameTooltip:AddLine( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
     GameTooltip:Show();
 
 end
@@ -4910,14 +5072,14 @@ end
 -- Method:          GRM.BuildQueuedScrollFrame( bool , bool , bool )
 -- What it Does:    Updates the Queued scrollframe as needed
 -- Purpose:         UX of the GRM mass kick tool
-GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , bannedInGuildList , customKickGroup )
+GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , bannedInGuildList , customGroup , customGroupTable )
     local hybridScrollFrameButtonCount = 13;
     local buttonHeight = 25;
     local scrollHeight = 0;
     local buttonWidth = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame:GetWidth() - 5;
     if showAll and fullRefresh then
         GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
-        if not isBanAltList and not bannedInGuildList and not customKickGroup then
+        if not isBanAltList and not bannedInGuildList and not customGroup then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries();
         elseif isBanAltList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllAltsTable );
@@ -4925,9 +5087,13 @@ GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , b
         elseif bannedInGuildList then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllBannedTable );
             GRM_G.KickAllBannedTable = {};
-        elseif customKickGroup then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.customKickList );
-            GRM_G.customKickList = {};
+        elseif customGroup then
+            if not customGroupTable then
+                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.customKickList );
+                GRM_G.customKickList = {};
+            else
+                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( customGroupTable );
+            end
         end
     end
 
@@ -5594,7 +5760,7 @@ GRM.UpdateMacrodTooltip = function ( ind )
     GameTooltip:AddLine ( " " );    -- adds a small space between the lines
     GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to Select for Removal" ) );
     GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
-    GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+    GameTooltip:AddLine( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
     GameTooltip:Show();
 end
 
@@ -6160,7 +6326,7 @@ GRM.IgnoredHybridShiftDown = function()
 
             -- Header Line
             buttons[i][2]:SetText( name );
-            buttons[i][2]:SetTextColor ( buttons[i+1][2]:GetTextColor ( buttons[i+1][3]:GetText() ) );
+            buttons[i][2]:SetTextColor ( buttons[i+1][2]:GetTextColor ( buttons[i+1][2]:GetText() ) );
             buttons[i][3]:SetText( buttons[i+1][3]:GetText() );
             buttons[i][3]:SetTextColor ( buttons[i+1][3]:GetTextColor ( buttons[i+1][3]:GetText() ) );
 
@@ -6296,7 +6462,7 @@ GRM.UpdateIgnoredToolTip = function ( ind )
         GameTooltip:AddLine ( " " );    -- adds a small space between the lines
         GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to Select for Removal" ) );
         GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
-        GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+        GameTooltip:AddLine( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
         GameTooltip:Show();
     end
 
@@ -8497,10 +8663,10 @@ end
 --- CUSTOM RULES -------
 ------------------------
 
--- Method:          GRM_UI.RefreshManagementTool( bool )
+-- Method:          GRM_UI.RefreshManagementTool( bool , bool , bool , table )
 -- What it Does:    Refreshes the management tool
 -- Purpose:         Compartmentalize the refresh details.
-GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customKickGroup )
+GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGroup , customGroupTable )
     if not GRM_UI.GRM_ToolCoreFrame.IsInitialized then
 
         -- Check permissions - set tab as default one 
@@ -8521,7 +8687,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customKic
     GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
     GRM_UI.GRM_ToolCoreFrame.Safe = {}; -- reset this list to rebuild
-    GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild , customKickGroup );
+    GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild , customGroup , customGroupTable );
     -- On reshow, always reset the macro
     GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
     GRM.BuildMacrodScrollFrame ( true , false );
@@ -8531,7 +8697,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customKic
     GRM_UI.RefreshToolButtonsOnUpdate();
 
     -- Populate the macro 
-    if isBanAltList or isBanInGuild or customKickGroup then
+    if isBanAltList or isBanInGuild or customGroup then
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:Click();
     end
 

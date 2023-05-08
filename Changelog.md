@@ -1,4 +1,46 @@
 
+## **VERSION 1.977 RELEASE - May 7th, 2023**
+
+***NEW FEATURE***
+
+*Due to the changes in 10.1 and the removal of the old guild roster by Blizzard, we are now no longer able to type `/groster` to bring it up! Given that the Communities window that guilds now use, introduced in BFA 8.0, does not have the ability to filter by "Last Online" I think we can all agree that this is a HUGE problem in regards to guild management, especially those of you who are in rather large guilds where scrolling is going to be a HUGE hassle. As a result, I have introduced a new feature. GRM now has its own custom guild roster. It is fairly limited right now, as I wanted to get this out ASAP for the sake of all our our sanity, but I will be able to expand on it further.*
+
+![New Custom GRM Roster](https://i.imgur.com/xKGzYth.jpg) 
+
+You can access this roster by clicking the new GRM button on your Communities window. I have also added it to the social "FriendsFrame" in Classic Era and Wrath.
+
+**MAIN FEATURES**
+
+* Sort the roster by Last Online - this is a bigger deal in retail, for now.
+
+* Right click any player to promote, demote, or kick from the guild, if it applies, and you have the rank permissions to do so. This will open the macro tool and all you will need to do is press your hotkey to continue.
+
+* Hold the control key down when mousewheel scrolling for triple speed, or shift key to jump to top or bottom instantly (this also works on any other GRM scroll frame ).
+
+* Search a player name easily.
+
+![Button Added to Guild window](https://i.imgur.com/E1MBeb5.jpg)
+
+* The `/roster` command will now open the NEW custom GRM roster window. You also can create your own localized custom slashcommand in your languages locale file. Just set it to `GRM.L["/YYYY"] = "/YourCommand"`
+
+[Roster Demo](https://imgur.com/3qboDU9)
+
+* Promote and Demote demo
+
+[Promote and Demote Easily](https://imgur.com/wmG1DIw)
+
+
+***BUG FIXES***
+
+* Fixed a lua error if clicking the "X" close button on the mouseover window.
+
+* Fixed an issue that could cause the GRM patching process to hang at loading...
+
+* Fixed a hybridScrollFrame bug on the macro tool where the name class coloring could sometimes get messed up when scrolling up and down on the names
+
+* Fixed a bug that could occur if you click the "Guild Log" button on the roster too quickly after logging in and GRM wasn't fully up dated yet.
+
+
 ## **VERSION 1.976 RELEASE - May 2nd, 2023**
 
 **10.1 Compatibility Update!!**

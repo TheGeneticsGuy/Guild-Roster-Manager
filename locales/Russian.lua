@@ -31,7 +31,8 @@ GRML.Russian = function()
     GRM_L["Friend"] = FRIEND;
 
         -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-    GRM_L["/XXXX"] = "/грм"            -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
+    GRM_L["/XXXX"] = "/грм" -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
+    GRM_L["/YYYY"] = true;  -- /roster              -- This is the custom GRM roster 
 
     GRM_L["German"] = "Немецкий"
     GRM_L["English"] = "Английский"
@@ -592,7 +593,7 @@ GRML.Russian = function()
     GRM_L["Right-Click to Reset to 100%"] = "|CFFE6CC7FПКМ|r для сброса до 100%"
 
     -- Update 1.147
-    GRM_L["|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player"] = "|CFFE6CC7FCtrl-Shift-ЛКМ|r для поиска игрока в журнале"
+    GRM_L["{custom1} to Search the Log for Player"] = "{custom1} для поиска игрока в журнале"
 
     -- Update 1.1480
     GRM_L["Custom Notes:"] = "Доп Заметка:"
@@ -1179,7 +1180,6 @@ GRML.Russian = function()
     GRM_L["Go to GRM window > Options > Officer Tab > \"Set Global Controls\""] = "Перейдите в окно ГРМ> Параметры> вкладка Офицер> \"Установить глобальные элементы управления\""
     GRM_L["Remove the old format when all guildies have updated properly. You may wish to leave it in Guild Info until then."] = "Удалите старый формат, когда все гильдии обновятся должным образом. Вы можете оставить его в информации о гильдии до тех пор."
     GRM_L["It may take up to 60 seconds for other guild members to detect the changes and update."] = "Другим членам гильдии может потребоваться до 60 секунд, чтобы обнаружить изменения и обновить."
-    GRM_L["Ctrl-Shift-Click"] = "Ctrl-Shift-Клик"
     GRM_L["Resets only the settings on this page"] = "Сбросить только настройки на этой странице"
     GRM_L["Resets only the Export Settings"] = "Сбросить только настройки экспорта"
     GRM_L["Resets all Macro Tool Rules and Settings"] = "Сбросить все правила и настройки макросов"
@@ -1268,7 +1268,6 @@ GRML.Russian = function()
     GRM_L["The guild name \"{name}\" cannot be found in the database. Ensure proper formatting."] = "Название гильдии \"{name}\" не найдено в базе данных. Убедитесь в правильности написания."
     GRM_L["The player name \"{name}\" cannot be found in the database. Ensure proper spelling."] = "Имя игрока \"{name}\" не найдено в базе данных. Убедитесь в правильности написания."
     GRM_L["Unable to change officer notes at current rank"] = "Невозможно изменить заметки офицера в текущем звании"
-    GRM_L["Player is not currently in a Guild"] = "Игрок в настоящее время не состоит в гильдии"
     GRM_L["Mains Only"] = "Только Мейны"
     GRM_L["Alts Only"] = "Только Твинки"
     GRM_L["Custom Public Notes:"] = "Пользовательская заметка:"        -- Updated from "Custom Notes"
@@ -1397,7 +1396,7 @@ GRML.Russian = function()
     GRM_L["Ctrl-Click"] = "Ctrl-Клик"              -- Ctrl = Control
     GRM_L["Alt-Click"] = true
     GRM_L["Shift-Click"] = true
-    GRM_L["Ctrl-Shift-Click"] = true
+    GRM_L["Ctrl-Shift-Click"] = "Ctrl-Shift-Клик"
     GRM_L["Alt-Shiift-Click"] = true
     GRM_L["Right-Click"] = "Щелкните правой кнопкой мыши"
     GRM_L["Ctrl-Left-Click"] = true
@@ -1635,6 +1634,23 @@ GRML.Russian = function()
     -- R1.975
     GRM_L["Export a full list of names in the queue."] = true
     
+    -- R1.977
+    GRM_L["Guild Roster"] = true
+    GRM_L["GRM Custom Guild Roster"] = true
+    GRM_L["Unable to Promote players at this rank"] = true
+    GRM_L["Unable to Demote players at this rank"] = true
+    GRM_L["No Rank Permission to Kick"] = true;
+    GRM_L["No Rank Permission to Demote"] = true;
+    GRM_L["No Rank Permission to Promote"] = true;
+    GRM_L["Promote Player to:"] = true
+    GRM_L["Demote Player to:"] = true
+    GRM_L["Lvl"] = true
+    GRM_L["Opens Custom Guild Roster Window"] = true
+    GRM_L["{custom1} to Open"] = true;
+    GRM_L["{custom1} to Promote, Demote, or Kick"] = true
+    GRM_L["Whisper"] = true
+    GRM_L["{custom1} to Whisper"] = true
+
 end
     
     -- Anazing work Максим#0406 on Discord - Incredible work, really!

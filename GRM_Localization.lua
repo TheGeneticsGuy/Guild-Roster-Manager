@@ -124,6 +124,19 @@ GRML.listOfFonts = {
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Nunito-ExtraBold.TTF" 
 }
 
+-- Method:          GRM.ConfigureAlternativeSlashCommands()
+-- What it Does:    Allows the creation of custom slash command.
+-- purpose:         Localization reasons.
+GRM.ConfigureAlternativeSlashCommands = function()
+    if GRM.L ( "/XXXX" ) ~= true then
+        SLASH_GRM2 = GRM.L ( "/XXXX" );
+    end
+
+    if GRM.L ( "/YYYY" ) ~= true then
+        SLASH_ROSTER2 = GRM.L ( "/YYYY" );
+    end
+end
+
 -- Method:          GRML.SetNewLanguage ( int , boolean , boolean )
 -- What it Does:    It establishes both the appropriate region font, and a modifier for the Mandarin text
 -- Purpose:         To be able to have an in-game UI option to change the player language.
@@ -138,7 +151,7 @@ GRML.SetNewLanguage = function ( index , firstLoad , resetAllDefaults )
     end
 
     -- Allow implementation of custom slash command.
-    SLASH_GRM3 = GRM.L ( '/XXXX' );
+    GRM.ConfigureAlternativeSlashCommands();
 end
 
 -- Method:          GRML.SetFontModifier()

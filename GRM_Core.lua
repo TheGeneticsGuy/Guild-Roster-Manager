@@ -29,13 +29,13 @@ GRM_GuildDataBackup_Save = GRM_GuildDataBackup_Save or {};
 GRM_MinimapPosition = GRM_MinimapPosition or {};
 
 -- slash commands (You can create custom one localized to your language in the localization folder)
-SLASH_GRM1 = '/roster';
-SLASH_GRM2 = '/grm';
+SLASH_ROSTER1 = '/roster';
+SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.976";
-GRM_G.PatchDay = 1683020391;             -- In Epoch Time
-GRM_G.PatchDayString = "1683020391";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.977";
+GRM_G.PatchDay = 1683503258;             -- In Epoch Time
+GRM_G.PatchDayString = "1683503258";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -85,6 +85,9 @@ GRM_G.GuildNamechangeProcessing = false;
 
 -- UI Controls global for reset
 GRM_G.UIIsLoaded = false;
+
+-- Custom Roster Frame
+GRM_G.RosterFrameInitialized = false;
 
 -- Tempt Logs For FinalReport()
 GRM_G.TempNewMember = {};
@@ -334,7 +337,7 @@ GRM_G.MythicSeasonInfo = {};
 GRM_G.Module = {};
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.20;
+GRM_G.GroupInfoV = 1.21;
 
 -- Group Tracking
 GRM_G.InGroup = false;
@@ -798,6 +801,8 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         player["minimapCustomPos"] = { "" , "" };                           -- 64 The setpoints of the custom minimap position
         player["CoreWindowPos"] = { "" , "" , 0 , 0 };                      -- 72 Coordinates for core GRM window
         player["macroToolCoordinates"] = { "" , "" , 0 , 0 };               -- 74 Coordinates for Macrol tool Window
+        player["SyncTrackerPOS"] = { "" , "" , 0 , 0 };                     -- Coordinates for Sync Tracker Position
+        player["RosterFramePOS"] = { "" , "" , 0 , 0 };
         player["disableMacroToolLogSpam"] = false                           -- Macro Tool checkbox on disabling chat spam while using macro tool
         player["ignoreDeadNames"] = false                                   -- Dead name scanning - if account is dead name gets hexcode. Players is never coming back.
         
@@ -856,7 +861,6 @@ GRM.SetDefaultAddonSettings = function ( player , page , isPatch )
         player["syncBDays"] = true                                          -- 68
         player["autoTriggerSync"] = true                                    -- It will only auto-trigger the sync if this setting is enabled
         player["syncDelay"] = 60                                            -- Seconds after logging in to trigger sync. (Lowest option is 15)
-        player["SyncTrackerPOS"] = { "" , "" , 0 , 0 };                     -- Coordinates for Sync Tracker Position
         
     -- Officer Options Tab
     elseif page == 4 then
@@ -1503,8 +1507,9 @@ GRM.SyncAddonSettings = function()
 
             if altName ~= GRM_G.addonUser and GRM_AddonSettings_Save[altName] ~= nil then
 
-                local tempSettingsHolder = GRM.DeepCopyArray ( { GRM_AddonSettings_Save[altName].minimapEnabled , GRM_AddonSettings_Save[altName].minimapPos , GRM_AddonSettings_Save[altName].minimapRad , GRM_AddonSettings_Save[altName].customPos , GRM_AddonSettings_Save[altName].minimapCustomPos , GRM_AddonSettings_Save[altName].CoreWindowPos , GRM_AddonSettings_Save[altName].reportChannel , GRM_AddonSettings_Save[altName].macroToolCoordinates , GRM_AddonSettings_Save[altName].SyncTrackerPOS } );
-            
+                local tempSettingsHolder = GRM.DeepCopyArray ( { GRM_AddonSettings_Save[altName].minimapEnabled , GRM_AddonSettings_Save[altName].minimapPos , GRM_AddonSettings_Save[altName].minimapRad , GRM_AddonSettings_Save[altName].customPos , GRM_AddonSettings_Save[altName].minimapCustomPos , GRM_AddonSettings_Save[altName].CoreWindowPos , GRM_AddonSettings_Save[altName].reportChannel , GRM_AddonSettings_Save[altName].macroToolCoordinates , GRM_AddonSettings_Save[altName].SyncTrackerPOS ,
+                GRM_AddonSettings_Save[altName].RosterFramePOS } );
+                
                 local tempTable = GRM.DeepCopyArray ( GRM.S() );  -- You need to set these values or else they won't carry over
                 GRM_AddonSettings_Save[altName] = tempTable;      -- overwrite each player's settings with the current
                 GRM_AddonSettings_Save[altName].minimapEnabled = tempSettingsHolder[1];
@@ -1516,6 +1521,7 @@ GRM.SyncAddonSettings = function()
                 GRM_AddonSettings_Save[altName].reportChannel = tempSettingsHolder[7];
                 GRM_AddonSettings_Save[altName].macroToolCoordinates = tempSettingsHolder[8];
                 GRM_AddonSettings_Save[altName].SyncTrackerPOS = tempSettingsHolder[9];
+                GRM_AddonSettings_Save[altName].RosterFramePOS = tempSettingsHolder[10];
             end
         end
     elseif not GRM_PlayerListOfAlts_Save[GRM_G.guildName] then
@@ -3834,6 +3840,41 @@ GRM.GetListOfGuildies = function( slimName )
     return list;
 end
 
+-- Method:          GRM.GetAllMembersAsArray( string )
+-- What it Does:    Returns an unsorted list of all guild members as an array, as well as some accompanying details.
+-- Purpose:         A sorted list is useful for columns
+GRM.GetAllMembersAsArray = function( nameSearch )
+    local result = {};
+    local guildData = GRM.GetGuild();
+    local tempPlayer = {};
+
+    for name , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            if not nameSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , nameSearch , 1 , true ) or string.find ( string.lower ( player.name ) , nameSearch , 1 , true ) then
+                tempPlayer = {};
+
+                tempPlayer.name = player.name;
+                tempPlayer.rankName = player.rankName;
+                tempPlayer.rankIndex = player.rankIndex;
+                tempPlayer.lastOnline = player.lastOnline;
+                tempPlayer.classColor = GRM.GetClassColorRGB ( player.class , false );
+                tempPlayer.level = player.level;
+
+                if not player.isOnline then
+                    tempPlayer.hoursReport = GRM.HoursReport ( player.lastOnline );
+                else
+                    tempPlayer.hoursReport = GRM.L ( "Online" );
+                    tempPlayer.lastOnline = 0;
+                end
+
+                table.insert ( result , GRM.DeepCopyArray ( tempPlayer ) );
+            end
+        end
+    end
+
+    return result;
+end
+
 -- Method:          GRM.GetAllCurrentAndFormerGuildies( boolean , boolean )
 -- What it Does:    Collects the names and class of every player currently in the guild, formerly in the guild in database, and sorts the 2D array alphabetically
 -- Purpose:         This will be useful when adding people manually to ban list for auto-complete
@@ -5295,7 +5336,7 @@ end
 GRM.GetHoursSinceLastOnline = function ( index , isOnline )
     local years , months, days, hours;
     years , months, days, hours = GetGuildRosterLastOnline ( index );
-    local invalidData = false;
+    local validTime = true;
     local monthHrs = 0;
     
     if not years then
@@ -5318,21 +5359,22 @@ GRM.GetHoursSinceLastOnline = function ( index , isOnline )
     end
 
     if ( years == 0 ) and ( months == 0 ) and ( days == 0 ) and ( hours == 0) then
+        validTime = false;
         if isOnline then
-            hours = 0.5;    -- This can be any value less than 1, but must be between 0 and 1, to just make the point that total number of hrs since last login is < 1
+            hours = 0;    -- This can be any value less than 1, but must be between 0 and 1, to just make the point that total number of hrs since last login is < 1
         else
-            invalidData = true;
+            hours = 0.5
         end
     end
-    if not invalidData then
 
-        if months > 0 then
-            monthHrs = ( GRM.GetNumHoursTilRecommend ( months , select ( 4 , GRM.GetTodaysDate() ) - years ) );
-        end
+    if months > 0 then
+        monthHrs = ( GRM.GetNumHoursTilRecommend ( months , select ( 4 , GRM.GetTodaysDate() ) - years ) );
+    end
         
+    if validTime then
         return math.floor ( ( GRM.GetTotalYearHours ( years ) ) + monthHrs + ( days * 24 ) + hours );
     else
-        return 0;
+        return hours
     end
 end
 
@@ -8750,7 +8792,7 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
     
                     GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
     
-                    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+                    GameTooltip:AddLine ( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
                     GameTooltip:Show();
                 end
             end
@@ -8783,7 +8825,7 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
     
                             GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to select player event" ) );
                             GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
-                            GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+                            GameTooltip:AddLine ( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
                             GameTooltip:Show();
                         end
                     end
@@ -10187,7 +10229,7 @@ GRM.UpdateAuditTooltip = function ( ind )
     GameTooltip:AddLine ( GRM.GetClassifiedName ( GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][2]:GetText() , false ) );
 
     GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
-    GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+    GameTooltip:AddLine( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
     GameTooltip:AddLine ( GRM.L ( "{custom1} for Additional Options" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Right-Click" ) .. "|r" ) );
 
     -- Check for the tag
@@ -13107,6 +13149,9 @@ GRM.CheckForDeadAccounts = function ()
                 GRM_G.customKickList[ind].isHighlighted = false;
                 GRM_G.customKickList[ind].mainName = GRM.GetMainName ( player , true );
                 GRM_G.customKickList[ind].customMsg = GRM.L ( "Dead Account" );
+                GRM_G.customKickList[ind].isMain = false;
+                GRM_G.customKickList[ind].isAlt = false;
+                GRM_G.customKickList[ind].tab = false;
                 
             end
         end
@@ -13116,6 +13161,7 @@ GRM.CheckForDeadAccounts = function ()
         sort ( GRM_G.customKickList , function ( a , b ) return a[1] < b[1] end );
 
         local kickDeadNames = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:Click();
             GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;
             GRM_G.customKickGroup = true;
             if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
@@ -14035,6 +14081,10 @@ GRM.FinalReportInformation = function( needToReport )
 
     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
         GRM.PopulateMemberDetails ( GRM_G.currentName );
+    end
+
+    if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then
+        GRM_UI.RefreshRosterName();
     end
 
     GRM_G.OnFirstLoad = false;
@@ -17620,6 +17670,11 @@ GRM.OnRankChange = function ( formerRank , newRank , promotedName , promoterName
                 GRM.RefreshSelectHybridFrames ( true , true , true , true );
             end);
         end
+
+        if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+            GRM_UI.RefreshRosterName();
+        end
+
     end
     return recorded;
 end
@@ -19156,6 +19211,10 @@ GRM.CheckForNewPlayer = function( clubID , scanNumber , memberID )
 
         GRM.RecordJoinChanges ( player , GRM.GetClassColorRGB ( classFile , true ) .. GRM.SlimName ( rosterName ) .. "|r" , true , select ( 2 , GRM.GetTimestamp() ) , true );
 
+        if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+            GRM_UI.RefreshRosterName();
+        end
+
         -- Check Main Auto tagging...
         if not GRM_G.OnFirstLoad then
             GRM.SetGuildInfoDetails();
@@ -19381,6 +19440,11 @@ GRM_G.KickAction = function( kickedToon , kickerOfficer , scanNumber , isMacro )
         if kickerOfficer ~= GRM_G.addonUser or ( kickerOfficer == GRM_G.addonUser and GRM_UI.GRM_ToolCoreFrame ~= nil and not GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.isChecked2 ) then
             GRM.RefreshSelectHybridFrames ( true , true , true , true );
         end
+
+        if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+            GRM_UI.RefreshRosterName();
+        end
+        
     end
 
     if isMacro then
@@ -19702,7 +19766,8 @@ GRM.LivePromoteOrDemoteDetection = function( msg , isPromotion , scanNumber )
                     GRM_G.liveDemotedToons[player.name] = newRank;
                 end
 
-                recorded = GRM.OnRankChange ( player.rankName , newRank , promotedToon , promotingOfficer )
+                recorded = GRM.OnRankChange ( player.rankName , newRank , promotedToon , promotingOfficer );
+
             end
         end
 
@@ -19745,6 +19810,10 @@ GRM.LiveLeaveDetection = function( text , scanNumber )
     GRM.AddLog ( { 10 , logReportWithTime , unitName , playerKicked , timePassed , logEntryMetaData , listOfAlts , mainName , publicNote , officerNote , date } );
 
     GRM.RefreshSelectHybridFrames ( true , true , true , true );
+    
+    if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+        GRM_UI.RefreshRosterName();
+    end
 
     GRM_G.LiveScanningBlock.left[scanNumber] = false;
 
@@ -20996,7 +21065,7 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
             if stillInGuild then
                 GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
             end
-            GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+            GameTooltip:AddLine ( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
             GameTooltip:Show();
         end);
 
@@ -23242,7 +23311,7 @@ GRM.UpdateJDAuditTooltip = function ( ind )
     GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to select player" ) );
     GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FShift-Click|r Second Button to Select All In-Between" ) );
     GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
-    GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player" ) );
+    GameTooltip:AddLine ( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
 end
 
 -- Method:          GRM.JDAuditToolHybridShiftDown()
@@ -25203,6 +25272,11 @@ GRM.SlashCommandCenter = function()
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:ClearAllPoints();
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetPoint ( "CENTER" , UIParent );
 
+    GRM_UI.GRM_RosterFrame:ClearAllPoints();
+    GRM_UI.GRM_RosterFrame:SetPoint ( "CENTER" , UIParent );
+    GRM.S().RosterFramePOS = { "" , "" , 0 , 0 };
+
+
     if GRMsyncGlobals.UILoaded then
         GRM_UI.GRM_SyncTrackerWindow:ClearAllPoints();
         GRM_UI.GRM_SyncTrackerWindow:SetPoint ( "CENTER" , UIParent );
@@ -25221,12 +25295,17 @@ end
 GRM.SlashCommandHelp = function()
 
     local slash = "/grm";
+    local slash2 = "/roster";
     if GRM_L["/XXXX"] ~= true then
         slash = GRM_L["/XXXX"];
     end
+    if GRM_L["/YYYY"] ~= true then
+        slash2 = GRM_L["/YYYY"];
+    end
     
     GRM.Report ( "\n" .. GRM.L ( "Guild Roster Manager" ) .. " " .. GRM.L ( "(Ver:" ) .. " " .. GRM_G.Version .. ")\n\n" .. slash .. "                     - " .. 
-        GRM.L ( "Opens Guild Log Window" ) .. "\n" .. slash .. " " .. GRM.L ( "clearall" ) .. "         - " .. 
+        GRM.L ( "Opens Guild Log Window" ) .. "\n" .. slash2 .. "                   - " .. 
+        GRM.L ( "Opens Custom Guild Roster Window" ) .. "\n" .. slash .. " " .. GRM.L ( "clearall" ) .. "         - " .. 
         GRM.L ( "Resets ALL saved data" ) .. "\n" .. slash .. " " .. GRM.L ( "clearguild" ) .. "     - " .. 
         GRM.L ( "Resets saved data only for current guild" ) .. "\n" .. slash .. " " .. GRM.L ( "center" ) .. "          - " .. 
         GRM.L ( "Re-centers the Log window" ) .. "\n" .. slash .. " " .. GRM.L ( "sync" ) .. "             - " ..
@@ -25438,8 +25517,16 @@ GRM.SlashCommandSearch = function ( text )
         end
 
         if searchName then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText ( GRM.Trim ( searchName ) );
-            GRM.RefreshAuditFrames ( false , false , GRM.Trim ( searchName ) );
+
+            if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+
+            elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText ( GRM.Trim ( searchName ) );
+                GRM.RefreshAuditFrames ( false , false , GRM.Trim ( searchName ) );
+            else
+                GRM.LoadRosterFrame();
+                GRM_UI.GRM_RosterFrame.GRM_PlayerSearchRosterEditBox:SetText ( GRM.Trim ( searchName ) );
+            end
         end
     else
         GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
@@ -25544,6 +25631,43 @@ GRM.DebugConfig = function( command )
     end
 end
 
+-- Method:          GRM.OpenCoreWindow ( bool )
+-- What it Does:    Opens the Core Window
+-- Purpose:         Reusable window to open the roster.
+GRM.OpenCoreWindow = function( isGeneric )
+    local openExport = false;
+    if IsInGuild() and GRM_UI.GRM_RosterChangeLogFrame ~= nil and not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and GRM_G.guildName ~= "" then
+        openExport = true;
+        GRM_UI.GRM_RosterChangeLogFrame:Show();
+    elseif isGeneric and GRM_UI.GRM_RosterChangeLogFrame ~= nil and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+        GRM_UI.GRM_RosterChangeLogFrame:Hide();
+    elseif GRM_UI.GRM_RosterChangeLogFrame == nil or GRM_G.guildName == "" then
+        GRM.Report ( GRM.L ( "Please try again momentarily... Updating the Guild Event Log as we speak!" ) );
+    elseif not isGeneric and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+        openExport = true;
+    end
+
+    return openExport;
+end
+
+
+-- SLASH COMMAND LOGIC
+SlashCmdList["ROSTER"] = function ( input )
+
+    local isAlreadyReported = false;
+
+    if input == nil or input:trim() == "" then
+        GRM.LoadRosterFrame();
+    else
+        isAlreadyReported = true;
+        GRM.Report ( GRM.L ( "Invalid Command: Please type '/grm help' for More Info!" ) );
+    end
+    
+    if not IsInGuild() and not isAlreadyReported then
+        GRM.Report ( GRM.L ( "{name} is not currently in a guild. Unable to Proceed!" , GRM.SlimName( GRM_G.addonUser ) ) );
+    end
+
+end
 
 -- SLASH COMMAND LOGIC
 SlashCmdList["GRM"] = function ( input )
@@ -25555,24 +25679,9 @@ SlashCmdList["GRM"] = function ( input )
         command = string.lower ( input );
     end
 
-    local openCoreWindow = function( isGeneric )
-        local openExport = false;
-        if IsInGuild() and GRM_UI.GRM_RosterChangeLogFrame ~= nil and not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and GRM_G.guildName ~= "" then
-            openExport = true;
-            GRM_UI.GRM_RosterChangeLogFrame:Show();
-        elseif isGeneric and GRM_UI.GRM_RosterChangeLogFrame ~= nil and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-            GRM_UI.GRM_RosterChangeLogFrame:Hide();
-        elseif GRM_UI.GRM_RosterChangeLogFrame == nil or GRM_G.guildName == "" then
-            GRM.Report ( GRM.L ( "Please try again momentarily... Updating the Guild Event Log as we speak!" ) );
-        elseif not isGeneric and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-            openExport = true;
-        end
-
-        return openExport;
-    end
 
     if input == nil or input:trim() == "" then
-        openCoreWindow( true );
+        GRM.OpenCoreWindow( true );
 
     -- Clears all saved data and resets to as if the addon was just installed. The only thing not reset is the default settings.
     elseif command == "clearall" or command == "resetall" or command == GRM.L ( "clearall" ) then
@@ -25642,7 +25751,7 @@ SlashCmdList["GRM"] = function ( input )
         GRM.SlashCommandOptions();
 
     elseif command == "export" or command == string.lower ( GRM.L ( "Export" ) ) then
-        if openCoreWindow( false ) then
+        if GRM.OpenCoreWindow( false ) then
             GRM.SlashCommandExport();
         end
 

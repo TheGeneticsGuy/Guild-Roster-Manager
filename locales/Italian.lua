@@ -31,8 +31,9 @@ GRML.Italian = function()
     GRM_L["Friend"] = FRIEND;
 
 	-- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-	GRM_L["/XXXX"] = true                           -- /grm will always work, now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
-
+    GRM_L["/XXXX"] = true   -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
+    GRM_L["/YYYY"] = true;  -- /roster              -- This is the custom GRM roster 
+    
 	GRM_L["German"] = "Tedesco"
 	GRM_L["English"] = "Inglese"
 	GRM_L["French"] = "Francese"
@@ -592,7 +593,7 @@ GRML.Italian = function()
 	GRM_L["Right-Click to Reset to 100%"] = "Click destro per reimpostare al 100%"
 
 	-- Update 1.147
-	GRM_L["|CFFE6CC7FCtrl-Shift-Click|r to Search the Log for Player"] = "|CFFE6CC7FCtrl-Shift-Click|r per cercare il player nel Registro"
+	GRM_L["{custom1} to Search the Log for Player"] = "{custom1} per cercare il player nel Registro"
 
 	-- Update 1.1480
 	GRM_L["Custom Notes:"] = "Nota Personalizzata:"
@@ -1184,7 +1185,6 @@ GRML.Italian = function()
     GRM_L["Go to GRM window > Options > Officer Tab > \"Set Global Controls\""] = true
     GRM_L["Remove the old format when all guildies have updated properly. You may wish to leave it in Guild Info until then."] = true
     GRM_L["It may take up to 60 seconds for other guild members to detect the changes and update."] = true
-    GRM_L["Ctrl-Shift-Click"] = true
     GRM_L["Resets only the settings on this page"] = true
     GRM_L["Resets only the Export Settings"] = true
     GRM_L["Resets all Macro Tool Rules and Settings"] = true
@@ -1273,7 +1273,6 @@ GRML.Italian = function()
     GRM_L["The guild name \"{name}\" cannot be found in the database. Ensure proper formatting."] = true
     GRM_L["The player name \"{name}\" cannot be found in the database. Ensure proper spelling."] = true
     GRM_L["Unable to change officer notes at current rank"] = true
-    GRM_L["Player is not currently in a Guild"] = true
     GRM_L["Mains Only"] = true
     GRM_L["Alts Only"] = true
     GRM_L["Custom Public Notes:"] = true        -- Updated from "Custom Notes"
@@ -1639,4 +1638,21 @@ GRML.Italian = function()
     -- R1.975
     GRM_L["Export a full list of names in the queue."] = true
 	
+    -- R1.977
+    GRM_L["Guild Roster"] = true
+    GRM_L["GRM Custom Guild Roster"] = true
+    GRM_L["Unable to Promote players at this rank"] = true
+    GRM_L["Unable to Demote players at this rank"] = true
+    GRM_L["No Rank Permission to Kick"] = true;
+    GRM_L["No Rank Permission to Demote"] = true;
+    GRM_L["No Rank Permission to Promote"] = true;
+    GRM_L["Promote Player to:"] = true
+    GRM_L["Demote Player to:"] = true
+    GRM_L["Lvl"] = true
+    GRM_L["Opens Custom Guild Roster Window"] = true
+    GRM_L["{custom1} to Open"] = true;
+    GRM_L["{custom1} to Promote, Demote, or Kick"] = true
+    GRM_L["Whisper"] = true
+    GRM_L["{custom1} to Whisper"] = true
+
 end
