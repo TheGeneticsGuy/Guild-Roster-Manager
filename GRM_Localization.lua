@@ -141,8 +141,12 @@ end
 -- What it Does:    It establishes both the appropriate region font, and a modifier for the Mandarin text
 -- Purpose:         To be able to have an in-game UI option to change the player language.
 GRML.SetNewLanguage = function ( index , firstLoad , resetAllDefaults )
+    local font = 1;
+    if GRM.S() then
+        font = GRM.S().selectedFont;
+    end 
     GRML.LoadLanguage[index]();
-    GRM_G.FontChoice = GRML.listOfFonts[GRM.S().selectedFont];
+    GRM_G.FontChoice = GRML.listOfFonts[font];
     GRML.SetFontModifier();
     if firstLoad then
         GRM_UI.ReloadAllFrames( false , false );
@@ -160,6 +164,10 @@ end
 GRML.SetFontModifier = function()
     -- Reset it...
     GRM_G.FontModifier = 0;
+    local modifier = 0;
+    if GRM.S() then
+        modifier = GRM.S().fontModifier;
+    end
     if GRM_G.FontChoice == "Fonts\\ARKai_T.TTF" then                             -- China
         GRM_G.FontModifier = 0.5;
     elseif GRM_G.FontChoice == "FONTS\\blei00d.TTF" then                         -- Taiwan
@@ -179,7 +187,7 @@ GRML.SetFontModifier = function()
     elseif GRM_G.FontChoice == "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Roboto-Regular.TTF" then
         GRM_G.FontModifier = 1;
     end
-    GRM_G.FontModifier = GRM_G.FontModifier + GRM.S().fontModifier;
+    GRM_G.FontModifier = GRM_G.FontModifier + modifier;
 end
 
 -- Method:          GRML.SetNewFont( int )

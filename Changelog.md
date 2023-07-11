@@ -1,4 +1,18 @@
 
+
+## **VERSION 1.978 RELEASE - July 11th, 2023**
+
+* Rebuilt the addon settings DB as some were reporting the macros were disappearing at times. The settings have been rebuilt and are more robust now and a bit leaner in the database as well. They will exist as a single entry per guild. However, if you choose to set the settings to character specific, it will create a new entry for just that player as well. If you uncheck the box to remove them from being character specific, the player will be returned to the guild-wide settings. These cannot overwrite each other, which was actually what was happening... it was a logic flaw when swapping alts and then trying to sync the save data. There is no reason to sync data between alts now since the DB will only have 1 instance of the settings, which obviously makes more sense. This is a VERY old legacy format of the DB that had a bunch of spaghetti code that just needed to finally be fixed.
+
+* Fixed an issue where the game wouldn't load properly for some who hadn't updated in a while.
+
+* The name should now be class colorized on the right click dropdown selection on the custom GRM roster.
+
+* Fixed an issue where if you were NOT in a guild, created a new toon, some keybinds could be lost because it was crashing as GRM was trying to set the guild window keybind, which doesn't make sense to do if not in a guild. This shouldn't happen anymore.
+
+* Fixed an issue where the new GRM roster player search wasn't working if you used capital or special letters. The search should now work properly.
+
+
 ## **VERSION 1.977 RELEASE - May 7th, 2023**
 
 ***NEW FEATURE***

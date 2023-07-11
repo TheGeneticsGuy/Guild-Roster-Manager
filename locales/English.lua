@@ -1651,5 +1651,8 @@ GRML.English = function()
     GRM_L["Whisper"] = true
     GRM_L["{custom1} to Whisper"] = true
 
+    -- R1.978
+    GRM_L["{name}'s Settings"] = true
+
 end
 

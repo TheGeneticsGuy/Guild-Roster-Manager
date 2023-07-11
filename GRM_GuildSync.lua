@@ -5837,9 +5837,10 @@ GRMsync.CheckingBANChanges = function ()
                             GUID = "X"
                         end
 
-                        playerData = { rankName , tostring ( rankIndex ) , tostring ( player.level ) , classIndex , tostring ( player.joinDateHist[1][4] ) , tostring ( oldJoinDateMeta ) , GUID }
+                        playerData  = { rankName , tostring ( rankIndex ) , tostring ( player.level ) , classIndex , tostring ( player.joinDateHist[1][4] ) , tostring ( oldJoinDateMeta ) , GUID }
+
                     end
-                    print("Adding Ban Change: " .. player.name)
+
                     table.insert ( GRMsyncGlobals.BanChanges , { player.name , player.bannedInfo[2] , banType , player.reasonBanned , GRMsyncGlobals.DesignatedLeader , GRM.S().syncRankBanList , player.bannedInfo[4] , playerData , true } );  -- Final position bool - if leader data
                 else
                     table.insert ( GRMsyncGlobals.BanChanges , { GRMsyncGlobals.BanReceivedTemp[i][1] , GRMsyncGlobals.BanReceivedTemp[i][2] , GRMsyncGlobals.BanReceivedTemp[i][3] , GRMsyncGlobals.BanReceivedTemp[i][4] , GRMsyncGlobals.BanReceivedTemp[i][5] , GRMsyncGlobals.BanReceivedTemp[i][6] , GRMsyncGlobals.BanReceivedTemp[i][7] , playerData , false } );
@@ -7134,4 +7135,3 @@ GRMsync.Initialize = function()
 end
 
 GRMsync.HookComms();
-

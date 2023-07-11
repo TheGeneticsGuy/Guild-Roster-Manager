@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 112;
+local totalPatches = 113;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -66,7 +66,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         C_Timer.After ( 2 , function()
             GRM_Patch.SettingsCheck ( numericV , numActions , baseValue );
         end);
-
         return true;
     end
 
@@ -1003,7 +1002,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-
+    
     patchNum = patchNum + 1;
     if numericV < 1.926 and baseValue < 1.926 then
         GRM_Patch.ModifyMemberData ( GRM_Patch.FixRankHistory , true , true , false );
@@ -1238,7 +1237,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         if GRM_GuildMemberHistory_Save["H"] then
             GRM_Patch.ModifyMemberData ( GRM_Patch.JoinAndRankDataFix , true , true , false );
-            GRM_Patch.AddPlayerSetting ( "SyncTrackerPOS" , { "" , "" , 0 , 0 } );
+            GRM_Patch.AddPlayerSetting ( "coreWindowPos" , { "" , "" , 0 , 0 } );
         end
         
         
@@ -1335,7 +1334,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+    
+    -- patch 113
+    patchNum = patchNum + 1;
+    if numericV < 1.978 and baseValue < 1.978 then
 
+        GRM_Patch.FixSettingsNames();
+        GRM_Patch.ConvertSettingsToNewFormat();
+
+        if loopCheck ( 1.978 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -1357,13 +1367,10 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         end
         print ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.GetTimePassedInZone ( startTime ) );
 
-        
     end
 
     -- Updating the version for ALL saved accoutns.
-    for p, s in pairs ( GRM_AddonSettings_Save ) do
-        GRM_AddonSettings_Save[p].version = GRM_G.Version;
-    end
+    GRM_AddonSettings_Save.VERSION = GRM_G.Version;
 
     if oldDB then
         GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
@@ -1495,22 +1502,24 @@ end
 -- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
 -- Purpose:         To be able to retroactively adapt and make changes to the database.
 GRM_Patch.EditSetting = function ( setting , valueOrLogic , additionalSetting )
-    for p in pairs ( GRM_AddonSettings_Save ) do
-        if type ( valueOrLogic ) == "function" then
-            if additionalSetting then
-                if GRM_AddonSettings_Save[p][setting][additionalSetting] ~= nil then
-                    GRM_AddonSettings_Save[p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
+    for p , settings in pairs ( GRM_AddonSettings_Save ) do
+        if type (p) == "table" then
+            if type ( valueOrLogic ) == "function" then
+                if additionalSetting then
+                    if GRM_AddonSettings_Save[p][setting][additionalSetting] ~= nil then
+                        GRM_AddonSettings_Save[p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
+                    end
+                else
+                    GRM_AddonSettings_Save[p][setting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
                 end
             else
-                GRM_AddonSettings_Save[p][setting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
-            end
-        else
-            if additionalSetting then
-                if GRM_AddonSettings_Save[p][setting][additionalSetting] ~= nil then
-                    GRM_AddonSettings_Save[p][setting][additionalSetting] = valueOrLogic;
+                if additionalSetting then
+                    if GRM_AddonSettings_Save[p][setting][additionalSetting] ~= nil then
+                        GRM_AddonSettings_Save[p][setting][additionalSetting] = valueOrLogic;
+                    end
+                else
+                    GRM_AddonSettings_Save[p][setting] = valueOrLogic;
                 end
-            else
-                GRM_AddonSettings_Save[p][setting] = valueOrLogic;
             end
         end
     end
@@ -7098,52 +7107,53 @@ GRM_Patch.ConvertDatabase = function( backups )
     if GRM_GuildDataBackup_Save["H"] then
         for f in pairs ( GRM_GuildDataBackup_Save ) do
             for guild in pairs ( GRM_GuildDataBackup_Save[f] ) do
+                if guild ~= "members" and guild ~= "formerMembers" then
+                    if not newBackups[guild] then
 
-                if not newBackups[guild] then
+                        newBackups[guild] = {};
 
-                    newBackups[guild] = {};
+                        if GRM_GuildDataBackup_Save[f][guild]["Manual"].date == "" then
+                            newBackups[guild].date = "";
+                            newBackups[guild].epochDate = 0;
+                            newBackups[guild].numGuildies = 0;
+                            newBackups[guild].members = {};
+                            newBackups[guild].formerMembers = {};
+                            newBackups[guild].log = {};
+                            newBackups[guild].alts = {};
+                            if ( GRM_GuildDataBackup_Save[f][guild][1] and GRM_GuildDataBackup_Save[f][guild][1] ~= "" ) then
+                                newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild][1];
+                            elseif ( GRM_GuildMemberHistory_Save[f][guild].grmCreationDate and GRM_GuildMemberHistory_Save[f][guild].grmCreationDate ~= "" ) then
+                                newBackups[guild].guildCreationDate = GRM_GuildMemberHistory_Save[f][guild].grmCreationDate;
+                            else
+                                newBackups[guild].guildCreationDate = "";
+                            end
 
-                    if GRM_GuildDataBackup_Save[f][guild]["Manual"].date == "" then
-                        newBackups[guild].date = "";
-                        newBackups[guild].epochDate = 0;
-                        newBackups[guild].numGuildies = 0;
-                        newBackups[guild].members = {};
-                        newBackups[guild].formerMembers = {};
-                        newBackups[guild].log = {};
-                        newBackups[guild].alts = {};
-                        if ( GRM_GuildDataBackup_Save[f][guild][1] and GRM_GuildDataBackup_Save[f][guild][1] ~= "" ) then
-                            newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild][1];
-                        elseif ( GRM_GuildMemberHistory_Save[f][guild].grmCreationDate and GRM_GuildMemberHistory_Save[f][guild].grmCreationDate ~= "" ) then
-                            newBackups[guild].guildCreationDate = GRM_GuildMemberHistory_Save[f][guild].grmCreationDate;
                         else
-                            newBackups[guild].guildCreationDate = "";
+
+                            newBackups[guild].date = GRM_GuildDataBackup_Save[f][guild]["Manual"].date;
+                            newBackups[guild].epochDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].epochDate;
+                            newBackups[guild].numGuildies = GRM.GetNumGuildiesInGuild ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
+                            newBackups[guild].members = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
+                            newBackups[guild].formerMembers = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].formerMembers );
+                            newBackups[guild].log = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].log );
+                            newBackups[guild].alts = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].alts );
+
+                            if GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate and GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate ~= "" then
+                                newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate;
+
+                            elseif GRM_GuildDataBackup_Save[f][guild][1] and GRM_GuildDataBackup_Save[f][guild][1] ~= "" then
+                                newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild][1];
+                            else
+                                newBackups[guild].guildCreationDate = "";
+                            end
+
                         end
 
-                    else
-
-                        newBackups[guild].date = GRM_GuildDataBackup_Save[f][guild]["Manual"].date;
-                        newBackups[guild].epochDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].epochDate;
-                        newBackups[guild].numGuildies = GRM.GetNumGuildiesInGuild ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
-                        newBackups[guild].members = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
-                        newBackups[guild].formerMembers = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].formerMembers );
-                        newBackups[guild].log = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].log );
-                        newBackups[guild].alts = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].alts );
-
-                        if GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate and GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate ~= "" then
-                            newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate;
-
-                        elseif GRM_GuildDataBackup_Save[f][guild][1] and GRM_GuildDataBackup_Save[f][guild][1] ~= "" then
-                            newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild][1];
-                        else
-                            newBackups[guild].guildCreationDate = "";
-                        end
-
+                        C_Timer.After ( 2 , function()
+                            GRM_Patch.ConvertDatabase ( newBackups );
+                        end);
+                        return;
                     end
-
-                    C_Timer.After ( 2 , function()
-                        GRM_Patch.ConvertDatabase ( newBackups );
-                    end);
-                    return;
                 end
             end
         end
@@ -7357,7 +7367,7 @@ GRM_Patch.ResetUIScaling = function( scaling )
             if i == 1 then
                 W , H = 600 , 535;
             elseif i == 2 then
-                W , H = 300 , 330;
+                W , H = 400 , 439;
             elseif i == 3 then
                 W , H = 1200 , 515;
             elseif i == 4 then
@@ -7369,7 +7379,7 @@ GRM_Patch.ResetUIScaling = function( scaling )
             scaling[i] = { W , H , S };
         end
     end
-    
+
     return scaling;
 end
 
@@ -7414,37 +7424,6 @@ GRM_Patch.CleanUpAltGroupsFromError = function()
     end
 
 end
-
--- -- 1.971
--- -- Method:          GRM_Patch.CleanUpAltGroupsFromError()
--- -- What it Does:    Cleans up old dead alt groups
--- -- Purpose:         Realized an issue where if a person left/kicked from the guild whilst having no alts, but they were a main, they would leave but their dead alt group stayed there.
--- GRM_Patch.CleanUpAltGroupsFromError = function()
---     for guildName in pairs ( GRM_Alts ) do
-
---         for altGroup in pairs ( GRM_Alts[guildName] ) do
-
---             if GRM_Alts[guildName][altGroup].main ~= "" and not GRM_GuildMemberHistory_Save[ guildName ][ GRM_Alts[guildName][altGroup].main ] then
---                 GRM_Alts[guildName][altGroup] = nil;
---             end
-
---         end
-
---     end
-
---     for guildName in pairs ( GRM_GuildDataBackup_Save ) do
-
---         for altGroup in pairs ( GRM_GuildDataBackup_Save[guildName].alts ) do
-
---             if GRM_GuildDataBackup_Save[guildName].alts[altGroup].main ~= "" and not GRM_GuildDataBackup_Save[guildName].members[ GRM_GuildDataBackup_Save[guildName].alts[altGroup].main ] then
---                 GRM_GuildDataBackup_Save[guildName].alts[altGroup] = nil;
---             end
-            
---         end
-
---     end
-
--- end
 
 -- 1.973
 -- Method:          GRM_Patch.FixJoinNameError()
@@ -7508,10 +7487,14 @@ GRM_Patch.FixJoinNameError = function()
 end
 
 -- 1.972
--- Method:          GRM_G.AddExportEntry( settingsTable , int )
+-- Method:          GRM_Patch.AddExportEntry( settingsTable , int )
 -- What it Does:    Addes the 22nd entry to the export options
 -- Purpose:         Enable a new setting for Mythic+ exporting.
 GRM_Patch.AddExportEntry = function ( settings , entryCap )
+
+    if settings.exportFilters == nil then
+        settings.exportFilters = {};
+    end
 
     for i = 1 , entryCap do
         if settings.exportFilters[i] == nil then
@@ -7601,4 +7584,127 @@ GRM_Patch.FixMissingNames = function ()
     end
 
     return player;
+end
+
+-- 1.978
+-- Method:          GRM_Patch.FixSettingsNames()
+-- What it Does:    Fixes an edge case issue where some of these values were ghost added
+-- Purpose:         Fix an old edge case bug that was found.
+GRM_Patch.FixSettingsNames = function()
+    
+    if GRM_AddonSettings_Save.coreWindowPos then
+        GRM_AddonSettings_Save.coreWindowPos = nil;
+    end
+    if GRM_AddonSettings_Save.SyncTrackerPOS then
+        GRM_AddonSettings_Save.SyncTrackerPOS = nil;
+    end
+    if GRM_AddonSettings_Save.RosterFramePOS then
+        GRM_AddonSettings_Save.RosterFramePOS = nil;
+    end
+end
+
+-- 1.978
+-- Method:          GRM_Patch.ConvertSettingsToNewFormat()
+-- What it Does:    Converts the settings to be a more lean and useful DB
+-- Purpose:         To build a more lean settings system that will not accidentally overwrite save settings.
+GRM_Patch.ConvertSettingsToNewFormat = function()
+    if not GRM_AddonSettings_Save.VERSION then
+
+        local listOfGuilds = {};
+        local newSettings = {};
+        local toonsInGuild = {};
+
+        for name in pairs ( GRM_GuildMemberHistory_Save ) do
+            if name:find ( "-" ) ~= nil then
+
+                -- Add the guildName to the list.
+                -- .done indicates if settings have been already completed for this guild because
+                -- one toon was found with settings set to guild-wide.
+                if not listOfGuilds[name] then
+                    listOfGuilds[name] = {};
+                    listOfGuilds[name]["done"] = false;
+                end
+
+                if not listOfGuilds[name].done then
+
+                    toonsInGuild = GRM.GetAddOnUserGuildAlts(name);
+
+                    if GRM.TableLength(toonsInGuild) > 0 then
+                        -- Add all the alts of that account to the guild
+                        for names in pairs ( toonsInGuild ) do
+
+                            -- Settings found for toon
+                            if GRM_AddonSettings_Save[names] then
+                                if GRM_AddonSettings_Save[names].syncSettings then
+                                    -- Because they are global, we can keep add them, then break.
+                                    newSettings[name] = {};
+                                    GRM_AddonSettings_Save[names].version = nil;
+                                    newSettings[name] = GRM.DeepCopyArray ( GRM_AddonSettings_Save[names] );
+                                    listOfGuilds[name].done = true;
+                                end
+                            end
+                            
+                        end
+
+                        -- if not this would mean that none of the alts had syncSettings at global
+                        -- In this case we find the highest rank member of the guild instead and use the settings of that player.
+                        if not listOfGuilds[name].done then
+
+                            local playerHighestRank = "";
+                            local highestRank = 99;
+                            local player = {};
+                            for names in pairs ( toonsInGuild ) do
+                                if GRM_AddonSettings_Save[names] then
+                                    player = GRM.GetPlayer ( names , nil , name );
+                                    if player and player.rankIndex < highestRank then
+                                        highestRank = player.rankIndex;
+                                        playerHighestRank = names;
+                                    end
+                                end
+                            end
+
+                            -- Now, check result... whoever has highest rank (lowest index) we use their settings.
+                            if playerHighestRank ~= "" then
+                                if GRM_AddonSettings_Save[playerHighestRank] then
+                                    GRM_AddonSettings_Save[playerHighestRank].syncSettings = true;
+                                    GRM_AddonSettings_Save[playerHighestRank].version = nil;
+                                    newSettings[name] = {};
+                                    newSettings[name] = GRM.DeepCopyArray ( GRM_AddonSettings_Save[playerHighestRank] );
+                                end
+                            end
+
+                            listOfGuilds[name].done = true;
+
+                        end
+                    else
+                        -- No settings to even copy, just declare this guild done.
+                        listOfGuilds[name].done = true;
+                    end
+                end
+
+            end
+        end
+        GRM_AddonSettings_Save = {};
+        GRM_AddonSettings_Save = GRM.DeepCopyArray ( newSettings );
+
+        -- Now, add your own server if this is a player who logged in in a new server
+        if IsInGuild() and not GRM_AddonSettings_Save[GRM_G.guildName] then
+
+            -- No settings established yet.
+            GRM.Report ( "\n" .. GRM.L ( "Configuring Guild Roster Manager for {name} for the first time." , GRM.SlimName(GRM_G.guildName) ) );
+
+            -- Add new guild
+            GRM_AddonSettings_Save[GRM_G.guildName] = {};
+
+            -- Load the Default Settings
+            for i = 0 , GRM_G.SettingsPages do
+                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i , false );
+            end
+
+            -- Forcing core log window/options frame to load on the first load ever as well
+            GRM_G.ChangesFoundOnLoad = true;
+
+        end
+
+    end
 end

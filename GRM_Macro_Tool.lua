@@ -435,7 +435,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
 
                     if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then
-                        GRM_UI.RefreshRosterName();
+                        GRM_R.RefreshRosterName();
                     end
 
                     if not GRM_G.AuditWindowRefresh and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
@@ -604,7 +604,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM.S().ignoreFilter = false;
                 GRM.TriggerIgnoredQueuedWindowRefresh();
             end
-            GRM.SyncSettings();
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetPoint ( "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText , "LEFT" , - 2 , 0 );
@@ -616,7 +615,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM.S().disableMacroToolLogSpam = false;
                 end
-                GRM.SyncSettings();
             end
         end);
 
@@ -645,7 +643,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         GRM.TriggerIgnoredQueuedWindowRefresh();
                     end
 
-                    GRM.SyncSettings();
                 else
                     if self:GetChecked() then
                         self:SetChecked ( false );
@@ -1876,7 +1873,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
                     GRM.RefreshNumberOfHoursTilRecommend();
                     GRM_UI.FullMacroToolRefresh();
-                    GRM.SyncAddonSettings();
                 end
             end
         end);
@@ -8752,7 +8748,6 @@ end
 GRM_UI.FullMacroToolRefresh = function()
     GRM.RefreshNumberOfHoursTilRecommend();
     GRM_UI.RefreshManagementTool();
-    GRM.SyncSettings();
 end
 
 -- Method:          GRM_UI.GRM_ToolCoreFrame()
