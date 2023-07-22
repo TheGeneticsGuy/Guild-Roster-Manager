@@ -6001,6 +6001,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
     end);
 
+    -- Search indicator for delayed searching
+    GRM_UI.CreateString ( "GRM_LogSearchPendingText" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox , "GameFontNormal" , GRM.L ( "Searching Log..." ) , 16 , { "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox , "TOP" , 0 , 35 } , nil , { 0 , 0.8 , 1 } , "CENTER" , false );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Hide();
+
     -- LOG TOOLS
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:Hide();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:SetPoint ( "TOP" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame , "BOTTOM" , 0 , -1 );
@@ -11805,6 +11809,105 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         end
     end);
 
+    -- VERIFY ALL WINDOW ON AUDIT
+    GRM_UI.VerifyRankDatesScript = function()
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame:Show();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameText1:SetText ( GRM.L ( "Number of Unverified Promotion Dates: {num}" , nil , nil , "|CFF00CCFF" .. tostring ( GRM.GetNumUnverifiedPromoDates() ) .. "|r" ) );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameEditBox1:SetText("");
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyAllConfirmButton.GRM_VerifyAllConfirmButtonText:SetText ( GRM.L ( "Confirm All" ) );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.Join = false;
+    end
+
+    -- Verify All for Ran changes -- any with "!!"
+    GRM_UI.VerifyJoinDatesScript = function()
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame:Show();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameText1:SetText ( GRM.L ( "Number of Unverified Join Dates: {num}" , nil , nil , "|CFF00CCFF" .. tostring ( GRM.GetNumUnverifiedJoinDates() ) .. "|r") );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameEditBox1:SetText("");
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyAllConfirmButton.GRM_VerifyAllConfirmButtonText:SetText ( GRM.L ( "Confirm All" ) );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.Join = true;
+    end
+
+    -- Logic to update the button as you type in the edit box
+    GRM_UI.VerifyDateTextChanged = function()
+        local num = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameEditBox1:GetText();
+
+        if num ~= nil and num ~= "" then
+            num = tonumber( num );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyAllConfirmButton.GRM_VerifyAllConfirmButtonText:SetText ( GRM.L ( "Only Confirm Dates Within {num} Days" , nil , nil , num ) );
+        else
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyAllConfirmButton.GRM_VerifyAllConfirmButtonText:SetText ( GRM.L ( "Confirm All" ) );
+        end
+    end
+
+    -- Cofirmation
+    GRM_UI.ConfirmVerifyOfDates = function()
+
+        local days = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameEditBox1:GetText();
+
+        if days ~= nil and days ~= "" then
+            days = tonumber( days );
+        else
+            days = nil;
+        end
+
+        if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.Join then
+            GRM.VerifyAllJoinDates ( days );
+        else
+            GRM.VerifyAllRankDates ( days );
+        end
+
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame:Hide();
+
+        GRM.RefreshAuditFrames ( true , true );
+        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+            GRM.PopulateMemberDetails ( GRM_G.currentName );
+        end
+        if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then
+            GRM_R.RefreshRosterName();
+        end
+    end
+
+    GRM_UI.CreateButton ( "GRM_VerifyAllRankButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame , "UIPanelButtonTemplate" , GRM.L ( "Verify Promotion Dates" ) , 100 , 45 , { "TOP" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton , "BOTTOM" , 0 , -410 } , GRM_UI.VerifyRankDatesScript , "GameFontWhite" , 10 , "CENTER" , 2 , 0  );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllRankButton.GRM_VerifyAllRankButtonText:SetWordWrap ( true );
+
+    GRM_UI.CreateButton ( "GRM_VerifyAllJoinButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame , "UIPanelButtonTemplate" , GRM.L ( "Verify Join Dates" ) , 100 , 45 , { "TOP" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton , "BOTTOM" , 0 , -410 } , GRM_UI.VerifyJoinDatesScript , "GameFontWhite" , 10 , "CENTER" , 2 , 0  );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton.GRM_VerifyAllJoinButtonText:SetWordWrap ( true );
+
+    GRM_UI.CreateCoreFrame ( "GRM_AuditVerifyAllFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame , nil , 400 , 130 , "TranslucentFrameTemplate" , true , { "CENTER" , UIParent , "CENTER" , 0 , 0 } , "TOOLTIP" , true , true );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame:Hide();
+
+    GRM_UI.CreateString ( "GRM_VerifyFrameText1" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "GameFontNormal" , "" , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "TOPLEFT" , 25 , -25 } , nil , nil , "LEFT" , true );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.Join = false;
+
+    GRM_UI.CreateString ( "GRM_VerifyFrameText2" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "GameFontNormal" , GRM.L ( "Verify Only if Within Number of Days:" ) , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameText1 , "BOTTOMLEFT" , 0 , -15 } , nil , nil , "LEFT" , false );
+
+    GRM_UI.CreateEditBox ( "GRM_VerifyFrameEditBox1" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "InputBoxTemplate" , 50 , 15 , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameText2 , "RIGHT" , 10 , 0 } , "CENTER" , nil , 3 , true , nil , nil , GRM_UI.VerifyDateTextChanged )
+
+    GRM_UI.CreateButton ( "GRM_VerifyAllConfirmButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "UIPanelButtonTemplate" , "" , 300 , 35 , { "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "BOTTOM" , 0 , 12 } , GRM_UI.ConfirmVerifyOfDates , "GameFontWhite" , 12 , "CENTER" , 0 , 0  );
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:SetScript ( "OnEnter" , function ( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "Number of Unverified Promotion Dates: {num}" , nil , nil , "|CFF00CCFF" .. tostring ( GRM.GetNumUnverifiedPromoDates() ) .. "|r" ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip()
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:SetScript ( "OnEnter" , function ( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "Number of Unverified Join Dates: {num}" , nil , nil , "|CFF00CCFF" .. tostring ( GRM.GetNumUnverifiedJoinDates() ) .. "|r" ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip()
+    end);
+
+    -- END VERIFICATION    
+
     -- Player Search
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox , "TOP" , 0 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBoxText:SetTextColor ( 1 , 0.82 , 0 );
@@ -11933,6 +12036,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:SetScript ( "OnHide" , function()
         GRM.RestoreTooltip()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:Hide();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame:Hide();
     end);
 
     -- For tooltip on the audit frame...

@@ -1,4 +1,34 @@
 
+## **VERSION 1.979 RELEASE - July 22nd 2023**
+
+***QUALITY OF LIFE***
+
+* You can now mass verify Unverified Join dates and rank promotion dates. You will notice these as when you mouse over the player, or look at them in the audit you will see a "!!" tag on the date. This can happen from a couple of ways. First, there was a bug recently that left some dates unverified that is resolved in this update. Second, the guild event log on Blizz's server only stores the last 100 events from within the guild. If you are in a highly active guild and 100 events have already occurred since you last logged in, GRM will not know what happened, so GRM will find a change, like someone joined while you were offline, but not be able to verify exactly when. And third, if you are on Classic Era Vanilla WOW, since there is no guild event log yet in the game (it wasn't introduced until patch 2.3), then GRM is unable to query the server for the info.
+
+![Mass Confirm Unverified Dates](https://i.imgur.com/OKr6tJg.jpg)
+
+* The GRM_Tool macro now has a default message stored inside it explaining why the macro exists with a request not to delete it. This is a necessary placeholder macro GRM uses for the GRM Macro Tool. When not in use the text used to be blank, which has caused some confusion why it gets deleted and GRM recreates it next time you login or reload.
+
+* The Mythic+ rating that shows on the player mouseover now scales dozens of colors to match the [RAIDER.IO color scale](https://raiderio-color.wisak.me/). I will be doing more with M+ rating soon, but I need to wrap up a few more things first.
+
+* For people with MASSIVE Logs, the search on the log could end up freezing up your game or it would timeout. This search is very detailed and it normalizes special characters so you can easily find hard to type names, but since that requires a few extra conversion steps the actual search of logs in the tens of thousands of lines can be a little laggy. As such, I added a preventative measure to prevent the lockup. I even tested it on a log > 100,000 lines long just to be sure it works. To prevent any confusion, I also added a new message "Searching Log" for people. This will not even be noticeable to people until you have > 10,000 log entries, and even then it is very minimal, like 1 sec delay per 10k lines.
+
+![Delayed Search to prevent Lockups](https://i.imgur.com/RfLN3GF.jpg)
+
+***BUG FIXES***
+
+* Fixed an issue where for some who updated to 1.978, it would update the settings DB properly, but then faily to load the DB that session. A simple /reload would resolve the issue, but this should no longer occur anymore and the update should be more seemless for most.
+
+* Fixed a small issue where the "FRIEND" tag would show on the players logging on when it shouldn't.
+
+* Removed the old macro that doesn't need to exist anymore that was used to Ctrl-J access the old guild roster, since it is no longer necessary after Blizz removed it. 
+
+* I THINK I added a fix for the issue with GRM failing to auto-verify the dates when doing a scan of the log. With that being said, be aware that the built-in guild log only shows the last 100 events in the guild, be it invites, promotes, demotions, joins, kicks, leaves. If you are in a highly active guild and you have been offline for a longer time, maybe even just a whole day in one of these mega guilds, 100 events may have already occurred so GRM is unable to verify the exact date say someone joined, but GRM can determine someone joined. With that being said, GRM should show the promotion dates as verified now consistently if it can find them.
+
+* Mythic+ rating was not showing the correct number for some people. Be warned, this is sometimes an oudated number as if a player is inactive and hasn't logged in in a long time, it may still show a previous season's rating. Unfortunately this info is pulled directly from Warcraft's servers. GRM should only now reflect what the servers give us.
+
+* Fixed an issue that plagued non-English clients saying missing key.
+
 
 ## **VERSION 1.978 RELEASE - July 11th, 2023**
 

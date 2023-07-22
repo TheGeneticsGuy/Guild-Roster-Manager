@@ -118,6 +118,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
         parentFrame[name][fontStringText] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
         parentFrame[name][fontStringText]:SetPoint ( "LEFT" , parentFrame[name] , "LEFT" , indent , heightM );
         parentFrame[name][fontStringText]:SetWidth ( width - 5 );
+        parentFrame[name][fontStringText]:SetSpacing ( 1 );
         parentFrame[name][fontStringText]:SetWordWrap ( false );
         if alignment then
             parentFrame[name][fontStringText]:SetJustifyH ( alignment );

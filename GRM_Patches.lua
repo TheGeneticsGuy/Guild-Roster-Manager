@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 113;
+local totalPatches = 114;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1292,8 +1292,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     if numericV < 1.972 and baseValue < 1.972 then
 
-        if GRM_G.BuildVersion >= 90000 then
-            GRM_Patch.AddMemberSpecificData ( "MythicScore" , { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 } );
+        if GRM_G.BuildVersion >= 80000 then
+            GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
         end
         GRM_Patch.AddNewSetting ( "showLevel" , true );
         GRM_Patch.AddNewSetting ( "showMythicRating" , true );
@@ -1347,6 +1347,21 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- patch 114
+    patchNum = patchNum + 1;
+    if numericV < 1.979 and baseValue < 1.979 then
+
+        GRM_Patch.DeleteLegacyMacro();
+        if GRM_G.BuildVersion >= 80000 then
+            GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
+        end
+
+
+        if loopCheck ( 1.979 ) then
+            return;
+        end
+    end
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -1375,6 +1390,19 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
     if oldDB then
         GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
     end
+
+    -- Add new guild
+    if IsInGuild() and not GRM_AddonSettings_Save[GRM_G.guildName] then
+        GRM_AddonSettings_Save[GRM_G.guildName] = {};
+
+        -- Load the Default Settings
+        for i = 0 , GRM_G.SettingsPages do
+            GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i , false );
+        end
+    end
+
+    -- Forcing core log window/options frame to load on the first load ever as well
+    GRM_G.ChangesFoundOnLoad = true;
 
     C_Timer.After ( 1 , GRM.FinalSettingsConfigurations );
 end
@@ -7706,5 +7734,16 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
 
         end
 
+    end
+end
+
+-- R1.979
+-- Method:          GRM_Patch.DeleteLegacyMacro()
+-- What it Does:    Deletes this old macro that doesn't need to exist anymore
+-- Purpose:         After removal of the old roster, this macro no longer needs to exist.
+GRM_Patch.DeleteLegacyMacro = function()
+
+    if GetMacroIndexByName ( "GRM_Roster" ) ~= 0 then
+        DeleteMacro ( "GRM_Roster" );
     end
 end

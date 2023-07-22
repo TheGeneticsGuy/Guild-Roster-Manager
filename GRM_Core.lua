@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.978";
-GRM_G.PatchDay = 1689095275;             -- In Epoch Time
-GRM_G.PatchDayString = "1689095275";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.979";
+GRM_G.PatchDay = 1690017717;             -- In Epoch Time
+GRM_G.PatchDayString = "1690017717";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -313,9 +313,6 @@ GRM_G.OpenRosterName = "";
 GRM_G.ClassicTaintWarning = false;
 GRM_G.RosterHotKey = "";
 GRM_G.ClassicTaintProtection = false;
-
--- MYTHIC+ Tracking
-GRM_G.MythicSeasonInfo = {};
 
 -- GRM Modules.
 GRM_G.Module = {};
@@ -844,10 +841,13 @@ end
 -- What it Does:    Clears the old settings and rebuilds the database to new format.
 -- Purpose:         Necessary for changes and backwards compatibility
 GRM.IsOldSettingsFormat = function()
-    if not GRM_AddonSettings_Save.VERSION then
-        return true;
-    else
+    if ( IsInGuild() and GRM_AddonSettings_Save[GRM_G.guildName] ) then
+        if not GRM_AddonSettings_Save.VERSION then
+            GRM_AddonSettings_Save.VERSION = GRM_G.version;
+        end
         return false;
+    elseif not GRM_AddonSettings_Save.VERSION then
+        return true;
     end
 end
 
@@ -876,14 +876,13 @@ GRM.UpdateOldSettingsFormat = function()
     else
 
         -- 1.84 and on
-        if GRM.S() ~= nil then
+        if GRM_AddonSettings_Save[GRM_G.addonUser] ~= nil and GRM_AddonSettings_Save[GRM_G.addonUser].version ~= nil then
             isFound = true;
-            playerV = GRM.S().version;
+            playerV = GRM_AddonSettings_Save[GRM_G.addonUser].version;
         end
 
         -- Build settings for first time.
         if not isFound then
-            GRM.Report ( "\n" .. GRM.L ( "Configuring Guild Roster Manager for {name} for the first time." , GetUnitName ( "PLAYER" , false ) ) );
 
             -- Need to check version of any player.
             for name in pairs ( GRM_AddonSettings_Save ) do
@@ -893,17 +892,31 @@ GRM.UpdateOldSettingsFormat = function()
                 end
             end
 
-            -- Add new player
-            GRM_AddonSettings_Save[GRM_G.addonUser] = {};
+            if playerV == "" and IsInGuild() then
 
-            -- Load the Default Settings
-            for i = 0 , GRM_G.SettingsPages do
-                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.addonUser] , i , false );
-            end
-
-            GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
-            if playerV == "" then
-                playerV = GRM_AddonSettings_Save[GRM_G.addonUser].version;
+                if not GRM_AddonSettings_Save[GRM_G.guildName] then
+       
+                    -- Add new guild
+                    GRM_AddonSettings_Save[GRM_G.guildName] = {};
+    
+                    -- Load the Default Settings
+                    for i = 0 , GRM_G.SettingsPages do
+                        GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i , false );
+                    end
+    
+                    -- Forcing core log window/options frame to load on the first load ever as well
+                    GRM_G.ChangesFoundOnLoad = true;
+    
+                end
+    
+                if GRM_AddonSettings_Save[GRM_G.addonUser] then
+                    GRM_G.playerOnlySettings = true;
+                    GRM_AddonSettings_Save[GRM_G.guildName].syncSettings = false;
+                    GRM_AddonSettings_Save[GRM_G.addonUser].syncSettings = false;
+                end
+    
+            else
+                GRM_G.ChangesFoundOnLoad = true;
             end
 
             -- Forcing core log window/options frame to load on the first load ever as well
@@ -914,6 +927,12 @@ GRM.UpdateOldSettingsFormat = function()
 
         end
     end
+
+    -- Some error protection for some edge cases pre 1.978
+    if not playerV or playerV == "" then
+        playerV = GRM_G.version;
+    end
+
     return playerV;
 end
 
@@ -2797,9 +2816,9 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
 -- 
         -- Normal System message... Let's add the main tags...
         elseif not GRM_G.MainNameSystemMsgControl then  -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
-            if ( time() - GRMsyncGlobals.timeAtLogin ) > 5 and ( ( GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName ) or GRM.S().colorizeNames ) then
+            if ( time() - GRMsyncGlobals.timeAtLogin ) > 5 and GRM.S() and ( ( GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName ) or GRM.S().colorizeNames ) then
                 if string.find ( msg , GRM.L ( "has come online." ) ) ~= nil then
-                    msg = GRM.AddMainTagToComeOnlineSystemMessage ( msg , false );
+                    msg = GRM.AddMainTagToComeOnlineSystemMessage ( msg );
 
                     -- Check if it is their birthday.
                     GRM.AnnounceIfBirthday ( msg );
@@ -3013,7 +3032,7 @@ end
 -- Method:          GRM.AddMainTagToComeOnlineSystemMessage ( string )
 -- What it Does:    Adds the main/alt tags to the system messages for coming online.
 -- Purpose:         Alt management feature!
-GRM.AddMainTagToComeOnlineSystemMessage = function( msg , isInGuild )
+GRM.AddMainTagToComeOnlineSystemMessage = function( msg )
     local name, msgID = select ( 3 , msg:find ("|Hplayer:([^:]*)(.-)|h%[.-%]|h" ) );
     local fullName = GRM.AppendServerName ( name );
     local includeMainTag = ( GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName );
@@ -3021,7 +3040,7 @@ GRM.AddMainTagToComeOnlineSystemMessage = function( msg , isInGuild )
     
     if GRM_G.guildName ~= "" then
         -- Is Player in the guild?
-        if isInGuild or GRM.GetPlayer ( fullName ) then
+        if IsInGuild() and GRM.GetPlayer ( fullName ) then
             local mainName = "";
             local hexCode = "";
             local mainColoring = "";
@@ -3064,8 +3083,7 @@ GRM.AddMainTagToComeOnlineSystemMessage = function( msg , isInGuild )
             result = systemMsgHex .. string.format ( "%s|Hplayer:%s|h[%s]|h|r" , hexCode , name , name ) .. necessaryGap .. mainName .. systemMsgHex .. " " .. GRM.L ( "has come online." );
         else
             -- Send it back regular format...
-            local notInGuildTag = GRM.GetNonGuildieTags ( false , GRM.S().mainTagIndex );
-            result = string.gsub ( msg , "(|Hplayer:.-|h%[.-%]|h)" , string.format ( "|Hplayer:%s%s|h[%s]|h" , name , msgID , name .. " " .. GRM_G.MainTagHexCode .. notInGuildTag .. "|r" ) );
+            result = msg;
         end
     else
         result = msg;
@@ -4330,8 +4348,9 @@ end
 --                  tags needs to be reapplied.
 GRM.GetNameWithMainTags = function( name , slimName , includeMainOnAlts , includeAltTagIfMain , includeParentheses )
     local hasAlts = false;
+    local player = GRM.GetPlayer ( name  );
 
-    if GRM_G.MainTagHexCode ~= "" then
+    if GRM_G.MainTagHexCode ~= "" and player then
         local hexCode = GRM_G.MainTagHexCode;
         local mainDisplay = GRM.GetMainTags ( false , GRM.S().mainTagIndex );
         local altDisplay = GRM.GetAltTags ( false , GRM.S().mainTagIndex );
@@ -4342,40 +4361,34 @@ GRM.GetNameWithMainTags = function( name , slimName , includeMainOnAlts , includ
             par2 = "|r)";
         end
         
-        local isInGuild = false;
         local needsSlimming = true;
-        local player = GRM.GetPlayer ( name );
 
-        if player then
-            isInGuild = true;
-            -- Found in the guild database...
-            if player.isMain then
-                needsSlimming = false;
-                if slimName then
-                    name = ( GRM.SlimName ( name ) .. " " .. hexCode .. mainDisplay .. "|r" );     -- This player is the main
-                else
-                    name = ( name .. " " .. hexCode .. mainDisplay .. "|r" );
-                end
-                if GRM.PlayerHasAlts ( player ) then
-                    hasAlts = true;
-                    GRM_G.IsAltGrouping = true;
-                end
-            elseif GRM.PlayerHasAlts ( player ) then
+        if player.isMain then
+            needsSlimming = false;
+            if slimName then
+                name = ( GRM.SlimName ( name ) .. " " .. hexCode .. mainDisplay .. "|r" );     -- This player is the main
+            else
+                name = ( name .. " " .. hexCode .. mainDisplay .. "|r" );
+            end
+            if GRM.PlayerHasAlts ( player ) then
                 hasAlts = true;
                 GRM_G.IsAltGrouping = true;
-                if player.altGroup ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" then
-                    needsSlimming = false;
-                    -- Formatting...
-                    if slimName then
-                        name = GRM.SlimName ( name );  -- This player is not the main, but is part of a grouping with a player who is main
-                    end
-                    -- for alt tag to be added
-                    if includeAltTagIfMain then
-                        name = name .. " " .. hexCode .. altDisplay .. "|r"; 
-                    end
-                    if includeMainOnAlts then
-                        name = name .. " " .. par1 .. GRM.GetClassifiedName ( GRM_Alts[GRM_G.guildName][player.altGroup].main , slimName ) .. par2 .. " " .. hexCode .. mainDisplay .. "|r";
-                    end
+            end
+        elseif GRM.PlayerHasAlts ( player ) then
+            hasAlts = true;
+            GRM_G.IsAltGrouping = true;
+            if player.altGroup ~= "" and GRM_Alts[GRM_G.guildName][player.altGroup].main ~= "" then
+                needsSlimming = false;
+                -- Formatting...
+                if slimName then
+                    name = GRM.SlimName ( name );  -- This player is not the main, but is part of a grouping with a player who is main
+                end
+                -- for alt tag to be added
+                if includeAltTagIfMain then
+                    name = name .. " " .. hexCode .. altDisplay .. "|r"; 
+                end
+                if includeMainOnAlts then
+                    name = name .. " " .. par1 .. GRM.GetClassifiedName ( GRM_Alts[GRM_G.guildName][player.altGroup].main , slimName ) .. par2 .. " " .. hexCode .. mainDisplay .. "|r";
                 end
             end
         end
@@ -4383,12 +4396,7 @@ GRM.GetNameWithMainTags = function( name , slimName , includeMainOnAlts , includ
         if needsSlimming and slimName then
             name = GRM.SlimName ( name );
         end
-        if not isInGuild then
-            -- Add special tag designation for NOT IN GUILD
-            local notInGuildTag = GRM.GetNonGuildieTags ( false , GRM.S().mainTagIndex );
-            name = ( GRM.FormatName ( name ) .. " " .. hexCode .. notInGuildTag .. "|r" );
 
-        end
     end
     return name , hasAlts;
 end
@@ -4397,49 +4405,51 @@ end
 -- What it Does:    It adds either a Main tag to the player, or if they are on an alt, includes the name of the main.
 -- Purpose:         Easy to see player name in guild chat, for achievments and so on...
 GRM.AddMainToChat = function( _ , event , msg , sender , ... )
-    local result = false;
-    local placeHolderMsg = msg;
 
-    if sender ~= GRM_G.addonUser then
-        if GRM.S().showMainName then
-            local guildData = GRM.GetGuild();
-            local channelName = channelEnum [ event ];
-            local mainDisplay = GRM.GetMainTags ( false , GRM.S().mainTagIndex );
-            -- Find the player in the guild!
+    if IsInGuild() then
+        local placeHolderMsg = msg;
 
-            if guildData and ( mainDisplay == "" or ( mainDisplay ~= "" and not string.find ( msg , mainDisplay , 1 , true ) ) ) then
-                local player = guildData[sender];
+        if sender ~= GRM_G.addonUser then
+            if GRM.S().showMainName then
+                local guildData = GRM.GetGuild();
+                local channelName = channelEnum [ event ];
+                local mainDisplay = GRM.GetMainTags ( false , GRM.S().mainTagIndex );
+                -- Find the player in the guild!
 
-                if player then
-                    -- Let's see if they are the main. If they are, no need to do anything...
-                    if player.isMain then
-                        if GRM.S().useMainTag then
-                            -- Just add main tag...
-                            msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
-                        end
-                    elseif GRM.PlayerHasAlts ( player ) then
-                        local main = GRM.GetAltGroupMain ( player.altGroup );
-                        if main ~= "" then
-                            if channelName ~= "Achievement" then
-                                msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r(" .. GRM.GetStringClassColorByName ( main ) .. GRM.FormatName ( main ) .. "|r): " .. msg;
-                            else
-                                msg = GRM.GetStringClassColorByName ( main ) .. GRM.FormatName ( main ) .. "|r" .. GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
+                if guildData and ( mainDisplay == "" or ( mainDisplay ~= "" and not string.find ( msg , mainDisplay , 1 , true ) ) ) then
+                    local player = guildData[sender];
+
+                    if player then
+                        -- Let's see if they are the main. If they are, no need to do anything...
+                        if player.isMain then
+                            if GRM.S().useMainTag then
+                                -- Just add main tag...
+                                msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
                             end
-                        end    
+                        elseif GRM.PlayerHasAlts ( player ) then
+                            local main = GRM.GetAltGroupMain ( player.altGroup );
+                            if main ~= "" then
+                                if channelName ~= "Achievement" then
+                                    msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r(" .. GRM.GetStringClassColorByName ( main ) .. GRM.FormatName ( main ) .. "|r): " .. msg;
+                                else
+                                    msg = GRM.GetStringClassColorByName ( main ) .. GRM.FormatName ( main ) .. "|r" .. GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
+                                end
+                            end    
+                        end
                     end
                 end
             end
         end
+
+        -- This will check if public note needs to be set.
+        if GRM.S().noteSetEnabled and event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
+            GRM.TriggerPlayerNote ( sender , placeHolderMsg );
+        end
+
+        GRM.MessageHookControl();
     end
 
-    -- This will check if public note needs to be set.
-    if GRM.S().noteSetEnabled and event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
-        GRM.TriggerPlayerNote ( sender , placeHolderMsg );
-    end
-
-    GRM.MessageHookControl();
-
-    return result, msg, sender, ...
+    return false , msg, sender, ...
 end
 
 -- Method:          GRM.RefreshMainTagHexCode()
@@ -4454,18 +4464,6 @@ end
 -- Purpose:         For easy marking of alts/mains in gchat.
 GRM.GetMainTags = function( returnTable , index )
     local tags = { "<" .. GRM.L ( "M" ) .. ">" , "(" .. GRM.L ( "M" ) .. ")" , "<" .. GRM.L ( "Main" ) .. ">" , "(" .. GRM.L ( "Main" ) .. ")" , "[" .. GRM.L ( "Main" ) .. "]" , "[" .. GRM.L ( "M" ) .. "]" , "" };
-    if returnTable then
-        return tags;
-    else
-        return tags[index];
-    end
-end
-
--- Method:          GRM.GetAltTags();
--- What it Does:    Returns the table of potential Alt tags
--- Purpose:         For easy marking of alts/mains in gchat.
-GRM.GetNonGuildieTags = function( returnTable , index )
-    local tags = { "<" .. GRM.L ( "Friend" ) .. ">" , "(" .. GRM.L ( "Friend" ) .. ")" , "<" .. GRM.L ( "Friend" ) .. ">" , "(" .. GRM.L ( "Friend" ) .. ")" , "[" .. GRM.L ( "Friend" ) .. "]" , "[" .. GRM.L ( "Friend" ) .. "]" , "" };
     if returnTable then
         return tags;
     else
@@ -6319,39 +6317,71 @@ end
 ------ MYTHIC + TRACKING -----------
 ------------------------------------
 
--- Method:          GRM.GetMythicSeason()
--- What it Does:    Pulls the current expansion by Index, and the season number ID; 1 = BFA season 1. 9 = DF season 1, etc..
--- Purpose:         Be able to track a player's M+ History.
-GRM.GetMythicSeason = function()
-    C_MythicPlus.RequestMapInfo();          -- Need to run at least once before the season request works.
+-- Method:          GRM.GetMythicRatingToMatchRaiderIO ( int )
+-- What it Does:    Returns the string Hex value coloring of the Mythic + rating based on the RAIDER.IO scale
+-- Purpose:         RaidIO is immensely popular, and this just keeps the visual consistent.
+GRM.GetMythicRatingToMatchRaiderIO = function ( rating )
+    local result = "FFFFFF";
 
-    local expansion = math.floor ( select ( 4 , GetBuildInfo()) / 10000 );
-    local season = C_MythicPlus.GetCurrentSeason();
-
-    return expansion , season;
-end
-
--- Method           GRM.ConfigureMythicPlusInfo()
--- What it Does:    Establishes the current M+ season on
--- Purpose:         To track M+ histories
-GRM.ConfigureMythicPlusInfo = function()
-    GRM_G.MythicSeasonInfo = { GRM.GetMythicSeason() };
-end
-
--- Method:          GRM.UpdateMythicScore( int , int )
--- What it Does:    Adds an entry into the mythic Score
--- Purpose:         Only need to show the current numbers.
-GRM.UpdateMythicScore = function ( lastOnline , score )
-
-    if lastOnline and MythicSeasonDates[ GRM_G.MythicSeasonInfo[2] ] ~= nil then
-        if ( time() - ( lastOnline * 3600 ) ) < MythicSeasonDates[ GRM_G.MythicSeasonInfo[2] ] then
-            score = 0;
-        end
-        return { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , score };
-    else
-        return { 9 , 1 , 0 };
+    if rating >= 3625 then
+        result = "FF8000";
+    elseif rating >= 3465 then
+        result = "F9763A";
+    elseif rating >= 3345 then
+        result = "F36C58";
+    elseif rating >= 3225 then
+        result = "EB6273";
+    elseif rating >= 3105 then
+        result = "E2588D";
+    elseif rating >= 2985 then
+        result = "D64EA6";
+    elseif rating >= 2865 then
+        result = "C845C0";
+    elseif rating >= 2745 then
+        result = "B63CD9";
+    elseif rating >= 2610 then
+        result = "9E3BED";
+    elseif rating >= 2490 then
+        result = "8152E8";
+    elseif rating >= 2370 then
+        result = "5F62E3";
+    elseif rating >= 2250 then
+        result = "246EDE";
+    elseif rating >= 2075 then
+        result = "307AD3";
+    elseif rating >= 1955 then
+        result = "4686C5";
+    elseif rating >= 1835 then
+        result = "5293B8";
+    elseif rating >= 1715 then
+        result = "5AA0AA";
+    elseif rating >= 1595 then
+        result = "5EAD9C";
+    elseif rating >= 1475 then
+        result = "5FBA8D";
+    elseif rating >= 1355 then
+        result = "5EC77E";
+    elseif rating >= 1235 then
+        result = "59D46D";
+    elseif rating >= 1115 then
+        result = "50E159";
+    elseif rating >= 995 then
+        result = "42EF41";
+    elseif rating >= 875 then
+        result = "27FC17";
+    elseif rating >= 750 then
+        result = "67FF4B";
+    elseif rating >= 625 then
+        result = "96FF7A";
+    elseif rating >= 500 then
+        result = "BAFFA2";
+    elseif rating >= 375 then
+        result = "D9DDC9";
+    elseif rating >= 250 then
+        result = "F4FFF0";
     end
     
+    return "|CFF" .. result;
 end
 
 ------------------------------------
@@ -7088,42 +7118,42 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noPTT )
                 GameTooltip:Show();
             end);
 
-            for i = 1 , #listOfKeybinds do
+            -- for i = 1 , #listOfKeybinds do
 
-                -- First, determine if keybind has been set. If it has, let's just replicate
-                if hotkeyTemp ~= nil and string.find ( hotkeyTemp , "-" ) == nil then       -- I don't want a triple action keybind
-                    keybinds = ( "CTRL-" .. hotkeyTemp );
-                else
-                    keybinds = ( "CTRL-" .. listOfKeybinds[i] );
-                end
+            --     -- First, determine if keybind has been set. If it has, let's just replicate
+            --     if hotkeyTemp ~= nil and string.find ( hotkeyTemp , "-" ) == nil then       -- I don't want a triple action keybind
+            --         keybinds = ( "CTRL-" .. hotkeyTemp );
+            --     else
+            --         keybinds = ( "CTRL-" .. listOfKeybinds[i] );
+            --     end
 
-                if GetBindingByKey ( keybinds ) ~= nil or keybinds == PushToTalkHotKey then
-                    keybinds = "";
-                else
-                    break;
-                end
+            --     if GetBindingByKey ( keybinds ) ~= nil or keybinds == PushToTalkHotKey then
+            --         keybinds = "";
+            --     else
+            --         break;
+            --     end
 
-            end
+            -- end
 
-            -- MAX_ACCOUNT_MACROS 
-            if GetNumMacros() < MAX_ACCOUNT_MACROS or GetMacroIndexByName ( "GRM_Roster" ) ~= 0 then
+            -- -- MAX_ACCOUNT_MACROS
+            -- if GetNumMacros() < MAX_ACCOUNT_MACROS or GetMacroIndexByName ( "GRM_Roster" ) ~= 0 then
 
-                local factionIcon = "inv_bannerpvp_01";
-                if UnitFactionGroup ( "PLAYER" ) == "Alliance" then
-                    factionIcon = "inv_bannerpvp_02";
-                end
+            --     local factionIcon = "inv_bannerpvp_01";
+            --     if UnitFactionGroup ( "PLAYER" ) == "Alliance" then
+            --         factionIcon = "inv_bannerpvp_02";
+            --     end
 
-                GRM.CreateMacro (
-                    "/run GuildFrame_Toggle()\n/run GuildFrame_TabClicked ( GuildFrameTab2 )" , 
-                    "GRM_Roster" , 
-                    factionIcon , 
-                    keybinds,
-                    false
-                );
+            --     GRM.CreateMacro (
+            --         "/run GuildFrame_Toggle()\n/run GuildFrame_TabClicked ( GuildFrameTab2 )" , 
+            --         "GRM_Roster" , 
+            --         factionIcon , 
+            --         keybinds,
+            --         false
+            --     );
 
-            else
-                GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Unable to create GRM hotkey macro. You currently are at the cap of {num} macros." , nil , nil , GetNumMacros() ) )
-            end
+            -- else
+            --     GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Unable to create GRM hotkey macro. You currently are at the cap of {num} macros." , nil , nil , GetNumMacros() ) )
+            -- end
         end
     end
 end
@@ -8201,7 +8231,7 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member.faction = memberInfo.faction;
 
     if GRM_G.BuildVersion >= 80000 then
-        member["MythicScore"] = GRM.UpdateMythicScore ( member.lastOnline , memberInfo.MythicScore );
+        member["MythicScore"] = memberInfo.MythicScore;
     end
 
     if isReturningMember then
@@ -10215,6 +10245,18 @@ GRM.RefreshAuditFrames = function ( showAll , fullRefresh , searchString )
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButton:SetChecked ( true );
     end
 
+    if GRM.GetNumUnverifiedJoinDates() > 0 then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:Show();
+    else
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:Hide();
+    end
+
+    if GRM.GetNumUnverifiedPromoDates() > 0 then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:Show();
+    else
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:Hide();
+    end
+
     GRM_UI.RefreshAuditTab ( GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab );
 end
 
@@ -11995,7 +12037,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
     tempJoinStorage[15] = "";                   -- Custom Notes
     tempJoinStorage[16] = false;                -- Guild transfer - Rejoin
 
-    for formerMember , player in pairs ( oldMemberData ) do -- Number of players that have left the guild.z
+    for formerMember , player in pairs ( oldMemberData ) do -- Number of players that have left the guild
         if type ( player ) == "table" then
 
             if member.GUID == player.GUID or ( player.isTransfer and member.name == player.name and member.class == player.class ) then  -- GUID comparison check - cannot rely purely on the name.
@@ -12216,66 +12258,70 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
 
                 -- It must be done AFTER the record has been added
                 -- Promotion Info
-                if not returningPlayer.isTransfer and not scanUpdate and member.rankIndex < ( GuildControlGetNumRanks() - 1 ) then
-                    -- Promotion Obtained since joining!
-                    local timestamp2 , dateArray = GRM.GetTimestamp();
-                    local epochTime = time();
-                    local nameOfBaseRank = GuildControlGetRankName( GuildControlGetNumRanks() );
-                    local added , logEntryMetaData = GRM.GetGuildEventString ( 2 , member.name , nameOfBaseRank , member.rankName );
-                    local dates = {};
-                    
-                    -- I don't want to have an instance where I have the promotion date in the log but the join date is too old os it has fallen off,
-                    -- Thus, if the exact join date cannot be determined, it will set the promotion date to be no different.
-                    if useTimeStamp then
+                if not returningPlayer.isTransfer and not scanUpdate then
+                    if member.rankIndex < ( GuildControlGetNumRanks() - 1 ) then
+                        -- Promotion Obtained since joining!
+                        local timestamp2 , dateArray = GRM.GetTimestamp();
+                        local epochTime = time();
+                        local nameOfBaseRank = GuildControlGetRankName( GuildControlGetNumRanks() );
+                        local added , logEntryMetaData = GRM.GetGuildEventString ( 2 , member.name , nameOfBaseRank , member.rankName );
+                        local dates = {};
+                        
+                        -- I don't want to have an instance where I have the promotion date in the log but the join date is too old os it has fallen off,
+                        -- Thus, if the exact join date cannot be determined, it will set the promotion date to be no different.
+                        if useTimeStamp then
+
+                            -- Ok data is saved! Now let's report it to the log...
+                            if added then
+
+                                timestamp2 = logEntryMetaData[6][1];
+                                epochTime = logEntryMetaData[6][2];
+
+                            else
+                                logEntryMetaData = { logEntryMetaData[1] , nil , simpleName , nameOfBaseRank , member.rankName , { dateArray } }; -- Mostly redundant - only need true/false statement in index 1
+                            end
+                            
+                        end
+
+                        returningPlayer.rankName = member.rankName; -- Saving new rank Info
+                        returningPlayer.rankIndex = member.rankIndex; -- Saving new rank Index Info
+
+                        dates = GRM.ConvertGenericTimestampToIntValues ( timestamp2 );
+                        local isVerified = false;
+                        local verifiedEpoch = 0;
+
+                        if added then
+                            isVerified = true;
+                            verifiedEpoch = epochTime;
+                        end
+
+                        if not returningPlayer.rankHist[1][7] then
+
+                            returningPlayer.rankHist[1][1] = returningPlayer.rankName;
+                            returningPlayer.rankHist[1][2] = dates[1];
+                            returningPlayer.rankHist[1][3] = dates[2];
+                            returningPlayer.rankHist[1][4] = dates[3];
+                            returningPlayer.rankHist[1][5] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } );
+
+                            -- verified or not
+                            returningPlayer.rankHist[1][6] = verifiedEpoch
+                            returningPlayer.rankHist[1][7] = isVerified;
+                            returningPlayer.rankHist[1][8] = 1;
+
+                        else
+                            table.insert ( returningPlayer.rankHist , 1 , { returningPlayer.rankName , dates[1] , dates[2] , dates[3] , epochTime , verifiedEpoch , isVerified , 1 } );
+                        end
+
+                        returningPlayer.promoteDateUnknown = false;
 
                         -- Ok data is saved! Now let's report it to the log...
                         if added then
-
-                            timestamp2 = logEntryMetaData[6][1];
-                            epochTime = logEntryMetaData[6][2];
-
+                            GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , logEntryMetaData[2] , logEntryMetaData[3] , logEntryMetaData[4] , logEntryMetaData[5] , logEntryMetaData[6][3] );
                         else
-                            logEntryMetaData = { logEntryMetaData[1] , nil , simpleName , nameOfBaseRank , member.rankName , { dateArray } }; -- Mostly redundant - only need true/false statement in index 1
+                            GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , nil , simpleName , nameOfBaseRank , member.rankName , select ( 2 , GRM.GetTimestamp() ) );
                         end
-                        
-                    end
-
-                    returningPlayer.rankName = member.rankName; -- Saving new rank Info
-                    returningPlayer.rankIndex = member.rankIndex; -- Saving new rank Index Info
-
-                    dates = GRM.ConvertGenericTimestampToIntValues ( timestamp2 );
-                    local isVerified = false;
-                    local verifiedEpoch = 0;
-
-                    if added then
-                        isVerified = true;
-                        verifiedEpoch = epochTime;
-                    end
-
-                    if not returningPlayer.rankHist[1][7] then
-
-                        returningPlayer.rankHist[1][1] = returningPlayer.rankName;
-                        returningPlayer.rankHist[1][2] = dates[1];
-                        returningPlayer.rankHist[1][3] = dates[2];
-                        returningPlayer.rankHist[1][4] = dates[3];
-                        returningPlayer.rankHist[1][5] = GRM.TimeStampToEpoch ( { dates[1] , dates[2] , dates[3] } );
-
-                        -- verified or not
-                        returningPlayer.rankHist[1][6] = verifiedEpoch
-                        returningPlayer.rankHist[1][7] = isVerified;
-                        returningPlayer.rankHist[1][8] = 1;
-
-                    else
-                        table.insert ( returningPlayer.rankHist , 1 , { returningPlayer.rankName , dates[1] , dates[2] , dates[3] , epochTime , verifiedEpoch , isVerified , 1 } );
-                    end
-
-                    returningPlayer.promoteDateUnknown = false;
-
-                    -- Ok data is saved! Now let's report it to the log...
-                    if added then
-                        GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , logEntryMetaData[2] , logEntryMetaData[3] , logEntryMetaData[4] , logEntryMetaData[5] , logEntryMetaData[6][3] );
-                    else
-                        GRM.AddPromotionDateTempLogEntry ( logEntryMetaData[1] , nil , simpleName , nameOfBaseRank , member.rankName , select ( 2 , GRM.GetTimestamp() ) );
+                    elseif returningPlayer.rankHist[1] and returningPlayer.rankHist[1][2] ~= 0 then
+                        returningPlayer.rankHist[1][7] = true;
                     end
                 end            
                 break;
@@ -13303,8 +13349,8 @@ GRM.CheckRosterChanges = function ( updatedPlayer , player , rosterName )
         player.timeEnteredZone = time();   -- Resetting the time on hitting this zone.
     end
 
-    if GRM_G.BuildVersion >= 80000 and player.MythicScore[3] ~= updatedPlayer.MythicScore and updatedPlayer.lastOnline ~= -1 then
-        player.MythicScore = GRM.UpdateMythicScore ( updatedPlayer.lastOnline , updatedPlayer.MythicScore );
+    if GRM_G.BuildVersion >= 80000 then
+        player.MythicScore = updatedPlayer.MythicScore;
     end
 
     if updatedPlayer.race ~= "" then
@@ -13429,7 +13475,7 @@ GRM.CheckPlayerChanges = function ( roster )
     local updatedPlayer = {};
 
     if GRM.S().scanEnabled or GRM_G.ManualScanEnabled then
-
+        
         if GRM.ScanKillSwitch() then   -- Necessary in case you purge guild in middle of scan
             return;
         end
@@ -14176,7 +14222,16 @@ GRM.BuildNewRoster = function()
             -- new member and leaving members arrays to check at the end - need to reset it here.
             GRM_G.newPlayers = {};
             GRM_G.leavingPlayers = {};
-            GRM.CheckPlayerChanges ( roster );
+            -- Add in a delay for the server calls to work
+
+            GRM.GuildRoster();
+            if GRM_G.BuildVersion >= 30000 then
+                QueryGuildEventLog();
+            end
+
+            C_Timer.After ( 1.5 , function()
+                GRM.CheckPlayerChanges ( roster );
+            end);
         end
     end
 end
@@ -14277,6 +14332,11 @@ GRM.BuildNewGuildOrNameChange = function ( roster , forceRebuild )
 
             GRM.GuildSpecificConfigurations();
             GRM_UI.ReloadAllFrames ( true , false );
+
+            if not GRM_G.MainHookConfigured then
+                GRM.MessageHookControl();
+            end
+
         end
 
 
@@ -14400,6 +14460,160 @@ GRM.GuildNameChanged = function ( currentGuildName )
     end
     return result , currentGuildName , oldGuildName;
 end
+
+-- Method:          GRM.VerifyAllRankDates ( int )
+-- What it Does:    Auto verifies all the promotions or demotion dates within that happened within X number of days.
+-- Purpose:         Give player the ability to verify all the dates, or within a range.
+GRM.VerifyAllRankDates = function ( numDays )
+
+    local count = 0;
+    local dateRestriction = false;
+    local readyToUpdate = false;
+
+    if numDays then
+        dateRestriction = true;
+    end
+
+    local guildData = GRM.GetGuild();
+
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            readyToUpdate = false;
+            if #player.rankHist > 0 and player.rankHist[1][2] ~= 0 and player.rankHist[1][7] == false then
+                -- Player has a date set, but it is not verified.
+                if dateRestriction then
+                    if ( ( time() - ( (numDays * 86400 ) + 86400 ) ) <= player.rankHist[1][5] ) then
+                        readyToUpdate = true;
+                    end
+                else
+                    readyToUpdate = true;
+                end
+
+                if readyToUpdate then
+                    for i = 1 , #player.rankHist do
+                        player.rankHist[i][7] = true;
+                    end
+                    count = count + 1;
+                end
+
+            end
+        end
+    end
+
+    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+        GRM.RefreshAuditFrames ( true , true );
+    end
+
+    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+        GRM.PopulateMemberDetails ( GRM_G.currentName );
+    end
+
+    if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then
+        GRM_R.RefreshRosterName();
+    end
+
+    if count == 1 then
+        GRM.Report ( GRM.L ( "GRM:" ) .. " " ..  GRM.L ( "1 Promotion Date Has Been Confirmed." ) );
+    else
+        GRM.Report ( GRM.L ( "GRM:" ) .. " " ..  GRM.L ( "{num} Promotion Dates Have Been Confirmed." , nil , nil , count ) );
+    end
+
+end
+
+-- Method:          GRM.VerifyAllJoinDates ( int )
+-- What it Does:    Auto verifies all the promotions or demotion dates within that happened within X number of days.
+-- Purpose:         Give player the ability to verify all the dates, or within a range.
+GRM.VerifyAllJoinDates = function ( numDays )
+    local count = 0;
+    local dateRestriction = false;
+    local readyToUpdate = false;
+
+    if numDays then
+        dateRestriction = true;
+    end
+
+    local guildData = GRM.GetGuild();
+
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            readyToUpdate = false;
+            if #player.joinDateHist > 0 and player.joinDateHist[1][1] ~= 0 and player.joinDateHist[1][6] == false then
+                -- Player has a date set, but it is not verified.
+                if dateRestriction then
+                    if ( ( time() - ( ( 11 * 86400 ) + 86400 ) ) <= player.joinDateHist[1][4] ) then
+                        readyToUpdate = true;
+                    end
+                else
+                    readyToUpdate = true;
+                end
+
+                if readyToUpdate then
+                    for i = 1 , #player.joinDateHist do
+                        player.joinDateHist[i][6] = true;
+                    end
+                    count = count + 1;
+                end
+
+            end
+        end
+    end
+
+    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+        GRM.RefreshAuditFrames ( true , true );
+    end
+
+    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+        GRM.PopulateMemberDetails ( GRM_G.currentName );
+    end
+
+    if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then
+        GRM_R.RefreshRosterName();
+    end
+
+    if count == 1 then
+        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "1 Join Date Has Been Confirmed." ) );
+    else
+        GRM.Report ( GRM.L ( "GRM:" ) .. " " ..  GRM.L ( "{num} Join Dates Have Been Confirmed." , nil , nil , count ) );
+    end
+
+end
+
+-- Method:          GRM.GetNumUnverifiedJoinDates()
+-- What it Does:    Returns the integer count of the number of players with unverified join dates.
+-- Purpose:         Quality of life reporting how many there are to do
+GRM.GetNumUnverifiedJoinDates = function()
+    local count = 0;
+    local guildData = GRM.GetGuild();
+
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            if #player.joinDateHist > 0 and player.joinDateHist[1][1] ~= 0 and player.joinDateHist[1][6] == false then
+                count = count + 1;
+            end
+        end
+    end
+
+    return count;
+end
+
+-- Method:          GRM.GetNumUnverifiedPromoDates()
+-- What it Does:    Returns the integer count of the number of players with unverified rank change dates.
+-- Purpose:         Quality of life reporting how many there are to verify
+GRM.GetNumUnverifiedPromoDates = function()
+    local count = 0;
+    local guildData = GRM.GetGuild();
+
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            if #player.rankHist > 0 and player.rankHist[1][2] ~= 0 and player.rankHist[1][7] == false then
+                count = count + 1;
+            end
+        end
+    end
+
+    return count;
+end
+
 
 --------------------------------------
 ------ END OF METADATA LOGIC ---------
@@ -15374,14 +15588,21 @@ end
 -- Method:          GRM.GetSearchLog ( bool , string )
 -- What it Does:    Pre-builds all the values to display based on the various filter parameters.
 -- Purpose:         Make building a hybridscrollframe for the log that much simpler, and keeps it from reprocessing over and over.
-GRM.GetSearchLog = function ( isSearch , searchString )
+GRM.GetSearchLog = function ( isSearch , searchString , currentPosition , finalResult , TotalC )
     local result = {};
+    if finalResult then
+        result = finalResult;
+    end
     local needsToAddSearchString = false;
     local trueString = false;
     local index = 0;
     local logTxt = "";
     local totalCount = 0;
+    if TotalC then
+        totalCount = TotalC;
+    end
     local gLog = GRM.GetLog();
+    local c = 0;
 
     if not gLog then
         return;
@@ -15400,14 +15621,18 @@ GRM.GetSearchLog = function ( isSearch , searchString )
     end
 
     -- Set possible first Entry
-    if GRM_G.FirstTimeViewed and GRM_G.IndexOfLastLogEntry < #gLog and #gLog > 0 and GRM_G.IndexOfLastLogEntry ~= #gLog then
+    if not currentPosition and GRM_G.FirstTimeViewed and GRM_G.IndexOfLastLogEntry < #gLog and #gLog > 0 and GRM_G.IndexOfLastLogEntry ~= #gLog then
         table.insert ( result , { 97 , " " , false , 0 , 0 , GRM.AddNewChangesHeader() } );
         table.insert ( result , { 97 , GRM.AddNewChangesHeader() , false , 0 , 0 , GRM.AddNewChangesHeader() } );
     end
 
     local i = #gLog;
+    if currentPosition then
+        i = currentPosition;
+    end
     local changesEndAdded = false;
-    while i > 0 do
+
+    while i > 0 and ( not isSearch or isSearch and c < 12000 ) do
         trueString = false;
         needsToAddSearchString = false;
         if GRM_G.FirstTimeViewed and not changesEndAdded and GRM_G.IndexOfLastLogEntry < #gLog and #gLog > 0 and i == GRM_G.IndexOfLastLogEntry and GRM_G.IndexOfLastLogEntry ~= #gLog then
@@ -15487,7 +15712,20 @@ GRM.GetSearchLog = function ( isSearch , searchString )
                 end
             end
             i = i - 1;
+            c = c + 1;
         end
+    end
+
+    if isSearch and i > 0 then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Show();
+        C_Timer.After ( 1 , function()
+            GRM.GetSearchLog ( isSearch , searchString , i , result , totalCount );
+        end);
+        return;
+    elseif isSearch and i == 0 and currentPosition ~= nil then
+        GRM.BuildLog ( "" , true , true , result , totalCount );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Hide();
+        return;
     end
 
     return result , totalCount;
@@ -15536,23 +15774,32 @@ GRM.BuildLogComplete = function( UIControl , fullRefresh )
     end
 end
 
--- Method:          GRM.BuildHybridLog( string )
+-- Method:          GRM.BuildHybridLog( string , bool , bool , bool , table , int )
 -- What it Does:    Builds the guildLog frame details for the scrollframe
 -- Purpose:         You aren't tracking all of that info for nothing!
-GRM.BuildLog = function ( searchString , fullRefresh )
+GRM.BuildLog = function ( searchString , fullRefresh , delayedSearch , fullLogMatch , TotalCount )
     local isSearch = false;
     local hybridScrollFrameButtonCount = 29;        -- Exactly 25 buttons
     local buttonHeight = 17.138
     local buttonWidth = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 5;
 
-    if searchString ~= nil and type ( searchString ) == "string" then
-        searchString = string.lower ( searchString ); -- Remove case sensitivity
-        isSearch = true;
+    if not delayedSearch then
+        if searchString ~= nil and type ( searchString ) == "string" then
+            searchString = string.lower ( searchString ); -- Remove case sensitivity
+            isSearch = true;
+        end
+
+        -- Only rebuild the log if necessary based on new parameters.
+        if fullRefresh then        
+            GRM_G.fullLogMatch , GRM_G.CurrentTotalCount = GRM.GetSearchLog ( isSearch , searchString );
+        end
+    else
+        GRM_G.fullLogMatch = fullLogMatch;
+        GRM_G.CurrentTotalCount = TotalCount;
     end
 
-    -- Only rebuild the log if necessary based on new parameters.
-    if fullRefresh then        
-        GRM_G.fullLogMatch , GRM_G.CurrentTotalCount = GRM.GetSearchLog ( isSearch , searchString );
+    if GRM_G.fullLogMatch == nil then
+        return;
     end
 
     local log = GRM_G.fullLogMatch;
@@ -15688,27 +15935,31 @@ end
 GRM.RefreshLogTooltip = function( button )
     if GRM.S().showTooltip then
         for i = 1 , #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1] == button then
-                local text = GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][6];
-
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetText ( text );
-                local width = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:GetWidth();
-
-                local r , g , b = GRM.GetMessageRGB ( GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][1] );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:SetOwner ( button , "ANCHOR_CURSOR" );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( "|CFFE6CC7F" .. GRM.L ( "Full Log Message:" ) );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( " " );
-
-                if width > ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:GetWidth() + 200 ) then
-                    local index = string.find ( text , "%s" , math.floor ( #text / 2 ) );
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( string.sub ( text , 1 , index ) , r , g , b );
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( string.sub ( text , index + 1 ) , r , g , b );
-                else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( text , r , g , b );
-                end
-
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:Show();
+            if GRM_G.fullLogMatch == nil then
                 break;
+            else
+                if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1] == button then
+                    local text = GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][6];
+
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetText ( text );
+                    local width = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:GetWidth();
+
+                    local r , g , b = GRM.GetMessageRGB ( GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][1] );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:SetOwner ( button , "ANCHOR_CURSOR" );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( "|CFFE6CC7F" .. GRM.L ( "Full Log Message:" ) );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( " " );
+
+                    if width > ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:GetWidth() + 200 ) then
+                        local index = string.find ( text , "%s" , math.floor ( #text / 2 ) );
+                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( string.sub ( text , 1 , index ) , r , g , b );
+                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( string.sub ( text , index + 1 ) , r , g , b );
+                    else
+                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine ( text , r , g , b );
+                    end
+
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:Show();
+                    break;
+                end
             end
         end
     end
@@ -16105,8 +16356,8 @@ GRM.BuildExportMemberDetails = function( currentMembers , specificGuild )
                     end
                 end
                 if GRM.S().exportFilters[22] and GRM_G.BuildVersion >= 80000 then             -- Mythic+ Score
-                    if roster[i].MythicScore and roster[i].MythicScore[3] then
-                        playerDetails = playerDetails .. roster[i].MythicScore[3] .. delimiter;
+                    if roster[i].MythicScore then
+                        playerDetails = playerDetails .. roster[i].MythicScore .. delimiter;
                     else
                         playerDetails = playerDetails .. "0" .. delimiter;
                     end
@@ -19950,9 +20201,9 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
             if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating and player.level == GRM_G.LvlCap then
 
                 if levelAndMythicText ~= "" then
-                    levelAndMythicText = levelAndMythicText .. " | " .. GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore[3];
+                    levelAndMythicText = levelAndMythicText .. " | " .. GRM.L ( "M+ Rating:" ) .. "  " .. GRM.GetMythicRatingToMatchRaiderIO ( player.MythicScore ) .. player.MythicScore .. "|r" ;
                 else
-                    levelAndMythicText = GRM.L ( "M+ Rating:" ) .. "  " .. player.MythicScore[3];
+                    levelAndMythicText = GRM.L ( "M+ Rating:" ) .. "  " .. GRM.GetMythicRatingToMatchRaiderIO ( player.MythicScore ) .. player.MythicScore .. "|r";
                 end
             end
 
@@ -21520,7 +21771,7 @@ end
 GRM.UpdateGuildLeaderPermissions = function( isMyEdit , forced )
     local notes = GetGuildInfoText();
 
-    if GRM_G.GuildInfo ~= notes then
+    if IsInGuild() and GRM_G.GuildInfo ~= notes and GRM.S() then
         if notes ~= nil and #notes > 0 then
 
             if not GRM_G.tagFormatChangeNotice then
@@ -21571,7 +21822,7 @@ GRM.UpdateGuildLeaderPermissions = function( isMyEdit , forced )
     end
     if not forced then
         C_Timer.After ( 60 , function()
-            if IsInGuild() then
+            if IsInGuild() and GRM.S() then
                 GRM.UpdateGuildLeaderPermissions ( false , false );
             end
         end);    -- Recheck once per minute indefinitely...
@@ -24834,7 +25085,7 @@ end
 -- What it Does:    Loops and rechecks in an interval for integrity tha the scan went off appropriately.
 -- Purpose:         Useful for Classic Guild Roster loop integrity check
 GRM.TrackingIntegrityCheck = function( isLoop )
-    if GRM.S().scanEnabled then          -- if Scanning is enabled
+    if GRM.S() and GRM.S().scanEnabled then          -- if Scanning is enabled
 
         if isLoop or not GRM_G.IntegrityTackingEnabled then
 
@@ -25656,7 +25907,7 @@ GRM.AllRemainingNonDelayFrameInitialization = function()
             GRM_DebugLog_Save = GRM_G.DebugLog;
 
             -- Clear the macro in case it hasn't been cleared yet (GRM tool is open on a reload or logout.)
-            GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" , true );
+            GRM.CreateMacro ( "/run GRM.Report(\"" .. GRM.L ( "Reserved for GRM Macro Tool Usage. Please do not delete.\"" ) ..")" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" , true );
         end
     end);
 
@@ -25886,28 +26137,35 @@ GRM.TrackingConfiguration = function( forced )
 
         -- MISC frames to be loaded immediately, not on delay
         GRM.AllRemainingNonDelayFrameInitialization();
-
-        UI_Events:RegisterEvent ( "GUILD_ROSTER_UPDATE" );
+        GRM.GuildRoster();
         if GRM_G.BuildVersion >= 30000 then
-            UI_Events:RegisterEvent ( "GUILD_EVENT_LOG_UPDATE" );
-        end
+            QueryGuildEventLog();
+        end  -- Let's trigger this and get it loading at the start.
 
-        UI_Events.Timer = 0;
-    
-        UI_Events:SetScript ( "OnEvent" , function ( _ , event )
-            if time() - UI_Events.Timer > 1 then
-                UI_Events.Timer = time();
-                if ( event == "GUILD_EVENT_LOG_UPDATE" and GRM_G.BuildVersion >= 30000 ) then
-                    GRM.LogPrecheck();
-                elseif event == "GUILD_ROSTER_UPDATE" then
-                    GRM.RosterPreCheck();
+        C_Timer.After ( 2 , function()
+            UI_Events:RegisterEvent ( "GUILD_ROSTER_UPDATE" );
+            if GRM_G.BuildVersion >= 30000 then
+                UI_Events:RegisterEvent ( "GUILD_EVENT_LOG_UPDATE" );
+            end
+
+            UI_Events.Timer = 0;
+        
+            UI_Events:SetScript ( "OnEvent" , function ( _ , event )
+                if time() - UI_Events.Timer > 1 then
+                    UI_Events.Timer = time();
+                    if ( event == "GUILD_EVENT_LOG_UPDATE" and GRM_G.BuildVersion >= 30000 ) then
+                        GRM.LogPrecheck();
+                    elseif event == "GUILD_ROSTER_UPDATE" then
+                        GRM.RosterPreCheck();
+                    end
                 end
+            end);
+            
+            if GRM.S().scanEnabled then
+                C_Timer.After( GRM.S().scanDelay , GRM.TriggerTrackingCheck ); -- Recursive check every X seconds. + 0.1 
             end
         end);
         
-        if GRM.S().scanEnabled then
-            C_Timer.After( GRM.S().scanDelay , GRM.TriggerTrackingCheck ); -- Recursive check every X seconds. + 0.1 
-        end
     elseif not IsInGuild() then
         GRM_G.currentlyTracking = false;
     end
@@ -25948,7 +26206,7 @@ end
 GRM.MessageHookControl = function()
     local chatEvents = { "CHAT_MSG_GUILD" , "CHAT_MSG_WHISPER" , "CHAT_MSG_GUILD_ACHIEVEMENT" , "CHAT_MSG_PARTY" , "CHAT_MSG_PARTY_LEADER" , "CHAT_MSG_RAID", "CHAT_MSG_RAID_LEADER" , "CHAT_MSG_INSTANCE_CHAT" , "CHAT_MSG_INSTANCE_CHAT_LEADER" , "CHAT_MSG_OFFICER" }
 
-    if GRM_G.MainHookConfigured then
+    if GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
         for i = 1 , #chatEvents do
             local events = ChatFrame_GetMessageEventFilters( chatEvents[i] );
 
@@ -26006,10 +26264,12 @@ GRM.LoadAddon = function()
 	    AchievementsChecking:RegisterEvent("CHAT_MSG_ADDON");
 	    AchievementsChecking:RegisterEvent("ACHIEVEMENT_EARNED");
 	    AchievementsChecking:SetScript("OnEvent", function(_, event, prefix, msg, channel, sender)
-            if IsInGuild() and GRM.S().achievements then
+            if IsInGuild() then
                 if event == "CHAT_MSG_ADDON" and prefix == "GRMACHIEV" and channel == "GUILD" and sender ~= GRM_G.addonUser then
-                    GRM.AnnounceAchievement(sender, msg)
-                elseif event == "ACHIEVEMENT_EARNED" then
+                    if GRM.S() and GRM.S().achievements then
+                        GRM.AnnounceAchievement(sender, msg);
+                    end
+                elseif event == "ACHIEVEMENT_EARNED" and GRM.S() and GRM.S().achievements then
                     GRM.OnAchievementEarned(prefix)
                 end
             end
@@ -26018,7 +26278,9 @@ GRM.LoadAddon = function()
 	end
     
     -- Initialize chat tagging
-    GRM.MessageHookControl();
+    if IsInGuild() then
+        GRM.MessageHookControl();
+    end
 
     -- Quick Version Check
     if not GRM_G.VersionCheckRegistered then
@@ -26186,10 +26448,6 @@ GRM.ActivateAddon = function ( _ , event , addon , isReload )
         end
 
         GRM.ConfigureAnnounceOnLogin();                         -- So no repeat announcements
-
-        if GRM_G.BuildVersion >= 80000 and #GRM_G.MythicSeasonInfo == 0 then
-            GRM.ConfigureMythicPlusInfo();
-        end
 
         GRM_G.OStimeOffset = GRM.GetTimeOffesets();             -- One time configuration of gameTime Offsets;
         GRM.DataLoadDelayProtection();
