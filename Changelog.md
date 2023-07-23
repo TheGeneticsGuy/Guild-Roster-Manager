@@ -1,4 +1,27 @@
 
+## **VERSION 1.980 RELEASE - July XX 2023**
+
+-- Add Message on the CTRL-scroll, etc... maybe in the HELP?
+-- 7 bugs to fix
+
+***QUALITY OF LIFE***
+
+* The GRM Guild Roster log sorting is SMARTER! If you are sorting the roster by level, name, or last online, you can carry that sorting over when you sort by rank. In other words, let's say you are sorting by names alphabetically. If you click on the rank column to sort the roster by rank, then each rank will now be properly in order, but also within each rank they will be sorted alphabetically. The same applies to level, and last online. This can be done ascending, or descending. 
+
+***BUG FIXES***
+
+* Fixed a Lua error if you are searching a log that is fairly massive in size (tens of thousands of entries), if you tried to mousewheel up/down while in the middle of the deep search it could throw a lua error. That will no longer happen. In addition, it should no longer re-search the log when you click on a different tab. Oops!
+
+* Missing key message when opening the macro tool no longer will happen
+
+* The log should no longer automatically open every single game session if you have it set to only open if there are changes.
+
+* Fixed a lua error that could occur for some people immediately after login. It didn't break anything, but it would be annoying to get an indefinite bug every session.
+
+* "---------CHANGES---------" was showing everytime you opened the log on the first time, even if there was none. This will no longer happen unless there were actual changes on login. In addition, the indication of the start of the "OLD LOG" entries should now properly show.
+
+
+
 ## **VERSION 1.979 RELEASE - July 22nd 2023**
 
 ***QUALITY OF LIFE***
@@ -25,7 +48,7 @@
 
 * I THINK I added a fix for the issue with GRM failing to auto-verify the dates when doing a scan of the log. With that being said, be aware that the built-in guild log only shows the last 100 events in the guild, be it invites, promotes, demotions, joins, kicks, leaves. If you are in a highly active guild and you have been offline for a longer time, maybe even just a whole day in one of these mega guilds, 100 events may have already occurred so GRM is unable to verify the exact date say someone joined, but GRM can determine someone joined. With that being said, GRM should show the promotion dates as verified now consistently if it can find them.
 
-* Mythic+ rating was not showing the correct number for some people. Be warned, this is sometimes an oudated number as if a player is inactive and hasn't logged in in a long time, it may still show a previous season's rating. Unfortunately this info is pulled directly from Warcraft's servers. GRM should only now reflect what the servers give us.
+* Mythic+ rating was not showing the correct number for some people. Be warned, this is sometimes an outdated number as if a player is inactive and hasn't logged in in a long time, it may still show a previous season's rating. Unfortunately this info is pulled directly from Warcraft's servers. GRM should only now reflect what the servers give us.
 
 * Fixed an issue that plagued non-English clients saying missing key.
 
@@ -4925,7 +4948,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 ***MAJOR SYNC ISSUE BUG FIX***
 
-*Ok, I won't get into the technical details, but suffice it to say a few updates back I kind of went in and did some behind-the-scenes updates, optimizing the process, improving some speed aspects of the sync, making the process leaner and so on. I also apparently broke it some aspects of it lol. This was not an easy fix. This was pretty gritty actually, largely because of how much extra work I need to do to actually get a dynamic, retroactive sync working, with this much data, within the limits of this API, and within the limits of throttled server comms by Blizz, all while doing it in a way that is seemless and invisible to the addon user. Welp, ya, I broke a few things without realizing it and I believe I have them working now. Yay!*
+*Ok, I won't get into the technical details, but suffice it to say a few updates back I kind of went in and did some behind-the-scenes updates, optimizing the process, improving some speed aspects of the sync, making the process leaner and so on. I also apparently broke it some aspects of it lol. This was not an easy fix. This was pretty gritty actually, largely because of how much extra work I need to do to actually get a dynamic, retroactive sync working, with this much data, within the limits of this API, and within the limits of throttled server comms by Blizz, all while doing it in a way that is seamless and invisible to the addon user. Welp, ya, I broke a few things without realizing it and I believe I have them working now. Yay!*
 
 * *Of note, I have not yet tested this beyond 5 accounts syncing in a large guild, and it seemed fine. I will need people to report back and if there are issues, so we can get them resolved ASAP!!!*
 

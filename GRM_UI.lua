@@ -5215,6 +5215,10 @@ GRM_UI.PreAddonLoadUI = function()
     -- Purpose:         Save and store the position of the SyncTracker Frame
     GRM_UI.CoreSyncTrackerInit = function()
         GRM_UI.GRM_SyncTrackerWindow:ClearAllPoints();
+        if not GRM.S().SyncTrackerPOS then
+            GRM.S().SyncTrackerPOS = { "" , "" , 0 , 0 };
+        end
+
         if GRM.S().SyncTrackerPOS[1] == "" then
             GRM_UI.GRM_SyncTrackerWindow:SetPoint ( "CENTER" , UIParent , "CENTER" , 0 , 0 );
         else
@@ -5254,7 +5258,8 @@ GRM_UI.PreAddonLoadUI = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:SetSize ( 600 , 535 );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:SetScript ( "OnHide" , function()
-        GRM.RestoreTooltip()
+        GRM.RestoreTooltip();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText("");
 
         -- The new info / old log headers to be added or not.
         GRM_G.FirstTimeViewed = false;
@@ -5921,10 +5926,13 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrameSlider.currentV = 0;
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrameSlider.HybridControlBool = false;
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrameSlider:SetScript ( "OnValueChanged" , function ( self , value )
-        GRM.HybridScrollOnValueChangedConfig (
-            self , value , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame , 
-            25 , 17.08 , GRM.BuildLogComplete , GRM_G.fullLogMatch
-        );
+
+        if GRM_G.fullLogMatch then
+            GRM.HybridScrollOnValueChangedConfig (
+                self , value , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame , 
+                25 , 17.08 , GRM.BuildLogComplete , GRM_G.fullLogMatch
+            );
+        end
     end);
 
     if not isManualUpdate then
@@ -17265,7 +17273,11 @@ GRM_UI.SetAllWindowScales = function ( buildSizingLogic )
         GRM_UI.GRM_MemberDetailMetaData:SetScale ( 1 );
         -- GRM_UI.RescaleFrame ( GRM_UI.GRM_MemberDetailMetaData , false );
     end
-   
+
+    -- Error protection
+    if type( GRM.S().UIScaling[1] ) ~= "table" then
+        GRM.S().UIScaling = GRM_Patch.ResetUIScaling ( GRM.S().UIScaling );
+    end
     -- SetScaling
     setScaling ( GRM_UI.GRM_RosterChangeLogFrame , GRM_UI.GRM_RosterChangeLogFrame.scrollFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale , GRM.S().UIScaling[1][1] , GRM.S().UIScaling[1][2] , GRM.S().UIScaling[1][3] );
 

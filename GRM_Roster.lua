@@ -7,8 +7,18 @@ GRM_R = {};
 -- Purpose:         Provide players more controls than default communities offers.
 GRM_R.BuildRosterFrames = function ()
 
-    GRM_UI.CreateCoreFrame ( "GRM_RosterFrame" , GRM_UI , UIParent , 530 , 525 , "TranslucentFrameTemplate" , true , { "CENTER" , UIParent , "CENTER" , 0 , 300 } , "MEDIUM" , true , true );
+    local coreSize = 830;
+    local coreHybridSize = 800;
+    local anchorFrame1;
+
+    if GRM_G.BuildVersion >= 80000 then
+        coreSize = coreSize + 90;
+        coreHybridSize = coreHybridSize + 90;
+    end
+
+    GRM_UI.CreateCoreFrame ( "GRM_RosterFrame" , GRM_UI , UIParent , coreSize , 525 , "TranslucentFrameTemplate" , true , { "CENTER" , UIParent , "CENTER" , 0 , 300 } , "MEDIUM" , true , true );
     GRM_UI.GRM_RosterFrame.SortType = 3;
+    GRM_UI.GRM_RosterFrame.FormerSortType = 3;
     GRM_UI.GRM_RosterFrame:Hide();    
 
     GRM_UI.GRM_RosterFrame:SetScript ( "OnShow" , function()
@@ -18,7 +28,7 @@ GRM_R.BuildRosterFrames = function ()
     end)
     
     -- Must buiold hybrid first since columns will be pinned to it. 
-    GRM_UI.CreateHybridScrollFrame ( "GRM_RosterFrameScrollFrame" , GRM_UI.GRM_RosterFrame , 500 , 400 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame , "BOTTOMLEFT" , 5 , 5 } , "TranslucentFrameTemplate" , GRM_R.BuildGuildRoster );
+    GRM_UI.CreateHybridScrollFrame ( "GRM_RosterFrameScrollFrame" , GRM_UI.GRM_RosterFrame , coreHybridSize , 400 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame , "BOTTOMLEFT" , 5 , 5 } , "TranslucentFrameTemplate" , GRM_R.BuildGuildRoster );
 
     -- Guild Roster Title
     GRM_UI.CreateString ( "GRM_RosterFrameTitle" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Guild Roster" ) , 18 , { "TOP" , GRM_UI.GRM_RosterFrame , "TOP" , 0 , -17 } );
@@ -35,6 +45,19 @@ GRM_R.BuildRosterFrames = function ()
     -- Rank
     GRM_UI.CreateButton ( "GRM_RosterColumnRank" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Rank" ) , 125 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnLastOnline, "RIGHT" , -1.5 , 0 } , GRM_R.SortRank , "GameFontWhite" , 13 , "LEFT" , nil , nil  );
 
+    if GRM_G.BuildVersion >= 80000 then
+        -- M+
+        GRM_UI.CreateButton ( "GRM_RosterColumnMythicPlus" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "M+ Score" ) , 90 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnRank, "RIGHT" , -1.5 , 0 } , GRM_R.SortMythicScore , "GameFontWhite" , 13 , "LEFT" , nil , nil  );
+        anchorFrame1 = GRM_UI.GRM_RosterFrame.GRM_RosterColumnMythicPlus;
+    else
+        anchorFrame1 = GRM_UI.GRM_RosterFrame.GRM_RosterColumnRank;
+    end
+
+    -- Note
+    GRM_UI.CreateButton ( "GRM_RosterColumnNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Note" ) , 150 , 22 , { "LEFT" , anchorFrame1, "RIGHT" , -1.5 , 0 } , GRM_R.SortNote , "GameFontWhite" , 13 , "LEFT" , nil , nil );
+
+    -- OfficerNote
+    GRM_UI.CreateButton ( "GRM_RosterColumnOfficerNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Officer's Note" ) , 150 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnNote, "RIGHT" , -1.5 , 0 } , GRM_R.SortOfficerNote , "GameFontWhite" , 13 , "LEFT" , nil , nil );
     
     -- Right click menu
     GRM_UI.CreateCoreFrame ( "GRM_RosterFrameDropDown" , GRM_UI.GRM_RosterFrame , nil , 110 , 177 , BackdropTemplateMixin and "BackdropTemplate" , false , nil , "FULLSCREEN_DIALOG" , false , true );
@@ -357,10 +380,13 @@ GRM_R.SortNames = function ( _ , keepType )
 
     if not keepType then
         if GRM_UI.GRM_RosterFrame.SortType > 2 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
             GRM_UI.GRM_RosterFrame.SortType = 1;
         elseif GRM_UI.GRM_RosterFrame.SortType == 1 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
             GRM_UI.GRM_RosterFrame.SortType = 2;
         else
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
             GRM_UI.GRM_RosterFrame.SortType = 1;
         end
     end
@@ -400,9 +426,114 @@ GRM_R.SortLastOnline = function ( _ , keepType )
     local members = GRM.GetAllMembersAsArray ( nameSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 3 then
-        sort ( members , function ( a , b )     return a.lastOnline < b.lastOnline end );
+        sort ( members , function ( a , b ) return a.lastOnline < b.lastOnline end );
     else
         sort ( members , function ( a , b ) return a.lastOnline > b.lastOnline end );
+    end
+
+    GRM_R.BuildGuildRoster ( true , true , members );
+end
+
+-- Method:          GRM_R.SortMythicScore ( buttonObject, bool )
+-- What it Does:    Sorts the players by M+ Score
+-- Purpose:         For the GRM Guild Roster
+GRM_R.SortMythicScore = function ( _ , keepType )
+    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    if nameSearch == "" then
+        nameSearch = nil;
+    else
+        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
+    end
+
+    if not keepType then
+        if GRM_UI.GRM_RosterFrame.SortType ~= 9 and GRM_UI.GRM_RosterFrame.SortType ~= 10 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 9;
+        elseif GRM_UI.GRM_RosterFrame.SortType == 9 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 10;
+        else
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 9;
+        end
+    end
+
+    local members = GRM.GetAllMembersAsArray ( nameSearch );
+
+    if GRM_UI.GRM_RosterFrame.SortType == 9 then
+        sort ( members , function ( a , b ) return a.MythicScore > b.MythicScore end );
+    else
+        sort ( members , function ( a , b ) return a.MythicScore < b.MythicScore end );
+    end
+
+    GRM_R.BuildGuildRoster ( true , true , members );
+end
+
+-- Method:          GRM_R.SortNote ( buttonObject , bool )
+-- What it Does:    Sorts all of the names ascending or descending in the guild
+-- Purpose:         For the Guild roster
+GRM_R.SortNote = function ( _ , keepType )
+
+    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    if nameSearch == "" then
+        nameSearch = nil;
+    else
+        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
+    end
+
+    if not keepType then
+        if GRM_UI.GRM_RosterFrame.SortType ~= 11 and GRM_UI.GRM_RosterFrame.SortType ~= 12 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 11;
+        elseif GRM_UI.GRM_RosterFrame.SortType == 11 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 12;
+        else
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 11;
+        end
+    end
+    local members = GRM.GetAllMembersAsArray ( nameSearch );
+    
+    if GRM_UI.GRM_RosterFrame.SortType == 11 then
+        sort ( members , function ( a , b ) return a.note < b.note end );
+    else
+        sort ( members , function ( a , b ) return a.note > b.note end );
+    end
+
+    GRM_R.BuildGuildRoster ( true , true , members );
+end
+
+-- Method:          GRM_R.SortOfficerNote ( buttonObject , bool )
+-- What it Does:    Sorts all of the names ascending or descending in the guild
+-- Purpose:         For the Guild roster
+GRM_R.SortOfficerNote = function ( _ , keepType )
+
+    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    if nameSearch == "" then
+        nameSearch = nil;
+    else
+        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
+    end
+
+    if not keepType then
+        if GRM_UI.GRM_RosterFrame.SortType ~= 13 and GRM_UI.GRM_RosterFrame.SortType ~= 14 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 13;
+        elseif GRM_UI.GRM_RosterFrame.SortType == 13 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 14;
+        else
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 13;
+        end
+    end
+    local members = GRM.GetAllMembersAsArray ( nameSearch );
+    
+    if GRM_UI.GRM_RosterFrame.SortType == 13 then
+        sort ( members , function ( a , b ) return a.officerNote < b.officerNote end );
+    else
+        sort ( members , function ( a , b ) return a.officerNote > b.officerNote end );
     end
 
     GRM_R.BuildGuildRoster ( true , true , members );
@@ -422,10 +553,14 @@ GRM_R.SortRank = function ( _ , keepType )
 
     if not keepType then
         if GRM_UI.GRM_RosterFrame.SortType ~= 5 and GRM_UI.GRM_RosterFrame.SortType ~= 6 then
+            if GRM_UI.GRM_RosterFrame.SortType == 7 or GRM_UI.GRM_RosterFrame.SortType == 8 or GRM_UI.GRM_RosterFrame.SortType < 5 then
+                GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            end
             GRM_UI.GRM_RosterFrame.SortType = 5;
         elseif GRM_UI.GRM_RosterFrame.SortType == 5 then
             GRM_UI.GRM_RosterFrame.SortType = 6;
-        else
+        elseif GRM_UI.GRM_RosterFrame.SortType == 6 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = 6;      -- After the 3rd press it no longer includes the previous name or level sorting.
             GRM_UI.GRM_RosterFrame.SortType = 5;
         end
     end
@@ -438,7 +573,127 @@ GRM_R.SortRank = function ( _ , keepType )
         sort ( members , function ( a , b ) return a.rankIndex > b.rankIndex end );
     end
 
+    -- Sort names alphabetically, within each rank
+    if GRM_UI.GRM_RosterFrame.FormerSortType == 1 then
+        members = GRM_R.SortAlphabeticallyWithinRank ( members , 1 );
+    -- Sort names alphabetically, within each rank
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 2 then
+        members = GRM_R.SortAlphabeticallyWithinRank ( members , 2 );
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 3 then
+        members = GRM_R.SortLastOnlineWithinRank ( members , 3 );
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 4 then
+        members = GRM_R.SortLastOnlineWithinRank ( members , 4 );
+    -- Sort names by max level decending, within each rank
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 7 then
+        members = GRM_R.SortByLevelWithinRank ( members , 7 );
+        -- Sort names by max level ascending, within each rank
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 8 then
+        members = GRM_R.SortByLevelWithinRank ( members , 8 );
+    end
+
     GRM_R.BuildGuildRoster ( true , true , members );
+end
+
+-- Method:          GRM_R.SortAlphabeticallyWithinRank ( table, int )
+-- What it Does:    Takes the already sorted table, then sub-sorts the ranks alphabetically ascending or descending
+-- Purpose:         Greater control of sorting on the roster.
+GRM_R.SortAlphabeticallyWithinRank = function ( members , sortType )
+    local result = {};
+    local currentRank = members[1].rankIndex;
+    local rankGrouping = {};
+
+    for i = 1 , #members do
+        -- Working on same rank group
+        if members[i].rankIndex == currentRank then
+            table.insert ( rankGrouping , members[i] );
+        end
+
+        -- rank group has changed, or we are on the final rank
+        if members[i].rankIndex ~= currentRank or i == #members then
+            if sortType == 1 then
+                sort ( rankGrouping , function ( a , b ) return a.name < b.name end );
+            elseif sortType == 2 then
+                sort ( rankGrouping , function ( a , b ) return a.name > b.name end );
+            end
+            for j = 1 , #rankGrouping do
+                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+            end
+
+            currentRank = members[i].rankIndex;
+            rankGrouping = {};
+            table.insert ( rankGrouping , members[i] );
+        end
+    end
+
+    return result;
+end
+
+-- Method:          GRM_R.SortLastOnlineWithinRank ( table, int )
+-- What it Does:    Takes the already sorted table, then sub-sorts the ranks by last online ascending or descending
+-- Purpose:         Greater control of sorting on the roster.
+GRM_R.SortLastOnlineWithinRank = function ( members , sortType )
+    local result = {};
+    local currentRank = members[1].rankIndex;
+    local rankGrouping = {};
+
+    for i = 1 , #members do
+        -- Working on same rank group
+        if members[i].rankIndex == currentRank then
+            table.insert ( rankGrouping , members[i] );
+        end
+
+        -- rank group has changed, or we are on the final rank
+        if members[i].rankIndex ~= currentRank or i == #members then
+            if sortType == 3 then
+                sort ( rankGrouping , function ( a , b ) return a.lastOnline < b.lastOnline end );
+            elseif sortType == 4 then
+                sort ( rankGrouping , function ( a , b ) return a.lastOnline > b.lastOnline end );
+            end
+            for j = 1 , #rankGrouping do
+                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+            end
+
+            currentRank = members[i].rankIndex;
+            rankGrouping = {};
+            table.insert ( rankGrouping , members[i] );
+        end
+    end
+
+    return result;
+end
+
+-- Method:          GRM_R.SortByLevelWithinRank ( table, int )
+-- What it Does:    Takes the already sorted table, then sub-sorts the ranks by level ascending or descending
+-- Purpose:         Greater control of sorting on the roster.
+GRM_R.SortByLevelWithinRank = function ( members , sortType )
+    local result = {};
+    local currentRank = members[1].rankIndex;
+    local rankGrouping = {};
+
+    for i = 1 , #members do
+        -- Working on same rank group
+        if members[i].rankIndex == currentRank then
+            table.insert ( rankGrouping , members[i] );
+        end
+
+        -- rank group has changed, or we are on the final rank
+        if members[i].rankIndex ~= currentRank or i == #members then
+            if sortType == 7 then
+                sort ( rankGrouping , function ( a , b ) return a.level > b.level end );
+            elseif sortType == 8 then
+                sort ( rankGrouping , function ( a , b ) return a.level < b.level end );
+            end
+            for j = 1 , #rankGrouping do
+                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+            end
+
+            currentRank = members[i].rankIndex;
+            rankGrouping = {};
+            table.insert ( rankGrouping , members[i] );
+        end
+    end
+
+    return result;
 end
 
 -- Method:          GRM_R.SortLevel( buttonObject , bool )
@@ -455,10 +710,13 @@ GRM_R.SortLevel = function ( _ , keepType )
 
     if not keepType then
         if GRM_UI.GRM_RosterFrame.SortType ~= 7 and GRM_UI.GRM_RosterFrame.SortType ~= 8 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
             GRM_UI.GRM_RosterFrame.SortType = 7;
         elseif GRM_UI.GRM_RosterFrame.SortType == 7 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
             GRM_UI.GRM_RosterFrame.SortType = 8;
         else
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
             GRM_UI.GRM_RosterFrame.SortType = 7;
         end
     end
@@ -505,11 +763,17 @@ GRM_R.RefreshRosterName = function ()
         GRM_R.SortRank ( nil , true );
     elseif GRM_UI.GRM_RosterFrame.SortType == 7 or GRM_UI.GRM_RosterFrame.SortType == 8 then
         GRM_R.SortLevel ( nil , true );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 9 or GRM_UI.GRM_RosterFrame.SortType == 10 then
+        GRM_R.SortMythicScore ( nil , true );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 11 or GRM_UI.GRM_RosterFrame.SortType == 12 then
+        GRM_R.SortNote ( nil , true );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 13 or GRM_UI.GRM_RosterFrame.SortType == 14 then
+        GRM_R.SortOfficerNote( nil , true );
     end
 
 end
 
--- Method:          GRM.BuildGuildRoster( bool , bool , table )
+-- Method:          GRM_R.BuildGuildRoster ( bool , bool , table )
 -- What it Does:    Updates the Queued scrollframe as needed
 -- Purpose:         UX of the GRM mass kick tool
 GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries )
@@ -546,7 +810,11 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries )
                     button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Level
                     button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Name
                     button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Last Online
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )       -- Rank
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),       -- Rank
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),       -- Mythic+
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),       -- Note
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )       -- Officer Note
+                    
                 };
 
                 button = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i][1];
@@ -594,12 +862,18 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
     local buttonText2 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][3];
     local buttonText3 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][4];
     local buttonText4 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][5];
+    local buttonText5 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][6];
+    local buttonText6 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][7];
+    local buttonText7 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][8];
 
     -- Name
     buttonText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     buttonText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     buttonText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     buttonText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    buttonText5:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    buttonText6:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    buttonText7:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
     -- Actions don't need to be run more than once.
     if not isResizeAction then
@@ -623,6 +897,27 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
         buttonText4:SetJustifyH ( "LEFT" );
         buttonText4:SetWidth ( 120 )
         buttonText4:SetWordWrap ( false );
+
+        -- Mythic+
+        if GRM_G.BuildVersion >= 80000 then
+            buttonText5:SetPoint ( "LEFT" , buttonText4 , "RIGHT" , 9 , 0 );
+            buttonText5:SetJustifyH ( "LEFT" );
+            buttonText5:SetWidth ( 80 )
+            buttonText5:SetWordWrap ( false );
+
+            buttonText6:SetPoint ( "LEFT" , buttonText5 , "RIGHT" , 9 , 0 );
+        else
+            buttonText6:SetPoint ( "LEFT" , buttonText4 , "RIGHT" , 9 , 0 );
+        end
+        
+        buttonText6:SetJustifyH ( "LEFT" );
+        buttonText6:SetWidth ( 140 )
+        buttonText6:SetWordWrap ( false );
+
+        buttonText7:SetPoint ( "LEFT" , buttonText6 , "RIGHT" , 9 , 0 );
+        buttonText7:SetJustifyH ( "LEFT" );
+        buttonText7:SetWidth ( 140 )
+        buttonText7:SetWordWrap ( false );
 
         coreButton:EnableMouse ( true );
         coreButton:RegisterForDrag ( "LeftButton" );
@@ -773,6 +1068,13 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
     line[4]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].hoursReport );
     line[5]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].rankName );
 
+    if GRM_G.BuildVersion >= 80000 then
+        line[6]:SetText ( GRM.GetMythicRatingToMatchRaiderIO ( GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore ) .. GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore );
+    end
+
+    line[7]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].note );
+    line[8]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].officerNote );
+
     -- Update the tooltip if underlying data changes
     if GameTooltip:IsVisible() and GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][1]:IsMouseOver() then 
         GRM_R.UpdateGuildRosterTooltip ( ind );
@@ -799,6 +1101,17 @@ GRM_R.RosterShiftDown = function()
             buttons[i][4]:SetTextColor ( buttons[i+1][4]:GetTextColor ( buttons[i+1][4]:GetText() ) );
             buttons[i][5]:SetText( buttons[i+1][5]:GetText() );
             buttons[i][5]:SetTextColor ( buttons[i+1][5]:GetTextColor ( buttons[i+1][5]:GetText() ) );
+
+            if GRM_G.BuildVersion >= 80000 then
+                buttons[i][6]:SetText( buttons[i+1][6]:GetText() );
+                buttons[i][6]:SetTextColor ( buttons[i+1][6]:GetTextColor ( buttons[i+1][6]:GetText() ) );
+            end
+
+            buttons[i][7]:SetText( buttons[i+1][7]:GetText() );
+            buttons[i][7]:SetTextColor ( buttons[i+1][7]:GetTextColor ( buttons[i+1][7]:GetText() ) );
+
+            buttons[i][8]:SetText( buttons[i+1][8]:GetText() );
+            buttons[i][8]:SetTextColor ( buttons[i+1][8]:GetTextColor ( buttons[i+1][8]:GetText() ) );
 
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;
@@ -830,6 +1143,17 @@ GRM_R.RosterShiftUp = function()
             buttons[i][4]:SetTextColor ( buttons[i-1][4]:GetTextColor ( buttons[i-1][4]:GetText() ) );
             buttons[i][5]:SetText( buttons[i-1][5]:GetText() );
             buttons[i][5]:SetTextColor ( buttons[i-1][5]:GetTextColor ( buttons[i-1][5]:GetText() ) );
+
+            if GRM_G.BuildVersion >= 80000 then
+                buttons[i][6]:SetText( buttons[i-1][6]:GetText() );
+                buttons[i][6]:SetTextColor ( buttons[i-1][6]:GetTextColor ( buttons[i-1][6]:GetText() ) );
+            end
+
+            buttons[i][7]:SetText( buttons[i-1][7]:GetText() );
+            buttons[i][7]:SetTextColor ( buttons[i-1][7]:GetTextColor ( buttons[i-1][7]:GetText() ) );
+
+            buttons[i][8]:SetText( buttons[i-1][8]:GetText() );
+            buttons[i][8]:SetTextColor ( buttons[i-1][8]:GetTextColor ( buttons[i-1][8]:GetText() ) );
 
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;

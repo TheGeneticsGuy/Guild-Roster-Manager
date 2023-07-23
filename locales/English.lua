@@ -1667,6 +1667,9 @@ GRML.English = function()
     GRM_L["{num} Join Dates Have Been Confirmed."] = true
     GRM_L["Searching Log..."] = true
 
+    -- R1.989
+    GRM_L["M+ Score" ] = true
+
 
 
 end

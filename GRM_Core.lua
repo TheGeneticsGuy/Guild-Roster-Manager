@@ -914,17 +914,7 @@ GRM.UpdateOldSettingsFormat = function()
                     GRM_AddonSettings_Save[GRM_G.guildName].syncSettings = false;
                     GRM_AddonSettings_Save[GRM_G.addonUser].syncSettings = false;
                 end
-    
-            else
-                GRM_G.ChangesFoundOnLoad = true;
             end
-
-            -- Forcing core log window/options frame to load on the first load ever as well
-            GRM_G.ChangesFoundOnLoad = true;
-
-        elseif not IsInGuild() then
-            GRM_G.ChangesFoundOnLoad = true;
-
         end
     end
 
@@ -980,8 +970,6 @@ GRM.LoadSettings = function()
                 GRM_AddonSettings_Save[GRM_G.addonUser].syncSettings = false;
             end
 
-        else
-            GRM_G.ChangesFoundOnLoad = true;
         end
 
     end
@@ -3708,6 +3696,15 @@ GRM.GetAllMembersAsArray = function( nameSearch )
                 tempPlayer.lastOnline = player.lastOnline;
                 tempPlayer.classColor = GRM.GetClassColorRGB ( player.class , false );
                 tempPlayer.level = player.level;
+                tempPlayer.note = player.note;
+                if GRM.CanEditOfficerNote() then
+                    tempPlayer.officerNote = player.officerNote;
+                else
+                    tempPlayer.officerNote = "";
+                end
+                if GRM_G.BuildVersion >= 80000 then
+                    tempPlayer.MythicScore = player.MythicScore;
+                end
 
                 if not player.isOnline then
                     tempPlayer.hoursReport = GRM.HoursReport ( player.lastOnline );
@@ -13549,7 +13546,6 @@ end
 -- Purpose:         Clean organization for presentation.
 GRM.FinalReport = function()
     local needToReport = false;
-
     if GRM.ScanKillSwitch() then   -- Necessary in case you purge guild in middle of scan
         return;
     end
@@ -15621,7 +15617,7 @@ GRM.GetSearchLog = function ( isSearch , searchString , currentPosition , finalR
     end
 
     -- Set possible first Entry
-    if not currentPosition and GRM_G.FirstTimeViewed and GRM_G.IndexOfLastLogEntry < #gLog and #gLog > 0 and GRM_G.IndexOfLastLogEntry ~= #gLog then
+    if not currentPosition and GRM_G.ChangesFoundOnLoad and GRM_G.FirstTimeViewed and GRM_G.IndexOfLastLogEntry < #gLog and #gLog > 0 and GRM_G.IndexOfLastLogEntry ~= #gLog then
         table.insert ( result , { 97 , " " , false , 0 , 0 , GRM.AddNewChangesHeader() } );
         table.insert ( result , { 97 , GRM.AddNewChangesHeader() , false , 0 , 0 , GRM.AddNewChangesHeader() } );
     end
@@ -15635,7 +15631,7 @@ GRM.GetSearchLog = function ( isSearch , searchString , currentPosition , finalR
     while i > 0 and ( not isSearch or isSearch and c < 12000 ) do
         trueString = false;
         needsToAddSearchString = false;
-        if GRM_G.FirstTimeViewed and not changesEndAdded and GRM_G.IndexOfLastLogEntry < #gLog and #gLog > 0 and i == GRM_G.IndexOfLastLogEntry and GRM_G.IndexOfLastLogEntry ~= #gLog then
+        if GRM_G.FirstTimeViewed and GRM_G.ChangesFoundOnLoad and not changesEndAdded and GRM_G.IndexOfLastLogEntry < #gLog and #gLog > 0 and i == GRM_G.IndexOfLastLogEntry and GRM_G.IndexOfLastLogEntry ~= #gLog then
             
             -- OLD LOG HEADER
             table.insert ( result , { 98 , GRM.AddOldLogHeader() , false , 0 , 0 , GRM.AddOldLogHeader() } );
@@ -15850,10 +15846,20 @@ GRM.BuildLog = function ( searchString , fullRefresh , delayedSearch , fullLogMa
         end
     end
 
+    local DatabaseAvailable = function()
+        local result = true;
+
+        if GRM_G.fullLogMatch == nil then
+            result = false;
+        end
+
+        return result;
+    end
+
     GRM.SetHybridScrollFrameSliderParameters ( 
         GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrameSlider , 
         buttonWidth , buttonHeight , buttonHeight * #log , #log , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons , 
-        GRM.LogToolHybridShiftDown , GRM.LogToolHybridShiftUP , hybridScrollFrameButtonCount
+        GRM.LogToolHybridShiftDown , GRM.LogToolHybridShiftUP , hybridScrollFrameButtonCount , DatabaseAvailable
     );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText:SetText ( GRM.L ( "Total Entries: {num}" , nil , nil , GRM_G.CurrentTotalCount ) );
@@ -24273,10 +24279,10 @@ end
 -------- HYBRID SCROLLFRAME TEMPLATES ------
 --------------------------------------------
 
--- Method:          GRM.SetHybridScrollFrameSliderParameters ( frame , frame , frame , int , int , int , int , arrayOfButtons , function , function )
+-- Method:          GRM.SetHybridScrollFrameSliderParameters ( frame , frame , frame , int , int , int , int , arrayOfButtons , function , function , int , function )
 -- What it Does:    Acts as a template for all future hybrid scrollframe configuration of the slider logic on mousewheel scrolling and so on
 -- Purpose:         Clean, repeatable code that can be used in conjunction with all other large scrollframes
-GRM.SetHybridScrollFrameSliderParameters = function( childFrame , HscrollFrame , HscrollFrameSlider , buttonW , buttonH , scrollH , totalEntries , buttons , logicFunction1 , logicFunction2 , totalPotentialButtons )
+GRM.SetHybridScrollFrameSliderParameters = function( childFrame , HscrollFrame , HscrollFrameSlider , buttonW , buttonH , scrollH , totalEntries , buttons , logicFunction1 , logicFunction2 , totalPotentialButtons , optionalLogic )
     
     childFrame:SetSize ( buttonW , HscrollFrame:GetHeight() );
 
@@ -24295,6 +24301,13 @@ GRM.SetHybridScrollFrameSliderParameters = function( childFrame , HscrollFrame ,
 
     if scrollMax > 0 then
         HscrollFrame:SetScript( "OnMouseWheel" , function( _ , delta )
+
+            if optionalLogic ~= nil then
+                if not optionalLogic() then
+                    return;
+                end
+            end
+            
             if totalEntries > 0 then
                 GRM.HybridControl( HscrollFrameSlider );
                 local current = HscrollFrameSlider:GetValue();
@@ -25907,7 +25920,7 @@ GRM.AllRemainingNonDelayFrameInitialization = function()
             GRM_DebugLog_Save = GRM_G.DebugLog;
 
             -- Clear the macro in case it hasn't been cleared yet (GRM tool is open on a reload or logout.)
-            GRM.CreateMacro ( "/run GRM.Report(\"" .. GRM.L ( "Reserved for GRM Macro Tool Usage. Please do not delete.\"" ) ..")" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" , true );
+            GRM.CreateMacro ( "/run GRM.Report(\"" .. GRM.L ( "Reserved for GRM Macro Tool Usage. Please do not delete." ) .."\")" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" , true );
         end
     end);
 
@@ -25927,7 +25940,6 @@ end
 -- What it Does:    It establishes the properly formated guildName as well as the clubID
 -- Purpose:         Why cycle through the guilds over and over again to find the position, when you can store the index of the database in the array with a simple global variable? Massive resource save!
 GRM.ConfigureGuild = function()
-
     -- Configure the guild
     if GRM_G.guildName == "" then
         local guildName , _ , _ , server = GetGuildInfo ( "PLAYER" );
@@ -26057,9 +26069,7 @@ GRM.TrackingConfiguration = function( forced )
         end
         -- Establish proper database tags before building and scanning roster data
         -- For massive resourcing saving, let's establish core data points.
-        if GRM_G.guildName == "" or GRM_G.gClubID == 0 then
-            GRM.ConfigureGuild();
-        end
+        GRM.ConfigureGuild();
 
         if GRM_G.OnFirstLoad and GRM.GetGuild() then
 

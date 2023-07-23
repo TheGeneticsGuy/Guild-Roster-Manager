@@ -1361,6 +1361,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+    
+    -- -- patch 115
+    -- patchNum = patchNum + 1;
+    -- if numericV < 1.980 and baseValue < 1.980 then
+
+    --     GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.ResetUIScaling );
+
+    --     if loopCheck ( 1.980 ) then
+    --         return;
+    --     end
+    -- end
+
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -1401,8 +1413,6 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         end
     end
 
-    -- Forcing core log window/options frame to load on the first load ever as well
-    GRM_G.ChangesFoundOnLoad = true;
 
     C_Timer.After ( 1 , GRM.FinalSettingsConfigurations );
 end
@@ -1535,7 +1545,7 @@ GRM_Patch.EditSetting = function ( setting , valueOrLogic , additionalSetting )
             if type ( valueOrLogic ) == "function" then
                 if additionalSetting then
                     if GRM_AddonSettings_Save[p][setting][additionalSetting] ~= nil then
-                        GRM_AddonSettings_Save[p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
+                        GRM_AddoSnettings_Save[p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
                     end
                 else
                     GRM_AddonSettings_Save[p][setting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
