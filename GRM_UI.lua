@@ -638,6 +638,9 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_Gen
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.OptionsRankRestrictHeaderText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.OptionsScanDetailsText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.OptionsSlashCommandText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.OptionsTipsText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_CTRLScrollTip = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_SHFTScrollTip = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.OptionsUnifySettingsHeaderText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_OptionsUXText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 --SLASH COMMAND FONTSTRINGS
@@ -7030,6 +7033,22 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_SlashCommandText11:SetSpacing ( 0.5 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_SlashCommandText11:SetJustifyH ( "LEFT" );
 
+    ------------ TIPS ----------------
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.OptionsTipsText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_HardResetButton , "BOTTOMLEFT" , 5 , - 12 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.OptionsTipsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 20 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.OptionsTipsText:SetText ( GRM.L ( "Tips" ) .. ":" );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.OptionsTipsText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_CTRLScrollTip:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.OptionsTipsText , "BOTTOMLEFT" , 0 , - 5 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_CTRLScrollTip:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_CTRLScrollTip:SetText ( "*  " .. GRM.L ( "Hold the CONTROL key down to scroll 3x the speed" ) );
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_SHFTScrollTip:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_CTRLScrollTip , "BOTTOMLEFT" , 0 , - 5 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_SHFTScrollTip:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_SHFTScrollTip:SetText ( "*  " .. GRM.L ( "Hold the SHIFT key down to scroll instantly to the top or bottom" ) );
+
+
     GRM_UI.GRM_RosterCheckBoxSideFrame:SetScript ( "OnHide" , function ()
         if GRM_UI.GRM_RosterConfirmFrame:IsVisible() and GRM_UI.GRM_RosterConfirmFrameText:GetText() == GRM.L ( "Really Clear the Guild Log?" ) then
             GRM_UI.GRM_RosterConfirmFrame:Hide();
@@ -12071,7 +12090,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             self.timer2 = 0;
         end
     end);
-    
     GRM_UI.GRM_AuditJDTool:ClearAllPoints();
     GRM_UI.GRM_AuditJDTool:SetPoint ( "CENTER" , UIParent );
     GRM_UI.GRM_AuditJDTool:SetFrameStrata ( "MEDIUM" );
@@ -16234,192 +16252,197 @@ end
 --- CALENDAR ----
 -----------------
 
-if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calendar yet existed
-    local UI_CalendarTrigger = CreateFrame( "Frame" );
-    UI_CalendarTrigger:RegisterEvent ( "CALENDAR_UPDATE_EVENT_LIST" );
-    UI_CalendarTrigger:RegisterEvent ( "CALENDAR_UPDATE_INVITE_LIST" );
-    UI_CalendarTrigger:RegisterEvent ( "CALENDAR_OPEN_EVENT" );
-    UI_CalendarTrigger:RegisterEvent("CALENDAR_UPDATE_EVENT");
-    UI_CalendarTrigger:RegisterEvent("GUILD_ROSTER_UPDATE");
-    UI_CalendarTrigger:RegisterEvent("PLAYER_GUILD_UPDATE");
-    UI_CalendarTrigger:SetScript ( "OnEvent" , function ()
-        if CalendarCreateEventFrame and CalendarViewEventFrame and CalendarViewEventInviteListScrollFrameScrollBar and CalendarCreateEventInviteListScrollFrameScrollBar then
-            if not GRM_G.CalendarRegistered then
-                -- View Window
-                CalendarViewEventInviteListScrollFrameScrollBar:HookScript ( "OnValueChanged" , GRM_UI.CalendarEventOpenRefresh );
-                CalendarViewEventFrame:HookScript ( "OnShow" , GRM_UI.CalendarEventOpenRefresh );
-                CalendarViewEventFrame:HookScript ( "OnHide" , function()
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
-                end);
-                CalendarViewEventInviteListScrollFrame:HookScript ( "OnHide" , function()
-                    GRM_G.currentCalendarOffset = 1;    -- Resets this for triggering.
-                end);
+-- if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calendar yet existed
+--     local UI_CalendarTrigger = CreateFrame( "Frame" );
+--     UI_CalendarTrigger:RegisterEvent ( "CALENDAR_UPDATE_EVENT_LIST" );
+--     UI_CalendarTrigger:RegisterEvent ( "CALENDAR_UPDATE_INVITE_LIST" );
+--     UI_CalendarTrigger:RegisterEvent ( "CALENDAR_OPEN_EVENT" );
+--     UI_CalendarTrigger:RegisterEvent("CALENDAR_UPDATE_EVENT");
+--     UI_CalendarTrigger:RegisterEvent("GUILD_ROSTER_UPDATE");
+--     UI_CalendarTrigger:RegisterEvent("PLAYER_GUILD_UPDATE");
+--     UI_CalendarTrigger:SetScript ( "OnEvent" , function ()
+--         if CalendarCreateEventFrame and CalendarViewEventFrame and CalendarViewEventInviteList.ScrollBar and CalendarCreateEventInviteList.ScrollBar then
+--             if not GRM_G.CalendarRegistered then
+--                 -- View Window
+--                 local events = { "OnEvent" };
 
-                -- Create and Edit Window
-                CalendarCreateEventInviteListScrollFrameScrollBar:HookScript ( "OnValueChanged" , GRM_UI.CalendarEventCreateRefresh );
-                CalendarCreateEventFrame:HookScript ( "OnShow" , GRM_UI.CalendarEventCreateRefresh );
-                CalendarCreateEventInviteListScrollFrame:HookScript ( "OnHide" , function()
-                    GRM_G.currentCalendarOffset = 1;    -- Resets this for triggering.
-                end);
-                CalendarCreateEventFrame:HookScript ( "OnHide" , function()
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
-                end);
-                GRM_G.CalendarRegistered = true;
-                GRM_UI.CalendarEventOpenRefresh ();
-                GRM_UI.CalendarEventCreateRefresh ();
+--                 for i = 1 , #events do
+--                     CalendarViewEventInviteList.ScrollBar:HookScript ( events[i] , GRM_UI.CalendarEventOpenRefresh );
+--                 end
+--                 CalendarViewEventFrame:HookScript ( "OnShow" , GRM_UI.CalendarEventOpenRefresh );
+--                 CalendarViewEventFrame:HookScript ( "OnHide" , function()
+--                     GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
+--                     GRM_G.currentCalendarOffset = 1;    -- Resets this for triggering.
+--                 end);
 
-            else
-                GRM_UI.CalendarDelayRefresh( 2 );
-            end
-            GRM_G.currentCalendarOffset = 1;
-        end
-    end);
+--                 -- Create and Edit Window
+--                 for i = 1 , #events do
+--                     CalendarCreateEventInviteList.ScrollBar:HookScript ( events[i] , GRM_UI.CalendarEventCreateRefresh );
+--                 end
+--                 CalendarCreateEventFrame:HookScript ( "OnShow" , GRM_UI.CalendarEventCreateRefresh );
+--                 CalendarCreateEventFrame:HookScript ( "OnHide" , function()
+--                     GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
+--                     GRM_G.currentCalendarOffset = 1;    -- Resets this for triggering.
+--                 end);
+--                 GRM_G.CalendarRegistered = true;
+--                 GRM_UI.CalendarEventOpenRefresh ();
+--                 GRM_UI.CalendarEventCreateRefresh ();
 
-    -- Method:          GRM_UI.CalendarDelayRefresh ( float )
-    -- What it Does:    Adds a delay as Blizz frames
-    GRM_UI.CalendarDelayRefresh = function ( time )
-        C_Timer.After ( time , function()
-            if CalendarCreateEventFrame:IsVisible() then
-                GRM_UI.CalendarEventCreateRefresh();
-            elseif CalendarViewEventFrame:IsVisible() then
-                GRM_UI.CalendarEventOpenRefresh();
-            end
-        end);
-    end
+--             else
+--                 GRM_UI.CalendarDelayRefresh( 2 );
+--             end
+--             GRM_G.currentCalendarOffset = 1;
+--         end
+--     end);
 
-    -- Method:          GRM_UI.CalendarEventOpenRefresh()
-    -- What it Does:    Calls to the event update for the calendar invite scrollframe
-    -- Purpose:         Keep code bloat down... multiple use.
-    GRM_UI.CalendarEventOpenRefresh = function()
-        GRM_UI.UpdateCalendarInviteNames ( CalendarViewEventInviteListScrollFrame );
-        GRM_UI.InitializeCalendarButtons ( CalendarViewEventInviteListScrollFrame );
-    end
+--     -- Method:          GRM_UI.CalendarDelayRefresh ( float )
+--     -- What it Does:    Adds a delay as Blizz frames
+--     GRM_UI.CalendarDelayRefresh = function ( time )
+--         C_Timer.After ( time , function()
+--             if CalendarCreateEventFrame:IsVisible() then
+--                 GRM_UI.CalendarEventCreateRefresh();
+--             elseif CalendarViewEventFrame:IsVisible() then
+--                 GRM_UI.CalendarEventOpenRefresh();
+--             end
+--         end);
+--     end
 
-    -- Method:          GRM_UI.CalendarEventCreateRefresh()
-    -- What it Does:    Calls to the event update for the calendar invite scrollframe
-    -- Purpose:         Keep code bloat down... multiple use.
-    GRM_UI.CalendarEventCreateRefresh = function()
-        
-        GRM_UI.UpdateCalendarInviteNames ( CalendarCreateEventInviteListScrollFrame );
-        GRM_UI.InitializeCalendarButtons ( CalendarCreateEventInviteListScrollFrame );
-    end
+--     -- Method:          GRM_UI.CalendarEventOpenRefresh()
+--     -- What it Does:    Calls to the event update for the calendar invite scrollframe
+--     -- Purpose:         Keep code bloat down... multiple use.
+--     GRM_UI.CalendarEventOpenRefresh = function()
+--         GRM_UI.UpdateCalendarInviteNames ( CalendarViewEventInviteList.ScrollBox );
+--         GRM_UI.InitializeCalendarButtons ( CalendarViewEventInviteList.ScrollBox );
+--     end
 
-    -- Method:          GRM_UI.InitializeCalendarButtons( frame )
-    -- What it Does:    Initializes the tooltip logic for the calendar invite list on mouseover
-    -- Purpose:         So that tooltips are available on the calendar frames!
-    GRM_UI.InitializeCalendarButtons = function( calendarFrame )
-        local buttons = calendarFrame.buttons
-        for i = 1 , #buttons do
-            local button = buttons[i];
-            button:SetScript ( "OnEnter" , function( self )
-                local inviteIndex = i + GRM_G.currentCalendarOffset;
-                local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
+--     -- Method:          GRM_UI.CalendarEventCreateRefresh()
+--     -- What it Does:    Calls to the event update for the calendar invite scrollframe
+--     -- Purpose:         Keep code bloat down... multiple use.
+--     GRM_UI.CalendarEventCreateRefresh = function( _ , event )
+--         print("Refreshing: " .. tostring ( event ) )
+--         GRM_UI.UpdateCalendarInviteNames ( CalendarCreateEventInviteList.ScrollBox );
+--         GRM_UI.InitializeCalendarButtons ( CalendarCreateEventInviteList.ScrollBox );
+--     end
 
-                if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
-                    local name = GRM.AppendServerName ( inviteInfo.name );
-                    GRM_G.CurrentCalendarName = name;
+--     -- Method:          GRM_UI.InitializeCalendarButtons( frame )
+--     -- What it Does:    Initializes the tooltip logic for the calendar invite list on mouseover
+--     -- Purpose:         So that tooltips are available on the calendar frames!
+--     GRM_UI.InitializeCalendarButtons = function( calendarFrame )
+--         local buttons = { CalendarCreateEventInviteList.ScrollBox.ScrollTarget:GetChildren() };
+--         for i = 1 , #buttons do
+--             local button = buttons[i];
 
-                    local classHexCode = GRM.GetClassColorRGB ( inviteInfo.classFilename , true );
-                    GRM_G.CurrentCalendarHexCode = classHexCode;
-                    name = classHexCode .. GRM.GetNameWithMainTags ( name , false , true , true , false ) .. "|r";
+--             button:SetScript ( "OnEnter" , function( self )
+--                 local inviteIndex = i + GRM_G.currentCalendarOffset;
+--                 local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
 
-                    GRM_UI.SetTooltipScale();
-                    GameTooltip:SetOwner ( self  , "ANCHOR_CURSOR" );
-                    GameTooltip:AddLine ( name );
+--                 if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
+--                     local name = GRM.AppendServerName ( inviteInfo.name );
+--                     GRM_G.CurrentCalendarName = name;
 
-                    if GRM_G.IsAltGrouping then
-                        GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to view more alt details." ) );
-                    end
+--                     local classHexCode = GRM.GetClassColorRGB ( inviteInfo.classFilename , true );
+--                     GRM_G.CurrentCalendarHexCode = classHexCode;
+--                     name = classHexCode .. GRM.GetNameWithMainTags ( name , false , true , true , false ) .. "|r";
 
-                    GameTooltip:AddLine( GRM.L ( "{custom1} for Additional Options" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Right-Click" ) .. "|r" ) );
-                    -- For calendar timing
-                    local responseTime = C_Calendar.EventGetInviteResponseTime ( button.inviteIndex );
+--                     GRM_UI.SetTooltipScale();
+--                     GameTooltip:SetOwner ( self  , "ANCHOR_CURSOR" );
+--                     GameTooltip:AddLine ( name );
 
-                    if ( responseTime and responseTime.weekday ~= 0 ) then
-                        GameTooltip:AddLine ( CALENDAR_TOOLTIP_INVITE_RESPONDED );
-                        -- date
-                        GameTooltip:AddLine(
-                            format ( FULLDATE, GRM.GetFullDate ( responseTime.weekday, responseTime.month, responseTime.monthDay, responseTime.year ) ),
-                            HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b
-                        );
-                        -- time
-                        GameTooltip:AddLine(
-                            GameTime_GetFormattedTime ( responseTime.hour , responseTime.minute , true),
-                            HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b
-                        );
-                    end
+--                     if GRM_G.IsAltGrouping then
+--                         GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to view more alt details." ) );
+--                     end
 
-                    GameTooltip:Show();
-                end
+--                     GameTooltip:AddLine( GRM.L ( "{custom1} for Additional Options" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Right-Click" ) .. "|r" ) );
+--                     -- For calendar timing
+--                     local responseTime = C_Calendar.EventGetInviteResponseTime ( button.inviteIndex );
 
-            end);
+--                     if ( responseTime and responseTime.weekday ~= 0 ) then
+--                         GameTooltip:AddLine ( CALENDAR_TOOLTIP_INVITE_RESPONDED );
+--                         -- date
+--                         GameTooltip:AddLine(
+--                             format ( FULLDATE, GRM.GetFullDate ( responseTime.weekday, responseTime.month, responseTime.monthDay, responseTime.year ) ),
+--                             HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b
+--                         );
+--                         -- time
+--                         GameTooltip:AddLine(
+--                             GameTime_GetFormattedTime ( responseTime.hour , responseTime.minute , true),
+--                             HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b
+--                         );
+--                     end
 
-            button:SetScript ( "OnLeave" , function()
-                GRM_G.IsAltGrouping = false;
-                GRM.RestoreTooltip();
-            end);
+--                     GameTooltip:Show();
+--                 end
 
-            -- Hold the action button script holders...
-            button:SetScript ( "OnMouseDown" , function( _ , button )
-                if button == "LeftButton" then
-                    if GRM_G.IsAltGrouping then
+--             end);
+
+--             button:SetScript ( "OnLeave" , function()
+--                 GRM_G.IsAltGrouping = false;
+--                 GRM.RestoreTooltip();
+--             end);
+
+--             -- Hold the action button script holders...
+--             button:SetScript ( "OnMouseDown" , function( _ , button )
+--                 if button == "LeftButton" then
+--                     if GRM_G.IsAltGrouping then
                         
-                        if GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:IsVisible() then
-                            GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide()
-                            return;
-                        end
+--                         if GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:IsVisible() then
+--                             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide()
+--                             return;
+--                         end
 
-                        if not GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:IsVisible() then
-                            GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Show();
-                        else
-                            GRM_UI.GRM_MemberDetailMetaData:Hide();
-                            GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.timer2 = 0;
-                            GRM.BuildAltGroupingScrollFrame( GRM_G.CurrentCalendarName );
-                            GRM.RestoreTooltip();
-                        end
+--                         if not GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:IsVisible() then
+--                             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Show();
+--                         else
+--                             GRM_UI.GRM_MemberDetailMetaData:Hide();
+--                             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.timer2 = 0;
+--                             GRM.BuildAltGroupingScrollFrame( GRM_G.CurrentCalendarName );
+--                             GRM.RestoreTooltip();
+--                         end
 
-                    else
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
-                    end
-                end            
-            end);
-        end
-    end
+--                     else
+--                         GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
+--                     end
+--                 end            
+--             end);
+--         end
+--     end
 
-    -- Method:          GRM_UI.UpdateCalendarInviteNames ( frame )
-    -- What it Does:    Updates the frames and replaces the names of each player with the proper main tags
-    -- Purpose:         To add new functionality to the Calendar frames
-    GRM_UI.UpdateCalendarInviteNames = function( calendarFrame )
-        if C_Calendar.AreNamesReady() then
-            local offset = HybridScrollFrame_GetOffset ( calendarFrame );
-            if offset ~= GRM_G.currentCalendarOffset then
-                GRM_G.currentCalendarOffset = offset;                               -- Set the new offset
-                local buttons = calendarFrame.buttons;
-                -- Parse all the buttons
-                for i = 1 , #buttons do
-                    local button = buttons[i];
-                    local buttonName = button:GetName();
-                    local inviteIndex = i + offset;
-                    local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
+--     -- Method:          GRM_UI.UpdateCalendarInviteNames ( frame )
+--     -- What it Does:    Updates the frames and replaces the names of each player with the proper main tags
+--     -- Purpose:         To add new functionality to the Calendar frames
+--     GRM_UI.UpdateCalendarInviteNames = function( calendarFrame )
+--         if C_Calendar.AreNamesReady() then
+--             local offset = HybridScrollFrame_GetOffset ( calendarFrame );
+--             if offset ~= GRM_G.currentCalendarOffset then
+--                 GRM_G.currentCalendarOffset = offset;                               -- Set the new offset
+--                 -- local buttons = { CalendarCreateEventInviteList.ScrollBox.ScrollTarget:GetChildren() };
+--                 -- -- Parse all the buttons
+--                 -- for i = 1 , #buttons do
+--                 --     local button = buttons[i];
+--                 --     local buttonName = button:GetName();
+--                 --     print("buttonName: " .. buttonName)
+--                 --     local inviteIndex = i + offset;
+--                 --     local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
 
-                    if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
-                        local name = GRM.AppendServerName ( inviteInfo.name );
-                        local classColor = ( inviteInfo.classFilename and RAID_CLASS_COLORS [ inviteInfo.classFilename ] ) or NORMAL_FONT_COLOR;
-                        local buttonFontString = _G [ buttonName .. "Name" ];
-                        buttonFontString:SetText ( GRM.GetNameWithMainTags ( name , true , false , true , false ) );
-                        buttonFontString:SetTextColor(classColor.r, classColor.g, classColor.b);
-                    end
-                end
-            end
-        else
-            -- Retry in 0.5 seconds
-            C_Timer.After ( 0.5 , function()
-                GRM_UI.UpdateCalendarInviteNames ( calendarFrame );
-            end);
-            return;
-        end
-    end
-end
+--                 --     if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
+--                 --         local name = GRM.AppendServerName ( inviteInfo.name );
+--                 --         local classColor = ( inviteInfo.classFilename and RAID_CLASS_COLORS [ inviteInfo.classFilename ] ) or NORMAL_FONT_COLOR;
+--                 --         local buttonFontString = _G [ buttonName .. "Name" ];
+--                 --         buttonFontString:SetText ( GRM.GetNameWithMainTags ( name , true , false , true , false ) );
+--                 --         buttonFontString:SetTextColor(classColor.r, classColor.g, classColor.b);
+--                 --     end
+--                 -- end
+--             end
+--         else
+--             -- Retry in 0.5 seconds
+--             C_Timer.After ( 0.5 , function()
+--                 GRM_UI.UpdateCalendarInviteNames ( calendarFrame );
+--             end);
+--             return;
+--         end
+--     end
+
+-- end
 
 GRM_UI.RankShiftInitialize = function()
     if IsGuildLeader() and GRM_G.BuildVersion < 40000 and not GRM_G.rankShiftLoaded then
@@ -17122,15 +17145,15 @@ end
 GRM_UI.SaveScale = function ( frameName , W , H , scale )
 
     if frameName == "GRM_RosterChangeLogFrame" then
-        GRM.S().UIScaling[1] = { W , H , scale };
+        GRM.S().UIScaling[1] = { math.floor ( W + 0.5 ) , math.floor ( H + 0.5 ) , scale };
     elseif frameName == "GRM_MemberDetailMetaData" then
-        GRM.S().UIScaling[2] = { W , H , scale };
+        GRM.S().UIScaling[2] = { math.floor ( W + 0.5 ) , math.floor ( H + 0.5 ) , scale };
     elseif frameName == "GRM_ToolCoreFrame" then
-        GRM.S().UIScaling[3] = { W , H , scale };
+        GRM.S().UIScaling[3] = { math.floor ( W + 0.5 ) , math.floor ( H + 0.5 ) , scale };
     elseif frameName == "GRM_ExportLogBorderFrame" then
-        GRM.S().UIScaling[4] = { W , H , scale };
+        GRM.S().UIScaling[4] = { math.floor ( W + 0.5 ) , math.floor ( H + 0.5 ) , scale };
     elseif frameName == "GRM_AuditJDTool" then
-        GRM.S().UIScaling[5] = { W , H , scale };
+        GRM.S().UIScaling[5] = { math.floor ( W + 0.5 ) , math.floor ( H + 0.5 ) , scale };
     end
 end
 
@@ -17212,10 +17235,8 @@ GRM_UI.RescaleFrame = function ( frame , hide , tooltips , customCornerPos )
 
             local scale = 0;
             local defTop , defBotton = 1.5 , 0.5;
-
             if self:GetWidth() > ( W * defTop ) then
                 scale = ( W * defTop) / W;
-
             elseif self:GetWidth() < ( W * defBotton) then
                 scale = ( W * defBotton ) / W;
             else

@@ -1,12 +1,19 @@
 
-## **VERSION 1.980 RELEASE - July XX 2023**
-
--- Add Message on the CTRL-scroll, etc... maybe in the HELP?
--- 7 bugs to fix
+## **VERSION 1.980 RELEASE - July 24th 2023**
 
 ***QUALITY OF LIFE***
 
+* GRM's Custom Guild Roster has been expanded. Added M+ Column, Note, and Officer note, as well as the ability to search note and officer notes. More to come soon!
+
+![Expanded GRM Guild Roster](https://i.imgur.com/aVcbX9J.jpg)
+
 * The GRM Guild Roster log sorting is SMARTER! If you are sorting the roster by level, name, or last online, you can carry that sorting over when you sort by rank. In other words, let's say you are sorting by names alphabetically. If you click on the rank column to sort the roster by rank, then each rank will now be properly in order, but also within each rank they will be sorted alphabetically. The same applies to level, and last online. This can be done ascending, or descending. 
+
+* Added a new "Tips" section to the Options > Help tab. Just a couple items for now regarding the CTRL and SHFT modifiers when scrolling, but I will likely expand this eventually. Not quire sure what to do with tips atm.
+
+![Tips Section](https://i.imgur.com/u8hSy2Z.jpg)
+
+* Small note, the "Mass verify" of the unverified join and promotion dates, I have decided to restrict those EXCLUSIVELY to officer use only. I have never had any guild trolls in my own guild, so I have allowed people of most ranks, aside from the starter rank, to be able to make their own changes, like set alts and so on. However, mass verify is a bit of a powerful tool that should really be very limited in use and I don't want to see someone come in and mass-verify a bunch dates that has been in the guild a short while and maybe doesn't sync ever or often. The mass verify button will ONLY appear if you are an officer. This applies to Classic and Retail.
 
 ***BUG FIXES***
 
@@ -18,8 +25,15 @@
 
 * Fixed a lua error that could occur for some people immediately after login. It didn't break anything, but it would be annoying to get an indefinite bug every session.
 
+* Fixed a scaling bug that could occur after updating the last time... If yours was broken, it fixes the problem and then resets the scaling, so if you had resized your window you may need to do it again. It does attempt to retain your setting, but in some cases the value was corrupted so had to be reset. 
+
 * "---------CHANGES---------" was showing everytime you opened the log on the first time, even if there was none. This will no longer happen unless there were actual changes on login. In addition, the indication of the start of the "OLD LOG" entries should now properly show.
 
+* Fixed a lua error that occurred when patching GRM from a previous version that was a bit older. The patch would fail thus GRM would never load. This should now be fixed.
+
+* Fixed a lua error that could occur when setting someone as main. It didn't break anything, but it was sort of a UI error where it wouldn't refresh the mouseover window properly after setting as main. This would not always happen, just in some cases.
+
+* Fixed an issue that seemed to only plague Classic Era, where when a person left the guild it would multi-spam. I haven't actually tested this but I found the vulnerability where it could happen so I assume that fixed it. Let me know!
 
 
 ## **VERSION 1.979 RELEASE - July 22nd 2023**

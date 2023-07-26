@@ -1674,6 +1674,14 @@
     GRM_L["{num} Join Dates Have Been Confirmed."] = true
     GRM_L["Searching Log..."] = true
     
+    -- R1.990
+    GRM_L["M+ Score" ] = true
+    GRM_L["Search Public and Officer Notes"] = true
+    GRM_L["Note Search"] = true
+    GRM_L["Tips"] = true    -- Options > Help tab - "Tips" as in helpful info.
+    GRM_L["Hold the CONTROL key down to scroll 3x the speed"] = true
+    GRM_L["Hold the SHIFT key down to scroll instantly to the top or bottom"] = true
+    
 end
     
     -- THANK YOU @Nehry for this full translation up to R1.20

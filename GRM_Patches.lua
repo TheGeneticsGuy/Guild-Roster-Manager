@@ -1362,16 +1362,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
     
-    -- -- patch 115
-    -- patchNum = patchNum + 1;
-    -- if numericV < 1.980 and baseValue < 1.980 then
+    -- patch 115
+    patchNum = patchNum + 1;
+    if numericV < 1.980 and baseValue < 1.980 then
 
-    --     GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.ResetUIScaling );
+        GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.ResetUIScaling );
 
-    --     if loopCheck ( 1.980 ) then
-    --         return;
-    --     end
-    -- end
+        if loopCheck ( 1.980 ) then
+            return;
+        end
+    end
 
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
@@ -5439,6 +5439,18 @@ GRM_Patch.FixNameChangePreReleaseBug = function()
     end
 
 end
+-- Method:          GRM_Patch.LegacyPurge ( string , string )
+-- What it Does:    Removes the database of this guild compeltely
+-- Purpose:         Deal with old errors from legacy data.
+GRM_Patch.LegacyPurge = function ( guildName , faction )
+    GRM_GuildMemberHistory_Save[faction][guildName] = nil;
+    GRM_PlayersThatLeftHistory_Save[faction][guildName] = nil;
+    GRM_CalendarAddQue_Save[faction][guildName] = nil;
+    GRM_LogReport_Save[faction][guildName] = nil;
+    GRM_GuildDataBackup_Save[faction][guildName] = nil;
+    GRM_PlayerListOfAlts_Save[faction][guildName] = nil;
+    GRM_Alts[guildName] = nil;
+end
 
 -- 1.87
 -- Method:          GRM_Patch.ModifyMemberData ( function , bool , bool , bool )
@@ -5449,14 +5461,18 @@ GRM_Patch.ModifyMemberData = function ( databaseChangeFunction , editCurrentPlay
     if editCurrentPlayers then
         for F in pairs ( GRM_GuildMemberHistory_Save ) do                         -- Horde and Alliance
             for guildName in pairs ( GRM_GuildMemberHistory_Save[F] ) do                  -- The guilds in each faction
-                for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
-                    if type ( player ) == "table" then 
-                        if includeAllGuildData then
-                            GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( GRM_GuildMemberHistory_Save[F][guildName] , player , modifier );
-                        else
-                            GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( player , modifier );
+                if type ( GRM_GuildMemberHistory_Save[F][guildName] ) == "table" then
+                    for name , player in pairs ( GRM_GuildMemberHistory_Save[F][guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
+                        if type ( player ) == "table" then 
+                            if includeAllGuildData then
+                                GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( GRM_GuildMemberHistory_Save[F][guildName] , player , modifier );
+                            else
+                                GRM_GuildMemberHistory_Save[F][guildName][name] = databaseChangeFunction ( player , modifier );
+                            end
                         end
                     end
+                else
+                    GRM_Patch.LegacyPurge ( guildName , F );
                 end
             end
         end

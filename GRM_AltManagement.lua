@@ -1002,6 +1002,10 @@ GRM.SetMain = function ( mainName , timestamp )
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
             end
             
+            if player.altGroup == nil then
+                player.altGroup = "";
+            end
+
             if player.altGroup ~= "" then
 
                 -- Set old main to NOT alt.
@@ -1041,8 +1045,11 @@ GRM.SetMain = function ( mainName , timestamp )
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
                 end
 
-                if GRM.GetPlayer ( GRM_G.currentName ).altGroup == player.altGroup then
-                    GRM.PopulateAltFrames ( GRM_G.currentName );
+                if GRM_G.currentName and GRM_G.currentName ~= "" then
+                    local tempPlayer = GRM.GetPlayer ( GRM_G.currentName );
+                    if tempPlayer and tempPlayer.altGroup and tempPlayer.altGroup == player.altGroup then
+                        GRM.PopulateAltFrames ( GRM_G.currentName );
+                    end
                 end
             end
         end
