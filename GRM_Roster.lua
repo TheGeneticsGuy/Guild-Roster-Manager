@@ -7,7 +7,7 @@ GRM_R = {};
 -- Purpose:         Provide players more controls than default communities offers.
 GRM_R.BuildRosterFrames = function ()
 
-    local coreSize = 830;
+    local coreSize = 855;
     local coreHybridSize = 800;
     local anchorFrame1;
 
@@ -21,43 +21,45 @@ GRM_R.BuildRosterFrames = function ()
     GRM_UI.GRM_RosterFrame.FormerSortType = 3;
     GRM_UI.GRM_RosterFrame:Hide();    
 
-    GRM_UI.GRM_RosterFrame:SetScript ( "OnShow" , function()
-        GRM_R.RefreshRosterName();
-        GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider.ThumbTexture:Show()
-        GRM_UI.GRM_MemberDetailMetaData:Hide();
-    end)
+    if not GRM_UI.GRM_RosterFrame:GetScript("OnShow") then
+        GRM_UI.GRM_RosterFrame:SetScript ( "OnShow" , function()
+            GRM_R.RefreshRosterName();
+            GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider.ThumbTexture:Show()
+            GRM_UI.GRM_MemberDetailMetaData:Hide();
+        end)
+    end
     
     -- Must buiold hybrid first since columns will be pinned to it. 
     GRM_UI.CreateHybridScrollFrame ( "GRM_RosterFrameScrollFrame" , GRM_UI.GRM_RosterFrame , coreHybridSize , 400 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame , "BOTTOMLEFT" , 5 , 5 } , "TranslucentFrameTemplate" , GRM_R.BuildGuildRoster );
 
     -- Guild Roster Title
     GRM_UI.CreateString ( "GRM_RosterFrameTitle" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Guild Roster" ) , 18 , { "TOP" , GRM_UI.GRM_RosterFrame , "TOP" , 0 , -17 } );
-
+    
     -- Level
-    GRM_UI.CreateButton ( "GRM_RosterColumnLvl" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Lvl" ) , 40 , 22 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameBorder, "TOPLEFT" , 10 , -3 } , GRM_R.SortLevel , "GameFontWhite" , 13 , "LEFT" , nil , nil  );
+    GRM_UI.CreateButton ( "GRM_RosterColumnLvl" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Lvl" ) , 40 , 22 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameBorder, "TOPLEFT" , 10 , -3 } , GRM_R.SortLevel , "GameFontWhite" , 13 , "LEFT" , nil , -3  );
 
     -- Name
-    GRM_UI.CreateButton ( "GRM_RosterColumnName" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Name" ) , 170 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnLvl, "RIGHT" , -1.5 , 0 } , GRM_R.SortNames , "GameFontWhite" , 13 , "LEFT" , nil , nil );
+    GRM_UI.CreateButton ( "GRM_RosterColumnName" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Name" ) , 170 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnLvl, "RIGHT" , -1.5 , 0 } , GRM_R.SortNames , "GameFontWhite" , 13 , "LEFT" , nil , -3 );
 
     -- Last Online
-    GRM_UI.CreateButton ( "GRM_RosterColumnLastOnline" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Last Online" ) , 150 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnName, "RIGHT" , -1.5 , 0 } , GRM_R.SortLastOnline , "GameFontWhite" , 13 , "LEFT" , nil , nil  );
+    GRM_UI.CreateButton ( "GRM_RosterColumnLastOnline" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Last Online" ) , 150 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnName, "RIGHT" , -1.5 , 0 } , GRM_R.SortLastOnline , "GameFontWhite" , 13 , "LEFT" , nil , -3  );
 
     -- Rank
-    GRM_UI.CreateButton ( "GRM_RosterColumnRank" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Rank" ) , 125 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnLastOnline, "RIGHT" , -1.5 , 0 } , GRM_R.SortRank , "GameFontWhite" , 13 , "LEFT" , nil , nil  );
+    GRM_UI.CreateButton ( "GRM_RosterColumnRank" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Rank" ) , 125 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnLastOnline, "RIGHT" , -1.5 , 0 } , GRM_R.SortRank , "GameFontWhite" , 13 , "LEFT" , nil , -3  );
 
     if GRM_G.BuildVersion >= 80000 then
         -- M+
-        GRM_UI.CreateButton ( "GRM_RosterColumnMythicPlus" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "M+ Score" ) , 90 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnRank, "RIGHT" , -1.5 , 0 } , GRM_R.SortMythicScore , "GameFontWhite" , 13 , "LEFT" , nil , nil  );
+        GRM_UI.CreateButton ( "GRM_RosterColumnMythicPlus" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "M+ Score" ) , 90 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnRank, "RIGHT" , -1.5 , 0 } , GRM_R.SortMythicScore , "GameFontWhite" , 13 , "LEFT" , nil , -3  );
         anchorFrame1 = GRM_UI.GRM_RosterFrame.GRM_RosterColumnMythicPlus;
     else
         anchorFrame1 = GRM_UI.GRM_RosterFrame.GRM_RosterColumnRank;
     end
 
     -- Note
-    GRM_UI.CreateButton ( "GRM_RosterColumnNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Note" ) , 150 , 22 , { "LEFT" , anchorFrame1, "RIGHT" , -1.5 , 0 } , GRM_R.SortNote , "GameFontWhite" , 13 , "LEFT" , nil , nil );
+    GRM_UI.CreateButton ( "GRM_RosterColumnNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Note" ) , 150 , 22 , { "LEFT" , anchorFrame1, "RIGHT" , -1.5 , 0 } , GRM_R.SortNote , "GameFontWhite" , 13 , "LEFT" , nil , -3 );
 
     -- OfficerNote
-    GRM_UI.CreateButton ( "GRM_RosterColumnOfficerNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Officer's Note" ) , 150 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnNote, "RIGHT" , -1.5 , 0 } , GRM_R.SortOfficerNote , "GameFontWhite" , 13 , "LEFT" , nil , nil );
+    GRM_UI.CreateButton ( "GRM_RosterColumnOfficerNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Officer's Note" ) , 150 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnNote, "RIGHT" , -1.5 , 0 } , GRM_R.SortOfficerNote , "GameFontWhite" , 13 , "LEFT" , nil , -3 );
     
     -- Right click menu
     GRM_UI.CreateCoreFrame ( "GRM_RosterFrameDropDown" , GRM_UI.GRM_RosterFrame , nil , 110 , 177 , BackdropTemplateMixin and "BackdropTemplate" , false , nil , "FULLSCREEN_DIALOG" , false , true );
@@ -213,16 +215,71 @@ GRM_R.BuildRosterFrames = function ()
     end)
 
     -- SEARCH EDIT BOX
-    GRM_UI.CreateEditBox ( "GRM_RosterFrameNameEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 165 , 30 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnName , "TOPLEFT" , 5 , 2 } , "CENTER" , nil , 50 , false , GRM_R.NameSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName );
+    GRM_UI.CreateEditBox ( "GRM_RosterFrameNameEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 165 , 30 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnName , "TOPLEFT" , 5 , 2 } , "CENTER" , nil , 50 , false , GRM_R.NameSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName , true );
 
     -- Guild Roster Search Title
     GRM_UI.CreateString ( "GRM_RosterFrameNameEditBoxText" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Player Search" ) , 16 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox , "TOP" , 0 , 3 } , 155 , nil , "CENTER" , false );
 
     -- NOTE SEARCH EDIT BOX
-    GRM_UI.CreateEditBox ( "GRM_RosterNoteEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 220 , 30 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnNote , "TOPRIGHT" , 0 , 5 } , "LEFT" , nil , 31 , false , GRM_R.NoteSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName );
+    GRM_UI.CreateEditBox ( "GRM_RosterNoteEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 220 , 30 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnNote , "TOPRIGHT" , 0 , 5 } , "LEFT" , nil , 31 , false , GRM_R.NoteSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName , true );
 
     -- Note Search Title
     GRM_UI.CreateString ( "GRM_RosterNoteEditBoxText" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Note Search" ) , 16 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox , "TOP" , 0 , 3 } , 225 , nil , "CENTER" , false );
+
+    GRM_R.ClearPlayerSearch = function()
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:SetText("");
+    end
+    GRM_R.ClearNoteSearch = function()
+        GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:SetText("");
+    end
+    
+end
+
+-- Method:          GRM_R.ResetColumnTextColors()
+-- What it Does:    It changes the columm header text to emphasize where the sorting is happening.
+-- Purpose:         Quality of life feature so you can know what is being sorted.
+GRM_R.ResetColumnTextColors = function()
+
+    local columnHeaders = { 
+        { min = 1 , max = 2 , column = "GRM_RosterColumnName" } ,
+        { min = 3 , max = 4 , column = "GRM_RosterColumnLastOnline" } , 
+        { min = 5 , max = 6 , column = "GRM_RosterColumnRank" } , 
+        { min = 7 , max = 8 , column = "GRM_RosterColumnLvl" } , 
+        { min = 9 , max = 10 , column = "GRM_RosterColumnMythicPlus" } , 
+        { min = 11 , max = 12 , column = "GRM_RosterColumnNote" } , 
+        { min = 13 , max = 14 , column = "GRM_RosterColumnOfficerNote" } 
+    };
+    
+    local function lookupValue ( input )
+        local result = "";
+        for _ , entry in ipairs ( columnHeaders ) do
+            if input >= entry.min and input <= entry.max then
+                result = entry.column;
+                break;
+            end
+        end
+        return result;
+    end
+
+    local sortFrame1 = lookupValue ( GRM_UI.GRM_RosterFrame.SortType );
+    local sortFrame2 = lookupValue ( GRM_UI.GRM_RosterFrame.FormerSortType );
+
+    -- Set back to white all default column text
+    for _ , entry in ipairs ( columnHeaders ) do
+
+        if entry.column ~= sortFrame1 and entry.column ~= sortFrame2 and ( entry.column ~= "GRM_RosterColumnMythicPlus" or GRM_G.BuildVersion >= 80000 ) then
+            GRM_UI.GRM_RosterFrame[entry.column][entry.column.. "Text" ]:SetTextColor ( 1 , 1 , 1 );
+        end
+
+    end
+
+    -- Set to color the selected columns
+    GRM_UI.GRM_RosterFrame[sortFrame1][sortFrame1.. "Text" ]:SetTextColor ( 0 , 0.8 , 1 );
+    if ( GRM_UI.GRM_RosterFrame.SortType == 5 or GRM_UI.GRM_RosterFrame.SortType == 6 ) and GRM_UI.GRM_RosterFrame.FormerSortType < 11 then
+        GRM_UI.GRM_RosterFrame[sortFrame2][sortFrame2.. "Text" ]:SetTextColor ( 0 , 0.8 , 1 );
+    elseif sortFrame1 ~= sortFrame2 then
+        GRM_UI.GRM_RosterFrame[sortFrame2][sortFrame2.. "Text" ]:SetTextColor ( 1 , 1 , 1 );
+    end
 
 end
 
@@ -949,6 +1006,7 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries )
         GRM_R.RosterShiftDown , GRM_R.RosterShiftUp , hybridScrollFrameButtonCount
     );
 
+    GRM_R.ResetColumnTextColors();
 end
 
 -- Method:          GRM_R.BuildGuildRosterButtons ( int , boolean )
@@ -1274,6 +1332,11 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
     line[3]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].name );
     line[3]:SetTextColor ( GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[1] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[2] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[3] );
     line[4]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].hoursReport );
+    if GRM_UI.GRM_RosterFrame.Entries[ind2].hoursReport == GRM.L ( "Online" ) then
+        line[4]:SetTextColor( 0.12 , 1 , 0 );
+    else
+        line[4]:SetTextColor ( 1 , 1 , 1);
+    end
     line[5]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].rankName );
 
     if GRM_G.BuildVersion >= 80000 then

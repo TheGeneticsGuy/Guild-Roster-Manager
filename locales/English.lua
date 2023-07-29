@@ -268,7 +268,6 @@ GRML.English = function()
     GRM_L["Please choose between 1 and 180 days!"] = true
     GRM_L["Announce Events"] = true                         -- Context: "Announce Events X number of days in advance" -- the X is the editbox to modify number of days. Please include the location of where to pin that.
     GRM_L["Days in Advance"] = true
-    GRM_L["Please choose between 1 and 28 days!"] = true
     GRM_L["Add Events to Calendar"] = true
     GRM_L["SYNC Changes With Guildies at Rank"] = true      -- Context: at Rank [DROPDOWNRANKSELECTION] or Higher. - Please note where to place dropdown box in the position of the sentence.
     GRM_L["Reactivating Data SYNC with Guildies..."] = true
@@ -1667,7 +1666,7 @@ GRML.English = function()
     GRM_L["{num} Join Dates Have Been Confirmed."] = true
     GRM_L["Searching Log..."] = true
 
-    -- R1.990
+    -- R1.980
     GRM_L["M+ Score" ] = true
     GRM_L["Search Public and Officer Notes"] = true
     GRM_L["Note Search"] = true
@@ -1675,6 +1674,8 @@ GRML.English = function()
     GRM_L["Hold the CONTROL key down to scroll 3x the speed"] = true
     GRM_L["Hold the SHIFT key down to scroll instantly to the top or bottom"] = true
 
+    -- R1.981
+    GRM_L["Player Level Range:"] = true
 
 
 end

@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 114;
+local totalPatches = 115;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1364,11 +1364,15 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     
     -- patch 115
     patchNum = patchNum + 1;
-    if numericV < 1.980 and baseValue < 1.980 then
-
+    if numericV < 1.981 and baseValue < 1.981 then
+        
         GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.ResetUIScaling );
+        GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.UpdateUIScaling );
+        GRM_Patch.AddNewSetting ( "specialCharRemoval" , false )
+        GRM_Patch.EditSetting ( "exportFilters" , GRM_Patch.ConvertExportFilters );
+        GRM_Patch.AddNewSetting ( "ExportLevelRange" , {1,999} );  -- 999 represents MaxLevel
 
-        if loopCheck ( 1.980 ) then
+        if loopCheck ( 1.981 ) then
             return;
         end
     end
@@ -1409,7 +1413,7 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
 
         -- Load the Default Settings
         for i = 0 , GRM_G.SettingsPages do
-            GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i , false );
+            GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i );
         end
     end
 
@@ -1527,10 +1531,12 @@ end
 -- Purpose:         Be able to add new tools and controls to player.
 GRM_Patch.AddNewSetting = function ( nameOfNewSetting , value , additionalLogic )
     for g in pairs ( GRM_AddonSettings_Save ) do
-        if not additionalLogic then
-            GRM_AddonSettings_Save[g][nameOfNewSetting] = value;
-        else
-            GRM_AddonSettings_Save[g] = additionalLogic ( GRM_AddonSettings_Save[g] , value );
+        if type(GRM_AddonSettings_Save[g]) == "table" then
+            if not additionalLogic then
+                GRM_AddonSettings_Save[g][nameOfNewSetting] = value;
+            else
+                GRM_AddonSettings_Save[g] = additionalLogic ( GRM_AddonSettings_Save[g] , value );
+            end
         end
     end
 end
@@ -1541,7 +1547,7 @@ end
 -- Purpose:         To be able to retroactively adapt and make changes to the database.
 GRM_Patch.EditSetting = function ( setting , valueOrLogic , additionalSetting )
     for p , settings in pairs ( GRM_AddonSettings_Save ) do
-        if type (p) == "table" then
+        if type (GRM_AddonSettings_Save[p]) == "table" then
             if type ( valueOrLogic ) == "function" then
                 if additionalSetting then
                     if GRM_AddonSettings_Save[p][setting][additionalSetting] ~= nil then
@@ -1614,7 +1620,7 @@ GRM_Patch.ManageOldSettingsDB = function()
             -- Add new player
             -- Load the Default Settings
             for i = 0 , GRM_G.SettingsPages do
-                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[F][GRM_G.addonUser] , i , false );
+                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[F][GRM_G.addonUser] , i );
             end
 
             GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
@@ -4699,7 +4705,10 @@ GRM_Patch.ConvertAddonSettings = function()
 
                 newUI[faction][ name ] = {};     -- Set each player name to the settings properly
                 for i = 0 , 14 do
-                    GRM.SetDefaultAddonSettings ( newUI[faction][ name ] , i , true );
+                    GRM.SetDefaultAddonSettings ( newUI[faction][ name ] , i );
+                    if i == 10 then
+                        newUI[faction][ name ]["kickRules"] = { { 1 , 1 , 1 , 12 , true } };
+                    end
                 end
 
                 newUI[faction][name]["version"] = tempUI[i][j][2][1];
@@ -7425,7 +7434,7 @@ GRM_Patch.ResetUIScaling = function( scaling )
             elseif i == 3 then
                 W , H = 1200 , 515;
             elseif i == 4 then
-                W , H = 1000 , 490;
+                W , H = 1075 , 550;
             else
                 W , H = 875 , 400;
             end
@@ -7752,7 +7761,7 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
 
             -- Load the Default Settings
             for i = 0 , GRM_G.SettingsPages do
-                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i , false );
+                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i );
             end
 
             -- Forcing core log window/options frame to load on the first load ever as well
@@ -7772,4 +7781,65 @@ GRM_Patch.DeleteLegacyMacro = function()
     if GetMacroIndexByName ( "GRM_Roster" ) ~= 0 then
         DeleteMacro ( "GRM_Roster" );
     end
+end
+
+-- R1.981
+-- Method:          GRM_Patch.ConvertExportFilters ( table )
+-- What it Does:    Converts a keyed table insteasd
+-- Purpose:         Much cleaner and easier to read...
+GRM_Patch.ConvertExportFilters = function( exportFilters )
+
+    if exportFilters[1] ~= nil then
+        local newFilters = {};
+
+        newFilters.name = exportFilters[1];
+        newFilters.rank = exportFilters[2];
+        newFilters.level = exportFilters[3];
+        newFilters.class = exportFilters[4];
+        newFilters.race = exportFilters[15];
+        newFilters.sex = exportFilters[16];
+        newFilters.lastOnline = exportFilters[5];
+        newFilters.mainAlt = exportFilters[6];
+        newFilters.alts = exportFilters[14];
+        newFilters.joinDate = exportFilters[7];
+        newFilters.promoteDate = exportFilters[8];
+        newFilters.rankHist = exportFilters[18];
+        newFilters.bday = exportFilters[9];
+        newFilters.rep = exportFilters[10];
+        newFilters.note = exportFilters[11];
+        newFilters.oNote = exportFilters[12];
+        newFilters.cNote = exportFilters[13];
+        newFilters.mythicScore = exportFilters[22];
+        newFilters.faction = exportFilters[23];
+        newFilters.GUID = exportFilters[20];
+        newFilters.MainOrAlt = exportFilters[17];
+        newFilters.mainOnly = exportFilters[19];
+        
+        if GRM_G.BuildVersion < 40000 then
+            newFilters.rep = false;
+        end
+
+        if GRM_G.BuildVersion < 80000 then
+            newFilters.mythicScore = false;
+        end
+
+        exportFilters = newFilters;
+    end
+
+    return exportFilters;
+end
+
+-- R1.981
+-- Method:          GRM_Patch.UpdateUIScaling ( table )
+-- What it Does:    Adds aanother scaling save value
+-- Purpose:         Ability to scale the new roster frame.
+GRM_Patch.UpdateUIScaling = function ( UIScaling )
+    local rosterFrameDefault = 855;
+    if GRM_G.BuildVersion >= 80000 then
+        rosterFrameDefault = rosterFrameDefault + 90;
+    end
+    UIScaling[4] = { 1075 , 540 , 1 };                      -- Export log has been updated
+    UIScaling[6] = { rosterFrameDefault , 525 , 1 };        -- Adding Roster Frame
+
+    return UIScaling;
 end

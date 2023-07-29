@@ -200,7 +200,7 @@ end
 -- Method:          GRM_UI.CreateEditBox ( string , frameObject, string , int , int , table , string , table , int , bool , function , function , function )
 -- What it Does     Creates and configures the macro tool
 -- Purpose:         Reusable tool to build editBoxes
-GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height , points , alignment , textColor , maxLetters , numbersOnly , toolTipScript , ToolTipClearLogic , textChangedFunction )
+GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height , points , alignment , textColor , maxLetters , numbersOnly , toolTipScript , ToolTipClearLogic , textChangedFunction , createClearButton )
 
     if not parentFrame[name] then
         parentFrame[name] = CreateFrame( "EditBox" , name , parentFrame , template );
@@ -291,6 +291,40 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
             end);
         end
     
+        if createClearButton then
+            local buttonName = name .. "ClearButton";
+            local ClearButton = function()
+                parentFrame[name]:SetText("");
+                parentFrame[name]:ClearFocus();
+                parentFrame[name][buttonName]:Hide(); 
+            end
+
+            GRM_UI.CreateButton ( buttonName , parentFrame[name] , nil , "X" , (height * 0.7) , (height * 0.7) , { "LEFT" , parentFrame[name] , "RIGHT" , 1 , 3 } , ClearButton , "GameFontWhite" , ( (height * 0.7) / 1.75 ) , "CENTER" , 2 );
+
+            parentFrame[name][buttonName]:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+
+            parentFrame[name][buttonName]:SetScript ( "OnEnter" , function ( self )
+                self:LockHighlight();
+            end);
+            parentFrame[name][buttonName]:SetScript ( "OnLeave" , function ( self )
+                self:UnlockHighlight();
+            end);
+            parentFrame[name]:SetScript ( "OnShow" , function ( self )
+                if self:GetText() ~= "" then
+                    self[buttonName]:Show();
+                else
+                    self[buttonName]:Hide();
+                end
+            end);
+            parentFrame[name]:HookScript ( "OnTextChanged" , function( self )
+                if self:GetText() ~= "" then
+                    self[buttonName]:Show();
+                else
+                    self[buttonName]:Hide();
+                end
+            end);
+
+        end
     end
 end
 

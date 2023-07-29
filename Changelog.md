@@ -1,4 +1,40 @@
 
+## **VERSION 1.981 RELEASE - July 29th 2023**
+
+
+***QUALITY OF LIFE***
+
+> The GRM Roster window is slowly being improved. 2 Additional "minor" quality of life additions:
+
+* Buttons to the right side of each of the search boxes to just instantly clear the text in there without needing to click inside and delete everything manually. Just clear with the click of the "X" button.
+
+* Columns will now indicate which is selected for sorting, including if you are double sorting, like "Last online" and "Rank" at the same time.
+
+![Column Sorting indication](https://i.imgur.com/YeqcsaQ.jpg)
+
+
+* Announcing events for anniversaries and birthdays defaulted to 14 days in advance, with a max announcement of 4 weeks, or 28 days in advance. I have expanded that so you can configure it to be notified of these events up to 99 days in advance, and you can add them to the calendar far in advance as a result.
+
+![Announce events much earlier](https://i.imgur.com/uSA47ny.png)
+
+* Added level filtering to the data export, as well as cleaned up the frames a little. I noticed in some of the localization/translations they were too compacted together to cause overlap in some languages. They are now spaced a little better to accomodate.
+
+![Level range filtering added to expot](https://i.imgur.com/QoHPDHS.jpg)
+
+* AddOnSkins file has been updated. Please download it directly from the [AddOnSkins Git Repository](https://github.com/TheGeneticsGuy/Guild_Roster_Manager_AddonSkinsFile), where you can then copy it into the following location: `Interface\Addons\AddOnSkins\Skins\AddOns\Guild_Roster_Manager.lua`
+
+*Please note, I have sent a "pull request" through github to merge my update to the main AddOnSkins release, but it has not yet been approved and sometimes this can take many weeks for the dev to take a look. In the meantime, if you don't want to wait, just follow the above instructions.
+
+***BUG FIXES***
+
+* Fixed some issues with the GRM export. Some of the headers were not being added or removed properly. I ended up rewriting much of the backend of this process to just optimize it a bit, so probably won't be noticeable on the front-end, but if I ever decide to do more with this it will be all the easier.
+
+* Fixed a bug that made it so GRM would not load at all when trying to configure the settings. I typo'd a version check so some edge cases that would refer back were getting nil instead of a string. Oops!
+
+* Fixed some alignment issues with a few frames.
+
+
+
 ## **VERSION 1.980 RELEASE - July 24th 2023**
 
 ***QUALITY OF LIFE***
