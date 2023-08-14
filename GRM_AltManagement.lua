@@ -717,7 +717,12 @@ GRM.UpdateAltGroupModifiedTime = function ( altGroup , timestamp )
 
         if GRM_Alts[GRM_G.guildName][altGroup] then
             for i = 1 , #GRM_Alts[GRM_G.guildName][altGroup] do
-                GRM.GetPlayer ( GRM_Alts[GRM_G.guildName][altGroup][i].name ).altGroupModified = timestamp;
+                local player = GRM.GetPlayer ( GRM_Alts[GRM_G.guildName][altGroup][i].name );
+                if player then
+                    player.altGroupModified = timestamp;
+                else
+                    GRM_Alts[GRM_G.guildName][altGroup][i] = nil;   -- Redundance.
+                end
             end
         end
     end

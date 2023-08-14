@@ -948,7 +948,11 @@ end
 -- What it Does:    Forces the error check to kill the sync immediately
 -- Purpose:         If something happens and sync needs to fail, this is how it happens.
 GRMsync.EndSync = function ( sendMessage )
-    sendMessage = sendMessage or false;
+    local toSend = true;
+    if not sendMessage then
+        toSend = false;
+    end
+
     if GRMsyncGlobals.currentlySyncing then
         -- Logic to exit a sync faster if someone goes offline
         if GRMsyncGlobals.SyncOK then

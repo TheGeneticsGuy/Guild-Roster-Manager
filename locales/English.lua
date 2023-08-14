@@ -9,9 +9,7 @@
 -- 5 ) THANK YOU SO MUCH FOR ADDING THIS TRANSLATION WORK!!! I will ensure you are mentioned in the release notes and at the top of this header for your contribution
 
 -- Data insert points:
---  {name} and {name2}
---  {num}
---  {custom1} and {custom2}
+--  {name} and {name2} and {num} and {custom1} and {custom2}
 
     -- EXAMPLE NOTATION (English to Spanish)
 
@@ -1677,6 +1675,30 @@ GRML.English = function()
     -- R1.981
     GRM_L["Player Level Range:"] = true
 
+    -- R1.982
+    GRM_L["Announce Member Join Date Anniversaries."] = true
+    GRM_L["Announce Player Birthdates."] = true
+    GRM_L["Anniversaries, Birthdays, and Other Events can be viewed."] = true
+    GRM_L["Please confirm the removal of {num} events."] = true
+    GRM_L["Show Offline Members"] = true
+    GRM_L["{num}/{custom1} Online"] = true  -- Format on GRM Roster "10/154 Online"
+    GRM_L["Hide Options"] = true
+    GRM_L["Show Options"] = true
+    GRM_L["Show Mains"] = true
+    GRM_L["Show Alts"] = true
+    GRM_L["Show Tag"] = true
+    GRM_L["Group Alts With Main"] = true  -- Roster Options - grouping alts under the main.
+    GRM_L["If enabled, sorting will be based on the Mains"] = true
+    GRM_L["Rows:"] = true       -- Referencing the number of rows on the Guild Roster
+    GRM_L["{num} Rows"] = true
+    GRM_L["Right-Click to Reset to {num} Rows"] = true
+    GRM_L["Mythic+ Rating is"] = true -- New Macro rule
+    GRM_L["Mythic+ Rating:"] = true
+    GRM_L["Mythic+ Rating: {num}"] = true
+    GRM_L["Mythic+ Rating greater or equal to {num}"] = true
+    GRM_L["Mythic+ Rating equal to {num}"] = true
+    GRM_L["Mythic+ Rating less than {num}"] = true
+    
 
 end
 

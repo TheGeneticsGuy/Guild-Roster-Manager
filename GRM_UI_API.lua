@@ -1,5 +1,16 @@
 -- UI BUILDING API
 
+--LIST OF UI API
+
+-- GRM_UI.CreateCoreFrame
+-- GRM_UI.CreateButton
+-- GRM_UI.CreateEditBox
+-- CRM_UI.CreateString
+-- GRM_UI.CreateCheckBox
+-- GRM_UI.CreateOptionsSlider
+-- GRM_UI.CreateHybridScrollFrame
+
+
 GRM_UI = {};
 ---------------------------------------
 ------ FRAME CREATION AND INIT --------
@@ -46,12 +57,16 @@ GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , 
             finalFrame:SetFrameStrata ( strata );
         end
 
-        if isMovable then
+        if isMovable and not finalFrame:IsMouseEnabled() then
             finalFrame:EnableMouse ( true );
             finalFrame:SetMovable ( true );
             finalFrame:SetToplevel ( true );
-            finalFrame:RegisterForDrag ( "LeftButton" );
-            finalFrame:SetScript ( "OnDragStart" , finalFrame.StartMoving );
+            finalFrame:SetMovable ( "LeftButton" );
+            finalFrame:SetScript ( "OnDragStart" , function()
+                if GetMouseFocus() == self then
+                    finalFrame:StartMoving();
+                end
+            end);
             finalFrame:SetScript ( "OnDragStop" , function()
                 finalFrame:StopMovingOrSizing();
                 GRM_UI.SaveFramePosition( finalFrame );
@@ -102,10 +117,10 @@ GRM_UI.CreateString = function ( name , parentFrame , template , text , fontSize
 
 end
 
--- Method:          GRM_UI.CreateButton ( string , frame , string , string , int , int , table , function , string , int , string , int )
+-- Method:          GRM_UI.CreateButton ( string , frame , string , string , int , int , table , function , string , int , string , int , function)
 -- What it Does:    Creates a button using whatever template you wish, as well as the added string
 -- Purpose:         Reusable CreateButton tool
-GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , height , points , buttonScript , textTemplate , fontSize , alignment , pointModifier , heightModifier )
+GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , height , points , buttonScript , textTemplate , fontSize , alignment , pointModifier , heightModifier , toolTipScript , toolTipClearScript )
 
     local fontStringText = name.."Text";
     local indent = pointModifier or 10;
@@ -115,15 +130,18 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
         parentFrame[name] = CreateFrame ( "Button" , name , parentFrame , template );
         parentFrame[name]:SetSize ( width , height );
         parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
-        parentFrame[name][fontStringText] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
-        parentFrame[name][fontStringText]:SetPoint ( "LEFT" , parentFrame[name] , "LEFT" , indent , heightM );
-        parentFrame[name][fontStringText]:SetWidth ( width - 5 );
-        parentFrame[name][fontStringText]:SetSpacing ( 1 );
-        parentFrame[name][fontStringText]:SetWordWrap ( false );
-        if alignment then
-            parentFrame[name][fontStringText]:SetJustifyH ( alignment );
-        else
-            parentFrame[name][fontStringText]:SetJustifyH ( "LEFT" );
+
+        if textTemplate then
+            parentFrame[name][fontStringText] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
+            parentFrame[name][fontStringText]:SetPoint ( "LEFT" , parentFrame[name] , "LEFT" , indent , heightM );
+            parentFrame[name][fontStringText]:SetWidth ( width - 5 );
+            parentFrame[name][fontStringText]:SetSpacing ( 1 );
+            parentFrame[name][fontStringText]:SetWordWrap ( false );
+            if alignment then
+                parentFrame[name][fontStringText]:SetJustifyH ( alignment );
+            else
+                parentFrame[name][fontStringText]:SetJustifyH ( "LEFT" );
+            end
         end
 
         if buttonScript then
@@ -134,17 +152,88 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
                 end
             end);
         end
+
+        -- SCRIPTS
+        if toolTipScript then
+            parentFrame[name]:SetScript ( "OnEnter" , function( self )
+                toolTipScript();
+            end);
+
+            parentFrame[name]:SetScript ( "OnLeave" , function( self )
+                if toolTipClearScript then
+                    toolTipClearScript();
+                else
+                    GameTooltip:Hide();
+                end
+            end);
+        end
+        
+
+    end
+
+    if text then
+        parentFrame[name][fontStringText]:SetText ( text );
+        parentFrame[name][fontStringText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+    end
+
+end
+
+-- Method:          GRM_UI.CreateCheckBox ( string , frame , string , array , array , function , string , string , int , function , function )
+-- What it Does:    Builds out the frames for a Hybrid Scroll Frame
+-- Purpose:         Cleanup code with reusable tool.
+GRM_UI.CreateCheckBox = function ( name , parentFrame , template , size , points, buttonScript , text , textTemplate , fontSize , toolTipScript , toolTipClearScript )
+
+    local fontStringText = name.."Text";
+    
+    if not parentFrame[name] then
+
+        parentFrame[name] = CreateFrame ( "CheckButton" , name , parentFrame , GRM_G.CheckButtonTemplate );
+        if size then
+            parentFrame[name]:SetSize ( size[1] , size[2] );
+        end
+        parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
+
+        parentFrame[name][fontStringText] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
+        parentFrame[name][fontStringText]:SetPoint ( "LEFT" , parentFrame[name] , "RIGHT" , 2 , 0 );
+        parentFrame[name][fontStringText]:SetWordWrap ( false );
+        parentFrame[name][fontStringText]:SetJustifyH ( "LEFT" );
+
+        if buttonScript then
+            parentFrame[name]:SetScript ( "OnClick" , function( self , button )
+            
+                if button == "LeftButton" then
+                    buttonScript( self );
+                end
+            end);
+        end
+
+        -- SCRIPTS
+        if toolTipScript then
+            parentFrame[name]:SetScript ( "OnEnter" , function( self )
+                toolTipScript();
+            end);
+
+            parentFrame[name]:SetScript ( "OnLeave" , function( self )
+                if toolTipClearScript then
+                    toolTipClearScript();
+                else
+                    GameTooltip:Hide();
+                end
+            end);
+        end
+
     end
 
     parentFrame[name][fontStringText]:SetText ( text );
     parentFrame[name][fontStringText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+    GRM.NormalizeHitRects ( parentFrame[name] , parentFrame[name][fontStringText] );
 
 end
 
 -- Method:          GRM_UI.CreateHybridScrollFrame ( string , frame , int , int , string , int )
 -- What it Does:    Builds out the frames for a Hybrid Scroll Frame
 -- Purpose:         Cleanup code with reusable tool.
-GRM_UI.CreateHybridScrollFrame = function ( scrollFrameName , parentFrame , width , height , points , template , refreshFunction )
+GRM_UI.CreateHybridScrollFrame = function ( scrollFrameName , parentFrame , width , height , points , template , refreshFunction , configureSteps )
     -- Build core frames to hold data and scroll
 
     if not parentFrame[scrollFrameName] then
@@ -160,7 +249,7 @@ GRM_UI.CreateHybridScrollFrame = function ( scrollFrameName , parentFrame , widt
         parentFrame[borderName]:SetSize ( width , height );
         parentFrame[borderName]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
         parentFrame[scrollFrameName]:SetSize ( width - 18 , height - 25 );
-        parentFrame[scrollFrameName]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
+        parentFrame[scrollFrameName]:SetPoint ( points[1] , points[2] , points[3] , points[4] + 2 , points[5] + 10 );
         parentFrame[scrollFrameName]:SetScrollChild ( parentFrame[childName] );
         parentFrame[scrollFrameName]:SetHitRectInsets ( 0 , -24 , 0 , 0 );
 
@@ -183,15 +272,17 @@ GRM_UI.CreateHybridScrollFrame = function ( scrollFrameName , parentFrame , widt
         parentFrame[sliderName]:SetOrientation( "VERTICAL" );
         parentFrame[sliderName]:SetSize ( 21 , height - 44 );
         parentFrame[sliderName]:SetPoint ( "TOPLEFT" , parentFrame[borderName] , "TOPRIGHT" , -5 , -25 );
-        parentFrame[sliderName]:SetValueStep ( 25 );
-        parentFrame[sliderName]:SetStepsPerPage ( ( ( height - 25 ) / 25 ) )
         parentFrame[sliderName].currentV = 0;
-        parentFrame[sliderName]:SetScript( "OnValueChanged" , function( self , value )
-            GRM.HybridScrollOnValueChangedConfig (
-                self , value , parentFrame[childName] , parentFrame[scrollFrameName] , ( ( height - 25 ) / 25 ) , 25 , refreshFunction , parentFrame.Entries
-            );
 
-        end);
+        if configureSteps then
+            parentFrame[sliderName]:SetValueStep ( 25 );
+            parentFrame[sliderName]:SetStepsPerPage ( ( ( height - 25 ) / 25 ) )
+            parentFrame[sliderName]:SetScript( "OnValueChanged" , function( self , value )
+                GRM.HybridScrollOnValueChangedConfig (
+                    self , value , parentFrame[childName] , parentFrame[scrollFrameName] , ( ( height - 25 ) / 25 ) , 25 , refreshFunction , parentFrame.Entries
+                );
+            end);
+        end
         parentFrame[sliderName]:SetValue( 0 );      -- Triggers value change
     end
 
@@ -200,7 +291,7 @@ end
 -- Method:          GRM_UI.CreateEditBox ( string , frameObject, string , int , int , table , string , table , int , bool , function , function , function )
 -- What it Does     Creates and configures the macro tool
 -- Purpose:         Reusable tool to build editBoxes
-GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height , points , alignment , textColor , maxLetters , numbersOnly , toolTipScript , ToolTipClearLogic , textChangedFunction , createClearButton )
+GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height , points , alignment , textColor , maxLetters , numbersOnly , toolTipScript , ToolTipClearLogic , textChangedFunction , createClearButton , trimWhiteSpace )
 
     if not parentFrame[name] then
         parentFrame[name] = CreateFrame( "EditBox" , name , parentFrame , template );
@@ -247,7 +338,7 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
             else
                 GameTooltip:Hide();
             end
-        end);  
+        end);
     
         parentFrame[name]:SetScript ( "OnEscapePressed" , function ( self )
             self:SetText ( parentFrame[name].tempText );
@@ -276,7 +367,10 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
 
         parentFrame[name]:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+
+            if trimWhiteSpace then
+                self:SetText ( GRM.Trim ( self:GetText() ) );
+            end
     
             if self:GetText() == "" and textChangedFunction then
                 textChangedFunction();
@@ -326,6 +420,70 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
 
         end
     end
+end
+
+-- Method:          GRM_UI.CreateOptionsSlider ( string , frameObject, string , table , int , int , int , int , string , int , string , function , function , function )
+-- What it Does     Creates and configures an options slider
+-- Purpose:         Reusable tool to build options sliders
+GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points , min , max , steps , fontSize , textTitle, defaultValue , textTemplate , valueChangeScript , toolTipScript , toolTipClearScript , mouseUpLogic , includeLowHigh )
+
+    local fontStringTextTitle = name.."Text";
+    local fontStringTextValue = name.."Text2";
+    
+    if not parentFrame[name] then
+
+        parentFrame[name] = CreateFrame ( "Slider" , name , parentFrame , template );
+        parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
+        parentFrame[name]:SetMinMaxValues ( min , max );
+        parentFrame[name]:SetObeyStepOnDrag ( true );
+        parentFrame[name]:SetValueStep ( steps );
+
+        parentFrame[name][fontStringTextTitle] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
+        parentFrame[name][fontStringTextValue] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
+
+        parentFrame[name][fontStringTextTitle]:SetPoint ( "RIGHT" , parentFrame[name] , "LEFT" , -5 , 0 );
+        parentFrame[name][fontStringTextTitle]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+        parentFrame[name][fontStringTextTitle]:SetText ( textTitle );
+
+        parentFrame[name][fontStringTextValue]:SetPoint ( "LEFT" , parentFrame[name] , "RIGHT" , 5 , 0 );
+        parentFrame[name][fontStringTextValue]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+
+        parentFrame[name][fontStringTextValue]:SetText ( tostring ( defaultValue ) );
+
+        parentFrame[name]:SetScript ( "OnValueChanged" , function( _ , value )
+            valueChangeScript ( value );
+            if GameTooltip:IsVisible() then
+                GRM.RestoreTooltip();
+            end
+        end);
+
+        parentFrame[name]:SetScript ( "OnMouseUp" , function ( self , button )
+            if button == "RightButton" then
+                self:SetValue ( defaultValue ); -- Right is to reset
+            end
+            mouseUpLogic();
+        end);
+
+        if toolTipScript then
+            parentFrame[name]:SetScript ( "OnEnter" , function( self )
+                toolTipScript();
+            end);
+
+            parentFrame[name]:SetScript ( "OnLeave" , function( self )
+                if toolTipClearScript then
+                    toolTipClearScript();
+                else
+                    GameTooltip:Hide();
+                end
+            end);
+        end
+
+        if not includeLowHigh then
+            _G[name.."Low"]:Hide()
+            _G[name.."High"]:Hide()
+        end
+
+    end 
 end
 
 -- Method:          GRM_UI.SaveFramePosition ( frameObject )

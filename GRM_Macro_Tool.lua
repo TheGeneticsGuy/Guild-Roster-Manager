@@ -269,6 +269,19 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu = CreateFrame ( "Frame" , "GRM_GuildRepRanksDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected , BackdropTemplateMixin and "BackdropTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
 
+-- MythicPlusRules
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton = CreateFrame ( "CheckButton" , "GRM_MythicRatingRuleCheckButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , GRM_G.CheckButtonTemplate );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+-- M+ Operator Selection
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected = CreateFrame ( "Frame" , "GRM_GuildMythicRatingSymbolSelected" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu = CreateFrame ( "Frame" , "GRM_GuildMythicRatingSymbolDropDownMenu" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected , BackdropTemplateMixin and "BackdropTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+-- M+ Integer value input EditBox
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox = CreateFrame( "EditBox" , "GRM_MythicPlusRatingEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InputBoxTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:ClearFocus();
+
 -- Log Custom Message
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton = CreateFrame ( "CheckButton" , "GRM_CustomLogMessageButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , GRM_G.CheckButtonTemplate );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame = CreateFrame ( "Frame" , "GRM_CustomLogMessageEditBoxFrame" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , BackdropTemplateMixin and "BackdropTemplate" );
@@ -300,6 +313,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_U
 
 -- Global Locals
 local repOperators = { "<" , "=" , ">" };
+local repOperatorsMythic = { ">=" , "=" , "<" };
 
 GRM_G.countAction = { 0 , 0 , 0 };  -- time of kick, promote , demote last counts
 GRM_G.counts = { 0 , 0 , 0 };       -- count values of each
@@ -1541,7 +1555,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Core Frame
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:ClearAllPoints();
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetPoint ( "CENTER" , UIParent );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:EnableMouse ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetMovable ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetToplevel ( true );
@@ -1783,6 +1797,42 @@ GRM_UI.LoadToolFrames = function ( isManual )
             self:SetCursorPosition ( 0 );
         end);
 
+        -- Mythic Rating
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetSize ( 65 , 20 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected , "RIGHT" , 10 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetNumeric ( true );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetMaxLetters ( 4 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetAutoFocus( false )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextInsets( 2 , 3 , 3 , 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:EnableMouse( true );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel = 1000;
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetJustifyH ( "CENTER" );
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetScript ( "OnEscapePressed" , function ( self )
+            self:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel );
+            self:ClearFocus();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetScript ( "OnEnterPressed" , function ( self )
+            self:ClearFocus();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetScript ( "OnEditFocusLost" , function ( self )
+            self:HighlightText ( 0 , 0 );
+            local number = tonumber ( GRM.Trim ( self:GetText() ) );
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel = tostring ( number );
+
+            self:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicRating = number;
+
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetScript ( "OnEditFocusGained" , function ( self )
+            self:HighlightText ( 0 );
+            self:SetCursorPosition ( 0 );
+        end);
+
         -- Confirm Button
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetSize ( 145 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesConfirmButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "BOTTOM" , -20 , 15 );
@@ -1803,12 +1853,16 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:ClearFocus();
                 end
 
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:ClearFocus();
+                end
+
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:HasFocus() then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:ClearFocus();
                 end
 
-                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:HasFocus() then
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:ClearFocus();
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:ClearFocus();
                 end
 
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:HasFocus() then
@@ -2352,7 +2406,30 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( GRM.GetReputationTextLevel ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep , false ) );
                 end
-                
+
+                -- Mythic Plus
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusOperator] );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+
+                if GRM_G.BuildVersion >= 80000 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 1 , 1 , 1 );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicRating );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:GetText();
+
+               
                 -- Note Matching
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetChecked( true );
@@ -2515,7 +2592,19 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
-                
+
+                -- MythicPlus
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[2] );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Disable();
+                GRM_MythicPlusRatingEditBox:SetText ( "0" );
+                GRM_MythicPlusRatingEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel = 0;
+
                 -- Custom Note
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetChecked ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton:SetChecked ( false );
@@ -2836,7 +2925,28 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( GRM.GetReputationTextLevel ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep , false ) );
                 end
+
+                -- Mythic Plus                
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusOperator] );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+
+                if GRM_G.BuildVersion >= 80000 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 1 , 1 , 1 );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                end
                 
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicRating );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel = tonumber ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:GetText() );
                 
                 -- Note Matching
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
@@ -3020,7 +3130,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = "1";
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM_G.LvlCap );
                 GRM_UI.DisableLevelSelectionEditBoxes();
-
+                
                 -- Guild Rep
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetChecked ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:EnableMouse ( false );
@@ -3033,6 +3143,22 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
+
+                --Mythic Rating
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[1] );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[3] );
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetText ( "1000" );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel = 1000;
                 
                 -- Custom Note
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetChecked ( false );
@@ -3675,6 +3801,132 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:SetHeight ( height + 15 );
         end
 
+        -- MYTHIC+ RULE
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton , "BOTTOMLEFT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton , "RIGHT" , 2 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox , "RIGHT" , 4 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:SetTextColor ( 1 , 0 , 0 );
+
+        if GRM_G.BuildVersion >= 80000 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:Hide();
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetScript ( "OnClick" , function ( self , button )
+                if button == "LeftButton" then
+                    if self:GetChecked() then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter = true;
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( true );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Enable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 1 , 1 , 1 );
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter = false;
+                        GRM_GuildMythicRatingSymbolSelected:EnableMouse ( false );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Disable();
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                    end
+
+                end
+
+            end);
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+        end
+
+        local setMythicPlusSymbolSelection = function ( _ , buttonNumber )
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusOperator = buttonNumber;  -- + 3 is to deal with reputation at neutral is index 4
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[buttonNumber] );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
+        end
+        
+        -- Method:          ConfigureMythicDropDownSymbols()
+        -- What it Does:    Configures the dropdown menu to accomadate some operators that don't make sense at the edges
+        -- Purpose:         Quality of Life settings control
+        local ConfigureMythicDropDownSymbols = function()
+        
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusOperator == 1 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[1][1]:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[1][2]:SetTextColor ( 1 , 0 , 0 );
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[1][1]:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[1][2]:SetTextColor ( 1 , 1 , 1 );
+            end
+        
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusOperator == 2 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[2][1]:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[2][2]:SetTextColor ( 1 , 0 , 0 );
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[2][1]:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[2][2]:SetTextColor ( 1 , 1 , 1 );
+            end
+        
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusOperator == 3 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[3][1]:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[3][2]:SetTextColor ( 1 , 0 , 0 );
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[3][1]:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu.Buttons[3][2]:SetTextColor ( 1 , 1 , 1 );
+            end
+        
+        end
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonText , "RIGHT" , 3 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetSize (  55 , 18 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetBackdrop ( GRM_UI.noteBackdrop2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetFrameStrata ( "DIALOG" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetWidth ( 52 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetWordWrap ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected , "BOTTOM" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:SetWidth ( 55 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:SetBackdrop ( GRM_UI.noteBackdrop2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:SetFrameStrata ( "DIALOG" );
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
+            self:SetPropagateKeyboardInput ( true );
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        end);
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetScript ( "OnShow" , function() 
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+        end)
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetScript ( "OnMouseDown" , function( self , button )
+            if button == "LeftButton" then
+                if  GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:IsVisible() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Show();
+                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu , 14 , 11 , "THICKOUTLINE" , repOperatorsMythic ,  setMythicPlusSymbolSelection );
+                    ConfigureMythicDropDownSymbols();
+                end
+                GRM.RestoreTooltip();
+            end
+        end);
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetScript ( "OnEnter" , function( self )
+            GRM_UI.SetTooltipScale()
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FClick|r to Change" ) );
+            GameTooltip:Show();
+        end);
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
+        end);
+        
+
         -- REPUTATION RULE
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text , "BOTTOMLEFT" , -20 , -40 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton , "RIGHT" , 2 , 0 );
@@ -3712,10 +3964,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
         end
 
-        -- Method:          GRM.ConfigureDropDownSymbols()
+        -- Method:          ConfigureDropDownSymbols()
         -- What it Does:    Configures the dropdown menu to accomadate some operators that don't make sense at the edges
         -- Purpose:         Quality of Life settings control
-        GRM.ConfigureDropDownSymbols = function()
+        local ConfigureDropDownSymbols = function()
 
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep == 4 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu.Buttons[1][1]:Disable();
@@ -3735,7 +3987,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         end
 
-        GRM.SetRepSymbolSelection = function ( _ , buttonNumber )
+        local SetRepSymbolSelection = function ( _ , buttonNumber )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repOperator = buttonNumber;  -- + 3 is to deal with reputation at neutral is index 4
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetText ( repOperators[buttonNumber] );
@@ -3773,8 +4025,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Show();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu , 14 , 11 , "THICKOUTLINE" , repOperators ,  GRM.SetRepSymbolSelection );
-                    GRM.ConfigureDropDownSymbols();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
+                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu , 14 , 11 , "THICKOUTLINE" , repOperators ,  SetRepSymbolSelection );
+                    ConfigureDropDownSymbols();
                 end
                 GRM.RestoreTooltip();
             end
@@ -3798,7 +4051,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end
 
-        GRM.SetGuildRepSelection = function ( _ , buttonNumber , buttonText )
+        local SetGuildRepSelection = function ( _ , buttonNumber , buttonText )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep = buttonNumber + 3;  -- + 3 is to deal with reputation at neutral is index 4
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetText ( buttonText:GetText() );
@@ -3838,7 +4091,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Show();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu , 11 , 11 , "THICKOUTLINE" , repList ,  GRM.SetGuildRepSelection );
+                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu , 11 , 11 , "THICKOUTLINE" , repList ,  SetGuildRepSelection );
                 end
                 GRM.RestoreTooltip();
             end
@@ -3879,7 +4132,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
         
         -- String matching Custom Rules
         ---------------------
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton , "BOTTOMLEFT" , 0 , -5 );
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton , "BOTTOMLEFT" , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCompareStringCheckButton:SetScript ( "OnClick" , function( self )
             if self:GetChecked() then
@@ -4436,9 +4690,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -10 );
                 
                 if GRM.S().selectedLang == 5 then -- Russian
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
                 else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
                 end
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Hide();
@@ -4468,9 +4722,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -80 );
 
                 if GRM.S().selectedLang == 5 then -- Russian
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
                 else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 760 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Show();
@@ -4483,8 +4737,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText );
 
         end
-
-
 
         GRM_UI.LocalizationMModifications = function()
                     -- Localization adjustments
@@ -4541,6 +4793,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText:SetText ( GRM.L ( "Player Guild Rep is" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonText:SetText ( GRM.L ( "Mythic+ Rating is" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonText );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected.GRM_GuildRepRanksSelectedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -4557,6 +4813,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButtonText );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:SetText ( GRM.L ( "(Disabled in Classic)" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:SetText ( GRM.L ( "(Disabled in Classic)" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText:SetText ( GRM.L ( "Disable chat log spam while using the Macro Tool" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton , GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbuttonText );
@@ -4957,6 +5215,8 @@ GRM.GetToolTipLine = function ( rulePart )
         elseif rulePart[i][1] == "GuildTime" then
             table.insert ( result , " - " .. GRM.L ( "Time in Guild: {name}" , "\"" .. rulePart[i][2] .. "\"" ) );
         elseif rulePart[i][1] == "Rep" then
+            table.insert ( result , " - " .. rulePart[i][2] );
+        elseif rulePart[i][1] == "Mythic" then
             table.insert ( result , " - " .. rulePart[i][2] );
         elseif rulePart[i][1] == "Safe Tag" then
             table.insert ( result , " - " .. GRM.L ( "No safe tag '{name}' in officer note" , rulePart[i][2] ) );
@@ -6797,6 +7057,9 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
     result.safeText = "";
     result.safeMatch = false;
     result.GUID = "";
+    result.mythicPlusFilter = false;
+    result.mythicRating = 0;
+    result.mythicPlusOperator = 2;
 
     result.applyEvenIfActiive = false;  -- Unique rule to kicks
 
@@ -6872,6 +7135,13 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
     result.safeText = "";
     result.safeMatch = false;
     result.GUID = "";
+    result.mythicPlusFilter = false;
+    result.mythicRating = 1000;
+    result.mythicPlusOperator = 1;
+
+    if position == 3 then
+        result.mythicPlusOperator = 3;
+    end
 
     -- Unique rules to demote and promote
     result.destinationRank = GuildControlGetNumRanks() - 1;     -- Default is 1st to last lowest rank;
@@ -7693,6 +7963,24 @@ GRM.UpdateRulesTooltip = function ( ind )
         end
     end
 
+    if GRM_G.BuildVersion >= 80000 then
+
+        if rule.mythicPlusFilter then
+            local msg = "";
+            if rule.mythicPlusOperator == 1 then
+                msg = GRM.L ( "Mythic+ Rating greater or equal to {num}" , nil , nil , rule.mythicRating );
+            elseif rule.mythicPlusOperator == 2 then
+                msg = GRM.L ( "Mythic+ Rating equal to {num}" , nil , nil , rule.mythicRating );
+            elseif rule.mythicPlusOperator == 3 then
+                msg = GRM.L ( "Mythic+ Rating less than {num}" , nil , nil , rule.mythicRating );
+            end
+
+            GameTooltip:AddDoubleLine ( GRM.L ( "Mythic+ Rating:" ) , msg , 1 , 0.82 , 0 , 1 , 1 , 1 );
+        else
+            GameTooltip:AddDoubleLine ( GRM.L ( "Mythic+ Rating:" ) , GRM.L ( "Disabled" ) , 1 , 0.82 , 0 , c.D[1] , c.D[2] , c.D[3] );
+        end
+    end
+
     if rule.noteMatch then
         if not rule.noteMatchEmpty then
             GameTooltip:AddDoubleLine ( GRM.L ( "Note Match:" ) , "\"" .. rule.matchingString .. "\"" , 1 , 0.82 , 0 , 1 , 1 , 1 );
@@ -7978,6 +8266,26 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                                 if #msg > 0 then
                                     ruleConfirmedCheck = true;
                                     table.insert ( tempRuleCollection , { "Rep" , GRM.L ( "Rep: {name} - {name2}" , GRM.GetReputationTextLevel ( player.guildRep , true ) , msg ) } );
+                                end
+                            end
+
+                            -- Mythic+ filter
+                            if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                                ruleConfirmedCheck = false;
+                                local msg = "";
+
+                                -- Less than Operator
+                                if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
+                                    msg = GRM.L ( "Mythic+ Rating greater or equal to {num}" , nil , nil , rule.mythicRating );
+                                elseif rule.mythicPlusOperator == 2 and player.MythicScore == rule.mythicRating then
+                                    msg = GRM.L ( "Mythic+ Rating equal to {num}" , nil , nil , rule.mythicRating );
+                                elseif rule.mythicPlusOperator == 3 and player.MythicScore < rule.mythicRating then
+                                    msg = GRM.L ( "Mythic+ Rating less than {num}" , nil , nil , rule.mythicRating );
+                                end
+
+                                if #msg > 0 then
+                                    ruleConfirmedCheck = true;
+                                    table.insert ( tempRuleCollection , { "Mythic" , GRM.L ( "Mythic+ Rating: {num}" , nil , nil , rule.mythicRating ) } );
                                 end
                             end
 
@@ -8281,6 +8589,26 @@ GRM.GetKickNamesByFilterRules = function()
                             if #msg > 0 then
                                 ruleConfirmedCheck = true;
                                 table.insert ( tempRuleCollection , { "Rep" , GRM.L ( "Rep: {name} - {name2}" , GRM.GetReputationTextLevel ( player.guildRep , true ) , msg ) } );
+                            end
+                        end
+
+                        -- Mythic+ filter
+                        if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                            ruleConfirmedCheck = false;
+                            local msg = "";
+
+                            -- Less than Operator
+                            if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
+                                msg = GRM.L ( "Mythic+ Rating greater or equal to {num}" , nil , nil , rule.mythicRating );
+                            elseif rule.mythicPlusOperator == 2 and player.MythicScore == rule.mythicRating then
+                                msg = GRM.L ( "Mythic+ Rating equal to {num}" , nil , nil , rule.mythicRating );
+                            elseif rule.mythicPlusOperator == 3 and player.MythicScore < rule.mythicRating then
+                                msg = GRM.L ( "Mythic+ Rating less than {num}" , nil , nil , rule.mythicRating );
+                            end
+
+                            if #msg > 0 then
+                                ruleConfirmedCheck = true;
+                                table.insert ( tempRuleCollection , { "Mythic" , GRM.L ( "Mythic+ Rating: {num}" , nil , nil , rule.mythicRating ) } );
                             end
                         end
 
@@ -9222,11 +9550,14 @@ GRM.BuildKickRuleTosync = function ( rule )
     tostring ( rule.editTime ) .. "?" ..                        -- 28
     rule.safeText .. "?" ..                                     -- 29
     tostring ( rule.safeMatch ) .. "?" ..                       -- 30
-    rule.GUID;                                                  -- 31
+    rule.GUID .. "?" ..                                         -- 31
+    GRM.B2Num ( rule.mythicPlusFilter , false ) .. "?" ..       -- 32
+    tostring ( rule.mythicRating ) .. "?" ..                    -- 33
+    tostring ( rule.mythicPlusOperator );                       -- 34
 
     return result;
 end
-
+         
 -- Method:          GRM.BuildPromoteRuleToSync ( table )
 -- What it Does:    Converts all of the rule values into a string
 -- Purpose:         So the rule can be shared among officers.
@@ -9266,7 +9597,10 @@ GRM.BuildPromoteRuleToSync = function ( rule )
     tostring ( rule.sinceAtRank ) .. "?" ..                     -- 30
     rule.safeText .. "?" ..                                     -- 31
     tostring ( rule.safeMatch ) .. "?" ..                       -- 32
-    rule.GUID;                                                  -- 33
+    rule.GUID .. "?" ..                                         -- 33
+    GRM.B2Num ( rule.mythicPlusFilter , false ) .. "?" ..       -- 34
+    tostring ( rule.mythicRating ) .. "?" ..                    -- 35
+    tostring ( rule.mythicPlusOperator );                       -- 36
 
     return result;
 end
@@ -9308,7 +9642,10 @@ GRM.BuildDemoteRuleToSync = function ( rule )
     tostring ( rule.editTime ) .. "?" ..                        -- 28
     rule.safeText .. "?" ..                                     -- 29
     tostring ( rule.safeMatch ) .. "?" ..                       -- 30
-    rule.GUID;                                                  -- 31
+    rule.GUID .. "?" ..                                         -- 31
+    GRM.B2Num ( rule.mythicPlusFilter , false ) .. "?" ..       -- 32
+    tostring ( rule.mythicRating ) .. "?" ..                    -- 33
+    tostring ( rule.mythicPlusOperator );                       -- 34
 
 
     return result;
@@ -9732,6 +10069,9 @@ end
 --         rule.safeText = newRule[29];
 --         rule.safeMatch = newRule[30];
 --         rule.GUID = newRule[31];
+--         rule.mythicPlusFilter = newRule[32];
+--         rule.mythicRating = newRule[33];
+--         rule.mythicPlusOperator = newRule[34];
         
 --     elseif ruleType == "promoteRules" then
 --         rule = GRM.BuildNewPromoteOrDemoteRuleTemplate ( nil , nil , 2 );
@@ -9764,6 +10104,9 @@ end
 --         rule.safeText = newRule[31];
 --         rule.safeMatch = newRule[32];
 --         rule.GUID = newRule[33];
+--         rule.mythicPlusFilter = newRule[34];
+--         rule.mythicRating = newRule[35];
+--         rule.mythicPlusOperator = newRule[36];
 
 --     elseif ruleType == "demoteRules" then
 --         rule = GRM.BuildNewPromoteOrDemoteRuleTemplate( nil , nil , 3 );
@@ -9794,6 +10137,9 @@ end
 --         rule.safeText = newRule[29];
 --         rule.safeMatch = newRule[30];
 --         rule.GUID = newRule[31];
+--         rule.mythicPlusFilter = newRule[32];
+--         rule.mythicRating = newRule[33];
+--         rule.mythicPlusOperator = newRule[34];
 
 --     end
 

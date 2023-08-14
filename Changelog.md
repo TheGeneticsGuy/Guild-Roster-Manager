@@ -1,4 +1,55 @@
 
+## **VERSION 1.982 RELEASE - August 14, 2023**
+
+***QUALITY OF LIFE***
+
+* Mythic+ Filtering added to the macro tool. You can kick, promote, and demote based on the person's Mythinc+ rating! Just one heads up, since the M+ rating is pulled directly from the server, for players that have not logged on, it still shows their old rating, even from previous expansions. As such, it is highly recommended to use the player level filter (set to max level), asn well as player activity.
+
+![Mythic+ Filtering](https://i.imgur.com/OUXJNkY.jpg)
+
+* The Custom GRM Roster now has many more UI controls.
+
+![Enhanced Roster](https://im.ezgif.com/tmp/ezgif-1-1357265e26.gif)
+
+* You can now choose to track only anniversaries or birthdays, not be forced to track both. You will find this in the normal GRM Options window, under the "Scan" tab. If you disable tracking, they will automatically be removed from the list, but they will also be re-added to your events list if you re-enable.
+
+![Additional filtering](https://i.imgur.com/2OYEXm2.jpg)
+
+* In Classic Era I have expanded the events information to be accessible, so even though there is no in-game Calendar as that was not added until WOTLK, I have at least given access to the information on upcoming birthdays and anniversaries.
+
+if CalendarTrust_CalcUserTrustExplicit(gGroupCalendar_PlayerName) >= 2 then
+	/dump gGroupCalendar_GuildDatabase.Events
+end
+
+***BUG FIXES***
+
+* Fixed an iossue where if you logged to a non-guilded alt GRM could trigger a lua error. This didn't break anything, but annoying to have your Lua error tracking catch a needless error. This is resolved.
+
+* Fixed an issue where chat could stop working after loading GRM because settings crashed on load. Not good! This is resolved now.
+sss 
+
+* Group Info was throwing a couple Lua errors. They should be gone now.
+
+* Fixed an issue where in some cases, if a player logged out in the middle of a sync your chat could be spammed for a second with an error that they were no longer online. This should not happen now.
+
+* Occasionally the mouseover was not working on all names. That shouldn't be a problem anymore. It was particularly noticeable if you moused past the top or bottom names in the window then moused back the mouseover wouldn't work. It now properly refreshed. Also, the window will no longer show for players whos names are not yet registered in the guild, so the very short window when someone joins to when GRM is configuring the name. This should literally be mere seconds, but it was causing some confusion for some as it kept the previous mouseover window open for the previous player.
+
+* Fixed an issue on the GRM Roster where if you sort the officer or player notes, it was not properly considering case and that has been fixed.
+
+* Regarding the public and officer notes search in the GRM Roster, it was removing any white space before/after (trimming). For the note search this makes sense to allow this whitespace so the search will now all you to search something like "  Re" instead of it reverting it to "Re", for example.
+
+* Fixed an issue where if you Control-Clicked a player's name in the GRM roster, or audit, or various GRM frames, it would show the mouseover window, but to ctrl-click another player you'd have to close the window. This should now properly allow subsequent control-clicks without doing this.
+
+* Fixed an issue where if you tried to /grm or /roster, and the addon was in the process of applying a patch, it would still try to open the window before it was fully configured. Clicking the minimap button was ok, but the slash commands would cause an error. This has been fixed.
+
+* In some cases the GRM messages to the player would be lost if the addon was in the middle to being configured, like if it was applying a patch and you tried to open the window, it should give you a message to chat that GRM was still being configured. Well, the message would never print out the text. It should now properly function.
+
+* The tooltip on the left side of the GRM Custom Roster was not clearing if mousing off of the note or officer notes. This should now properly reset or clear on moving off the roster frame.
+
+* Fixed an issue causing GRM to fail to update the log because it was crashing the process of scanning for changes right after login.
+
+
+
 ## **VERSION 1.981 RELEASE - July 29th 2023**
 
 
@@ -32,7 +83,6 @@
 * Fixed a bug that made it so GRM would not load at all when trying to configure the settings. I typo'd a version check so some edge cases that would refer back were getting nil instead of a string. Oops!
 
 * Fixed some alignment issues with a few frames.
-
 
 
 ## **VERSION 1.980 RELEASE - July 24th 2023**

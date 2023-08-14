@@ -12,12 +12,13 @@ local F = "";
 local oldDB = false;
 local delayTrigger = false;
 local reported = false;     -- Update reported to chat
+GRM_G.currentlyPatching = false;
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
 -- What it Does:    Holds the patch logic for when people upgrade the addon
 -- Purpose:         To keep the database healthy and corrected from dev design errors and unanticipated consequences of code.
 GRM_Patch.SettingsCheck = function ( numericV , count , patch )
-
+    GRM_G.currentlyPatching = true;
     local numActions = count or 0;
     local baseValue = patch or 0;
     local patchNum = 0;
@@ -1368,11 +1369,32 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         
         GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.ResetUIScaling );
         GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.UpdateUIScaling );
-        GRM_Patch.AddNewSetting ( "specialCharRemoval" , false )
+        GRM_Patch.AddNewSetting ( "specialCharRemoval" , false );
         GRM_Patch.EditSetting ( "exportFilters" , GRM_Patch.ConvertExportFilters );
         GRM_Patch.AddNewSetting ( "ExportLevelRange" , {1,999} );  -- 999 represents MaxLevel
 
         if loopCheck ( 1.981 ) then
+            return;
+        end
+    end
+
+    -- patch 116
+    patchNum = patchNum + 1;
+    if numericV < 1.982 and baseValue < 1.982 then
+        
+        GRM_Patch.AddNewSetting ( "bdayAnnounce" , true );
+        GRM_Patch.AddNewSetting ( "annivAnnounce" , true );
+        GRM_Patch.AddNewSetting ( "groupByMain" , false );
+        GRM_Patch.AddNewSetting ( "showMainTags" , false );
+        GRM_Patch.AddNewSetting ( "showMains" , true );
+        GRM_Patch.AddNewSetting ( "showAlts" , true );
+        GRM_Patch.AddNewSetting ( "showAltTags" , false );
+        GRM_Patch.AddNewSetting ( "showRosterOffline" , true );
+        GRM_Patch.AddNewSetting ( "showRosterOptions" , true );
+        GRM_Patch.AddNewSetting ( "numRosterRows" , 18 ); 
+        GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.UpdateUIScaling );
+
+        if loopCheck ( 1.982 ) then
             return;
         end
     end
@@ -1399,6 +1421,8 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         print ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.GetTimePassedInZone ( startTime ) );
 
     end
+
+    GRM_G.currentlyPatching = false;
 
     -- Updating the version for ALL saved accoutns.
     GRM_AddonSettings_Save.VERSION = GRM_G.Version;
@@ -7834,7 +7858,7 @@ end
 -- What it Does:    Adds aanother scaling save value
 -- Purpose:         Ability to scale the new roster frame.
 GRM_Patch.UpdateUIScaling = function ( UIScaling )
-    local rosterFrameDefault = 855;
+    local rosterFrameDefault = 885;
     if GRM_G.BuildVersion >= 80000 then
         rosterFrameDefault = rosterFrameDefault + 90;
     end
