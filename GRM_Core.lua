@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.982";
-GRM_G.PatchDay = 1690614665;             -- In Epoch Time
-GRM_G.PatchDayString = "1690614665";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9821";
+GRM_G.PatchDay = 1692910888;             -- In Epoch Time
+GRM_G.PatchDayString = "1692910888";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -364,7 +364,7 @@ GRM_G.StatusChecking.Timer = 0;
 GRM.CreateTexture = function ( frame , name , layer , useFrame )
     local heritableFrame = nil;
 
-    if GRM_G.BuildVersion >= 30401 then
+    if GRM_G.BuildVersion >= 11404 then
         frame[name] = frame:CreateTexture ( nil , layer , nil , 0 );
     else
 
@@ -9948,7 +9948,7 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
     buttonText3:SetJustifyH ( "CENTER" );
     buttonText3:SetWordWrap ( false );
 
-    -- Date
+    -- Creation Date
     buttonText4:SetPoint ( "LEFT" , buttonText1 , "RIGHT" , 12 , 0 );
     buttonText4:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
     buttonText4:SetWidth ( 130 );
@@ -9991,8 +9991,8 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
         -- Restore or Set Backup
         button1:SetScript ( "OnClick" , function ( self , buttonClicked )
             if buttonClicked == "LeftButton" then
-                local index = tonumber ( string.match ( self:GetName() , "_(%d+)" ) );    -- Get index of the AllBackupButtons 
-                local guildName = GRM_G.BackupEntries[ index ][2];
+
+                local guildName = buttonText1:GetText();
 
                 -- For retore
                 if self:GetText() == GRM.L ( "Restore" ) then
@@ -10044,9 +10044,14 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
 
                 -- For manually setting the backup
                 elseif self:GetText() == GRM.L ( "Set Restore Point" ) then
-                    local gName = string.gsub ( guildName , "\"" , "" );
-                    GRM.AddGuildBackup ( gName , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][5]:GetText() );
-                    GRM.BuildBackupScrollFrame ( true , true );
+
+                    if guildName and guildName ~= "" then
+                        local gName = string.gsub ( guildName , "\"" , "" );
+                        GRM.AddGuildBackup ( gName , buttonText4:GetText() );
+                        GRM.BuildBackupScrollFrame ( true , true );
+                    else
+                        GRM.Report ( GRM.L ( "Unable to properly locate guild for backup" ) );
+                    end
                 end
             end
         end);
@@ -10054,8 +10059,7 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
         -- Remove a Backup
         button2:SetScript ( "OnClick" , function ( self , buttonClicked )
             if buttonClicked == "LeftButton" then
-                local index = tonumber ( string.match ( self:GetName() , "_(%d+)" ) );    -- Get index of the AllBackupButtons 
-                local guildName = GRM_G.BackupEntries[ index ][2];
+                local guildName = buttonText1:GetText();
 
                 GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Really remove {name} Backup Point?" , guildName ) );
                 GRM_UI.GRM_RosterConfirmYesButtonText:SetText ( GRM.L ( "Yes!" ) );
@@ -10073,11 +10077,12 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
 
         coreButton:SetScript ( "OnMouseDown" , function ( self , button )
             if button == "RightButton" then
-                local index = tonumber ( string.match ( self:GetName() , "_(%d+)" ) );
+                
 
-                if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][2]:IsVisible() and self:IsMouseOver() then
-                    local gName = string.gsub ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][2]:GetText() , "\"" , "" );
-                    GRM_G.BackupFrameSelectDetails = { gName , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[index][5]:GetText() };
+                if buttonText1:IsVisible() and self:IsMouseOver() then
+                    local guildName = buttonText1:GetText();
+
+                    GRM_G.BackupFrameSelectDetails = { guildName , buttonText4:GetText() };
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:ClearAllPoints();
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:SetPoint( "TOPRIGHT" , self , "TOPLEFT" , -12 , -5 );
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Show();

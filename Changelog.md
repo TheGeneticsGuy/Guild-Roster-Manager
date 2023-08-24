@@ -1,4 +1,9 @@
 
+## **VERSION 1.9821 RELEASE - August 24, 2023**
+
+** CLASSIC BUILD UPDATE ONLY ** - Hardcore Mode compatible
+
+
 ## **VERSION 1.982 RELEASE - August 14, 2023**
 
 ***QUALITY OF LIFE***

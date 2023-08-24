@@ -9139,9 +9139,9 @@ end);
 --- For syncing macro rules among officers ---
 ----------------------------------------------
 
--- On loading initial button - log current state of buttons - then log any updates made and report
--- Mouseover of button should show what buttons are in sync... and if still checking state "pending..."
--- Set it to trigger sync if you just enabled it.
+-- -- On loading initial button - log current state of buttons - then log any updates made and report
+-- -- Mouseover of button should show what buttons are in sync... and if still checking state "pending..."
+-- -- Set it to trigger sync if you just enabled it.
 
 -- -- Globals
 -- GRM_G.MacroSyncList = {};                   -- Collects the names and their rules as they arrive
@@ -9296,30 +9296,30 @@ end);
 --     -- GRMsync.SendMessage ( "GRM_SYNC" , GRM_G.PatchDayString .. "?" .. prefix .. "?" .. msg , GRMsyncGlobals.channelName );
 -- end
 
--- Method:          GRM.ConvertMacroRuleToString ( table , int )
--- What it Does:    Returns the text string in syncable format of the rule given
--- Purpose:         So rule can be shared
-GRM.ConvertMacroRuleToString = function ( rule , ruleType )
-    local result = "";
-    local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 };
+-- -- Method:          GRM.ConvertMacroRuleToString ( table , int )
+-- -- What it Does:    Returns the text string in syncable format of the rule given
+-- -- Purpose:         So rule can be shared
+-- GRM.ConvertMacroRuleToString = function ( rule , ruleType )
+--     local result = "";
+--     local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 };
 
-    if type ( ruleType ) == "string" then
-        ruleType = typeEnum [ ruleType ];
-    end
+--     if type ( ruleType ) == "string" then
+--         ruleType = typeEnum [ ruleType ];
+--     end
 
-    if ruleType == 1 then       -- kick rule
-        result = GRM.BuildKickRuleTosync ( rule );
+--     if ruleType == 1 then       -- kick rule
+--         result = GRM.BuildKickRuleTosync ( rule );
 
-    elseif ruleType == 2 then   -- Promote rule
-        result = GRM.BuildPromoteRuleToSync ( rule );
+--     elseif ruleType == 2 then   -- Promote rule
+--         result = GRM.BuildPromoteRuleToSync ( rule );
 
-    elseif ruleType == 3 then   -- Demote rule
-        result = GRM.BuildDemoteRuleToSync ( rule );
+--     elseif ruleType == 3 then   -- Demote rule
+--         result = GRM.BuildDemoteRuleToSync ( rule );
 
-    end
+--     end
 
-    return result;
-end
+--     return result;
+-- end
 
 -- -- Method:          GRM.GetRecipient ( string )
 -- -- What it Does:    Parses out the recipient's name in the msg

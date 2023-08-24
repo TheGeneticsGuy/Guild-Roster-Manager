@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 115;
+local totalPatches = 116;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -43,6 +43,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             end
         end
 
+    end
+
+    -- Redundancy error for the massive settings DB overhaul, if the overhaul occurs but someone crashes in the middle of it, we want to ensure it doesn't wreck pre-overhaul
+    if GRM_AddonSettings_Save[1] == nil and GRM_AddonSettings_Save["H"] == nil and numericV < 1.961 then
+        numericV = 1.9605;
     end
     
     -- Purpose of this function...
@@ -1246,7 +1251,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-
+    
     -- patch 107
     patchNum = patchNum + 1;
     if numericV < 1.961 and baseValue < 1.961 then
@@ -7195,7 +7200,7 @@ GRM_Patch.ConvertDatabase = function( backups )
         for f in pairs ( GRM_GuildDataBackup_Save ) do
             for guild in pairs ( GRM_GuildDataBackup_Save[f] ) do
                 if guild ~= "members" and guild ~= "formerMembers" then
-                    if not newBackups[guild] then
+                    if not newBackups[guild] and GRM_GuildMemberHistory_Save[f][guild] then
 
                         newBackups[guild] = {};
 
