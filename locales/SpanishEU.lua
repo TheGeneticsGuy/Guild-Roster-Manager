@@ -1703,4 +1703,13 @@ GRML.SpanishEU = function()
     GRM_L["Mythic+ Rating equal to {num}"] = true
     GRM_L["Mythic+ Rating less than {num}"] = true
     
+    -- R1.983
+    GRM_L["Special Rules that don't fit nicely into the other categories."] = true
+    GRM_L["Special"] = true     -- Macro Tool tab "Special"
+    GRM_L["Special Rules Not Available at Current Rank"] = true
+    GRM_L["Add Special Rule"] = true
+    GRM_L["The \"Special\" rules bypass any safe and ignore restrictions."] = true
+    GRM_L["Unable to promote or demote players within the guild at current rank."] = true
+    GRM_L["Special Rule Match:"] = true
+    
 end

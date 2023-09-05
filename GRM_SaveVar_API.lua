@@ -49,12 +49,13 @@ end
 GRM.GetPlayer = function ( name , appendServer , gName )
     local guildName = gName or GRM_G.guildName;
 
-    if guildName ~= "" then
+    if guildName ~= "" and GRM_GuildMemberHistory_Save[ guildName ] then
         if not appendServer then
             return GRM_GuildMemberHistory_Save[ guildName ][ name ];
         else
             return GRM_GuildMemberHistory_Save[ guildName ][ GRM.AppendServerName ( name , false ) ];
         end
+    else
         return nil;
     end
 end
@@ -65,7 +66,7 @@ end
 GRM.GetFormerPlayer = function ( name , appendServer , gName )
     local guildName = gName or GRM_G.guildName;
 
-    if guildName ~= "" then
+    if guildName ~= "" and GRM_GuildMemberHistory_Save[ guildName ] then
         if not appendServer then
             return GRM_PlayersThatLeftHistory_Save[ guildName ][ name ];
         else

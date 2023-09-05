@@ -1,8 +1,36 @@
+## **VERSION 1.983 RELEASE - September 5th, 2023**
+
+*Please note - I am working on a few features and I just couldn't get them out in time for 10.1.7, so I am releasing a compatibility update as well as bug fixes, mainly. You will see some remnants of incompleted stuff, like the "Special" tab in the macro tools. Coming soon, but I wanted to make sure compatibility was ready for the latest update.*
+
+*Also of note, I am considering ways to support Hardcore on Classic. I have the ability to implement live death tracking, but not if they die when offline. The API appears to be limited right now in Classic Era hardcore. If you have any suggestions on Hardcore support for guilds, I'd be curious to hear. Please report them to the Discord channel!*
+
+**QUALITY OF LIFE**
+
+* You can now sort rank and note/officer note together on the GRM custom roster.
+
+* The "Show offline Members" option and the "Group Alts with Main" now correctly unchecks the grouping alts with main if you wish to only show online members. The reason why is you cannot actually have a grouping of main/alts since technically only 1 will be online anyway, so it can kind of confuse things.
+
+***BUG FIXES***
+
+* Fixed an error that could occur preventing loading/patching of the GRM database for some who had maybe not used the addon in a while, and added some redundancy protection in case a person say, crashed in the middle of patching the addon
+
+* Fixed an issue where syncing the ban lists some meta data on the player being sync'd and then created was not built correctly. This would not be obvious if the player was no longer in the guild, but if they ever rejoined, it would cause some data and UI errors.
+
+* Fixed an issue with the syncing that could cause it to crash in some circumstances.
+
+* Fixed an issue where the note and officer note fonts on the mouseover were not properly changing when reconfiguring the fonts. This could make certain Cyrilic fonts unreadable, for example, or asian character compatible.
+
+* Fixed an issue that could cause verified join dates to be off by 1 day. This does not retroactively fix, but it will not cause issue moving forward. WARNING - Your events will not be entirely sorted in order that have already been reported, but going forward they will sort properly. It would have required a little more effort to retroactively update that, but with zero additional effort and a couple of weeks it will self-fix as the old bdays and anniversaries pass. Forgive me for my laziness on this one lol.
+
+* Fixed a "taint" bug that could occur if a player presses the ESCAPE key to hide a window. This is normally not an issue, but if you were in combat when it occurred, it introduced taint and could block actions. This will no longer happen.
+
+* Fixed an issue where the "Remove all Events" was not actually removing all of the events in the events tab for bdays and anniversaries. This is now resolved.
+
+
 
 ## **VERSION 1.9821 RELEASE - August 24, 2023**
 
 ** CLASSIC BUILD UPDATE ONLY ** - Hardcore Mode compatible
-
 
 ## **VERSION 1.982 RELEASE - August 14, 2023**
 
@@ -13,8 +41,6 @@
 ![Mythic+ Filtering](https://i.imgur.com/OUXJNkY.jpg)
 
 * The Custom GRM Roster now has many more UI controls.
-
-![Enhanced Roster](https://im.ezgif.com/tmp/ezgif-1-1357265e26.gif)
 
 * You can now choose to track only anniversaries or birthdays, not be forced to track both. You will find this in the normal GRM Options window, under the "Scan" tab. If you disable tracking, they will automatically be removed from the list, but they will also be re-added to your events list if you re-enable.
 

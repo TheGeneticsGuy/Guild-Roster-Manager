@@ -1330,13 +1330,10 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
 
     GRM_G.MatchPattern7 = GRM_G.MatchPattern7 or GRM.BuildComPattern ( 7 , "?" , false );
 
-    local playerName , epochTimeOfChange , day , month , year , epochStamp , noteDestination = GRM.ParseComMsg ( msg , GRM_G.MatchPattern7 );
+    local playerName , epochTimeOfChange , standardTime , noteDestination = GRM.ParseComMsg ( msg , GRM_G.MatchPattern7 );
+    local day , month , year = GRM.ParseStandardFormatDate ( standardTime );
 
-    epochStamp = tonumber ( epochStamp );
     epochTimeOfChange = tonumber ( epochTimeOfChange );
-    day = tonumber ( day );
-    month = tonumber ( month );
-    year = tonumber ( year );
 
     -- set the timestamp
     local joinDate = GRM.FormatTimeStamp ( { day , month , year } );
@@ -1349,7 +1346,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
             player.joinDateHist[1][1] = day;
             player.joinDateHist[1][2] = month;
             player.joinDateHist[1][3] = year;
-            player.joinDateHist[1][4] = epochStamp;
+            player.joinDateHist[1][4] = standardTime;
             player.joinDateHist[1][5] = epochTimeOfChange
             player.joinDateHist[1][6] = true;
             player.joinDateHist[1][7] = 1;
@@ -1414,22 +1411,19 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
 
     GRM_G.MatchPattern6 = GRM_G.MatchPattern6 or GRM.BuildComPattern ( 6 , "?" , false );
 
-    local playerName , day , month , year , epochDate , epochTimeOfChange = GRM.ParseComMsg ( msg , GRM_G.MatchPattern6 );
+    local playerName , standardDate , epochTimeOfChange = GRM.ParseComMsg ( msg , GRM_G.MatchPattern6 );
     local player = GRM.GetPlayer ( playerName );
+    local day , month , year = GRM.ParseStandardFormatDate ( standardDate );
 
     if player then
 
         epochTimeOfChange = tonumber ( epochTimeOfChange );
-        epochDate = tonumber ( epochDate );
-        day = tonumber ( day );
-        month = tonumber ( month );
-        year = tonumber ( year );
-        
+
         if player.rankHist[1][6] < epochTimeOfChange then
             player.rankHist[1][2] = day;  -- day
             player.rankHist[1][3] = month;  -- month
             player.rankHist[1][4] = year;  -- year
-            player.rankHist[1][5] = epochDate;
+            player.rankHist[1][5] = standardDate;
             player.rankHist[1][6] = epochTimeOfChange
             player.rankHist[1][7] = true;
             player.promoteDateUnknown = false;           
@@ -1507,6 +1501,10 @@ GRMsync.CheckAddAltChange = function ( msg , sender , prefix )
     if name ~= altName then         -- To avoid spam message to all players...
 
         local alt = GRM.GetPlayer ( altName );
+
+        if not alt.altGroupModified then
+            alt.altGroupModified = 0;
+        end
 
         if alt and altNameEpochTime >= alt.altGroupModified then
 
@@ -2353,7 +2351,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         memberInfoToAdd.faction = GRM_G.faction;
         
         if GRM_G.BuildVersion >= 80000 then
-            memberInfoToAdd.MythicScore = { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 };
+            memberInfoToAdd.MythicScore = 0;
         end
 
         if GRM_G.BuildVersion >= 100000 then
@@ -2361,7 +2359,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         end
         
         local _ , timeArray = GRM.EpochToDateFormat ( time() );
-        GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , time() , time() - 5000 , sender );
+        GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , GRM.ConvertToStandardFormatDate ( timeArray[1] , timeArray[2] , timeArray[3]) , time() , sender );
 
         -- Now, let's implement the ban!
         player = leftGuildData[ name ];
@@ -2442,19 +2440,18 @@ end
 -- Purpose:         Syncing bans and unbans between players...
 GRMsync.BanManagement = function ( msg , prefix , sender )
 
-    local playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned;
+    local playerName , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned;
     local banStatus = "ban";
     local addLog = false;
     
     if prefix == "GRM_BANSYNCUPX" then
         GRM_G.MatchPattern12 = GRM_G.MatchPattern12 or GRM.BuildComPattern ( 12 , "?" , false );
 
-        playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned = GRM.ParseComMsg ( msg , GRM_G.MatchPattern12 );
+        playerName , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned = GRM.ParseComMsg ( msg , GRM_G.MatchPattern12 );
 
         rankIndex = tonumber ( rankIndex );
         level = tonumber ( level );
         classIndex = tonumber ( classIndex );
-        joinDateEpoch = tonumber ( joinDateEpoch );
         originalJoinEpoch = tonumber ( originalJoinEpoch );
         banTimeEpoch = tonumber ( banTimeEpoch );
 
@@ -2477,7 +2474,7 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
             rankIndex = 99
         end
 
-        GRMsync.UpdateLeftPlayerInfo ( { playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID } );
+        GRMsync.UpdateLeftPlayerInfo ( { playerName , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID } );
 
     elseif prefix == "GRM_BANSYNCUPT" then
 
@@ -3850,10 +3847,14 @@ GRMsync.SendBANPackets = function()
                     end
 
                     -- OLD META EPOCH
-                    oldJoinDateMeta = 0;
-                    if player.joinDateHist[1][4] > 0 then
+                    local oldJoinDateMeta = "0";
+                    if player.joinDateHist[1][6] and player.joinDateHist[1][5] ~= 0 then
+                        oldJoinDateMeta = player.joinDateHist[1][5];
+                    elseif player.rankHist[1][7] and player.rankHist[1][6] ~= 0 then
+                        oldJoinDateMeta = player.rankHist[1][6];
+                    elseif player.joinDateHist[1][1] > 0 then
                         oldJoinDateMeta = player.joinDateHist[1][4];
-                    elseif player.rankHist[1][5] > 0 then
+                    elseif player.rankHist[1][2] > 0 then
                         oldJoinDateMeta = player.rankHist[1][5]; -- for some reason no join leave data recorded so default
                     end
 
@@ -3901,7 +3902,7 @@ GRMsync.SendBANPackets = function()
                             rankName = "###";
                         end
 
-                        msg = player.name .. "?" .. rankName .. "?" .. tostring ( player.rankIndex ) ..  "?" .. tostring ( player.level ) .. "?" .. class .. "?" .. tostring ( player.joinDateHist[1][4] ) .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. GUID .. "?" .. tostring ( player.bannedInfo[2] ) .. "?" .. banType .. "?" .. reason .. "?" .. playerWhoBanned;
+                        msg = player.name .. "?" .. rankName .. "?" .. tostring ( player.rankIndex ) ..  "?" .. tostring ( player.level ) .. "?" .. class .. "?" .. player.joinDateHist[1][4] .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. GUID .. "?" .. tostring ( player.bannedInfo[2] ) .. "?" .. banType .. "?" .. reason .. "?" .. playerWhoBanned;
 
 
                         tempMessage = messageHeader .. "?" .. msg;
@@ -3921,7 +3922,7 @@ GRMsync.SendBANPackets = function()
                         
                         if formerMember then
 
-                            msg = messageHeader4 .. "?" .. player.name .. "?" .. tostring ( player.rankIndex ) ..  "?" .. tostring ( player.level ) .. "?" .. class .. "?" .. tostring ( player.joinDateHist[1][4] ) .. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. GUID .. "?" .. tostring ( player.bannedInfo[2] ) .. "?" .. banType .. "?";
+                            msg = messageHeader4 .. "?" .. player.name .. "?" .. tostring ( player.rankIndex ) ..  "?" .. tostring ( player.level ) .. "?" .. class .. "?" .. player.joinDateHist[1][4].. "?" .. tostring ( oldJoinDateMeta ) .. "?" .. GUID .. "?" .. tostring ( player.bannedInfo[2] ) .. "?" .. banType .. "?";
 
                             GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRMsyncGlobals.sizeModifier;
                             GRMsync.SendMessage ( "GRM_SYNC" , msg , GRMsyncGlobals.DesignatedLeader );
@@ -4632,9 +4633,9 @@ GRMsync.SubmitFinalSyncData = function ()
             GRMsyncGlobals.finalSyncDataCount = GRMsyncGlobals.finalSyncDataCount + 1;
             if GRMsyncGlobals.SyncOK then
 
-                msg = GRMsyncGlobals.JDChanges[i][1] .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][2] ) .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][3] ) .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][4] ) .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][5] ) .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][6] ) .. "?0";
+                msg = GRMsyncGlobals.JDChanges[i][1] .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][2] ) .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][3] ) .. "?0";
 
-                tempMsg1 = GRM_G.PatchDayString .. "?GRM_JDSYNCUP?" .. GRMsyncGlobals.JDChanges[i][7] .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][8] ) .. "?";
+                tempMsg1 = GRM_G.PatchDayString .. "?GRM_JDSYNCUP?" .. GRMsyncGlobals.JDChanges[i][4] .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][5] ) .. "?";
 
                 GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMsg1 + #msg + GRMsyncGlobals.sizeModifier;
 
@@ -4679,9 +4680,9 @@ GRMsync.SubmitFinalSyncData = function ()
             GRMsyncGlobals.finalSyncDataCount = GRMsyncGlobals.finalSyncDataCount + 1;
             if GRMsyncGlobals.SyncOK then
 
-                msg = GRMsyncGlobals.PDChanges[i][1] .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][2] ) .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][3] ) .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][4] ) .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][5] ) .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][6] );
+                msg = GRMsyncGlobals.PDChanges[i][1] .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][2] ) .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][3] );
 
-                tempMsg1 = GRM_G.PatchDayString .. "?GRM_PDSYNCUP?" .. GRMsyncGlobals.PDChanges[i][7] .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][8] ) .. "?";
+                tempMsg1 = GRM_G.PatchDayString .. "?GRM_PDSYNCUP?" .. GRMsyncGlobals.PDChanges[i][4] .. "?" .. tostring ( GRMsyncGlobals.PDChanges[i][5] ) .. "?";
 
                 GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #tempMsg1 + #msg + GRMsyncGlobals.sizeModifier;
 
@@ -5133,13 +5134,12 @@ GRMsync.FinalSyncComplete = function()
     end
 end
 
--- need to send GUID data as well
 -- Method:          GRMsync.UpdateLeftPlayerInfo ( table )
 -- What it Does:    If a player needs to ban or unban a player, it cannot do so if they are not on their list, as maybe it was a person that left the guild before they had addon installed or before they joined> this fixes the gap
 -- Purpose:         To maintain a ban list properly, even for those who installed the addon later, or joined the guild later. The "Left Players" would not have them stored. This syncs that, but ONLY as needed, not all left players
 --                  as this prevents left player storage bloat unnecessarily and only syncs the banned or unbanned ones.
 GRMsync.UpdateLeftPlayerInfo = function ( playerData )
-    local playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID;
+    local playerName , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID;
 
     if type ( playerData ) == "table" then
 
@@ -5148,19 +5148,18 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
         rankIndex = playerData[3];
         level = playerData[4];
         classIndex = playerData[5];
-        joinDateEpoch = playerData[6];
+        standardDate = playerData[6];
         originalJoinEpoch = playerData[7];
         GUID = playerData[8];
 
     else
         
         GRM_G.MatchPattern6 = GRM_G.MatchPattern6 or GRM.BuildComPattern ( 6 , "?" , false );
-        playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID = GRM.ParseComMsg ( playerData , GRM_G.MatchPattern6 );
+        playerName , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID = GRM.ParseComMsg ( playerData , GRM_G.MatchPattern6 );
 
         rankIndex = tonumber ( rankIndex );
         level = tonumber ( level );
         classIndex = tonumber ( classIndex );
-        joinDateEpoch = tonumber ( joinDateEpoch );
         originalJoinEpoch = tonumber ( originalJoinEpoch );
 
         if GUID == "X" then
@@ -5231,11 +5230,11 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
         memberInfoToAdd.faction = GRM_G.faction;
 
         if GRM_G.BuildVersion >= 80000 then
-            memberInfoToAdd.MythicScore = { GRM_G.MythicSeasonInfo[1] , GRM_G.MythicSeasonInfo[2] , 0 };
+            memberInfoToAdd.MythicScore = 0;
         end
 
-        local _ , timeArray = GRM.EpochToDateFormat ( joinDateEpoch );
-        GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , joinDateEpoch , originalJoinEpoch , nil );
+        local day , month , year = GRM.ParseStandardFormatDate ( standardDate );
+        GRM.AddMemberToLeftPlayers ( memberInfoToAdd , {day , month , year} , standardDate , originalJoinEpoch , nil );
 
         -- Need to be added to the temp tables to during sync.  
         local player = GRM.GetFormerPlayer ( playerName );
@@ -5253,7 +5252,7 @@ GRMsync.CollectData = function ( msg , prefix )
     local name = "";
     local timeStampOfChange = 0;
     local addLeftPlayerSubstring = "";
-    local day , month , year , dateInEpoch = 0 , 0 , 0 , 0;
+    local day , month , year , standardTime = 0 , 0 , 0 , 0;
     local date = {};
 
     -- JOIN DATE
@@ -5266,7 +5265,7 @@ GRMsync.CollectData = function ( msg , prefix )
         while string.find ( msg , "?" ) ~= nil do
             name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             msg = GRM.Next ( msg );
-            dateInEpoch = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
+            standardTime = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
             msg = GRM.Next ( msg );
 
             if string.find ( msg , "?" ) ~= nil then
@@ -5275,10 +5274,9 @@ GRMsync.CollectData = function ( msg , prefix )
             else
                 timeStampOfChange = tonumber ( msg );
             end
-            date = select ( 2 , GRM.EpochToDateFormat ( dateInEpoch ) ); -- Convert Epoch stamp to actual date
+            day , month , year = GRM.ParseStandardFormatDate ( standardTime ); -- Convert Epoch stamp to actual date
             
-
-            table.insert ( GRMsyncGlobals.JDReceivedTemp , { name , timeStampOfChange , date[1] , date[2] , date[3] , dateInEpoch , GRMsyncGlobals.CurrentSyncPlayer , GRMsyncGlobals.CurrentSyncPlayerRankRequirement } );
+            table.insert ( GRMsyncGlobals.JDReceivedTemp , { name , timeStampOfChange , day , month , year , dateInEpoch , GRMsyncGlobals.CurrentSyncPlayer , GRMsyncGlobals.CurrentSyncPlayerRankRequirement } );
         end
     
     -- PROMO DATE
@@ -5291,7 +5289,7 @@ GRMsync.CollectData = function ( msg , prefix )
         while string.find ( msg , "?" ) ~= nil do
             name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             msg = GRM.Next ( msg );
-            dateInEpoch = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
+            standardTime = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
             msg = GRM.Next ( msg );
 
             if string.find ( msg , "?" ) ~= nil then
@@ -5300,9 +5298,8 @@ GRMsync.CollectData = function ( msg , prefix )
             else
                 timeStampOfChange = tonumber ( msg );
             end
-            date = select ( 2 , GRM.EpochToDateFormat ( dateInEpoch ) ); -- Convert Epoch stamp to actual date
 
-            table.insert ( GRMsyncGlobals.PDReceivedTemp , { name , date[1] , date[2] , date[3] , dateInEpoch , timeStampOfChange , GRMsyncGlobals.CurrentSyncPlayer , GRMsyncGlobals.CurrentSyncPlayerRankRequirement} );
+            table.insert ( GRMsyncGlobals.PDReceivedTemp , { name , standardTime , timeStampOfChange , GRMsyncGlobals.CurrentSyncPlayer , GRMsyncGlobals.CurrentSyncPlayerRankRequirement} );
         end
     
     -- BAN/UNBAN scan of LEFT players
@@ -5311,12 +5308,12 @@ GRMsync.CollectData = function ( msg , prefix )
             GRMsyncGlobals.ProgressControl ( "BAN" );
         end
 
-        local playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned;
+        local playerName , rankName , rankIndex , level , classIndex , standardTime , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned;
 
         if prefix == "GRM_BANSYNC" then
             GRM_G.MatchPattern12 = GRM_G.MatchPattern12 or GRM.BuildComPattern ( 12 , "?" , false );
 
-            playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned = GRM.ParseComMsg ( msg , GRM_G.MatchPattern12 );
+            playerName , rankName , rankIndex , level , classIndex , standardTime , originalJoinEpoch , GUID , banTimeEpoch , banType , reason , playerWhoBanned = GRM.ParseComMsg ( msg , GRM_G.MatchPattern12 );
 
             if reason == "X" then
                 reason = "";
@@ -5337,7 +5334,7 @@ GRMsync.CollectData = function ( msg , prefix )
         else
             GRM_G.MatchPattern10 = GRM_G.MatchPattern10 or GRM.BuildComPattern ( 10 , "?" , false );
 
-            playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID , banTimeEpoch , banType = GRM.ParseComMsg ( msg , GRM_G.MatchPattern10 );
+            playerName , rankName , rankIndex , level , classIndex , standardTime , originalJoinEpoch , GUID , banTimeEpoch , banType = GRM.ParseComMsg ( msg , GRM_G.MatchPattern10 );
 
             if GUID == "X" then
                 GUID = "";
@@ -5349,7 +5346,6 @@ GRMsync.CollectData = function ( msg , prefix )
         rankIndex = tonumber ( rankIndex );
         level = tonumber ( level );
         classIndex = tonumber ( classIndex );
-        joinDateEpoch = tonumber ( joinDateEpoch );
         originalJoinEpoch = tonumber ( originalJoinEpoch );
         banTimeEpoch = tonumber ( banTimeEpoch );
         
@@ -5365,7 +5361,7 @@ GRMsync.CollectData = function ( msg , prefix )
             table.insert ( GRMsyncGlobals.BanReceivedTemp , { playerName , banTimeEpoch , banType , "" , GRMsyncGlobals.CurrentSyncPlayer , GRMsyncGlobals.CurrentSyncPlayerRankRequirement , ""  , true } );
         end
 
-        GRMsync.UpdateLeftPlayerInfo ( { playerName , rankName , rankIndex , level , classIndex , joinDateEpoch , originalJoinEpoch , GUID } );
+        GRMsync.UpdateLeftPlayerInfo ( { playerName , rankName , rankIndex , level , classIndex , standardTime , originalJoinEpoch , GUID } );
 
     elseif prefix == "GRM_BANSYNCSPX" then
         if not GRMsyncGlobals.SyncTracker.banData then
@@ -5654,7 +5650,7 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
                         changeData = GRMsyncGlobals.JDReceivedTemp[i];
                     -- Adding my own data, as it is more current
                     else
-                        changeData = { guildData[exactIndexes[1][j]].name , guildData[exactIndexes[1][j]].joinDateHist[1][5] , guildData[exactIndexes[1][j]].joinDateHist[1][1] , guildData[exactIndexes[1][j]].joinDateHist[1][2] , guildData[exactIndexes[1][j]].joinDateHist[1][3] , guildData[exactIndexes[1][j]].joinDateHist[1][4] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
+                        changeData = { guildData[exactIndexes[1][j]].name , guildData[exactIndexes[1][j]].joinDateHist[1][5] , guildData[exactIndexes[1][j]].joinDateHist[1][4] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
                     end     
 
                 end
@@ -5682,7 +5678,7 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
             end
         end 
         if not isFound and guildData[exactIndexes[1][j]].joinDateHist[1][6] then
-            table.insert ( GRMsyncGlobals.JDChanges , { guildData[exactIndexes[1][j]].name , guildData[exactIndexes[1][j]].joinDateHist[1][5] , guildData[exactIndexes[1][j]].joinDateHist[1][1] , guildData[exactIndexes[1][j]].joinDateHist[1][2] , guildData[exactIndexes[1][j]].joinDateHist[1][3] , guildData[exactIndexes[1][j]].joinDateHist[1][4] , GRMsyncGlobals.DesignatedLeader , syncRankFilter } );
+            table.insert ( GRMsyncGlobals.JDChanges , { guildData[exactIndexes[1][j]].name , guildData[exactIndexes[1][j]].joinDateHist[1][5] , guildData[exactIndexes[1][j]].joinDateHist[1][4] , GRMsyncGlobals.DesignatedLeader , syncRankFilter } );
         end
     end
     -- Wiping the temp file!
@@ -5711,12 +5707,12 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
 
                 else
                     
-                    if guildData[exactIndexes[2][j]].rankHist[1][6] < GRMsyncGlobals.PDReceivedTemp[i][5] then
+                    if guildData[exactIndexes[2][j]].rankHist[1][6] < GRMsyncGlobals.PDReceivedTemp[i][3] then
                         -- Received Data happened more recently! Need to update change!
                         changeData = GRMsyncGlobals.PDReceivedTemp[i];         -- In other words, don't add my own data, add the received data.
                     -- Adding my own data, as it is more current
                     else
-                        changeData = { guildData[exactIndexes[2][j]].name , guildData[exactIndexes[2][j]].rankHist[1][2] , guildData[exactIndexes[2][j]].rankHist[1][3] , guildData[exactIndexes[2][j]].rankHist[1][4] , guildData[exactIndexes[2][j]].rankHist[1][5] , guildData[exactIndexes[2][j]].rankHist[1][6] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
+                        changeData = { guildData[exactIndexes[2][j]].name , guildData[exactIndexes[2][j]].rankHist[1][5] , guildData[exactIndexes[2][j]].rankHist[1][6] , GRMsyncGlobals.DesignatedLeader , syncRankFilter };
                     end
                 end
 
@@ -5725,7 +5721,7 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
                 for r = #GRMsyncGlobals.PDChanges , 1 , -1 do
                     if changeData[1] == GRMsyncGlobals.PDChanges[r][1] then
                         -- If dates are the same, no need to change em!
-                        if changeData[2] <= GRMsyncGlobals.PDChanges[r][6] then
+                        if changeData[2] <= GRMsyncGlobals.PDChanges[r][3] then
                             needToAdd = false;
                         end
 
@@ -5744,7 +5740,7 @@ GRMsync.CheckingPDChanges = function ( syncRankFilter )
             end
         end
         if not isFound and guildData[exactIndexes[2][j]].rankHist[1][7] then
-            table.insert ( GRMsyncGlobals.PDChanges , { guildData[exactIndexes[2][j]].name , guildData[exactIndexes[2][j]].rankHist[1][2] , guildData[exactIndexes[2][j]].rankHist[1][3] , guildData[exactIndexes[2][j]].rankHist[1][4] , guildData[exactIndexes[2][j]].rankHist[1][5] , guildData[exactIndexes[2][j]].rankHist[1][6] , GRMsyncGlobals.DesignatedLeader , syncRankFilter } );
+            table.insert ( GRMsyncGlobals.PDChanges , { guildData[exactIndexes[2][j]].name , guildData[exactIndexes[2][j]].rankHist[1][5] , guildData[exactIndexes[2][j]].rankHist[1][6] , GRMsyncGlobals.DesignatedLeader , syncRankFilter } );
         end
     end
     -- Wipe the data!
@@ -5767,7 +5763,6 @@ GRMsync.CheckingBANChanges = function ()
         local formerMember = true;
         local playerData = {};
         local classIndex = "0";
-        local oldJoinDateMeta = 0;
         local rankNme = "";
         local rankIndex = 9;
         local GUID = "";
@@ -5820,14 +5815,6 @@ GRMsync.CheckingBANChanges = function ()
                             classIndex = "0";
                         end
 
-                        -- OLD META EPOCH
-                        oldJoinDateMeta = 0;
-                        if player.joinDateHist[1][4] > 0 then
-                            oldJoinDateMeta = player.joinDateHist[1][4];
-                        elseif player.rankHist[1][5] > 0 then
-                            oldJoinDateMeta = player.rankHist[1][5]; -- for some reason no join leave data recorded so default
-                        end
-
                         rankName = player.rankName;
                         rankIndex = player.rankIndex;
                         if rankName == "" or player.rankIndex == 99 then
@@ -5841,7 +5828,7 @@ GRMsync.CheckingBANChanges = function ()
                             GUID = "X"
                         end
 
-                        playerData  = { rankName , tostring ( rankIndex ) , tostring ( player.level ) , classIndex , tostring ( player.joinDateHist[1][4] ) , tostring ( oldJoinDateMeta ) , GUID }
+                        playerData  = { rankName , tostring ( rankIndex ) , tostring ( player.level ) , classIndex , player.joinDateHist[1][4] , time() , GUID }
 
                     end
 
@@ -6745,11 +6732,11 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                         -- In response to asking "Who is the leader" then ONLY THE LEADER will respond.
                         elseif comms.prefix2 == "GRM_WHOISLEADER" then
-                            GRMsync.LeaderRespond ( sender , tonumber ( msg ) );
+                            GRMsync.LeaderRespond ( sender , tonumber ( string.match ( msg , "%d+") ) );
 
                         -- Updates who is the LEADER to sync with!
                         elseif comms.prefix2 == "GRM_IAMLEADER" then
-                            GRMsync.SetLeader ( sender , false , msg );
+                            GRMsync.SetLeader ( sender , false , tonumber ( string.match ( msg , "%d+") ) );
 
                         elseif comms.prefix2 == "GRM_ELECT" then
                             GRMsync.SendElectionInfo();

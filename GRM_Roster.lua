@@ -311,7 +311,7 @@ GRM_R.ResetColumnTextColors = function()
 
     -- Set to color the selected columns
     GRM_UI.GRM_RosterFrame[sortFrame1][sortFrame1.. "Text" ]:SetTextColor ( 0 , 0.8 , 1 );
-    if ( GRM_UI.GRM_RosterFrame.SortType == 5 or GRM_UI.GRM_RosterFrame.SortType == 6 ) and GRM_UI.GRM_RosterFrame.FormerSortType < 11 then
+    if ( GRM_UI.GRM_RosterFrame.SortType == 5 or GRM_UI.GRM_RosterFrame.SortType == 6 ) and GRM_UI.GRM_RosterFrame.FormerSortType < 15 then
         GRM_UI.GRM_RosterFrame[sortFrame2][sortFrame2.. "Text" ]:SetTextColor ( 0 , 0.8 , 1 );
     elseif sortFrame1 ~= sortFrame2 then
         GRM_UI.GRM_RosterFrame[sortFrame2][sortFrame2.. "Text" ]:SetTextColor ( 1 , 1 , 1 );
@@ -844,9 +844,9 @@ GRM_R.SortNote = function ( _ , keepType , reSizeButtons )
     local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
     
     if GRM_UI.GRM_RosterFrame.SortType == 11 then
-        sort ( members , function ( a , b ) return string.lower ( a.note ) < string.lower ( b.note ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) < string.lower ( GRM.Trim ( b.note ) ) end );
     else
-        sort ( members , function ( a , b ) return string.lower ( a.note ) > string.lower ( b.note ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) > string.lower ( GRM.Trim ( b.note ) ) end );
     end
 
     if GRM.S().groupByMain then
@@ -854,9 +854,9 @@ GRM_R.SortNote = function ( _ , keepType , reSizeButtons )
         while i <= #members do
             if members[i].alts and #members[i].alts > 0 then
                 if GRM_UI.GRM_RosterFrame.SortType == 11 then
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( a.note ) < string.lower ( b.note ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) < string.lower ( GRM.Trim ( b.note ) ) end );
                 else
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( a.note ) > string.lower ( b.note ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) > string.lower ( GRM.Trim ( b.note ) ) end );
                 end
                 -- Now, need need to insert into main entries table by merging
 
@@ -909,9 +909,9 @@ GRM_R.SortOfficerNote = function ( _ , keepType , reSizeButtons )
     local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
     
     if GRM_UI.GRM_RosterFrame.SortType == 13 then
-        sort ( members , function ( a , b ) return string.lower ( a.officerNote ) < string.lower ( b.officerNote ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) < string.lower ( GRM.Trim ( b.officerNote ) ) end );
     else
-        sort ( members , function ( a , b ) return string.lower ( a.officerNote ) > string.lower ( b.officerNote ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) > string.lower ( GRM.Trim ( b.officerNote ) ) end );
     end
 
     if GRM.S().groupByMain then
@@ -919,9 +919,9 @@ GRM_R.SortOfficerNote = function ( _ , keepType , reSizeButtons )
         while i <= #members do
             if members[i].alts and #members[i].alts > 0 then
                 if GRM_UI.GRM_RosterFrame.SortType == 13 then
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( a.officerNote ) < string.lower ( b.officerNote ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) < string.lower ( GRM.Trim ( b.officerNote ) ) end );
                 else
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( a.officerNote ) > string.lower ( b.officerNote ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) > string.lower ( GRM.Trim ( b.officerNote ) ) end );
                 end
                 -- Now, need need to insert into main entries table by merging
 
@@ -961,7 +961,7 @@ GRM_R.SortRank = function ( _ , keepType , reSizeButtons )
 
     if not keepType then
         if GRM_UI.GRM_RosterFrame.SortType ~= 5 and GRM_UI.GRM_RosterFrame.SortType ~= 6 then
-            if GRM_UI.GRM_RosterFrame.SortType < 5 or ( GRM_UI.GRM_RosterFrame.SortType > 6 and GRM_UI.GRM_RosterFrame.SortType < 11 ) then
+            if GRM_UI.GRM_RosterFrame.SortType < 5 or ( GRM_UI.GRM_RosterFrame.SortType > 6 and GRM_UI.GRM_RosterFrame.SortType < 15 ) then
                 GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
             end
             GRM_UI.GRM_RosterFrame.SortType = 5;
@@ -1003,6 +1003,16 @@ GRM_R.SortRank = function ( _ , keepType , reSizeButtons )
            -- Sort names by max level ascending, within each rank
     elseif GRM_UI.GRM_RosterFrame.FormerSortType == 10 then
         members = GRM_R.SortByMythicWithinRank ( members , 10 );
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 11 then
+        members = GRM_R.SortByNoteWithinRank ( members , 11 );
+           -- Sort names by max level ascending, within each rank
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 12 then
+        members = GRM_R.SortByNoteWithinRank ( members , 12 );
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 13 then
+        members = GRM_R.SortByOfficerNoteWithinRank ( members , 13 );
+           -- Sort names by max level ascending, within each rank
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 14 then
+        members = GRM_R.SortByOfficerNoteWithinRank ( members , 14 );
     end
 
     if GRM.S().groupByMain then
@@ -1152,6 +1162,74 @@ GRM_R.SortByMythicWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return a.MythicScore > b.MythicScore end );
             elseif sortType == 10 then
                 sort ( rankGrouping , function ( a , b ) return a.MythicScore < b.MythicScore end );
+            end
+            for j = 1 , #rankGrouping do
+                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+            end
+
+            currentRank = members[i].rankIndex;
+            rankGrouping = {};
+            table.insert ( rankGrouping , members[i] );
+        end
+    end
+
+    return result;
+end
+
+-- Method:          GRM_R.SortByNoteWithinRank ( table, int )
+-- What it Does:    Takes the already sorted table, then sub-sorts the ranks by playerNote ascending or descending
+-- Purpose:         Greater control of sorting on the roster.
+GRM_R.SortByNoteWithinRank = function ( members , sortType )
+    local result = {};
+    local currentRank = members[1].rankIndex;
+    local rankGrouping = {};
+
+    for i = 1 , #members do
+        -- Working on same rank group
+        if members[i].rankIndex == currentRank then
+            table.insert ( rankGrouping , members[i] );
+        end
+
+        -- rank group has changed, or we are on the final rank
+        if members[i].rankIndex ~= currentRank or i == #members then
+            if sortType == 11 then
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.note ) ) < string.lower ( GRM.Trim( b.note ) ) end );
+            elseif sortType == 12 then
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.note ) ) > string.lower ( GRM.Trim( b.note ) ) end );
+            end
+            for j = 1 , #rankGrouping do
+                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+            end
+
+            currentRank = members[i].rankIndex;
+            rankGrouping = {};
+            table.insert ( rankGrouping , members[i] );
+        end
+    end
+
+    return result;
+end
+
+-- Method:          GRM_R.SortByOfficerNoteWithinRank ( table, int )
+-- What it Does:    Takes the already sorted table, then sub-sorts the ranks by playerNote ascending or descending
+-- Purpose:         Greater control of sorting on the roster.
+GRM_R.SortByOfficerNoteWithinRank = function ( members , sortType )
+    local result = {};
+    local currentRank = members[1].rankIndex;
+    local rankGrouping = {};
+
+    for i = 1 , #members do
+        -- Working on same rank group
+        if members[i].rankIndex == currentRank then
+            table.insert ( rankGrouping , members[i] );
+        end
+
+        -- rank group has changed, or we are on the final rank
+        if members[i].rankIndex ~= currentRank or i == #members then
+            if sortType == 13 then
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.officerNote ) ) < string.lower ( GRM.Trim( b.officerNote ) ) end );
+            elseif sortType == 14 then
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.officerNote ) ) > string.lower ( GRM.Trim( b.officerNote ) ) end );
             end
             for j = 1 , #rankGrouping do
                 table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
@@ -1993,6 +2071,10 @@ GRM_R.ShowOfflineLogic = function ( button )
         GRM.S().showRosterOffline = true;
     else
         GRM.S().showRosterOffline = false;
+        if GRM.S().groupByMain then
+            GRM.S().groupByMain = false;
+            GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsGroupByMain:SetChecked ( false );
+        end
     end
     GRM_R.RefreshRosterName();
 end
@@ -2097,6 +2179,11 @@ end
 GRM_R.GroupByMainLogic = function ( button )
     if button:GetChecked() then
         GRM.S().groupByMain = true;
+        
+        if not GRM.S().showRosterOffline then
+            GRM.S().showRosterOffline = true;
+            GRM_UI.GRM_RosterFrame.GRM_RosterShowOfflineCheckBox:SetChecked ( true );
+        end
     else
         GRM.S().groupByMain = false;
     end

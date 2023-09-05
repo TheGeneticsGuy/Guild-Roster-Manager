@@ -1,7 +1,41 @@
 
 -- Tool to use GRM data to build pre-made macros based on certain filters to handle promotions/demotions/kicking of players. This is due to the fact that the API to do these actions was restricted in patch 7.3, effectively breaking many guild leadership and management addons. This is an attempt to help officers and Guild Leaders' lives out a little bit through creating quick rebuilding macros.
 
--- Globals
+
+GRM_UI.BuildSpcialRules = function()
+
+    -- Core Special Rules Frame
+    GRM_UI.CreateCoreFrame ( "GRM_ToolSpecialRulesFrame" , GRM_UI.GRM_ToolCoreFrame , UIParent , 400 , 450 , "TranslucentFrameTemplate" , true , { "CENTER" , nil , nil , nil } , "HIGH" , true , true );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = {};
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit = false;
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isCopy = false;
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal = "";
+    
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:SetScript ( "OnHide" , function()
+        -- reset the rules
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = {};
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit = false;
+        GRM.ClearRuleHighlights();
+    end);
+     
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:SetScript ( "OnShow" , function()
+        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_ToolSpecialRulesFrameEditText:SetText ( "(" .. GRM.L ( "Edit" ) .. ")" );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_ToolSpecialRulesFrameEditText:Show();
+        elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isCopy then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_ToolSpecialRulesFrameEditText:SetText ( "(" .. GRM.L ( "Copy" ) .. ")" );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_ToolSpecialRulesFrameEditText:Show();
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_ToolSpecialRulesFrameEditText:Hide();
+        end
+    end);
+
+    -- Guild Roster Title
+    GRM_UI.CreateString ( "GRM_ToolSpecialRulesFrameEditText" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "GameFontNormalSmall" , GRM.L ( "Edit" ) , 14 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "TOPLEFT" , 15 , -15 } , nil , { 1 , 0 , 0 } );
+
+end
+
 
 -- CREATING FRAMES -- 
 -- Core Frame
@@ -67,6 +101,8 @@ GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab = CreateFrame ( "Button" , "GRM_PromoTab" 
 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTabText = GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:CreateFontString ( nil , "OVERLAY" , GRM_G.GameFontNormal );
 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab = CreateFrame ( "Button" , "GRM_DemoteTab" , GRM_UI.GRM_ToolCoreFrame , GRM_G.TabTemplate );
 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText = GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:CreateFontString ( nil , "OVERLAY" , GRM_G.GameFontNormal );
+GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab = CreateFrame ( "Button" , "GRM_SpecialTab" , GRM_UI.GRM_ToolCoreFrame , GRM_G.TabTemplate );
+GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTabText = GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:CreateFontString ( nil , "OVERLAY" , GRM_G.GameFontNormal );
 
 -- Macro'd Scroll Frame
 -- SCROLL FRAME
@@ -133,6 +169,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQue
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_TooCoreFrameLimitationText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalTiny" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameSpecialQueText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 
 ----------------------
 -- Custom Rules ------
@@ -307,6 +344,8 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText = GRM_
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton = CreateFrame ( "CheckButton" , "GRM_ToolSyncButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , GRM_G.CheckButtonTemplate );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
+GRM_UI.BuildSpcialRules();
+
 -----------------------------
 --- END OF FRAME CREATION ---
 -----------------------------
@@ -315,8 +354,8 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_U
 local repOperators = { "<" , "=" , ">" };
 local repOperatorsMythic = { ">=" , "=" , "<" };
 
-GRM_G.countAction = { 0 , 0 , 0 };  -- time of kick, promote , demote last counts
-GRM_G.counts = { 0 , 0 , 0 };       -- count values of each
+GRM_G.countAction = { 0 , 0 , 0 , 0 };  -- time of kick, promote , demote last counts
+GRM_G.counts = { 0 , 0 , 0 , 0 };       -- count values of each
 
 -- INITIALIZING FRAME VALUES
 GRM_UI.GRM_ToolCoreFrame:ClearAllPoints();
@@ -357,9 +396,9 @@ GRM_UI.GRM_ToolCoreFrame.Safe = {};                 -- List of safe people for w
 GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;       -- For manually scanning roster when validating macro success
 
 -- Mass Kick, Promote, and Demote tool
-GRM_UI.ruleTypeEnum = { [1] = "kickRules" , [2] = "promoteRules" , [3] = "demoteRules" };
-GRM_UI.ruleTypeEnum2 = { [1] = "kick" , [2] = "promote" , [3] = "demote" };
-GRM_UI.ruleTypeEnum3 = { [1] = GRM.L ( "Kick" ) , [2] = GRM.L ( "Promote" ) , [3] = GRM.L ( "Demote" ) };
+GRM_UI.ruleTypeEnum = { [1] = "kickRules" , [2] = "promoteRules" , [3] = "demoteRules" , [4] = "specialRules" };
+GRM_UI.ruleTypeEnum2 = { [1] = "kick" , [2] = "promote" , [3] = "demote" , [4] = "special" };
+GRM_UI.ruleTypeEnum3 = { [1] = GRM.L ( "Kick" ) , [2] = GRM.L ( "Promote" ) , [3] = GRM.L ( "Demote" ) , [4] = GRM.L ( "Special" ) };
 
 GRM_UI.GRM_ToolCoreFrame:Hide();                    -- Default load position is hidden
 
@@ -374,40 +413,44 @@ GRM_UI.LoadToolFrames = function ( isManual )
     if not isManual then 
         -- Use ESC key to exit window.
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );
+                if key == "ESCAPE" then
+                    if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
 
-                    if GRM.IsRuleHighlighted() then
-                        GRM_UI.RestoreTooltipScale();
-                        GameTooltip:Hide();
-                        GRM.ClearRuleHighlights();
+                        if GRM.IsRuleHighlighted() then
+                            GRM_UI.RestoreTooltipScale();
+                            GameTooltip:Hide();
+                            GRM.ClearRuleHighlights();
 
-                    elseif GRM.IsAnyMacroHighlighted() then
-                        GRM_UI.RestoreTooltipScale();
-                        GameTooltip:Hide();
-                        GRM.ResetToolMacrodHighlights();
-                        GRM.SetMacroButtonText();
+                        elseif GRM.IsAnyMacroHighlighted() then
+                            GRM_UI.RestoreTooltipScale();
+                            GameTooltip:Hide();
+                            GRM.ResetToolMacrodHighlights();
+                            GRM.SetMacroButtonText();
 
-                    else
-                        self:SetPropagateKeyboardInput ( false );
-                        self:Hide();
+                        else
+                            self:SetPropagateKeyboardInput ( false );
+                            self:Hide();
+                        end
                     end
                 end
             end
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                if GRM.IsAnyIgnoredHighlighted() then
-                    GRM.ResetIgnoredHighlights();
-                    GRM.SetIgnoredButtonText();
-                    GRM_UI.RestoreTooltipScale();
-                    GameTooltip:Hide();
-                else
-                    self:SetPropagateKeyboardInput ( false );
-                    self:Hide();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );
+                if key == "ESCAPE" then
+                    if GRM.IsAnyIgnoredHighlighted() then
+                        GRM.ResetIgnoredHighlights();
+                        GRM.SetIgnoredButtonText();
+                        GRM_UI.RestoreTooltipScale();
+                        GameTooltip:Hide();
+                    else
+                        self:SetPropagateKeyboardInput ( false );
+                        self:Hide();
+                    end
                 end
             end
         end);
@@ -468,11 +511,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnHide" , function()
             -- Clear the macro!
-            GRM.CreateMacro ( "/run GRM.Report(\"" .. GRM.L ( "Reserved for GRM Macro Tool Usage. Please do not delete." ) .."\")" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" , true );
+            GRM.CreateMacro ( "/run GRM.Report(\"" .. GRM.L ( "Reserved for GRM Macro Tool Usage. Please do not delete." ) .."\")" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey , true );
             GRM_G.MacroInProgress = false;
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
             GRM.ScanRecommendationsList();
         end);
 
@@ -541,7 +585,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , "TOP" , 0 , 2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , "TOP" , 0 , 2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , "TOP" , 0 , 2 );
-
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameSpecialQueText:SetPoint ( "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab , "TOP" , 0 , 2 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton , "BOTTOM" , 0 , -12 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameRankRestrictionText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
@@ -842,6 +886,17 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
                     end
 
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
+                    validToOpen = false;
+                    -- GRM_UI.ConfigureSpecialRuleFrame();  -- Creating a new rule
+                    -- if not CanGuildPromote() then
+                    --     GRM.Report ( GRM.L ( "Special Rules Not Available at Current Rank" ) .. " " .. GRM.L ( "Feature disabled." ) );
+                    -- else
+                    --     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Show();
+                    --     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
+                    --     GRM.ClearRuleHighlights()
+                    -- end
+                    print("Special Rules feature pending, not yet implemented Standby!")
                 end
 
                 if validToOpen then
@@ -945,6 +1000,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         index = 11;
                     elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                         index = 12;
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
+                        index = 14;
                     end
                     GRM.ResetDefaultSettings( index );
                 end
@@ -1017,10 +1074,15 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
-                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 4 then
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Show();
+                    end
                 else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Show();
+                    GRM.Report ( GRM.L ( "The \"Special\" rules bypass any safe and ignore restrictions." ) );
                 end
             end
         end);
@@ -1028,27 +1090,32 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetScript ( "OnEnter" , function( self )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            local countIgnored = GRM.GetSafePlayers();
-            local result = "";
 
-            if countIgnored > 0 then
-                if countIgnored == 1 then
-                    result = GRM.L ( "1 player is on the safe list." );
-                else
-                    result = GRM.L ( "{num} players are on the safe list." , nil , nil , countIgnored );
-                end
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 4 then
+                local countIgnored = GRM.GetSafePlayers();
+                local result = "";
 
-                if #GRM_UI.GRM_ToolCoreFrame.Safe > 0 then
-                    if #GRM_UI.GRM_ToolCoreFrame.Safe == 1 then
-                        result = result .. " " .. GRM.L ( "1 action is being ignored." );
+                if countIgnored > 0 then
+                    if countIgnored == 1 then
+                        result = GRM.L ( "1 player is on the safe list." );
                     else
-                        result = result .. " " .. GRM.L ( "{num} actions are being ignored." , nil , nil , #GRM_UI.GRM_ToolCoreFrame.Safe );
+                        result = GRM.L ( "{num} players are on the safe list." , nil , nil , countIgnored );
+                    end
+
+                    if #GRM_UI.GRM_ToolCoreFrame.Safe > 0 then
+                        if #GRM_UI.GRM_ToolCoreFrame.Safe == 1 then
+                            result = result .. " " .. GRM.L ( "1 action is being ignored." );
+                        else
+                            result = result .. " " .. GRM.L ( "{num} actions are being ignored." , nil , nil , #GRM_UI.GRM_ToolCoreFrame.Safe );
+                        end
+                    else
+                        result = result .. " " .. GRM.L ( "No current actions are being ignored" );
                     end
                 else
-                    result = result .. " " .. GRM.L ( "No current actions are being ignored" );
+                    result = GRM.L ( "No players are currently safe from recommendations" );
                 end
             else
-                result = GRM.L ( "No players are currently safe from recommendations" );
+                result = GRM.L ( "The \"Special\" rules bypass any safe and ignore restrictions." );
             end
             
             GameTooltip:AddLine ( result );
@@ -1098,11 +1165,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText , "BOTTOMLEFT" , 0 , -42 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetSize ( 80 , 25 );
-        GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 80 , 25 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetSize ( 75 , 25 );
+        GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 75 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetScript ( "OnClick" , function ( self , button )
-            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() then
+            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
                 local needsFullRefresh = false;
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 1 then
                     needsFullRefresh = true;
@@ -1137,11 +1204,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , "RIGHT" , 0 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:SetSize ( 80 , 25 );
-        GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , 80 , 25 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:SetSize ( 75 , 25 );
+        GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , 75 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_PromoTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:SetScript ( "OnClick" , function ( _ , button )
-            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() then
+            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
                 local needsFullRefresh = false;
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 2 then
                     needsFullRefresh = true;
@@ -1175,15 +1242,16 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , "RIGHT" , 0 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:SetSize ( 80 , 25 );
-        GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , 80 , 25 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:SetSize ( 75 , 25 );
+        GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , 75 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:SetScript ( "OnClick" , function ( self , button )
-            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() then
+            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
                 local needsFullRefresh = false;
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 3 then
                     needsFullRefresh = true;
                 end
+
                 GRM_UI.GRM_ToolCoreFrame.TabPosition = 3;                   -- Set Position
                 self:LockHighlight();                                       -- Lock Highlight
                 GRM_UI.ConfigureToolTab();
@@ -1213,6 +1281,51 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
 
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , "RIGHT" , 0 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:SetSize ( 75 , 25 );
+        GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab , 75 , 25 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:SetScript ( "OnClick" , function ( self , button )
+            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
+
+                local needsFullRefresh
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 4 then
+                    needsFullRefresh = true;
+                end
+                GRM_UI.GRM_ToolCoreFrame.TabPosition = 4; 
+                if needsFullRefresh then
+                    GRM_UI.FullMacroToolRefresh();
+                end
+
+                -- Special rules will bypass any "safe" or ignore actions
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:Hide();
+                end
+                                -- Set Position
+                self:LockHighlight();                                       -- Lock Highlight
+                GRM_UI.ConfigureToolTab();
+
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:SetScript ( "OnEnter" , function( self )
+            if not CanGuildDemote() then
+                GRM_UI.SetTooltipScale();
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                GameTooltip:AddLine ( GRM.L ( "Special Rules that don't fit nicely into the other categories." ) );
+                GameTooltip:Show();
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:SetScript ( "OnLeave" , function()
+            if GameTooltip:IsVisible() then
+                GRM_UI.RestoreTooltipScale();
+                GameTooltip:Hide();
+            end
+        end);
+
         -- method:          GRM_UI.ConfigureToolTab()
         -- What it Does:    Locks the selected tab highlighted
         -- Purpose:         UX feature
@@ -1222,6 +1335,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Hide();
 
@@ -1229,6 +1343,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
                 if GRM.S().promoteOnlineOnly then
@@ -1242,6 +1357,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:LockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:UnlockHighlight();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
 
                 if GRM.S().demoteOnlineOnly then
@@ -1250,6 +1366,20 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Show();
+
+            elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:UnlockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:LockHighlight();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDestinationRankHeaderText:Show();
+
+                if GRM.S().demoteOnlineOnly then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( true );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Hide();
 
             end
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
@@ -1410,11 +1540,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                GRM.ClearRuleHighlights();
-                self:Hide();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    GRM.ClearRuleHighlights();
+                    self:Hide();
+                end
             end
         end);
 
@@ -1510,7 +1642,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFramePromoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
-
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameSpecialQueText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    
     -- Rules
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText:SetText ( GRM.L ( "Rules" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameKickRulesText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
@@ -1530,6 +1663,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText:SetText ( GRM.L ( "Demote" ) );
     GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:GetWidth() , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText , 3 );
+    
+    GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTabText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTabText:SetText ( GRM.L ( "Special" ) );
+    GRM_UI.ScaleFontStringToObjectSize ( true , GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTab:GetWidth() , GRM_UI.GRM_ToolCoreFrame.GRM_SpecialTabText , 3 );
 
     -- Settings Reset
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSettingsButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -1568,10 +1705,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = false;
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.ruleNameOriginal = "";
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                end
             end
         end);
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetScript ( "OnHide" , function()
@@ -1585,7 +1724,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Close Button
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesFrameCloseButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPRIGHT" , 0 , 0 );
 
-        -- Title
+        -- Edit Text
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 15 , -15 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRuleNumberText:SetTextColor ( 1 , 0 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOP" , 0 , -22 );
@@ -1895,6 +2034,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     -- Set the GUID
                     GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].GUID = GRM.GetMacroRuleGUID ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] );
 
+                    ---- MACRO RULE SYNCING
                     -- GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = {};
                     -- GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString = GRM.ConvertMacroRuleToString ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] , GRM_UI.GRM_ToolCoreFrame.TabPosition );
                     -- GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex = GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleIndex;
@@ -1919,7 +2059,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         end
                     end
 
-                    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and GRM.S().macroSyncKickEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and GRM.S().macroSyncPromoteEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and GRM.S().macroSyncDemoteEnabled ) then
+                    if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and GRM.S().macroSyncKickEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and GRM.S().macroSyncPromoteEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and GRM.S().macroSyncDemoteEnabled ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 and GRM.S().macroSyncSpecialEnabled ) then
                         -- GRM.SendRuleAdd ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name , GRM_G.MacroRuleSyncFormat[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].ruleString , true );
                     end
 
@@ -2045,7 +2185,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             -- Want to disable all ranks in promotion or demotion as in most cases you don't want it to apply to all players.
             local setRankEnabled = true;
-            if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 and GRM_UI.GRM_ToolCoreFrame.TabPosition < 4 then
                 setRankEnabled = false;
             end
 
@@ -2165,7 +2305,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote = function()
             local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
             local rankCap
-            if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 then
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition > 1 and GRM_UI.GRM_ToolCoreFrame.TabPosition < 4 then
                 rankCap = ( GuildControlGetNumRanks() - GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank );
             end
 
@@ -3199,6 +3339,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( isEdit , ruleName );
         end
 
+        GRM_UI.ConfigureSpecialRuleFrame = function()
+            print("PENDING WORK")
+        end
+
         -- INACTIVITY CUSTOM RULES
         --------------------------
 
@@ -3392,11 +3536,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu:SetFrameStrata ( "DIALOG" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:Show();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:Show();
+                end
             end
         end);
 
@@ -3440,11 +3586,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankdDropDownMenu:SetFrameStrata ( "DIALOG" );
         
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankdDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Show();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Show();
+                end
             end
         end);
         
@@ -3698,11 +3846,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:SetFrameStrata ( "DIALOG" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Show();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Show();
+                end
             end
         end);
 
@@ -3890,10 +4040,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:SetFrameStrata ( "DIALOG" );
         
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                end
             end
         end);
         
@@ -4007,10 +4159,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:SetFrameStrata ( "DIALOG" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                end
             end
         end);
 
@@ -4072,10 +4226,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:SetFrameStrata ( "DIALOG" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                end
             end
         end);
 
@@ -4591,10 +4747,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:SetFrameStrata ( "DIALOG" );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-            self:SetPropagateKeyboardInput ( true );
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
-                self:Hide();
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                end
             end
         end);
 
@@ -4758,7 +4916,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 25 );
             end
         end
-
     end
 
     -- Custom Rules Fontstrings
@@ -5064,6 +5221,10 @@ GRM.GetQueuedEntries = function ()
         end
     elseif ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() ) then
         result = GRM.GetNamesByFilterRules ( GRM_UI.GRM_ToolCoreFrame.TabPosition );
+
+    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
+        result = GRM.GetNamesBySpecialRules();
+
     end
 
     return result;
@@ -5665,7 +5826,7 @@ GRM.GetMacroEntries = function ()
             -- Macro IS full, and we are still on the first set.
             elseif #tempText > 255 and count2 == 0 then
                 finalCount = #macroTxt;
-                GRM.CreateMacro ( macroTxt , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" );
+                GRM.CreateMacro ( macroTxt , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );
                 macroSet = true;
                 count = 0;
                 count2 = count2 + 1;
@@ -5686,7 +5847,7 @@ GRM.GetMacroEntries = function ()
         if i > #entries then
             if not macroSet and #tempText > 0 then
                 finalCount = #macroTxt;
-                GRM.CreateMacro ( macroTxt , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" );
+                GRM.CreateMacro ( macroTxt , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );
             end
             count2 = count2 + 1;
             -- Finished!
@@ -6048,7 +6209,7 @@ end
 -- What it Does:    Resets Macro
 -- Purpose:         Clear the macro after each use so it can be rebuilt - prevents double use of macro by spam clicking.
 GRM.RMM = function()
-    GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" , true );
+    GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey , true );
     GRM_G.HK = true;
 end
 
@@ -6075,7 +6236,7 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
 
     elseif not fullRefresh then
         -- Clear the macro
-        GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , "CTRL-SHIFT-K" , true );
+        GRM.CreateMacro ( "" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey , true );
     end
 
 
@@ -6923,7 +7084,7 @@ end
 -- What it Does:    Removes the given rule
 -- Purpose:         Control over adding and removing rules.
 GRM.RemoveRuleButtonLogic = function ( ruleType , name )
-    local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 };
+    local typeEnum = { ["kickRules"] = 1 , ["promoteRules"] = 2 , ["demoteRules"] = 3 , ["specialRules"] = 4 };
     local epochTime = time();
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
     GRM.AdjustRuleNumbers ( name , ruleType , GRM.S()[ruleType][name].ruleIndex );
@@ -6978,6 +7139,13 @@ end
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetDemoteRule = function ( name )
     return GRM.DeepCopyArray ( GRM.S()["demoteRules"][name] );
+end
+
+-- Method:          GRM.GetSpecialRule()
+-- What it Does:    Returns the given rule by name
+-- Purpose:         To easily be able to edit the existing rule
+GRM.GetSpecialRule = function ( name )
+    return GRM.DeepCopyArray ( GRM.S()["specialRules"][name] );
 end
 
 -- Method:          GRM.ChangeRuleName ( string , string , string )
@@ -7285,6 +7453,8 @@ GRM.GetRuleEntries = function ( ruleType )
         tempTable = GRM.DeepCopyArray ( GRM.S().promoteRules );
     elseif ruleType == 3 then
         tempTable = GRM.DeepCopyArray ( GRM.S().demoteRules );
+    elseif ruleType == 4 then
+        tempTable = GRM.DeepCopyArray ( GRM.S().specialRules );
     end
 
     for _ , rule in pairs ( tempTable ) do
@@ -7457,6 +7627,20 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                         else
                             GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName );
                         end
+
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
+                        if not CanGuildDemote() or not CanGuildPromote() then
+                            validToOpen = false;
+                            if not CanGuildDemote() and not CanGuildPromote() then
+                                GRM.Report ( GRM.L ( "Unable to promote or demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildPromote() then
+                                GRM.Report ( GRM.L ( "Unable to promote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildDemote() then
+                                GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            end
+                        else
+                            GRM_UI.ConfigureSpecialRuleFrame ( true , ruleName );
+                        end
     
                     end
                     if validToOpen then
@@ -7498,6 +7682,20 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                             GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
                         else
                             GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( true , ruleName , true );
+                        end
+
+                    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
+                        if not CanGuildDemote() or not CanGuildPromote() then
+                            validToOpen = false;
+                            if not CanGuildDemote() and not CanGuildPromote() then
+                                GRM.Report ( GRM.L ( "Unable to promote or demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildPromote() then
+                                GRM.Report ( GRM.L ( "Unable to promote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildDemote() then
+                                GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            end
+                        else
+                            GRM_UI.ConfigureSpecialRuleFrame ( true , ruleName );
                         end
     
                     end
@@ -7837,6 +8035,8 @@ GRM.UpdateRulesTooltip = function ( ind )
             rule = GRM.GetPromoteRule ( ruleName );
         elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
             rule = GRM.GetDemoteRule ( ruleName );
+        elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
+            rule = GRM.GetSpecialRule ( ruleName );
         end
     local c = {};
     local time = "";
@@ -8167,10 +8367,13 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                                 if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
                                     -- We know that the rank is valid at this point as it has been made true
                                     ruleConfirmedCheck = false;
-                                    if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] and player.rankHist[1][7] and GRM.HasTimeExceededDate ( player.rankHist[1][5] , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].evenIfActiveHours ) then
+                                    
+                                    local epochDate = GRM.convertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] , 1 , 0 , 0 , false );
+
+                                    if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] and player.rankHist[1][7] and GRM.HasTimeExceededDate ( epochDate , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].evenIfActiveHours ) then
                                         ruleConfirmedCheck = true;
                                         table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
-                                        table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( player.rankHist[1][5] )[4] } );
+                                        table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( epochDate )[4] } );
                                     end
                                 end
 
@@ -8180,8 +8383,12 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                                 if ruleConfirmedCheck and rule.activityFilter then
                                     ruleConfirmedCheck = false;
 
+                                    local epochDate = GRM.convertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] , 1 , 0 , 0 , false );
+
+                                    local epochJoinDate = GRM.convertToEpoch ( player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] , 1 , 0 , 0 , false );
+
                                     -- Initial activity
-                                    if ( rule.sinceAtRank and player.rankHist[1][7] and GRM.HasTimeExceededDate ( player.rankHist[1][5] , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) or ( not rule.sinceAtRank and player.joinDateHist[1][6] and GRM.HasTimeExceededDate ( player.joinDateHist[1][4] , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
+                                    if ( rule.sinceAtRank and player.rankHist[1][7] and GRM.HasTimeExceededDate ( epochDate , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) or ( not rule.sinceAtRank and player.joinDateHist[1][6] and GRM.HasTimeExceededDate ( epochJoinDate , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
 
 
                                         -- It appears the player HAS been at the rank for that given amount of time - now, do we promote no matter what, or do we check for inactivity?
@@ -8550,10 +8757,13 @@ GRM.GetKickNamesByFilterRules = function()
                         if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
                             -- We know that the rank is valid at this point as it has been made true
                             ruleConfirmedCheck = false;
-                            if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.GetHoursSinceTimestamp ( player.rankHist[1][5] ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
+
+                            local epochDate = GRM.convertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] , 1 , 0 , 0 , false );
+
+                            if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.GetHoursSinceTimestamp ( epochDate ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
                                 ruleConfirmedCheck = true;
                                 table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
-                                table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( player.rankHist[1][5] )[4] } );
+                                table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( epochDate )[4] } );
                             end
                         end
 
@@ -8745,6 +8955,19 @@ GRM.GetKickNamesByFilterRules = function()
     return listOfPlayers;
 end
 
+-- Method:          GRM.GetNamesBySpecialRules()
+-- What it Does:    Returns the list of players that match the "special" rules
+-- Purpose:         Allow the creation of rather unique rules.
+GRM.GetNamesBySpecialRules = function()
+    local listOfPlayers = {};
+    GRM_G.countAction[4] = time();
+
+
+    GRM_G.counts[4] = #listOfPlayers;
+
+    return listOfPlayers;
+end
+
 -- Method:          GRM.SortAltsUnderMain ( table )
 -- What it Does:    Sorts all of the people in the macro tool to be mains, with alts underneath them
 -- Purpose:         Quality of life sorting when looking at the macro tool
@@ -8927,6 +9150,14 @@ GRM.RefreshMacroToolRuleCount = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetTextColor ( GRM.S().logColor[5][1] , GRM.S().logColor[5][2] , GRM.S().logColor[5][3] );
         end
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameDemoteQueText:SetText ( GRM_G.counts[3] );
+
+        if GRM_G.counts[4] == 0 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameSpecialQueText:SetTextColor ( 0 , 0.8 , 1 );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameSpecialQueText:SetTextColor ( 0.9 , 0.8 , 0.5 );
+        end
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameSpecialQueText:SetText ( GRM_G.counts[4] );
+
     end
 end
 
@@ -8936,7 +9167,7 @@ end
 -- Purpose:         Refreshes the names
 GRM.GetCountOfNamesBeingFiltered = function()
     local listOfNames = {};
-    local k , p , d = 0 , 0 , 0;    -- Kick , Promote , Demote
+    local k , p , d , s = 0 , 0 , 0 , 0;    -- Kick , Promote , Demote , Special
 
     -- Add Remove Names
     if CanGuildRemove() then
@@ -8978,9 +9209,22 @@ GRM.GetCountOfNamesBeingFiltered = function()
         end
     end
 
+    -- Add Special Names
+    if CanGuildPromote() then
+        if time() - GRM_G.countAction[4] > 0.25 then
+            listOfNames = GRM.GetNamesBySpecialRules();
+            for _ in pairs ( listOfNames ) do
+                s = s + 1;
+            end
+            GRM_G.counts[4] = s;
+        else
+            s = GRM_G.counts[4];
+        end
+    end
+
     GRM.RefreshMacroToolRuleCount();
 
-    return k , p , d , listOfNames;
+    return k , p , d , s , listOfNames;
 end
 
 ------------------------
@@ -9035,7 +9279,7 @@ GRM_UI.RefreshToolButtonsOnUpdate = function()
     if GRM_G.guildName ~= "" then
         
         GRM_UI.GRM_LoadToolOldRosterButton.count = {GRM.GetCountOfNamesBeingFiltered()};
-        GRM_UI.GRM_LoadToolOldRosterButton.total = GRM_UI.GRM_LoadToolOldRosterButton.count[1] + GRM_UI.GRM_LoadToolOldRosterButton.count[2] + GRM_UI.GRM_LoadToolOldRosterButton.count[3];
+        GRM_UI.GRM_LoadToolOldRosterButton.total = GRM_UI.GRM_LoadToolOldRosterButton.count[1] + GRM_UI.GRM_LoadToolOldRosterButton.count[2] + GRM_UI.GRM_LoadToolOldRosterButton.count[3] + GRM_UI.GRM_LoadToolOldRosterButton.count[4];
         GRM_UI.GRM_LoadToolButton.count = GRM_UI.GRM_LoadToolOldRosterButton.count;
         GRM_UI.GRM_LoadToolButton.total = GRM_UI.GRM_LoadToolOldRosterButton.total;
 
@@ -9108,7 +9352,7 @@ GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolDisableLogSpamCheckbutton:SetChecked ( false );
     end
 
-    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
 
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Hide();
 
@@ -9129,6 +9373,7 @@ GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
             GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:SetChecked( false );
         end
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroToolShowOnlineOnlyCheckButton:Show();
+
     end
 
 end);
@@ -9650,6 +9895,17 @@ GRM.BuildDemoteRuleToSync = function ( rule )
 
     return result;
 end
+
+-- Method:          GRM.BuildSpecialRuleToSync ( table )
+-- What it Does:    Converts all of the rule values into a string
+-- Purpose:         So the rule can be shared among officers.
+GRM.BuildSpecialRuleToSync = function ( rule )
+    local result = "";
+
+
+    return result;
+end
+
 
 -- -- Method:          GRM.SendRuleAdd ( string , string , string , bool )
 -- -- What it Does:    Sends a macro rule to a player to be checked, any type

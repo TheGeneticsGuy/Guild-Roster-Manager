@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 116;
+local totalPatches = 117;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1260,7 +1260,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             GRM_Patch.ConvertSettings();
             GRM_Patch.ConvertDatabase();
         end
-
+        
         if loopCheck ( 1.961 ) then
             return;
         end
@@ -1348,6 +1348,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.FixSettingsNames();
         GRM_Patch.ConvertSettingsToNewFormat();
 
+        GRM_AddonSettings_Save.VERSION = "R1.978";
         if loopCheck ( 1.978 ) then
             return;
         end
@@ -1362,7 +1363,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
         end
 
-
+        GRM_AddonSettings_Save.VERSION = "R1.979";
         if loopCheck ( 1.979 ) then
             return;
         end
@@ -1378,6 +1379,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.EditSetting ( "exportFilters" , GRM_Patch.ConvertExportFilters );
         GRM_Patch.AddNewSetting ( "ExportLevelRange" , {1,999} );  -- 999 represents MaxLevel
 
+        GRM_AddonSettings_Save.VERSION = "R1.981";
         if loopCheck ( 1.981 ) then
             return;
         end
@@ -1396,10 +1398,29 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddNewSetting ( "showAltTags" , false );
         GRM_Patch.AddNewSetting ( "showRosterOffline" , true );
         GRM_Patch.AddNewSetting ( "showRosterOptions" , true );
-        GRM_Patch.AddNewSetting ( "numRosterRows" , 18 ); 
+        GRM_Patch.AddNewSetting ( "numRosterRows" , 18 );
         GRM_Patch.EditSetting ( "UIScaling" , GRM_Patch.UpdateUIScaling );
 
+        GRM_AddonSettings_Save.VERSION = "R1.982";
         if loopCheck ( 1.982 ) then
+            return;
+        end
+    end
+
+
+    -- patch 117
+    patchNum = patchNum + 1;
+    if numericV < 1.983 and baseValue < 1.983 then
+        
+        GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixAltGroupModified , true , true , false , nil );
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.ModifyJoinAndPromoteDates , true , true , false , nil );
+        GRM_Patch.EditSetting ( "removedMacroRules" , GRM_Patch.UpdateRemovedMacro );
+        GRM_Patch.AddNewSetting ( "specialRules" , {} );
+        GRM_Patch.AddNewSetting ( "macroSyncSpecialEnabled" , true );
+
+        GRM_AddonSettings_Save.VERSION = "R1.983";
+        if loopCheck ( 1.983 ) then
             return;
         end
     end
@@ -1767,6 +1788,77 @@ GRM_Patch.RemoveMacroInClassic = function()
     end
 
 end
+
+-- Method:          GRM.TimeStampToEpoch (timestamp)
+-- What it Does:    Converts a given timestamp: "22 Mar '17" into Epoch Seconds time (UTC timezone)
+-- Purpose:         On adding notes, epoch time is considered when calculating how much time has passed, for exactness and custom dates need to include it.
+GRM.TimeStampToEpoch = function ( timestamp , IsStartOfDay , knownHour , knownMinute , knownSeconds )
+    -- Parsing Timestamp to useful data.
+    if not timestamp then
+        return;
+    end
+
+    local day , month, year , hour , minute , seconds , leapYear;
+
+    if type ( timestamp ) == "string" then
+        timestamp = GRM.GetCleanTimestamp ( timestamp );
+        year = GRM.GetEventYear ( timestamp );
+        month = monthEnum [ GRM.GetEventMonth ( timestamp ) ];
+        day = GRM.GetEventDay ( timestamp );
+    elseif type ( timestamp ) == "table" then
+        day = timestamp[1];
+        month = timestamp[2];
+        year = timestamp[3];
+        if year < 1000 then
+            year = year + 2000;
+        end
+    end
+    
+    leapYear = GRM.IsLeapYear ( year );
+
+    -- End timestamp Parsing... 
+    
+    if IsStartOfDay then
+        hour = 11;
+        minute = 1;
+        seconds = 0;
+    else
+        if knownHour and knownMinute then
+            hour = knownHour;
+            minute = knownMinute;
+        else
+            hour , minute = GetGameTime();
+        end
+        seconds = knownSeconds or date ( '*t' ).sec;
+    end
+
+    -- calculate the number of seconds passed since 1970 based on number of years that have passed.
+    local totalSeconds = 0;
+    for i = year - 1 , 1970 , -1 do
+        if GRM.IsLeapYear ( i ) then
+            totalSeconds = totalSeconds + ( 366 * 86400 ); -- leap year = 366 days + 1 extra day
+        else
+            totalSeconds = totalSeconds + ( 365 * 86400 ); -- 365 days in normal year
+        end
+    end
+    
+    -- Now lets calculate how much time this year...
+    local monthDays = daysBeforeMonthEnum [ tostring ( month ) ];
+    if leapYear and ( month > 2 or ( month == 2 and day == 29 ) ) then -- Adding 1 for the leap year
+        monthDays = monthDays + 1;
+    end
+    -- adding month days so far this year to result so far.
+    totalSeconds = totalSeconds + ( monthDays * 86400);
+
+    -- The rest is easy... as of now, I will not import hours/minutes/seconds, but I will leave the calculations in place in case need arises.
+    totalSeconds = totalSeconds + ( ( day - 1 ) * 86400 );  -- days
+    totalSeconds = totalSeconds + ( hour * 3600 );
+    totalSeconds = totalSeconds + ( minute * 60 );
+    totalSeconds = totalSeconds + seconds;
+    
+    return totalSeconds;
+end
+
 
 -------------------------------
 --- START PATCH LOGIC ---------
@@ -7451,30 +7543,37 @@ end
 -- Purpose:         Quality of Life UI feature.
 GRM_Patch.ResetUIScaling = function( scaling )
     local W , H , S = 0 , 0 , 0;
+    if not scaling or not scaling[1] then
+        
+        scaling = { { 600 , 535 , 1.0 } , { 400 , 439 , 1.0 } , { 1200 , 515 , 1.0 } , { 1075 , 540 , 1.0 } , { 875 , 400 , 1.0 } };
+        
+    else
 
-    for i = 1 , 5 do
-        if type ( scaling[i] ) ~= "table" then
-            S = 1;
+        for i = 1 , 5 do
+            if not scaling[i] or type ( scaling[i] ) ~= "table" then
+                S = 1;
 
-            if i == 1 then
-                W , H = 600 , 535;
-            elseif i == 2 then
-                W , H = 400 , 439;
-            elseif i == 3 then
-                W , H = 1200 , 515;
-            elseif i == 4 then
-                W , H = 1075 , 550;
-            else
-                W , H = 875 , 400;
+                scaling[i] = {};
+
+                if i == 1 then
+                    W , H = 600 , 535;
+                elseif i == 2 then
+                    W , H = 400 , 439;
+                elseif i == 3 then
+                    W , H = 1200 , 515;
+                elseif i == 4 then
+                    W , H = 1075 , 550;
+                else
+                    W , H = 875 , 400;
+                end
+
+                scaling[i] = { W , H , S };
             end
-
-            scaling[i] = { W , H , S };
         end
     end
 
     return scaling;
 end
-
 -- 1.971
 -- Method:          GRM_Patch.CleanUpAltGroupsFromError()
 -- What it Does:    Cleans up old dead alt groups
@@ -7818,9 +7917,10 @@ end
 -- Purpose:         Much cleaner and easier to read...
 GRM_Patch.ConvertExportFilters = function( exportFilters )
 
-    if exportFilters[1] ~= nil then
-        local newFilters = {};
+    local newFilters = {};
 
+    if exportFilters and exportFilters[1] ~= nil then
+    
         newFilters.name = exportFilters[1];
         newFilters.rank = exportFilters[2];
         newFilters.level = exportFilters[3];
@@ -7853,6 +7953,40 @@ GRM_Patch.ConvertExportFilters = function( exportFilters )
         end
 
         exportFilters = newFilters;
+    else
+        exportFilters = {};
+        exportFilters.name = true;
+        exportFilters.rank = true;
+        exportFilters.level = true;
+        exportFilters.class = true;
+        exportFilters.race = true;
+        exportFilters.sex = true;
+        exportFilters.lastOnline = true;
+        exportFilters.mainAlt = true;
+        exportFilters.alts = true;
+        exportFilters.joinDate = true;
+        exportFilters.promoteDate = true;
+        exportFilters.rankHist = true;
+        exportFilters.bday = true;
+        exportFilters.rep = true;
+        exportFilters.note = true;
+        exportFilters.oNote = true;
+        exportFilters.cNote = true;
+        exportFilters.mythicScore = true;
+        exportFilters.faction = true;
+        exportFilters.GUID = false;
+        exportFilters.MainOrAlt = false;
+        exportFilters.mainOnly = true;
+
+        if GRM_G.BuildVersion < 40000 then
+            newFilters.rep = false;
+        end
+
+        if GRM_G.BuildVersion < 80000 then
+            newFilters.mythicScore = false;
+        end
+
+        exportFilters = newFilters;
     end
 
     return exportFilters;
@@ -7871,4 +8005,55 @@ GRM_Patch.UpdateUIScaling = function ( UIScaling )
     UIScaling[6] = { rosterFrameDefault , 525 , 1 };        -- Adding Roster Frame
 
     return UIScaling;
+end
+
+-- R1.983
+-- Method:          GRM_Patch.FixAltGroupModified ( table )
+-- What it Does:    Rebuilds a missing variable, if missing
+-- Purpose:         Due to an old bug, some people may have lost this variable and it needs ot be restored.
+GRM_Patch.FixAltGroupModified = function ( player )
+
+    if not player.altGroupModified then
+        player.altGroupModified = 0;
+    end
+
+    return player;
+end
+
+-- R1.983
+-- Method:          GRM_Patch.ModifyJoinAndPromoteDates ( table )
+-- Wha
+GRM_Patch.ModifyJoinAndPromoteDates = function ( player )
+
+    for i = 1 , #player.joinDateHist do
+        if player.joinDateHist[i][1] == 0 then
+            player.joinDateHist[i][4] = "0";
+        else
+            player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+        end
+    end
+
+    for i = 1 , #player.rankHist do
+        if player.rankHist[i][2] == 0 then
+            player.rankHist[i][5] = "0";
+        else
+            player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+        end
+    end
+
+
+    return player;
+end
+
+-- R1.983
+-- Method:          GRM_Patch.UpdateRemovedMacro ( table )
+-- What it Does:    Adds a new array for the specialRules that have been removed
+-- Purpose:         All the control and syncing of the macro rules.
+GRM_Patch.UpdateRemovedMacro = function ( rules )
+
+    if not rules.specialRules then
+        rules.specialRules = {};
+    end
+
+    return rules;
 end
