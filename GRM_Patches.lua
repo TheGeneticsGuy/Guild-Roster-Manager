@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 117;
+local totalPatches = 118;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1425,6 +1425,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- patch 118
+    patchNum = patchNum + 1;
+    if numericV < 1.984 and baseValue < 1.984 then
+        
+        GRM_Patch.AddNewSetting ( "macroHotKey" , "CTRL-SHIFT-K" );
+
+        GRM_AddonSettings_Save.VERSION = "R1.984";
+        if loopCheck ( 1.984 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end

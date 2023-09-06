@@ -1,3 +1,15 @@
+## **VERSION 1.984 RELEASE - September 6th, 2023**
+
+***QUALITY OF LIFE***
+
+* **Customizable Macro Hot Key**
+  - In addition to the macro key now being able to be changed easily to whatever you want, it does also have protection built-in to warn you if you would be overwriting an existing keybind, and what that keybind is for. So feel free to safely "Confirm" be warned before finalizing.
+
+***BUG FIXES***
+
+* Issue with sync being broken with previous release. Sorry about that! Was rushing to get out the door when I saw servers were up 4 hours early! This should be fixed now.
+
+
 ## **VERSION 1.983 RELEASE - September 5th, 2023**
 
 *Please note - I am working on a few features and I just couldn't get them out in time for 10.1.7, so I am releasing a compatibility update as well as bug fixes, mainly. You will see some remnants of incompleted stuff, like the "Special" tab in the macro tools. Coming soon, but I wanted to make sure compatibility was ready for the latest update.*

@@ -124,8 +124,8 @@ end
 GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , height , points , buttonScript , textTemplate , fontSize , alignment , pointModifier , heightModifier , toolTipScript , toolTipClearScript )
 
     local fontStringText = name.."Text";
-    local indent = pointModifier or 10;
-    local heightM = heightModifier or -5;
+    local indent = pointModifier or 0;
+    local heightM = heightModifier or 0;
 
     if not parentFrame[name] then
         parentFrame[name] = CreateFrame ( "Button" , name , parentFrame , template );
@@ -134,7 +134,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
 
         if textTemplate then
             parentFrame[name][fontStringText] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
-            parentFrame[name][fontStringText]:SetPoint ( "LEFT" , parentFrame[name] , "LEFT" , indent , heightM );
+            parentFrame[name][fontStringText]:SetPoint ( "CENTER" , parentFrame[name] , "CENTER" , indent , heightM );
             parentFrame[name][fontStringText]:SetWidth ( width - 5 );
             parentFrame[name][fontStringText]:SetSpacing ( 1 );
             parentFrame[name][fontStringText]:SetWordWrap ( false );

@@ -1712,4 +1712,20 @@ GRML.Dutch = function()
     GRM_L["Unable to promote or demote players within the guild at current rank."] = true
     GRM_L["Special Rule Match:"] = true
     
+    -- R1.984
+    GRM_L["Edit Hot Key"] = true
+    GRM_L["Clear"] = true
+    GRM_L["Start Building Your Hot Key"] = true
+    GRM_L["Control"] = true
+    GRM_L["Shift"] = true
+    GRM_L["Confirm New Hot Key?"] = true
+    GRM_L["Please Build Your Hot Key First"] = true
+    GRM_L["Control key is already added."] = true
+    GRM_L["Shift key is already added."] = true
+    GRM_L["Please add only 1 character"] = true
+    GRM_L["Hot Key is the Same"] = true
+    GRM_L["Please add final key"] = true
+    GRM_L["Final Key"] = true
+    GRM_L["WARNING! Keybind is already in use for \"{name}\"."] = true
+    
 end

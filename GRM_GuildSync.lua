@@ -1328,9 +1328,9 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
         isSyncUpdate = true;
     end
 
-    GRM_G.MatchPattern7 = GRM_G.MatchPattern7 or GRM.BuildComPattern ( 7 , "?" , false );
+    GRM_G.MatchPattern4 = GRM_G.MatchPattern4 or GRM.BuildComPattern ( 4 , "?" , false );
 
-    local playerName , epochTimeOfChange , standardTime , noteDestination = GRM.ParseComMsg ( msg , GRM_G.MatchPattern7 );
+    local playerName , epochTimeOfChange , standardTime , noteDestination = GRM.ParseComMsg ( msg , GRM_G.MatchPattern4 );
     local day , month , year = GRM.ParseStandardFormatDate ( standardTime );
 
     epochTimeOfChange = tonumber ( epochTimeOfChange );
@@ -1409,9 +1409,9 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
         isSyncUpdate = true;
     end
 
-    GRM_G.MatchPattern6 = GRM_G.MatchPattern6 or GRM.BuildComPattern ( 6 , "?" , false );
+    GRM_G.MatchPattern3 = GRM_G.MatchPattern3 or GRM.BuildComPattern ( 3 , "?" , false );
 
-    local playerName , standardDate , epochTimeOfChange = GRM.ParseComMsg ( msg , GRM_G.MatchPattern6 );
+    local playerName , standardDate , epochTimeOfChange = GRM.ParseComMsg ( msg , GRM_G.MatchPattern3 );
     local player = GRM.GetPlayer ( playerName );
     local day , month , year = GRM.ParseStandardFormatDate ( standardDate );
 
@@ -2455,7 +2455,7 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
         originalJoinEpoch = tonumber ( originalJoinEpoch );
         banTimeEpoch = tonumber ( banTimeEpoch );
 
-        if reason == "X" then
+        if reason == "X" or reason == nil then
             reason = "";
         else
             reason = string.gsub ( reason , "##" , "?" );   -- Returning the punctuation as this is user-input.
@@ -2483,7 +2483,7 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
 
         banTimeEpoch = tonumber ( banTimeEpoch );
 
-        if reason == "X" then
+        if reason == "X" or reason == nil then
             reason = "";
         else
             reason = string.gsub ( reason , "##" , "?" );   -- Returning the punctuation as this is user-input.
@@ -4917,12 +4917,15 @@ GRMsync.SubmitFinalSyncData = function ()
                         reason = GRMsyncGlobals.BanChanges[i][4]
                         if reason == "" then
                             reason = "x";
+                        elseif reason == nil then
+                            GRMsyncGlobals.BanChanges[i][4] = "";
+                            reason = "x";
                         else
                             reason = string.gsub ( reason , "?" , "##" );
                         end
 
                         playerWhoBanned = GRMsyncGlobals.BanChanges[i][7];
-                        if playerWhoBanned == "" then
+                        if playerWhoBanned == "" or playerWhoBanned == nil then
                             playerWhoBanned = "X";
                         end
 
@@ -5154,8 +5157,8 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
 
     else
         
-        GRM_G.MatchPattern6 = GRM_G.MatchPattern6 or GRM.BuildComPattern ( 6 , "?" , false );
-        playerName , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID = GRM.ParseComMsg ( playerData , GRM_G.MatchPattern6 );
+        GRM_G.MatchPattern8 = GRM_G.MatchPattern8 or GRM.BuildComPattern ( 8 , "?" , false );
+        playerName , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID = GRM.ParseComMsg ( playerData , GRM_G.MatchPattern8 );
 
         rankIndex = tonumber ( rankIndex );
         level = tonumber ( level );
@@ -5265,7 +5268,7 @@ GRMsync.CollectData = function ( msg , prefix )
         while string.find ( msg , "?" ) ~= nil do
             name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             msg = GRM.Next ( msg );
-            standardTime = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
+            standardTime = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             msg = GRM.Next ( msg );
 
             if string.find ( msg , "?" ) ~= nil then
@@ -5274,9 +5277,8 @@ GRMsync.CollectData = function ( msg , prefix )
             else
                 timeStampOfChange = tonumber ( msg );
             end
-            day , month , year = GRM.ParseStandardFormatDate ( standardTime ); -- Convert Epoch stamp to actual date
             
-            table.insert ( GRMsyncGlobals.JDReceivedTemp , { name , timeStampOfChange , day , month , year , dateInEpoch , GRMsyncGlobals.CurrentSyncPlayer , GRMsyncGlobals.CurrentSyncPlayerRankRequirement } );
+            table.insert ( GRMsyncGlobals.JDReceivedTemp , { name , timeStampOfChange , standardTime , GRMsyncGlobals.CurrentSyncPlayer , GRMsyncGlobals.CurrentSyncPlayerRankRequirement } );
         end
     
     -- PROMO DATE
@@ -5403,7 +5405,7 @@ GRMsync.CollectData = function ( msg , prefix )
 
         banTimeEpoch = tonumber ( banTimeEpoch );
 
-        if reason == "X" then
+        if reason == "X" or reason == nil then
             reason = "";
         else
             reason = string.gsub ( reason , "##" , "?" );   -- Returning the punctuation as this is user-input.
@@ -5645,7 +5647,7 @@ GRMsync.CheckingJDChanges = function ( syncRankFilter )
 
                 else
 
-                    if guildData[exactIndexes[1][j]].joinDateHist[1][5] < GRMsyncGlobals.JDReceivedTemp[i][5] then
+                    if guildData[exactIndexes[1][j]].joinDateHist[1][5] < GRMsyncGlobals.JDReceivedTemp[i][2] then
                         -- Received Data happened more recently! Need to update change!
                         changeData = GRMsyncGlobals.JDReceivedTemp[i];
                     -- Adding my own data, as it is more current

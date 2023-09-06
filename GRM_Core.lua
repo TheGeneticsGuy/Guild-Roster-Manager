@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.983";
-GRM_G.PatchDay = 1693929392;             -- In Epoch Time
-GRM_G.PatchDayString = "1693929392";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.984";
+GRM_G.PatchDay = 1694023380;             -- In Epoch Time
+GRM_G.PatchDayString = "1694023380";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -290,7 +290,7 @@ GRM_G.CreationDatePattern = nil;
 
 -- GRM Management Promo/Demote/kick too
 GRM_G.HK = false;
-GRM_G.MacroHotKey = "CTRL-SHIFT-K";  -- eventually will make customizable.
+GRM_G.MacroHotKey = "";
 
 -- Configuration
 GRM_G.AddonIsFullyConfigured = false;
@@ -809,6 +809,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         player.macroSyncKickEnabled = true;
         player.ignoreFilter = false;
         player.removedMacroRules.kickRules = {};
+        player.macroHotKey = "CTRL-SHIFT-K";
 
     -- Macro Tool Promote Options
     elseif page == 11 then
@@ -817,6 +818,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         player.ignoreFilter = false;
         player.removedMacroRules.promoteRules = {};
         player.promoteOnlineOnly = false;
+        player.macroHotKey = "CTRL-SHIFT-K";
 
     -- Macro Tool Demote Options
     elseif page == 12 then
@@ -825,6 +827,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         player.ignoreFilter = false;
         player.removedMacroRules.demoteRules = {};
         player.demoteOnlineOnly = false;
+        player.macroHotKey = "CTRL-SHIFT-K";
     
     -- Audit
     elseif page == 13 then
@@ -838,6 +841,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         player.macroSyncSpecialEnabled = true;
         player.ignoreFilter = false;
         player.removedMacroRules.specialRules = {};
+        player.macroHotKey = "CTRL-SHIFT-K";
 
     -- Modules
     elseif page == 15 then
@@ -2588,11 +2592,11 @@ end
 -- Method:          GRM.AppendServerName ( string , bool )
 -- What it Does:    Adds the server name to the player's name if it is not there
 -- Purpose:    AppendServerName = fun     In some cases you need the full name-serverName to do some actions, when the server only gives you the name of players you are on same realm with trimmed of server. This adds it back.
-GRM.AppendServerName = function ( memberName , currentGuild )
-    if memberName ~= nil and memberName ~= "" and not string.find ( memberName , "-" ) then
-        memberName = memberName .. "-" .. GRM.GetPlayerServer ( memberName , currentGuild );
+GRM.AppendServerName = function ( name , currentGuild )
+    if name ~= nil and name ~= "" and not string.find ( name , "-" ) then
+        name = name .. "-" .. GRM.GetPlayerServer ( name , currentGuild );
     end
-    return memberName;
+    return name;
 end
 
 -- Method:          GRM.GetPlayerServer ( string , bool )
@@ -2612,10 +2616,20 @@ GRM.GetPlayerServer = function ( name , currentGuild )
             local player = {};
 
             for i = 1 , #realms do
-                if currentGuild then
+
+                if currentGuild == nil then
                     player = GRM.GetPlayer ( name .. "-" .. realms[i] );
+
+                    if not player then
+                        player = GRM.GetFormerPlayer ( name .. "-" .. realms[i] );
+                    end
+
                 else
-                    player = GRM.GetFormerPlayer ( name .. "-" .. realms[i] );
+                    if currentGuild then
+                        player = GRM.GetPlayer ( name .. "-" .. realms[i] );
+                    else
+                        player = GRM.GetFormerPlayer ( name .. "-" .. realms[i] );
+                    end
                 end
                 
                 if player then
@@ -2628,10 +2642,19 @@ GRM.GetPlayerServer = function ( name , currentGuild )
             if #listOfNames > 1 then
 
                 for i = 1 , #listOfNames do
-                    if currentGuild then
+
+                    if currentGuild == nil then
                         player = GRM.GetPlayer ( listOfNames[i] );
+
+                        if not player then
+                            player = GRM.GetFormerPlayer ( listOfNames[i] );
+                        end
                     else
-                        player = GRM.GetFormerPlayer ( listOfNames[i] );
+                        if currentGuild then
+                            player = GRM.GetPlayer ( listOfNames[i] );
+                        else
+                            player = GRM.GetFormerPlayer ( listOfNames[i] );
+                        end
                     end
 
                     if player then
@@ -3782,6 +3805,7 @@ GRM.GetAutoCompleteMatches = function ( list , key , maxResult )
     key = string.lower ( key );
     
     for i = 1 , #list do
+        
         if string.find ( GRM.RemoveSpecialCharacters ( string.lower ( list[i][1] ) ) , key , 1 , true ) or string.find ( string.lower ( list[i][1] ) , key , 1 , true ) then
             table.insert ( result , list[i] );
         end
@@ -7213,7 +7237,7 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
 
     if IsInGuild() then
 
-        for i = 1 , 500 do
+        for i = 1 , GetNumBindings() do
             local name , _ , b = GetBinding(i);
 
             if name == "TOGGLEGUILDTAB" then
@@ -7298,6 +7322,30 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
     end
 end
 
+-- Method:          GRM.BindingCurrentlyInUse ( string )
+-- What it Does:    Returns true if the current keybinding is in use
+-- Purpose:         For editing keybinds be notified if already in use
+GRM.BindingCurrentlyInUse = function ( keyBind )
+    local result = false;
+    local name , c , binding , binding2
+
+    for i = 1 , GetNumBindings() do
+
+        name , c , binding , binding2 = GetBinding(i);
+
+        if keyBind == binding or keyBind == binding2 then
+            result = true;
+            break;
+        end
+    end
+
+    if not result then
+        name = nil;
+    end
+
+    return result , name;
+end
+
 -- Method:          GRM.BuildGuildRosterHotkeyAndMacroCLASSIC ( int , bool )
 -- What it Does:    Adds tooltip and creates macro compatibiltiy to hotkey the CTRL-J just like live servers
 -- Purpose:         Continuity in experience with GRM from latest expansion live to Classic live
@@ -7314,7 +7362,7 @@ GRM.BuildGuildRosterHotkeyAndMacroCLASSIC = function( count , noptt )
         local keyBindGuild = "";
         local keyNum = 0;
 
-        for i = 1 , 500 do
+        for i = 1 , GetNumBindings() do
             local name , _ , b = GetBinding(i);
 
             if name == "TOGGLEGUILDTAB" then
@@ -19634,29 +19682,45 @@ end
 -- Purpose:         Control quick reporting to log and updating server.
 GRM.KickButtonLogic = function ( nameOrGUID , scanNumber , isMacro )
 
+    print ("NAME: " .. nameOrGUID)
     if string.match ( nameOrGUID , "Player-.+" ) then -- guid
         playerThatWasKicked, realm = select ( 6 , GetPlayerInfoByGUID ( nameOrGUID ) );
+        -- run it twice...
+        C_Timer.After ( 1 , function()
+            playerThatWasKicked, realm = select ( 6 , GetPlayerInfoByGUID ( nameOrGUID ) );
 
-        if realm == "" then
-            playerThatWasKicked = GRM.AppendServerName ( playerThatWasKicked );
-        else
-            playerThatWasKicked = playerThatWasKicked .. "-" .. realm;
-        end
+            if realm == "" then
+                playerThatWasKicked = GRM.AppendServerName ( playerThatWasKicked );
+            else
+                playerThatWasKicked = playerThatWasKicked .. "-" .. realm;
+            end
+
+            if playerThatWasKicked then
+                GRM_G.liveKickedToons[playerThatWasKicked] = {};
+            end
+        
+            if isMacro then
+                GRM_G.KickAction ( playerThatWasKicked , GRM_G.addonUser , scanNumber , isMacro );
+            else
+                GRM.BanAndKickingAltsByPlayer ( playerThatWasKicked , scanNumber );
+            end
+            
+        end);
         
     else -- name
         playerThatWasKicked = GRM.AppendServerName ( nameOrGUID );
+        if playerThatWasKicked then
+            GRM_G.liveKickedToons[playerThatWasKicked] = {};
+        end
+    
+        if isMacro then
+            GRM_G.KickAction ( playerThatWasKicked , GRM_G.addonUser , scanNumber , isMacro );
+        else
+            GRM.BanAndKickingAltsByPlayer ( playerThatWasKicked , scanNumber );
+        end
         
     end
 
-    if playerThatWasKicked then
-        GRM_G.liveKickedToons[playerThatWasKicked] = {};
-    end
-
-    if isMacro then
-        GRM_G.KickAction ( playerThatWasKicked , GRM_G.addonUser , scanNumber , isMacro );
-    else
-        GRM.BanAndKickingAltsByPlayer ( playerThatWasKicked , scanNumber );
-    end
 end
 
 -- Method:          GRM_G.KickAction ( string , string )
@@ -25868,6 +25932,7 @@ GRM.InitiateConfirmFrame = function ( InfoText , buttonFunction , button1Text , 
         if button == "LeftButton" then
             if buttonFunction ~= nil then
                 buttonFunction();
+                GRM_UI.GRM_RosterConfirmFrame:Hide();
             else
                 GRM.Report ( GRM.L ( "No Action Configured" ) );
             end
@@ -26707,6 +26772,9 @@ GRM.SettingsLoadedFinishDataLoad = function()
     local langIndex = GRM_G.LocalizedIndex;
     if GRM.S() then
         langIndex = GRM.S().selectedLang;
+        GRM_G.MacroHotKey = GRM.S().macroHotKey;
+    else
+        GRM_G.MacroHotKey = "CTRL-SHIFT-K";
     end
 
     GRML.SetNewLanguage ( langIndex , true , false );

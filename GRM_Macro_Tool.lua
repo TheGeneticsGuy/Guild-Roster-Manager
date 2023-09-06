@@ -1,5 +1,6 @@
 
 -- Tool to use GRM data to build pre-made macros based on certain filters to handle promotions/demotions/kicking of players. This is due to the fact that the API to do these actions was restricted in patch 7.3, effectively breaking many guild leadership and management addons. This is an attempt to help officers and Guild Leaders' lives out a little bit through creating quick rebuilding macros.
+local GRM_Macro = {};
 
 
 GRM_UI.BuildSpcialRules = function()
@@ -33,6 +34,210 @@ GRM_UI.BuildSpcialRules = function()
 
     -- Guild Roster Title
     GRM_UI.CreateString ( "GRM_ToolSpecialRulesFrameEditText" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "GameFontNormalSmall" , GRM.L ( "Edit" ) , 14 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "TOPLEFT" , 15 , -15 } , nil , { 1 , 0 , 0 } );
+
+end
+
+GRM_UI.BuildMacroToolFrame = function()
+
+    GRM_Macro.EditHotKey = function()
+        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame:IsVisible() then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame:Hide();
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame:Show();
+        end
+    end
+
+    -- core Frame
+    GRM_UI.CreateButton ( "GRM_ToolHotKeyEditButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" , GRM.L ( "Edit Hot Key" ) , 100 , 22 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6, "BOTTOMLEFT" , 0 , -5 } , GRM_Macro.EditHotKey , "GameFontNormal" , 12 , "CENTER" );
+
+end
+
+GRM_UI.BuildHotKeyEditWindow = function()
+
+    -- Core Window
+    GRM_UI.CreateCoreFrame ( "GRM_ToolEditHotKeyFrame" , GRM_UI.GRM_ToolCoreFrame , UIParent , 400 , 150 , "TranslucentFrameTemplate" , true , { "CENTER" , "CENTER" , 0 , 20 } , "HIGH" , true , true );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame:Hide();
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.Timer = 0;
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame:SetScript ( "OnShow" , function()
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:SetText ( GRM.S().macroHotKey );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.Timer = time();
+    end);
+
+    GRM_UI.CreateString ( "GRM_EditHotKeyTitle" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "GameFontNormal" , GRM.L ( "Edit Hot Key" ) , 30 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "TOP" , 0 , -20 } );
+
+    GRM_UI.CreateString ( "GRM_HotKeyText" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "GameFontNormal" , "" , 25 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_EditHotKeyTitle , "BOTTOM" , 0 , -15 } , 150 , { 0.0 , 0.8 , 1.0 } , "CENTER" , true );
+
+    GRM_Macro.ClearHotKey = function()
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:SetText ( GRM.L ( "Start Building Your Hot Key" ) );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyEditBox:SetText("");
+    end
+    
+    GRM_UI.CreateButton ( "GRM_HotKeyClearButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "UIPanelButtonTemplate" , GRM.L ( "Clear" ) , 85 , 25 , { "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText , "LEFT" , -10 , 0 } , GRM_Macro.ClearHotKey , "GameFontNormal" , 12 , "CENTER"  );
+
+    GRM_Macro.ConfirmHotKey = function()
+       
+        local newHotKey = GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:GetText();
+
+        if newHotKey == GRM.L ( "Start Building Your Hot Key" ) or newHotKey == "" then
+            GRM.Report ( GRM.L ( "Please Build Your Hot Key First" ) );
+
+        elseif newHotKey == GRM_G.MacroHotKey then
+            GRM.Report ( GRM.L ( "Hot Key is the Same" ) .. "\n" .. GRM.L ( "Please Build Your Hot Key First" ) );
+        
+        elseif newHotKey:sub( #newHotKey , #newHotKey ) == "-" then
+            GRM.Report ( GRM.L ( "Please add final key" ) ); 
+        else
+            local ConfirmHotKey = function()
+                GRM.S().macroHotKey = newHotKey;
+                GRM_G.MacroHotKey = newHotKey;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetText( GRM.L ( "Hot Key: {name}" , GRM_G.MacroHotKey ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame:Hide();
+
+                GRM_UI.FullMacroToolRefresh();
+
+
+            end
+
+            local isInUse , name = GRM.BindingCurrentlyInUse ( newHotKey );
+            local text = GRM.L ( "Confirm New Hot Key?" ) .. "\n\"" .. newHotKey .. "\""
+
+            if isInUse then
+                text = "|CFFFF0000" .. GRM.L ( "WARNING! Keybind is already in use for \"{name}\"." , name ) .. "|r" .. "\n" .. text;
+            end
+            
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyEditBox:ClearFocus();
+
+            GRM.InitiateConfirmFrame ( text , ConfirmHotKey , nil , nil , nil , nil , 350 , 150 );
+
+        end
+
+    end
+
+    GRM_Macro.AddShift = function()
+        local hotKey = GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:GetText();
+        local newHotKey = "";
+
+        if hotKey == GRM_G.MacroHotKey or hotKey == "" or hotKey == GRM.L ( "Start Building Your Hot Key" ) then
+            newHotKey = "SHIFT-"
+
+        elseif hotKey:match ( "SHIFT" ) then
+           GRM.Report ( GRM.L ( "Shift key is already added." ) );
+
+        else
+            if hotKey:match ( "CTRL-" ) then
+                
+                if hotKey == "CTRL-" then
+                    newHotKey = "CTRL-SHIFT-";
+                else
+                    newHotKey = "CTRL-SHIFT-" .. hotKey:match ( "CTRL--(.+)" );
+                end
+
+            else
+                newHotKey = "SHIFT-" .. hotKey;
+            end
+        end
+
+        if newHotKey ~= "" then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:SetText ( newHotKey );
+        end
+    end
+
+    GRM_Macro.AddControl = function()
+        local hotKey = GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:GetText();
+        local newHotKey = "";
+
+        if hotKey == GRM_G.MacroHotKey or hotKey == "" or hotKey == GRM.L ( "Start Building Your Hot Key" ) then
+            newHotKey = "CTRL-"
+
+        elseif hotKey:match ( "CTRL" ) then
+           GRM.Report ( GRM.L ( "Control key is already added." ) )
+
+        else
+            if hotKey:match ( "SHIFT-" ) then
+                
+                if hotKey == "SHIFT-" then
+                    newHotKey = "SHIFT-CTRL-";
+                else
+                    newHotKey = "SHIFT-CTRL-" .. hotKey:match ( "SHIFT--(.+)" );
+                end
+            else
+                newHotKey = "CTRL-" .. hotKey;
+            end
+        end
+
+        if newHotKey ~= "" then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:SetText ( newHotKey );
+        end
+    end
+
+    GRM_UI.CreateButton ( "GRM_HotKeyConfirmButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "UIPanelButtonTemplate" , GRM.L ( "Confirm" ) , 85 , 25 , { "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText , "RIGHT" , 10 , 0 } , GRM_Macro.ConfirmHotKey , "GameFontNormal" , 12 , "CENTER" );
+
+    GRM_UI.CreateButton ( "GRM_HotKeyShiftButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "UIPanelButtonTemplate" , GRM.L ( "Shift" ) , 85 , 25 , { "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "BOTTOM" , 0 , 20 } , GRM_Macro.AddShift , "GameFontNormal" , 12 , "CENTER" );
+
+    GRM_UI.CreateButton ( "GRM_HotKeyControlButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "UIPanelButtonTemplate" , GRM.L ( "Control" ) , 85 , 25 , { "RIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyShiftButton , "LEFT" , -5 , 0 } , GRM_Macro.AddControl , "GameFontNormal" , 12 , "CENTER" );
+
+    GRM_Macro.HotKeyEditBoxTooltip = function ( frameObject )
+        GRM_UI.SetTooltipScale()
+        GameTooltip:SetOwner ( frameObject , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine( GRM.L ( "Please add only 1 character" ) );
+        GameTooltip:Show();
+    end
+
+    GRM_Macro.UpdateWithFinalKey = function()
+
+        local hotKey = GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:GetText();
+        local newHotKey = "";
+        local editBoxText = string.upper ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyEditBox:GetText() );
+
+        if GRM_UI.GRM_RosterConfirmFrame:IsVisible() then
+            GRM_UI.GRM_RosterConfirmFrame:Hide();
+        end
+
+        -- Don't want the editBox triggering on Show
+        if time() - GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.Timer > 1 then
+
+            if editBoxText ~= "" then
+
+                if hotKey == GRM_G.MacroHotKey or hotKey == "" or hotKey == GRM.L ( "Start Building Your Hot Key" ) then
+                    newHotKey = editBoxText;
+                    -- Only add if final key = the hotKey
+                elseif string.sub ( hotKey , #hotKey , #hotKey ) == "-" then
+                    newHotKey = hotKey .. editBoxText;
+                elseif hotKey:find ( "-" , 1 , true ) then
+                    newHotKey = hotKey:sub ( 1 , #hotKey - 1 ) .. editBoxText;
+                else
+                    newHotKey = editBoxText;
+                end
+
+            else
+                -- Remove the unique final key
+                if hotKey:find ( "-" , 1 , true ) then
+                    if hotKey:find ( "-CTRL-" ) then
+                        newHotKey = "SHIFT-CTRL-";
+                    elseif hotKey:find ( "-SHIFT-" ) then
+                        newHotKey = "CTRL-SHIFT-";
+                    elseif hotKey:find ( "SHIFT-" ) then
+                        newHotKey = "SHIFT-"
+                    elseif hotKey:find ( "CTRL-" ) then
+                        newHotKey = "CTRL-"
+                    end
+                else
+                    newHotKey = GRM.L ( "Start Building Your Hot Key" );
+                end
+            end
+
+            if newHotKey ~= "" then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyText:SetText ( newHotKey );
+            end
+        end
+
+    end
+
+    GRM_UI.CreateEditBox ( "GRM_HotKeyEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "InputBoxTemplate" , 75 , 25 , { "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyShiftButton , "RIGHT" , 10 , -1 } , "CENTER" , nil , 1 , false , GRM_Macro.HotKeyEditBoxTooltip , GRM.RestoreTooltip , GRM_Macro.UpdateWithFinalKey , false , false );
+
+    GRM_UI.CreateString ( "GRM_FinalKeyText" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame , "GameFontNormal" , GRM.L ( "Final Key" ) , 12 , { "BOTTOM" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolEditHotKeyFrame.GRM_HotKeyEditBox , "TOP" , 0 , 2 } , nil , { 0 , 0.8 , 1 } );
+
 
 end
 
@@ -344,7 +549,12 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText = GRM_
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton = CreateFrame ( "CheckButton" , "GRM_ToolSyncButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , GRM_G.CheckButtonTemplate );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
+
+GRM_UI.BuildMacroToolFrame(); -- To be expanded
+
 GRM_UI.BuildSpcialRules();
+
+GRM_UI.BuildHotKeyEditWindow();
 
 -----------------------------
 --- END OF FRAME CREATION ---
@@ -554,7 +764,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetJustifyH ( "LEFT" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOM" , 0 , -20 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame , "BOTTOM" , 0 , -45 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetWidth ( 320 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText7:SetWordWrap ( true );
