@@ -1,3 +1,14 @@
+
+## **VERSION 1.985 RELEASE - September 10th, 2023**
+
+***BUG FIXES***
+
+* Some lua errors causing the scan for changes to fail at times, particularly when logging in. This is a side effect of a previous fix I overlooked and it popped up. This is one error that caused many downstream errors so it will resolve many issues people have reported.
+
+* Apparently GRM has been reporting people that got KICKED as having LEFT the guild, not kicked. This was a 1 line error oversight and easy fix. It didn't apply to people LIVE detected when online, but if they were kicked by an officer whilst you were offline it was not reporting it properly and indicating they had left the guild.
+
+* The position of the GRM custom Roster button was hidden behind the "Groups" tab in Classic builds. I didn't realize there was a groups tab, but I guess that's a thing in Wrath! This has been adjusted to compensate.
+
 ## **VERSION 1.984 RELEASE - September 6th, 2023**
 
 ***QUALITY OF LIFE***
@@ -13,7 +24,7 @@
 ## **VERSION 1.983 RELEASE - September 5th, 2023**
 
 *Please note - I am working on a few features and I just couldn't get them out in time for 10.1.7, so I am releasing a compatibility update as well as bug fixes, mainly. You will see some remnants of incompleted stuff, like the "Special" tab in the macro tools. Coming soon, but I wanted to make sure compatibility was ready for the latest update.*
-
+aaaa
 *Also of note, I am considering ways to support Hardcore on Classic. I have the ability to implement live death tracking, but not if they die when offline. The API appears to be limited right now in Classic Era hardcore. If you have any suggestions on Hardcore support for guilds, I'd be curious to hear. Please report them to the Discord channel!*
 
 **QUALITY OF LIFE**

@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 118;
+local totalPatches = 119;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1433,6 +1433,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.984";
         if loopCheck ( 1.984 ) then
+            return;
+        end
+    end
+
+    -- patch 119
+    patchNum = patchNum + 1;
+    if numericV < 1.985 and baseValue < 1.985 then
+        
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FormatFixVerifiedTime , true , true , false , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.985";
+        if loopCheck ( 1.985 ) then
             return;
         end
     end
@@ -8067,4 +8079,29 @@ GRM_Patch.UpdateRemovedMacro = function ( rules )
     end
 
     return rules;
+end
+
+-- R1.985
+-- Method:          GRM_Patch.FormatFixVerifiedTime ( playerTable )
+-- What it Does:    Checks if the wrong info was saved as a string and the overwrites it correctly.
+-- Purpose:         This ensures the proper formatting of a date.
+GRM_Patch.FormatFixVerifiedTime = function ( player )
+
+    for i = 1 , #player.joinDateHist do
+
+        if type ( player.joinDateHist[i][5] ) == string then
+            player.joinDateHist[i][5] = time();
+        end
+
+    end
+
+    for i = 1 , #player.rankHist do
+
+        if type ( player.rankHist[i][6] ) == string then
+            player.rankHist[i][6] = time();
+        end
+
+    end
+
+    return player;
 end

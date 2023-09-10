@@ -17466,7 +17466,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
 
             GRM_UI.CreateCharacterCountText ( GRM_UI.GuildInfoFrame , GRM_UI.GuildDetailsGuildInformationButton , GRM_UI.GuildInfoEditBox , "GuildINFOcharCount" , -33 , -18 );
 
-            GRM_R.InitializeRosterLoadButton ( FriendsFrame , { "LEFT" , FriendsFrameTab4 , "RIGHT" , -5 , -3 } , { 36 , 36 } , { 28 , 28 } );
+            GRM_R.InitializeRosterLoadButton ( FriendsFrame , { "TOPRIGHT" , FriendsFrame, "BOTTOMRIGHT" , -5 , 5 } , { 36 , 36 } , { 28 , 28 } );
 
             GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
 

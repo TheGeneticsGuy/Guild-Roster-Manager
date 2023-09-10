@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.984";
-GRM_G.PatchDay = 1694023380;             -- In Epoch Time
-GRM_G.PatchDayString = "1694023380";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.985";
+GRM_G.PatchDay = 1694367476;             -- In Epoch Time
+GRM_G.PatchDayString = "1694367476";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -11651,9 +11651,10 @@ end
 -- Method:          GRM.AddLeftOrKickEntry ( string , bool , string , array , array , string , string , string , array , bool )
 -- What it Does     Stores a temp log entry that will later be added in the final report with the pre-processed string
 -- Purpose:         By adding all the metadata the string can be re-processed if the player changes their preferred date format or language.
-GRM.AddLeftOrKickEntry = function ( unitName , playerKicked , timePassed , logEntryMetaData , listOfAlts , mainName , publicNote , officerNote , date , isFoundInEventLog , _ , playerLevel , customNote )
+GRM.AddLeftOrKickEntry = function ( unitName , playerWasKicked , timePassed , logEntryMetaData , listOfAlts , mainName , publicNote , officerNote , date , isFoundInEventLog , _ , playerLevel , customNote )
+    print(unitName .. " - - " .. tostring (playerWasKicked ) .. "- " .. 1 );
 
-    table.insert ( GRM_G.TempLeftGuild , { 10 , GRM.GetLeftOrKickString ( unitName , playerKicked , timePassed , logEntryMetaData , listOfAlts , mainName , publicNote , officerNote , date , isFoundInEventLog , nil , nil , playerLevel , customNote ) , unitName , playerKicked , timePassed , logEntryMetaData , listOfAlts , mainName , publicNote , officerNote , date , isFoundInEventLog , playerLevel , false , customNote } );
+    table.insert ( GRM_G.TempLeftGuild , { 10 , GRM.GetLeftOrKickString ( unitName , playerWasKicked , timePassed , logEntryMetaData , listOfAlts , mainName , publicNote , officerNote , date , isFoundInEventLog , nil , nil , playerLevel , customNote ) , unitName , playerWasKicked , timePassed , logEntryMetaData , listOfAlts , mainName , publicNote , officerNote , date , isFoundInEventLog , playerLevel , false , customNote } );
 end
 
 -- Method:          GRM.AddBanRejoinEntry ( ... )
@@ -11925,20 +11926,21 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
         local timeS , timeArray = GRM.GetTimestamp();
         logEntryMetaData = { true , GRM.GetStringClassColorByName ( officerThatKicked ) .. GRM.FormatName ( officerThatKicked ) .. "|r" , ( classColorCode .. unitName .. "|r" ) , { timeS , time() , timeArray } };
         timestamp = logEntryMetaData[4][1];
-        timeEpoch = logEntryMetaData[4][2];
     -- Guild Event Log Detection
     else
         added , logEntryMetaData = GRM.GetGuildEventString ( 3 , unitName ); -- Kicked from the guild.
         if logEntryMetaData[1] then
+            -- added = true
             timestamp = logEntryMetaData[4][1];
-            timeEpoch = logEntryMetaData[4][2];
             dateArray = logEntryMetaData[4][3];
             stringFound = true;
+            tempStorage[2] = true;
         end
+
     end
 
     -- metaData = 4
-    table.insert ( tempStorage , logEntryMetaData );
+    table.insert ( tempStorage , logEntryMetaData ); -- index 4
 
     -- Keep date formatting consistent.
     local dates = {};
@@ -12064,7 +12066,7 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
         GRM_GuildMemberHistory_Save[GRM_G.guildName][unitName] = nil;
         
     end
-    table.insert ( tempStorage , listOfAlts );
+    table.insert ( tempStorage , listOfAlts ); -- index 5
 
     -- Update the live frames too!
     if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:IsVisible() then
@@ -12074,10 +12076,10 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
     local mainName , playerHasAlts = GRM.GetMainName ( unitName , false );
     if mainName ~= "" and mainName ~= unitName and playerHasAlts then
         -- Ok, if they have no mainName, let's check the left player's list for matches..
-        table.insert ( tempStorage , GRM.GetClassifiedName ( mainName , true ) );
+        table.insert ( tempStorage , GRM.GetClassifiedName ( mainName , true ) );  -- index 6
 
     else
-        table.insert ( tempStorage , "" );
+        table.insert ( tempStorage , "" );  -- index 6
     end
 
     -- Now, let's add their officer/public notes.
@@ -12487,7 +12489,6 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , scan
                             if added then
 
                                 timestamp2 = logEntryMetaData[6][1];
-                                epochTime = logEntryMetaData[6][2];
 
                             else
                                 logEntryMetaData = { logEntryMetaData[1] , nil , simpleName , nameOfBaseRank , member.rankName , { dateArray } }; -- Mostly redundant - only need true/false statement in index 1
@@ -13329,7 +13330,6 @@ GRM.CheckLogChanges = function ( updatedPlayer , player , rosterName )
                 added , logEntryroster = GRM.GetGuildEventString ( 2 , updatedPlayer.name , player.rankName , updatedPlayer.rankName );
                 if added then
                     timestamp = logEntryroster[6][1];
-                    epochTime = logEntryroster[6][2];
                     dateArray = logEntryroster[6][3];
                 end
                 GRM.RecordChanges ( 2 , updatedPlayer , player , logEntryroster , dateArray );
@@ -13344,7 +13344,6 @@ GRM.CheckLogChanges = function ( updatedPlayer , player , rosterName )
                 added , logEntryroster = GRM.GetGuildEventString ( 1 , updatedPlayer.name , player.rankName , updatedPlayer.rankName );
                 if added then
                     timestamp = logEntryroster[6][1];
-                    epochTime = logEntryroster[6][2];
                     dateArray = logEntryroster[6][3];
                 end
                 
@@ -13406,7 +13405,7 @@ GRM.CheckLogChanges = function ( updatedPlayer , player , rosterName )
     elseif updatedPlayer.rankName ~= player.rankName and updatedPlayer.rankIndex == player.rankIndex then
 
         player.rankName = updatedPlayer.rankName; -- Saving new Info
-        if player.rankHist[1][5] > 0 then
+        if #player.rankHist[1][5] > 0 then
             player.rankHist[1][1] = updatedPlayer.rankName;   -- Adjusting the historical name if 
             -- We are just renaming the rank in the history - nothing else.
         end
