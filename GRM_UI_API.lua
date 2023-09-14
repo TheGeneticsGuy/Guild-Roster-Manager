@@ -16,6 +16,14 @@ GRM_UI = {};
 ------ FRAME CREATION AND INIT --------
 ---------------------------------------
 
+-- Formatting stuff
+local buildVersion = select ( 4 , GetBuildInfo() );
+local CheckButtonTemplate = "InterfaceOptionsCheckButtonTemplate"
+
+if buildVersion < 100000 then
+    CheckButtonTemplate = "OptionsSmallCheckButtonTemplate";
+end
+
 -- Method:          GRM_UI.CreateCoreFrame ( string , frame , frame , int , int , bool , string , table , bool , string )
 -- What it Does:    Builds a frame for use in the GRM addon.
 -- Purpose:         Reusable tool to build frames easily, and initialize them.
@@ -112,13 +120,13 @@ GRM_UI.CreateString = function ( name , parentFrame , template , text , fontSize
             parentFrame[name]:SetWordWrap ( false );
         end
     end
-    
+        
     parentFrame[name]:SetText ( text );
     parentFrame[name]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
 
 end
 
--- Method:          GRM_UI.CreateButton ( string , frame , string , string , int , int , table , function , string , int , string , int , function)
+-- Method:          GRM_UI.CreateButton ( string , frame , string , string , int , int , table , function , string , int , string , int , int , function or table , function )
 -- What it Does:    Creates a button using whatever template you wish, as well as the added string
 -- Purpose:         Reusable CreateButton tool
 GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , height , points , buttonScript , textTemplate , fontSize , alignment , pointModifier , heightModifier , toolTipScript , toolTipClearScript )
@@ -128,6 +136,13 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
     local heightM = heightModifier or 0;
 
     if not parentFrame[name] then
+
+        -- Default sizing for radial buttons
+        if template == "UIRadioButtonTemplate" and not width then
+            width = 16;
+            height = 16;
+        end
+
         parentFrame[name] = CreateFrame ( "Button" , name , parentFrame , template );
         parentFrame[name]:SetSize ( width , height );
         parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
@@ -156,9 +171,16 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
 
         -- SCRIPTS
         if toolTipScript then
-            parentFrame[name]:SetScript ( "OnEnter" , function( self )
-                toolTipScript();
-            end);
+
+            if type ( toolTipScript ) == "function" then
+                parentFrame[name]:SetScript ( "OnEnter" , function( self )
+                    toolTipScript();
+                end);
+            else
+                parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
+                    GRM_UI.CreateTooltip ( self , toolTipScript )
+                end);
+            end
 
             parentFrame[name]:SetScript ( "OnLeave" , function( self )
                 if toolTipClearScript then
@@ -179,16 +201,98 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
 
 end
 
+-- Method:          GRM_UI.CreateRadialButtons ( string , string , string , table , table , bool , bool , int , table )
+-- What it Does:    Builds a table of linked radial buttons
+-- Purpose:         Ease of creating radial buttons for options.
+GRM_UI.CreateRadialButtons = function ( name , parentFrame , template , textForEachButton , pointsFirstButton , sortHorizontal , buttonTextRight , fontSize , textColor , saveVariableLogic )
+
+    template = template or "UIRadioButtonTemplate";
+
+    local previousName = "";
+    local previousText = "";
+    local numRadialButtons = #textForEachButton;
+
+    for i = 1 , numRadialButtons do
+        local buttonName = name .. "Radial" .. i;
+        local buttonText = buttonName.."Text";
+
+        if not parentFrame[buttonName] then
+            parentFrame[buttonName] = CreateFrame ( "CheckButton" , buttonName , parentFrame , template );
+            parentFrame[buttonName][buttonText] = parentFrame[buttonName]:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
+
+            if textColor then
+                parentFrame[buttonName][buttonText]:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
+            end
+            
+            if buttonTextRight then
+                parentFrame[buttonName][buttonText]:SetPoint ( "LEFT" , parentFrame[buttonName] , "RIGHT" , 2 , 0 );
+            else
+                parentFrame[buttonName][buttonText]:SetPoint ( "RIGHT" , parentFrame[buttonName] , "LEFT" , -2 , 0 );
+            end
+
+            if i == 1 then
+                parentFrame[buttonName]:SetPoint ( pointsFirstButton[1] , pointsFirstButton[2] , pointsFirstButton[3] , pointsFirstButton[4] , pointsFirstButton[5] );
+            else
+                if sortHorizontal then
+                    if buttonTextRight then
+                        parentFrame[buttonName]:SetPoint ( "LEFT" , parentFrame[previousName][previousText] , "RIGHT" , 10 , 0 );
+                    else
+
+                        parentFrame[buttonName][buttonText]:SetText ( textForEachButton[i] );
+                        parentFrame[buttonName][buttonText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+                        
+                        parentFrame[buttonName]:SetPoint ( "LEFT" , parentFrame[previousName] , "RIGHT" , parentFrame[buttonName][buttonText]:GetWidth() + 10 , 0 );
+                    end
+                else
+                    parentFrame[buttonName]:SetPoint ( "TOPLEFT" , parentFrame[previousName] , "BOTTOMLEFT" , 0 , -6 );
+                end
+            end
+
+            parentFrame[buttonName]:SetScript ( "OnClick" , function ( self , button )
+            
+                if button == "LeftButton" then
+
+                    -- Uncheck the other buttons. This LINKS them together.
+                    for j = 1 , numRadialButtons do
+                        if j ~= i then
+                            parentFrame[name .. "Radial" .. j]:SetChecked ( false );
+                        end
+                    end
+
+                    if saveVariableLogic then
+                        saveVariableLogic ( i );    -- Includes the number of the button clicked
+                    end
+                end
+
+            end);
+
+            previousName = buttonName;
+            previousText = buttonText;
+        end
+
+        parentFrame[buttonName][buttonText]:SetText ( textForEachButton[i] );
+        parentFrame[buttonName][buttonText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+
+        if buttonTextRight then
+            GRM.NormalizeHitRects ( parentFrame[buttonName] , parentFrame[buttonName][buttonText] );
+        else
+            GRM.NormalizeHitRects ( parentFrame[buttonName] , parentFrame[buttonName][buttonText] , nil , true );
+        end
+    end
+
+end
+
 -- Method:          GRM_UI.CreateCheckBox ( string , frame , string , array , array , function , string , string , int , function , function )
 -- What it Does:    Builds out the frames for a Hybrid Scroll Frame
 -- Purpose:         Cleanup code with reusable tool.
 GRM_UI.CreateCheckBox = function ( name , parentFrame , template , size , points, buttonScript , text , textTemplate , fontSize , toolTipScript , toolTipClearScript )
 
     local fontStringText = name.."Text";
+    local checkBoxTemplate = template or CheckButtonTemplate;
     
     if not parentFrame[name] then
 
-        parentFrame[name] = CreateFrame ( "CheckButton" , name , parentFrame , GRM_G.CheckButtonTemplate );
+        parentFrame[name] = CreateFrame ( "CheckButton" , name , parentFrame , checkBoxTemplate );
         if size then
             parentFrame[name]:SetSize ( size[1] , size[2] );
         end
@@ -466,9 +570,16 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
         end);
 
         if toolTipScript then
-            parentFrame[name]:SetScript ( "OnEnter" , function( self )
-                toolTipScript();
-            end);
+
+            if type ( toolTipScript ) == "function" then
+                parentFrame[name]:SetScript ( "OnEnter" , function( self )
+                    toolTipScript();
+                end);
+            else
+                parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
+                    GRM_UI.CreateTooltip ( self , toolTipScript );
+                end);
+            end
 
             parentFrame[name]:SetScript ( "OnLeave" , function( self )
                 if toolTipClearScript then
@@ -500,6 +611,55 @@ GRM_UI.SaveFramePosition = function ( frame )
         GRM.S()[savePoints][2] = side2;
         GRM.S()[savePoints][3] = point1;
         GRM.S()[savePoints][4] = point2;
+    end
+    
+end
+
+-- Method:          GRM_UI.CreateTooltip ( table )
+-- What it Does:    Creates a tooltip either single or double line
+-- Purpose:         Ease of creating tooltips
+-- Usage:           GRM_UI.CreateTooltip ( { 1 , "Test" } )
+--                  GRM_UI.CreateTooltip ( { 1 , "Test" } , { 1 , Ghost } )
+--                  GRM_UI.CreateTooltip ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
+GRM_UI.CreateTooltip = function ( self , ... )
+
+    local lines = {...};
+                
+    if #lines > 0 then
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+
+        for i = 1 , #lines do
+            if lines[i][1] == 1 then
+                for i = 1 , #lines do
+                    if lines[i][3] then
+                        GameTooltip:AddLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] );
+                    else
+                        GameTooltip:AddLine( lines[i][2] );
+                    end
+                end
+            -- 2 = Double line
+            elseif lines[i][1] == 2 then
+                for i = 1 , #lines do
+                    -- Coloring for both lines
+                    if lines[i][4] and line[i][7] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] , lines[i][7] , lines[i][8] , lines[i][9] );
+                    -- Only coloring for first line
+                    elseif line[i][4] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] );
+                    -- only coloring for second line
+                    elseif line[i][7] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][7] , lines[i][8] , lines[i][9] );
+                    -- No specific coloring.
+                    else
+                        GameTooltip:AddLine( lines[i][2] , lines[i][3] );
+                    end
+                end
+            end
+
+        end
+        
+        GameTooltip:Show();
     end
     
 end

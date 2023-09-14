@@ -1,4 +1,58 @@
 
+
+## **VERSION 1.986 RELEASE - September 14th, 2023**
+
+***NEW FEATURE***
+
+**CLASSIC HARDCORE DEATH TRACKING**
+
+*Please note, this is somewhat limited in its ability in that the server does not provide player information on people who have died while you were offline and will require some crowd sourcing for better results.*
+
+*Please provide additional feedback on where I can add more features or improve this. It is fairly barebones right now in its first form*
+ 
+* Automatically Records the death of a player in your guild when the die, including the time of their death.
+
+* To assist ALL GRM users of who has died, and since some go offline and never quit the guild after  dying, a special "[D]" death tag will be added to the player note, as well as the timestamp of when they died, thus your fellow GRM users, and others, will be indicated that a player has died while you were offline.
+
+* Ability to export the hardcore deaths history, as well as sort by level, class, date, etc...
+
+* The mouseover will have a strong indicator that a player is dead and is still in the guild.
+
+* The GRM Roster will also indicate a player has died in the interface (and the status CAN be removed if someone erroneously or manually adds the death tag to a player note).
+
+![Death Notification](https://i.imgur.com/cOKJlSQ.jpg)
+
+![Death Log Tracking](https://i.imgur.com/q6BaAus.jpg)
+
+![Roster Indication](https://i.imgur.com/YlEU6Qd.jpg)
+
+![Deaths Export](https://i.imgur.com/O0rLBwO.jpg)
+
+***BUG FIXES***
+
+* GRM was erroneously spamming the chat when someone left or was kicked from the guild. Just an error trace I accidentally left in that is now cleaned up.
+
+* GRM could lua error out when joining a guild. It would self-resolve on a reload, but this should no longer be an issue when joining and GRM should properly configure.
+
+* Fixed an OnUpdate Lua error that would cycle if you had the roster window open when you quit a guild.
+
+* Fixed an error where in the Options > UI tab, in Classic builds a player could enable the Mythic+ rating score, which doesn't make sense in classic!
+
+* FIxed a bug that could cause GRM to not be able to load again if a player "rolled back" the addon to a much earlier version.
+
+* Fixed a lua error that could cause sync to fail.
+
+* On occasion, when someone joined the guild, GRM was blocking the reporting of the system message to chat. This happened because GRM was supposed to replace that message. However, the problem is that when someone joins, sometimes the server can take several seconds to report back all of the player details, so while GRM is waiting to build the profile, it was not reporting properly to the chat, coupled with a couple lua errors in there that shouldn't have happened, and boom, the system message would never show. This should no longer happen.
+
+* The old "alts" save Variable on players is removed. This was deprecated a very long time ago and I just realized I still was adding the unused variable to each player profile. It is now removed from the database completely.
+
+* Fixed a lua error where if importing a guild using the transfer tool, some remnants of players in the alt groups got left around. This resolves that.
+
+* Fixed several miscellaneous lua errors that were causing people some issues...
+
+* Fixed an issue causing an error where a player in the DB was not able to be loaded due to a mismatched server on merged realms... This could actually affect things like when a player logs off, or comes online, and so on, it can't match their name
+
+
 ## **VERSION 1.985 RELEASE - September 10th, 2023**
 
 ***BUG FIXES***

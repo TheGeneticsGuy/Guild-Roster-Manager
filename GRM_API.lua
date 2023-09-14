@@ -155,12 +155,6 @@ end
 -- end
 
 
--- GRM_API.GetPronouns = function()    -- Pending GRM Feature (as requested)
-
--- end
-
-
-
 ------------------------------------------------------
 ------------------------------------------------------
 ---- TOOLBOX FOR UNIQUE API POWER TOOLS --------------

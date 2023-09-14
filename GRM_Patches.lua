@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 119;
+local totalPatches = 120;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1278,6 +1278,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    GRM_Patch.CleanupIfPlayerRolledBack();
     
     -- patch 109
     patchNum = patchNum + 1;
@@ -1407,7 +1409,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
-
     -- patch 117
     patchNum = patchNum + 1;
     if numericV < 1.983 and baseValue < 1.983 then
@@ -1449,10 +1450,35 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- patch 120
+    patchNum = patchNum + 1;
+    if numericV < 1.986 and baseValue < 1.986 then
+        
+        if C_GameRules and C_GameRules.IsHardcoreActive() then
+            GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddHardcoreVariables , true , true , false , nil );
+
+            GRM_Patch.AddNewSetting ( "addDeathTag" , true );
+            GRM_Patch.AddNewSetting ( "includeDeathTime" , true );
+            GRM_Patch.AddNewSetting ( "death" , true , nil , "toChat" );
+            GRM_Patch.AddNewSetting ( "death" , true , nil , "toLog" );
+            GRM_Patch.AddNewSetting ( 15 , { 0.76 , 0 , 0 } , nil , "logColor" );
+            GRM_Patch.AddNewSetting ( "exportHardcoreSort" , 1 );
+            
+        end
+
+        GRM_Patch.AddMemberSpecificData ( "alts" , nil );
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixStandardFormatAndRankHistFormat , true , true , false , nil );
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FormatFixVerifiedTime , true , true , false , nil );
+        GRM_Patch.AltGroupIntegrityCheck();
+
+        GRM_AddonSettings_Save.VERSION = "R1.986";
+        if loopCheck ( 1.986 ) then
+            return;
+        end
+    end
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
-
-
 
 -- Final report is good to go!
 -- Note, these are purposefully "PRINTED" as they are not necessary to be stored in the chat logs which other addons might save.
@@ -1599,16 +1625,18 @@ GRM_Patch.ModifyMemberSpecificData = function ( databaseChangeFunction , editCur
 end
 
 -- 1.971
--- Method:          GRM_Patch.AddNewSetting ( string , value , function )
+-- Method:          GRM_Patch.AddNewSetting ( string , value , function , string )
 -- What it Does:    Creates a new settings value
 -- Purpose:         Be able to add new tools and controls to player.
-GRM_Patch.AddNewSetting = function ( nameOfNewSetting , value , additionalLogic )
+GRM_Patch.AddNewSetting = function ( nameOfNewSetting , value , additionalLogic , additionalSetting )
     for g in pairs ( GRM_AddonSettings_Save ) do
         if type(GRM_AddonSettings_Save[g]) == "table" then
-            if not additionalLogic then
+            if not additionalSetting and not additionalLogic then
                 GRM_AddonSettings_Save[g][nameOfNewSetting] = value;
-            else
+            elseif not additionalSetting and type ( additionalLogic ) == "function" then
                 GRM_AddonSettings_Save[g] = additionalLogic ( GRM_AddonSettings_Save[g] , value );
+            elseif additionalSetting then
+                GRM_AddonSettings_Save[g][additionalSetting][nameOfNewSetting] = value;
             end
         end
     end
@@ -1627,6 +1655,9 @@ GRM_Patch.EditSetting = function ( setting , valueOrLogic , additionalSetting )
                         GRM_AddoSnettings_Save[p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
                     end
                 else
+                    if not GRM_AddonSettings_Save[p][setting] then
+                        print(p);
+                    end
                     GRM_AddonSettings_Save[p][setting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
                 end
             else
@@ -8045,25 +8076,33 @@ end
 
 -- R1.983
 -- Method:          GRM_Patch.ModifyJoinAndPromoteDates ( table )
--- Wha
+-- What it Does:    Modifies the joinDateHist of the player
+-- Purpose:         Standard format change.
 GRM_Patch.ModifyJoinAndPromoteDates = function ( player )
 
-    for i = 1 , #player.joinDateHist do
-        if player.joinDateHist[i][1] == 0 then
-            player.joinDateHist[i][4] = "0";
-        else
-            player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+    if player.joinDateHist then
+        for i = 1 , #player.joinDateHist do
+            if player.joinDateHist[i][1] == 0 then
+                player.joinDateHist[i][4] = "0";
+            else
+                player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+            end
         end
+    else
+        player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
     end
 
-    for i = 1 , #player.rankHist do
-        if player.rankHist[i][2] == 0 then
-            player.rankHist[i][5] = "0";
-        else
-            player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+    if player.rankHist then
+        for i = 1 , #player.rankHist do
+            if player.rankHist[i][2] == 0 then
+                player.rankHist[i][5] = "0";
+            else
+                player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+            end
         end
+    else
+        player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } }; 
     end
-
 
     return player;
 end
@@ -8087,6 +8126,11 @@ end
 -- Purpose:         This ensures the proper formatting of a date.
 GRM_Patch.FormatFixVerifiedTime = function ( player )
 
+    if not player.joinDateHist then
+        player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+        print("Error: ".. player.name)
+    end
+
     for i = 1 , #player.joinDateHist do
 
         if type ( player.joinDateHist[i][5] ) == string then
@@ -8104,4 +8148,312 @@ GRM_Patch.FormatFixVerifiedTime = function ( player )
     end
 
     return player;
+end
+
+-- R1.986
+-- Method:          GRM_Patch.AddHardcoreVariables ( playerTable )
+-- What it Does:    Adds Variables for hardcore mode
+-- Purpose:         Tracking data for hardcore mode
+GRM_Patch.AddHardcoreVariables = function ( player )
+
+    if not player.HC then
+        player.HC = {};
+    end
+
+    if player.HC.isDead == nil then
+        player.HC.isDead = false;
+    end
+
+    if player.HC.timeOfDeath == nil then
+        player.HC.timeOfDeath = { 0 , 0 , 0 , 0 , 0 , false }; 
+        -- day , month , year , hour , min , verified
+    end
+
+    return player;
+end
+
+-- R1.986
+-- Method:                  GRM_Patch.CleanupIfPlayerRolledBack()
+-- What it Does:            Removes these non relevant data indexes
+-- Purpose:                 This can occur if a player rolls back too far of an addon. One player rolled back a VERY early version re-adding this old DB. This will add to protect against it.
+GRM_Patch.CleanupIfPlayerRolledBack = function()
+    GRM_AddonSettings_Save["A"] = nil;
+    GRM_AddonSettings_Save["H"] = nil;
+    GRM_GuildMemberHistory_Save["A"] = nil;
+    GRM_GuildMemberHistory_Save["H"] = nil;
+    GRM_PlayersThatLeftHistory_Save["A"] = nil;
+    GRM_PlayersThatLeftHistory_Save["H"] = nil;
+    GRM_CalendarAddQue_Save["A"] = nil;
+    GRM_CalendarAddQue_Save["H"] = nil;
+    GRM_LogReport_Save["A"] = nil;
+    GRM_LogReport_Save["H"] = nil;
+    GRM_GuildDataBackup_Save["A"] = nil;
+    GRM_GuildDataBackup_Save["H"] = nil;
+    GRM_PlayerListOfAlts_Save["A"] = nil;
+    GRM_PlayerListOfAlts_Save["H"] = nil;
+end
+
+-- R1.986
+-- Method:          GRM_Patch.FixStandardFormat ( table )
+-- What it Does:    Modifies the joinDateHist of the player
+-- Purpose:         Standard format change.
+GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
+
+    if player.joinDateHist then
+        for i = 1 , #player.joinDateHist do
+            if type ( player.joinDateHist[i][4] ) ~= string then
+                if player.joinDateHist[i][1] == 0 then
+                    player.joinDateHist[i][4] = "0";
+                else
+                    player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+                end
+            end
+        end
+
+    else
+        player.rankHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+    end
+
+    if player.rankHist and #player.rankHist[1] == 8 then
+        for i = 1 , #player.rankHist do
+            if type ( player.rankHist[i][5] ) ~= string then
+                if player.rankHist[i][2] == 0 then
+                    player.rankHist[i][5] = "0";
+                else
+                    player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+                end
+            end
+        end
+    else
+        player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } }; 
+    end
+
+    return player;
+end
+
+-- R1.986
+-- Method:          GRM_Patch.AltGroupIntegrityCheck()
+-- What it Does:    Does a deep dive on every angle of the alt groups and ensures they are functional, or it cleans them out
+-- Purpose:         Resolve some older edge case bugs
+GRM_Patch.AltGroupIntegrityCheck = function()
+    for guildName in pairs ( GRM_GuildMemberHistory_Save ) do
+        if type ( GRM_GuildMemberHistory_Save ) == "table" then
+            local guildData = GRM_GuildMemberHistory_Save[guildName]
+            local altsGroup = GRM_Alts[guildName];
+            local player;
+
+            if altsGroup and guildData then
+
+                -- let's start scanning for errors!
+                -- First, review altgroups to ensure they are valid
+                for name , member in pairs ( guildData ) do
+                    if type ( member ) == "table" then
+
+                        if member.altGroup ~= "" then
+                            -- Confirmed, player has an alt group
+
+                            if not GRM_Alts[guildName][member.altGroup] then
+                                -- AltGroupNotFound
+
+                                -- Remove alt Group if not found
+                                member.altGroup = "";
+                                member.isMain = false;
+                                member.altGroupModified = 0;
+                                member.mainStatusChangeTime = 0;
+
+                            else
+                                -- Alt Group Found!
+                                local alts = GRM_Alts[guildName][member.altGroup];
+                                local removed = false;
+
+                                if member.isMain then
+
+                                    -- if main is not added to alt Group, let's fix that!
+                                    if alts.main == "" then
+
+                                        -- Ensure player is added to his own altGroup
+                                        for j = 1 , #alts do
+                                            if alts[j].name == member.name then
+                                                break;
+                                                -- member found, no need to add
+                                            end
+
+                                            if j == #alts then
+                                                -- not found, let's add him
+                                                table.insert ( alts , {} );
+                                                alts[#alts].name = member.name;
+                                                alts[#alts].class = member.class;
+
+                                                sort ( alts , function ( a , b ) return a.name < b.name end );
+                                            end
+                                        end
+
+                                        alts.main = member.name;
+                                        alts.timeModified = time();
+                                    elseif alts.main ~= member.name then
+                                        member.altGroup = "";
+                                        member.isMain = false;
+                                        member.altGroupModified = 0;
+                                        member.mainStatusChangeTime = 0;
+
+                                        -- remove the player from the altGroup now
+                                        for j = #alts , 1 , -1 do
+                                            if alts[j].name == member.name then
+                                                table.remove ( alts , i );
+                                                removed = true;
+                                                break;
+                                            end
+                                        end
+
+                                    end
+                                end
+
+                                -- Verify player is in the group.
+                                if not removed then
+                                    local found = false;
+                                    for i = 1 , #alts do
+                                        if alts[i].name == member.name then
+                                            found = true;
+                                        end
+                                    end
+                                    if not found then
+                                        table.insert ( alts , {} );
+                                        alts[#alts].name = member.name;
+                                        alts[#alts].class = member.class
+
+                                        sort ( alts , function ( a , b ) return a.name < b.name end );
+                                    end
+                                end
+                            end
+                        else
+                            if member.isMain then
+                                member.isMain = false;
+                                member.altGroupModified = 0;
+                                member.mainStatusChangeTime = 0;
+                            end
+                        end
+                    end
+                end
+                
+                -- Second, remove all the alts no longer in the guild
+                for key in pairs ( altsGroup ) do
+
+                    -- First, clear the alt group if no alts in it.
+                    if #altsGroup[key] == 0 then
+                        altsGroup[key] = nil;
+                    
+                    else
+                        
+                        for i = #altsGroup[key] , 1 , -1 do
+
+
+                            if #altsGroup[key][i] == 2 then
+
+                                -- Erroneous formatting
+                                table.insert ( altsGroup[key] , {} );
+                                altsGroup[key][#altsGroup[key]].name = altsGroup[key][i][1];
+                                altsGroup[key][#altsGroup[key]].class = altsGroup[key][i][1];
+
+                                sort ( altsGroup[key] , function ( a , b ) return a.name < b.name end );
+
+                            end
+
+                            player = guildData[altsGroup[key][i].name];
+
+                            if not player or ( player and player.altGroup ~= key ) then
+                                
+                                -- Clear main if player is being removed
+                                if altsGroup[key].main == altsGroup[key][i].name then
+                                    altsGroup[key].main = "";
+                                end
+
+                                table.remove ( altsGroup[key] , i );
+
+                            end
+
+                            -- Check if altGroup needs to be completely removed.
+                            if #altsGroup[key] == 0 or ( #altsGroup[key] == 1 and altsGroup[key].main == "" ) then
+
+                                if #altsGroup[key] == 1 then
+                                    player = guildData[altsGroup[key][1].name];
+                                    if player then
+                                        player.altGroup = "";
+                                        player.isMain = false;
+                                        player.altGroupModified = 0;
+                                        player.mainStatusChangeTime = 0;
+                                    end
+                                end
+
+                                altsGroup[key] = nil;
+                                break;
+                            end 
+                        end
+
+                    end
+                end
+
+            elseif not altsGroup and guildData then
+                GRM_Alts[guildName] = {};
+                GRM_Patch.ClearAllAltGroupsAndMainStatus ( guildName );
+
+            elseif altsGroup and not guildData then
+                GRM_Alts[guildName] = nil
+
+            end
+        end
+    end
+
+end
+
+-- R1.986
+-- Method:          GRM_Patch.ClearAllAltGroupsAndMainStatus ( string )
+-- What it Does:    Cleans up broken alt groups for guilds and clears it all with a reset
+-- Purpose:         Only wipe certain data, not all of it.
+GRM_Patch.ClearAllAltGroupsAndMainStatus = function( guildName )
+
+    local guildData = GRM.GetGuild ( guildName )
+
+    for i = 1 , 4 do
+        
+        -- Be sure to include the former members
+        if i == 2 then
+            guildData = GRM.GetFormerMembers ( guildName );
+        end
+
+        if i == 3 then
+            if GRM_GuildDataBackup_Save[guildName].members == nil or #GRM_GuildDataBackup_Save[guildName].members > 0 then
+                GRM_GuildDataBackup_Save[guildName].members = {};
+            else
+                guildData = GRM_GuildDataBackup_Save[guildName].members;
+            end
+        end
+
+        if i == 4 then
+            if GRM_GuildDataBackup_Save[guildName].formerMembers == nil or #GRM_GuildDataBackup_Save[guildName].formerMembers > 0 then
+                GRM_GuildDataBackup_Save[guildName].formerMembers = {};
+            else
+                guildData = GRM_GuildDataBackup_Save[guildName].formerMembers;
+            end
+        end
+
+        if guildData then
+            for name , player in pairs ( guildData ) do
+                if type ( player ) == "table" then
+                    player.altGroupModified = 0;
+                    player.mainStatusChangeTime = 0;
+                    player.isMain = false;
+                    player.altGroup = "";
+                    player.altsAtTimeOfLeaving = {};
+                    player.mainAtTimeOfLeaving = {};
+                end
+            end
+
+            if i == 1 then
+                GRM_Alts[guildName] = {};
+            elseif i == 2 then
+                GRM_GuildDataBackup_Save[guildName].alts = {};
+            end
+        end
+
+    end
 end

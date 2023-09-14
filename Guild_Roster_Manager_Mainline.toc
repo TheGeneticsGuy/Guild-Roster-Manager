@@ -41,3 +41,4 @@ GRM_ClassicFunctions.lua
 GRM_CodeTests.lua
 GRM_API.lua
 GRM_Stats.lua
+GRM_HC.lua

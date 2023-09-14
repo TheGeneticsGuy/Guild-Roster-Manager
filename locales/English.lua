@@ -1724,5 +1724,24 @@ GRML.English = function()
     GRM_L["Final Key"] = true
     GRM_L["WARNING! Keybind is already in use for \"{name}\"."] = true
 
+    -- R1.986
+    GRM_L["D"] = true -- Hardcore mode death tag [D] -- Change to any letter
+    GRM_L["Classic Hardcore Mode"] = true
+    GRM_L["Hardcore"] = true
+    GRM_L["Include Date Player Died"] = true
+    GRM_L["Add Death Indicator Tag to Player Note"] = true
+    GRM_L["Hardcore Deaths"] = true
+    GRM_L["{name} has died at level {num}."] = true
+    GRM_L["Player is Still Alive"] = true
+    GRM_L["{name} is no longer reported as Dead."] = true
+    GRM_L["The \"{custom1}\" indicates the player is dead." ] = true
+    GRM_L["Your rank does not have permission to remove the tag."] = true
+    GRM_L["R.I.P. - {custom1}"] = true      -- "R.I.P. - 15/09/2023"
+    GRM_L["Dead"] = true
+    GRM_L["Total Deaths Recorded: {num}"] = true
+    GRM_L["Time of Death"] = true
+    GRM_L["Sort Deaths:"] = true
+    GRM_L["*Max Export is 500 Recorded Deaths at a Time"] = true
+
 end
 

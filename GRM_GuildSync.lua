@@ -2203,6 +2203,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
 
     local timeEpoch = time();
     local isAnEdit = false;
+    local _ , timeArray = select ( 2 , GRM.GetTimestamp() )
 
     if reason == GRM.L ( "None Given" ) then
         reason = "";
@@ -2358,7 +2359,6 @@ GRMsync.CheckBanListChange = function ( msg , sender )
             memberInfoToAdd.faction = GRM_G.faction;
         end
         
-        local _ , timeArray = GRM.EpochToDateFormat ( time() );
         GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , GRM.ConvertToStandardFormatDate ( timeArray[1] , timeArray[2] , timeArray[3]) , time() , sender );
 
         -- Now, let's implement the ban!
@@ -2383,7 +2383,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         banAllAlts = true;
     end
     local logEntryWithTime , logEntry = GRM.GetBanLogUpdateAndEditString ( banAllAlts , isAnEdit , banningName , bannedName , reason , select ( 2 , GRM.GetTimestamp() ) );
-    GRM.AddLog ( { 20 , logEntryWithTime , banAllAlts , isAnEdit , banningName , bannedName , reason , select ( 2 , GRM.GetTimestamp() ) } );
+    GRM.AddLog ( { 20 , logEntryWithTime , banAllAlts , isAnEdit , banningName , bannedName , reason , timeArray } );
     
     -- Report the change to chat window...
     if GRM.S().syncChatEnabled and GRM.S()["toChat"].banned then

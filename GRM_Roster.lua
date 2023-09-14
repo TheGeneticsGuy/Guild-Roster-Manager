@@ -243,7 +243,7 @@ GRM_R.BuildRosterFrames = function ()
     end
 
     -- Show Offline Checkbox
-    GRM_UI.CreateCheckBox ( "GRM_RosterShowOfflineCheckBox" , GRM_UI.GRM_RosterFrame , "CheckButton" , nil , { "TOPLEFT" , GRM_UI.GRM_RosterFrame , "TOPLEFT" , 15 , -15 } , GRM_R.ShowOfflineLogic , GRM.L ( "Show Offline Members" ) , "GameFontNormal" , 11 );
+    GRM_UI.CreateCheckBox ( "GRM_RosterShowOfflineCheckBox" , GRM_UI.GRM_RosterFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterFrame , "TOPLEFT" , 15 , -15 } , GRM_R.ShowOfflineLogic , GRM.L ( "Show Offline Members" ) , "GameFontNormal" , 11 );
     
     -- Member Count
     GRM_UI.CreateString ( "GRM_RosterMemberCount" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , "" , 11 , { "TOPRIGHT" , GRM_UI.GRM_RosterFrame , "TOPRIGHT" , -30 , -20 } );
@@ -252,19 +252,19 @@ GRM_R.BuildRosterFrames = function ()
     GRM_UI.CreateButton ( "GRM_RosterOptionsButton" , GRM_UI.GRM_RosterFrame , "UIPanelScrollUpButtonTemplate" , nil , 20 , 20 , { "BOTTOMRIGHT" , GRM_UI.GRM_RosterFrame , "BOTTOMLEFT" , 0 , 8 } , GRM_R.OpenRosterOptions , nil , nil , nil , 10 , -5 , GRM_R.OpenRosterOptionsButtonTT , GRM_R.TooltipReset );
 
     -- Show Mains Checkbox
-    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowMains" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "CheckButton" , nil , { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "TOPLEFT" , 15 , -15 } , GRM_R.ShowMainsLogic , GRM.L ( "Show Mains" ) , "GameFontNormal" , 11 );
+    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowMains" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "TOPLEFT" , 15 , -15 } , GRM_R.ShowMainsLogic , GRM.L ( "Show Mains" ) , "GameFontNormal" , 11 );
 
     -- Show Alts Checkbox
-    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowAlts" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "CheckButton" , nil , { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMains , "BOTTOMLEFT" , 0 , -6 } , GRM_R.ShowAltsLogic , GRM.L ( "Show Alts" ) , "GameFontNormal" , 11 );
+    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowAlts" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMains , "BOTTOMLEFT" , 0 , -6 } , GRM_R.ShowAltsLogic , GRM.L ( "Show Alts" ) , "GameFontNormal" , 11 );
 
     -- Show Main Tag Checkbox
-    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowMainTag" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "CheckButton" , nil , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMains , "RIGHT" , 100 , 0 } , GRM_R.ShowMainTag , GRM.L ( "Show Tag" ) , "GameFontNormal" , 11 );
+    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowMainTag" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , nil , nil , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMains , "RIGHT" , 100 , 0 } , GRM_R.ShowMainTag , GRM.L ( "Show Tag" ) , "GameFontNormal" , 11 );
 
     -- Show Alt Tag Checkbox
-    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowAltTag" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "CheckButton" , nil , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowAlts , "RIGHT" , 100 , 0 } , GRM_R.ShowAltTag , GRM.L ( "Show Tag" ) , "GameFontNormal" , 11 );
+    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsShowAltTag" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , nil , nil , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowAlts , "RIGHT" , 100 , 0 } , GRM_R.ShowAltTag , GRM.L ( "Show Tag" ) , "GameFontNormal" , 11 );
 
     -- Group by Main Checkbox
-    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsGroupByMain" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "CheckButton" , nil , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMainTag , "RIGHT" , 100 , 0 } , GRM_R.GroupByMainLogic , GRM.L ( "Group Alts With Main" ) , "GameFontNormal" , 11 , GRM_R.GroupByMainTT , GRM_R.TooltipReset );
+    GRM_UI.CreateCheckBox ( "GRM_RosterOptionsGroupByMain" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , nil , nil , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMainTag , "RIGHT" , 100 , 0 } , GRM_R.GroupByMainLogic , GRM.L ( "Group Alts With Main" ) , "GameFontNormal" , 11 , GRM_R.GroupByMainTT , GRM_R.TooltipReset );
 
     -- Number of Rows Options Slider
     GRM_UI.CreateOptionsSlider( "GRM_RowsCountSlider" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "OptionsSliderTemplate" , { "RIGHT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "RIGHT" , -90 , 5 } , 10 , 40 , 1 , 11 , GRM.L ( "Rows:" ) , 18 ,  "GameFontNormal"  , GRM_R.NumRowsSliderLogic, GRM_R.NumRowsSliderTT , GRM_R.TooltipReset  ,GRM_R.SliderMouseUpLogic , false )
@@ -571,6 +571,14 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
                     tempPlayer.classColor = GRM.GetClassColorRGB ( player.class , false );
                     tempPlayer.level = player.level;
                     tempPlayer.note = player.note;
+
+                    if GRM_G.HardcoreActive then
+                        if player.HC.isDead then
+                            tempPlayer.isDead = true;
+                        else
+                            tempPlayer.isDead = false;
+                        end
+                    end
                     
                     -- Alts Logic only add if necessary
                     
@@ -614,7 +622,6 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
 
     return result;
 end
-
 
 -- Method:          GRM_R.SortNames( buttonObject , bool , bool )
 -- What it Does:    Sorts all of the names ascending or descending in the guild
@@ -1313,8 +1320,9 @@ end
 -- What it Does:    Initializes a whisper to the given player
 -- Purpose:         To give the player the ability to easily right click-whisper someone.
 GRM_R.RosterRightClickWhisper = function()
-
-    ChatFrame1EditBox:SetFocus()
+    
+    ChatFrame1EditBox:SetFocus();
+    ChatFrame1EditBox:SetCursorPosition ( 0 );
     ChatFrame1EditBox:Insert ( "/w " .. GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName .. " " );
 
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
@@ -1362,6 +1370,10 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
         GRM_UI.GRM_RosterFrame.fontModifier = 2;
     else
         GRM_UI.GRM_RosterFrame.fontModifier = 3;
+    end
+
+    if GRM_G.HardcoreActive then
+        GRM_G.HardcoreHexCode = GRM.rgbToHex ( { GRM.ConvertRGBScale ( GRM.S().logColor[15][1] , true ) , GRM.ConvertRGBScale ( GRM.S().logColor[15][2] , true ) , GRM.ConvertRGBScale ( GRM.S().logColor[15][3] , true ) } );
     end
 
     if showAll and fullRefresh then
@@ -1797,6 +1809,7 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
         else
             name = GRM_UI.GRM_RosterFrame.Entries[ind2].name;
         end
+
     elseif GRM_UI.GRM_RosterFrame.Entries[ind2].isAlt then
         if GRM.S().showAltTags then
             name = GRM_UI.GRM_RosterFrame.Entries[ind2].name .. " " .. GRM_G.altTag;
@@ -1812,6 +1825,10 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
         name = "     " .. name;
     end
 
+    if GRM_G.HardcoreActive and GRM_UI.GRM_RosterFrame.Entries[ind2].isDead then
+        name = name .. " " .. GRM_G.HardcoreHexCode .. "[" .. GRM.L ( "Dead" ) .. "]|r"
+    end
+    
     line[3]:SetText ( name );
     line[3]:SetTextColor ( GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[1] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[2] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[3] );
 
