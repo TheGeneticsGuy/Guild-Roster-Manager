@@ -8202,7 +8202,7 @@ GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
     if player.joinDateHist then
         for i = 1 , #player.joinDateHist do
             if type ( player.joinDateHist[i][4] ) ~= string then
-                if player.joinDateHist[i][1] == 0 then
+                if player.joinDateHist[i][1] == 0 or player.joinDateHist[i][1] == "" then
                     player.joinDateHist[i][4] = "0";
                 else
                     player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
@@ -8217,7 +8217,7 @@ GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
     if player.rankHist and #player.rankHist[1] == 8 then
         for i = 1 , #player.rankHist do
             if type ( player.rankHist[i][5] ) ~= string then
-                if player.rankHist[i][2] == 0 then
+                if player.rankHist[i][2] == 0 or player.rankHist[i][2] == "" then
                     player.rankHist[i][5] = "0";
                 else
                     player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
