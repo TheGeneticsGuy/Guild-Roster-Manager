@@ -1,5 +1,19 @@
 
 
+## **VERSION 1.987 RELEASE - September 27th, 2023**
+
+***BUG FIXES***
+
+* Fixed an issue affecting Classic builds that would cause the GRM mouseover not to properly display
+
+* Fixed an issue where a player joining the guild was not always registering immediately so there would be no data on the player on mouseover.
+
+* Fixed an issue where when GRM modifies a join date, or a rejoin date with the advanced join date tool, or just when someone rejoins the guild, if the custom join tag or rejoin tag were similar, like "J:" and "RJ:", for example, then GRM was parsing the string incorrectly and correcting the date, but adding an extra char on the tail end of the note. It should now properly remove it. Unfortunately, this will not retroactively fix any notes that were modified, but it will prevent it going forward.
+
+*Please note, I am aware of reports of the main designation being lost among alt groups, and in some cases, some alts, during sync. It appears to be affecting the same group over and over. This is something I am working on but it will take some time as I am possibly going to rewrite the whole sync protocol I wrote. I am seeing if it is necessary. Sorry about the hassle but I will have a fix for it soon!*
+
+
+
 ## **VERSION 1.986 RELEASE - September 14th, 2023**
 
 ***NEW FEATURE***

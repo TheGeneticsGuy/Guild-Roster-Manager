@@ -260,7 +260,7 @@ GRM_API.RestoreAllPublicNotes = function( name )
                     name = GetGuildRosterInfo ( i );
                     for n , player in pairs ( guildData ) do 
                         if type ( player ) == "table" and name == n then 
-                            print("Setting Note: " .. player.note)
+
                             GuildRosterSetPublicNote ( i , player.note);
                             break;
                         end

@@ -1372,7 +1372,7 @@ GRM_UI.ReloadAllFrames = function( isManualUpdate , defaultSettingsReset )
         end
     end
             
-    if CommunitiesFrame and GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
+    if GRM_G.BuildVersion >= 80000 and CommunitiesFrame and GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
         GRM_UI.MemberDetailFrame:Hide();
     end
 
@@ -8639,12 +8639,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     SetCVar("chatClassColorOverride" , 0 );
                     if GRM_G.BuildVersion >= 30000 then
                         GRM.SetChatClassColoringInWrath ( true );
+                    else
+                        GRM.SetChatClassColoringNew ( true );
                     end
                 else
                     GRM.S().colorizeClassicRosterNames = false;
                     SetCVar("chatClassColorOverride" , 1 )
                     if GRM_G.BuildVersion >= 30000 then
                         GRM.SetChatClassColoringInWrath ( false );
+                    else
+                        GRM.SetChatClassColoringNew ( false );
                     end
                 end
             end

@@ -62,7 +62,7 @@ end
 
 -- Method:          GRM.GetFormerPlayer ( string [, bool] [, string])
 -- What it Does:    Returns the playerTable
--- Purpose:         Easier to pull player data.
+-- Purpose:         Easier to pull player data.j
 GRM.GetFormerPlayer = function ( name , appendServer , gName )
     local guildName = gName or GRM_G.guildName;
 

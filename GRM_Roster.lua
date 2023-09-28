@@ -1323,7 +1323,7 @@ GRM_R.RosterRightClickWhisper = function()
     
     ChatFrame1EditBox:SetFocus();
     ChatFrame1EditBox:SetCursorPosition ( 0 );
-    ChatFrame1EditBox:Insert ( "/w " .. GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName .. " " );
+    ChatFrame1EditBox:Insert ( "/w " .. GRM_UI.GRM_RosterFrame.GRM_RosterFjrameDropDown.playerName .. " " );
 
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
 end

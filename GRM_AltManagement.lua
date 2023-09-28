@@ -903,15 +903,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isU
             end
         else
             GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
-            GRMsyncGlobals.updatesEach[6] = GRMsyncGlobals.updatesEach[6] + 1;
-        -- elseif not isUnknown then
-            -- if GRM.S().syncChatEnabled then
-            --     if #alts > 0 then
-            --         GRM.Report ( GRM.L ( "{name}'s alt grouping has had their Birthday removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
-            --     else
-            --         GRM.Report ( GRM.L ( "{name}'s Birthday has been removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
-            --     end
-            -- end                
+            GRMsyncGlobals.updatesEach[6] = GRMsyncGlobals.updatesEach[6] + 1;              
         end
 
         if not isUnknown and GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == name then
