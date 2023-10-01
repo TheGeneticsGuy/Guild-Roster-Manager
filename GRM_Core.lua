@@ -14,14 +14,14 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.987";
-GRM_G.PatchDay = 1695883957;             -- In Epoch Time
-GRM_G.PatchDayString = "1695883957";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.988";
+GRM_G.PatchDay = 1696142285;             -- In Epoch Time
+GRM_G.PatchDayString = "1696142285";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.25;
+GRM_G.GroupInfoV = 1.26;
 
 -- Initialization Useful Globals 
 -- ADDON
@@ -60,6 +60,8 @@ GRM_G.secureHookKicks = false;
 
 -- In Combat controls and UI frame handlers for such...
 GRM_G.inCombat = false;
+GRM_G.CoreFramesHidden = { false , false , false , false , false };
+GRM_G.hideMessage = false;
 GRM_G.minmapButtonDelay = false;
 GRM_G.MacroDelay = false;
 
@@ -440,9 +442,11 @@ GRM_G.StatusChecking:SetScript ( "OnEvent" , function ( _ , event )
 
     if event == "PLAYER_REGEN_ENABLED" then
         GRM_G.inCombat = false;
+        GRM.FrameCombatRestore()
 
     elseif event == "PLAYER_REGEN_DISABLED" then
         GRM_G.inCombat = true;
+        GRM.FrameCombatHide();
 
     elseif eventList[event] then
 
@@ -458,6 +462,101 @@ GRM_G.StatusChecking:SetScript ( "OnEvent" , function ( _ , event )
         GRM_G.InGroup = false;
     end
 end);
+
+-- Method:          GRM.FrameCombatHide()
+-- What it Does:    Hides all GRM windows that are visible
+-- Purpose:         GRM windows should auto-close when combat starts, but should auto re-open shortly after
+GRM.FrameCombatHide = function()
+
+    if GRM.S().hideFramesInCombat then
+        -- Mouseover Frame
+        if GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+            GRM_UI.GRM_MemberDetailMetaData:Hide();
+            GRM_G.CoreFramesHidden[1] = true;
+            GRM_G.CoreFramesHidden.hidden = true
+        end
+
+        -- Core GRM window
+        if GRM_UI.GRM_RosterChangeLogFrame and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+            GRM_UI.GRM_RosterChangeLogFrame:Hide();
+            GRM_G.CoreFramesHidden[2] = true;
+            atLeastOneHidden = true;
+            GRM_G.CoreFramesHidden.hidden = true
+        end
+
+        -- Export Tool
+        if GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
+            GRM_UI.GRM_ExportLogBorderFrame:Hide();
+            GRM_G.CoreFramesHidden[3] = true;
+            atLeastOneHidden = true;
+            GRM_G.CoreFramesHidden.hidden = true
+        end
+
+        -- Macro Tool
+        if GRM_UI.GRM_ToolCoreFrame and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
+            GRM_UI.GRM_ToolCoreFrame:Hide();
+            GRM_G.CoreFramesHidden[4] = true;
+            GRM_G.CoreFramesHidden.hidden = true
+        end
+
+        -- Roster Frame
+        if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+            GRM_UI.GRM_RosterFrame:Hide();
+            GRM_G.CoreFramesHidden[5] = true;
+            GRM_G.CoreFramesHidden.hidden = true
+        end
+
+        -- Audit Tool
+        if GRM_UI.GRM_AuditJDTool and GRM_UI.GRM_AuditJDTool:IsVisible() then
+            GRM_UI.GRM_AuditJDTool:Hide();
+            GRM_G.CoreFramesHidden[6] = true;
+            GRM_G.CoreFramesHidden.hidden = true
+        end
+
+        if not GRM_G.hideMessage and GRM_G.CoreFramesHidden.hidden then
+            GRM.Report ( GRM.L ( "In-combat. Hiding all GRM windows" ) );
+            GRM_G.hideMessage = true;   -- Will only message once per session
+        end
+    end
+
+end
+
+-- Method:          GRM.FrameCombatRestore()
+-- What it Does:    If any frames were hidden during combat, this restores them
+-- Purpose:         Control GRM frames
+GRM.FrameCombatRestore = function()
+
+    if GRM_G.CoreFramesHidden.hidden then
+        if GRM_G.CoreFramesHidden[1] then
+            if ( GRM_G.BuildVersion >= 80000 and CommunitiesFrame and CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 80000 and FriendsFrame and FriendsFrame:IsVisible() ) then
+                GRM_UI.GRM_MemberDetailMetaData:Show();
+            end
+            GRM_G.CoreFramesHidden[1] = false;
+        end
+        if GRM_G.CoreFramesHidden[2] then
+            GRM_UI.GRM_RosterChangeLogFrame:Show();
+            GRM_G.CoreFramesHidden[2] = false;
+        end
+        if GRM_G.CoreFramesHidden[3] then
+            GRM_UI.GRM_ExportLogBorderFrame:Show();
+            GRM_G.CoreFramesHidden[3] = false;
+        end
+        if GRM_G.CoreFramesHidden[4] then
+            GRM_UI.GRM_ToolCoreFrame:Show();
+            GRM_G.CoreFramesHidden[4] = false;
+        end
+        if GRM_G.CoreFramesHidden[5] then
+            GRM_UI.GRM_RosterFrame:Show();
+            GRM_G.CoreFramesHidden[5] = false;
+        end
+        if GRM_G.CoreFramesHidden[6] then
+            GRM_UI.GRM_AuditJDTool:Show();
+            GRM_G.CoreFramesHidden[6] = false;
+        end
+    end
+
+    GRM_G.CoreFramesHidden.hidden = false
+end
 
 ------------------------------
 --- EXTERNAL COMPATIBILITY ---
@@ -717,6 +816,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         player.showBDay = true;
         player.colorizeNames = true;
         player.colorizeClassicRosterNames = true;
+        player.hideFramesInCombat = true;
         
     -- Log Options and Side Window
     elseif page == 8 then
@@ -5114,6 +5214,19 @@ GRM.FormatInputName = function ( name )
     return name;
 end
 
+-- Method:          GRM.Capitalize ( string )
+-- What it Does:    Takes the first letter of a word and capitalizes it, whilst lowercasing the rest
+-- Purpose:         Proper formatting of names.
+GRM.Capitalize = function ( word )
+    local result = "";
+
+    if #word > 0 then
+        result = word:sub ( 1 , 1 ):upper() .. word:sub ( 2 ):lower(); 
+    end
+
+    return result;
+end
+
 -- Method           GRM.Trim ( string )
 -- What it Does:    Removes the white space at front and at tail of string.
 -- Purpose:         Cleanup strings for ease of logic control, as needed.
@@ -7811,7 +7924,7 @@ GRM.CopyFromPromoDate = function()
             GRM.RefreshAddEventFrame()
         end
 
-        if player.rankHist[1][4] == 0 and not player.promoteDateUnknown then
+        if player.rankHist[1][2] == 0 and not player.promoteDateUnknown then
             rankButton = true;
         end
 
@@ -9527,10 +9640,10 @@ GRM.BuildAutoCompleteBanNames = function ( listOfAlts )
 
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( GRM.SlimName ( result ) );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected.GRM_BanServerSelectedText:SetText ( string.sub ( result , string.find ( result , "-" ) + 1 ) );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.L ( GRM.FormatInputName ( GRM_G.tempAddBanClass ) ) );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.L ( GRM.Capitalize ( GRM_G.tempAddBanClass ) ) );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] );
 
-                if tempName == result and tempClass == GRM.L ( GRM.FormatInputName ( GRM_G.tempAddBanClass ) ) then
+                if tempName == result and tempClass == GRM.L ( GRM.Capitalize ( GRM_G.tempAddBanClass ) ) then
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:ClearFocus();
                 end
             end
@@ -12108,11 +12221,11 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
 
         playerLevel = oldMemberData[unitName].level;
         
-        local main , GUID = GRM.GetAltGroupMain ( oldMemberData[unitName].altGroup , true );
+        local main , GUID , class = GRM.GetAltGroupMain ( oldMemberData[unitName].altGroup , true );
         
         -- I don't want to set the main history to be themselves because if they rejoin the guild later, with themselves set as main that could be irrelevant because things change...
         if main ~= "" and main ~= unitName then
-            oldMemberData[unitName].mainAtTimeOfLeaving = { main , GUID };
+            oldMemberData[unitName].mainAtTimeOfLeaving = { main , GUID , class };
         end
 
         -- Removing it from the alt list
@@ -12285,11 +12398,11 @@ GRM.RecordLeftGuildChanges = function ( unitName , isLiveDetection )
         -- Adding to LeftGuild Player history library
         oldMemberData[unitName] = GRM.DeepCopyArray ( player );
 
-        local main , GUID = GRM.GetAltGroupMain ( player.altGroup , true );
+        local main , GUID , class = GRM.GetAltGroupMain ( player.altGroup , true );
 
         -- I don't want to set the main history to be themselves because if they rejoin the guild later, with themselves set as main that could be irrelevant because things change...
         if main ~= "" and main ~= unitName and oldMemberData[unitName] then
-            oldMemberData[unitName].mainAtTimeOfLeaving = { main , GUID };
+            oldMemberData[unitName].mainAtTimeOfLeaving = { main , GUID , class };
         end
 
         -- Removing it from the alt list
@@ -21423,15 +21536,25 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
         -- Is Transfer
         if banList[i][10] then
             nameDetails = nameDetails .. " |CFFFF0000(" .. GRM.L ( "Not on Server" ) .. ")";
+            BanButtons.noIdentity = false;
+            BanButtons.notOnServer = true;
 
         -- No GUID found
         elseif banList[i][8] then
             -- Player was unable to be identified on the server
             nameDetails = nameDetails .. " |CFFFF0000" .. GRM.L ( "(Unable to Identify)" );
+            BanButtons.noIdentity = true
+            BanButtons.notOnServer = false;
 
         -- GUID, but no longer valid
         elseif listNeedingUpdate and GRM.IsBanNameOnList ( nameDetails , listNeedingUpdate ) then
             nameDetails = nameDetails .. " |CFFFF0000(" .. GRM.L ( "Not on Server" ) .. ")";
+            BanButtons.noIdentity = false;
+            BanButtons.notOnServer = true;
+
+        else
+            BanButtons.noIdentity = false;
+            BanButtons.notOnServer = false;
         end
 
         BanButtons:SetWidth ( 555 );
@@ -21439,8 +21562,10 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
         BanButtons:SetHighlightTexture ( "Interface\\Buttons\\UI-Panel-Button-Highlight" );
         if banList[i][7] then
             BanNameText:SetText ( GRM.L ( "{name}(Still in Guild)" , banList[i][1] .. "  |cff7fff00" ) );
+            BanButtons.stillInGuild = true;
         else
             BanNameText:SetText ( nameDetails );
+            BanButtons.stillInGuild = false;
         end
         BanButtons:RegisterForDrag ( "LeftButton" );
         BanButtons:SetScript ( "OnDragStart" , function()
@@ -21486,13 +21611,9 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
 
                 local fullName = BanNameText:GetText();
                 local R,G,B = BanNameText:GetTextColor();
-                local stillInGuild = false;
                 
-                if string.find ( fullName , GRM.L ( "(Unable to Identify)" ) , 1 , true ) ~= nil then
+                if self.noIdentity or self.stillInGuild or self.notOnServer then
                     fullName = string.sub ( fullName , 1 , string.find ( fullName , " " ) - 1 );
-                elseif string.find ( fullName , GRM.L ( "(Still in Guild)" ) , 1 , true ) ~= nil then
-                    fullName = string.sub ( fullName , 1 , string.find ( fullName , " " ) - 1 );
-                    stillInGuild = true;
                 end
                 
                 if IsShiftKeyDown() and IsControlKeyDown() then
@@ -21500,7 +21621,7 @@ GRM.RefreshBanListFrames = function( listNeedingUpdate , textSearch , banList , 
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( fullName ) );
                 elseif IsControlKeyDown() then
-                    if stillInGuild then
+                    if self.stillInGuild then
                         GRM.OpenPlayerWindow( fullName );
                     end
                 else

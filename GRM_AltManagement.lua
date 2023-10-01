@@ -9,9 +9,16 @@
 GRM.GetAltGroupMain = function ( altGroup , includeGUID )
     local main = "";
     local GUID = "";
+    local class = "";
 
     if altGroup ~= "" and GRM_Alts[GRM_G.guildName][altGroup] then
         main = GRM_Alts[GRM_G.guildName][altGroup].main;
+
+        for i = 1 , #GRM_Alts[GRM_G.guildName][altGroup] do
+            if GRM_Alts[GRM_G.guildName][altGroup][i].name == main then
+                class = GRM_Alts[GRM_G.guildName][altGroup][i].class;
+            end
+        end
 
         local player = GRM.GetPlayer ( main );
         if includeGUID and player then
@@ -19,7 +26,7 @@ GRM.GetAltGroupMain = function ( altGroup , includeGUID )
         end
     end
 
-    return main , GUID;
+    return main , GUID , class;
 end
 
 -- Method:          GRM.GetPlayerMain ( string )

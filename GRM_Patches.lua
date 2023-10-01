@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 120;
+local totalPatches = 121;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1473,6 +1473,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.986";
         if loopCheck ( 1.986 ) then
+            return;
+        end
+    end
+
+    -- patch 121
+    patchNum = patchNum + 1;
+    if numericV < 1.988 and baseValue < 1.988 then
+        
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixStandardStamp , true , true , false , nil );
+        GRM_Patch.AddNewSetting ( "hideFramesInCombat" , true );
+
+        GRM_AddonSettings_Save.VERSION = "R1.988";
+        if loopCheck ( 1.988 ) then
             return;
         end
     end
@@ -8199,10 +8212,10 @@ end
 -- Purpose:         Standard format change.
 GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
 
-    if player.joinDateHist then
+    if player.joinDateHist and #player.joinDateHist[1] == 7 and player.joinDateHist[1][1] ~= "" then
         for i = 1 , #player.joinDateHist do
             if type ( player.joinDateHist[i][4] ) ~= string then
-                if player.joinDateHist[i][1] == 0 or player.joinDateHist[i][1] == "" then
+                if player.joinDateHist[i][1] == 0 then
                     player.joinDateHist[i][4] = "0";
                 else
                     player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
@@ -8214,10 +8227,10 @@ GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
         player.rankHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
     end
 
-    if player.rankHist and #player.rankHist[1] == 8 then
+    if player.rankHist and #player.rankHist[1] == 8 and player.rankHist[1][2] ~= "" then
         for i = 1 , #player.rankHist do
             if type ( player.rankHist[i][5] ) ~= string then
-                if player.rankHist[i][2] == 0 or player.rankHist[i][2] == "" then
+                if player.rankHist[i][2] == 0 then
                     player.rankHist[i][5] = "0";
                 else
                     player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
@@ -8456,4 +8469,38 @@ GRM_Patch.ClearAllAltGroupsAndMainStatus = function( guildName )
         end
 
     end
+end
+
+-- 1.988
+-- Method:          GRM_Patch.FixStandardStamp( playerTable
+-- What it Does:    Fixes some formatting issues that existed from a previous bug
+-- Purpose:         Clean up DB.
+GRM_Patch.FixStandardStamp = function ( player )
+
+    if not player.rankHist[1] or type(player.rankHist[1][2]) == "String" then
+        player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } }; 
+    elseif type(player.rankHist[1][6]) == "String" then
+        if #player.rankHist[1][6] > 0 then
+            player.rankHist[1][6] = time();
+            player.rankHist[1][7] = true;
+        else
+            player.rankHist[1][6] = 0;
+            player.rankHist[1][7] = false;
+        end
+    end
+
+    if not player.joinDateHist[1] or type(player.joinDateHist[1][1]) == "String" then
+        player.rankHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+    elseif type(player.rankHist[1][5]) == "String" then
+        if #player.rankHist[1][5] > 0 and player.rankHist[1][1] > 0 then
+            player.rankHist[1][5] = time();
+            player.rankHist[1][6] = true
+        else
+            player.rankHist[1][5] = 0;
+            player.rankHist[1][6] = false
+        end
+
+    end
+
+    return player
 end

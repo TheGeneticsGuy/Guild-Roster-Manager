@@ -1,4 +1,22 @@
 
+## **VERSION 1.988 RELEASE - October 1st, 2023**
+
+***QUALITY OF LIFE***
+
+* GRM will now auto-hide all GRM frames when entering combat. The frames that were hidden will return when combat ends. This is to prevent any issues of GRM getting in the way when every second counts, especially in hardcore mode. This can be completely disabled in the GRM > Options > UI Settings
+
+***BUG FIXES***
+
+* There was an issue with GRM frame eating your keystrokes when entering combat. This should no longer happen, even if you choose to disable the option to auto-hide the frames. That is only an extra feature. 
+
+* Fixed an issue with the join date and rank date hist not storing properly when important data from another person who has been banned.
+
+* Fixed an issue which left the epoch timestamp of a data change incorrectly as a string instead of an int, causing a lua error whentrying to sync.
+
+* Fixed an issue where in some languages you were not able to unban a player if they were still in your guild.
+
+* Fixed an issue where when adding a ban it would say you had a missing "key" whilst referencing a Class name, which clearly didn't make sense.
+
 
 ## **VERSION 1.987 RELEASE - September 27th, 2023**
 

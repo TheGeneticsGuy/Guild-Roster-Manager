@@ -1744,5 +1744,9 @@ GRML.SpanishMX = function()
     GRM_L["Time of Death"] = true
     GRM_L["Sort Deaths:"] = true
     GRM_L["*Max Export is 500 Recorded Deaths at a Time"] = true
+
+    -- R1.988
+    GRM_L["In-combat. Hiding all GRM windows"] = true
+    GRM_L["Auto-Hide all GRM windows when entering combat."] = true
     
 end
