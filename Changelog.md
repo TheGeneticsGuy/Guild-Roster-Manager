@@ -1,4 +1,13 @@
 
+## **VERSION 1.989 RELEASE - October 6th, 2023**
+
+***BUG FIXES***
+
+* GRM was causing there to be a closing frame sound in Classic builds when a new person joined the guild. This should no longer happen!
+
+* GRM ctrl-click to open player names was not properly refreshing to the next player if you had already open the mouseover window by doing so. You would have to close and reopen to refresh. It should now properly refresh. This was not an issue in retail build.
+
+
 ## **VERSION 1.988 RELEASE - October 1st, 2023**
 
 ***QUALITY OF LIFE***
@@ -29,7 +38,6 @@
 * Fixed an issue where when GRM modifies a join date, or a rejoin date with the advanced join date tool, or just when someone rejoins the guild, if the custom join tag or rejoin tag were similar, like "J:" and "RJ:", for example, then GRM was parsing the string incorrectly and correcting the date, but adding an extra char on the tail end of the note. It should now properly remove it. Unfortunately, this will not retroactively fix any notes that were modified, but it will prevent it going forward.
 
 *Please note, I am aware of reports of the main designation being lost among alt groups, and in some cases, some alts, during sync. It appears to be affecting the same group over and over. This is something I am working on but it will take some time as I am possibly going to rewrite the whole sync protocol I wrote. I am seeing if it is necessary. Sorry about the hassle but I will have a fix for it soon!*
-
 
 
 ## **VERSION 1.986 RELEASE - September 14th, 2023**

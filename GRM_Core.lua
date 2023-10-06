@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.988";
-GRM_G.PatchDay = 1696142285;             -- In Epoch Time
-GRM_G.PatchDayString = "1696142285";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.989";
+GRM_G.PatchDay = 1696578315;             -- In Epoch Time
+GRM_G.PatchDayString = "1696578315";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -19695,6 +19695,7 @@ GRM.CheckForNewPlayer = function ( name )
     local isFound = false;
     local rosterIndex = 0;
 
+    -- Error protection if player leaves guild within the 1 second someone joins
     if not IsInGuild() then
         return;
     end
@@ -19811,22 +19812,13 @@ GRM.CheckForNewPlayer = function ( name )
 
     elseif GRM_G.RejoinControlCheck <= 90 then
         GRM_G.RejoinControlCheck = GRM_G.RejoinControlCheck + 1;
-
+        
         -- Try to refresh the roster
         if GRM_G.RejoinControlCheck % 10 == 0 then
             GRM.GuildRoster();
             if GRM_G.BuildVersion >= 30000 then
                 QueryGuildEventLog();
-            end
-
-            -- This triggers server refresh of roster in Classic builds which forces it instantly
-            if GRM_G.RejoinControlCheck == 1 or GRM_G.RejoinControlCheck % 40 == 0 then
-                if not GRM_G.inCombat and FriendsFrame and not FriendsFrame:IsVisible() then
-                    FriendsFrame:Show();
-                    FriendsFrameCloseButton:Click();
-                end
-            end
-            
+            end            
         end
 
         C_Timer.After ( 0.1 , function()
@@ -20381,14 +20373,6 @@ GRM.LiveJoinDetection = function( msg )
         
     local name = GRM.GetParsedJoinPlayerName ( msg );
     if name then
-
-        -- Unable to trigger the guild data refresh unless you do this.
-        if GRM_G.BuildVersion < 80000 then
-            if not GRM_G.inCombat and FriendsFrame and not FriendsFrame:IsVisible() then
-                FriendsFrame:Show();
-                FriendsFrameCloseButton:Click();
-            end
-        end
 
         GRM.CheckForNewPlayer( name );
 
@@ -25046,7 +25030,6 @@ end
 -- What it Does:    Opens the community frame and brings up the player window for editing
 -- Purpose:         Easy access to find the player from various frames
 GRM.OpenPlayerWindow = function ( playerName )
-    
     if GRM_G.BuildVersion < 40000 then
 
         if GuildFrame and not GuildFrame:IsVisible() then
@@ -25082,9 +25065,9 @@ GRM.OpenPlayerWindow = function ( playerName )
 
             if FriendsFrame and FriendsFrame:IsVisible() then
                 GRM_G.pause = false;
+                GRM.ClearAllFrames( true );
                 GRM_G.currentName = playerName;
                 GRM_G.RosterSelection = GRM.GetRosterSelectionID ( playerName );
-                GRM.ClearAllFrames( true );
                 GRM.PopulateMemberDetails ( GRM_G.currentName );
                 GRM_UI.GRM_MemberDetailMetaData:Show();
                 GRM_G.pause = true;
@@ -25117,9 +25100,9 @@ GRM.OpenPlayerWindow = function ( playerName )
         C_Timer.After ( timer , function()
         
             GRM_G.pause = false;
+            GRM.ClearAllFrames( true );
             GRM_G.currentName = playerName;
             GRM_G.RosterSelection = GRM.GetRosterSelectionID ( playerName );
-            GRM.ClearAllFrames( true );
             GRM.PopulateMemberDetails ( GRM_G.currentName );
             GRM_UI.GRM_MemberDetailMetaData:Show();        
             GRM.DisplayRosterMember ( playerName , GRM_G.RosterSelection );
@@ -25669,7 +25652,6 @@ GRM.TriggerTrackingCheck = function()
         end
 
     else
-
         if not GRM_G.IntegrityTackingEnabled then
             GRM.TrackingIntegrityCheck();
         end
@@ -26763,6 +26745,7 @@ GRM.TrackingConfiguration = function( forced )
             end);
             
             if GRM.S().scanEnabled then
+                -- GRM.TriggerTrackingCheck();
                 C_Timer.After( GRM.S().scanDelay , GRM.TriggerTrackingCheck ); -- Recursive check every X seconds. + 0.1 
             end
         end);
@@ -27182,9 +27165,3 @@ end
 -- Initialize the first frames as game is being loaded.
 Initialization:RegisterEvent ( "ADDON_LOADED" );
 Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );
-
-
--- /run local c=0;for _,g in pairs(GRM_Alts[GRM_G.guildName]) do if g.main=="Arkaan-Zul'jin" then c=c+1;end;end;print("Ogdizz is leader of "..c.." alt Groups.");
--- /run local n,c="Ogdizz-Area52",0;GRM.RemoveAlt(n,false);GRM.DemoteFromMain(n);for _,g in pairs(GRM_Alts[GRM_G.guildName]) do if g.main==n then g.main="";c=c+1;end;end;print("Alt groups fixed: "..c)
--- /dump GRM.GetMainName(GRM.GetPlayer("Artimian",true).name,false)
--- /dump GRM.GetMainName(GRM.GetPlayer("Arkaan",true).name,false)
