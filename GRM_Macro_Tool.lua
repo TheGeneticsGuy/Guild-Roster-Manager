@@ -623,47 +623,64 @@ GRM_UI.LoadToolFrames = function ( isManual )
     if not isManual then 
         -- Use ESC key to exit window.
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnKeyDown" , function ( self , key )
-            if not GRM_G.inCombat then
-                self:SetPropagateKeyboardInput ( true );
-                if key == "ESCAPE" then
-                    if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
+            
+            local keyLogic = function()
+                if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
 
-                        if GRM.IsRuleHighlighted() then
-                            GRM_UI.RestoreTooltipScale();
-                            GameTooltip:Hide();
-                            GRM.ClearRuleHighlights();
-
-                        elseif GRM.IsAnyMacroHighlighted() then
-                            GRM_UI.RestoreTooltipScale();
-                            GameTooltip:Hide();
-                            GRM.ResetToolMacrodHighlights();
-                            GRM.SetMacroButtonText();
-
-                        else
-                            self:SetPropagateKeyboardInput ( false );
-                            self:Hide();
-                        end
-                    end
-                end
-            end
-        end);
-
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:SetScript ( "OnKeyDown" , function ( self , key )
-            if not GRM_G.inCombat then
-                self:SetPropagateKeyboardInput ( true );
-                if key == "ESCAPE" then
-                    if GRM.IsAnyIgnoredHighlighted() then
-                        GRM.ResetIgnoredHighlights();
-                        GRM.SetIgnoredButtonText();
+                    if GRM.IsRuleHighlighted() then
                         GRM_UI.RestoreTooltipScale();
                         GameTooltip:Hide();
+                        GRM.ClearRuleHighlights();
+
+                    elseif GRM.IsAnyMacroHighlighted() then
+                        GRM_UI.RestoreTooltipScale();
+                        GameTooltip:Hide();
+                        GRM.ResetToolMacrodHighlights();
+                        GRM.SetMacroButtonText();
+
                     else
-                        self:SetPropagateKeyboardInput ( false );
+                        if not GRM_G.inCombat then
+                            self:SetPropagateKeyboardInput ( false );
+                        end
                         self:Hide();
                     end
                 end
             end
+
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );
+                if key == "ESCAPE" then
+                    keyLogic()
+                end
+            elseif key == "ESCAPE" then
+                keyLogic()
+            end
         end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:SetScript ( "OnKeyDown" , function ( self , key )
+
+            local keyLogic = function()
+                if GRM.IsAnyIgnoredHighlighted() then
+                    GRM.ResetIgnoredHighlights();
+                    GRM.SetIgnoredButtonText();
+                    GRM_UI.RestoreTooltipScale();
+                    GameTooltip:Hide();
+                else
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                end
+            end
+
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );
+                if key == "ESCAPE" then
+                    keyLogic()
+                end
+            elseif key == "ESCAPE" then
+                keyLogic()
+            end
+        end);
+
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:SetScript ( "OnShow" , function()
             GRM.TriggerIgnoredQueuedWindowRefresh();
         end);
@@ -1754,9 +1771,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
                 if key == "ESCAPE" then
                     self:SetPropagateKeyboardInput ( false );
-                    GRM.ClearRuleHighlights();
                     self:Hide();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
             end
         end);
 
@@ -1921,6 +1939,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:SetPropagateKeyboardInput ( false );
                     self:Hide();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
             end
         end);
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetScript ( "OnHide" , function()
@@ -3753,6 +3773,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:Hide();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:Show();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected:Show();
             end
         end);
 
@@ -3803,6 +3826,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:Hide();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Show();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Show();
             end
         end);
         
@@ -4063,6 +4089,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:Hide();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Show();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Show();
             end
         end);
 
@@ -4256,6 +4285,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:SetPropagateKeyboardInput ( false );
                     self:Hide();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
             end
         end);
         
@@ -4375,6 +4406,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:SetPropagateKeyboardInput ( false );
                     self:Hide();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
             end
         end);
 
@@ -4442,6 +4475,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:SetPropagateKeyboardInput ( false );
                     self:Hide();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
             end
         end);
 
@@ -4963,6 +4998,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     self:SetPropagateKeyboardInput ( false );
                     self:Hide();
                 end
+            elseif key == "ESCAPE" then
+                self:Hide();
             end
         end);
 

@@ -1,4 +1,25 @@
 
+## **VERSION 1.990 RELEASE - November 7th, 2023**
+
+*Compatibility update for 10.2 Dragonflight release*
+
+*Compatibility update for latest Classic Wrath Build*
+
+***BUG FIXES***
+
+* Due to some recent changes by Blizz, on the backend, some certain actions that should not cause "taint" (the error that says your action has been blocked), are causing taint. I have resolved a few of them that could occur where in combat. There are some that are erroneously triggering, however, for many many addons. There is a crowd effort among addon devs right now, but it seems like the general consensus is wait and see if Blizz fixes the error for 10.2 in just a week and we'll see. So, if you are still getting them after this patch, just wait til 10.2 drops and we'll see what happens from there.
+
+* Fixed an issue where GRM could throw errors when entering combat if the addon is enabled when NOT in a guild. Now, the addon should not be doing inCombat status cheecks if you are not in a guild.
+
+* Cleaned up the settings data to ensure no deprecated settings existed. The game now does a validation check. I had found a few save files I was given where people had rolled back to far earlier versions and it caused a lot of issues or added some ghost db entries to the saves. This now  cleans it up at start of your session. Very lightweight pre-check and prevents the endless amount of issues that can result because of this.
+
+* FIxed an issue where a Lua error could happen in the error message to the player indicating the person they were syncing with went offline, effectively stopping to que with the next person who might be in que to sync.
+
+* Fixed an issue where you were not able to add someone to the ban list manually. 
+
+* The player window or the search log should open when you shift-click or ctrl-shift-click names in the chat box. This was not working properly.
+
+
 ## **VERSION 1.989 RELEASE - October 6th, 2023**
 
 ***BUG FIXES***

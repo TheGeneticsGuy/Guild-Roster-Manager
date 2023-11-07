@@ -44,12 +44,15 @@ GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , 
         -- By pressing the ESC key the window closes.
         if inCludeEscapeAction then
             parentFrame[name]:SetScript ( "OnKeyDown" , function ( self , key )
-                self:SetPropagateKeyboardInput ( true );
-                if key == "ESCAPE" then
-                    self:SetPropagateKeyboardInput ( false );
+                if not GRM_G.inCombat then
+                    self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                    if key == "ESCAPE" then
+                        self:SetPropagateKeyboardInput ( false );
+                        self:Hide();
+                    end
+                elseif key == "ESCAPE" then
                     self:Hide();
                 end
-        
             end);
         end
 

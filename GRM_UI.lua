@@ -1533,9 +1533,13 @@ GRM_UI.CreateCharacterCountText = function( editFrame , editButton , editBox , n
     editFrame:HookScript ( "OnKeyDown" , function ( self , key )
 
         if not editBox:HasFocus() then
-            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-            if key == "ESCAPE" then
-                self:SetPropagateKeyboardInput ( false );
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                end
+            elseif key == "ESCAPE" then
                 self:Hide();
             end
         end
@@ -1625,23 +1629,35 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnUpdate" , GRM.MemberDetailToolTips );
 
     -- Logic handling: If pause is set, this unpauses it. If it is not paused, this will then hide the window.
-    GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnKeyDown" , function ( _ , key )
+    GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnKeyDown" , function ( self , key )
 
-        GRM_UI.GRM_MemberDetailMetaData:SetPropagateKeyboardInput ( true );
-        if key == "ESCAPE" then
-            GRM_UI.GRM_MemberDetailMetaData:SetPropagateKeyboardInput ( false );
-            if not GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:IsVisible() then
-                if not GRM_UI.MemberDetailFrame:IsVisible() then
-                    if GRM_G.pause then
-                        GRM_G.pause = false;
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                if not self.GRM_AltGroupingScrollBorderFrame:IsVisible() then
+                    if not GRM_UI.MemberDetailFrame:IsVisible() then
+                        if GRM_G.pause then
+                            GRM_G.pause = false;
+                        else
+                            self:Hide();
+                        end
                     else
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
+                        GRM_UI.MemberDetailFrame:Hide();
                     end
                 else
-                    GRM_UI.MemberDetailFrame:Hide();
+                    self.GRM_AltGroupingScrollBorderFrame:Hide();
+                end
+            end
+        else
+            if not GRM_UI.MemberDetailFrame:IsVisible() then
+                if GRM_G.pause then
+                    GRM_G.pause = false;
+                else
+                    self:Hide();
                 end
             else
-                GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
+                GRM_UI.MemberDetailFrame:Hide();
             end
         end
     end);
@@ -2135,7 +2151,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     
             if clearDeath then
                 player.HC.isDead = false;
-                player.HC.timeOfDeath = { 0 , 0 , 0 , 0 , 0 };
+                player.HC.timeOfDeath = { 0 , 0 , 0 , 0 , 0 , false }; 
     
                 GRM.Report ( GRM.L ( "{name} is no longer reported as Dead." , GRM.GetClassifiedName ( player.name , true ) ) , GRM.S().logColor[15][1] , GRM.S().logColor[15][2] , GRM.S().logColor[15][3] );
     
@@ -2310,9 +2326,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_SyncJoinDateSideFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -2328,14 +2348,20 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected.GRM_DayText:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected );
     GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected.GRM_DayText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 13 );
 
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:SetScript ( "OnKeyDown" , function ( _ , key )
+    GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
 
-        GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:SetPropagateKeyboardInput ( false );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:Hide();
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected:Show();
+            end
+        elseif key == "ESCAPE" then
+            self:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected:Show();
         end
+
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected:SetScript ( "OnShow" , function()
@@ -2379,11 +2405,16 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected.GRM_MonthText:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected.GRM_MonthText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 13 );
 
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetScript ( "OnKeyDown" , function ( _ , key )
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetPropagateKeyboardInput ( false );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Hide();
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:Show();
+            end
+        elseif key == "ESCAPE" then
+            self:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:Show();
         end
     end);
@@ -2429,11 +2460,16 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected.GRM_YearText:SetPoint ( "CENTER" , GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected );
     GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected.GRM_YearText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 13 );
 
-    GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:SetScript ( "OnKeyDown" , function ( _ , key )
-        GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:SetPropagateKeyboardInput ( false );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Hide();
+    GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected:Show();
+            end
+        elseif key == "ESCAPE" then
+            self:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected:Show();
         end
     end);
@@ -3352,9 +3388,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -4277,9 +4317,13 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -4360,27 +4404,24 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
 
             chatFrame:HookScript ( "OnHyperlinkClick" , function ( _ , link , text , button )
             
-                if GRM.S().chatTooltip then
-                    if button == "LeftButton" and IsInGuild() and IsControlKeyDown() then
+                if button == "LeftButton" and IsInGuild() and IsControlKeyDown() then
+                    local name = string.match ( link , "player:(.+):%d+:.+" );
+                    if name and GRM.GetPlayer ( name ) then
 
-                        local name = string.match ( link , "player:(.+):%d+:.+" );
-                        if name and GRM.GetPlayer ( name ) then
+                        if IsShiftKeyDown() then
+                            GRM.RestoreTooltip();
 
-                            if IsShiftKeyDown() then
-                                GRM.RestoreTooltip();
-
-                                if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                                    GRM_UI.GRM_RosterChangeLogFrame:Show();
-                                end
-
-                                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( name ) );
-                            else
-                                GRM.OpenPlayerWindow ( name )
-                                _G[ CHAT_FRAMES[j] .. "EditBox" ]:ClearFocus()
+                            if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+                                GRM_UI.GRM_RosterChangeLogFrame:Show();
                             end
 
+                            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
+                            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( name ) );
+                        else
+                            GRM.OpenPlayerWindow ( name )
+                            _G[ CHAT_FRAMES[j] .. "EditBox" ]:ClearFocus()
                         end
+
                     end
                 end
 
@@ -4587,12 +4628,16 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButton );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame.GRM_MouseOverStatusFrameCancelButtonText:SetText ( GRM.L ( "Cancel" ) );
-
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame:SetScript ( "OnKeyDown" , function ( _ , key )
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame:SetPropagateKeyboardInput ( false );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame:Hide();
+    
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame:SetScript ( "OnKeyDown" , function ( self , key )
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
+            self:Hide();
         end
     end);
 
@@ -4675,9 +4720,13 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameCancelButtonText:SetText ( GRM.L ( "Cancel" ) );
     
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -4815,9 +4864,13 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -4841,7 +4894,6 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
                     buttons[i][1]:UnlockHighlight();
                     buttons[i + 1][1]:LockHighlight();
                     notSet = false;
-                    -- local maxValue = select ( 2 , GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollFrameSlider:GetMinMaxValues() );
                     GRM_UI.SetAddAltSliderValue();
                 else
                     GRM_G.currentHighlightIndex = 1;
@@ -5111,9 +5163,13 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_altDropDownOptions:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -5630,6 +5686,7 @@ GRM_UI.PreAddonLoadUI = function()
             end
         end
     end);
+
     -- Options Tab
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersTab , "BOTTOMRIGHT" , 1 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:SetSize ( 99.2 , 40 );
@@ -6167,9 +6224,13 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     -- Export Frames and their logic...
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -7049,9 +7110,13 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end)
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -7441,9 +7506,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected:Show();
         end
@@ -7905,9 +7975,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
         end
@@ -7962,9 +8037,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
         end
@@ -8020,11 +8100,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelectedDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelectedDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected:Show();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected:Show(); 
         end
     end);
 
@@ -8064,9 +8149,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
         end
@@ -8313,9 +8403,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
         end
@@ -9936,11 +10031,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
         end
     end);
 
@@ -10023,11 +10123,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
         end
     end);
 
@@ -10153,11 +10258,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetScript ( "OnKeyDown" , function ( _ , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultCustomSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultCustomSelected:Show();
         end
     end);
 
@@ -10656,10 +10766,17 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetScript ( "OnLeave" , function()
         GRM.RestoreTooltip()
     end)
-
+    
     GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
+        
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                GRM.ClearAllFrames( false );
+                GRM.PopulateMemberDetails ( GRM_G.currentName );
+            end
+        elseif key == "ESCAPE" then
             self:SetPropagateKeyboardInput ( false );
             GRM.ClearAllFrames( false );
             GRM.PopulateMemberDetails ( GRM_G.currentName );
@@ -11408,9 +11525,14 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:Show();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:Show();
         end
@@ -11506,9 +11628,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     
      -- Propagate for keyboard control of the frames!!!
     GRM_UI.GRM_RosterChangeLogFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+
+        local hideLogic = function()
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
 
                 -- Edit Boxes
@@ -11555,14 +11676,28 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             else
                 GRM_UI.GRM_RosterChangeLogFrame:Hide();
             end
-            
+        end
+
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                hideLogic()
+            end
+
+        elseif key == "ESCAPE" then
+            hideLogic()
         end
     end);
 
     GRM_UI.GRM_RosterConfirmFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -12599,9 +12734,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     -- CORE AUDIT TOOL --
     GRM_UI.GRM_AuditJDTool:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             if GRM.IsAnyHighlighted() then
                 GRM_UI.ClearJDAuditHighlights();
             else
@@ -13018,9 +13157,15 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
 
     GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:Show();
+            end
+        elseif key == "ESCAPE" then
+            self:Hide();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenuSelected:Show();
         end
     end);
@@ -14692,9 +14837,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     -- Export Frames and their logic...
     GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -14870,25 +15019,42 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
     
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
+        if not GRM_G.inCombat then
         self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected:Show();
+            elseif key == "TAB" then
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:Hide();
+                GRM_UI.TabNextDropDown ( self , false );
+            elseif key == "ENTER" then
+                self:SetPropagateKeyboardInput ( false );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected.GRM_BanServerSelectedText:SetText ( self.Buttons[GRM_G.DropDownHighlightLockIndex][2]:GetText() );
+                GRM_UI.CheckForBanPlayerAutoSelect ( true , true );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected:Show();
+                self:Hide();
+            elseif key == "UP" then
+                self:SetPropagateKeyboardInput ( false );
+                GRM_UI.TabNextDropDown ( self , true );
+            elseif key == "DOWN" then
+                self:SetPropagateKeyboardInput ( false );
+                GRM_UI.TabNextDropDown ( self , false );
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected:Show();
         elseif key == "TAB" then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:Hide();
             GRM_UI.TabNextDropDown ( self , false );
         elseif key == "ENTER" then
-            self:SetPropagateKeyboardInput ( false );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected.GRM_BanServerSelectedText:SetText ( self.Buttons[GRM_G.DropDownHighlightLockIndex][2]:GetText() );
             GRM_UI.CheckForBanPlayerAutoSelect ( true , true );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerSelected:Show();
             self:Hide();
         elseif key == "UP" then
-            self:SetPropagateKeyboardInput ( false );
             GRM_UI.TabNextDropDown ( self , true );
         elseif key == "DOWN" then
-            self:SetPropagateKeyboardInput ( false );
             GRM_UI.TabNextDropDown ( self , false );
         end
     end);
@@ -15269,16 +15435,37 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetFrameStrata ( "FULLSCREEN" );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelected:Show();
+            elseif key == "TAB" then
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:Hide();
+                GRM_UI.TabNextDropDown ( self , false );
+            elseif key == "ENTER" then
+                self:SetPropagateKeyboardInput ( false );
+                local classColors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( classColors[1] , classColors[2] , classColors[3] , 1 );
+                self:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelected:Show();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetFocus();
+            elseif key == "UP" then
+                self:SetPropagateKeyboardInput ( false );
+                GRM_UI.TabNextDropDown ( self , true );
+            elseif key == "DOWN" then
+                self:SetPropagateKeyboardInput ( false );
+                GRM_UI.TabNextDropDown ( self , false );
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelected:Show();
         elseif key == "TAB" then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:Hide();
             GRM_UI.TabNextDropDown ( self , false );
         elseif key == "ENTER" then
-            self:SetPropagateKeyboardInput ( false );
             local classColors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( classColors[1] , classColors[2] , classColors[3] , 1 );
@@ -15286,14 +15473,12 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelected:Show();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetFocus();
         elseif key == "UP" then
-            self:SetPropagateKeyboardInput ( false );
             GRM_UI.TabNextDropDown ( self , true );
         elseif key == "DOWN" then
-            self:SetPropagateKeyboardInput ( false );
             GRM_UI.TabNextDropDown ( self , false );
         end
     end);
-
+    
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetScript ( "OnShow" , function( self )
         -- Cleanup
         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanServerDropDownMenu:Hide();
@@ -15476,9 +15661,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -15576,9 +15765,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     -- So escape key can hide the frames.
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -15683,7 +15876,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 memberInfoToAdd.rosterSelection = 0;                                    -- 18
                 
                 -- Add ban of in-guild guildie with notification!!!
-                local _ , timeArray = select ( 2 , GRM.GetTimestamp() )
+                local timeArray = select ( 2 , GRM.GetTimestamp() )
                 GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , GRM.ConvertToStandardFormatDate ( timeArray[1] , timeArray[2] , timeArray[3] ) , time() - 5000 , GRM_G.addonUser );
         
                 -- Now, let's implement the ban!
@@ -16070,10 +16263,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
    
     GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
 
+        local hideLogic = function()
             if not self.GRM_EventsFrameStatusMessageText:IsVisible() then
                 for j = 1 , #self.GRM_AddEventScrollChildFrame.allFrameButtons do
                     self.GRM_AddEventScrollChildFrame.allFrameButtons[j][1]:UnlockHighlight();
@@ -16095,6 +16286,16 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             else
                 GRM_UI.GRM_RosterChangeLogFrame:Hide();
             end
+        end
+
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                hideLogic()
+            end
+        elseif key == "ESCAPE" then
+            hideLogic()
         end
     end);
 
@@ -16349,9 +16550,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:SetScript ( "OnKeyDown" , function ( self , key )
-        self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-        if key == "ESCAPE" then
-            self:SetPropagateKeyboardInput ( false );
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        elseif key == "ESCAPE" then
             self:Hide();
         end
     end);
@@ -17804,10 +18009,14 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             end);
         
             GRM_UI.MemberDetailFrame:SetScript ( "OnKeyDown" , function ( self , key )
-                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-                if key == "ESCAPE" then
-                    self:SetPropagateKeyboardInput ( false );
-                    self:Hide();
+                if not GRM_G.inCombat then
+                    self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                    if key == "ESCAPE" then
+                        self:SetPropagateKeyboardInput ( false );
+                        self:Hide();
+                    end
+                else
+                    self:Hide()
                 end
             end);
 
@@ -17839,10 +18048,14 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             end);
     
             GRM_UI.MemberDetailFrame:SetScript ( "OnKeyDown" , function ( self , key )
-                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-                if key == "ESCAPE" then
-                    self:SetPropagateKeyboardInput ( false );
-                    self:Hide();
+                if not GRM_G.inCombat then
+                    self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                    if key == "ESCAPE" then
+                        self:SetPropagateKeyboardInput ( false );
+                        self:Hide();
+                    end
+                else
+                    self:Hide()
                 end
             end);
 

@@ -14,14 +14,14 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.989";
+GRM_G.Version = "R1.990";
 GRM_G.PatchDay = 1696578315;             -- In Epoch Time
 GRM_G.PatchDayString = "1696578315";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.26;
+GRM_G.GroupInfoV = 1.27;
 
 -- Initialization Useful Globals 
 -- ADDON
@@ -407,7 +407,6 @@ end
 --- END COMPATIBILITY CHECK ---
 -------------------------------
 
-
 --------------------------
 --- STATUS FUNCTIONS -----
 --------------------------
@@ -438,28 +437,30 @@ GRM_G.StatusChecking:RegisterEvent ( "GROUP_LEFT" );
 GRM_G.StatusChecking:RegisterEvent ( "PLAYER_ROLES_ASSIGNED" );
 GRM_G.StatusChecking:SetScript ( "OnEvent" , function ( _ , event )
 
-    local eventList = { ["GROUP_ROSTER_UPDATE"] = true , ["PLAYER_ROLES_ASSIGNED"] = true , }
+    if IsInGuild() then
+        local eventList = { ["GROUP_ROSTER_UPDATE"] = true , ["PLAYER_ROLES_ASSIGNED"] = true , }
 
-    if event == "PLAYER_REGEN_ENABLED" then
-        GRM_G.inCombat = false;
-        GRM.FrameCombatRestore()
+        if event == "PLAYER_REGEN_ENABLED" then
+            GRM_G.inCombat = false;
+            GRM.FrameCombatRestore()
 
-    elseif event == "PLAYER_REGEN_DISABLED" then
-        GRM_G.inCombat = true;
-        GRM.FrameCombatHide();
+        elseif event == "PLAYER_REGEN_DISABLED" then
+            GRM_G.inCombat = true;
+            GRM.FrameCombatHide();
 
-    elseif eventList[event] then
+        elseif eventList[event] then
 
-        if GRM_G.Module.GroupInfo ~= nil then
-            GRM_GI.EventListener();
+            if GRM_G.Module.GroupInfo ~= nil then
+                GRM_GI.EventListener();
+            end
+
+        elseif event == "GROUP_FORMED" then
+            GRM.InGroupLogic();
+            GRM_G.InGroup = true;
+        elseif event == "GROUP_LEFT" then
+            GRM.InGroupLogic();
+            GRM_G.InGroup = false;
         end
-
-    elseif event == "GROUP_FORMED" then
-        GRM.InGroupLogic();
-        GRM_G.InGroup = true;
-    elseif event == "GROUP_LEFT" then
-        GRM.InGroupLogic();
-        GRM_G.InGroup = false;
     end
 end);
 
@@ -686,7 +687,6 @@ GRM.SetDefaultAddonSettings = function ( player , page )
 
     -- Page 0 = misc stuff unrelated to specific settings
     if page == 0 then
-        player.version = GRM_G.Version;
         player.showMouseoverRetail = true;
         player.showMouseoverOld = true;
         player.minimapPos = 345;
@@ -1183,6 +1183,9 @@ end
 -- Purpose:         Compartmentalizes this so it can only be on call as needed.
 GRM.FinalSettingsConfigurations = function()
 
+    -- Verify Settings DB is good
+    GRM.VerifyAddonSettings();
+
     -- In case of disconnect during some events that you may need to continue from.
     GRM.MiscCleanupOnLogin();
     -- Let's load that minimap button now too...
@@ -1214,6 +1217,48 @@ GRM.FinalSettingsConfigurations = function()
 
     -- Settings loaded... carry on.
     GRM.SettingsLoadedFinishDataLoad();
+
+end
+
+-- Method:          GRM.VerifyAddonSettings()
+-- What it Does:    Validates the settings by adding missing or removing redundant.
+-- Purpose:         Cleanup the Save DB
+GRM.VerifyAddonSettings = function()
+
+    -- Build the template
+    local player = {};
+    for i = 0 , GRM_G.SettingsPages do
+        GRM.SetDefaultAddonSettings ( player , i );
+    end
+
+    local Validate = function ( saveSettings )
+
+        for settingName in pairs ( player ) do
+            if saveSettings[settingName] == nil then
+                saveSettings[settingName] = player[settingName];
+            end
+            
+        end
+
+        for settingName in pairs ( saveSettings ) do
+
+            if player[settingName] == nil then
+                saveSettings[settingName] = nil
+            end
+            
+        end
+
+        return saveSettings
+    end
+
+    
+    if GRM_G.guildName ~= "" and GRM_G.guildName ~= nil and GRM_AddonSettings_Save[GRM_G.guildName] then
+        GRM_AddonSettings_Save[GRM_G.guildName] = Validate ( GRM_AddonSettings_Save[GRM_G.guildName] );
+    end
+
+    if GRM_AddonSettings_Save[GRM_G.addonUser] ~= nil then
+        GRM_AddonSettings_Save[GRM_G.addonUser] = Validate ( GRM_AddonSettings_Save[GRM_G.addonUser] );
+    end
 
 end
 
@@ -8558,7 +8603,7 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["altGroup"] = "";
     member["altsAtTimeOfLeaving"] = {};                     -- Variable used when a player leaves the guild
     member["mainAtTimeOfLeaving"] = {};                     -- Easy way to track who is their previous main when they returned to the guild.
-    member["bannedInfo"] = { false , 0 , false , "" };      -- 17
+    member["bannedInfo"] = { false , 0 , false , "" };      -- 17   {isBanned , epochStamp, unbanned , whoBanned }
     member["reasonBanned"] = "";                            -- 18
     member["rankHist"] = { { memberInfo.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };      -- { rankName , day , month , year , timeInEpoch , timeChangedManually , isVerified , typeOfRankChange }   
     member["joinDateHist" ] = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };                       -- { day , month , year , timeInEpoch , timeChangedManually , isVerified , join/leave } - 1 = join; 2 = leave;
@@ -8603,7 +8648,7 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     if GRM_G.HardcoreActive then
         member.HC = {};
         member.HC.isDead = false;
-        member.HC.timeOfDeath = { 0 , 0 , 0 , 0 , 0 };
+        member.HC.timeOfDeath = { 0 , 0 , 0 , 0 , 0 , false };
     end
 
     if isReturningMember then
@@ -25604,7 +25649,7 @@ GRM.GR_Roster_Click = function ( name )
     local time = GetTime();
     if GRM_G.RosterClickTimer == 0 or time - GRM_G.RosterClickTimer > 0.5 then   -- 500ms
         -- We are going to be copying the name if the shift key is down!
-
+        
         if IsShiftKeyDown() and not GRM_G.RecursiveStop then
 
             if GetCurrentKeyBoardFocus() ~= nil then

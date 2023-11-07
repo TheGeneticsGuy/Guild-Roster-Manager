@@ -4556,7 +4556,7 @@ GRMsync.InitiateDataSync = function ()
                 GRMsyncGlobals.guildAltData = {};
 
                 if #GRMsyncGlobals.SyncQue > 1 then
-
+                    local msg = GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync Failed with {name}..." , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] , true ) );
                     table.remove ( GRMsyncGlobals.SyncQue , 1 );
                     if GRM.S().syncChatEnabled then
                         GRM.Report ( msg .. "\n" .. GRM.L ( "The Player Appears to Be Offline." ) .. "\n" .. GRM.L ( "Initiating Sync with {name} Instead!" , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
