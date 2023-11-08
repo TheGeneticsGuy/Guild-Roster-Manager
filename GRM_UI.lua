@@ -13079,6 +13079,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportDeathsTabText:SetText ( GRM.L ( "Hardcore Deaths" ) );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportDeathsTabText:SetWidth ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab:GetWidth() - 5 );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportDeathsTabText:SetWordWrap ( true );
+    else
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportDeathsTab:Hide()
     end
 
     GRM_UI.GRM_ExportLogBorderFrame.GRM_GuildDataExportFiltersFrame:SetSize ( 362 , 315 );

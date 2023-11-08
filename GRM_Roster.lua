@@ -34,7 +34,7 @@ GRM_R.BuildRosterFrames = function ()
             GRM_R.ConfigureRosterOptions();
         end)
     end
-
+    
     -- Options Menu
     GRM_UI.CreateCoreFrame ( "GRM_RosterOptions" , GRM_UI.GRM_RosterFrame , nil , coreSize , 90 , "TranslucentFrameTemplate" , false , { "TOP" , "BOTTOM" , 0 , 8 } , "FULLSCREEN_DIALOG" , false , false );
     
@@ -247,7 +247,7 @@ GRM_R.BuildRosterFrames = function ()
     
     -- Member Count
     GRM_UI.CreateString ( "GRM_RosterMemberCount" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , "" , 11 , { "TOPRIGHT" , GRM_UI.GRM_RosterFrame , "TOPRIGHT" , -30 , -20 } );
-
+    
     -- Show Options Button
     GRM_UI.CreateButton ( "GRM_RosterOptionsButton" , GRM_UI.GRM_RosterFrame , "UIPanelScrollUpButtonTemplate" , nil , 20 , 20 , { "BOTTOMRIGHT" , GRM_UI.GRM_RosterFrame , "BOTTOMLEFT" , 0 , 8 } , GRM_R.OpenRosterOptions , nil , nil , nil , 10 , -5 , GRM_R.OpenRosterOptionsButtonTT , GRM_R.TooltipReset );
 

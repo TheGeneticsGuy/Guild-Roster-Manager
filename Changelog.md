@@ -1,4 +1,12 @@
 
+## **VERSION 1.9901 RELEASE - November 8th, 2023**
+
+* Slight .toc issue on mainline build for 10.2 compatibility. Updated!
+
+* Accidentally left in a debug print, now removed.
+
+* Macro tool you could edit the rules if you didn't have access, this is now fixed, and was just from some testing I forgot to reset back.
+
 ## **VERSION 1.990 RELEASE - November 7th, 2023**
 
 *Compatibility update for 10.2 Dragonflight release*
