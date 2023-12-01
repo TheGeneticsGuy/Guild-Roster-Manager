@@ -1502,6 +1502,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 123
+    patchNum = patchNum + 1
+    if numericV < 1.9902 and baseValue < 1.9902 then
+        
+        GRM_Patch.EditSetting ( "levelFilters" , GRM_Patch.UpdateLevelFilterSOD );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9902";
+        if loopCheck ( 1.9902 ) then
+            return;
+        end
+    end
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -1594,7 +1606,7 @@ end
 -- Method:          GRM_Patch.ModifyMemberSpecificData ( function , bool , bool , bool , object or var )
 -- What it Does:    Goes through the entire account wide database and modifies a player's or guild's metadata based on the actions of the given function
 -- Purpose:         Reusable function for error work and to avoid on code bloat spam.
-GRM_Patch.ModifyMemberSpecificData = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData , modifier )
+w = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData , modifier )
 
     if editCurrentPlayers then
         for guildName in pairs ( GRM_GuildMemberHistory_Save ) do                  -- The guilds in each faction
@@ -1680,9 +1692,7 @@ GRM_Patch.EditSetting = function ( setting , valueOrLogic , additionalSetting )
                         GRM_AddoSnettings_Save[p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
                     end
                 else
-                    if not GRM_AddonSettings_Save[p][setting] then
-                        print(p);
-                    end
+
                     GRM_AddonSettings_Save[p][setting] = valueOrLogic ( GRM_AddonSettings_Save[p][setting] );
                 end
             else
@@ -8534,3 +8544,15 @@ GRM_Patch.FixHCModeData = function ( player )
     return player
 end
 
+-- R1.9902
+-- Method:          GRM_Patch.UpdateLevelFilterSOD ( table )
+-- What it Does:    Adds a new level filter option at index 9, which is for SOD
+-- Purpose:         All the control and syncing of the macro rules.
+GRM_Patch.UpdateLevelFilterSOD = function ( rules )
+
+    if #rules == 8 then
+        table.insert ( rules , true )
+    end
+
+    return rules;
+end

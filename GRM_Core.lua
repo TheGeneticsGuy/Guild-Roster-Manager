@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9901";
-GRM_G.PatchDay = 1699429073;             -- In Epoch Time
-GRM_G.PatchDayString = "1699429073";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9902";
+GRM_G.PatchDay = 1701458138;             -- In Epoch Time
+GRM_G.PatchDayString = "1701458138";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -751,7 +751,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         player.onlyAnnounceForMain = false;
         player.scanEnabled = true;
         player.levelReportMin = 10;
-        player.levelFilters = {true,true,true,true,true,true,true,true};
+        player.levelFilters = {true,true,true,true,true,true,true,true,true};
         player.allAltRequirement = true;
         player.recordLevelUp = true;
         player.AnnounceBdayOnLogin = true;

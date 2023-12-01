@@ -1,4 +1,10 @@
 
+## **VERSION 1.9902 RELEASE - December 1st, 2023**
+
+*Significant update is coming, but I didn't get it done yet, so I commented out access to a lot of the changes. I will have the update out soon.*
+
+* Compatibility update for Classic Season of Discovery
+
 ## **VERSION 1.9901 RELEASE - November 8th, 2023**
 
 * Slight .toc issue on mainline build for 10.2 compatibility. Updated!

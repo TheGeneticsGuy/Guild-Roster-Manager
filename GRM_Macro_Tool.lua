@@ -1,22 +1,62 @@
 
 -- Tool to use GRM data to build pre-made macros based on certain filters to handle promotions/demotions/kicking of players. This is due to the fact that the API to do these actions was restricted in patch 7.3, effectively breaking many guild leadership and management addons. This is an attempt to help officers and Guild Leaders' lives out a little bit through creating quick rebuilding macros.
-local GRM_Macro = {};
+GRM_Macro = {};
 
 
 GRM_UI.BuildSpcialRules = function()
 
+    GRM_Macro.SpecialRule1Button = function()
+        print("TBD - not yet implemented")
+        -- GRM_UI.ConfigureSpecialRuleFrame( 4 , false , false , nil );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide()
+    end
+
+    GRM_Macro.SpecialRule2Button = function()
+        print("TBD - not yet implemented")
+        -- GRM_UI.ConfigureSpecialRuleFrame( 5 , false , false , nil );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
+    end
+
+    -- Special Rule selectio9n Frame
+    GRM_UI.CreateCoreFrame ( "GRM_ToolSpecialRulesSelectionFrame" , GRM_UI.GRM_ToolCoreFrame , nil , 450 , 200 , "TranslucentFrameTemplate" , true , { "CENTER" , "CENTER" , 0 , 0 } , "HIGH" , true , true );
+
+    GRM_UI.CreateString ( "GRM_SpecialRuleSelectionTitle" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "GameFontNormal" , GRM.L ( "Please Select Special Macro Rule" ) , 18 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "TOP" , 0 , -17 } );
+
+    GRM_UI.CreateButton ( "GRM_SpecialRule1Button" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "UIPanelButtonTemplate" , GRM.L ( "Alt Group Rank Sync" ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:GetWidth() - 50 , 25 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "TOP" , 0 , -50 } , GRM_Macro.SpecialRule1Button , "GameFontWhite" , 13 , "CENTER" , 0 , 0  );
+
+    GRM_UI.CreateButton ( "GRM_SpecialRule2Button" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "UIPanelButtonTemplate" , GRM.L ( "Repeated Inactivity Monitor" ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame.GRM_SpecialRule1Button:GetWidth() , 25 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame.GRM_SpecialRule1Button , "BOTTOM" , 0 , -10 } , GRM_Macro.SpecialRule2Button , "GameFontWhite" , 13 , "CENTER" , 0 , 0  );
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
+
     -- Core Special Rules Frame
-    GRM_UI.CreateCoreFrame ( "GRM_ToolSpecialRulesFrame" , GRM_UI.GRM_ToolCoreFrame , UIParent , 400 , 450 , "TranslucentFrameTemplate" , true , { "CENTER" , nil , nil , nil } , "HIGH" , true , true );
+    GRM_UI.CreateCoreFrame ( "GRM_ToolSpecialRulesFrame" , GRM_UI.GRM_ToolCoreFrame , UIParent , 450 , 250 , "TranslucentFrameTemplate" , true , { "CENTER" , "CENTER" , 0 , 0 } , "HIGH" , true , true );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = {};
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit = false;
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isCopy = false;
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal = "";
     
+    GRM_Macro.SpecialRuleConfirm = function()
+        print("Confirming Rule")
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
+    end
+
+    GRM_Macro.SpecialRuleCancel = function()
+        print("Canceling Rule")
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
+    end
+
+    GRM_UI.CreateButton ( "GRM_SpecialConfirmButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "UIPanelButtonTemplate" , GRM.L ( "Confirm" ) , 145 , 25 , { "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "BOTTOM" , -20 , 15 } , GRM_Macro.SpecialRuleConfirm , "GameFontWhite" , 13 , "CENTER" , 0 , 0  );
+
+    GRM_UI.CreateButton ( "GRM_SpecialCancelutton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "UIPanelButtonTemplate" , GRM.L ( "Cancel" ) , 145 , 25 , { "BOTTOMLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "BOTTOM" , 20 , 15 } , GRM_Macro.SpecialRuleCancel, "GameFontWhite" , 13 , "CENTER" , 0 , 0 );
+
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:SetScript ( "OnHide" , function()
         -- reset the rules
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = {};
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit = false;
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isCopy = false;
         GRM.ClearRuleHighlights();
     end);
      
@@ -30,6 +70,8 @@ GRM_UI.BuildSpcialRules = function()
         else
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_ToolSpecialRulesFrameEditText:Hide();
         end
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
     end);
 
     -- Guild Roster Title
@@ -549,7 +591,6 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText = GRM_
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton = CreateFrame ( "CheckButton" , "GRM_ToolSyncButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , GRM_G.CheckButtonTemplate );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
-
 GRM_UI.BuildMacroToolFrame(); -- To be expanded
 
 GRM_UI.BuildSpcialRules();
@@ -609,6 +650,8 @@ GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;       -- For manually scanning ros
 GRM_UI.ruleTypeEnum = { [1] = "kickRules" , [2] = "promoteRules" , [3] = "demoteRules" , [4] = "specialRules" };
 GRM_UI.ruleTypeEnum2 = { [1] = "kick" , [2] = "promote" , [3] = "demote" , [4] = "special" };
 GRM_UI.ruleTypeEnum3 = { [1] = GRM.L ( "Kick" ) , [2] = GRM.L ( "Promote" ) , [3] = GRM.L ( "Demote" ) , [4] = GRM.L ( "Special" ) };
+
+
 
 GRM_UI.GRM_ToolCoreFrame:Hide();                    -- Default load position is hidden
 
@@ -744,6 +787,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
             GRM.ScanRecommendationsList();
         end);
 
@@ -1115,15 +1159,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
                     validToOpen = false;
-                    -- GRM_UI.ConfigureSpecialRuleFrame();  -- Creating a new rule
-                    -- if not CanGuildPromote() then
-                    --     GRM.Report ( GRM.L ( "Special Rules Not Available at Current Rank" ) .. " " .. GRM.L ( "Feature disabled." ) );
-                    -- else
-                    --     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Show();
-                    --     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
-                    --     GRM.ClearRuleHighlights()
-                    -- end
-                    print("Special Rules feature pending, not yet implemented Standby!")
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Show();
                 end
 
                 if validToOpen then
@@ -1396,7 +1432,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 75 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_KickTab , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:SetScript ( "OnClick" , function ( self , button )
-            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
+            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:IsVisible() then
                 local needsFullRefresh = false;
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 1 then
                     needsFullRefresh = true;
@@ -1411,6 +1447,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then
                     GRM.TriggerIgnoredQueuedWindowRefresh();
                 end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
             end
         end);
 
@@ -1435,7 +1473,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , 75 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_PromoTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:SetScript ( "OnClick" , function ( _ , button )
-            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
+            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:IsVisible() then
                 local needsFullRefresh = false;
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 2 then
                     needsFullRefresh = true;
@@ -1473,7 +1511,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM.TabResize ( GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , 75 , 25 );
         GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTabText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:SetScript ( "OnClick" , function ( self , button )
-            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
+            if button == "LeftButton" and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:IsVisible() then
                 local needsFullRefresh = false;
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 3 then
                     needsFullRefresh = true;
@@ -3569,8 +3607,30 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( isEdit , ruleName );
         end
 
-        GRM_UI.ConfigureSpecialRuleFrame = function()
-            print("PENDING WORK")
+        GRM_UI.ConfigureSpecialRuleFrame = function ( ruleType , isEdit , isCopy , ruleName )
+
+            if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:IsVisible() then
+
+                if isEdit then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = GRM.GetSpecialRule ( ruleName );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal = ruleName;
+                elseif isCopy then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = GRM.GetSpecialRule ( ruleName );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal = GRM_Macro.BuildNewSpecialRuleTemplate( ruleType , nil , nil ).name;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.name = GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal;
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = GRM_Macro.BuildNewSpecialRuleTemplate( ruleType , nil , nil );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal = GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.name;
+                end
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit = isEdit;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isCopy = isCopy;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleType = ruleType;
+
+                print("Default Rule: Main Sync" )
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Show();
+            end
         end
 
         -- INACTIVITY CUSTOM RULES
@@ -7567,6 +7627,40 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
     return result , ruleName;
 end
 
+-- Method:          GRM_Macro.BuildNewSpecialRuleTemplate ( int , string , int )
+-- What it Does:    Builds the special rule template based on the the rule type and returns it.
+-- Purpose:         Easily call new copies of the rules
+GRM_Macro.BuildNewSpecialRuleTemplate = function ( ruleType , name , num )
+    local ruleName = "";
+    local nameSet = false;
+    local ruleNumber = num or GRM.GetRulesCount( 4 ) + 1;
+    local ruleNameString = { [4] = "{name}'s Main Rank Sync Rule {num}" , [5] = "{name}'s Repeated Inactivity Rule {num}" };
+    local ruleT = { [4] = 4 , [5] = 5 }; -- localize it, I know it seems redundant,
+
+    if name ~= nil then
+        ruleName = name;
+    else
+        local tempNum = ruleNumber;
+        while not nameSet do 
+            ruleName = GRM.L ( ruleNameString[ruleType] , GRM.SlimName ( GRM_G.addonUser ) , nil , tempNum );
+            if GRM.S()[GRM_UI.ruleTypeEnum[ruleType]][ruleName] ~= nil then
+                tempNum = tempNum + 1;
+            else
+                nameSet = true;
+            end
+        end
+    end
+    local result = {};
+
+    -- Activity Filters
+
+    result.name = ruleName
+    result.isEnabled = true;
+    result.ruleType = ruleT[ruleType];
+
+    return result , ruleName;
+end
+
 -- Method:          GRM.ValidateRule ( table )
 -- What it does:    Returns true of the rule contains all of the expected variables in their proper form.
 -- Purpose:         To ensure integrity of the rules.
@@ -7583,6 +7677,9 @@ GRM.ValidateRule = function ( rule , ruleType )
         tempRule = GRM.BuildNewPromoteOrDemoteRuleTemplate ( "UUU" , 1 , ruleType );
     elseif ruleType == 3 then
         tempRule = GRM.BuildNewPromoteOrDemoteRuleTemplate ( "UUU" , 1 , ruleType );
+    elseif ruleType == 4 then
+        tempRule = GRM_Macro.BuildNewSpecialRuleTemplate ( rule.ruleType , "UUU" , 1 );
+        -- Special rules will be ruleType > 4
     end
 
     for settingName in pairs ( tempRule ) do
@@ -7601,7 +7698,7 @@ end
 GRM.RuleIntegrityCheck = function()
     local isValid = false;
 
-    for i = 1 , 3 do
+    for i = 1 , 4 do
         for name , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[i]] ) do
             rule = GRM.ValidateRule ( rule , i );
         end
@@ -7876,14 +7973,22 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                         end
 
                     elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
-                        if not CanGuildDemote() or not CanGuildPromote() then
+                        if not CanGuildDemote() or not CanGuildPromote() or not CanGuildRemove() then
                             validToOpen = false;
-                            if not CanGuildDemote() and not CanGuildPromote() then
+                            if not CanGuildDemote() and not CanGuildPromote() and not CanGuildRemove() then
+                                GRM.Report ( GRM.L ( "Unable to kick or promote or demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildDemote() and not CanGuildPromote() then
                                 GRM.Report ( GRM.L ( "Unable to promote or demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildDemote() and not CanGuildRemove() then
+                                GRM.Report ( GRM.L ( "Unable to kick or demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildPromote() and not CanGuildRemove() then
+                                GRM.Report ( GRM.L ( "Unable to kick or promote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
                             elseif not CanGuildPromote() then
                                 GRM.Report ( GRM.L ( "Unable to promote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
                             elseif not CanGuildDemote() then
                                 GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
+                            elseif not CanGuildRemove() then
+                                GRM.Report ( GRM.L ( "Unable to kick players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
                             end
                         else
                             GRM_UI.ConfigureSpecialRuleFrame ( true , ruleName );
@@ -7932,7 +8037,7 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                         end
 
                     elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
-                        if not CanGuildDemote() or not CanGuildPromote() then
+                        if not CanGuildDemote() or not CanGuildPromote() or not CanGuildRemove() then
                             validToOpen = false;
                             if not CanGuildDemote() and not CanGuildPromote() then
                                 GRM.Report ( GRM.L ( "Unable to promote or demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
@@ -10643,6 +10748,7 @@ end
 --         rule.mythicPlusFilter = newRule[32];
 --         rule.mythicRating = newRule[33];
 --         rule.mythicPlusOperator = newRule[34];
+--     elseif ruleType == "specialRules" then
 
 --     end
 
