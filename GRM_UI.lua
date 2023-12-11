@@ -7558,7 +7558,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     if not isManualUpdate then
         ColorPickerOkayButton:HookScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
-                if GRM_G.MainTagColor or GRM_G.GroupInfoIconColor or GRM_G.CurrentTagColorBox > 0 then
+                if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
                     ColorPickerFrame.func = nil;
                     ColorPickerFrame.opacityFunc = nil;
                     ColorPickerFrame.cancelFunc = nil;
@@ -7574,15 +7574,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                         -- Update the dropdown window color too
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );
                         
-                    elseif GRM_G.GroupInfoIconColor then
-                        GRM_G.GroupInfoIconColor = false;
-
-                        GRM.S().GIModule.tradeIndicatorColorConnectedRealm[1] = r;
-                        GRM.S().GIModule.tradeIndicatorColorConnectedRealm[2] = g;
-                        GRM.S().GIModule.tradeIndicatorColorConnectedRealm[3] = b;
-
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_GroupInfoColorPickerFrame.GRM_GroupInfoOptionsTexture:SetColorTexture ( r , g , b , 1 );
-
                     elseif GRM_G.CurrentTagColorBox > 0 then
                         GRM.S().logColor[GRM_G.CurrentTagColorBox][1] = r;
                         GRM.S().logColor[GRM_G.CurrentTagColorBox][2] = g;
@@ -7603,7 +7594,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         
         ColorPickerFrame:HookScript ( "OnHide" , function()
             C_Timer.After ( 0.1 , function()
-                if GRM_G.MainTagColor or GRM_G.GroupInfoIconColor or GRM_G.CurrentTagColorBox > 0 then
+                if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
                     if GRM_G.MainTagColor then
                         GRM.S()["mainTagColor"].r = ColorPickerFrame.previousValues[1];
                         GRM.S()["mainTagColor"].g = ColorPickerFrame.previousValues[2];
@@ -7611,12 +7602,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                         GRM.RefreshMainTagHexCode();
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , ColorPickerFrame.previousValues[4] );
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , ColorPickerFrame.previousValues[4] );
-                        
-                    elseif GRM_G.GroupInfoIconColor then
-                        GRM.S().GIModule.tradeIndicatorColorConnectedRealm[1] = ColorPickerFrame.previousValues[1];
-                        GRM.S().GIModule.tradeIndicatorColorConnectedRealm[2] = ColorPickerFrame.previousValues[2];
-                        GRM.S().GIModule.tradeIndicatorColorConnectedRealm[3] = ColorPickerFrame.previousValues[3];
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_GroupInfoColorPickerFrame.GRM_GroupInfoOptionsTexture:SetColorTexture ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , 1 );
 
                     elseif GRM_G.CurrentTagColorBox > 0 then
                         GRM.S().logColor[GRM_G.CurrentTagColorBox][1] = ColorPickerFrame.previousValues[1];
@@ -7630,7 +7615,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             -- Just need a slight delay for previous action to execute.
             C_Timer.After ( 0.2 , function()
                 GRM_G.MainTagColor = false;
-                GRM_G.GroupInfoIconColor = false;
                 GRM_G.CurrentTagColorBox = 0;
                 -- ColorPickerFrame.func = nil;
                 ColorPickerFrame.opacityFunc = nil;

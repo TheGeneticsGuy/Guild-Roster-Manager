@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 122;
+local totalPatches = 124;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1514,6 +1514,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 124
+    patchNum = patchNum + 1
+    if numericV < 1.9903 and baseValue < 1.9903 then
+        
+        GRM_Patch.EditSetting ( "GIModule" , GRM_Patch.CleanUpGroupInfo );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9903";
+        if loopCheck ( 1.9903 ) then
+            return;
+        end
+    end
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -1606,7 +1618,7 @@ end
 -- Method:          GRM_Patch.ModifyMemberSpecificData ( function , bool , bool , bool , object or var )
 -- What it Does:    Goes through the entire account wide database and modifies a player's or guild's metadata based on the actions of the given function
 -- Purpose:         Reusable function for error work and to avoid on code bloat spam.
-w = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData , modifier )
+GRM_Patch.ModifyMemberSpecificData = function ( databaseChangeFunction , editCurrentPlayers , editLeftPlayers , includeAllGuildData , modifier )
 
     if editCurrentPlayers then
         for guildName in pairs ( GRM_GuildMemberHistory_Save ) do                  -- The guilds in each faction
@@ -7908,8 +7920,11 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
                 end
 
                 if not listOfGuilds[name].done then
-
                     toonsInGuild = GRM.GetAddOnUserGuildAlts(name);
+                        print("test: " .. name)
+                    if not toonsInGuild then
+                        GRM_PlayerListOfAlts_Save[name] = {}
+                    end
 
                     if GRM.TableLength(toonsInGuild) > 0 then
                         -- Add all the alts of that account to the guild
@@ -8555,4 +8570,17 @@ GRM_Patch.UpdateLevelFilterSOD = function ( rules )
     end
 
     return rules;
+end
+
+-- R1.9904
+-- Method:          GRM_Patch.CleanUpGroupInfo ( table )
+-- What it Does:    Purges redundant settings
+-- Purpose:         Cleanup player settings from features due to Blizz restricting interact distance API
+GRM_Patch.CleanUpGroupInfo = function( setting )
+    
+    setting.InteractDistanceIndicator = nil;
+    setting.tradeIndicatorColorAny = nil;
+    setting.tradeIndicatorColorConnectedRealm = nil;
+
+    return setting;
 end

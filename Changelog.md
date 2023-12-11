@@ -1,3 +1,11 @@
+## **VERSION 1.9903 RELEASE - December 11th, 2023**
+
+***BUG FIXES***
+
+* Fixed an issue where the addon will not load for someone who has not updated in a while as it crashes on patching. This was due to a small typo where I accidently typo'd and erased a function name without realizing it in the previous update. Whoops!
+
+* Fixed an issue that will force a quicker update scan when someone logs back into the guild. This is useful in HC mode where people are dying often and making a new toon and relogging after deleting the old one. HOWEVER, this does not resolve the issue where a ghost double still exists on the server from Blizz's end. There isn't really a great way to resolve this without adding a lot of extra checks and trying to create some way to ignore the data being received from the server... which seems to self resolve after a few hours anyway. This is just going to resolve some annoyance with it.
+
 
 ## **VERSION 1.9902 RELEASE - December 1st, 2023**
 

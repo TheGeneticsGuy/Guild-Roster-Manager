@@ -14,14 +14,14 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9902";
-GRM_G.PatchDay = 1701458138;             -- In Epoch Time
-GRM_G.PatchDayString = "1701458138";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9903";
+GRM_G.PatchDay = 1702301691;             -- In Epoch Time
+GRM_G.PatchDayString = "1702301691";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.27;
+GRM_G.GroupInfoV = 1.28;
 
 -- Initialization Useful Globals 
 -- ADDON
@@ -967,9 +967,6 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         -- GroupInfoModule
         player.GIModule = {};
         player.GIModule.enabled = true;
-        player.GIModule.InteractDistanceIndicator = true;
-        player.GIModule.tradeIndicatorColorAny = { 0 , 0.97 , 0.97 };
-        player.GIModule.tradeIndicatorColorConnectedRealm = { 0 , 0.97 , 0.97 };
         player.GIModule.DisableGroupInfoTooltip = false;
 
     -- Hardcore Mode
@@ -3050,6 +3047,7 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
             elseif not GRM_G.MainNameSystemMsgControl then  -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
                 if ( time() - GRMsyncGlobals.timeAtLogin ) > 5 and GRM.S() and ( ( GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName ) or GRM.S().colorizeNames ) then
                     if string.find ( msg , GRM.L ( "has come online." ) ) ~= nil then
+                        GRM.GuildRoster();
                         msg = GRM.AddMainTagToComeOnlineSystemMessage ( msg );
 
                         -- Check if it is their birthday.
@@ -3063,7 +3061,13 @@ GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
                         if GRMsyncGlobals.currentlySyncing and GRM.SyncPlayerGoneOffline( msg ) then
                             GRMsync.EndSync ( false );
                         end
+                        GRM.GuildRoster();
                         msg = GRM.AddMainTagToGoneOfflineSystemMessage ( msg );
+                    end
+
+                elseif ( time() - GRMsyncGlobals.timeAtLogin ) > 5 then
+                    if string.find ( msg , GRM.L ( "has come online." ) ) ~= nil or string.find ( msg , GRM.L ( "has gone offline." ) ) ~= nil then
+                        GRM.GuildRoster();
                     end
                 end
             elseif GRM_G.MainNameSystemMsgControl and string.find ( msg , GRM.L ( "has gone offline." ) ) ~= nil and GRMsyncGlobals.currentlySyncing and GRM.SyncPlayerGoneOffline( msg ) then
@@ -7158,7 +7162,12 @@ end
 -- What it Does:    Changes the color of the roster to the default Classic color to the player's class
 -- Purpose:         Modernizes the chat a bit
 GRM.RecolorText = function( button )
-    if GRM.S().colorizeClassicRosterNames then
+    local color = true; -- Defaults to true
+    if GRM.S() then
+        color = GRM.S().colorizeClassicRosterNames;
+    end
+
+    if color then
         if button.guildIndex ~= nil then
             local isOnline , _ , class = select ( 9 , GetGuildRosterInfo ( button.guildIndex ) );
             if isOnline then
@@ -26173,7 +26182,7 @@ end
 
 -- Method:          GRM.SlashCommandExport()
 -- What it Does:    Opens the export window
--- Purpose:         Give player access to feature
+-- Purpose:         Give player access to feature@
 GRM.SlashCommandExport = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
     if not GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
@@ -27048,9 +27057,6 @@ GRM.ManageGuildStatus = function ()
                 end
                 GRMsync.ResetDefaultValuesOnSyncReEnable();                     -- Need to reset sync algorithm too!
                 GRM_UI.GRM_RosterChangeLogFrame:Hide();
-
-                -- Modules enabling and Disabling
-                GRM.DisableModulesIfLeavingGuild();
             end
         end
 
@@ -27159,15 +27165,6 @@ GRM.SettingsLoadedFinishDataLoad = function()
         C_Timer.After ( 2 , GRM.LoadAddon );                 -- Queries do not return info immediately, gives server a 2 second delay.
     else
         GRM.ManageGuildStatus();
-    end
-end
-
--- Method:          GRM.DisableModulesIfLeavingGuild()
--- What it Does:    Disables all the GRM plugin modules if player is no longer in group
--- Purpose:         To house all of the module disable calls in one function
-GRM.DisableModulesIfLeavingGuild = function()
-    if GRM_G.Module.GroupInfo ~= nil and GRM_G.Module.GroupInfo then
-        GRM.DisableGroupInfoModule();
     end
 end
 
