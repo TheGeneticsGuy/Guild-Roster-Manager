@@ -14,14 +14,14 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9903";
-GRM_G.PatchDay = 1702301691;             -- In Epoch Time
-GRM_G.PatchDayString = "1702301691";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9904";
+GRM_G.PatchDay = 1705430340;             -- In Epoch Time
+GRM_G.PatchDayString = "1705430340";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.28;
+GRM_G.GroupInfoV = 1.29;
 
 -- Initialization Useful Globals 
 -- ADDON
@@ -1206,8 +1206,11 @@ GRM.FinalSettingsConfigurations = function()
     GRMsyncGlobals.timeAtLogin = time();    -- Important for Sync Leader backend election algorithm.
 
     -- Classic Chat coloring
-    GRM.SetClassChatColoring()
-    GRM.SetChatColoring();
+    -- Only initialize when in a guild or else it coluld overwrite ElvUI without a way to disable
+    if IsInGuild() then
+        GRM.SetClassChatColoring()
+        GRM.SetChatColoring();
+    end
 
     GRM_G.AddonIsFullyConfigured = true;
     GRM_API.Initialized = true;
@@ -1320,6 +1323,16 @@ GRM.GetCurrentCalendarTime = function()
         return C_DateAndTime.GetCurrentCalendarTime();
     else
         return C_DateAndTime.GetTodaysDate();
+    end
+end
+
+-- Changed in 10.2.5 -- Jan 16th, 2024 Compatibility issues with Classic Era and Wrath builds.
+GRM.GetColorPickerFrame = function()
+
+    if ColorPickerOkayButton then
+        return ColorPickerOkayButton;
+    else
+        return ColorPickerFrame.Footer.OkayButton;
     end
 end
 
@@ -8065,6 +8078,11 @@ GRM.GetPlayerClassByGUID = function ( guid )
             
     end
 
+    -- There was a weird bug in Wrath Classic that some GUIDs were kicking out Evoker. This should resolve that.
+    if GRM_G.BuildVersion < 100000 and class == "EVOKER"  then
+        class = "HUNTER"
+    end
+
     return class;
 end
      
@@ -14003,18 +14021,16 @@ end
 -- What it Does:    Scans through guild roster and re-checks for any  (Will only fire if guild is found!)
 -- Purpose:         Keep whoever uses the addon in the know instantly of what is going and changing in the guild.
 GRM.CheckPlayerChanges = function ( roster )
-
     local guildData = GRM.GetGuild();
     local newPlayerFound;
     local player = {};
     local updatedPlayer = {};
 
-    if GRM.S().scanEnabled or GRM_G.ManualScanEnabled then
+    if ( GRM.S().scanEnabled or GRM_G.OnFirstLoad ) or GRM_G.ManualScanEnabled then
         
         if GRM.ScanKillSwitch() then   -- Necessary in case you purge guild in middle of scan
             return;
         end
-        
         for rosterName in pairs ( roster ) do
 
             newPlayerFound = true;
@@ -21402,6 +21418,11 @@ GRM.GetSortedBanListNamesWithDetails = function ( textSearch )
                         rankName = GRM.L ( "Not Determined" );
                     end
 
+                    -- Redundancy from a weird bug that popped up when 10.0 launched with classic where evoker was false-positive on a GUID call for a hunter sometimes.
+                    if GRM_G.BuildVersion < 100000 and player.class == "EVOKER" then
+                        player.class = "HUNTER";
+                    end
+
                     table.insert ( playerDetails  , insertIndex , { player.name , player.class , player.bannedInfo[2] , rankName , player.rankIndex , player.reasonBanned , false , isUnknown , player.GUID , player.isTransfer } );
                     count = count + 1;
                 end
@@ -25717,7 +25738,7 @@ end
 -- What it Does:    Loops and rechecks in an interval for integrity tha the scan went off appropriately.
 -- Purpose:         Useful for Classic Guild Roster loop integrity check
 GRM.TrackingIntegrityCheck = function( isLoop )
-    if GRM.S() and GRM.S().scanEnabled then          -- if Scanning is enabled
+    if GRM.S() and ( GRM.S().scanEnabled or GRM_G.OnFirstLoad ) then          -- if Scanning is enabled
 
         if isLoop or not GRM_G.IntegrityTackingEnabled then
 
@@ -26798,8 +26819,7 @@ GRM.TrackingConfiguration = function( forced )
                 end
             end);
             
-            if GRM.S().scanEnabled then
-                -- GRM.TriggerTrackingCheck();
+            if ( GRM.S().scanEnabled or GRM_G.OnFirstLoad ) then
                 C_Timer.After( GRM.S().scanDelay , GRM.TriggerTrackingCheck ); -- Recursive check every X seconds. + 0.1 
             end
         end);
@@ -27009,6 +27029,11 @@ GRM.ReactivateAddon = function()
     if not GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale then
         -- Let's set window scales now...
         GRM_UI.SetAllWindowScales( true );
+    end
+
+    if IsInGuild() then
+        GRM.SetClassChatColoring()
+        GRM.SetChatColoring();
     end
     
     C_Timer.After ( 2 , GRM.LoadAddon );

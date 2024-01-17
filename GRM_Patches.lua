@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 124;
+local totalPatches = 125;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1522,6 +1522,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.9903";
         if loopCheck ( 1.9903 ) then
+            return;
+        end
+    end
+
+    -- 125
+    if numericV < 1.9904 and baseValue < 1.9904 then
+        
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixWrathClassicEvokerBug , false , true , false , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9904";
+        if loopCheck ( 1.9904 ) then
             return;
         end
     end
@@ -8134,10 +8145,15 @@ GRM_Patch.ModifyJoinAndPromoteDates = function ( player )
 
     if player.joinDateHist then
         for i = 1 , #player.joinDateHist do
-            if player.joinDateHist[i][1] == 0 then
-                player.joinDateHist[i][4] = "0";
+
+            if player.joinDateHist[i][1] == nil or player.joinDateHist[i][2] == nil or player.joinDateHist[i][3] == nil then
+                player.joinDateHist[i] = { 0 , 0 , 0 , "0" , 0 , false , 1 };
             else
-                player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+                if player.joinDateHist[i][1] == 0 then
+                    player.joinDateHist[i][4] = "0";
+                else
+                    player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+                end
             end
         end
     else
@@ -8146,10 +8162,14 @@ GRM_Patch.ModifyJoinAndPromoteDates = function ( player )
 
     if player.rankHist then
         for i = 1 , #player.rankHist do
-            if player.rankHist[i][2] == 0 then
-                player.rankHist[i][5] = "0";
+            if player.rankHist[i][2] == nil or player.rankHist[i][3] == nil or player.rankHist[i][4] == nil then
+                player.joinDateHist[i] = { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 };
             else
-                player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+                if player.rankHist[i][2] == 0 then
+                    player.rankHist[i][5] = "0";
+                else
+                    player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+                end
             end
         end
     else
@@ -8583,4 +8603,16 @@ GRM_Patch.CleanUpGroupInfo = function( setting )
     setting.tradeIndicatorColorConnectedRealm = nil;
 
     return setting;
+end
+
+-- Method:          GRM_Patch.FixWrathClassicEvokerBug ( playerTable )
+-- What it Does:    Checks if a player class is inccorect from some weird bug in classic and wrath that the GUID
+--                  was false-positive stating the player class was Evoker. Clears up old bug
+GRM_Patch.FixWrathClassicEvokerBug = function ( player )
+
+    if player.class == "EVOKER" then
+        player.class = "HUNTER";
+    end
+
+    return player;
 end

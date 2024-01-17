@@ -7556,7 +7556,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end)
 
     if not isManualUpdate then
-        ColorPickerOkayButton:HookScript ( "OnClick" , function ( _ , button )
+        GRM.GetColorPickerFrame():HookScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
                 if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
                     ColorPickerFrame.func = nil;
@@ -9156,6 +9156,17 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.Report ( GRM.L ( "Deactivating SCAN of Guild Member Changes..." ) );
         end
     end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButton:SetScript( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine ( GRM.L ( "If disabled, a one time scan is still done at login or reload." ) );
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButton:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end);
+
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_RosterTimeIntervalOverlayNote:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButtonText , "RIGHT" , 1.0 , 0 )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_RosterTimeIntervalOverlayNote:SetBackdrop ( GRM_UI.noteBackdrop2 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_RosterTimeIntervalOverlayNote:SetFrameStrata ( "HIGH" );

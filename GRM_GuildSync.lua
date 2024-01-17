@@ -1656,12 +1656,15 @@ GRMsync.ClearAltGroupsthatMatch = function ( currentList , guildData , altData )
 
         if not repeatedName then
 
-            currentAlts = GRM.GetListOfAlts ( guildData[orderedList[i][1]] , false , altData );
+            if guildData[orderedList[i][1]] then
 
-            if not GRMsync.IsListTheSame ( orderedList[i][2] , currentAlts ) then
-                -- Let's add to finalList
-                finalList[orderedList[i][1]] = GRM.DeepCopyArray ( orderedList[i][2] );
+                currentAlts = GRM.GetListOfAlts ( guildData[orderedList[i][1]] , false , altData );
 
+                if not GRMsync.IsListTheSame ( orderedList[i][2] , currentAlts ) then
+                    -- Let's add to finalList
+                    finalList[orderedList[i][1]] = GRM.DeepCopyArray ( orderedList[i][2] );
+
+                end
             end
         end
 

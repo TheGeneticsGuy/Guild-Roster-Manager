@@ -1767,6 +1767,10 @@
     GRM_L["Alt Group Rank Sync"] = true
     GRM_L["Repeated Inactivity Monitor"] = true
     
+    -- R1.9904
+    GRM_L["If disabled, a one time scan is still done at login or reload."] = true
+
+    
 end
     
     -- THANK YOU @Nehry for this full translation up to R1.20

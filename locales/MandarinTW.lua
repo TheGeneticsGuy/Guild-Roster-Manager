@@ -1762,4 +1762,8 @@ GRML.MandarinTW = function()
     GRM_L["Alt Group Rank Sync"] = true
     GRM_L["Repeated Inactivity Monitor"] = true
     
+    -- R1.9904
+    GRM_L["If disabled, a one time scan is still done at login or reload."] = true
+
+    
 end

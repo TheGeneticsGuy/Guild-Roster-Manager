@@ -1,3 +1,22 @@
+## **VERSION 1.9904 RELEASE - January 16th, 2024**
+
+***Patch 10.2.5 compatibility Release***
+
+***BUG FIXES***
+
+* Fixed a bug where if you had disabled the "scanning for changes" in the GRM options, where it still would scan for changes one time at login or reload, it was  failing to ever do any scan updates in the future. So, some might have disabled it from scanning for changes ever X seconds and in doing so it gimped GRM completely. This was only recently reported so I wonder if lots of people just never disable the scanning as to why it hasn't been reported for so long lol.
+
+* Fixed a bug that could prevent some people from being able to update the addon and so it would never load. These are getting ironed out. It seems they pop up on occasion! lol
+
+* Fixed an issue where if you were in the middle of a sync, but you had "scanning" of the roster disabled and thus only updated changes upon logging in, it would error.
+
+* Fixed a bug where GRM was not configuring properly the macro tool so it was crashing, and thus the macro tool would not load properly, which would make it seem like you were denied permissions to use it. It was really just because the macro itself was crashing.
+
+* Fixed an issue where GRM was overriding chat class coloring when not in a guild, and ther ewas no way to disable it since you didn't have access to this specific option when not in a guild. It now show only trigger and be able to disable when not in a guild, as intended.
+
+* Fixed a bug where a lua error would trigger causing the ban list not to appear when opening the tab... this only effect classic builds.
+
+
 ## **VERSION 1.9903 RELEASE - December 11th, 2023**
 
 ***BUG FIXES***

@@ -293,19 +293,27 @@ GRM.GetListOfAlts = function ( player , includeGUID , syncTable )
     local altData = syncTable or GRM_Alts[GRM_G.guildName]; -- Sync has a copied table that is static during sync, so to use this function during sync we don't want it to check the live table.
 
     if player.altGroup ~= "" then
-        for i = 1 , #altData[player.altGroup] do
-            if altData[player.altGroup][i].name ~= player.name then
+        if altData[player.altGroup] then
+            for i = #altData[player.altGroup] , 1 , -1 do
 
-                local p = GRM.GetPlayer ( altData[player.altGroup][i].name );
-                if not includeGUID or ( includeGUID and not p ) then
-                    table.insert ( names , { altData[player.altGroup][i].name , altData[player.altGroup][i].class , altData[player.altGroup].timeModified } );
-                else
-                    table.insert ( names , { altData[player.altGroup][i].name , altData[player.altGroup][i].class , p.GUID , altData[player.altGroup].timeModified } );
+                if altData[player.altGroup][i] ~= nil and altData[player.altGroup][i].name ~= nil and altData[player.altGroup][i].name ~= player.name then
+
+                    local p = GRM.GetPlayer ( altData[player.altGroup][i].name );
+                    if not includeGUID or ( includeGUID and not p ) then
+                        table.insert ( names , { altData[player.altGroup][i].name , altData[player.altGroup][i].class , altData[player.altGroup].timeModified } );
+                    else
+                        table.insert ( names , { altData[player.altGroup][i].name , altData[player.altGroup][i].class , p.GUID , altData[player.altGroup].timeModified } );
+                    end
                 end
-            end
-        end
 
-        mainName = altData[player.altGroup].main;
+            end
+
+            mainName = altData[player.altGroup].main;
+        else
+            -- Redundancy for old bug
+            player.isMain = false;
+            player.altGroup = "";
+        end
 
     end
 
@@ -313,7 +321,7 @@ GRM.GetListOfAlts = function ( player , includeGUID , syncTable )
 end
 
 -- Method:          GRM.GetAlts ( playerTable )
--- What it Does:    Returns all of the player alts if there are any
+-- What it Does:    Returns all of the player alts if there are any 
 -- Purpose:         Allow to obtain just the list of alts without any other data 
 GRM.GetAlts = function ( player , altData )
     local names = {};
