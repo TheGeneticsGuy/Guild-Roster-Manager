@@ -420,13 +420,6 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_Mai
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected:Hide();
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu = CreateFrame ( "Frame" , "GRM_MainTagFormatMenu" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected , "InsetFrameTemplate" );
--- Color Picker Editboxes
-GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR = CreateFrame ( "EditBox" , "GRM_ColorPickerR" , ColorPickerFrame , BackdropTemplateMixin and "BackdropTemplate" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG = CreateFrame ( "EditBox" , "GRM_ColorPickerG" , ColorPickerFrame , BackdropTemplateMixin and "BackdropTemplate" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB = CreateFrame ( "EditBox" , "GRM_ColorPickerB" , ColorPickerFrame , BackdropTemplateMixin and "BackdropTemplate" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR.GRM_R_Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG.GRM_G_Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB.GRM_B_Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 
 -- Message Destination
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
@@ -5764,29 +5757,7 @@ GRM_UI.PreAddonLoadUI = function()
 
         local MOTD = GetGuildRosterMOTD();
         if MOTD ~= "" and MOTD ~= nil then
-            MOTD = GRM.Trim ( MOTD );          -- Cleans it up since I noticed in some cases Blizz doesn't.
-            local maxLength = 65;
-            -- Logic to split the MOTD if necessary...
-            if #MOTD > maxLength then
-                local breakIndex = 1;
-                -- Check if space before, and if so, set break point.
-                if string.find ( string.sub ( string.sub (  MOTD , 1 , maxLength ) , maxLength - 25 ) , " " , -25 ) ~= nil then
-                    for i = maxLength , maxLength - 25 , -1 do
-                        if string.sub ( MOTD , i , i ) == " " then
-                            breakIndex = i;
-                            break;
-                        end
-                    end
-                else
-                    -- Set break point any point after...
-                    if string.find ( string.sub ( MOTD , maxLength + 1 ) , " " ) ~= nil then
-                        breakIndex = string.find ( string.sub ( MOTD , maxLength + 1 ) , " " );
-                    end
-                end
-                if breakIndex ~= 1 then
-                    MOTD = string.sub ( MOTD , 1 , breakIndex - 1 ) .. "\n" .. string.sub ( MOTD , breakIndex + 1 );
-                end
-            end
+            MOTD = GRM.WrapText ( GRM.Trim ( MOTD ) , 65 );
             tooltip:AddLine ( " " );
             tooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
             tooltip:AddLine ( MOTD );
@@ -5926,32 +5897,11 @@ GRM_UI.PreAddonLoadUI = function()
                     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
                     GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
                     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
+
             
                     local MOTD = GetGuildRosterMOTD();
                     if MOTD ~= "" and MOTD ~= nil then
-                        MOTD = GRM.Trim ( MOTD );          -- Cleans it up since I noticed in some cases Blizz doesn't.
-                        local maxLength = 65;
-                        -- Logic to split the MOTD if necessary...
-                        if #MOTD > maxLength then
-                            local breakIndex = 1;
-                            -- Check if space before, and if so, set break point.
-                            if string.find ( string.sub ( string.sub (  MOTD , 1 , maxLength ) , maxLength - 25 ) , " " , -25 ) ~= nil then
-                                for i = maxLength , maxLength - 25 , -1 do
-                                    if string.sub ( MOTD , i , i ) == " " then
-                                        breakIndex = i;
-                                        break;
-                                    end
-                                end
-                            else
-                                -- Set break point any point after...
-                                if string.find ( string.sub ( MOTD , maxLength + 1 ) , " " ) ~= nil then
-                                    breakIndex = string.find ( string.sub ( MOTD , maxLength + 1 ) , " " );
-                                end
-                            end
-                            if breakIndex ~= 1 then
-                                MOTD = string.sub ( MOTD , 1 , breakIndex - 1 ) .. "\n" .. string.sub ( MOTD , breakIndex + 1 );
-                            end
-                        end
+                        MOTD = GRM.WrapText ( GRM.Trim ( MOTD ) , 65 );
                         GameTooltip:AddLine ( " " );
                         GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
                         GameTooltip:AddLine ( MOTD );
@@ -6278,13 +6228,13 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                         local color = GRM.S().logColor[i];
                         -- Need to force reset this in case.
 
-                        if ColorPickerFrame:IsVisible() then
+                        if GRM_UI.ColorPickerFrame:IsVisible() then
                             if GRM_G.CurrentTagColorBox > 0 then
-                                GRM.S().logColor[GRM_G.CurrentTagColorBox][1] = ColorPickerFrame.previousValues[1];
-                                GRM.S().logColor[GRM_G.CurrentTagColorBox][2] = ColorPickerFrame.previousValues[2];
-                                GRM.S().logColor[GRM_G.CurrentTagColorBox][3] = ColorPickerFrame.previousValues[3];
-                                GRM_UI.UpdateLogFilterTextColor ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , GRM_G.CurrentTagColorBox );
-                                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , 1 );
+                                GRM.S().logColor[GRM_G.CurrentTagColorBox][1] = GRM_UI.ColorPickerFrame.previousValues[1];
+                                GRM.S().logColor[GRM_G.CurrentTagColorBox][2] = GRM_UI.ColorPickerFrame.previousValues[2];
+                                GRM.S().logColor[GRM_G.CurrentTagColorBox][3] = GRM_UI.ColorPickerFrame.previousValues[3];
+                                GRM_UI.UpdateLogFilterTextColor ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_G.CurrentTagColorBox );
+                                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , 1 );
 
                                 GRM_UI.ColorPicker_OnShow();
                             end
@@ -6294,18 +6244,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                         end
                         GRM_G.CurrentTagColorBox = 0;
                         
-                        GRM.ShowCustomColorPicker ( color[1] , color[2] , color[3] , 1 , i , function() end );
+                        GRM.ShowCustomColorPicker ( color[1] , color[2] , color[3] , 1 , i );
                         if IsAddOnLoaded ( "ColorPickerPlus" ) then
-                            OpacitySliderFrame:Hide();
-                            ColorPickerFrame:SetSize ( 380 , 380 );
+                            GRM_UI.ColorPickerFrame:SetSize ( 380 , 380 );
                         elseif IsAddOnLoaded ( "ColorPickerAdvanced" ) then
-                            ColorPickerFrame.hasOpacity = true;
-                            ColorPickerFrame.opacity = 1;
+                            GRM_UI.ColorPickerFrame.hasOpacity = true;
+                            GRM_UI.ColorPickerFrame.opacity = 1;
                         elseif IsAddOnLoaded ( "ElvUI" ) then
-                            ColorPickerFrame:SetSize ( 345 , 240 );
+                            GRM_UI.ColorPickerFrame:SetSize ( 345 , 240 );
                         else
-                            OpacitySliderFrame:Hide();
-                            ColorPickerFrame:SetWidth ( 305 );
+                            GRM_UI.ColorPickerFrame:SetSize ( 305 , 230 );
                         end
                     end
                 end);
@@ -6333,8 +6281,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         local colors = GRM.S().logColor;
 
         for i = 1 , #colors do
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. i ]:SetColorTexture ( colors[i][1] , colors[i][2] , colors[i][3] );
-            GRM_UI.UpdateLogFilterTextColor ( colors[i][1] , colors[i][2] , colors[i][3] , i );
+            if i ~= 15 or ( i == 15 and GRM_G.HardcoreActive ) then
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. i ]:SetColorTexture ( colors[i][1] , colors[i][2] , colors[i][3] );
+                GRM_UI.UpdateLogFilterTextColor ( colors[i][1] , colors[i][2] , colors[i][3] , i );
+            end
         end
     end
 
@@ -7457,24 +7407,22 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame:SetScript ( "OnShow" , function( self )
         self.GRM_OptionsTexture:SetPoint ( "CENTER" , self );
         self.GRM_OptionsTexture:SetSize( 15 , 15 );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( GRM.S()["mainTagColor"].r , GRM.S()["mainTagColor"].g , GRM.S()["mainTagColor"].b , 1.0 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( GRM.S().mainTagColor.r , GRM.S().mainTagColor.g , GRM.S().mainTagColor.b , 1.0 );
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame:SetScript ( "OnMouseDown" , function ( _ , button )
         if button == "LeftButton" then
             GRM.RestoreTooltip();
-            GRM.ShowCustomColorPicker ( GRM.S()["mainTagColor"].r , GRM.S()["mainTagColor"].g , GRM.S()["mainTagColor"].b , 1.0 , 98 , function() end );
+            GRM.ShowCustomColorPicker ( GRM.S().mainTagColor.r , GRM.S().mainTagColor.g , GRM.S().mainTagColor.b , 1.0 , 98 );
             if IsAddOnLoaded ( "ColorPickerPlus" ) then
-                OpacitySliderFrame:Hide();
-                ColorPickerFrame:SetSize ( 380 , 380 );
+                GRM_UI.ColorPickerFrame:SetSize ( 380 , 380 );
             elseif IsAddOnLoaded ( "ColorPickerAdvanced" ) then
-                ColorPickerFrame.hasOpacity = true;
-                ColorPickerFrame.opacity = 1;
+                GRM_UI.ColorPickerFrame.hasOpacity = true;
+                GRM_UI.ColorPickerFrame.opacity = 1;
             elseif IsAddOnLoaded ( "ElvUI" ) then
-                ColorPickerFrame:SetSize ( 345 , 240 );
+                GRM_UI.ColorPickerFrame:SetSize ( 345 , 240 );
             else
-                OpacitySliderFrame:Hide();
-                ColorPickerFrame:SetWidth ( 305 );
+                GRM_UI.ColorPickerFrame:SetSize ( 305 , 230 );
             end
         end
     end);
@@ -7556,20 +7504,28 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end)
 
     if not isManualUpdate then
-        GRM.GetColorPickerFrame():HookScript ( "OnClick" , function ( _ , button )
+
+        if not GRM_UI.ColorPickerFrame then
+            local oldFrame = ColorPickerFrame;
+            GRM_UI.ColorPickerFrame = GRM.DeepCopySelfRefProtection ( oldFrame );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR = CreateFrame ( "EditBox" , "GRM_ColorPickerR" , GRM_UI.ColorPickerFrame , BackdropTemplateMixin and "BackdropTemplate" );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG = CreateFrame ( "EditBox" , "GRM_ColorPickerG" , GRM_UI.ColorPickerFrame , BackdropTemplateMixin and "BackdropTemplate" );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB = CreateFrame ( "EditBox" , "GRM_ColorPickerB" , GRM_UI.ColorPickerFrame , BackdropTemplateMixin and "BackdropTemplate" );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR.GRM_R_Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG.GRM_G_Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB.GRM_B_Text = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
+        end
+
+        GRM_UI.ColorPickScript = function( _ , button )
             if button == "LeftButton" then
                 if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
-                    ColorPickerFrame.func = nil;
-                    ColorPickerFrame.opacityFunc = nil;
-                    ColorPickerFrame.cancelFunc = nil;
-                    local r , g , b = ColorPickerFrame:GetColorRGB();
-                    ColorPickerFrame.previousValues = { r , g , b , 1 };
+                    local r , g , b = GRM_UI.ColorPickerFrame:GetColorRGB();
+                    GRM_UI.ColorPickerFrame.previousValues = { r , g , b , 1 };
                     if GRM_G.MainTagColor then
-                        GRM_G.MainTagColor = false;
                         
-                        GRM.S()["mainTagColor"].r = r;
-                        GRM.S()["mainTagColor"].g = g;
-                        GRM.S()["mainTagColor"].b = b;
+                        GRM.S().mainTagColor.r = r;
+                        GRM.S().mainTagColor.g = g;
+                        GRM.S().mainTagColor.b = b;
                         GRM.RefreshMainTagHexCode();
                         -- Update the dropdown window color too
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );
@@ -7585,44 +7541,49 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
                         GRM_UI.UpdateLogFilterTextColor ( r , g , b , GRM_G.CurrentTagColorBox );
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
-
+                        
                         GRM.BuildLogComplete ( true , true );
                     end
+                    GRM_UI.ColorPickHideScript();
                 end
             end
-        end);
+        end
         
-        ColorPickerFrame:HookScript ( "OnHide" , function()
-            C_Timer.After ( 0.1 , function()
-                if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
-                    if GRM_G.MainTagColor then
-                        GRM.S()["mainTagColor"].r = ColorPickerFrame.previousValues[1];
-                        GRM.S()["mainTagColor"].g = ColorPickerFrame.previousValues[2];
-                        GRM.S()["mainTagColor"].b = ColorPickerFrame.previousValues[3];
-                        GRM.RefreshMainTagHexCode();
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , ColorPickerFrame.previousValues[4] );
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , ColorPickerFrame.previousValues[4] );
+        GRM_UI.ColorPickHideScript = function()
+            if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
 
-                    elseif GRM_G.CurrentTagColorBox > 0 then
-                        GRM.S().logColor[GRM_G.CurrentTagColorBox][1] = ColorPickerFrame.previousValues[1];
-                        GRM.S().logColor[GRM_G.CurrentTagColorBox][2] = ColorPickerFrame.previousValues[2];
-                        GRM.S().logColor[GRM_G.CurrentTagColorBox][3] = ColorPickerFrame.previousValues[3];
-                        GRM_UI.UpdateLogFilterTextColor ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , GRM_G.CurrentTagColorBox );
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( ColorPickerFrame.previousValues[1] , ColorPickerFrame.previousValues[2] , ColorPickerFrame.previousValues[3] , 1 );
-                    end
+                if GRM_G.MainTagColor then
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_UI.ColorPickerFrame.previousValues[4] );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_UI.ColorPickerFrame.previousValues[4] );
+
+                elseif GRM_G.CurrentTagColorBox > 0 then
+                    GRM_UI.UpdateLogFilterTextColor ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_G.CurrentTagColorBox );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , 1 );
                 end
-            end);
-            -- Just need a slight delay for previous action to execute.
-            C_Timer.After ( 0.2 , function()
                 GRM_G.MainTagColor = false;
-                GRM_G.CurrentTagColorBox = 0;
-                -- ColorPickerFrame.func = nil;
-                ColorPickerFrame.opacityFunc = nil;
-                ColorPickerFrame.cancelFunc = nil;
-            end);
+                GRM_G.CurrentTagColorBox = 0;      
+            end
+
+            if GRM_UI.ColorPickerFrame.func ~= nil then
+
+                GRM.GetColorPickerFrame():SetScript ( "OnClick" , GRM_UI.ColorPickerFrame.func );
+                GRM_UI.ColorPickerFrame.func = nil;
+            end
+            if GRM_UI.ColorPickerFrame:IsVisible() then
+                GRM_UI.ColorPickerFrame:Hide();
+            end
+        end
+
+        GRM_UI.ColorPickerFrame:SetScript( "OnKeyDown" , function( self , button )
+            if button == "ESCAPE" then
+                GRM_UI.ColorPickHideScript();
+            end
         end);
+
+        GRM_UI.ColorPickerFrame:HookScript ( "OnHide" , GRM_UI.ColorPickHideScript )
+
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:SetScript ( "OnHide" , function()
-            ColorPickerFrame:Hide();
+            GRM_UI.ColorPickerFrame:Hide();
         end);
 
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:SetScript ( "OnShow" , function()
@@ -7630,64 +7591,74 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end);
     
         -- Color window... let's make it moveable!
-        ColorPickerFrame:EnableMouse ( true );
-        ColorPickerFrame:SetMovable ( true );
-        ColorPickerFrame:RegisterForDrag ( "LeftButton" );
-        ColorPickerFrame:SetScript ( "OnDragStart" , function()
+        GRM_UI.ColorPickerFrame:EnableMouse ( true );
+        GRM_UI.ColorPickerFrame:SetMovable ( true );
+        GRM_UI.ColorPickerFrame:RegisterForDrag ( "LeftButton" );
+        GRM_UI.ColorPickerFrame:SetScript ( "OnDragStart" , function()
             if GRM_G.BuildVersion < 80000 then
-                if ColorPickerFrameHeader:IsMouseOver( 0.5 , -0.5 , -0.5 , 0.5 ) and not ColorPickerWheel:IsMouseOver( 1 , -1 , -1 , 1 ) then
-                    ColorPickerFrame:StartMoving();
+                if GRM_UI.ColorPickerFrameHeader:IsMouseOver( 0.5 , -0.5 , -0.5 , 0.5 ) and not GRM_UI.ColorPickerFrame.Content.ColorPicker.Wheel:IsMouseOver( 1 , -1 , -1 , 1 ) then
+                    GRM_UI.ColorPickerFrame:StartMoving();
                 end
             else
-                if ColorPickerFrame.Header:IsMouseOver( 0.5 , -0.5 , -0.5 , 0.5 ) and not ColorPickerWheel:IsMouseOver( 1 , -1 , -1 , 1 ) then
-                    ColorPickerFrame:StartMoving();
+                if GRM_UI.ColorPickerFrame.Header:IsMouseOver( 0.5 , -0.5 , -0.5 , 0.5 ) and not GRM_UI.ColorPickerFrame.Content.ColorPicker.Wheel:IsMouseOver( 1 , -1 , -1 , 1 ) then
+                    GRM_UI.ColorPickerFrame:StartMoving();
                 end
             end
         end);
-        ColorPickerFrame:SetScript ( "OnDragStop" , ColorPickerFrame.StopMovingOrSizing );
+        GRM_UI.ColorPickerFrame:SetScript ( "OnDragStop" , GRM_UI.ColorPickerFrame.StopMovingOrSizing );
     
         GRM_UI.ColorPicker_OnShow = function()
-            if IsAddOnLoaded ( "ColorPickerAdvanced" ) or IsAddOnLoaded ( "ColorPickerPlus" ) or IsAddOnLoaded ( "ElvUI" ) then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:Hide();
-            else
-                local r , g , b = ColorPickerFrame:GetColorRGB();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:SetText ( math.floor ( r * 255 ) );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:Show();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:SetText ( math.floor ( g * 255 ) );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:Show();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:SetText ( math.floor ( b * 255 ) );
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:Show();
+            if GRM_G.MainTagColor then
+                if IsAddOnLoaded ( "ColorPickerAdvanced" ) or IsAddOnLoaded ( "ColorPickerPlus" ) or IsAddOnLoaded ( "ElvUI" ) then
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:Hide();
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:Hide();
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:Hide();
+                else
+                    local r , g , b = GRM_UI.ColorPickerFrame:GetColorRGB();
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:SetText ( math.floor ( r * 255 ) );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:Show();
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:SetText ( math.floor ( g * 255 ) );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:Show();
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:SetText ( math.floor ( b * 255 ) );
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:Show();
+                end
             end
         end
         -- Fill in the edit boxes
-        ColorPickerFrame:HookScript ( "OnShow" , function()
+        GRM_UI.ColorPickerFrame:HookScript ( "OnShow" , function()
             -- Make the editboxes visible too
             GRM_UI.ColorPicker_OnShow();
         end);
     
-        local colorTimer = 0;
-        ColorPickerFrame:HookScript ( "OnUpdate" , function ( _ , elapsed )
-            colorTimer = colorTimer + elapsed;
-            if colorTimer > 0.01 and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:HasFocus() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:HasFocus() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:HasFocus() then
-                GRM.ColorSelectFrameTextureUpdate();
-                colorTimer = 0;
+        GRM_UI.ColorPickerFrame:HookScript ( "OnUpdate" , function ( _ , elapsed )
+            if not GRM_UI.ColorPickerFrame.colorTimer then
+                GRM_UI.ColorPickerFrame.colorTimer = 0;
             end
+
+            GRM_UI.ColorPickerFrame.colorTimer = GRM_UI.ColorPickerFrame.colorTimer + elapsed;
+
+            if GRM_UI.ColorPickerFrame.colorTimer > 0.01 and ( GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 ) and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:HasFocus() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:HasFocus() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:HasFocus() then
+                GRM.ColorSelectFrameTextureUpdate();
+                GRM_UI.ColorPickerFrame.colorTimer = 0;
+            end
+
         end);
     
-        ColorPickerFrame:HookScript ( "OnMouseDown" , function()
-            if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:IsMouseOver( 1 , -1 , -1 , 1 ) and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:IsMouseOver( 1 , -1 , -1 , 1 ) and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:IsMouseOver( 1 , -1 , -1 , 1 ) then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:ClearFocus();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:ClearFocus();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:ClearFocus();
+        GRM_UI.ColorPickerFrame:HookScript ( "OnMouseDown" , function()
+            if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
+
+                if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:IsMouseOver( 1 , -1 , -1 , 1 ) and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:IsMouseOver( 1 , -1 , -1 , 1 ) and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:IsMouseOver( 1 , -1 , -1 , 1 ) then
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:ClearFocus();
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:ClearFocus();
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:ClearFocus();
+                end
             end
         end);
     end
 
     -- Colorpicker window RGB editboxes!
     -- Let's also establish the RGB editboxes
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB.GRM_B_Text:SetPoint ( "BOTTOMLEFT" , ColorPickerWheel , "BOTTOM" , 135 , 10 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB.GRM_B_Text:SetPoint ( "BOTTOMLEFT" , GRM_UI.ColorPickerFrame.Content.ColorPicker.Wheel , "BOTTOM" , 135 , 10 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB.GRM_B_Text:SetText ( "B" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB.GRM_B_Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG.GRM_G_Text:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB.GRM_B_Text , "TOP" , 0 , 5 );
@@ -7724,7 +7695,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             self:SetText( "255" );
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "RGB Values Must be Between 1 and 255." ) );
         end
-        ColorPickerFrame:SetColorRGB ( tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255 , 1 );
+        local getVal = function()
+            return
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255
+        end
+        GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( getVal() );
+        GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( getVal() );
         self:ClearFocus();
     end);
 
@@ -7746,7 +7724,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         elseif tonumber ( self:GetText() ) > 255 then
             self:SetText( "255" );
         end
-        ColorPickerFrame:SetColorRGB ( tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255 , 1 );
+        local getVal = function()
+            return
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255
+        end
+        GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( getVal() );
+        GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( getVal() );
         GRM.ColorSelectFrameTextureUpdate();
         if IsShiftKeyDown() then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:SetFocus();
@@ -7783,7 +7768,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             self:SetText( "255" );
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "RGB Values Must be Between 1 and 255." ) );
         end
-        ColorPickerFrame:SetColorRGB ( tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255 , 1 );
+        local getVal = function()
+            return
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255
+        end
+        GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( getVal() );
+        GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( getVal() );
         self:ClearFocus();
     end);
 
@@ -7805,7 +7797,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         elseif tonumber ( self:GetText() ) > 255 then
             self:SetText( "255" );
         end
-        ColorPickerFrame:SetColorRGB ( tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255 , 1 );
+        local getVal = function()
+            return
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255
+        end
+        GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( getVal() );
+        GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( getVal() );
         GRM.ColorSelectFrameTextureUpdate();
         if IsShiftKeyDown() then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:SetFocus();
@@ -7842,7 +7841,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             self:SetText( "255" );
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "RGB Values Must be Between 1 and 255." ) );
         end
-        ColorPickerFrame:SetColorRGB ( tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255 , 1 );
+        local getVal = function()
+            return
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255
+        end
+        GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( getVal() );
+        GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( getVal() );
         self:ClearFocus();
     end);
 
@@ -7864,7 +7870,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         elseif tonumber ( self:GetText() ) > 255 then
             self:SetText( "255" );
         end
-        ColorPickerFrame:SetColorRGB ( tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255 , 1 );
+        local getVal = function()
+            return
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:GetText() ) / 255 , 
+                tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:GetText() ) / 255
+        end
+        GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( getVal() );
+        GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( getVal() );
         GRM.ColorSelectFrameTextureUpdate();
         if IsShiftKeyDown() then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:SetFocus();
@@ -17660,7 +17673,7 @@ end
 
 --                 --     if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
 --                 --         local name = GRM.AppendServerName ( inviteInfo.name );
---                 --         local classColor = ( inviteInfo.classFilename and RAID_CLASS_COLORS [ inviteInfo.classFilename ] ) or NORMAL_FONT_COLOR;
+--                 --         local classColor = ( inviteInfo.classFilename and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS) [ inviteInfo.classFilename ] ) or NORMAL_FONT_COLOR;
 --                 --         local buttonFontString = _G [ buttonName .. "Name" ];
 --                 --         buttonFontString:SetText ( GRM.GetNameWithMainTags ( name , true , false , true , false ) );
 --                 --         buttonFontString:SetTextColor(classColor.r, classColor.g, classColor.b);

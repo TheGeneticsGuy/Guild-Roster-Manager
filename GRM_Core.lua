@@ -221,7 +221,6 @@ GRM_G.AutoCompleteThrottle = 0;                 -- important so it doesn't scan 
 
 -- ColorPicker Controls
 GRM_G.MainTagColor = false;
-GRM_G.GroupInfoIconColor = false;
 GRM_G.MainTagHexCode = "";
 GRM_G.mainTag = "";
 GRM_G.altTag = "";
@@ -1098,7 +1097,6 @@ end
 --                  And new setting can be tagged on.
 -- Purpose:         Saving settings between gaming sessions. Also, this is built to provide backwards compatibility for future flexibility on feature adding, if necessary.
 GRM.LoadSettings = function()
-    
     local playerV = "";
     
     if not GRM.IsSettingsConfigured() then
@@ -1139,7 +1137,6 @@ GRM.LoadSettings = function()
         end
 
     end
-
     if playerV ~= nil and playerV ~= "" then
         -- PATCH FIXES
         if string.find ( playerV , "R" ) == nil then
@@ -1179,7 +1176,6 @@ end
 -- What it Does:    Calculates the final settings configurations
 -- Purpose:         Compartmentalizes this so it can only be on call as needed.
 GRM.FinalSettingsConfigurations = function()
-
     -- Verify Settings DB is good
     GRM.VerifyAddonSettings();
 
@@ -1214,7 +1210,6 @@ GRM.FinalSettingsConfigurations = function()
 
     GRM_G.AddonIsFullyConfigured = true;
     GRM_API.Initialized = true;
-
     -- Settings loaded... carry on.
     GRM.SettingsLoadedFinishDataLoad();
 
@@ -1326,13 +1321,13 @@ GRM.GetCurrentCalendarTime = function()
     end
 end
 
--- Changed in 10.2.5 -- Jan 16th, 2024 Compatibility issues with Classic Era and Wrath builds.
+-- 10.2.5 change
 GRM.GetColorPickerFrame = function()
 
     if ColorPickerOkayButton then
         return ColorPickerOkayButton;
     else
-        return ColorPickerFrame.Footer.OkayButton;
+        return GRM_UI.ColorPickerFrame.Footer.OkayButton;
     end
 end
 
@@ -2298,6 +2293,28 @@ GRM.DeepCopyArray = function( tableToCopy )
     else
         copy = tableToCopy;         -- Imported data was not a table... just return orig. value - error protection
     end
+    return copy;
+end
+
+GRM.DeepCopySelfRefProtection = function ( original , copies)
+    copies = copies or {};  -- Table to keep track of visited tables
+    
+    local copy;
+    if type ( original ) == 'table' then
+        if copies [ original ] then  -- Check if table has already been visited
+            copy = copies [ original ];
+        else
+            copy = {};
+            copies[ original ] = copy;  -- Store reference to the new copy
+            for k, v in next , original , nil do
+                copy[ GRM.DeepCopySelfRefProtection ( k , copies ) ] = GRM.DeepCopySelfRefProtection ( v , copies );
+            end
+            setmetatable(copy, GRM.DeepCopySelfRefProtection( getmetatable( original ), copies ) );
+        end
+    else
+        copy = original;
+    end
+
     return copy;
 end
 
@@ -4523,38 +4540,43 @@ end
 
 -- Method:          GRM.ShowCustomColorPicker ( float , float , float , float , int , function )
 -- What it Does:    Established some default values for the colorpicker frame, and then shows it
--- Purpose:         One, to configure the color picker frames, and two, to create a universally recyclable function for all potential future colorpicker options as well.
-GRM.ShowCustomColorPicker = function ( r , g , b , a , setting , callback )
+-- Purpose:         One, to configure the color picker frames, and /grmtwo, to create a universally recyclable function for all potential future colorpicker options as well.
+GRM.ShowCustomColorPicker = function ( r , g , b , a , setting )
+
+    GRM_UI.ColorPickerFrame.func = GRM.GetColorPickerFrame():GetScript("OnClick");
+    GRM.GetColorPickerFrame():SetScript ( "OnClick" , GRM_UI.ColorPickScript );
+
+    -- GRM_UI.ColorPickerFrame.Footer.CancelButton:HookScript ( "OnClick" , GRM_UI.ColorPickHideScript );
+
+    GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( r , g , b );
+    GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( r , g , b );
+    GRM_UI.ColorPickerFrame.previousValues = { r , g , b , a };
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu:Hide();
 
     if setting == 98 then
         GRM_G.MainTagColor = true
-    elseif setting == 99 then
-        GRM_G.GroupInfoIconColor = true;
     else
         GRM_G.CurrentTagColorBox = setting;
     end
 
-    ColorPickerFrame:SetColorRGB ( r , g , b );
-    ColorPickerFrame.previousValues = { r , g , b , a };
-    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = callback, callback, callback;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu:Hide();
-    ColorPickerFrame:Hide(); -- Need to run the OnShow handler.
-    ColorPickerFrame:Show();
+    if not GRM_UI.ColorPickerFrame:IsVisible() then
+        GRM_UI.ColorPickerFrame:Show();
+    else
+        GRM_UI.ColorPicker_OnShow();
+    end
+
 end
 
 -- Method:          GRM.ColorSelectFrameTextureUpdate()
 -- What it Does:    When on the ColorPickerWindow from the Options, this is the logic that updates on the fly and saves the colors as you go.
 -- Purpose:         To establish the proper RGB coloring of the text in the General options tab
 GRM.ColorSelectFrameTextureUpdate = function()
-    local r , g , b = ColorPickerFrame:GetColorRGB();
+    local r , g , b = GRM_UI.ColorPickerFrame:GetColorRGB();
     -- Texture Box
     if GRM_G.MainTagColor and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:IsVisible() then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( r , g , b , 1 );
         -- Update the dropdown window color too
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );                  -- color for the box AND the dropdown selection on tag format
-
-    elseif GRM_G.GroupInfoIconColor and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_GroupInfoColorPickerFrame.GRM_GroupInfoOptionsTexture:SetColorTexture ( r , g , b , 1 );
 
     elseif GRM_G.CurrentTagColorBox > 0 then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
@@ -4686,6 +4708,7 @@ end
 -- What it Does:    Reconverts the RGB values, scales then, then converts to hexcode
 -- Purpose:         So, this only needs to be configured one time on load, or when the player updates the settings.
 GRM.RefreshMainTagHexCode = function()
+
     GRM_G.MainTagHexCode = GRM.rgbToHex ( { GRM.ConvertRGBScale ( GRM.S().mainTagColor.r , true ) , GRM.ConvertRGBScale ( GRM.S().mainTagColor.b , true ) , GRM.ConvertRGBScale ( GRM.S().mainTagColor.g , true ) } );
 
     GRM_G.mainTag = GRM.GetCurrentMainTag();
@@ -5300,6 +5323,75 @@ GRM.Trim = function ( str )
     end
 end
 
+-- Method:          GRM.WrapText ( string , int )
+-- What it Does:    Wraps text based on the given string if it is too long
+-- Purpose:         To control the visual aspect of really long string on mouseovers and so on.
+GRM.WrapText = function ( text , maxLength )
+    local result = "";
+    local maxOverUnder = 25;
+
+    if #text > maxLength then
+        local remainingText = text;
+        local frontSpace = -1;
+        local lastSpace = -1;
+        local breakIndex = maxLength; -- Default unless other factors apply
+
+        while #remainingText > maxLength do
+
+            frontSpace = -1;
+            lastSpace = -1;
+            breakIndex = maxLength; -- Default unless other factors apply
+
+            -- Scan through and find the closes space before and closest after.
+            for i = 1 , #remainingText do
+                if string.sub ( remainingText , i , i ) == " " then
+                    if i <= maxLength then
+                        frontSpace = i;
+                    elseif i > maxLength and lastSpace == -1 then
+                        lastSpace = i;
+                        break;  -- We found the first space AFTER the maxLength, so we can be done.
+                    end
+                end
+            end
+            
+            if frontSpace == -1 or lastSpace == -1 then
+                if frontSpace > -1 and lastSpace == -1 then
+                    if frontSpace >= ( maxLength - maxOverUnder ) then    -- Don't want to
+                        breakIndex = frontSpace;
+                    end
+                elseif frontSpace == -1 and lastSpace > -1 then
+                    if lastSpace <= ( maxLength + maxOverUnder ) then
+                        breakIndex = lastSpace;
+                    end
+                end
+            else
+                -- Both have a value
+                if ( maxLength - frontSpace ) <= ( lastSpace - maxLength ) then
+                    if frontSpace >= ( maxLength - maxOverUnder ) then    -- Don't want to
+                        breakIndex = frontSpace;
+                    end
+                else
+                    if lastSpace <= ( maxLength + maxOverUnder ) then
+                        breakIndex = lastSpace;
+                    end
+                end
+            end
+
+            result = result .. remainingText:sub ( 1 , breakIndex - 1 ) .. "\n";
+            remainingText = remainingText:sub ( breakIndex + 1 );
+
+            if #remainingText <= maxLength then
+                result = result .. remainingText;
+            end                              
+
+        end
+    else
+        result = test;
+    end
+
+    return result;
+end
+-- GRM.WrapText(GetGuildRosterMOTD(),65);
 -- Method:          GRM.StringToCharArray ( string [, bool]);
 -- What it Does:    Converts a string into a char array, and has the option to remove all indexes of a given char
 -- Purpose:         More easily cleanup strings, especially when sending data back and forth using the '?' separator
@@ -7426,7 +7518,7 @@ GRM.MemberListBlizTooltip_Update = function( self , isOldRoster , classID , name
             local color = NORMAL_FONT_COLOR;
             if classID then
                 classInfo = C_CreatureInfo.GetClassInfo ( classID );
-                color = ( classInfo and RAID_CLASS_COLORS[classInfo.classFile] ) or NORMAL_FONT_COLOR;
+                color = ( classInfo and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[classInfo.classFile] ) or NORMAL_FONT_COLOR;
             end
             GameTooltip:AddLine ( name , color.r , color.g , color.b );
             GameTooltip:AddLine ( guildRank or "" );
@@ -8104,9 +8196,9 @@ GRM.GetClassColorRGB = function ( className , getHex )
     className = string.upper ( string.gsub ( className , " " , "" ) ); -- just to ensure formatting properly
 
     if getHex then
-        result = "|c" .. RAID_CLASS_COLORS[className].colorStr
+        result = "|c" .. (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[className].colorStr
     else
-        local colors = RAID_CLASS_COLORS[className]
+        local colors = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[className]
         result = { colors.r , colors.g , colors.b }
     end
 
@@ -18758,7 +18850,7 @@ GRM.PopulateClassDropDownMenu = function()
         if ( AllClasses[i] ~= "Deathknight" and AllClasses[i] ~= "Monk" and AllClasses[i] ~= "Demonhunter" and AllClasses[i] ~= "Evoker" ) or ( ( AllClasses[i] == "Deathknight" and GRM_G.BuildVersion >= 30000 ) or ( AllClasses[i] == "Monk" and GRM_G.BuildVersion >= 50000 ) or ( AllClasses[i] == "Demonhunter" and GRM_G.BuildVersion >= 70000 ) or ( AllClasses[i] == "Evoker" and GRM_G.BuildVersion >= 100000 ) ) then
 
             local class = string.upper ( AllClasses[i] );
-            local classColor = RAID_CLASS_COLORS[ class ];
+            local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[ class ];
 
             if classColor then
             
@@ -26905,8 +26997,7 @@ end
 -- Method:          GRM.LoadAddon()
 -- What it Does:    Enables tracking of when a player joins the guild or leaves the guild. Also fires upon login.
 -- Purpose:         Manage tracking guild info. No need if player is not in guild, or to reactivate when player joins guild.
-GRM.LoadAddon = function()
-    
+GRM.LoadAddon = function()    
     GeneralEventTracking:RegisterEvent ( "PLAYER_GUILD_UPDATE" ); -- If player leaves or joins a guild, this should fire.
     GeneralEventTracking:SetScript ( "OnEvent" , GRM.ManageGuildStatus );
 
@@ -26967,6 +27058,7 @@ end
 -- What it Does:    Rechecks if a certain frame function is loaded. 
 -- Purpose:         For some reason some edge cases out there some clients load these very slow, and an addon can trigger before this is done.
 GRM.LoadRecursiveErrorCheck = function()
+
     
     if ( GRM_G.BuildVersion < 80000 and UIDropDownMenu_CreateInfo() == nil ) or ( GRM_G.BuildVersion >= 80000 and not CommunitiesFrame ) then
         C_Timer.After ( 3 , function()
@@ -27186,7 +27278,6 @@ GRM.SettingsLoadedFinishDataLoad = function()
         if IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
             GRM.S().joinDateDestination = 2;
         end
-        
         C_Timer.After ( 2 , GRM.LoadAddon );                 -- Queries do not return info immediately, gives server a 2 second delay.
     else
         GRM.ManageGuildStatus();

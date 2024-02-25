@@ -2470,24 +2470,28 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end
 
         GRM_UI.EnableEvenIfActiveButton = function()
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Enable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 1 , 0.82 , 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Enable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1 , 0 , 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( true );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 1 , 1 , 1 );
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 1 , 1 , 1 );
+            end
         end
 
         GRM_UI.DisableEvenIfActiveButton = function()
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Disable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Disable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( false );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive = false;
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetChecked ( false );
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:EnableMouse ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive = false;
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetChecked ( false );
+            end
         end
 
         -- Method:              GRM_UI.EnableCustomSelectionOfRanks()
@@ -2500,7 +2504,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankFilter = true;
             end
             GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
-            if not GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
+            if not ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 ) and not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.activityFilter then
                 GRM_UI.EnableEvenIfActiveButton();
             end
         end
@@ -4069,30 +4073,42 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end
 
         -- RANK FILTER REGARDLESS OF ACTIVITY
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText , "BOTTOMLEFT" , -5 , -11 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "RIGHT" , 2 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetScript ( "OnClick", function( self )
-            if self:GetChecked() then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive = true;
-            else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive = false;
-            end
-            if GameTooltip:IsVisible() then
-                GRM.RestoreTooltip()
-            end
-        end);
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 3 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText , "BOTTOMLEFT" , -5 , -11 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "RIGHT" , 2 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetScript ( "OnClick", function( self )
+                if self:GetChecked() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive = true;
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.applyEvenIfActiive = false;
+                end
+                if GameTooltip:IsVisible() then
+                    GRM.RestoreTooltip()
+                end
+            end);
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:Show();
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetScript ( "OnEnter" , function( self )
-            GRM_UI.SetTooltipScale()
-            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            GameTooltip:AddLine(  "|CFFFF0000" .. GRM.L ( "WARNING!" ) .. "|r " .. GRM.L ( "Use Cautiously. Applies to all at rank, regardless of being active or inactive." ) );
-            GameTooltip:AddLine ( GRM.L ( "This will only apply to players with verified promotion dates." ) );
-            GameTooltip:Show();
-        end);
-
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetScript ( "OnLeave" , function()
-            GRM.RestoreTooltip();
-        end);
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetScript ( "OnEnter" , function( self )
+                GRM_UI.SetTooltipScale()
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                GameTooltip:AddLine(  "|CFFFF0000" .. GRM.L ( "WARNING!" ) .. "|r " .. GRM.L ( "Use Cautiously. Applies to all at rank, regardless of being active or inactive." ) );
+                GameTooltip:AddLine ( GRM.L ( "This will only apply to players with verified promotion dates." ) );
+                GameTooltip:Show();
+            end);
+    
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetScript ( "OnLeave" , function()
+                GRM.RestoreTooltip();
+            end);
+            
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:Hide();
+        end
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText , "RIGHT" , 7 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetSize ( 25 , 22 );
@@ -4579,7 +4595,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1:SetChecked ( true );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetChecked ( false );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0 , 0 ); 
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+            if not ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 ) then
+                GRM_UI.EnableEvenIfActiveButton();
+            end
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2Text:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2 , "RIGHT" , 2 , 0 );
@@ -5137,7 +5156,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -60 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:Hide();
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:Hide()
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "RIGHT" , 2 , 0 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "BOTTOMLEFT" , 0 , -15 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Show();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Show();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Show();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:Show();
 
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:SetText ( GRM.L ( "Demote Player if Inactive for" ) .. " " );
@@ -5146,12 +5171,16 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -80 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:Show();
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:Show()
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:Show();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "BOTTOMLEFT" , 0 , 25 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:Hide();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:Hide();
                 end
-
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "RIGHT" , 2 , 0 );
+                
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRulesRankRadialButton2:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed , "BOTTOMLEFT" , -8 , -15 );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton , "BOTTOMLEFT" , 0 , -15 );
+                
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -10 );
                 
                 if GRM.S().selectedLang == 5 then -- Russian
@@ -5162,7 +5191,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Hide();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:Show();
 
             -- Promote and Demote
             elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
@@ -8462,7 +8490,7 @@ GRM.UpdateRulesTooltip = function ( ind )
         end
         GameTooltip:AddDoubleLine ( GRM.L ( "Ranks:" ) , ranks , 1 , 0.82 , 0 , 1 , 1 , 1 );
 
-        if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 ) and rule.applyEvenIfActiive then
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and rule.applyEvenIfActiive then
 
             time = "";
             if rule.rankSpecialIsMonths then
@@ -8702,7 +8730,7 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                             
                             if rule.ruleType == 3 then
                                 -- Inactivity
-                                if ruleConfirmedCheck and rule.activityFilter and not ( rule.rankFilter and rule.applyEvenIfActiive ) then
+                                if ruleConfirmedCheck and rule.activityFilter then
                                     ruleConfirmedCheck = false;
 
                                     if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActive ( alts , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
@@ -8712,20 +8740,6 @@ GRM.GetNamesByFilterRules = function( ruleTypeIndex )
                                             ruleConfirmedCheck = true;
                                             table.insert ( tempRuleCollection , { "Inactive" , player.lastOnline } );
                                         end
-                                    end
-                                end
-
-                                -- Extra activity filter based on rank
-                                if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
-                                    -- We know that the rank is valid at this point as it has been made true
-                                    ruleConfirmedCheck = false;
-                                    
-                                    local epochDate = GRM.convertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] , 1 , 0 , 0 , false );
-
-                                    if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] and player.rankHist[1][7] and GRM.HasTimeExceededDate ( epochDate , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].evenIfActiveHours ) then
-                                        ruleConfirmedCheck = true;
-                                        table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
-                                        table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( epochDate )[4] } );
                                     end
                                 end
 

@@ -1537,6 +1537,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- -- 125
+    -- if numericV < 1.9905 and baseValue < 1.9905 then
+        
+    --     GRM_Patch.EditSetting ( "demoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
+    --     GRM_Patch.EditSetting ( "promoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
+    --     GRM_Patch.EditSetting ( "mainTagColor" , GRM_Patch.FixMainTagColor );
+
+    --     GRM_AddonSettings_Save.VERSION = "R1.9905";
+    --     if loopCheck ( 1.9905 ) then
+    --         return;
+    --     end
+    -- end
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -8615,4 +8628,38 @@ GRM_Patch.FixWrathClassicEvokerBug = function ( player )
     end
 
     return player;
+end
+
+-- R1.9905
+-- Method:          GRM_Patch.MarcoRuleDataConsistencyFix( ruleTable )
+-- What it Does:    Removes a rule that doesn't apply in the macro
+-- Purpose:         Cleanup rule for data consistency.
+GRM_Patch.MarcoRuleDataConsistencyFix = function ( rule )
+
+    for _, rule in pairs ( rule ) do
+        if rule.applyEvenIfActiive ~= nil then
+            rule.applyEvenIfActiive = nil;
+        end
+    end
+
+    return rule;
+end
+
+-- R1.9905
+-- Method:          GRM_Patch.FixMainTagColor ( rule )
+-- What it Does:    Checks if there is data consistency
+-- Purpose:         Due to a UI error, some data was being stored as nil and wrecking things.
+GRM_Patch.FixMainTagColor = function ( rule )
+
+    if not rule then
+        rule = {};
+    end
+
+    if not rule.r then
+        rule.r = 1;
+        rule.g = 0;
+        rule.b = 0;
+    end
+
+    return rule;
 end

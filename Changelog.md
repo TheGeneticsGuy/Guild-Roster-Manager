@@ -1,6 +1,22 @@
-## **VERSION 1.9905 RELEASE - January 16th, 2024**
+## **VERSION 1.9905 RELEASE - February 22nd 2024**
 
-* Test Commit on new build
+***BUG FIXES***
+
+* Fixed an issue where the additional filtering to kick a player regardless if they are active or inactive, if they haven't moved from a rank after X amount of time should now properly be clickable. In some cases it could be, but on making a new rule it would be greyed out improperly in certain circumstances.
+
+* In addition, the demote rule was showing this filter option, which didn't make sense. This option has been removed from the demote macro rule window as an option, as well as the settings index to ensure data consistency here of a deprecated variable.
+
+* Fixed an issue where you were unable to select and change the main/alt tag color or the chat log colors. I guess there was a recent change around this I didn't notice, on the back end. This is now resolved.
+
+* Fixed an issue where a Lua error would throw when changing colors on the log as it was checking for the "Hardcore Mode" death announce. even in retail, yet I never loaded those frames in non-hardcore modes. This should now work without any pesky error!
+
+***QUALITY OF LIFE***
+
+* I added the option to choose your color by RGB on the 255 scale. Previously it was only  available by manually selecting the color on the wheel, or by entering the hexcode. I once had this added but due to some frame changes it's been missing for a long time, so I re-added it since I was working on fixing the color frame.
+
+* The guild message of the day text will now "wrap" cleaner on the mouseover for the GRM minimap button. I guess I never noticed how bad it looked since I never utilized the full 250+ character limit. When I was debugging some issues in another person's guild it stretched across like 75% of my screen! lol. So, I wrote a function that can wrap any line to a given length (ish), so I might implement this other places if anyone has any suggestions on mouseovers that could use some nice text wrapping.
+
+* Added support for the ClassColors addon.
 
 
 ## **VERSION 1.9904 RELEASE - January 16th, 2024**
