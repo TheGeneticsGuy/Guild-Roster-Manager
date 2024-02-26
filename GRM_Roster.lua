@@ -7,8 +7,8 @@ GRM_R = {};
 -- Purpose:         Provide players more controls than default communities offers.
 GRM_R.BuildRosterFrames = function ()
 
-    local coreSize = 885;
-    local coreHybridSize = 830;
+    local coreSize = 1035;
+    local coreHybridSize = 980;
     local anchorFrame1;
 
     if GRM_G.BuildVersion >= 80000 then
@@ -69,6 +69,9 @@ GRM_R.BuildRosterFrames = function ()
 
     -- OfficerNote
     GRM_UI.CreateButton ( "GRM_RosterColumnOfficerNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Officer's Note" ) , 150 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnNote, "RIGHT" , -1.5 , 0 } , GRM_R.SortOfficerNote , "GameFontWhite" , 13 , "LEFT" , 10 , -3 );
+
+    -- customNote
+    GRM_UI.CreateButton ( "GRM_RosterColumnCustomNote" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Custom Note" ) , 150 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnOfficerNote, "RIGHT" , -1.5 , 0 } , GRM_R.SortCustomNote , "GameFontWhite" , 13 , "LEFT" , 10 , -3 );
     
     -- Right click menu
     GRM_UI.CreateCoreFrame ( "GRM_RosterFrameDropDown" , GRM_UI.GRM_RosterFrame , nil , 110 , 177 , BackdropTemplateMixin and "BackdropTemplate" , false , nil , "FULLSCREEN_DIALOG" , false , true );
@@ -230,7 +233,7 @@ GRM_R.BuildRosterFrames = function ()
     GRM_UI.CreateString ( "GRM_RosterFrameNameEditBoxText" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Player Search" ) , 16 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox , "TOP" , 0 , 3 } , 155 , nil , "CENTER" , false );
 
     -- NOTE SEARCH EDIT BOX
-    GRM_UI.CreateEditBox ( "GRM_RosterNoteEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 220 , 30 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnNote , "TOPRIGHT" , 0 , 5 } , "LEFT" , nil , 31 , false , GRM_R.NoteSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName , true , false );
+    GRM_UI.CreateEditBox ( "GRM_RosterNoteEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 220 , 30 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnOfficerNote , "TOP" , 0 , 5 } , "LEFT" , nil , 31 , false , GRM_R.NoteSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName , true , false );
 
     -- Note Search Title
     GRM_UI.CreateString ( "GRM_RosterNoteEditBoxText" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Note Search" ) , 16 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox , "TOP" , 0 , 3 } , 225 , nil , "CENTER" , false );
@@ -283,7 +286,8 @@ GRM_R.ResetColumnTextColors = function()
         { min = 7 , max = 8 , column = "GRM_RosterColumnLvl" } , 
         { min = 9 , max = 10 , column = "GRM_RosterColumnMythicPlus" } , 
         { min = 11 , max = 12 , column = "GRM_RosterColumnNote" } , 
-        { min = 13 , max = 14 , column = "GRM_RosterColumnOfficerNote" } 
+        { min = 13 , max = 14 , column = "GRM_RosterColumnOfficerNote" },
+        { min = 15 , max = 16 , column = "GRM_RosterColumnCustomNote" } 
     };
     
     local function lookupValue ( input )
@@ -508,8 +512,8 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
         -- No need to do all this extra processing if the player is offline.
         if GRM.S().showRosterOffline or ( not GRM.S().showRosterOffline and player.isOnline ) then
 
-            if ( not nameSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , nameSearch , 1 , true ) or string.find ( string.lower ( player.name ) , nameSearch , 1 , true ) ) and ( not noteSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.note ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.note ) , noteSearch , 1 , true ) or ( GRM.CanEditOfficerNote() and ( string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.officerNote ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.officerNote ) , noteSearch , 1 , true ) ) ) ) then
-
+            if ( not nameSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , nameSearch , 1 , true ) or string.find ( string.lower ( player.name ) , nameSearch , 1 , true ) ) and ( not noteSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.note ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.note ) , noteSearch , 1 , true ) or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.customNote[6] ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.customNote[6] ) , noteSearch , 1 , true ) or ( GRM.CanEditOfficerNote() and ( string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.officerNote ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.officerNote ) , noteSearch , 1 , true ) ) ) ) then
+                
                 if player.isMain then
                     tempPlayer.isMain = true;
                     tempPlayer.isAlt = false;
@@ -571,6 +575,7 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
                     tempPlayer.classColor = GRM.GetClassColorRGB ( player.class , false );
                     tempPlayer.level = player.level;
                     tempPlayer.note = player.note;
+                    tempPlayer.customNote = player.customNote[6]
 
                     if GRM_G.HardcoreActive then
                         if player.HC.isDead then
@@ -946,6 +951,73 @@ GRM_R.SortOfficerNote = function ( _ , keepType , reSizeButtons )
     GRM_R.BuildGuildRoster ( true , true , members , reSizeButtons );
 end
 
+-- Method:          GRM_R.SortCustomNote ( buttonObject , bool , bool )
+-- What it Does:    Sorts all of the names ascending or descending in the guild
+-- Purpose:         For the Guild roster
+GRM_R.SortCustomNote = function ( _ , keepType , reSizeButtons )
+
+    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
+
+    if nameSearch == "" then
+        nameSearch = nil;
+    else
+        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
+    end
+
+    if noteSearch == "" then
+        noteSearch = nil;
+    else
+        noteSearch = string.lower ( GRM.RemoveSpecialCharacters ( noteSearch ) );
+    end
+
+    if not keepType then
+        if GRM_UI.GRM_RosterFrame.SortType ~= 15 and GRM_UI.GRM_RosterFrame.SortType ~= 16 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 15;
+        elseif GRM_UI.GRM_RosterFrame.SortType == 15 then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 16;
+        else
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = 15;
+        end
+    end
+    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    
+    if GRM_UI.GRM_RosterFrame.SortType == 15 then
+        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) < string.lower ( GRM.Trim ( b.customNote ) ) end );
+    else
+        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) > string.lower ( GRM.Trim ( b.customNote ) ) end );
+    end
+
+    if GRM.S().groupByMain then
+        local i = 1;
+        while i <= #members do
+            if members[i].alts and #members[i].alts > 0 then
+                if GRM_UI.GRM_RosterFrame.SortType == 15 then
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) < string.lower ( GRM.Trim ( b.customNote ) ) end );
+                else
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) > string.lower ( GRM.Trim ( b.customNote ) ) end );
+                end
+                -- Now, need need to insert into main entries table by merging
+
+                for j = 1 , #members[i].alts do
+                    table.insert ( members , i + j , members[i].alts[j] );
+                end
+                i = i + #members[i].alts
+
+                members[i].alts = nil;
+            end
+            i = i + 1;
+        end
+    end
+
+    GRM_R.BuildGuildRoster ( true , true , members , reSizeButtons );
+end
+
+
+
 -- Method:          GRM_R.SortRank( buttonObject , bool , bool )
 -- What it Does:    Sorts all of the names by guild rank, highest to lowest.
 -- Purpose:         For the Guild roster
@@ -1020,6 +1092,10 @@ GRM_R.SortRank = function ( _ , keepType , reSizeButtons )
            -- Sort names by max level ascending, within each rank
     elseif GRM_UI.GRM_RosterFrame.FormerSortType == 14 then
         members = GRM_R.SortByOfficerNoteWithinRank ( members , 14 );
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 15 then
+        members = GRM_R.SortByCustomNoteWithinRank ( members , 15 );
+    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 16 then
+        members = GRM_R.SortByCustomNoteWithinRank ( members , 16 );
     end
 
     if GRM.S().groupByMain then
@@ -1218,7 +1294,7 @@ GRM_R.SortByNoteWithinRank = function ( members , sortType )
 end
 
 -- Method:          GRM_R.SortByOfficerNoteWithinRank ( table, int )
--- What it Does:    Takes the already sorted table, then sub-sorts the ranks by playerNote ascending or descending
+-- What it Does:    Takes the already sorted table, then sub-sorts the ranks by officerNote ascending or descending
 -- Purpose:         Greater control of sorting on the roster.
 GRM_R.SortByOfficerNoteWithinRank = function ( members , sortType )
     local result = {};
@@ -1237,6 +1313,40 @@ GRM_R.SortByOfficerNoteWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.officerNote ) ) < string.lower ( GRM.Trim( b.officerNote ) ) end );
             elseif sortType == 14 then
                 sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.officerNote ) ) > string.lower ( GRM.Trim( b.officerNote ) ) end );
+            end
+            for j = 1 , #rankGrouping do
+                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+            end
+
+            currentRank = members[i].rankIndex;
+            rankGrouping = {};
+            table.insert ( rankGrouping , members[i] );
+        end
+    end
+
+    return result;
+end
+
+-- Method:          GRM_R.SortByCustomNoteWithinRank ( table, int )
+-- What it Does:    Takes the already sorted table, then sub-sorts the ranks by customNote ascending or descending
+-- Purpose:         Greater control of sorting on the roster.
+GRM_R.SortByCustomNoteWithinRank = function ( members , sortType )
+    local result = {};
+    local currentRank = members[1].rankIndex;
+    local rankGrouping = {};
+
+    for i = 1 , #members do
+        -- Working on same rank group
+        if members[i].rankIndex == currentRank then
+            table.insert ( rankGrouping , members[i] );
+        end
+
+        -- rank group has changed, or we are on the final rank
+        if members[i].rankIndex ~= currentRank or i == #members then
+            if sortType == 15 then
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.customNote ) ) < string.lower ( GRM.Trim( b.customNote ) ) end );
+            elseif sortType == 16 then
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.customNote ) ) > string.lower ( GRM.Trim( b.customNote ) ) end );
             end
             for j = 1 , #rankGrouping do
                 table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
@@ -1347,6 +1457,8 @@ GRM_R.RefreshRosterName = function ( reSizeButtons )
         GRM_R.SortNote ( nil , true , reSizeButtons );
     elseif GRM_UI.GRM_RosterFrame.SortType == 13 or GRM_UI.GRM_RosterFrame.SortType == 14 then
         GRM_R.SortOfficerNote( nil , true , reSizeButtons );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 15 or GRM_UI.GRM_RosterFrame.SortType == 16 then
+        GRM_R.SortCustomNote( nil , true , reSizeButtons );
     end
 
 end
@@ -1402,17 +1514,20 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
                 local button = CreateFrame ( "Button" , "Button1_" .. i , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild );
                 local button2 = CreateFrame ( "Button" , "Button2TT_" .. i , button );
                 local button3 = CreateFrame ( "Button" , "Button3TT_" .. i , button );
+                local button4 = CreateFrame ( "Button" , "Button4TT_" .. i , button );
                 GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i] = {
                     button ,
                     button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Level
                     button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Name
                     button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Last Online
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),       -- Rank
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),       -- Mythic+
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),       -- Note
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),       -- Officer Note
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Rank
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Mythic+
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Note
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- Officer Note
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- custom Note
                     button2,    -- Button for mouseover "OnEnter" for tooltip of note
-                    button3     -- Same, but for officer note
+                    button3,    -- Same, but for officer note
+                    button4     -- Same, but for custom note
 
                 };
 
@@ -1484,8 +1599,10 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
     local buttonText5 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][6];
     local buttonText6 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][7];
     local buttonText7 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][8];
-    local buttonTTNote = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][9];
-    local buttonTTNote2 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10];
+    local buttonText8 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][9];
+    local buttonTTNote = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10];
+    local buttonTTNote2 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][11];
+    local buttonTTNote3 = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][12];
 
     -- Name
     buttonText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 - GRM_UI.GRM_RosterFrame.fontModifier );
@@ -1495,6 +1612,7 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
     buttonText5:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 - GRM_UI.GRM_RosterFrame.fontModifier );
     buttonText6:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 - GRM_UI.GRM_RosterFrame.fontModifier );
     buttonText7:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 - GRM_UI.GRM_RosterFrame.fontModifier );
+    buttonText8:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 - GRM_UI.GRM_RosterFrame.fontModifier );
 
     -- Actions don't need to be run more than once.
     if not isResizeAction then
@@ -1546,10 +1664,18 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
         buttonText7:SetWidth ( 140 )
         buttonText7:SetWordWrap ( false );
 
+        -- Officer Note
+        buttonText8:SetPoint ( "LEFT" , buttonText7 , "RIGHT" , 9 , 0 );
+        buttonText8:SetJustifyH ( "LEFT" );
+        buttonText8:SetWidth ( 125 )
+        buttonText8:SetWordWrap ( false );
+
         buttonTTNote:SetPoint ( "LEFT" , buttonText6 , "LEFT" , 1 , 0 );
         buttonTTNote:SetSize ( 150 , coreButton:GetHeight() );
         buttonTTNote2:SetPoint ( "LEFT" , buttonTTNote , "RIGHT" , 0 , 0 );
         buttonTTNote2:SetSize ( 150 , coreButton:GetHeight() );
+        buttonTTNote3:SetPoint ( "LEFT" , buttonTTNote2 , "RIGHT" , 0 , 0 );
+        buttonTTNote3:SetSize ( 150 , coreButton:GetHeight() );
 
         coreButton:EnableMouse ( true );
         coreButton:RegisterForDrag ( "LeftButton" );
@@ -1559,6 +1685,9 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
 
         buttonTTNote2:EnableMouse ( true );
         buttonTTNote2:RegisterForDrag ( "LeftButton" );
+
+        buttonTTNote3:EnableMouse ( true );
+        buttonTTNote3:RegisterForDrag ( "LeftButton" );
         
         -- Setup draggable conditions
         coreButton:SetScript ( "OnDragStart" , function()
@@ -1579,6 +1708,13 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
             GRM_UI.GRM_RosterFrame:StartMoving();
         end);
         buttonTTNote2:SetScript ( "OnDragStop" , function()
+            GRM_UI.GRM_RosterFrame:StopMovingOrSizing();
+            GRM_UI.SaveFramePosition ( GRM_UI.GRM_RosterFrame );
+        end);
+        buttonTTNote3:SetScript ( "OnDragStart" , function()
+            GRM_UI.GRM_RosterFrame:StartMoving();
+        end);
+        buttonTTNote3:SetScript ( "OnDragStop" , function()
             GRM_UI.GRM_RosterFrame:StopMovingOrSizing();
             GRM_UI.SaveFramePosition ( GRM_UI.GRM_RosterFrame );
         end);
@@ -1719,6 +1855,22 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
             GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:Hide();
         end);
 
+        buttonTTNote3:SetScript ( "OnEnter" , function ( self )
+            GRM_R.UpdateNoteText ( self , ind , 9 );
+            GRM_R.UpdateGuildRosterTooltip( ind );
+        end);
+
+        buttonTTNote3:SetScript ( "OnLeave" , function()
+            GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:Hide();
+            coreButton:UnlockHighlight();
+            GRM.RestoreTooltip();
+        end);
+
+        buttonTTNote3:SetScript ( "OnMouseDown" , function ( _ , button )
+            ButtonClickFunction ( coreButton , button );
+            GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:Hide();
+        end);
+
     end
 end
 
@@ -1782,7 +1934,7 @@ end
 GRM_R.NoteSearchTT = function ( frameObject )
     GRM_UI.SetTooltipScale()
     GameTooltip:SetOwner ( frameObject , "ANCHOR_CURSOR" );
-    GameTooltip:AddLine( GRM.L ( "Search Public and Officer Notes" ) );
+    GameTooltip:AddLine( GRM.L ( "Search Public, Officer, and Custom Notes" ) );
     GameTooltip:Show();
 end
 
@@ -1846,6 +1998,7 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
 
     line[7]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].note );
     line[8]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].officerNote );
+    line[9]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].customNote );
 
     -- Update the tooltip if underlying data changes
     if GameTooltip:IsVisible() and GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][1]:IsMouseOver() then 
@@ -1853,10 +2006,12 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
     end
 
     if GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:IsVisible() and GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][1]:IsMouseOver() then
-        if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][9]:IsMouseOver() then
-            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][9] , ind , 7 );
-        elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10]:IsMouseOver() then  
-            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10] , ind , 8 );
+        if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10]:IsMouseOver() then
+            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10] , ind , 7 );
+        elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][11]:IsMouseOver() then  
+            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][11] , ind , 8 );
+        elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][12]:IsMouseOver() then  
+            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][12] , ind , 9 );
         end
     end
 end
@@ -1893,6 +2048,9 @@ GRM_R.RosterShiftDown = function()
             buttons[i][8]:SetText( buttons[i+1][8]:GetText() );
             buttons[i][8]:SetTextColor ( buttons[i+1][8]:GetTextColor ( buttons[i+1][8]:GetText() ) );
 
+            buttons[i][9]:SetText( buttons[i+1][9]:GetText() );
+            buttons[i][9]:SetTextColor ( buttons[i+1][9]:GetTextColor ( buttons[i+1][9]:GetText() ) );
+
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;
             end
@@ -1903,10 +2061,12 @@ GRM_R.RosterShiftDown = function()
             GRM_R.UpdateGuildRosterTooltip ( MouseOverButton );
 
             if GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:IsVisible() then
-                if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][9]:IsMouseOver() then
-                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][9] , MouseOverButton , 7 );
-                elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10]:IsMouseOver() then  
-                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10] , MouseOverButton , 8 );
+                if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10]:IsMouseOver() then
+                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10] , MouseOverButton , 7 );
+                elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][11]:IsMouseOver() then  
+                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][11] , MouseOverButton , 8 );
+                elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][12]:IsMouseOver() then  
+                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][12] , MouseOverButton , 9 );
                 end
             end
         end
@@ -1943,6 +2103,9 @@ GRM_R.RosterShiftUp = function()
             buttons[i][8]:SetText( buttons[i-1][8]:GetText() );
             buttons[i][8]:SetTextColor ( buttons[i-1][8]:GetTextColor ( buttons[i-1][8]:GetText() ) );
 
+            buttons[i][9]:SetText( buttons[i-1][9]:GetText() );
+            buttons[i][9]:SetTextColor ( buttons[i-1][9]:GetTextColor ( buttons[i-1][9]:GetText() ) );
+
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;
             end
@@ -1953,10 +2116,12 @@ GRM_R.RosterShiftUp = function()
             GRM_R.UpdateGuildRosterTooltip ( MouseOverButton );
 
             if GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:IsVisible() then
-                if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][9]:IsMouseOver() then
-                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][9] , MouseOverButton , 7 );
-                elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10]:IsMouseOver() then  
-                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10] , MouseOverButton , 8 );
+                if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10]:IsMouseOver() then
+                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][10] , MouseOverButton , 7 );
+                elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][11]:IsMouseOver() then  
+                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][11] , MouseOverButton , 8 );
+                elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][12]:IsMouseOver() then  
+                    GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[MouseOverButton][12] , MouseOverButton , 9 );
                 end
             end
 

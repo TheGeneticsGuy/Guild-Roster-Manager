@@ -183,11 +183,6 @@ GRM_G.altDetailsControl = { 2 , true };
 -- Ban Details Frame Controls
 GRM_G.banDetailsControl = { 4 , true };
 
--- System message check and controls.
-GRM_G.SystemMessageTest = true;
-GRM_G.SystemMessageTestAnnounced = false;
-GRM_G.DelayCount = 0
-
 -- GuildLeader Controls
 GRM_G.GuildInfo = "";
 GRM_G.GlobalControl1 = false;               -- General sync
@@ -328,6 +323,8 @@ GRM_G.InGroup = false;
 GRM_G.HardcoreActive = false;
 GRM_G.HardcoreHexCode = "|CFFBF0000"; -- Default RGB = .76 , 0 , 0 (r,g,b)
 
+-- Season of Discovery
+GRM_G.SOD = C_Seasons and C_Seasons.GetActiveSeason and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery;
 
 -- Useful Lookup Tables for date indexing.
 
@@ -3003,7 +3000,6 @@ end
 -- Purpose:         To control system message spam when doing server inquiries
 GRM.SetSystemMessageFilter = function ( _ , _ , msg , ... )
     local result = false;
-    GRM_G.SystemMessageTest = true;
 
     -- Error protection to not break chat
     if GRM.S() then
@@ -22295,47 +22291,6 @@ GRM.EditBdayTooltip = function ( self )
 end
 
 ----------------------
--- CONFIG CHECK ------
-----------------------
-
--- Method:          GRM.SystemMessageEnabledCheck()
--- What it does:    Does a check if system messages are still enabled.
--- Purpose:         To let the player know if they disable system messages the addon will not work.
-GRM.SystemMessageEnabledCheck = function()
-    GRM_G.SystemMessageTest = false;
-    if not GRM_G.SystemMessageTestAnnounced then
-
-        C_Timer.After ( 3 , function()
-            if not GRM_G.SystemMessageTest then
-                GRM_G.SystemMessageTestAnnounced = true;
-
-                local realmName = GetRealmName();
-                if IsAddOnLoaded ( "FastGuildInvite" ) and FGI_DB.realm and FGI_DB.realm[realmName] then
-
-                    local enabledSystemMessages = function()
-                        FGI_DB.realm[realmName].systemMSG = false;        -- Save file index - will be nil when it saves if set to false...
-                        FGI.DB.realm.systemMSG = false;
-                        ChatFrame_RemoveMessageEventFilter ( "CHAT_MSG_SYSTEM" , FGI.functions.hideSysMsg );
-                        GRM.Report ( GRM.L ( "System Messages have been enabled and GRM should now function properly." ) );
-                        GRM.Report ( GRM.L ( "Please Note: To permanently enable system messages, you must manually re-enable them in your chat window general settings" ) );
-                    end
-
-                    GRM.SetConfirmationWindow ( enabledSystemMessages , GRM.L ( "GRM has detected that FGI is blocking system messages and cannot function properly without them. Do you want to enable them?" ) );
-                
-                elseif not IsListeningForMessageType ( "SYSTEM" ) then
-                    local enabledSystemMessages = function()
-                        ToggleChatMessageGroup( true , "SYSTEM" );
-                        GRM.Report ( GRM.L ( "System Messages have been enabled and GRM should now function properly." ) );
-                    end
-
-                    GRM.SetConfirmationWindow ( enabledSystemMessages , GRM.L ( "GRM has detected that System Messages are disabled and cannot function properly without them. Do you want to enable them?" ) );
-                end
-            end
-        end);
-    end
-end
-
-----------------------
 -- GLOBAL CONTROLS ---
 ----------------------
 
@@ -26926,10 +26881,6 @@ end
 -- Purpose:         If a guild is on more than one server with the same name, that can complicate things. This helps idenitfy the server by the creation date as well...
 GRM.DelayForGuildInfoCallback = function()
     if GRM_G.guildCreationDate == "" then
-        GRM_G.DelayCount = GRM_G.DelayCount + 1;
-        if GRM_G.DelayCount == 5 then               -- At the 5th try, let's check if system messages are disabled. If they are, tell player to enable.
-            GRM.SystemMessageEnabledCheck();
-        end
         GRM.SetGuildInfoDetails();
         GRM.GuildRoster();
         C_Timer.After ( 1 , GRM.DelayForGuildInfoCallback );

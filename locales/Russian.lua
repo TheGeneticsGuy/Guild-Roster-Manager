@@ -1438,16 +1438,12 @@ GRML.Russian = function()
 
     -- 1.93
     GRM_L["Customize Color"] = "Настроить цвет"
-    GRM_L["GRM has detected that FGI is blocking system messages and cannot function properly without them. Do you want to enable them?"] = true        -- FGI is in reference to the "Fast Guild Invite" addon...
-    GRM_L["GRM has detected that System Messages are disabled and cannot function properly without them. Do you want to enable them?"] = true
-    GRM_L["System Messages have been enabled and GRM should now function properly."] = true
     GRM_L["Officer Only Access"] = "Доступно только для офицеров"   -- Tooltip on the advanced join date tool button
     GRM_L["Player no longer has officer access. Advanced Join Date Tool has been closed."] = "У игрока больше нет доступа офицера. Расширенный инструмент даты присоединения закрыт."
     GRM_L["{custom1} to open Player Window"] = "{custom1}, для открытия окна игрока"
     GRM_L["{custom1} for Additional Options"] = "{custom1}, для дополнительных параметров."
 
     --1.93
-    GRM_L["Please Note: To permanently enable system messages, you must manually re-enable them in your chat window general settings"] = true
     GRM_L["Unable to notify yourself if you go offline."] = true
     GRM_L["{custom1} to sync join date among all alts in grouping."] = true
     GRM_L["Total Patch Time:"] = true
@@ -1668,7 +1664,7 @@ GRML.Russian = function()
     
     -- R1.990
     GRM_L["M+ Score" ] = true
-    GRM_L["Search Public and Officer Notes"] = true
+    GRM_L["Search Public, Officer, and Custom Notes"] = true
     GRM_L["Note Search"] = true
     GRM_L["Tips"] = true    -- Options > Help tab - "Tips" as in helpful info.
     GRM_L["Hold the CONTROL key down to scroll 3x the speed"] = true
