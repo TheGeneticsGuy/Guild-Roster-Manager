@@ -21,7 +21,7 @@ GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.29;
+GRM_G.GroupInfoV = 1.30;
 
 -- Initialization Useful Globals 
 -- ADDON
