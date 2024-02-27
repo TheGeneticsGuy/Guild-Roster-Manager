@@ -1543,6 +1543,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     --     GRM_Patch.EditSetting ( "demoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
     --     GRM_Patch.EditSetting ( "promoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
     --     GRM_Patch.EditSetting ( "mainTagColor" , GRM_Patch.FixMainTagColor );
+    --     GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.JoinDateErrorFix , true , true , false , nil );
 
     --     GRM_AddonSettings_Save.VERSION = "R1.9905";
     --     if loopCheck ( 1.9905 ) then
@@ -8662,4 +8663,17 @@ GRM_Patch.FixMainTagColor = function ( rule )
     end
 
     return rule;
+end
+
+-- R1.9905
+-- Method:          GRM_Patch.JoinDateErrorFix ( table )
+-- What it Does:    Checks for the error, and if there is one, resets the metadata table.
+-- Purpose:         Cleanup DB from old errors.
+GRM_Patch.JoinDateErrorFix = function ( player )
+
+    if player.joinDateHist[1] == nil or player.joinDateHist[1][3] == nil then
+        player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };   -- Reset the metadata
+    end
+
+    return player;
 end
