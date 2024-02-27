@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 125;
+local totalPatches = 126;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1537,19 +1537,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
-    -- -- 125
-    -- if numericV < 1.9905 and baseValue < 1.9905 then
+    -- 126
+    if numericV < 1.9905 and baseValue < 1.9905 then
         
-    --     GRM_Patch.EditSetting ( "demoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
-    --     GRM_Patch.EditSetting ( "promoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
-    --     GRM_Patch.EditSetting ( "mainTagColor" , GRM_Patch.FixMainTagColor );
-    --     GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.JoinDateErrorFix , true , true , false , nil );
+        GRM_Patch.EditSetting ( "demoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
+        GRM_Patch.EditSetting ( "promoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
+        GRM_Patch.EditSetting ( "mainTagColor" , GRM_Patch.FixMainTagColor );
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.JoinDateErrorFix , true , true , false , nil );
 
-    --     GRM_AddonSettings_Save.VERSION = "R1.9905";
-    --     if loopCheck ( 1.9905 ) then
-    --         return;
-    --     end
-    -- end
+        GRM_AddonSettings_Save.VERSION = "R1.9905";
+        if loopCheck ( 1.9905 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end

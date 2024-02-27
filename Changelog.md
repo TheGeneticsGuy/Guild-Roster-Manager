@@ -1,4 +1,4 @@
-## **VERSION 1.9905 RELEASE - February 22nd 2024**
+## **VERSION 1.9905 RELEASE - February 26th 2024**
 
 ***QUALITY OF LIFE***
 
@@ -10,9 +10,9 @@
 
 * Added support for the ClassColors addon.
 
-* The addon will no longer bug you over system messages being disabled if you use an addon like Fast Guild invite. This is handled more efficiently now.
+* The addon will no longer bug you over system messages being disabled if you use an addon like Fast Guild invite. This is handled more efficient and smarter now, and you can enable/disable system messages at will.
 
-* The Custom GRM roster should now properly update on the fly when adding, removing, or editing notes from the public, officer, or custom notes.
+* The Custom GRM roster should now properly update on the fly when adding, removing, or editing notes from the public, officer, or custom notes through the mouseover window.
 
 ***BUG FIXES***
 
