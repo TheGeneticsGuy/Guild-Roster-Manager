@@ -27034,14 +27034,27 @@ end
 -- Purpose:         Manage tracking guild info. No need if player is not in guild, or to reactivate when player joins guild.
 GRM.LoadAddon = function()    
     GeneralEventTracking:RegisterEvent ( "PLAYER_GUILD_UPDATE" ); -- If player leaves or joins a guild, this should fire.
-    GeneralEventTracking:RegisterEvent ( "VIGNETTES_UPDATED" );
-    GeneralEventTracking:SetScript ( "OnEvent" , function( _ , event )
-        if event == "PLAYER_GUILD_UPDATE" then
-            GRM.ManageGuildStatus();
-        elseif event == "VIGNETTES_UPDATED" then            -- Need to listen for enablign and disablingh of system messages to determine which handler to use.
+    IsListeningForMessageType ( "SYSTEM" )
+    if GRM_G.BuildVersion < 100000 then
+        GeneralEventTracking:SetScript ( "OnEvent" , function( _ , event )
+            if event == "PLAYER_GUILD_UPDATE" then
+                GRM.ManageGuildStatus();
+            end
+        end);
+
+        ChatConfigFrame:HookScript("OnHide" , function()
             GRM_G.SystemMessagesEnabled = IsListeningForMessageType ( "SYSTEM" );
-        end
-    end);
+        end);
+    else
+        GeneralEventTracking:RegisterEvent ( "VIGNETTES_UPDATED" );
+        GeneralEventTracking:SetScript ( "OnEvent" , function( _ , event )
+            if event == "PLAYER_GUILD_UPDATE" then
+                GRM.ManageGuildStatus();
+            elseif event == "VIGNETTES_UPDATED" then            -- Need to listen for enablign and disablingh of system messages to determine which handler to use.
+                GRM_G.SystemMessagesEnabled = IsListeningForMessageType ( "SYSTEM" );
+            end
+        end);
+    end
 
     -- Speecial handler in case system messages disabled, so instead of filtering, we just listen
     SystemMessageChecking:RegisterEvent ( "CHAT_MSG_SYSTEM" );
