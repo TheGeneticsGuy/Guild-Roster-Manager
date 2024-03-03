@@ -1763,5 +1763,7 @@ GRML.Italian = function()
 	-- R1.9904
     GRM_L["If disabled, a one time scan is still done at login or reload."] = true
 
+	-- R1.9906
+    GRM_L["To access the color wheel, due to a compatibility issue that began in 10.2.5, you will need to reload the UI. Do you wish to reload now?"] = true
 	
 end

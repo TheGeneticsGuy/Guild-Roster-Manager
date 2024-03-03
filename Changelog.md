@@ -1,6 +1,25 @@
+## **VERSION 1.9906 RELEASE - March 3rd 2024**
+
+***QUALITY OF LIFE***
+
+* A minor change to the scanning, as per request. Whilst the actually processing is extremely minimal, some people use a lot of addons whilst raiding, or group activities, so to keep GRM's signature fairly low in the background, the scanning for changes will only occur when not in combat. The sync process already will not occur when grouped, but now the scan for the changes will only process when not actually in combat. This will probably go unnoticed as it's an under-the-hood change.
+
+***BUG FIXES***
+
+* Fixed an issue where the Message of the Day on the minmap mouseover was not appearing if your message was less than 65 characters long.
+
+* Should no longer spam you to update GroupInfo each session. Forgot to update the version internally so it was thinking it was updated. Just download the latest updates of both and you'll be fine.
+
+* Fixed an error that was occurring if the scanning for changes triggered whilst player was on a loading screen and if they logged in whilst in combat as it was trying to hide the GRM frames and checking a setting that had not yet been loaded.
+
+* Fixed an issue with the  Color Wheel selection. It seems that there were some recent changes to the whole colorWheel selection that added some compatibility issues with GRM's settings, where if you first selected say, a change to the color of the chat channel text, then, you selected to change something in GRM, them it would overwrite indefinitely for the session. This has now been resolved.
+
+
 ## **VERSION 1.9905 RELEASE - February 26th 2024**
 
 ***QUALITY OF LIFE***
+
+* Compatibility with Season of Discovery Season 2 for Classic Era
 
 * The CustomNote has been added to the custom GRM roster (/roster). It is also searchable with the note search above.
 

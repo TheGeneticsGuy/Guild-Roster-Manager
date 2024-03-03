@@ -14,14 +14,14 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9905";
+GRM_G.Version = "R1.9906";
 GRM_G.PatchDay = 1705430340;             -- In Epoch Time
 GRM_G.PatchDayString = "1705430340";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.30;
+GRM_G.GroupInfoV = 1.31;
 
 -- Initialization Useful Globals 
 -- ADDON
@@ -316,6 +316,10 @@ GRM_G.ClassicTaintWarning = false;
 GRM_G.RosterHotKey = "";
 GRM_G.ClassicTaintProtection = false;
 
+-- Memory Access loading screen protection
+GRM_G.S = {};       -- S for settings
+GRM_G.S.scanEnabled = true;
+
 -- GRM Modules.
 GRM_G.Module = {};
 
@@ -471,7 +475,11 @@ end);
 -- Purpose:         GRM windows should auto-close when combat starts, but should auto re-open shortly after
 GRM.FrameCombatHide = function()
 
-    if GRM.S().hideFramesInCombat then
+    if GRM_G.S.hideFramesInCombat == nil and GRM.S() then
+        GRM_G.S.hideFramesInCombat = GRM.S().hideFramesInCombat;
+    end    
+
+    if GRM_G.S.hideFramesInCombat then
         -- Mouseover Frame
         if GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
             GRM_UI.GRM_MemberDetailMetaData:Hide();
@@ -1344,6 +1352,12 @@ GRM.GetColorPickerFrame = function( type )
             return GRM_UI.ColorPickerFrame.Header;
         else
             return ColorPickerFrameHeader;
+        end
+    elseif type == 4 then
+        if ColorPickerCancelButton then
+            return ColorPickerCancelButton;
+        else
+            return GRM_UI.ColorPickerFrame.Footer.CancelButton;
         end
     end
 end
@@ -4619,65 +4633,6 @@ GRM.GetChatRGB = function ( channel )
     return result;
 end
 
--- Method:          GRM.ShowCustomColorPicker ( float , float , float , float , int , function )
--- What it Does:    Established some default values for the colorpicker frame, and then shows it
--- Purpose:         One, to configure the color picker frames, and /grmtwo, to create a universally recyclable function for all potential future colorpicker options as well.
-GRM.ShowCustomColorPicker = function ( r , g , b , a , setting )
-
-    GRM_UI.ColorPickerFrame.func = GRM.GetColorPickerFrame(1):GetScript("OnClick");
-    GRM.GetColorPickerFrame(1):SetScript ( "OnClick" , GRM_UI.ColorPickScript );
-
-    -- GRM_UI.ColorPickerFrame.Footer.CancelButton:HookScript ( "OnClick" , GRM_UI.ColorPickHideScript );
-    if GRM_UI.ColorPickerFrame.Content then
-        GRM_UI.ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture ( r , g , b );
-        GRM_UI.ColorPickerFrame.Content.ColorPicker:SetColorRGB ( r , g , b );
-    else
-        ColorPickerFrame:SetColorRGB ( r , g , b );
-    end
-    GRM_UI.ColorPickerFrame.previousValues = { r , g , b , a };
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu:Hide();
-
-    if setting == 98 then
-        GRM_G.MainTagColor = true
-    else
-        GRM_G.CurrentTagColorBox = setting;
-    end
-
-    if not GRM_UI.ColorPickerFrame:IsVisible() then
-        GRM_UI.ColorPickerFrame:Show();
-    else
-        GRM_UI.ColorPicker_OnShow();
-    end
-
-end
-
--- Method:          GRM.ColorSelectFrameTextureUpdate()
--- What it Does:    When on the ColorPickerWindow from the Options, this is the logic that updates on the fly and saves the colors as you go.
--- Purpose:         To establish the proper RGB coloring of the text in the General options tab
-GRM.ColorSelectFrameTextureUpdate = function()
-    local r , g , b = GRM_UI.ColorPickerFrame:GetColorRGB();
-    -- Texture Box
-    if GRM_G.MainTagColor and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( r , g , b , 1 );
-        -- Update the dropdown window color too
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );                  -- color for the box AND the dropdown selection on tag format
-
-    elseif GRM_G.CurrentTagColorBox > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
-        GRM_UI.UpdateLogFilterTextColor ( r , g , b , GRM_G.CurrentTagColorBox );
-        
-    end
-
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:SetText ( math.floor ( r * 255 ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:Show();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:SetText ( math.floor ( g * 255 ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:Show();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:SetText ( math.floor ( b * 255 ) );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:Show();
-    end
-end
-
 -- Method:          GRM.GetNameWithMainTags( ( string , boolean , boolean , boolean , boolean )
 -- What it Does:    On refresh or any changes on the CalenderInviteFrame it resets the main/alt tags
 -- Purpose:         This needs to be handled and refreshed constantly because any changes, even with the slider, it overwrites all script handlers. So 
@@ -5470,7 +5425,7 @@ GRM.WrapText = function ( text , maxLength )
 
         end
     else
-        result = test;
+        result = text;
     end
 
     return result;
@@ -14198,12 +14153,13 @@ end
 -- What it Does:    Scans through guild roster and re-checks for any  (Will only fire if guild is found!)
 -- Purpose:         Keep whoever uses the addon in the know instantly of what is going and changing in the guild.
 GRM.CheckPlayerChanges = function ( roster )
-    local guildData = GRM.GetGuild();
-    local newPlayerFound;
-    local player = {};
-    local updatedPlayer = {};
 
-    if ( GRM.S().scanEnabled or GRM_G.OnFirstLoad ) or GRM_G.ManualScanEnabled then
+    if GRM_G.S.scanEnabled or GRM_G.OnFirstLoad or GRM_G.ManualScanEnabled then
+        
+        local guildData = GRM.GetGuild();
+        local newPlayerFound;
+        local player = {};
+        local updatedPlayer = {};
         
         if GRM.ScanKillSwitch() then   -- Necessary in case you purge guild in middle of scan
             return;
@@ -14830,7 +14786,7 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 GRM.LogPrecheck = function()
-    if ( ( ( time() - GRM_G.ScanControl ) >= GRM_G.DefaultMinScanTime ) and GRM.NoLivecheck() ) or GRM_G.OnFirstLoad then
+    if ( not GRM_G.inCombat and ( ( time() - GRM_G.ScanControl ) >= GRM_G.DefaultMinScanTime ) and GRM.NoLivecheck() ) or GRM_G.OnFirstLoad then
         C_Timer.After ( 0.2 , function()
             if ( ( ( time() - GRM_G.ScanControl ) >= GRM_G.DefaultMinScanTime ) and GRM.NoLivecheck() and #GRM.LiveScanQue == 0 ) or GRM_G.OnFirstLoad then
                 if not GRM_G.CurrentlyScanning then
@@ -25620,6 +25576,8 @@ GRM.SetConfirmationWindow = function( addedFunction , text , optionalButtonFunct
         end);
         if optionalButtonText ~= nil then
             GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowIgnoreButtonText:SetText ( optionalButtonText );
+        else
+            GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowIgnoreButtonText:SetText ( GRM.L ( "Ignore" ) );
         end
         GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowIgnoreButton:Show();
     else
@@ -25629,6 +25587,10 @@ GRM.SetConfirmationWindow = function( addedFunction , text , optionalButtonFunct
 
     if sizeMod then
         GRM_UI.GRM_GeneralPopupWindow:SetSize ( sizeMod[1] , sizeMod[2] );
+        GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowText:SetWidth ( sizeMod[1] - 70 );
+    else
+        GRM_UI.GRM_GeneralPopupWindow:SetSize ( 320 , 120 );
+        GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowText:SetWidth ( 250 );
     end
 
     
@@ -25873,7 +25835,7 @@ end
 -- What it Does:    Loops and rechecks in an interval for integrity tha the scan went off appropriately.
 -- Purpose:         Useful for Classic Guild Roster loop integrity check
 GRM.TrackingIntegrityCheck = function( isLoop )
-    if GRM.S() and ( GRM.S().scanEnabled or GRM_G.OnFirstLoad ) then          -- if Scanning is enabled
+    if GRM.S() and ( GRM_G.S.scanEnabled or GRM_G.OnFirstLoad ) then          -- if Scanning is enabled
 
         if isLoop or not GRM_G.IntegrityTackingEnabled then
 
@@ -26951,6 +26913,13 @@ GRM.TrackingConfiguration = function( forced )
             end);
             
             if ( GRM.S().scanEnabled or GRM_G.OnFirstLoad ) then
+
+                if GRM.S().scanEnabled == true then
+                    GRM_G.S.scanEnabled = true;
+                else
+                    GRM_G.S.scanEnabled = false;
+                end
+
                 C_Timer.After( GRM.S().scanDelay , GRM.TriggerTrackingCheck ); -- Recursive check every X seconds. + 0.1 
             end
         end);
