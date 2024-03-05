@@ -1748,8 +1748,6 @@ GRML.English = function()
     GRM_L["Unable to kick or demote players within the guild at current rank."] = true
     GRM_L["Unable to kick or promote players within the guild at current rank."] = true
     GRM_L["Unable to kick players within the guild at current rank."] = true
-    GRM_L["{name}'s Main Rank Sync Rule {num}"] = true
-    GRM_L["{name}'s Repeated Inactivity Rule {num}"] = true
     GRM_L["Please Select Special Macro Rule"] = true
     GRM_L["Alt Group Rank Sync"] = true
     GRM_L["Repeated Inactivity Monitor"] = true
@@ -1760,5 +1758,7 @@ GRML.English = function()
     -- R1.9906
     GRM_L["To access the color wheel, due to a compatibility issue that began in 10.2.5, you will need to reload the UI. Do you wish to reload now?"] = true
     
+    -- R1.9907
+    GRM_L["Alt Promote Rule {num}"] = true
 end
 

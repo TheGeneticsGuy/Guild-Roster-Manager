@@ -6,15 +6,14 @@ GRM_Macro = {};
 GRM_UI.BuildSpcialRules = function()
 
     GRM_Macro.SpecialRule1Button = function()
-        print("TBD - not yet implemented")
-        -- GRM_UI.ConfigureSpecialRuleFrame( 4 , false , false , nil );
+        GRM_UI.ConfigureSpecialRuleFrame( 4 , false , false , nil );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide()
     end
 
     GRM_Macro.SpecialRule2Button = function()
         print("TBD - not yet implemented")
         -- GRM_UI.ConfigureSpecialRuleFrame( 5 , false , false , nil );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
+        -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
     end
 
     -- Special Rule selectio9n Frame
@@ -24,7 +23,8 @@ GRM_UI.BuildSpcialRules = function()
 
     GRM_UI.CreateButton ( "GRM_SpecialRule1Button" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "UIPanelButtonTemplate" , GRM.L ( "Alt Group Rank Sync" ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:GetWidth() - 50 , 25 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "TOP" , 0 , -50 } , GRM_Macro.SpecialRule1Button , "GameFontWhite" , 13 , "CENTER" , 0 , 0  );
 
-    GRM_UI.CreateButton ( "GRM_SpecialRule2Button" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "UIPanelButtonTemplate" , GRM.L ( "Repeated Inactivity Monitor" ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame.GRM_SpecialRule1Button:GetWidth() , 25 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame.GRM_SpecialRule1Button , "BOTTOM" , 0 , -10 } , GRM_Macro.SpecialRule2Button , "GameFontWhite" , 13 , "CENTER" , 0 , 0  );
+    --GRM.L ( "Repeated Inactivity Monitor" )
+    GRM_UI.CreateButton ( "GRM_SpecialRule2Button" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "UIPanelButtonTemplate" , "TBD - More Rules to Come" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame.GRM_SpecialRule1Button:GetWidth() , 25 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame.GRM_SpecialRule1Button , "BOTTOM" , 0 , -10 } , GRM_Macro.SpecialRule2Button , "GameFontWhite" , 13 , "CENTER" , 0 , 0  );
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
 
@@ -35,6 +35,14 @@ GRM_UI.BuildSpcialRules = function()
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit = false;
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isCopy = false;
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal = "";
+
+
+    -- Custom Rule Name Edit Box
+    GRM_UI.CreateEditBox ( "GRM_SpecialRuleNameEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "InputBoxTemplate" , 250 , 30 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "TOP" , 0 , -22 } , "CENTER" , { 1 , 0.82 , 0 } , 25 , false , GRM_UI.RuleNameEditBoxTT , GRM.RestoreTooltip , nil , false , true );
+
+
+
+
     
     GRM_Macro.SpecialRuleConfirm = function()
         print("Confirming Rule")
@@ -1998,7 +2006,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOP" , 0 , -22 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetSize ( 250 , 30 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetTextInsets( 2 , 3 , 3 , 2 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetMaxLetters ( 25 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetMaxLetters ( 30 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:EnableMouse( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetAutoFocus( false );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetJustifyH ( "CENTER" );
@@ -2006,11 +2014,15 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetNumeric ( false );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox.ruleNameText = "";
 
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetScript ( "OnEnter" , function( self )
+        GRM_UI.RuleNameEditBoxTT = function ( self )
             GRM_UI.SetTooltipScale()
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FClick|r to Change the Rule Name" ) );
             GameTooltip:Show();
+        end
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetScript ( "OnEnter" , function( self )
+            GRM_UI.RuleNameEditBoxTT ( self );
         end);
     
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetScript ( "OnLeave" , function()
@@ -7521,10 +7533,12 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
             end
         end
     end
+
     local result = {};
 
     result.name = ruleName
     result.isEnabled = true;
+    result.ruleType = 1;
 
     result.applyRulesTo = 1;                -- All = 1 , Alts = 2 , Mains = 3
 
@@ -7659,32 +7673,35 @@ end
 -- What it Does:    Builds the special rule template based on the the rule type and returns it.
 -- Purpose:         Easily call new copies of the rules
 GRM_Macro.BuildNewSpecialRuleTemplate = function ( ruleType , name , num )
+    local ruleNumber = num or GRM.GetRulesCount( 4 ) + 1;
     local ruleName = "";
     local nameSet = false;
-    local ruleNumber = num or GRM.GetRulesCount( 4 ) + 1;
-    local ruleNameString = { [4] = "{name}'s Main Rank Sync Rule {num}" , [5] = "{name}'s Repeated Inactivity Rule {num}" };
-    local ruleT = { [4] = 4 , [5] = 5 }; -- localize it, I know it seems redundant,
 
     if name ~= nil then
         ruleName = name;
     else
         local tempNum = ruleNumber;
-        while not nameSet do 
-            ruleName = GRM.L ( ruleNameString[ruleType] , GRM.SlimName ( GRM_G.addonUser ) , nil , tempNum );
-            if GRM.S()[GRM_UI.ruleTypeEnum[ruleType]][ruleName] ~= nil then
+
+        while not nameSet do
+            ruleName = GRM.L ( "Alt Promote Rule {num}" , nil , nil , tempNum );
+            if GRM.S()["specialRules"][ruleName] ~= nil then
                 tempNum = tempNum + 1;
             else
                 nameSet = true;
             end
         end
     end
+
     local result = {};
 
-    -- Activity Filters
+    -- Filters
 
     result.name = ruleName
     result.isEnabled = true;
-    result.ruleType = ruleT[ruleType];
+    result.ruleType = ruleType;
+
+    result.syncToMain = true;
+    result.destinationRank = GuildControlGetNumRanks() - 1;     -- Default is 1st to last lowest rank;
 
     return result , ruleName;
 end
@@ -7706,7 +7723,7 @@ GRM.ValidateRule = function ( rule , ruleType )
     elseif ruleType == 3 then
         tempRule = GRM.BuildNewPromoteOrDemoteRuleTemplate ( "UUU" , 1 , ruleType );
     elseif ruleType == 4 then
-        tempRule = GRM_Macro.BuildNewSpecialRuleTemplate ( rule.ruleType , "UUU" , 1 );
+        tempRule = GRM_Macro.BuildNewSpecialRuleTemplate ( rule.ruleType , "UUU" , 1 );     -- Order of arguments was rearranged...
         -- Special rules will be ruleType > 4
     end
 
@@ -8019,7 +8036,7 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                                 GRM.Report ( GRM.L ( "Unable to kick players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
                             end
                         else
-                            GRM_UI.ConfigureSpecialRuleFrame ( true , ruleName );
+                            GRM_UI.ConfigureSpecialRuleFrame ( 4 , true , false , ruleName );
                         end
     
                     end
@@ -8075,7 +8092,7 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                                 GRM.Report ( GRM.L ( "Unable to demote players within the guild at current rank." ) .. " " .. GRM.L ( "Feature disabled." ) );
                             end
                         else
-                            GRM_UI.ConfigureSpecialRuleFrame ( true , ruleName );
+                            GRM_UI.ConfigureSpecialRuleFrame ( 4 , true , false , ruleName );
                         end
     
                     end
