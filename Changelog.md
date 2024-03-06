@@ -1,3 +1,12 @@
+## **VERSION 1.9907 RELEASE - March 3rd 2024**
+
+***BUG FIXES***
+
+* In the macro tool, if you deleted a rank from your guild and reopened the macro tool to edit or create a rank, then that rank was still showing until the next session. This now will properly and dynamically address rank changes like this without needing to reload.
+
+
+
+
 ## **VERSION 1.9906 RELEASE - March 3rd 2024**
 
 ***QUALITY OF LIFE***

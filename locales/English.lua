@@ -1219,7 +1219,7 @@ GRML.English = function()
     GRM_L["Ranks:"] = true
     GRM_L["All Ranks"] = true
     GRM_L["Note Match:"] = true
-    GRM_L["Please Set a Name for this Rule. It can be 1 to 25 characters in length."] = true
+    GRM_L["Please Set a Name for this Rule. It can be 1 to 30 characters in length."] = true
     GRM_L["This will also clear all of your saved rules."] = true
     GRM_L["Within Level Range: {num} - {custom1}"] = true               -- Qued macro tool tooltip
     GRM_L["Note match: {name}"] = true                                  -- Same
@@ -1760,5 +1760,8 @@ GRML.English = function()
     
     -- R1.9907
     GRM_L["Alt Promote Rule {num}"] = true
+    GRM_L["Promote Alts to Same Rank as Main"] = true
+    GRM_L["Promote Alts to Rank:"] = true
+    GRM_L["Please Choose a Destination Rank for Alts."] = true
 end
 

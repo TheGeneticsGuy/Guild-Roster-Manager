@@ -27,7 +27,7 @@ end
 -- Method:          GRM_UI.CreateCoreFrame ( string , frame , frame , int , int , bool , string , table , bool , string )
 -- What it Does:    Builds a frame for use in the GRM addon.
 -- Purpose:         Reusable tool to build frames easily, and initialize them.
-GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , height , templateName , isMovable , points , strata , addCloseButton , inCludeEscapeAction )
+GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , height , templateName , isMovable , points , strata , addCloseButton , includeEscapeAction )
 
     if not parentFrame[name] then
         local finalFrame = {};
@@ -42,7 +42,7 @@ GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , 
         end
 
         -- By pressing the ESC key the window closes.
-        if inCludeEscapeAction then
+        if includeEscapeAction then
             parentFrame[name]:SetScript ( "OnKeyDown" , function ( self , key )
                 if not GRM_G.inCombat then
                     self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
@@ -179,7 +179,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
                 end);
             else
                 parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
-                    GRM_UI.CreateTooltip ( self , toolTipScript )
+                    GRM_UI.CreateTooltipFromTable ( self , toolTipScript )
                 end);
             end
 
@@ -578,7 +578,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
                 end);
             else
                 parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
-                    GRM_UI.CreateTooltip ( self , toolTipScript );
+                    GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
                 end);
             end
 
@@ -599,6 +599,165 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
     end 
 end
 
+-- Method:          GRM_UI.CreateDropDownMenu ( string , frame , string , array , intArray , stringArray , int , int , floatArray , function , function , function , bool )
+-- What it Does:    It creates a dropdown menu given the specific variables
+-- Purpose:         To create a generic, reusable dropdown menus
+GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , size , list , defaultSelection , fontSize , textColor , toolTipScript , toolTipClearScript , optionalSelectFunction , includeEscapeAction )
+
+    local template = template or "InsetFrameTemplate"
+    local selectedFrame = name .. "Selected";
+    local selectedFrameText = selectedFrame .. "Text";
+    local menuFrame = name .. "Menu";
+
+    local fontSize = fontSize or 16;
+    local textColor = textColor or { 1 , 1 , 1 };
+
+    -- Delimiter Dropdown for Export
+    parentFrame[selectedFrame] = CreateFrame ( "Frame" , selectedFrame , parentFrame , template );
+    parentFrame[selectedFrame]:Hide();
+    parentFrame[selectedFrame][selectedFrameText] = parentFrame[selectedFrame]:CreateFontString ( nil , "OVERLAY" , "GameFontWhite" );
+    parentFrame[menuFrame] = CreateFrame ( "Frame" , menuFrame , parentFrame[selectedFrame] , template );
+    parentFrame[menuFrame].result = { list[1] , 1 }; -- Default Selectionws
+
+    -- Point
+    parentFrame[selectedFrame]:SetPoint ( point[1] , point[2] , point[3] , point[4] , point[5] );
+
+    -- Aesthetics
+    if size then
+        parentFrame[selectedFrame]:SetSize ( size[1] , size[2] );
+        parentFrame[menuFrame]:SetWidth ( size[1] );
+    else
+        parentFrame[selectedFrame]:SetSize ( 60 , 30 );
+        parentFrame[menuFrame]:SetWidth ( 60 );
+    end
+
+    parentFrame[selectedFrame]:SetFrameStrata ( "DIALOG" );
+    parentFrame[menuFrame]:SetFrameStrata ( "DIALOG" );
+    parentFrame[selectedFrame][selectedFrameText]:SetPoint ( "CENTER" , parentFrame[selectedFrame] );
+    parentFrame[selectedFrame][selectedFrameText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+    parentFrame[selectedFrame][selectedFrameText]:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
+
+    -- Function and logic
+    if toolTipScript then
+
+        if type ( toolTipScript ) == "function" then
+            parentFrame[selectedFrame]:SetScript ( "OnEnter" , function( self )
+                toolTipScript( self );
+            end);
+        else
+            parentFrame[selectedFrame]:SetScript ( "OnEnter" , function ( self ) 
+                GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
+            end);
+        end
+
+        parentFrame[selectedFrame]:SetScript ( "OnLeave" , function()
+            if toolTipClearScript then
+                toolTipClearScript();
+            else
+                GameTooltip:Hide();
+            end
+        end);
+    end
+
+    if includeEscapeAction then
+        parentFrame[menuFrame]:SetScript ( "OnKeyDown" , function ( self , key )
+            if not GRM_G.inCombat then
+                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                if key == "ESCAPE" then
+                    self:SetPropagateKeyboardInput ( false );
+                    self:Hide();
+                    parentFrame[selectedFrame]:Show();
+                end
+            elseif key == "ESCAPE" then
+                self:Hide();
+                parentFrame[selectedFrame]:Show();
+            end
+        end);
+    end
+
+    parentFrame[selectedFrame]:SetScript ( "OnShow" , function() 
+        parentFrame[menuFrame]:Hide();
+    end)
+
+    parentFrame[selectedFrame]:SetScript ( "OnMouseDown" , function( _ , button )
+        if button == "LeftButton" then
+            if  parentFrame[menuFrame]:IsVisible() then
+                parentFrame[menuFrame]:Hide();
+            else
+                BuildDropDownOptions( list , parentFrame[menuFrame] , parentFrame[selectedFrame] , parentFrame[selectedFrame][selectedFrameText] , textColor , fontSize , optionalSelectFunction );
+                parentFrame[menuFrame]:Show();
+            end
+        end
+    end);
+
+    parentFrame[menuFrame]:SetScript ( "OnShow" , function()
+        if GameTooltip:IsVisible() then
+            if toolTipClearScript then
+                toolTipClearScript();
+            else
+                GameTooltip:Hide();
+            end
+        end
+    end);
+
+end
+
+local BuildDropDownOptions = function ( list , dropDownMenu , dropDownMenuSelected , dropDownMenuSelectedText , textColor , fontSize , optionalSelectFunction )
+    local buffer = 6;
+    local height = 0;
+    local name = dropDownMenu:GetName();
+
+    -- Initiate the buttons holder
+    dropDownMenu.Buttons = dropDownMenu.Buttons or {};
+
+    for i = 1 , #dropDownMenu.Buttons do
+        dropDownMenu.Buttons[i][1]:Hide();
+    end
+    
+    for i = 1 , #list do
+        if not dropDownMenu.Buttons[i] then
+            local tempButton = CreateFrame ( "Button" , name .. i , dropDownMenu );
+            dropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhite" ) }
+        end
+
+        local button = dropDownMenu.Buttons[i][1];
+        local buttonText = dropDownMenu.Buttons[i][2];
+        button:SetWidth ( 60 );
+        button:SetHeight ( fontSize );
+        button:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+        
+        buttonText:SetText ( list[i] );
+        buttonText:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
+        buttonText:SetWidth ( dropDownMenu:GetWidth() - 5 );
+        buttonText:SetWordWrap ( false );
+        buttonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+        buttonText:SetPoint ( "CENTER" , button );
+        buttonText:SetJustifyH ( "CENTER" );
+
+        if i == 1 then
+            button:SetPoint ( "TOP" , dropDownMenu , 0 , -7 );
+            height = height + button:GetHeight();
+        else
+            button:SetPoint ( "TOP" , dropDownMenu.Buttons[i - 1][1] , "BOTTOM" , 0 , -buffer );
+            height = height + button:GetHeight() + buffer;
+        end
+
+        button:SetScript ( "OnClick" , function( self , button ) 
+            if button == "LeftButton" then
+                dropDownMenu.result = buttonText:GetText();
+                dropDownMenuSelectedText:SetText ( buttonText:GetText() );
+                dropDownMenu:Hide();
+                dropDownMenuSelected:Show();
+                if optionalSelectFunction then
+                    optionalSelectFunction();
+                end
+            end
+        end);
+        button:Show();
+    end
+    dropDownMenu:SetHeight ( height + 15 );
+end
+
 -- Method:          GRM_UI.SaveFramePosition ( frameObject )
 -- What it Does:    Stores the frame save position
 -- Purpose:         Reusable code for saving frame positions and storing them between sessions.
@@ -616,13 +775,13 @@ GRM_UI.SaveFramePosition = function ( frame )
     
 end
 
--- Method:          GRM_UI.CreateTooltip ( table )
+-- Method:          GRM_UI.CreateTooltipFromTable ( table )
 -- What it Does:    Creates a tooltip either single or double line
 -- Purpose:         Ease of creating tooltips
--- Usage:           GRM_UI.CreateTooltip ( { 1 , "Test" } )
---                  GRM_UI.CreateTooltip ( { 1 , "Test" } , { 1 , Ghost } )
---                  GRM_UI.CreateTooltip ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
-GRM_UI.CreateTooltip = function ( self , ... )
+-- Usage:           GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } )
+--                  GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } , { 1 , Ghost } )
+--                  GRM_UI.CreateTooltipFromTable ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
+GRM_UI.CreateTooltipFromTable = function ( self , ... )
 
     local lines = {...};
                 
@@ -663,4 +822,23 @@ GRM_UI.CreateTooltip = function ( self , ... )
         GameTooltip:Show();
     end
     
+end
+
+
+--- MATHEMATICAL PLACEMENT OF FRAMES ---
+
+-- Method:          GRM_UI.GetCheckboxPinNumber ( int , int )
+-- What it Does:    Returns the bottom left checkbox depending on the number of checkboxes and rows. For example, if there are 9 checkboxes in rows of 3 checkboxes per row, I want to pin to bottom left checkbox, which is the first checkbox on the 3rd row, or checkbox number 7
+-- Purpose:         Be bale to have dynamic access to building checkbox or button grids of any size, for example in GRM use, a guild might have 10 ranks, or it might have 5 ranks. If I build a checkbox grid of all the ranks, I need to know which row to pin my next frame to properly.
+GRM_UI.GetCheckboxPinNumber = function ( numCheckboxes , numberPerRow )
+            
+    local r = numCheckboxes % numberPerRow;
+
+    if r == 0 then
+        result = numCheckboxes - ( numberPerRow - 1 );
+    else
+        result = numCheckboxes - r  + 1
+    end
+    
+    return result
 end
