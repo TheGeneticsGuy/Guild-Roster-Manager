@@ -9,7 +9,7 @@
 -- GRM_UI.CreateCheckBox
 -- GRM_UI.CreateOptionsSlider
 -- GRM_UI.CreateHybridScrollFrame
-
+-- GRM_UI.CreateDropDownMenu
 
 GRM_UI = {};
 ---------------------------------------
@@ -599,113 +599,131 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
     end 
 end
 
--- Method:          GRM_UI.CreateDropDownMenu ( string , frame , string , array , intArray , stringArray , int , int , floatArray , function , function , function , bool )
--- What it Does:    It creates a dropdown menu given the specific variables
+-- Method:          GRM_UI.CreateDropDownMenu ( string , frame , string , array , intArray , stringArray , int , int , floatArray , function , function , function , function , bool )
+-- What it Does:    It creates a unique, new, dropDownMenu given the variables
 -- Purpose:         To create a generic, reusable dropdown menus
-GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , size , list , defaultSelection , fontSize , textColor , toolTipScript , toolTipClearScript , optionalSelectFunction , includeEscapeAction )
+GRM_UI.CreateDropDownMenu = function ( name , parentFrame , temp , point , size , list , defaultSelection , fSize , color , toolTipScript , toolTipClearScript , optionalSelectFunction , optionalListUpdateFunction , includeEscapeAction )
 
-    local template = template or "InsetFrameTemplate"
     local selectedFrame = name .. "Selected";
-    local selectedFrameText = selectedFrame .. "Text";
-    local menuFrame = name .. "Menu";
 
-    local fontSize = fontSize or 16;
-    local textColor = textColor or { 1 , 1 , 1 };
+    if not parentFrame[selectedFrame] then
+        local template = temp or "BackdropTemplate"
+        local selectedFrameText = selectedFrame .. "Text";
+        local menuFrame = name .. "Menu";
 
-    -- Delimiter Dropdown for Export
-    parentFrame[selectedFrame] = CreateFrame ( "Frame" , selectedFrame , parentFrame , template );
-    parentFrame[selectedFrame]:Hide();
-    parentFrame[selectedFrame][selectedFrameText] = parentFrame[selectedFrame]:CreateFontString ( nil , "OVERLAY" , "GameFontWhite" );
-    parentFrame[menuFrame] = CreateFrame ( "Frame" , menuFrame , parentFrame[selectedFrame] , template );
-    parentFrame[menuFrame].result = { list[1] , 1 }; -- Default Selectionws
+        local fontSize = fSize or 16;
+        local textColor = color or { 1 , 1 , 1 };
 
-    -- Point
-    parentFrame[selectedFrame]:SetPoint ( point[1] , point[2] , point[3] , point[4] , point[5] );
+        local BuildDropDown = function()
+            GRM_UI.BuildDropDownOptions ( list , parentFrame[menuFrame] , parentFrame[selectedFrame] , parentFrame[selectedFrame][selectedFrameText] , textColor , fontSize , optionalSelectFunction , optionalListUpdateFunction );
+        end
 
-    -- Aesthetics
-    if size then
-        parentFrame[selectedFrame]:SetSize ( size[1] , size[2] );
-        parentFrame[menuFrame]:SetWidth ( size[1] );
-    else
-        parentFrame[selectedFrame]:SetSize ( 60 , 30 );
-        parentFrame[menuFrame]:SetWidth ( 60 );
-    end
+        -- Delimiter Dropdown for Export
+        parentFrame[selectedFrame] = CreateFrame ( "Frame" , selectedFrame , parentFrame , BackdropTemplateMixin and template );
+        parentFrame[selectedFrame][selectedFrameText] = parentFrame[selectedFrame]:CreateFontString ( nil , "OVERLAY" , "GameFontWhite" );
+        parentFrame[menuFrame] = CreateFrame ( "Frame" , menuFrame , parentFrame[selectedFrame] , template );
+        parentFrame[menuFrame].result = { list[1] , 1 }; -- Default Selectionws
+        parentFrame[menuFrame].rebuild = BuildDropDown;
 
-    parentFrame[selectedFrame]:SetFrameStrata ( "DIALOG" );
-    parentFrame[menuFrame]:SetFrameStrata ( "DIALOG" );
-    parentFrame[selectedFrame][selectedFrameText]:SetPoint ( "CENTER" , parentFrame[selectedFrame] );
-    parentFrame[selectedFrame][selectedFrameText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
-    parentFrame[selectedFrame][selectedFrameText]:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
+        -- Point
+        parentFrame[selectedFrame]:SetPoint ( point[1] , point[2] , point[3] , point[4] , point[5] );
 
-    -- Function and logic
-    if toolTipScript then
-
-        if type ( toolTipScript ) == "function" then
-            parentFrame[selectedFrame]:SetScript ( "OnEnter" , function( self )
-                toolTipScript( self );
-            end);
+        -- Aesthetics
+        if size then
+            parentFrame[selectedFrame]:SetSize ( size[1] , size[2] );
+            parentFrame[menuFrame]:SetWidth ( size[1] );
         else
-            parentFrame[selectedFrame]:SetScript ( "OnEnter" , function ( self ) 
-                GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
+            parentFrame[selectedFrame]:SetSize ( 60 , 30 );
+            parentFrame[menuFrame]:SetWidth ( 60 );
+        end
+
+        parentFrame[selectedFrame]:SetFrameStrata ( "DIALOG" );
+        parentFrame[selectedFrame]:SetBackdrop ( GRM_UI.GetBackdrop(1) );
+        parentFrame[selectedFrame][selectedFrameText]:SetPoint ( "CENTER" , parentFrame[selectedFrame] );
+        parentFrame[selectedFrame][selectedFrameText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+        parentFrame[selectedFrame][selectedFrameText]:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
+        parentFrame[menuFrame]:SetFrameStrata ( "DIALOG" );
+        parentFrame[menuFrame]:SetPoint ( "TOP" , parentFrame[selectedFrame] , "BOTTOM" );
+        parentFrame[menuFrame]:SetBackdrop ( GRM_UI.GetBackdrop(1) );
+        
+        -- Function and logic
+        if toolTipScript then
+
+            if type ( toolTipScript ) == "function" then
+                parentFrame[selectedFrame]:SetScript ( "OnEnter" , function( self )
+                    toolTipScript( self );
+                end);
+            else
+                parentFrame[selectedFrame]:SetScript ( "OnEnter" , function ( self ) 
+                    GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
+                end);
+            end
+
+            parentFrame[selectedFrame]:SetScript ( "OnLeave" , function()
+                if toolTipClearScript then
+                    toolTipClearScript();
+                else
+                    GameTooltip:Hide();
+                end
             end);
         end
 
-        parentFrame[selectedFrame]:SetScript ( "OnLeave" , function()
-            if toolTipClearScript then
-                toolTipClearScript();
-            else
-                GameTooltip:Hide();
-            end
-        end);
-    end
-
-    if includeEscapeAction then
-        parentFrame[menuFrame]:SetScript ( "OnKeyDown" , function ( self , key )
-            if not GRM_G.inCombat then
-                self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
-                if key == "ESCAPE" then
-                    self:SetPropagateKeyboardInput ( false );
+        if includeEscapeAction then
+            parentFrame[menuFrame]:SetScript ( "OnKeyDown" , function ( self , key )
+                if not GRM_G.inCombat then
+                    self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+                    if key == "ESCAPE" then
+                        self:SetPropagateKeyboardInput ( false );
+                        self:Hide();
+                        parentFrame[selectedFrame]:Show();
+                    end
+                elseif key == "ESCAPE" then
                     self:Hide();
                     parentFrame[selectedFrame]:Show();
                 end
-            elseif key == "ESCAPE" then
-                self:Hide();
-                parentFrame[selectedFrame]:Show();
+            end);
+        end
+
+        parentFrame[selectedFrame]:SetScript ( "OnShow" , function() 
+            parentFrame[menuFrame]:Hide();
+        end)
+
+        parentFrame[selectedFrame]:SetScript ( "OnMouseDown" , function( _ , button )
+            if button == "LeftButton" then
+                print("Clicking")
+                if parentFrame[menuFrame]:IsVisible() then
+                    parentFrame[menuFrame]:Hide();
+                else
+                    BuildDropDown();
+                    parentFrame[menuFrame]:Show();
+                end
             end
         end);
+
+        parentFrame[menuFrame]:SetScript ( "OnShow" , function()
+            if GameTooltip:IsVisible() then
+                if toolTipClearScript then
+                    toolTipClearScript();
+                else
+                    GameTooltip:Hide();
+                end
+            end
+        end);
+        BuildDropDown();
     end
-
-    parentFrame[selectedFrame]:SetScript ( "OnShow" , function() 
-        parentFrame[menuFrame]:Hide();
-    end)
-
-    parentFrame[selectedFrame]:SetScript ( "OnMouseDown" , function( _ , button )
-        if button == "LeftButton" then
-            if  parentFrame[menuFrame]:IsVisible() then
-                parentFrame[menuFrame]:Hide();
-            else
-                BuildDropDownOptions( list , parentFrame[menuFrame] , parentFrame[selectedFrame] , parentFrame[selectedFrame][selectedFrameText] , textColor , fontSize , optionalSelectFunction );
-                parentFrame[menuFrame]:Show();
-            end
-        end
-    end);
-
-    parentFrame[menuFrame]:SetScript ( "OnShow" , function()
-        if GameTooltip:IsVisible() then
-            if toolTipClearScript then
-                toolTipClearScript();
-            else
-                GameTooltip:Hide();
-            end
-        end
-    end);
-
 end
 
-local BuildDropDownOptions = function ( list , dropDownMenu , dropDownMenuSelected , dropDownMenuSelectedText , textColor , fontSize , optionalSelectFunction )
+-- Method:          BuildDropDownOptions ( stringArray , frame , frame , fontstring , RGBArray , int , function )
+-- What it Does:    Builds the logic and text of the actual popout dropdown menu.
+-- Puropose:        Compartmentalize some of the code. Rather than keep it all in the CreateDropDowm function
+GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelected , dropDownMenuSelectedText , textColor , fontSize , optionalSelectFunction , optionalListUpdateFunction )
     local buffer = 6;
     local height = 0;
     local name = dropDownMenu:GetName();
+
+    if optionalListUpdateFunction then
+        list = optionalListUpdateFunction ();
+    end
 
     -- Initiate the buttons holder
     dropDownMenu.Buttons = dropDownMenu.Buttons or {};
@@ -716,13 +734,13 @@ local BuildDropDownOptions = function ( list , dropDownMenu , dropDownMenuSelect
     
     for i = 1 , #list do
         if not dropDownMenu.Buttons[i] then
-            local tempButton = CreateFrame ( "Button" , name .. i , dropDownMenu );
+            local tempButton = CreateFrame ( "Button" , name .. "Button" .. i , dropDownMenu );
             dropDownMenu.Buttons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhite" ) }
         end
 
         local button = dropDownMenu.Buttons[i][1];
         local buttonText = dropDownMenu.Buttons[i][2];
-        button:SetWidth ( 60 );
+        button:SetWidth ( dropDownMenu:GetWidth() );
         button:SetHeight ( fontSize );
         button:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
         
@@ -744,7 +762,7 @@ local BuildDropDownOptions = function ( list , dropDownMenu , dropDownMenuSelect
 
         button:SetScript ( "OnClick" , function( self , button ) 
             if button == "LeftButton" then
-                dropDownMenu.result = buttonText:GetText();
+                dropDownMenu.result = { buttonText:GetText() , i };
                 dropDownMenuSelectedText:SetText ( buttonText:GetText() );
                 dropDownMenu:Hide();
                 dropDownMenuSelected:Show();
@@ -753,6 +771,7 @@ local BuildDropDownOptions = function ( list , dropDownMenu , dropDownMenuSelect
                 end
             end
         end);
+
         button:Show();
     end
     dropDownMenu:SetHeight ( height + 15 );
@@ -822,6 +841,57 @@ GRM_UI.CreateTooltipFromTable = function ( self , ... )
         GameTooltip:Show();
     end
     
+end
+
+-- Method:          GRM_UI.GetBackdrop ( int )
+-- What it Does:    Returns from a list of backdrops
+-- Purpose:         Reusable backdrops for cleaner UI code.
+GRM_UI.GetBackdrop = function ( index )
+
+    -- Formerly called in GRM GRM_UI.noteBackdrop2
+    if index == 1 then
+        return {
+            bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background" ,
+            edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+            tile = true,
+            tileSize = 32,
+            edgeSize = 8,
+            insets = { left = 2 , right = 2 , top = 3 , bottom = 2 }
+        }
+    
+    -- Formerly called in GRM GRM_UI.noteBackdrop3
+    elseif index == 2 then
+        return {
+            bgFile = nil,
+            edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+            tile = true,
+            tileSize = 32,
+            edgeSize = 6,
+            insets = { left = 2 , right = 2 , top = 3 , bottom = 1 }
+        }
+
+    -- Formerly called in GRM GRM_UI.framelessBackdrop
+    elseif index == 3 then
+        return {
+            bgFile = nil,
+            edgeFile = "",
+            tile = true,
+            tileSize = 32,
+            edgeSize = 9,
+            insets = { left = -2 , right = -2 , top = -3 , bottom = -2 }
+        }
+
+    end
+
+    -- Default return if you get here (notebackdrop1)
+    return {
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background" ,
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        tile = true,
+        tileSize = 32,
+        edgeSize = 18,
+        insets = { left = 5 , right = 5 , top = 5 , bottom = 5 }
+    }
 end
 
 

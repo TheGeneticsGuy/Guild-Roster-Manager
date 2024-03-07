@@ -64,13 +64,21 @@ GRM_UI.BuildSpcialRules = function()
         GameTooltip:Show();
     end
 
+    -- Returns a string array of all the ranks in descending ord
+    GRM_UI.GetListRanks = function()
+        local list = {};
+
+        for i = GuildControlGetNumRanks() , 2 , -1 do   -- Don't include guild leader rank 1,
+            table.insert ( list , GuildControlGetRankName ( i ) );
+        end
+
+        return list;
+    end
+
     -- Dropdown Rank selection
-    GRM_UI.CreateDropDownMenu ( "GRM_SpecialRank" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , {"TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1.GRM_SpecialButtonRadial1Text , "TOPRIGHT" , 5 , 0 } , { 80 , 30 } , { "Arkaan" , "Rank" , "BEAST" } , 2 , 16 , nil , GRM_UI.SpecialRankDropdownTT , GRM.RestoreTooltip , nil , true )
+    GRM_UI.CreateDropDownMenu ( "GRM_SpecialRank" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , {"TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text , "TOPRIGHT" , 5 , 0 } , { 175 , 25 } , GRM_UI.GetListRanks() , 2 , 16 , nil , GRM_UI.SpecialRankDropdownTT , GRM.RestoreTooltip , nil , GRM_UI.GetListRanks , true );
 
-
-
-
-
+    
 
 
 
@@ -3747,13 +3755,22 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2:SetChecked ( true );
                     end
                     GRM_UI.SpecialRadialButtonSyncMainOption();
-
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { GuildControlGetRankName ( GuildControlGetNumRanks() - GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank + 1 ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank };
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetText( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result[1] );
+                    
                 else
+
+                    ----------------- NEW RULE CONFIGURATION --------------------
+                    -------------------------------------------------------------
+
                     -- Rank configuration
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1:SetChecked ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2:SetChecked ( false );
                     GRM_UI.SpecialRadialButtonSyncMainOption();
-                    
+
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { GuildControlGetRankName ( GuildControlGetNumRanks() - 1 ) , 2 };
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetText( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result[1] );
+
                 end
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Show();
@@ -5138,7 +5155,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Hide();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank = ( GuildControlGetNumRanks() - buttonNumber + 1 );  -- + 3 is to deal with reputation at neutral is index 4
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank = ( GuildControlGetNumRanks() - buttonNumber + 1 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetText ( buttonText:GetText() );
 
             if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and buttonNumber >= playerIndex ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and buttonNumber >= playerIndex - 1 ) then
@@ -7813,6 +7830,7 @@ GRM_Macro.BuildNewSpecialRuleTemplate = function ( ruleType , name , num )
 
     result.syncToMain = true;
     result.destinationRank = GuildControlGetNumRanks() - 1;     -- Default is 1st to last lowest rank;
+    result.allRanks = true;
     result.ranks = {};
 
     result.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
