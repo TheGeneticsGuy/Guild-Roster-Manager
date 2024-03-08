@@ -16,7 +16,7 @@ GRM_UI.BuildSpcialRules = function()
         -- GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
     end
 
-    -- Special Rule selectio9n Frame
+    -- Special Rule selection Frame
     GRM_UI.CreateCoreFrame ( "GRM_ToolSpecialRulesSelectionFrame" , GRM_UI.GRM_ToolCoreFrame , nil , 450 , 200 , "TranslucentFrameTemplate" , true , { "CENTER" , "CENTER" , 0 , 0 } , "HIGH" , true , true );
 
     GRM_UI.CreateString ( "GRM_SpecialRuleSelectionTitle" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "GameFontNormal" , GRM.L ( "Please Select Special Macro Rule" ) , 18 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame , "TOP" , 0 , -17 } );
@@ -36,22 +36,29 @@ GRM_UI.BuildSpcialRules = function()
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isCopy = false;
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.ruleNameOriginal = "";
 
-
     -- Custom Rule Name Edit Box
     GRM_UI.CreateEditBox ( "GRM_SpecialRuleNameEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "InputBoxTemplate" , 250 , 30 , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "TOP" , 0 , -22 } , "CENTER" , { 1 , 0.82 , 0 } , 25 , false , GRM_UI.RuleNameEditBoxTT , GRM.RestoreTooltip , nil , false , true );
 
+    -- Needs to be reanlyzed for quality UI enhancement and to dynamically re-add the guild leader rank if it makes sense.
     GRM_UI.SpecialRadialButtonSyncMainOption = function()
         if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1:GetChecked() then
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1.GRM_SpecialButtonRadial1Text:SetTextColor ( 1 , 0 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text:SetTextColor ( 1 , 0.82 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.syncToMain = true;
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 )
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected:EnableMouse ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu:Hide();
             GRM_UI.BuildRankCheckBoxes ( 4 , false );
         else
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1.GRM_SpecialButtonRadial1Text:SetTextColor ( 1 , 0.82 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text:SetTextColor ( 1 , 0 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.syncToMain = false;
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetTextColor ( 1 , 1 , 1 )
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected:EnableMouse ( true );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu:Hide();
             GRM_UI.BuildRankCheckBoxes ( 4 , true );
-        end      
+        end
+        GRM_UI.ConfigureSpecialRankCheckboxes();
     end
 
     -- Radial Button Selection of Alt group destination
@@ -75,10 +82,92 @@ GRM_UI.BuildSpcialRules = function()
         return list;
     end
 
-    -- Dropdown Rank selection
-    GRM_UI.CreateDropDownMenu ( "GRM_SpecialRank" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , {"TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text , "TOPRIGHT" , 5 , 0 } , { 175 , 25 } , GRM_UI.GetListRanks() , 2 , 16 , nil , GRM_UI.SpecialRankDropdownTT , GRM.RestoreTooltip , nil , GRM_UI.GetListRanks , true );
+    -- Compares ranks in order in numerically descending fasion than ascending.
+    GRM_UI.GetRankIndexDescendingOrder = function()
+        return ( GuildControlGetNumRanks() - GRM_G.playerRankID );
+    end
 
-    
+    -- Need to store the selection or restore it if improper.
+    GRM_UI.SetSpecialDestinationSelection = function ( index , tempResult )
+        local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
+
+        -- Restore the rank properly
+        if index >= playerIndex then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { tempResult[1] , tempResult[2] };
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetText ( tempResult[1] );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank = tempResult[2];
+            GRM.Report ( GRM.L ( "Unable to promote players to this rank" ) );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank = ( GuildControlGetNumRanks() - index + 1 );
+        end
+    end
+
+    -- process on loading the dropdown.
+    GRM_UI.ConfigureSpecialRankDropdownLimits = function ()
+        local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
+
+        for i = 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.Buttons do
+
+            if i >= playerIndex then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.Buttons[i][2]:SetTextColor ( 1 , 0 , 0 );
+
+                -- Configure TT
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.Buttons[i][1]:SetScript ( "OnEnter" , function ( self )
+                    GRM_UI.SetTooltipScale()
+                    GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                    GameTooltip:AddLine( GRM.L ( "Unable to promote players to this rank" ) );
+                    GameTooltip:Show();
+                end);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.Buttons[i][1]:SetScript ( "OnLeave" , function()
+                    GRM.RestoreTooltip();
+                end);
+
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.Buttons[i][2]:SetTextColor ( 1 , 1 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.Buttons[i][1]:SetScript ( "OnEnter" , nil );      -- No tooltip necessary if rank is ok
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.Buttons[i][1]:SetScript ( "OnLeave" , nil );
+            end
+        end
+    end
+
+    -- Dropdown Rank selection
+    GRM_UI.CreateDropDownMenu ( "GRM_SpecialRank" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , {"TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text , "TOPRIGHT" , 5 , 0 } , { 175 , 25 } , GRM_UI.GetListRanks() , 2 , 12 , nil , GRM_UI.SpecialRankDropdownTT , GRM.RestoreTooltip , GRM_UI.SetSpecialDestinationSelection , GRM_UI.GetListRanks , GRM_UI.ConfigureSpecialRankDropdownLimits , true );
+
+    -- Guild Roster Title
+    GRM_UI.CreateString ( "GRM_SpecialRuleText1" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "GameFontNormal" , GRM.L ( "Apply to Mains at:" ) , 16 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2 , "BOTTOMLEFT" , -10 , -20 } , nil , { 0 , 0.82 , 1 } );
+
+    -- Trigger on  the rebuilding of the checkboxes or on any changes
+    GRM_UI.ConfigureSpecialRankCheckboxes = function()
+        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.allRanks then
+            -- Make them all greyed out and disabled.
+            for i = 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes do
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes[i][1]:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes[i][2]:SetTextColor(0.5,0.5,0.5);              
+            end
+        else
+            for i = 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes do
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes[i][1]:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes[i][2]:SetTextColor(1,0.8,0);              
+            end
+        end
+    end
+
+    GRM_UI.SpecialRadialButtonsRankSelection = function()
+        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1:GetChecked() then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1.GRM_SpecialRankRadial1Text:SetTextColor ( 1 , 0 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial2.GRM_SpecialRankRadial2Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.allRanks = true;
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1.GRM_SpecialRankRadial1Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial2.GRM_SpecialRankRadial2Text:SetTextColor ( 1 , 0 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.allRanks = false;
+        end
+        GRM_UI.ConfigureSpecialRankCheckboxes();
+    end
+
+    -- Radial Button Selection of Alt group destination
+    GRM_UI.CreateRadialButtons ( "GRM_SpecialRank" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , { GRM.L ( "All Ranks" ) , GRM.L ( "Only Selected Ranks" )  } , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRuleText1 , "BOTTOMLEFT" , 10 , -10 } , false , true , 12 , nil , GRM_UI.SpecialRadialButtonsRankSelection );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial2.GRM_SpecialRankRadial2Text );
 
 
 
@@ -2448,11 +2537,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             local CoreFrame = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame;
             local pinFrame = CoreFrame.GRM_ToolRulesRankRadialButton1;
+            local buffer = -5;
 
             if ruleType then
                 if ruleType == 4 then
                     CoreFrame = GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame;
-                    pinFrame = GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2;
+                    pinFrame = GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial2;
+                    buffer = -10;
                 end
             end
             
@@ -2480,7 +2571,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     CoreFrame.customRankCheckBoxes[i] = { button , buttontext };
 
                     if i == 1 then
-                        button:SetPoint ( "TOPLEFT" , pinFrame , "BOTTOMRIGHT" , 0 , -5 );
+                        button:SetPoint ( "TOPLEFT" , pinFrame , "BOTTOMRIGHT" , 0 , buffer );
                     else
                         if i % 3 == 1 then
                             button:SetPoint ( "TOPLEFT" , CoreFrame.customRankCheckBoxes[i - 3][1] , "BOTTOMLEFT" , 0 , -5 );
@@ -3746,7 +3837,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 if isEdit or isCopy then
 
-                    -- Rank Configuration
+                    -- Alt group sync to rank config
                     if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.syncToMain then
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1:SetChecked ( true );
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2:SetChecked ( false );
@@ -3755,21 +3846,40 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2:SetChecked ( true );
                     end
                     GRM_UI.SpecialRadialButtonSyncMainOption();
+
+                    -- DestinationRankDropDownmenu
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { GuildControlGetRankName ( GuildControlGetNumRanks() - GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank + 1 ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank };
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetText( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result[1] );
+
+                    -- RadialButtons2
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.allRanks then                   
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1:SetChecked ( true );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial2:SetChecked ( false );
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1:SetChecked ( false );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial2:SetChecked ( true );
+                    end
+                    GRM_UI.SpecialRadialButtonsRankSelection();
                     
                 else
-
                     ----------------- NEW RULE CONFIGURATION --------------------
                     -------------------------------------------------------------
 
-                    -- Rank configuration
+                    -- Alt group sync to rank config
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1:SetChecked ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2:SetChecked ( false );
                     GRM_UI.SpecialRadialButtonSyncMainOption();
 
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { GuildControlGetRankName ( GuildControlGetNumRanks() - 1 ) , 2 };
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank >= GRM_UI.GetRankIndexDescendingOrder() then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank = GuildControlGetNumRanks();
+                    end
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { GuildControlGetRankName ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank };
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetText( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result[1] );
+
+                    -- RadialButtons2
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial2:SetChecked ( false );
+                    GRM_UI.SpecialRadialButtonsRankSelection();
 
                 end
 
@@ -5146,26 +5256,24 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.EnableRankActivityFrames();
         end);
 
-        -- Compares ranks in order in numerically descending fasion than ascending.
-        GRM_UI.GetRankIndexDescendingOrder = function()
-            return ( GuildControlGetNumRanks() - GRM_G.playerRankID );
-        end
-
-        GRM_UI.SetDiestinationSelection = function ( _ , buttonNumber , buttonText )
+        GRM_UI.SetDestinationSelection = function ( _ , buttonNumber , buttonText )
             local playerIndex = GRM_UI.GetRankIndexDescendingOrder();
-
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Hide();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank = ( GuildControlGetNumRanks() - buttonNumber + 1 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetText ( buttonText:GetText() );
 
+            -- Restore the rank properly
             if ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and buttonNumber >= playerIndex ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and buttonNumber >= playerIndex - 1 ) then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 0 , 0 );
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM.Report ( GRM.L ( "Unable to promote players to this rank" ) );
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM.Report ( GRM.L ( "Unable to demote players to this rank" ) );
+                end
             else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetTextColor ( 1 , 1 , 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.destinationRank = ( GuildControlGetNumRanks() - buttonNumber + 1 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetText ( buttonText:GetText() );
+                -- Re-configure the checkboxes.
+                GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
             end
-
-            -- Re-configure the checkboxes.
-            GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
+            
         end
 
         GRM_UI.AdjustColoringOfDestinationRanks = function()
@@ -5233,7 +5341,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Show();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu , 12 , 12 , "THICKOUTLINE" , GRM.GetListOfGuildRanks() ,  GRM_UI.SetDiestinationSelection );
+                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu , 12 , 12 , "THICKOUTLINE" , GRM.GetListOfGuildRanks() ,  GRM_UI.SetDestinationSelection );
                     GRM_UI.AdjustColoringOfDestinationRanks();
                 end
                 GRM.RestoreTooltip();

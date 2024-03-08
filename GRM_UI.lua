@@ -5790,7 +5790,6 @@ GRM_UI.PreAddonLoadUI = function()
     end
 
     GRM_UI.GRM_MinimapButtonInit  = function()
-
         -- If LibDBICon is already available, use it.
         if IsInGuild() then
             if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then

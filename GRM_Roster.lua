@@ -6,7 +6,6 @@ GRM_R = {};
 -- What it Does:    Initiates building of all o the Custom GRM Guild Roster window
 -- Purpose:         Provide players more controls than default communities offers.
 GRM_R.BuildRosterFrames = function ()
-
     local coreSize = 1035;
     local coreHybridSize = 980;
     local anchorFrame1;

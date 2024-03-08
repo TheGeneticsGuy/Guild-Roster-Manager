@@ -121,9 +121,17 @@ GRM_UI.CreateString = function ( name , parentFrame , template , text , fontSize
             parentFrame[name]:SetWordWrap ( false );
         end
     end
-        
+       
     parentFrame[name]:SetText ( text );
     parentFrame[name]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+
+    -- For some reason when you do a "SetFont" it doesn't take the first time, maybe too soon after creating the fontstring frame, I am not certain
+    -- Reprocess in 1 second
+    if math.floor ( select ( 2 , parentFrame[name]:GetFont() ) + 0.5 ) ~= math.floor ( ( GRM_G.FontModifier + fontSize ) + 0.5 ) then
+        C_Timer.After ( 1 , function()
+            GRM_UI.CreateString ( name , parentFrame , template , text , fontSize , points , Width , textColor , alignment , wrappable );
+        end);
+    end
 
 end
 
@@ -252,16 +260,20 @@ GRM_UI.CreateRadialButtons = function ( name , parentFrame , template , textForE
             parentFrame[buttonName]:SetScript ( "OnClick" , function ( self , button )
             
                 if button == "LeftButton" then
+                    if self:GetChecked() then
 
-                    -- Uncheck the other buttons. This LINKS them together.
-                    for j = 1 , numRadialButtons do
-                        if j ~= i then
-                            parentFrame[name .. "Radial" .. j]:SetChecked ( false );
+                        -- Uncheck the other buttons. This LINKS them together.
+                        for j = 1 , numRadialButtons do
+                            if j ~= i then
+                                parentFrame[name .. "Radial" .. j]:SetChecked ( false );
+                            end
                         end
-                    end
 
-                    if saveVariableLogic then
-                        saveVariableLogic ( i );    -- Includes the number of the button clicked
+                        if saveVariableLogic then
+                            saveVariableLogic ( i );    -- Includes the number of the button clicked
+                        end
+                    else
+                        self:SetChecked ( true );
                     end
                 end
 
@@ -602,28 +614,27 @@ end
 -- Method:          GRM_UI.CreateDropDownMenu ( string , frame , string , array , intArray , stringArray , int , int , floatArray , function , function , function , function , bool )
 -- What it Does:    It creates a unique, new, dropDownMenu given the variables
 -- Purpose:         To create a generic, reusable dropdown menus
-GRM_UI.CreateDropDownMenu = function ( name , parentFrame , temp , point , size , list , defaultSelection , fSize , color , toolTipScript , toolTipClearScript , optionalSelectFunction , optionalListUpdateFunction , includeEscapeAction )
+GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , size , list , defaultSelection , fontSize , textColor , toolTipScript , toolTipClearScript , optionalSelectFunction , optionalListUpdateFunction , optionalTextFilteringFunction , includeEscapeAction )
 
     local selectedFrame = name .. "Selected";
 
     if not parentFrame[selectedFrame] then
-        local template = temp or "BackdropTemplate"
+        local template = template or "BackdropTemplate"
         local selectedFrameText = selectedFrame .. "Text";
         local menuFrame = name .. "Menu";
 
-        local fontSize = fSize or 16;
-        local textColor = color or { 1 , 1 , 1 };
+        local fontSize = fontSize or 16;
+        local textColor = textColor or { 1 , 1 , 1 };
 
         local BuildDropDown = function()
-            GRM_UI.BuildDropDownOptions ( list , parentFrame[menuFrame] , parentFrame[selectedFrame] , parentFrame[selectedFrame][selectedFrameText] , textColor , fontSize , optionalSelectFunction , optionalListUpdateFunction );
+            GRM_UI.BuildDropDownOptions ( list , parentFrame[menuFrame] , parentFrame[selectedFrame] , parentFrame[selectedFrame][selectedFrameText] , textColor , fontSize , optionalSelectFunction , optionalListUpdateFunction , optionalTextFilteringFunction );
         end
 
         -- Delimiter Dropdown for Export
         parentFrame[selectedFrame] = CreateFrame ( "Frame" , selectedFrame , parentFrame , BackdropTemplateMixin and template );
         parentFrame[selectedFrame][selectedFrameText] = parentFrame[selectedFrame]:CreateFontString ( nil , "OVERLAY" , "GameFontWhite" );
         parentFrame[menuFrame] = CreateFrame ( "Frame" , menuFrame , parentFrame[selectedFrame] , template );
-        parentFrame[menuFrame].result = { list[1] , 1 }; -- Default Selectionws
-        parentFrame[menuFrame].rebuild = BuildDropDown;
+        parentFrame[menuFrame].result = { list[1] , 1 }; -- Default Selectionws { textName, index }
 
         -- Point
         parentFrame[selectedFrame]:SetPoint ( point[1] , point[2] , point[3] , point[4] , point[5] );
@@ -690,7 +701,6 @@ GRM_UI.CreateDropDownMenu = function ( name , parentFrame , temp , point , size 
 
         parentFrame[selectedFrame]:SetScript ( "OnMouseDown" , function( _ , button )
             if button == "LeftButton" then
-                print("Clicking")
                 if parentFrame[menuFrame]:IsVisible() then
                     parentFrame[menuFrame]:Hide();
                 else
@@ -713,16 +723,16 @@ GRM_UI.CreateDropDownMenu = function ( name , parentFrame , temp , point , size 
     end
 end
 
--- Method:          BuildDropDownOptions ( stringArray , frame , frame , fontstring , RGBArray , int , function )
+-- Method:          BuildDropDownOptions ( stringArray , frame , frame , fontstring , RGBArray , int , function , function , function )
 -- What it Does:    Builds the logic and text of the actual popout dropdown menu.
 -- Puropose:        Compartmentalize some of the code. Rather than keep it all in the CreateDropDowm function
-GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelected , dropDownMenuSelectedText , textColor , fontSize , optionalSelectFunction , optionalListUpdateFunction )
+GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelected , dropDownMenuSelectedText , textColor , fontSize , optionalSelectFunction , optionalListUpdateFunction , optionalTextFilteringFunction )
     local buffer = 6;
     local height = 0;
     local name = dropDownMenu:GetName();
 
     if optionalListUpdateFunction then
-        list = optionalListUpdateFunction ();
+        list = optionalListUpdateFunction();
     end
 
     -- Initiate the buttons holder
@@ -762,12 +772,14 @@ GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelect
 
         button:SetScript ( "OnClick" , function( self , button ) 
             if button == "LeftButton" then
+                local tempResult = GRM.DeepCopyArray ( dropDownMenu.result );   -- Making a copy incase need to restore
                 dropDownMenu.result = { buttonText:GetText() , i };
                 dropDownMenuSelectedText:SetText ( buttonText:GetText() );
                 dropDownMenu:Hide();
                 dropDownMenuSelected:Show();
+                
                 if optionalSelectFunction then
-                    optionalSelectFunction();
+                    optionalSelectFunction( i , tempResult );    -- Include the selection index
                 end
             end
         end);
@@ -775,6 +787,10 @@ GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelect
         button:Show();
     end
     dropDownMenu:SetHeight ( height + 15 );
+
+    if optionalTextFilteringFunction then
+        optionalTextFilteringFunction();
+    end
 end
 
 -- Method:          GRM_UI.SaveFramePosition ( frameObject )

@@ -1763,5 +1763,7 @@ GRML.English = function()
     GRM_L["Promote Alts to Same Rank as Main"] = true
     GRM_L["Promote Alts to Rank:"] = true
     GRM_L["Please Choose a Destination Rank for Alts."] = true
+    GRM_L["Apply to Mains at:"] = true
+    GRM_L["Only Selected Ranks"] = true
 end
 
