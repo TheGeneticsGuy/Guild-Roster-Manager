@@ -1,5 +1,10 @@
 ## **VERSION 1.9907 RELEASE - March 3rd 2024**
 
+***QUALITY OF LIFE***
+
+* The Macro tool had some minor annoyances I noticed that needed to be cleaned up. For example, it would tell you that you couldn't promote someone to a certain rank if that rank was same rank or higher than you, clearly, but it still let you select that rank. I mean, most people would understand not to, but I just cleaned up some UI stuff so you couldn't select ranks like that, not just be warned.
+
+
 ***BUG FIXES***
 
 * In the macro tool, if you deleted a rank from your guild and reopened the macro tool to edit or create a rank, then that rank was still showing until the next session. This now will properly and dynamically address rank changes like this without needing to reload.

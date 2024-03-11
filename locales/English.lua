@@ -1765,5 +1765,9 @@ GRML.English = function()
     GRM_L["Please Choose a Destination Rank for Alts."] = true
     GRM_L["Apply to Mains at:"] = true
     GRM_L["Only Selected Ranks"] = true
+    GRM_L["Do Not Promote if Offline for:"] = true
+
+
+    
 end
 
