@@ -183,7 +183,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
 
             if type ( toolTipScript ) == "function" then
                 parentFrame[name]:SetScript ( "OnEnter" , function( self )
-                    toolTipScript();
+                    toolTipScript( self );
                 end);
             else
                 parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
@@ -328,7 +328,7 @@ GRM_UI.CreateCheckBox = function ( name , parentFrame , template , size , points
         -- SCRIPTS
         if toolTipScript then
             parentFrame[name]:SetScript ( "OnEnter" , function( self )
-                toolTipScript();
+                toolTipScript( self );
             end);
 
             parentFrame[name]:SetScript ( "OnLeave" , function( self )
@@ -409,7 +409,7 @@ end
 -- Method:          GRM_UI.CreateEditBox ( string , frameObject, string , int , int , table , string , table , int , bool , function , function , function )
 -- What it Does     Creates and configures the macro tool
 -- Purpose:         Reusable tool to build editBoxes
-GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height , points , alignment , textColor , maxLetters , numbersOnly , toolTipScript , ToolTipClearLogic , textChangedFunction , createClearButton , trimWhiteSpace )
+GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height , points , alignment , textColor , maxLetters , numbersOnly , toolTipScript , ToolTipClearLogic , textChangedFunction , createClearButton , trimWhiteSpace , enterPressedLogic )
 
     if not parentFrame[name] then
         parentFrame[name] = CreateFrame( "EditBox" , name , parentFrame , template );
@@ -492,6 +492,10 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
     
             if self:GetText() == "" and textChangedFunction then
                 textChangedFunction();
+            end
+
+            if enterPressedLogic then
+                enterPressedLogic()
             end
     
             parentFrame[name].tempText = self:GetText();
@@ -586,7 +590,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
 
             if type ( toolTipScript ) == "function" then
                 parentFrame[name]:SetScript ( "OnEnter" , function( self )
-                    toolTipScript();
+                    toolTipScript( self );
                 end);
             else
                 parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
@@ -634,7 +638,7 @@ GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , s
         parentFrame[selectedFrame] = CreateFrame ( "Frame" , selectedFrame , parentFrame , BackdropTemplateMixin and template );
         parentFrame[selectedFrame][selectedFrameText] = parentFrame[selectedFrame]:CreateFontString ( nil , "OVERLAY" , "GameFontWhite" );
         parentFrame[menuFrame] = CreateFrame ( "Frame" , menuFrame , parentFrame[selectedFrame] , template );
-        parentFrame[menuFrame].result = { list[1] , 1 }; -- Default Selectionws { textName, index }
+        parentFrame[menuFrame].result = { list[1] , 1 }; -- Default Selection { textName, index }
 
         -- Point
         parentFrame[selectedFrame]:SetPoint ( point[1] , point[2] , point[3] , point[4] , point[5] );
@@ -810,55 +814,6 @@ GRM_UI.SaveFramePosition = function ( frame )
     
 end
 
--- Method:          GRM_UI.CreateTooltipFromTable ( table )
--- What it Does:    Creates a tooltip either single or double line
--- Purpose:         Ease of creating tooltips
--- Usage:           GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } )
---                  GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } , { 1 , Ghost } )
---                  GRM_UI.CreateTooltipFromTable ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
-GRM_UI.CreateTooltipFromTable = function ( self , ... )
-
-    local lines = {...};
-                
-    if #lines > 0 then
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-
-        for i = 1 , #lines do
-            if lines[i][1] == 1 then
-                for i = 1 , #lines do
-                    if lines[i][3] then
-                        GameTooltip:AddLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] );
-                    else
-                        GameTooltip:AddLine( lines[i][2] );
-                    end
-                end
-            -- 2 = Double line
-            elseif lines[i][1] == 2 then
-                for i = 1 , #lines do
-                    -- Coloring for both lines
-                    if lines[i][4] and line[i][7] then
-                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] , lines[i][7] , lines[i][8] , lines[i][9] );
-                    -- Only coloring for first line
-                    elseif line[i][4] then
-                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] );
-                    -- only coloring for second line
-                    elseif line[i][7] then
-                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][7] , lines[i][8] , lines[i][9] );
-                    -- No specific coloring.
-                    else
-                        GameTooltip:AddLine( lines[i][2] , lines[i][3] );
-                    end
-                end
-            end
-
-        end
-        
-        GameTooltip:Show();
-    end
-    
-end
-
 -- Method:          GRM_UI.GetBackdrop ( int )
 -- What it Does:    Returns from a list of backdrops
 -- Purpose:         Reusable backdrops for cleaner UI code.
@@ -910,12 +865,128 @@ GRM_UI.GetBackdrop = function ( index )
     }
 end
 
+-----------------------
+-- SUPPORT FUNCTIONS --
+-----------------------
 
+-- Method:          GRM_UI.CreateTooltipFromTable ( table )
+-- What it Does:    Creates a tooltip either single or double line
+-- Purpose:         Ease of creating tooltips
+-- Usage:           GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } )
+--                  GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } , { 1 , Ghost } )
+--                  GRM_UI.CreateTooltipFromTable ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
+GRM_UI.CreateTooltipFromTable = function ( self , ... )
+
+    local lines = {...};
+                
+    if #lines > 0 then
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+
+        for i = 1 , #lines do
+            if lines[i][1] == 1 then
+                for i = 1 , #lines do
+                    if lines[i][3] then
+                        GameTooltip:AddLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] );
+                    else
+                        GameTooltip:AddLine( lines[i][2] );
+                    end
+                end
+            -- 2 = Double line
+            elseif lines[i][1] == 2 then
+                for i = 1 , #lines do
+                    -- Coloring for both lines
+                    if lines[i][4] and line[i][7] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] , lines[i][7] , lines[i][8] , lines[i][9] );
+                    -- Only coloring for first line
+                    elseif line[i][4] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] );
+                    -- only coloring for second line
+                    elseif line[i][7] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][7] , lines[i][8] , lines[i][9] );
+                    -- No specific coloring.
+                    else
+                        GameTooltip:AddLine( lines[i][2] , lines[i][3] );
+                    end
+                end
+            end
+
+        end
+        
+        GameTooltip:Show();
+    end
+    
+end
+
+-- Method:          GRM_UI.CreateToolTipScript ( int (1 or 2) , bool , stringInputs(unlimited) )
+-- What it Does:    Builds the tooltip script for the given frame based on the input
+-- Purpose:         Make it even easier to use the UI API - just build frames
+-- EXAMPLE:         GRM_UI.CreateToolTipScript ( "Line1" , "Line2" )
+--                  GRM_UI.CreateToolTipScript ( 2 , "Line1" , "Line2" , "Line3" , ... ) -- 2 columns in tooltip
+--                  GRM_UI.CreateToolTipScript (1 , false , "Line1" , "Line2", ... ) -- Single column, no text wrapping.
+-- Notes:           Please note, boolean input accepts all formats "T" or "t" or "TRUE" or "True" or "true" or true. Doesn't matter.
+GRM_UI.CreateToolTipScript = function ( ... )
+
+    local lines = {...};
+    local i = 1;
+    local numC = 1;     -- numberOfColumns
+    local wrapT = true; -- wrapText (default of at 65(ish) characters)
+
+    if tonumber(lines[1]) then
+        numC = tonumber(lines[1]);
+        i = i + 1;
+
+        if numC > 2 then
+            numC = 2;
+        elseif numC < 1 then
+            numC = 1;
+        end
+    end
+
+    if GRM_UI.ToBool (lines[2]) then
+        wrapT = GRM_UI.ToBool (lines[2]);
+        i = i + 1;
+    end
+
+    local textLines = ( #lines - i + 1 );
+
+    if textLines > 0 then
+        
+        if numC == 2 and textLines % 2 == 1 then
+            table.insert ( lines , " " );   -- Adding a line to make it even 
+            textLines = textLines + 1;
+        end
+
+        local result = function ( self )
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+
+            while i <= #lines do
+                
+                if numC == 1 then
+                    GameTooltip:AddLine( lines[i] );
+                    i = i + 1;
+                else
+                    GameToolTip:AddDoubleLine ( lines[i] , lines[i + 1] );
+                    i = i + 2;
+                end
+            end
+            GameTooltip:Show();
+        end
+
+        return result;
+    else
+        return;
+    end
+end
+
+----------------------------------------
 --- MATHEMATICAL PLACEMENT OF FRAMES ---
+----------------------------------------
 
 -- Method:          GRM_UI.GetCheckboxPinNumber ( int , int )
 -- What it Does:    Returns the bottom left checkbox depending on the number of checkboxes and rows. For example, if there are 9 checkboxes in rows of 3 checkboxes per row, I want to pin to bottom left checkbox, which is the first checkbox on the 3rd row, or checkbox number 7
 -- Purpose:         Be bale to have dynamic access to building checkbox or button grids of any size, for example in GRM use, a guild might have 10 ranks, or it might have 5 ranks. If I build a checkbox grid of all the ranks, I need to know which row to pin my next frame to properly.
+-- Usage:           Useful in grid design of checkboxes
 GRM_UI.GetCheckboxPinNumber = function ( numCheckboxes , numberPerRow )
             
     local r = numCheckboxes % numberPerRow;
@@ -927,4 +998,118 @@ GRM_UI.GetCheckboxPinNumber = function ( numCheckboxes , numberPerRow )
     end
     
     return result
+end
+
+---------------
+--- UTILITY ---
+---------------
+
+-- Method:          GRM.ToBool ( string )
+-- What it Does:    Returns the boolean true or false depending on input. It can receive the input as a string regardless of case, or if you are just using single char true/false like T/F
+-- Purpose:         Easy check for a boolean input since there isn't exactly a quick check built into Lua.
+GRM_UI.ToBool = function ( value )
+    if value ~= nil then
+        if type(value) == "boolean" then
+            return value;
+        elseif type(value) == "string" then
+            value = value:lower();
+            if value == "true" or value == "t" then
+                return true;
+            elseif value == "false" or value == "f" then
+                return false;
+            end
+        end
+    end
+    return;
+end
+
+-- Method:          GRM_UI.GetFrame ( string or frameTable )
+-- What it Does:    Returns the frame from either string name or frame itself, or nil
+-- Purpose:         Verification that frame is valid.
+GRM_UI.GetFrame = function( frame )
+    if frame == nil then
+        return;
+    end
+
+    -- Input either stringName of frame or the frame itself.
+    if type(frame) == "string" then
+        if _G[frame] then
+            return _G[frame];
+        else
+            return  -- No frame exists with that name
+        end
+    elseif type (frame) ~= "table" then
+        return;
+    else
+        return frame;
+    end
+end
+
+-- Method:          GRM_UI.WrapText ( string , int )
+-- What it Does:    Wraps text based on the given string if it is too long
+-- Purpose:         To control the visual aspect of really long string on mouseovers and so on.
+GRM_UI.WrapText = function ( text , maxLength )
+    local result = "";
+    local maxOverUnder = 25;
+
+    if #text > maxLength then
+        local remainingText = text;
+        local frontSpace = -1;
+        local lastSpace = -1;
+        local breakIndex = maxLength; -- Default unless other factors apply
+
+        while #remainingText > maxLength do
+
+            frontSpace = -1;
+            lastSpace = -1;
+            breakIndex = maxLength; -- Default unless other factors apply
+
+            -- Scan through and find the closes space before and closest after.
+            for i = 1 , #remainingText do
+                if string.sub ( remainingText , i , i ) == " " then
+                    if i <= maxLength then
+                        frontSpace = i;
+                    elseif i > maxLength and lastSpace == -1 then
+                        lastSpace = i;
+                        break;  -- We found the first space AFTER the maxLength, so we can be done.
+                    end
+                end
+            end
+            
+            if frontSpace == -1 or lastSpace == -1 then
+                if frontSpace > -1 and lastSpace == -1 then
+                    if frontSpace >= ( maxLength - maxOverUnder ) then    -- Don't want to
+                        breakIndex = frontSpace;
+                    end
+                elseif frontSpace == -1 and lastSpace > -1 then
+                    if lastSpace <= ( maxLength + maxOverUnder ) then
+                        breakIndex = lastSpace;
+                    end
+                end
+            else
+                -- Both have a value
+                if ( maxLength - frontSpace ) <= ( lastSpace - maxLength ) then
+                    if frontSpace >= ( maxLength - maxOverUnder ) then    -- Don't want to
+                        breakIndex = frontSpace;
+                    end
+                else
+                    if lastSpace <= ( maxLength + maxOverUnder ) then
+                        breakIndex = lastSpace;
+                    end
+                end
+            end
+
+            result = result .. remainingText:sub ( 1 , breakIndex - 1 ) .. "\n";
+            remainingText = remainingText:sub ( breakIndex + 1 );
+
+            if #remainingText <= maxLength then
+                result = result .. remainingText;
+            end                              
+
+        end
+    else
+        result = text;
+    end
+
+    return result;
 end

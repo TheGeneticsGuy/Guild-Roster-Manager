@@ -1225,7 +1225,6 @@ GRML.English = function()
     GRM_L["Note match: {name}"] = true                                  -- Same
     GRM_L["Matching Rank"] = true                                       -- ''
     GRM_L["Right-Click|r to Edit or Remove custom rule"] = true         -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
-    GRM_L["|CFFE6CC7FClick|r to Change"] = true
     GRM_L["(Applies Only to Classic)"] = true           -- For the Options... rather than removing them all
 
     -- R1.88
@@ -1766,8 +1765,7 @@ GRML.English = function()
     GRM_L["Apply to Mains at:"] = true
     GRM_L["Only Selected Ranks"] = true
     GRM_L["Do Not Promote if Offline for:"] = true
+    GRM_L["{custom1} to Change."] = true        -- "Click to change"
 
-
-    
 end
 

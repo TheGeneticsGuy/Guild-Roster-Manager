@@ -2277,14 +2277,14 @@ GRM_R.OpenRosterOptions = function()
     GRM_R.TooltipReset();
 end
 
--- Method:          GRM_R.OpenRosterOptionsButtonTT()
+-- Method:          GRM_R.OpenRosterOptionsButtonTT( frame )
 -- What it Does:    Logic for tooltip for the button when mouseover enter
 -- Purpose:         UX
-GRM_R.OpenRosterOptionsButtonTT = function()
+GRM_R.OpenRosterOptionsButtonTT = function( self )
     GRM_UI.SetTooltipScale();
-    GameTooltip:SetOwner ( GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "ANCHOR_CURSOR" );
+    GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
 
-    if GRM_UI.GRM_RosterFrame.GRM_RosterOptions:IsVisible() then
+    if self:IsVisible() then
         GameTooltip:AddLine( GRM.L ( "Hide Options" ) );
     else
         GameTooltip:AddLine( GRM.L ( "Show Options" ) );
@@ -2372,12 +2372,12 @@ GRM_R.GroupByMainLogic = function ( button )
     GRM_R.TooltipReset();
 end
 
--- Method:          GRM_R.GroupByMainTT()
+-- Method:          GRM_R.GroupByMainTT( frame )
 -- What it Does:    Logic for tooltip for the button when mouseover enter
 -- Purpose:         UX
-GRM_R.GroupByMainTT = function()
+GRM_R.GroupByMainTT = function( self )
     GRM_UI.SetTooltipScale();
-    GameTooltip:SetOwner ( GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsGroupByMain , "ANCHOR_CURSOR" );
+    GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
     GameTooltip:AddLine( GRM.L ( "If enabled, sorting will be based on the Mains" ) );
     GameTooltip:Show();
 end
@@ -2400,12 +2400,12 @@ GRM_R.NumRowsSliderLogic = function ( value )
     GRM_R.RefreshRosterName( true );
 end
 
--- Method:          GRM_R.NumRowsSliderTT()
+-- Method:          GRM_R.NumRowsSliderTT( frameTable )
 -- What it Does:    Logic for tooltip for the button when mouseover enter
 -- Purpose:         UX
-GRM_R.NumRowsSliderTT = function()
+GRM_R.NumRowsSliderTT = function( self )
     GRM_UI.SetTooltipScale();
-    GameTooltip:SetOwner ( GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RowsCountSlider , "ANCHOR_CURSOR" );
+    GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
     GameTooltip:AddLine( GRM.L ( "Right-Click to Reset to {num} Rows" , nil , nil , 18 ) );
     GameTooltip:Show();
 end

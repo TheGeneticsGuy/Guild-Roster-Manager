@@ -1227,7 +1227,6 @@ GRML.Russian = function()
     GRM_L["Note match: {name}"] = "Соответствие заметки: {name}"                               -- Same
     GRM_L["Matching Rank"] = "Соответствующее звание"                                       -- ''
     GRM_L["Right-Click|r to Edit or Remove custom rule"] = "Щелкните ПКМ|r, чтобы изменить или удалить пользовательское правило"         -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
-    GRM_L["|CFFE6CC7FClick|r to Change"] = "|CFFE6CC7FНажмите|r для изменения"
     GRM_L["(Applies Only to Classic)"] = "(Только для классической версии)"           -- For the Options... rather than removing them all
     
     -- R1.88
@@ -1760,6 +1759,7 @@ GRML.Russian = function()
     -- R1.9906
     GRM_L["To access the color wheel, due to a compatibility issue that began in 10.2.5, you will need to reload the UI. Do you wish to reload now?"] = true
     
+    GRM_L["{custom1} to Change."] = "{custom1} для изменения"
 end
     
     -- Anazing work Максим#0406 on Discord - Incredible work, really!

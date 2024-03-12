@@ -5362,75 +5362,6 @@ GRM.Trim = function ( str )
     end
 end
 
--- Method:          GRM.WrapText ( string , int )
--- What it Does:    Wraps text based on the given string if it is too long
--- Purpose:         To control the visual aspect of really long string on mouseovers and so on.
-GRM.WrapText = function ( text , maxLength )
-    local result = "";
-    local maxOverUnder = 25;
-
-    if #text > maxLength then
-        local remainingText = text;
-        local frontSpace = -1;
-        local lastSpace = -1;
-        local breakIndex = maxLength; -- Default unless other factors apply
-
-        while #remainingText > maxLength do
-
-            frontSpace = -1;
-            lastSpace = -1;
-            breakIndex = maxLength; -- Default unless other factors apply
-
-            -- Scan through and find the closes space before and closest after.
-            for i = 1 , #remainingText do
-                if string.sub ( remainingText , i , i ) == " " then
-                    if i <= maxLength then
-                        frontSpace = i;
-                    elseif i > maxLength and lastSpace == -1 then
-                        lastSpace = i;
-                        break;  -- We found the first space AFTER the maxLength, so we can be done.
-                    end
-                end
-            end
-            
-            if frontSpace == -1 or lastSpace == -1 then
-                if frontSpace > -1 and lastSpace == -1 then
-                    if frontSpace >= ( maxLength - maxOverUnder ) then    -- Don't want to
-                        breakIndex = frontSpace;
-                    end
-                elseif frontSpace == -1 and lastSpace > -1 then
-                    if lastSpace <= ( maxLength + maxOverUnder ) then
-                        breakIndex = lastSpace;
-                    end
-                end
-            else
-                -- Both have a value
-                if ( maxLength - frontSpace ) <= ( lastSpace - maxLength ) then
-                    if frontSpace >= ( maxLength - maxOverUnder ) then    -- Don't want to
-                        breakIndex = frontSpace;
-                    end
-                else
-                    if lastSpace <= ( maxLength + maxOverUnder ) then
-                        breakIndex = lastSpace;
-                    end
-                end
-            end
-
-            result = result .. remainingText:sub ( 1 , breakIndex - 1 ) .. "\n";
-            remainingText = remainingText:sub ( breakIndex + 1 );
-
-            if #remainingText <= maxLength then
-                result = result .. remainingText;
-            end                              
-
-        end
-    else
-        result = text;
-    end
-
-    return result;
-end
--- GRM.WrapText(GetGuildRosterMOTD(),65);
 -- Method:          GRM.StringToCharArray ( string [, bool]);
 -- What it Does:    Converts a string into a char array, and has the option to remove all indexes of a given char
 -- Purpose:         More easily cleanup strings, especially when sending data back and forth using the '?' separator
@@ -5475,7 +5406,7 @@ GRM.ConvertStringNumArrayToBoolArray = function ( listOfNum )
         end
     end
     return result;
-end 
+end
 
 -- Method:          GRM.ResetTempLogs()
 -- What it Does:    Empties the arrays of the reporting logs

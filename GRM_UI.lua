@@ -2649,7 +2649,6 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         end
     end);
     
-
     -- Alt details Side button
     GRM_UI.GRM_MemberDetailMetaData.GRM_ExtraAltDetailsArrowButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow , "BOTTOMRIGHT" , 0 , -2 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_ExtraAltDetailsArrowButton:SetSize ( 12 , 12 );
@@ -5782,7 +5781,7 @@ GRM_UI.PreAddonLoadUI = function()
 
         local MOTD = GetGuildRosterMOTD();
         if MOTD ~= "" and MOTD ~= nil then
-            MOTD = GRM.WrapText ( GRM.Trim ( MOTD ) , 65 );
+            MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
             tooltip:AddLine ( " " );
             tooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
             tooltip:AddLine ( MOTD );
@@ -5925,7 +5924,7 @@ GRM_UI.PreAddonLoadUI = function()
             
                     local MOTD = GetGuildRosterMOTD();
                     if MOTD ~= "" and MOTD ~= nil then
-                        MOTD = GRM.WrapText ( GRM.Trim ( MOTD ) , 65 );
+                        MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
                         GameTooltip:AddLine ( " " );
                         GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
                         GameTooltip:AddLine ( MOTD );
