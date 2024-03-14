@@ -1905,3 +1905,38 @@ GRM.PlayerOrAltHasJD = function ( playerName )
     end
     return result;
 end
+
+-- Method:          GRM.GetFullDatabaseAltsWithMain()
+-- What it Does:    Returns a table with the names of all mains, with all their alts underneath
+-- Purpose:         Useful when checking special rules for syncing alt to main rank or designated.
+GRM.GetFullDatabaseAltsWithMain = function()
+    local altGroups = GRM.GetGuildAlts();
+    local result = {};
+    local player = {};
+
+    for id in pairs ( altGroups ) do
+        local group = altGroups[id];
+        if #group > 1 and group.main ~= "" then     -- Group size of 1 is just a main with no alts.
+            player = GRM.GetPlayer ( group.main );
+
+            if player then
+                result[group.main] = {};
+                result[group.main].rankIndex = player.rankIndex;
+
+                for i = 1 , #group do
+                    player = GRM.GetPlayer ( group[i].name );
+                    if player and player.name ~= group.main then
+                        result[group.main][group[i].name] = {};
+                        result[group.main][group[i].name].name = player.name;
+                        result[group.main][group[i].name].class = player.class;
+                        result[group.main][group[i].name].rankIndex = player.rankIndex;
+                        result[group.main][group[i].name].lastOnline = player.lastOnline;
+                        result[group.main][group[i].name].level = player.level;
+                    end
+                end
+            end
+        end
+    end
+
+    return result;
+end

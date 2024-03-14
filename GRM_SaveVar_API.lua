@@ -142,6 +142,9 @@ GRM.GetAddOnUserGuildAlts = function ( name )
 
 end
 
+-- Method:          GRM.GetGuildAlts ( string )
+-- What it Does:    Returns the database of alts for the given guild or current guild
+-- Purpose:         Call the data easily.
 GRM.GetGuildAlts = function ( name )
     if name then
         return GRM_Alts[name];

@@ -5231,7 +5231,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     GRM_UI.GRM_LoadToolButton:SetSize ( 90 , 11 );
     GRM_UI.GRM_LoadToolButton:SetPoint ( "RIGHT" , GRM_UI.GRM_LoadLogButton , "LEFT" , 0 , 0 );
     GRM_UI.GRM_LoadToolButton.Timer = 0;
-    GRM_UI.GRM_LoadToolButton.count = 0;
+    GRM_UI.GRM_LoadToolButton.count = {};
     GRM_UI.GRM_LoadToolButton.total = 0;
     GRM_UI.GRM_LoadToolButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_LoadToolButton );
     GRM_UI.GRM_LoadToolButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 8 );

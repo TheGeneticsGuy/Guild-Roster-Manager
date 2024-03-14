@@ -83,6 +83,7 @@ GRM_G.TempInactiveReturnedLog = {};
 GRM_G.TempEventRecommendKickReport = {};
 GRM_G.TempEventRecommendPromotionReport = {};
 GRM_G.TempEventRecommendDemotionReport = {};
+GRM_G.TempEventRecommendSpecialReport = {};
 GRM_G.TempLogDemotion = {};
 GRM_G.TempLogLeveled = {};
 GRM_G.TempLogNote = {};
@@ -1478,9 +1479,9 @@ GRM.RefreshNumberOfHoursTilRecommend = function()
     if GRM.S() then
         GRM_G.NumberOfHoursTilRecommend["kick"] = {};
         GRM_G.NumberOfHoursTilRecommend["kickActive"] = {};
-
         GRM_G.NumberOfHoursTilRecommend["promote"] = {};
         GRM_G.NumberOfHoursTilRecommend["demote"] = {};
+        GRM_G.NumberOfHoursTilRecommend["special"] = {};
 
         local validateFormat = function ( exactRule , defaultMonths )
             
@@ -1497,7 +1498,6 @@ GRM.RefreshNumberOfHoursTilRecommend = function()
         end
 
         for ruleName , rule in pairs ( GRM.S().kickRules ) do
-            
             if rule.activityFilter then                                               -- Only need to add if this part is enabled.
                 GRM_G.NumberOfHoursTilRecommend["kick"][ruleName] = 0;
 
@@ -1509,6 +1509,7 @@ GRM.RefreshNumberOfHoursTilRecommend = function()
                     GRM_G.NumberOfHoursTilRecommend["kick"][ruleName] = ( rule.numDaysOrMonths * 24 );
                 end
             end
+
             if rule.applyEvenIfActiive then
                 GRM_G.NumberOfHoursTilRecommend["kickActive"][ruleName] = 0;
                 if rule.rankSpecialIsMonths then
@@ -1557,17 +1558,24 @@ GRM.RefreshNumberOfHoursTilRecommend = function()
                     GRM_G.NumberOfHoursTilRecommend["demote"][ruleName].hours = ( rule.numDaysOrMonths * 24 );
                 end
 
-                if not rule.regardlessOfActivity then
-                    GRM_G.NumberOfHoursTilRecommend["demote"][ruleName].evenIfActiveHours = 0;
-                    if rule.rankSpecialIsMonths then
-                        GRM_G.NumberOfHoursTilRecommend["demote"][ruleName].evenIfActiveHours = GRM.GetNumHoursTilRecommend ( rule.rankSpecialNumDaysOrMonths );
-                    else
-                        GRM_G.NumberOfHoursTilRecommend["demote"][ruleName].evenIfActiveHours = ( rule.rankSpecialNumDaysOrMonths * 24 );
-                    end
-                end
-
             end
         end
+
+        for ruleName , rule in pairs ( GRM.S().specialRules ) do
+            if rule.activityFilter then                                               -- Only need to add if this part is enabled.
+                GRM_G.NumberOfHoursTilRecommend["special"][ruleName] = {};
+                GRM_G.NumberOfHoursTilRecommend["special"][ruleName].hours = 0;
+
+                rule = validateFormat ( rule );
+
+                if rule.isMonths then
+                    GRM_G.NumberOfHoursTilRecommend["special"][ruleName].hours = GRM.GetNumHoursTilRecommend ( rule.numDaysOrMonths );
+                else
+                    GRM_G.NumberOfHoursTilRecommend["special"][ruleName].hours = ( rule.numDaysOrMonths * 24 );
+                end
+            end
+        end
+
     end
 end
 
@@ -3376,7 +3384,7 @@ GRM.AnnounceIfMacroReady = function ( msg )
         local name = GRM.AppendServerName ( string.match ( msg , "|Hplayer:([^:]*)(.-)|h%[.-%]|h" ) );
 
         if name and CanGuildPromote() then
-            listOfNames = GRM.GetNamesByFilterRules( 2 );
+            listOfNames = GRM.GetPromoteAndDemoteNamesByFilterRules( 2 );
 
             for i = 1 , #listOfNames do
                 if listOfNames[i].name == name then
@@ -3398,7 +3406,7 @@ GRM.AnnounceIfMacroReady = function ( msg )
         end
 
         if CanGuildDemote() then
-            listOfNames = GRM.GetNamesByFilterRules( 3 );
+            listOfNames = GRM.GetPromoteAndDemoteNamesByFilterRules( 3 );
 
             for i = 1 , #listOfNames do
                 if listOfNames[i].name == name then
@@ -3418,6 +3426,9 @@ GRM.AnnounceIfMacroReady = function ( msg )
                 end
             end
         end
+
+        -- SPECIAL RULES? No need atm as no need for alts to be given any special preference.
+
     end
 end
 
@@ -5429,6 +5440,7 @@ GRM.ResetTempLogs = function()
     GRM_G.TempEventRecommendKickReport = {};
     GRM_G.TempEventRecommendPromotionReport = {};
     GRM_G.TempEventRecommendDemotionReport = {};
+    GRM_G.TempEventRecommendSpecialReport = {};
     GRM_G.TempDeathReport = {};
 end
 
@@ -8710,6 +8722,7 @@ GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo 
     member["recommendToKick"] = false;                      -- 27
     member["recommendToDemote"] = false;
     member["recommendToPromote"] = false;
+    member["recommendSpecial"] = false;
     member["zone"] = memberInfo.zone;                       -- 28
     member["achievementPoints"] = memberInfo.achievementPoints;  -- 29
     member["isMobile"] = memberInfo.isMobile;               -- 30
@@ -8905,7 +8918,6 @@ end
 ------ LOG FUNCTIONS -------------
 ----------------------------------
 
-
 -- Method:          GRM.GetMessageRGB( int )
 -- What it Does:    Returns the 3 RGB colors colors based on the given index on a 1.0 scale
 -- Purpose:         Save on code when need color call. I also did this as a 3 argument return, rather than a single array, just as a proof of concept
@@ -8971,7 +8983,7 @@ GRM.GetMessageRGB = function ( index )
         r = GRM.S().logColor[11][1];
         g = GRM.S().logColor[11][2];
         b = GRM.S().logColor[11][3];
-    elseif index == 16 or index == 22 or index == 23 then -- Recommendations
+    elseif index == 16 or index == 22 or index == 23 or index == 25 then -- Recommendations
         r = GRM.S().logColor[13][1];
         g = GRM.S().logColor[13][2];
         b = GRM.S().logColor[13][3];
@@ -9039,7 +9051,7 @@ GRM.PrintLog = function ( logReport )
                 GRM_G.Chat[i]:AddMessage( logReport[2] , GRM.S().logColor[3][1] , GRM.S().logColor[3][2] , GRM.S().logColor[3][3] );
             elseif ( logReport[1] == 15 ) then -- For event notifications like upcoming anniversaries.
                 GRM_G.Chat[i]:AddMessage( logReport[2] , GRM.S().logColor[11][1] , GRM.S().logColor[11][2] , GRM.S().logColor[11][3] );
-            elseif ( logReport[1] == 16 ) or ( logReport[1] == 22 ) or ( logReport[1] == 23 ) then -- For Recommendations
+            elseif ( logReport[1] == 16 ) or ( logReport[1] == 22 ) or ( logReport[1] == 23 ) or ( logReport[1] == 25 )  then -- For Recommendations On Macro Tool
                 GRM_G.Chat[i]:AddMessage( logReport[2] , GRM.S().logColor[13][1] , GRM.S().logColor[13][2] , GRM.S().logColor[13][3] );
             elseif ( logReport[1] == 19 ) then -- For Custom Note
                 GRM_G.Chat[i]:AddMessage ( logReport[2] , GRM.S().logColor[8][1] , GRM.S().logColor[8][2] , GRM.S().logColor[8][3] );
@@ -11329,7 +11341,39 @@ GRM.GetDemotionRecommendString = function ( name , numRules , date , ruleNames )
     end
     
     result = GRM.GetLogFormattedTimestamp ( date , result );
+    return result;
+end
 
+-- Method:          GRM.GetSpecialRecommendString ( int , int , array )
+-- What it Does:    Returns the string for special macro rule matches
+-- Purpose:         Be able to process string properly
+GRM.GetSpecialRecommendString = function ( promoteNum , demoteNum , date )
+    local result = GRM.L ( "Special Rule" )
+
+    if promoteNum > 0 then
+        if promoteNum == 1 then
+            result = result .. " - " .. GRM.L ( "1 Player is Ready for {name}." , GRM.L ( "Promotion" ) , nil , promoteNum );
+        else
+            result = result .. " - " .. GRM.L ( "{num} Players are Ready for {name}." , GRM.L ( "Promotion" ) , nil , promoteNum );
+        end
+    end
+
+    if demoteNum > 0 then
+
+        if promoteNum > 0 then
+            result = result .. " ";
+        else
+            result = result .. " - ";
+        end
+
+        if demoteNum == 1 then
+            result = result .. GRM.L ( "1 Player is Ready for {name}." , GRM.L ( "Demotion" ) , nil , demoteNum );
+        else
+            result = result .. GRM.L ( "{num} Players are Ready for {name}." , GRM.L ( "Demotion" ) , nil , demoteNum );
+        end
+    end
+
+    result = GRM.GetLogFormattedTimestamp ( date , result );
     return result;
 end
 
@@ -11877,9 +11921,14 @@ GRM.ReProcessLogString = function( logEntry )
             else
                 result = GRM.GetUnBanString ( logEntry[3] , logEntry[4] , logEntry[5] );
             end
-            
+        
+        -- Hardcore Mode
         elseif entryIndex == 24 then
-            result = GRM.GetDeathString ( logEntry[3] , logEntry[4] , logEntry[5] , logEntry[5] );        
+            result = GRM.GetDeathString ( logEntry[3] , logEntry[4] , logEntry[5] , logEntry[5] );   
+        
+        -- Special Macro Rule Log Announce
+        elseif entryIndex == 25 then
+            result = GRM.GetSpecialRecommendString ( logEntry[3] , logEntry[4] , logEntry[5] );
         end
     else
         result = logEntry[2];         -- Cannot reprocess old stirng. No metadata.
@@ -11978,6 +12027,13 @@ GRM.AddEventRecommendDemotionLogEntry = function ( name , numRules , date , rule
     table.insert ( GRM_G.TempEventRecommendDemotionReport , { 23 , GRM.GetDemotionRecommendString ( name , numRules , date , ruleNames ) , name , numRules , date , ruleNames } );
 end
 
+-- Method:          GRM.AddEventRecommendSpecialLogEntry ( int , array )
+-- What it Does     Stores a temp log entry that will later be added in the final report with the pre-processed string
+-- Purpose:         By adding all the metadata the string can be re-processed if the player changes their preferred date format or language.
+GRM.AddEventRecommendSpecialLogEntry = function ( promoteCount , demoteCount , date )
+    table.insert ( GRM_G.TempEventRecommendSpecialReport , { 25 , GRM.GetSpecialRecommendString ( promoteCount , demoteCount , date ) , promoteCount , demoteCount , date } );
+end
+
 -- Method:          GRM.AddNameChangeTempLogEntry ( string , string , string , array )
 -- What it Does     Stores a temp log entry that will later be added in the final report with the pre-processed string
 -- Purpose:         By adding all the metadata the string can be re-processed if the player changes their preferred date format or language.
@@ -12059,6 +12115,8 @@ GRM.ScanRecommendationsList = function()
     
     local playerRecommendation = {};
     local tempListOfNames = {};
+    local tempListOfNames2 = {};
+    local tempListOfNames3 = {};
     local ruleNames = "";
     local player;
 
@@ -12076,7 +12134,8 @@ GRM.ScanRecommendationsList = function()
     
             player = GRM.GetPlayer ( playerRecommendation[i].name );
             if not player.recommendToKick then
-                player.recommendToKick = true;     -- This acts to prevent the repeat announcement to the log.
+                player.recommendToKick = true;     -- This acts to prevent the repeat announcement to the log.\
+
                 GRM.AddEventRecommendKickTempLogEntry ( GRM.GetClassifiedName ( playerRecommendation[i].name , true ) , #playerRecommendation[i] , select ( 2 , GRM.GetTimestamp() ) , ruleNames );
             end
     
@@ -12092,7 +12151,7 @@ GRM.ScanRecommendationsList = function()
     
     -- Promotion Recommendations
     if CanGuildPromote() then        -- No need to do the work and report if you cannot remove players
-        playerRecommendation = GRM.GetNamesByFilterRules ( 2 );
+        playerRecommendation = GRM.GetPromoteAndDemoteNamesByFilterRules(2);
         tempListOfNames = {};
         ruleNames = "";
     
@@ -12118,12 +12177,11 @@ GRM.ScanRecommendationsList = function()
 
     -- Demotion Recommendations
     if CanGuildDemote() then        -- No need to do the work and report if you cannot remove players
-        playerRecommendation = GRM.GetNamesByFilterRules ( 3 );
-        tempListOfNames = {};
+        playerRecommendation = GRM.GetPromoteAndDemoteNamesByFilterRules(3);
         ruleNames = "";
     
         for i = 1 , #playerRecommendation do
-            tempListOfNames[playerRecommendation[i].name] = {};     -- Going to be used for validating in list or not.
+            tempListOfNames2[playerRecommendation[i].name] = {};     -- Going to be used for validating in list or not.
             ruleNames = GRM.GetRuleNames ( playerRecommendation[i] );
     
             player = GRM.GetPlayer ( playerRecommendation[i].name );
@@ -12136,10 +12194,41 @@ GRM.ScanRecommendationsList = function()
 
         -- Clear all names NOT on this list.
         for _ , p in pairs ( GRM.GetGuild() ) do
-            if type ( p ) == "table" and p.recommendToDemote and tempListOfNames[p.name] == nil then
+            if type ( p ) == "table" and p.recommendToDemote and tempListOfNames2[p.name] == nil then
                 p.recommendToDemote = false;        
             end
         end
+    end
+
+    if CanGuildDemote() and CanGuildPromote() then
+        playerRecommendation = GRM_UI.GetNamesBySpecialRules();
+        local c = 0;
+        local c2 = 0;
+
+        for i = 1 , #playerRecommendation do
+            tempListOfNames3[playerRecommendation[i].name] = {};     -- Going to be used for validating in list or not.
+            player = GRM.GetPlayer ( playerRecommendation[i].name );
+
+            if playerRecommendation[i].action == "Promote" and not player.recommendSpecial then
+                player.recommendSpecial = true;     -- This acts to prevent the repeat announcement to the log.
+                c = c + 1;
+            elseif playerRecommendation[i].action == "Demote" and not player.recommendSpecial then
+                player.recommendSpecial = true;     -- This acts to prevent the repeat announcement to the log.
+                c2 = c2 + 1;
+            end
+        end
+
+        if c > 0 or c2 > 0 then
+            GRM.AddEventRecommendSpecialLogEntry( c , c2 , select ( 2 , GRM.GetTimestamp() ) );
+        end
+
+        -- Clear all names NOT on this list.
+        for _ , p in pairs ( GRM.GetGuild() ) do
+            if type ( p ) == "table" and p.recommendSpecial and tempListOfNames3[p.name] == nil then
+                p.recommendSpecial = false;
+            end
+        end
+
     end
 
 end
@@ -14297,6 +14386,13 @@ GRM.FinalReport = function()
                 GRM.PrintLog ( GRM_G.TempEventRecommendDemotionReport[i] ); 
             end
         end
+        
+        if #GRM_G.TempEventRecommendSpecialReport > 0 and GRM.S()["toChat"].recommend then
+            
+            for i = 1 , #GRM_G.TempEventRecommendSpecialReport do
+                GRM.PrintLog ( GRM_G.TempEventRecommendSpecialReport[i] ); 
+            end
+        end
 
         if #GRM_G.TempDeathReport > 0 and GRM.S()["toChat"].death then
             
@@ -14335,6 +14431,16 @@ GRM.FinalReport = function()
         end
         for i = 1 , #GRM_G.TempEventRecommendDemotionReport do
             GRM.AddLog ( GRM_G.TempEventRecommendDemotionReport[i] );                    
+        end
+    end
+
+    if #GRM_G.TempEventRecommendSpecialReport > 0 then
+        needToReport = true;
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+        end
+        for i = 1 , #GRM_G.TempEventRecommendSpecialReport do
+            GRM.AddLog ( GRM_G.TempEventRecommendSpecialReport[i] );                    
         end
     end
 
@@ -14858,6 +14964,7 @@ GRM.BuildNewRoster = function()
         else
             -- This is critical to do in case the guild has added or removed ranks...
             GRM.CheckGuildRanks();
+            GRM.ScanRecommendationsList();
 
             GRM_G.ThrottleControlNum = 1;
             -- new member and leaving members arrays to check at the end - need to reset it here.
@@ -16301,7 +16408,7 @@ GRM.GetSearchLog = function ( isSearch , searchString , currentPosition , finalR
                 trueString = true;
             elseif index == 15 and GRM.S().toLog.eventAnnounce then -- Event Announcement
                 trueString = true;
-            elseif ( index == 16 or index == 22 or index == 23 ) and GRM.S().toLog.recommend then -- recommendations
+            elseif ( index == 16 or index == 22 or index == 23 or index == 25 ) and GRM.S().toLog.recommend then -- recommendations
                 trueString = true;
             elseif ( index == 17 or index == 18 or index == 20 or index == 21 ) and GRM.S().toLog.banned then  -- ban info
                 trueString = true;
@@ -21903,7 +22010,7 @@ end
 -- Purpose:         If a value changes in the roster, like a player leaves or joins the guild, or even is promoted, demoted, you want these values to be instantly visible and reset
 --                  Be warned, calling this can be extremely computationally expensive. Never place it in a loop to update on each value changed. Only place it at the end of the 
 --                  sequence of actions to update everything all at once.
-GRM.RefreshSelectHybridFrames = function ( log , audit , ban , macroTool )
+GRM.RefreshSelectHybridFrames = function ( log , audit , ban , macroTool , customRoster )
     if log and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
         GRM.BuildLogComplete( true , true );
     end
@@ -21921,6 +22028,10 @@ GRM.RefreshSelectHybridFrames = function ( log , audit , ban , macroTool )
     --Refresh Macro Tool Frames
     if macroTool and GRM_UI.GRM_ToolCoreFrame ~= nil and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
         GRM_UI.RefreshManagementTool();
+    end
+
+    if customRoster and GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+        GRM_R.RefreshRosterName();
     end
 end
 
@@ -26776,8 +26887,6 @@ GRM.TrackingConfiguration = function( forced )
         end
 
         GRM.UpdateMacroToolSafeListExpirations();
-
-        GRM.ScanRecommendationsList();
 
         -- Determine if player has access to guild chat or is in restricted chat rank
         GRM.RegisterGuildChatPermission();

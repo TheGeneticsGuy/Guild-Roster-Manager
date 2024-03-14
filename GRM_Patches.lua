@@ -4,7 +4,7 @@
 GRM_Patch = {};
 local patchNeeded = false;
 local DBGuildNames = {};
-local totalPatches = 126;
+local totalPatches = 127;
 local startTime = 0;
 local FID = 0;
 local PID = 0;
@@ -1465,7 +1465,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             GRM_Patch.AddNewSetting ( "exportHardcoreSort" , 1 );
             
         end
-
+        
         GRM_Patch.AddMemberSpecificData ( "alts" , nil );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixStandardFormatAndRankHistFormat , true , true , false , nil );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FormatFixVerifiedTime , true , true , false , nil );
@@ -1547,6 +1547,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.9905";
         if loopCheck ( 1.9905 ) then
+            return;
+        end
+    end
+
+    -- 127
+    if numericV < 1.9907 and baseValue < 1.9907 then
+    
+        GRM_Patch.EditSetting ( "demoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
+        GRM_Patch.AddMemberSpecificData ( "recommendSpecial" , true );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9907";
+        if loopCheck ( 1.9907 ) then
             return;
         end
     end
@@ -8638,11 +8650,12 @@ end
 GRM_Patch.MarcoRuleDataConsistencyFix = function ( rule )
 
     for _, rule in pairs ( rule ) do
-        if rule.applyEvenIfActiive ~= nil then
-            rule.applyEvenIfActiive = nil;
-        end
+        rule.applyEvenIfActiive = nil;
+        rule.regardlessOfActivity = nil;
+        rule.rankSpecialIsMonths = nil;
+        rule.rankSpecialNumDaysOrMonths = nil;
     end
-
+    
     return rule;
 end
 

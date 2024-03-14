@@ -1,14 +1,22 @@
 ## **VERSION 1.9907 RELEASE - March 3rd 2024**
 
+
+***NEW FEATURE***
+
+e
+
+
 ***QUALITY OF LIFE***
 
 * The Macro tool had some minor annoyances I noticed that needed to be cleaned up. For example, it would tell you that you couldn't promote someone to a certain rank if that rank was same rank or higher than you, clearly, but it still let you select that rank. I mean, most people would understand not to, but I just cleaned up some UI stuff so you couldn't select ranks like that, not just be warned.
-
 
 ***BUG FIXES***
 
 * In the macro tool, if you deleted a rank from your guild and reopened the macro tool to edit or create a rank, then that rank was still showing until the next session. This now will properly and dynamically address rank changes like this without needing to reload.
 
+* Fixed a bug where if you selected the demote rule first, then the promote rule, the option to promote regardless of activity was missing. This should now worked. This ONLY happened if you configured a demote rule first.
+
+* Fixed an issue with the macro tool recommendations reporting to the log where it would report someone as a match right after login, but then the next check it would not. This was due to the fact that certain queries of data from the server after login were not producing accurate results until sufficient time to load after loggging in had been given. The scan now validates the data before offering suggestions to the log. This would annoyingly pop open your log every single session if say, you had a match to kick a toon, but they were the same rank or higher than you so you couldn't. Every session you'd get an identical log entry. This will no longer happen.
 
 
 
