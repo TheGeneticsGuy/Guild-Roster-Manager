@@ -610,14 +610,12 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
 
     local toAdd , playerDetails;
 
-    for name , player in pairs ( guildData ) do
+    for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             toAdd , playerDetails = addPlayer ( player );
 
             if toAdd then
-
                 table.insert ( result , playerDetails );
-
             end            
             
         end
@@ -1429,9 +1427,9 @@ end
 -- Purpose:         To give the player the ability to easily right click-whisper someone.
 GRM_R.RosterRightClickWhisper = function()
     
-    ChatFrame1EditBox:SetFocus();
+    ChatFrame_SendTell ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName );
     ChatFrame1EditBox:SetCursorPosition ( 0 );
-    ChatFrame1EditBox:Insert ( "/w " .. GRM_UI.GRM_RosterFrame.GRM_RosterFjrameDropDown.playerName .. " " );
+    -- ChatFrame1EditBox:Insert ( "/w " .. GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName .. " " );
 
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
 end

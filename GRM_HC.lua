@@ -55,7 +55,7 @@ GRM_HC.HardCoreInitialize = function()
         -- Purpose:         Report on when a player dies... Useful since there is not UI Interface
         GRM_HC.ExportDeathTag = function ( player , dateArray )
             for i = 1 , GRM.GetNumGuildies() do
-                local memberName , _ , _ , _ , _ , _ , memberNote , officerNote = GetGuildRosterInfo ( i );
+                local memberName , _ , _ , _ , _ , _ , memberNote = GetGuildRosterInfo ( i );
                 
                 if memberName == player.name then
                     if not memberNote:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
@@ -138,7 +138,7 @@ GRM_HC.HardCoreInitialize = function()
         -- Purpose:         Death reporting feature.
         GRM_HC.ReportDeathToLog = function ( name , class , level , dateArray )
             
-            local logReportWithTime , logReport = GRM.GetDeathString ( name , class , level , dateArray );
+            local logReportWithTime = GRM.GetDeathString ( name , class , level , dateArray );
 
             -- No need to report to chat since the chat already notifies everyone in guild.
             GRM.AddLog ( { 24 , logReportWithTime , name , class , level , dateArray } );
@@ -173,7 +173,7 @@ GRM_HC.HardCoreInitialize = function()
                 return deathReport;
             end
 
-            for name , player in pairs ( guild ) do
+            for _ , player in pairs ( guild ) do
                 if type (player) == "table" then
                     if player.HC.isDead then
                         if not levelRange or ( levelRange and ( player.level >= levelRange[1] and player.level <= levelRange[2] ) ) then
@@ -183,7 +183,7 @@ GRM_HC.HardCoreInitialize = function()
                 end
             end
 
-            for name , player in pairs ( formerGuild ) do
+            for _ , player in pairs ( formerGuild ) do
                 if type (player) == "table" then
                     if player.HC.isDead then
                         if not levelRange or ( levelRange and ( player.level >= levelRange[1] and player.level <= levelRange[2] ) ) then

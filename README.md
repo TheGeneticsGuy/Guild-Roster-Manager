@@ -98,41 +98,18 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 ![Add an alt to a grouping easily](https://i.imgur.com/MJI75L7.jpg)
 ![Chat tag of alt/main information](https://i.imgur.com/Ou9AyqA.jpg)
-![Alt information shown on calendar window as well](https://i.imgur.com/bRipiep.jpg)
 
 * The main tag can be customized to whatever color you like, or even to a different format (it can be disabled)
 
 * These will show on all guildies in guild chat, whispers, party, raid, instance chat.
 
-**MACRO TOOL**
+**CUSTOM GUILD ROSTER**
 
-*In patch 7.3 Blizzard removed the ability of addons from being able to remove, demote, or promote players from the guild. There is no way around this, you **HAVE** to manually implement this action in-game. So, GRM has attempted to adapt to these changes, and while not as simple as pre-7.3, it is still far easier to deal with. By creating a list of players you wish to kick and then using the addon to auto-create a macro to remove them, the player only then needs to activate the "hot-key combo" to trigger the macro, and the addon will automatically rebuild the macro with the next set of names to be removed after each trigger of the macro.*
+This is accessible by typing `/roster` in chat.
 
-![Macro Tool to kick players](https://i.imgur.com/UcYNfrq.jpg)
+![Custom GRM Guild Roster](https://i.imgur.com/AxPTWny.jpg)
 
-*I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that hustles and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. That's the main reason I do it. I get to build my guild and shape it with the culture I wish to have. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it.*
-
-**PROMOTIONS**
-
-![Matching to Promotion Rules](https://i.imgur.com/PCUMGII.jpg)
-
-![Unconfigured Promotion Settings](https://i.imgur.com/WhNgVwC.jpg)
-
-**DEMOTIONS**
-
-![Matching to Demotion Rules](https://i.imgur.com/QNSyRbK.jpg)
-
-![Macro Button Improved Tooltip](https://i.imgur.com/zDg9lQB.jpg)
-
-Bring up the Macro tool with any of the following SLASH commands.
-
-```
-/grm macro
-/grm tool
-/grm kick
-/grm promote
-/grm demote
-```
+* Being able to group in the roster by Main/Alt groups, search notes, find players by name, as well as right-click to promote/demote/kick.
 
 **ROSTER MOUSEOVER WINDOW**
 
@@ -152,6 +129,44 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * In regards to the Custom Note - These can be controlled globally in sync restriction. I personally keep custom notes open to almost all ranks in the guild, but I know some may not wish to. I'd still recommend keeping private officer only info to officer channel so maximum utility of the custom note can be had.
 
+**MACRO TOOL**
+
+*In patch 7.3 Blizzard removed the ability of addons from being able to remove, demote, or promote players from the guild. There is no way around this, you **HAVE** to manually implement this action in-game. So, GRM has attempted to adapt to these changes, and while not as simple as pre-7.3, it is still far easier to deal with. By creating a list of players you wish to kick and then using the addon to auto-create a macro to remove them, the player only then needs to activate the "hot-key combo" to trigger the macro, and the addon will automatically rebuild the macro with the next set of names to be removed after each trigger of the macro.*
+
+![Macro Tool to kick players](https://i.imgur.com/ln9xRL9.jpeg)
+
+*I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that hustles and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. That's the main reason I do it. I get to build my guild and shape it with the culture I wish to have. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it.*
+
+**KICKING**
+
+![Unconfigured Kick Settings](https://i.imgur.com/I7jN4XW.png)
+
+**PROMOTIONS**
+
+![Unconfigured Promotion Settings](https://i.imgur.com/EdCogco.png)
+
+**DEMOTIONS**
+
+![Matching to Demotion Rules](https://i.imgur.com/lG7fAgp.png)
+
+![Macro Button Improved Tooltip](https://i.imgur.com/Ju8fLuI.png)
+
+**SPECIAL RULES**
+
+![Alt Group Sync](https://i.imgur.com/5d1dHlX.png)
+
+* Easily promote all alts in a group to either the same rank as the main, or to a destination rank for guilds who have designated "alt" ranks.
+
+Bring up the Macro tool with any of the following SLASH commands.
+
+```
+/grm macro
+/grm tool
+/grm kick
+/grm promote
+/grm demote
+/grm special
+```
 
 **JOIN AND PROMOTION DATE HISTORIES**
 
@@ -237,6 +252,11 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * Be aware that it is limited to 31 characters, and anything after 31 will be cut off.
 
+**HARDCORE MODE SUPPORT**
+
+There are some limitations, due to the lack of a built-in log, but any players that die you or other GRM users are logged in will have their player note tagged with a death time and the mouseover will indicate they are perma dead.
+
+![Perma Death](https://i.imgur.com/VRQuqgk.jpeg)
 
 **GUILD AUDIT WINDOW**
 
@@ -268,25 +288,25 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 *Add Events to Calendar that Automatically popup, like anniversary notifications*
 
-![Calendar](https://i.imgur.com/YZRrVIg.jpg)
+![Calendar](https://i.imgur.com/n5mlZcV.png)
 
 * Applies to member anniversary dates
 
 * Applies to announcing member birthdays
 
-* Unfortunately there is no current compatibility with Classic due to a lack of a built-in calendar, but I am likely going to integrate use into a popular addon calendar, like GroupCalendar5, eventually.
 
+**TRANSFER TOOL**
 
-**Backup Data**
+Is your guild transferring servers? Easily carry over and transfer your guild data by setting a restore point.
 
-![Backups](https://i.imgur.com/aiLfC0g.jpg)
+![Backups](https://i.imgur.com/N8dPoUD.png)
 
-*Note, this is NOT the equivalent of a full File Side "WTF" folder backup. Addons are not capable of doing that. This is purely so you can have restore points of GRM data in case say, an officer went rogue on you and changed a ton of crap, you can just restore to a point.
+*Note, this is NOT the equivalent of a full File Side "WTF" folder backup/restore. Addons are not capable of doing that. This is purely so you can have restore points of GRM data in case say, an officer went rogue on you and changed a ton of crap, or you want to transfer the guild without starting over. It is OK to restructure your ranks on the transfer, but be aware this might show players as promoted/demoted based on the new rank structure. If the rank structure remains consistent on the new server, there shouldn't be any changes.*
 
 
 **USEFUL SLASH COMMANDS**
 
-![Slash Commands](https://i.imgur.com/3xrEgAh.jpg)
+![Slash Commands](https://i.imgur.com/IjGDGvr.png)
 
 
 **GLOBAL CONTROLS TO UNIFY SETTINGS AMONG GUILD GRM USERS**
@@ -330,11 +350,8 @@ Bring up the Macro tool with any of the following SLASH commands.
 * Colored indicators will appear next to raid/party member names if you are within trade distance of the player. They will update on the fly. Yes, it can be disabled.
 
 
-[Download on Curseforge/Twitch Here](https://www.curseforge.com/wow/addons/guild-roster-manager-group-info) or [Github Here](https://github.com/TheGeneticsGuy/Guild_Roster_Manager-Group_Info)
+[Download on Curseforge Here](https://www.curseforge.com/wow/addons/guild-roster-manager-group-info) or [Github Here](https://github.com/TheGeneticsGuy/Guild_Roster_Manager-Group_Info)
 
-* **Recruitment (Retail)**
-
-*WORK IN PROGRESS*
 
 **JOIN-UP ON DISCORD!**
 

@@ -14,7 +14,7 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9907";
+GRM_G.Version = "R1.99061";
 GRM_G.PatchDay = 1710471750;             -- In Epoch Time
 GRM_G.PatchDayString = "1710471750";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
@@ -390,10 +390,10 @@ GRM.CreateTexture = function ( frame , name , layer , useFrame )
     end
 end
 
--- Method:          GRM.TabResize ( frameObject, int , int )
+-- Method:          GRM.TabResize ( frameObject )
 -- What it Does:    Reframes a tab for all classic builds prior 10.0
 -- Purpose:         The UI changes in 10.0 negate the need of this.
-GRM.TabResize = function ( tabFrame , Width , Height )
+GRM.TabResize = function ( tabFrame )
     if GRM_G.BuildVersion < 100000 then
         PanelTemplates_TabResize ( tabFrame , nil , 76 , 25 );
     else
@@ -3470,7 +3470,7 @@ end
 -- What it Does:    Adds the main/alt tags to the system messages for coming online.
 -- Purpose:         Alt management feature!
 GRM.AddMainTagToComeOnlineSystemMessage = function( msg )
-    local name, msgID = select ( 3 , msg:find ("|Hplayer:([^:]*)(.-)|h%[.-%]|h" ) );
+    local name = select ( 3 , msg:find ("|Hplayer:([^:]*)(.-)|h%[.-%]|h" ) );
     local fullName = GRM.AppendServerName ( name );
     local includeMainTag = ( GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName );
     local result = "";
@@ -7326,121 +7326,41 @@ GRM.OldRosterButton_OnUpdate = function ( self , elapsed )
     end
 end
 
--- Method:          GRM.GetAllTooltipText()
+-- Method:          /du
 -- What it Does:    Grabs all parts of the Gametooltip to clone them
 -- Purpose:         Universal compatibility of GRM with other addons that modify communityframe tooltip
 GRM.GetAllTooltipText = function()
     local result = {};
     if GameTooltip:IsVisible() then
         local count;
+        local frameName = "";
 
         if #GRM_G.ToolTipTextLeft < 24 then
             count = #GRM_G.ToolTipTextLeft;
             
             -- This might seem better to be placed into a table or array, the ultimate issue is by placing it into an array it decalres it as a global, so I first need to check if it exits.
-            -- There is no way to call a fontstring with a known API (like GetClickFrame()) and as such they need to be manually selected.
-            if 1 > count and GameTooltipTextLeft1 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft1 );
-            elseif 2 > count and GameTooltipTextLeft2 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft2 );
-            elseif 3 > count and GameTooltipTextLeft3 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft3 );
-            elseif 4 > count and GameTooltipTextLeft4 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft4 );
-            elseif 5 > count and GameTooltipTextLeft5 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft5 );
-            elseif 6 > count and GameTooltipTextLeft6 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft6 );
-            elseif 7 > count and GameTooltipTextLeft7 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft7 );
-            elseif 8 > count and GameTooltipTextLeft8 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft8 );
-            elseif 9 > count and GameTooltipTextLeft9 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft9 );
-            elseif 10 > count and GameTooltipTextLeft10 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft10 );
-            elseif 11 > count and GameTooltipTextLeft11 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft11 );
-            elseif 12 > count and GameTooltipTextLeft12 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft12 );
-            elseif 13 > count and GameTooltipTextLeft13 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft13 );
-            elseif 14 > count and GameTooltipTextLeft14 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft14 );
-            elseif 15 > count and GameTooltipTextLeft15 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft15 );
-            elseif 16 > count and GameTooltipTextLeft16 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft16 );
-            elseif 17 > count and GameTooltipTextLeft17 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft17 );
-            elseif 18 > count and GameTooltipTextLeft18 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft18 );
-            elseif 19 > count and GameTooltipTextLeft19 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft19 );
-            elseif 20 > count and GameTooltipTextLeft20 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft20 );
-            elseif 21 > count and GameTooltipTextLeft21 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft21 );
-            elseif 22 > count and GameTooltipTextLeft22 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft22 );
-            elseif 23 > count and GameTooltipTextLeft23 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft23 );
-            elseif 24 > count and GameTooltipTextLeft24 ~= nil then
-                table.insert ( GRM_G.ToolTipTextLeft , GameTooltipTextLeft24 );
+    
+            for i = 1 , 24 do
+                frameName = "GameTooltipTextLeft" .. i;
+
+                if i > count and _G[frameName] ~= nil then
+                    table.insert ( GRM_G.ToolTipTextLeft , _G[frameName] );
+                end
             end
+
         end
 
         count = #GRM_G.ToolTipTextRight;
         if #GRM_G.ToolTipTextRight < 24 then
-            if 1 > count and GameTooltipTextRight1 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight1 );
-            elseif 2 > count and GameTooltipTextRight2 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight2 );
-            elseif 3 > count and GameTooltipTextRight3 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight3 );
-            elseif 4 > count and GameTooltipTextRight4 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight4 );
-            elseif 5 > count and GameTooltipTextRight5 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight5 );
-            elseif 6 > count and GameTooltipTextRight6 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight6 );
-            elseif 7 > count and GameTooltipTextRight7 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight7 );
-            elseif 8 > count and GameTooltipTextRight8 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight8 );
-            elseif 9 > count and GameTooltipTextRight9 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight9 );
-            elseif 10 > count and GameTooltipTextRight10 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight10 );
-            elseif 11 > count and GameTooltipTextRight11 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight11 );
-            elseif 12 > count and GameTooltipTextRight12 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight12 );
-            elseif 13 > count and GameTooltipTextRight13 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight13 );
-            elseif 14 > count and GameTooltipTextRight14 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight14 );
-            elseif 15 > count and GameTooltipTextRight15 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight15 );
-            elseif 16 > count and GameTooltipTextRight16 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight16 );
-            elseif 17 > count and GameTooltipTextRight17 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight17 );
-            elseif 18 > count and GameTooltipTextRight18 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight18 );
-            elseif 19 > count and GameTooltipTextRight19 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight19 );
-            elseif 20 > count and GameTooltipTextRight20 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight20 );
-            elseif 21 > count and GameTooltipTextRight21 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight21 );
-            elseif 22 > count and GameTooltipTextRight22 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight22 );
-            elseif 23 > count and GameTooltipTextRight23 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight23 );
-            elseif 24 > count and GameTooltipTextRight24 ~= nil then
-                table.insert ( GRM_G.ToolTipTextRight , GameTooltipTextRight24 );
+
+            for i = 1 , 24 do
+                frameName = "GameTooltipTextRight" .. i;
+
+                if i > count and _G[frameName] ~= nil then
+                    table.insert ( GRM_G.ToolTipTextRight , _G[frameName] );
+                end
             end
+
         end
 
         local tempHolder = {};
@@ -7562,23 +7482,18 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
         noPTT = noptt;
     end
 
-    local hotkeyTemp = "";
     local keyNum = 0;
 
     if IsInGuild() then
 
         for i = 1 , GetNumBindings() do
-            local name , _ , b = GetBinding(i);
+            local name = GetBinding(i);
 
             if name == "TOGGLEGUILDTAB" then
-                hotkeyTemp = b;
                 keyNum = i;
                 break;
             end
         end
-
-        local listOfKeybinds = { "J" , ";" };
-        local keybinds = "";
 
         if not noPTT and C_VoiceChat.GetPushToTalkBinding() == nil then
             C_Timer.After ( 0.5 , function()
@@ -7591,12 +7506,6 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
             end);
             return;
         else
-
-            local PushToTalkHotKey = "";
-
-            if not noPTT then
-                PushToTalkHotKey = C_VoiceChat.GetPushToTalkBinding()[1];
-            end
 
             GuildMicroButton:SetScript ( "OnEnter" , function( self )
                 local hotkey = select ( 3 , GetBinding(keyNum) );                  -- This is the hotkey to open guild and community interface.
@@ -7612,42 +7521,6 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
                 GameTooltip:Show();
             end);
 
-            -- for i = 1 , #listOfKeybinds do
-
-            --     -- First, determine if keybind has been set. If it has, let's just replicate
-            --     if hotkeyTemp ~= nil and string.find ( hotkeyTemp , "-" ) == nil then       -- I don't want a triple action keybind
-            --         keybinds = ( "CTRL-" .. hotkeyTemp );
-            --     else
-            --         keybinds = ( "CTRL-" .. listOfKeybinds[i] );
-            --     end
-
-            --     if GetBindingByKey ( keybinds ) ~= nil or keybinds == PushToTalkHotKey then
-            --         keybinds = "";
-            --     else
-            --         break;
-            --     end
-
-            -- end
-
-            -- -- MAX_ACCOUNT_MACROS
-            -- if GetNumMacros() < MAX_ACCOUNT_MACROS or GetMacroIndexByName ( "GRM_Roster" ) ~= 0 then
-
-            --     local factionIcon = "inv_bannerpvp_01";
-            --     if UnitFactionGroup ( "PLAYER" ) == "Alliance" then
-            --         factionIcon = "inv_bannerpvp_02";
-            --     end
-
-            --     GRM.CreateMacro (
-            --         "/run GuildFrame_Toggle()\n/run GuildFrame_TabClicked ( GuildFrameTab2 )" , 
-            --         "GRM_Roster" , 
-            --         factionIcon , 
-            --         keybinds,
-            --         false
-            --     );
-
-            -- else
-            --     GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Unable to create GRM hotkey macro. You currently are at the cap of {num} macros." , nil , nil , GetNumMacros() ) )
-            -- end
         end
     end
 end
@@ -7657,23 +7530,25 @@ end
 -- Purpose:         For editing keybinds be notified if already in use
 GRM.BindingCurrentlyInUse = function ( keyBind )
     local result = false;
-    local name , c , binding , binding2
+    local finalName = "";
 
     for i = 1 , GetNumBindings() do
 
-        name , c , binding , binding2 = GetBinding(i);
+        local name , _ , binding , binding2 = GetBinding(i);
 
         if keyBind == binding or keyBind == binding2 then
             result = true;
+            finalName = name;
             break;
         end
+        
     end
 
     if not result then
-        name = nil;
+        finalName = nil;
     end
 
-    return result , name;
+    return result , finalName;
 end
 
 -- Method:          GRM.BuildGuildRosterHotkeyAndMacroCLASSIC ( int , bool )
@@ -8669,7 +8544,7 @@ end
 -- Method:          GRM.AddMemberRecord( playerData , bool , playerData , bool , table , bool )
 -- What it Does:    Builds Member Record into Guild History with various metadata
 -- Purpose:         For reliable guild data tracking.
-GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo , liveJDetected , logEntryMetaData , isTransfer )
+GRM.AddMemberRecord = function ( memberInfo , isReturningMember , oldMemberInfo , liveJDetected , logEntryMetaData )
     
     -- -- First things first... ensure the player is not already added...
     local guildData = GRM.GetGuild();
@@ -9379,7 +9254,6 @@ GRM.BuildAddonUserScrollFrame = function()
         AddonUserText1:SetJustifyH ( "LEFT" );
 
         -- Get the right RGB coloring for the text.
-        local r , g , b;
         local greenColor = { 0 , 0.77 , 0.063 };
         local redColor = { 0.64 , 0.102 , 0.102 };
 
@@ -9697,7 +9571,7 @@ GRM.BuildAutoCompleteAltSelectionScrollFrame = function ( listOfAlts )
         -- Build height
         scrollHeight = scrollHeight + button:GetHeight();
         -- Set button logic...
-        button:SetScript ( "OnClick" , function ( self , key )
+        button:SetScript ( "OnClick" , function ( _ , key )
             if key == "LeftButton" then
 
                 local result = GRM.RemoveMainAltTags ( GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i][2]:GetText() )
@@ -10264,10 +10138,10 @@ GRM.BuildBackupScrollFrame = function ( showAll , fullRefresh )
     );
 end
  
--- Method:          GRM.BuildBackupHybridButtons ( int , boolean , int )
+-- Method:          GRM.BuildBackupHybridButtons ( int , boolean )
 -- What it Does:    Initiates the buttons and logic for the Backup buttons
 -- Purpose:         Compartmentalize the code for easier call back to.
-GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
+GRM.BuildBackupHybridButtons = function ( ind , isResizeAction )
 
     local coreButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][1];
     local buttonText1 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][2];
@@ -10408,7 +10282,7 @@ GRM.BuildBackupHybridButtons = function ( ind , isResizeAction , numButtons )
         end);
 
         -- Remove a Backup
-        button2:SetScript ( "OnClick" , function ( self , buttonClicked )
+        button2:SetScript ( "OnClick" , function ( _ , buttonClicked )
             if buttonClicked == "LeftButton" then
                 local guildName = buttonText1:GetText();
 
@@ -11618,7 +11492,7 @@ GRM.GetBanStatusSyncString = function ( banStatus , isAnEdit , playerNameBanned 
         end
     end
 
-    return GRM.GetLogFormattedTimestamp ( date , result ) , result;
+    return GRM.GetLogFormattedTimestamp ( date , result );
 end
 
 
@@ -11637,7 +11511,6 @@ GRM.GetJoinOrRejoinString = function ( foundInLog , player1 , player2 , date , i
     local banReason = "";
     local customNoteString = "";
     local header = "";
-    local transferMsg = "";
 
     if origRank == nil then
         origRank = GRM.L ( "Unknown" );
@@ -12366,7 +12239,7 @@ end
 -- What it Does:    Records and logs the changes for when a guildie either is KICKED or leaves the guild
 -- Purpose:         Having its own function saves on repeating a lot of code here.
 GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , officerThatKicked )
-    local timestamp , tArray = GRM.GetTimestamp();
+    local tArray = select ( 2 , GRM.GetTimestamp() );
     local timeEpoch = time();
     local oldMemberData = GRM.GetFormerMembers();
     local player = GRM.GetPlayer ( unitName );
@@ -12386,13 +12259,11 @@ GRM.RecordKickChanges = function ( unitName , playerWasKicked , dateArray , offi
         added = true;
         local timeS , timeArray = GRM.GetTimestamp();
         logEntryMetaData = { true , GRM.GetStringClassColorByName ( officerThatKicked ) .. GRM.FormatName ( officerThatKicked ) .. "|r" , ( classColorCode .. unitName .. "|r" ) , { timeS , time() , timeArray } };
-        timestamp = logEntryMetaData[4][1];
     -- Guild Event Log Detection
     else
         added , logEntryMetaData = GRM.GetGuildEventString ( 3 , unitName ); -- Kicked from the guild.
         if logEntryMetaData[1] then
             -- added = true
-            timestamp = logEntryMetaData[4][1];
             dateArray = logEntryMetaData[4][3];
             stringFound = true;
             tempStorage[2] = true;
@@ -12695,7 +12566,6 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , live
     local oldMemberData = GRM.GetFormerMembers();
     local useTimeStamp = false;
     local timeStamp = "";
-    local player;
 
     tempJoinStorage[5] = false;                 -- is a rejoin
     tempJoinStorage[6] = 0;                     -- Player Level
@@ -12710,7 +12580,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , live
     tempJoinStorage[15] = "";                   -- Custom Notes
     tempJoinStorage[16] = false;                -- Guild transfer - Rejoin
 
-    for formerMember , player in pairs ( oldMemberData ) do -- Number of players that have left the guild
+    for _ , player in pairs ( oldMemberData ) do -- Number of players that have left the guild
         if type ( player ) == "table" then
 
             if member.GUID == player.GUID or ( player.isTransfer and member.name == player.name and member.class == player.class ) then  -- GUID comparison check - cannot rely purely on the name.
@@ -12908,7 +12778,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , live
                     end
 
                     if index ~= nil then
-                        local name ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( member.rosterSelection );
+                        local note , oNote = select ( 7 , GetGuildRosterInfo( member.rosterSelection ) );
 
                         if GRM.CanEditPublicNote() and player.note and player.note ~= "" and player.note ~= note then
                             GuildRosterSetPublicNote( member.rosterSelection , player.note );
@@ -12938,7 +12808,7 @@ GRM.IsRejoinAndSetDetails = function( member , simpleName , tempTimeStamp , live
                     end
                 end
                 -- Make sure the namechange is adjusted in the database or you will get a double report
-                GRM.AddMemberRecord ( member , true , GRM.DeepCopyArray ( player ) , liveJoinDetected , logEntryMetaData , player.isTransfer );
+                GRM.AddMemberRecord ( member , true , GRM.DeepCopyArray ( player ) , liveJoinDetected , logEntryMetaData );
 
                 if liveJoinDetected and GRM.AddRejoinToAltGroup ( GRM.GetPlayer ( member.name ) , player.isTransfer ) then
                     GRM.Report ( GRM.L ( "{name} has rejoined their original alt group." , GRM.GetClassColorRGB ( member.class , true ) .. GRM.FormatName ( member.name ) .. "|r" ) );
@@ -13777,10 +13647,10 @@ GRM.CheckForDeadAccounts = function ( isManual )
 
 end
 
--- Method:          GRM.CheckLogChanges ( table , table , string  )
+-- Method:          GRM.CheckLogChanges ( table , table )
 -- What it Does:    Checks the player changes that can be cross-referenced from the log
 -- Purpose:         Compartmentalize the scan   
-GRM.CheckLogChanges = function ( updatedPlayer , player , rosterName )
+GRM.CheckLogChanges = function ( updatedPlayer , player )
     if updatedPlayer.rankIndex ~= player.rankIndex then -- This checks to see if guild just changed the name of a rank.
 
         local added = false;
@@ -15882,6 +15752,8 @@ GRM.CheckPlayerEvents = function ()
                     if not eventYear or ( r == 2 and eventYear < 2000 ) then
                         eventYear = year;
                     end
+
+                    isLeapYear = GRM.IsLeapYear ( eventYear );
 
                     local daysTil = GRM.GetDaysBetweenDates ( { day , month , year } , { eventDay , eventMonthIndex , eventYear } );
 
@@ -18428,7 +18300,6 @@ GRM.OnRankChange = function ( formerRank , newRank , promotedName , promoterName
     if newRankIndex ~= formerRankIndex then
         -- Save the data!
         local timestamp , dates = GRM.GetTimestamp();
-        local epochTime = time();
         local player = GRM.GetPlayer ( promotedName );
 
         if player then
@@ -18984,7 +18855,7 @@ GRM.PopulateClassDropDownMenu = function()
                     height = height + ClassButtons:GetHeight() + buffer;
                 end
 
-                ClassButtons:SetScript ( "OnClick" , function( self , button ) 
+                ClassButtons:SetScript ( "OnClick" , function( _ , button ) 
                     if button == "LeftButton" then
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText ( ClassButtonsText:GetText() );
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( classColor.r , classColor.g , classColor.b , 1 );
@@ -20155,7 +20026,6 @@ GRM.BanAndKickingAltsByPlayer = function ( playerThatWasKicked , scanNumber )
     local banReason = GRM_UI.GRM_MemberDetailPopupEditBox:GetText();
     local banGeneric = GRM.L ( "Reason Banned?" ) .. "\n" .. GRM.L ( "Click \"YES\" When Done" );
     local result = "";
-    local recorded = false;
 
     if banReason ~= banGeneric and banReason ~= "" and banReason ~= nil then
         result = banReason;
@@ -20221,8 +20091,6 @@ GRM.GetPlayerKickedFromButton = function( nameOrGUID , isMacro )
         if GRM_G.BuildVersion >= 30000 then
             QueryGuildEventLog();
         end
-
-        local playerThatWasKicked , realm = "" , "";
 
         if not GRM_G.CurrentlyScanning then
             GRM.KickButtonLogic ( nameOrGUID , scanNumber , isMacro );
@@ -23385,7 +23253,7 @@ GRM.GetParsedDate = function( note )
     note = GRM.CleanupNoteDate ( note );
 
     -- Now, let's parse the note (monthName include so no need to reparse for localization leanness)
-    local date , firstPartOfNote , lastPartOfNote , index , monthName = GRM.GetNoteDateDetails ( note );
+    local date , _ , _ , index , monthName = GRM.GetNoteDateDetails ( note );
 
     -- now, we identify the day, month, year of note;
     if date then
@@ -23399,7 +23267,7 @@ end
 -- What it Does:    Removes the date from the note
 -- Purpose:         To reverse engineer the notes and replace them with different dates.
 GRM.RemoveDateFromNote = function ( note )
-    local date , firstPartOfNote , lastPartOfNote , index , monthName = GRM.GetNoteDateDetails ( note );
+    local date , firstPartOfNote , lastPartOfNote = GRM.GetNoteDateDetails ( note );
     local success = false;
     local result = "";
 
@@ -25632,8 +25500,10 @@ GRM.SetConfirmationWindow = function( addedFunction , text , optionalButtonFunct
 
     if optionalButtonFunction ~= nil then
         GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowIgnoreButton:SetScript ( "OnClick" , function ( _ , button )
-            optionalButtonFunction();
-            GRM_UI.GRM_GeneralPopupWindow:Hide();
+            if button == "LeftButton" then
+                optionalButtonFunction();
+                GRM_UI.GRM_GeneralPopupWindow:Hide();
+            end
         end);
         if optionalButtonText ~= nil then
             GRM_UI.GRM_GeneralPopupWindow.GRM_GeneralPopupWindowIgnoreButtonText:SetText ( optionalButtonText );
@@ -25859,8 +25729,7 @@ GRM.GR_Roster_Click = function ( name )
                 end
             else
                 -- Since player doesn't have keyboard focus, let's just default it to main chat window
-                ChatFrame1EditBox:SetFocus()
-                ChatFrame1EditBox:Insert ( GRM.SlimName ( name ) );
+                ChatFrame_OpenChat( GRM.SlimName ( name ) );
                 
             end
         end
@@ -26213,7 +26082,7 @@ GRM.SlashCommandHelp = function()
         GRM.L ( "Open any GRM window: {name}, {name2}, {custom1}, etc." , GRM.L ( "log" ) , GRM.L ( "event" ) , nil , GRM.L ( "ban" ) ) .. "\n" .. slash .. " " .. GRM.L ( "scan" ) .. "             - " .. 
         GRM.L ( "Does a one-time manual scan for changes" ) .. "\n" .. slash .. " " .. GRM.L ( "dead" ) .. "             - " .. 
         GRM.L ( "Does a one-time check for dead accounts" ) .. "\n" .. slash .. " " .. GRM.L ( "version" ) .. "         - " .. 
-        GRM.L ( "Displays current Addon version" ) .. "\n" .. slash .. " " .. "GUID" .. "           - " .. 
+        GRM.L ( "Displays current Addon version" ) .. "\n" .. slash .. " " .. "guid" .. "           - " .. 
         GRM.L ( "Add unique player GUID to chat window to copy" ) .. "\n" .. slash .. " " .. GRM.L ( "hardreset" ) .. "      - " .. 
         GRM.L ( "WARNING! Complete hard wipe, including settings, as if addon was just installed." ) );
 end
@@ -26384,17 +26253,9 @@ end
 -- What it Does:    Pastes the player's GUID to the chat box to easily be copied
 -- Purpose:         Special use case to obtain GUIDs
 GRM.SlashCommandGUID = function()
-
-    if GRM.GetPlayer ( GRM_G.addonUser ) then
-        C_Timer.After ( 1 , function()
-            ChatFrame1EditBox:ClearFocus();
-            ChatFrame1EditBox:SetFocus();
-            ChatFrame1EditBox:Insert ( GRM.GetPlayer ( GRM_G.addonUser ).GUID );
-            ChatFrame1EditBox:HighlightText ( 0 , #ChatFrame1EditBox:GetText() );
-        end);
-    else
-        GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
-    end
+    C_Timer.After ( 0.5 , function()                -- Need to add slight delay as hitting enter on the keyboard for the command auto closes.
+        ChatFrame_OpenChat ( UnitGUID("PLAYER") );
+    end);
 end
 
 GRM.SlashCommandSearch = function ( text )
@@ -26640,7 +26501,7 @@ SlashCmdList["GRM"] = function ( input )
     elseif command == "log" or command == GRM.L ( "log" ) then
         GRM.SlashCommandLog();
 
-    elseif command == "kick" or command == GRM.L ( "kick" ) or command == "tool" or command == string.lower ( GRM.L ( "Tool" ) ) or command == "promote" or command == string.lower ( GRM.L ( "Promote" ) ) or command == "demote" or command == string.lower ( GRM.L ( "Demote" ) ) or command == "macro" or command == string.lower ( GRM.L ( "Macro" ) ) then
+    elseif command == "kick" or command == GRM.L ( "kick" ) or command == "tool" or command == string.lower ( GRM.L ( "Tool" ) ) or command == "promote" or command == string.lower ( GRM.L ( "Promote" ) ) or command == "demote" or command == string.lower ( GRM.L ( "Demote" ) ) or command == "macro" or command == string.lower ( GRM.L ( "Macro" ) ) or command == "special" or command == string.lower ( GRM.L ( "Special" ) ) then
         GRM.SlashCommandKick();
 
     elseif command == "users" or command == "syncusers" or command == GRM.L ( "users" ) or command == GRM.L ( "syncusers" ) then

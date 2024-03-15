@@ -1,16 +1,38 @@
-## **VERSION 1.9907 RELEASE - March 3rd 2024**
+## **VERSION 1.9907 RELEASE - March 15th 2024**
 
 
-***NEW FEATURE***
+***NEW FEATURE - MACRO TOOL UPDATE - SPECIAL RULES***
 
-e
+> 2 Options:
+> * Sync Alts to the same rank as Main
+> * Sync Alts in a group to a destination rank, depending on the rank of the Main.
+> 
 
+Please note the limitation - you cannot sync alts to the same rank as the guild leader, so the option is not available. However, on choosing a specific rank, this CAN be set for the guild leader.
+
+![Special Rule](https://i.imgur.com/5d1dHlX.png)
+
+Built Macro example - Promotion and Demotion in same macro build
+
+![Built Macro](https://i.imgur.com/0NWhJkz.png)
+
+When you first click the "Add Custom Rule" button to create a special rule, a special selection window appears first. This is ONLY because I have future plans to add additional "special" rules to it. For now, there is just one.
+
+![Special Rule Selection](https://i.imgur.com/ALSzNct.jpeg)
 
 ***QUALITY OF LIFE***
 
 * The Macro tool had some minor annoyances I noticed that needed to be cleaned up. For example, it would tell you that you couldn't promote someone to a certain rank if that rank was same rank or higher than you, clearly, but it still let you select that rank. I mean, most people would understand not to, but I just cleaned up some UI stuff so you couldn't select ranks like that, not just be warned.
 
+* ReadMe Updated
+
 ***BUG FIXES***
+
+* On the custom GRM /roster - if you right-clicked to whisper someone, it was erroring. This has been fixed.
+
+* The Shift-clicking names was not working to put the names into chat. This should now work properly.
+
+* The /grm guid was not working properly. It also should now work. Most probably don't use this, but I have had some ask me how to get your GUID easily, so I just added a simple slash command.
 
 * In the macro tool, if you deleted a rank from your guild and reopened the macro tool to edit or create a rank, then that rank was still showing until the next session. This now will properly and dynamically address rank changes like this without needing to reload.
 
@@ -18,9 +40,7 @@ e
 
 * Fixed an issue with the macro tool recommendations reporting to the log where it would report someone as a match right after login, but then the next check it would not. This was due to the fact that certain queries of data from the server after login were not producing accurate results until sufficient time to load after loggging in had been given. The scan now validates the data before offering suggestions to the log. This would annoyingly pop open your log every single session if say, you had a match to kick a toon, but they were the same rank or higher than you so you couldn't. Every session you'd get an identical log entry. This will no longer happen.
 
-* Fixed a lua error that could occur during sync if syncing a very old ban list with player names prior to the date I started storing GUID info (like 4 or 5 years ago maybe).
-
-
+* Fixed a lua error that could occur during sync if syncing a very old ban list with player names prior to the date I started storing GUID info (like 4 or 5 years ago maybe)
 
 ## **VERSION 1.9906 RELEASE - March 3rd 2024**
 

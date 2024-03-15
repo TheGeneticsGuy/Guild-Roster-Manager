@@ -45,7 +45,6 @@ end
 GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeToProgress , colorOnComplete , hold )
 
     if not progressBar.Hold or destinationNumber > 0 then       -- Hold a call and ignore all others.
-        local count = 0;
         local loopDelay = 0.1;
         local num = 0;
         local ascending = true;

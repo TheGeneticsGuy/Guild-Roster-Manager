@@ -391,7 +391,6 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
     else
         local player = GRM.GetPlayer ( playerName );
         local alt = GRM.GetPlayer ( altName );
-        local classMain , classAlt = "" , "";
         local timeOfChange = syncTimeStamp or time();
         
         -- Method:          Adding alt to the player grouping
@@ -435,11 +434,7 @@ GRM.AddAlt = function ( playerName , altName , isSync , syncTimeStamp )
         -- END FUNCTION
 
         -- Error Protection check
-        if alt and player then
-            classMain = player.class;
-            classAlt = alt.class;
-
-        else
+        if not alt or not player then
             if not isSync then
                 GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Failed to add alt for unknown reason. Try closing Roster window and retrying!" ) );
             end
@@ -861,7 +856,7 @@ end
 -- Purpose:         Birthday is universal of an alt grouping... keeps them together.
 -- Note:            It does leave a timstamp of the change so that you will not resync the player data again from other players, if you wanted to remove the bday.
 --                  This is a unique removal to just yourself.
-GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , sender , isUnknown )
+GRM.ResetBirthdayForAltGroup = function ( name , isLiveSync , num , isUnknown )
 
     local player = GRM.GetPlayer ( name );
 
@@ -1079,7 +1074,6 @@ GRM.DemoteFromMain = function ( mainName , timestamp )
     end
 
     local player = GRM.GetPlayer ( mainName );
-    local timeS = timestamp or time();
     
     if player then
 
@@ -1359,7 +1353,6 @@ GRM.PopulateAltFrames = function ( playerName )
             if button == "RightButton" then
                 
                 -- Parse the button number, so the alt position can be identified...
-                local altNum = tonumber ( string.match ( self:GetName() , "%d" ) );
                 local isMain = false;
 
                 -- Ok, populate the buttons properly...
@@ -1503,7 +1496,6 @@ GRM.GetSortedAltNamesWithDetails = function ( playerName )
 
     if player and GRM.PlayerHasAlts ( player ) then
         local alts = GRM.GetListOfAlts ( player );
-        local numAlts = #alts - 1;
 
         -- Build the list of alts.
         for r = 1 , #alts do
@@ -1806,7 +1798,6 @@ end
 GRM.GetAltWithOldestJoinDate = function ( playerName )
     local player = GRM.GetPlayer ( playerName );
     local oldestPlayer = { playerName , 0 };
-    local day , nonth, year = 0 , 0 , 0;
     local oldestDate = "";
     
     if player then

@@ -191,7 +191,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
                 end);
             end
 
-            parentFrame[name]:SetScript ( "OnLeave" , function( self )
+            parentFrame[name]:SetScript ( "OnLeave" , function()
                 if toolTipClearScript then
                     toolTipClearScript();
                 else
@@ -331,7 +331,7 @@ GRM_UI.CreateCheckBox = function ( name , parentFrame , template , size , points
                 toolTipScript( self );
             end);
 
-            parentFrame[name]:SetScript ( "OnLeave" , function( self )
+            parentFrame[name]:SetScript ( "OnLeave" , function()
                 if toolTipClearScript then
                     toolTipClearScript();
                 else
@@ -502,7 +502,7 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
         end)
     
         if textChangedFunction then
-            parentFrame[name]:SetScript ( "OnTextChanged" , function ( self )
+            parentFrame[name]:SetScript ( "OnTextChanged" , function ()
                 textChangedFunction();
             end);
         end
@@ -598,7 +598,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
                 end);
             end
 
-            parentFrame[name]:SetScript ( "OnLeave" , function( self )
+            parentFrame[name]:SetScript ( "OnLeave" , function()
                 if toolTipClearScript then
                     toolTipClearScript();
                 else
@@ -615,10 +615,10 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
     end 
 end
 
--- Method:          GRM_UI.CreateDropDownMenu ( string , frame , string , array , intArray , stringArray , int , int , floatArray , function , function , function , function , bool )
+-- Method:          GRM_UI.CreateDropDownMenu ( string , frame , string , array , intArray , stringArray , int , floatArray , function , function , function , function , bool )
 -- What it Does:    It creates a unique, new, dropDownMenu given the variables
 -- Purpose:         To create a generic, reusable dropdown menus
-GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , size , list , defaultSelection , fontSize , textColor , toolTipScript , toolTipClearScript , optionalSelectFunction , optionalListUpdateFunction , optionalTextFilteringFunction , includeEscapeAction )
+GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , size , list , fontSize , textColor , toolTipScript , toolTipClearScript , optionalSelectFunction , optionalListUpdateFunction , optionalTextFilteringFunction , includeEscapeAction )
 
     local selectedFrame = name .. "Selected";
 
@@ -774,7 +774,7 @@ GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelect
             height = height + button:GetHeight() + buffer;
         end
 
-        button:SetScript ( "OnClick" , function( self , button ) 
+        button:SetScript ( "OnClick" , function( _ , button ) 
             if button == "LeftButton" then
                 local tempResult = GRM.DeepCopyArray ( dropDownMenu.result );   -- Making a copy incase need to restore
                 dropDownMenu.result = { buttonText:GetText() , i };
@@ -930,7 +930,6 @@ GRM_UI.CreateToolTipScript = function ( ... )
     local lines = {...};
     local i = 1;
     local numC = 1;     -- numberOfColumns
-    local wrapT = true; -- wrapText (default of at 65(ish) characters)
 
     if tonumber(lines[1]) then
         numC = tonumber(lines[1]);
@@ -944,7 +943,6 @@ GRM_UI.CreateToolTipScript = function ( ... )
     end
 
     if GRM_UI.ToBool (lines[2]) then
-        wrapT = GRM_UI.ToBool (lines[2]);
         i = i + 1;
     end
 

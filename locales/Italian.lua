@@ -1764,7 +1764,7 @@ GRML.Italian = function()
     GRM_L["To access the color wheel, due to a compatibility issue that began in 10.2.5, you will need to reload the UI. Do you wish to reload now?"] = true
 	
 	-- R1.9907
-    GRM_L["Alt Promote Rule {num}"] = true
+    GRM_L["Alt Group Rule {num}"] = true
     GRM_L["Promote/Demote Alts to Same Rank as Main"] = true
     GRM_L["Promote/Demote Alts to Rank:"] = true
     GRM_L["Promote Alts to Same Rank as Main"] = true
@@ -1790,5 +1790,6 @@ GRML.Italian = function()
     GRM_L["Promotion"] = true
     GRM_L["Demotion"] = true
     GRM_L["Disable Demote Option. Only Promote Players"] = true
+	GRM_L["Unable to Move Alts to this Rank"] = true;
 	
 end

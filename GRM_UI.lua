@@ -1516,7 +1516,7 @@ end
 -----------------------------------------------
 
 -- This is useful to be reused to build character count in various places.
-GRM_UI.CreateCharacterCountText = function( editFrame , editButton , editBox , nameOfCountFontstring , x , y , extraFrameButton )
+GRM_UI.CreateCharacterCountText = function( editFrame , editButton , editBox , x , y , extraFrameButton )
 
     editFrame.Count = editFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
     editFrame.Count:SetPoint ( "TOPRIGHT" , editFrame , x , y );
@@ -1566,7 +1566,7 @@ GRM_UI.CreateCharacterCountText = function( editFrame , editButton , editBox , n
     end)
 
     -- Button is not shared in later versions.
-    if extraFrameButton ~= nil then
+    if extraFrameButton then
         extraFrameButton:HookScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
                 editFrame.Count:SetText( editBox:GetNumLetters() .. "/" .. editBox:GetMaxLetters() );
@@ -2265,7 +2265,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         if mainName ~= nil and mainName ~= GRM_G.currentName and oldestPlayerAndDate ~= mainName and mainHasJD[1] then
             self.GRM_JDMainButtonText:SetText ( ">  " .. GRM.L ( "Sync All Alts to {name}'s |cffff0000(main)|r Join Date" , GRM.GetClassifiedName ( mainName , true ) ) .. " |CFFFF0000- " .. mainHasJD[2]  );
             -- Set the script to proper button
-            self.GRM_JDMainButton:SetScript ( "OnClick" , function ( self , button )
+            self.GRM_JDMainButton:SetScript ( "OnClick" , function ( _ , button )
                 if button == "LeftButton" then
                     GRM.SyncJoinDateUsingMain();
                     GRM.PopulateMemberDetails ( GRM_G.currentName );
@@ -2276,7 +2276,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             count = count + 1;
         elseif oldestPlayerAndDate ~= GRM_G.currentName and playerHasJD[1] then
             self.GRM_JDMainButtonText:SetText ( ">  " .. GRM.L ( "Sync All Alts to {name}'s Join Date" , GRM.GetClassifiedName ( GRM_G.currentName , true ) ) .. " |CFFFF0000- " .. playerHasJD[2] );
-            self.GRM_JDMainButton:SetScript ( "OnClick" , function ( self , button )
+            self.GRM_JDMainButton:SetScript ( "OnClick" , function ( _ , button )
                 if button == "LeftButton" then
                     GRM.SyncJoinDateUsingCurrentSelected();
                     GRM.PopulateMemberDetails ( GRM_G.currentName );
@@ -4421,7 +4421,7 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
 
             chatFrame = _G[ CHAT_FRAMES[j] ];
 
-            chatFrame:HookScript ( "OnHyperlinkClick" , function ( _ , link , text , button )
+            chatFrame:HookScript ( "OnHyperlinkClick" , function ( _ , link , _ , button )
             
                 if button == "LeftButton" and IsInGuild() and IsControlKeyDown() then
                     local name = string.match ( link , "player:(.+):%d+:.+" );
@@ -4760,8 +4760,6 @@ GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
     
     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
-            local text = GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3Text:GetText();
-
             GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Hide();
         end
     end);
@@ -8340,7 +8338,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSizeSliderText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 + modifier );
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSizeSlider:SetScript ( "OnValueChanged" , function( self , value )
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSizeSlider:SetScript ( "OnValueChanged" , function( _ , value )
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSizeSliderText2:SetText ( math.floor ( value + 0.5 ) .. "%" );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSizeSliderText3:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 + ( ( math.floor ( value + 0.5 ) - 100  ) / 10 ) );
         if GameTooltip:IsVisible() then
@@ -9911,11 +9909,11 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsOverlayNote:Show();
     end);
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsEditBox:SetScript ( "OnEnterPressed" , function( self )
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsEditBox:SetScript ( "OnEnterPressed" , function()
         EventsEditBox(); 
     end);
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsEditBox:SetScript ( "OnEditFocusLost" , function( self ) 
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsEditBox:SetScript ( "OnEditFocusLost" , function() 
         EventsEditBox();
     end)
 
@@ -10376,7 +10374,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetWidth ( 130 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetFrameStrata ( "DIALOG" );
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetScript ( "OnKeyDown" , function ( _ , key )
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetScript ( "OnKeyDown" , function ( self , key )
         if not GRM_G.inCombat then
             self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
             if key == "ESCAPE" then
@@ -15485,7 +15483,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             end
             -- Now, we check the class...
             local isFound = false;
-            foundInfo = {};
+            local foundInfo = {};
         
             for _ , player in pairs ( GRM.GetGuild() ) do
         
@@ -17432,19 +17430,6 @@ GRM_UI.BuildLogFrames = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider:SetValue ( ( GRM.S().logFontSize * 10 ) + 100 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText2:SetText ( math.floor ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider:GetValue() + 0.5 ) .. "%" );
     
-    -- Slider Values
-    local value = 0;
-    local getValueString = function ( v )
-        if #v < 4 then
-            if #v == 3 then 
-                v = v .. "0";
-            elseif #v == 1 then
-                v = v .. ".0";
-            end
-        end;
-        return v;
-    end
-    
     -- Reset the editboxes
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsOverlayNoteText:SetText ( GRM.S().eventAdvanceDays ) ;    
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_RosterTimeIntervalOverlayNote.GRM_RosterTimeIntervalOverlayNoteText:SetText ( GRM.S().scanDelay );
@@ -18274,7 +18259,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
                 end
             end);
 
-            GRM_UI.CreateCharacterCountText ( GRM_UI.GuildInfoFrame , GRM_UI.GuildDetailsGuildInformationButton , GRM_UI.GuildInfoEditBox , "GuildINFOcharCount" , -33 , -18 );
+            GRM_UI.CreateCharacterCountText ( GRM_UI.GuildInfoFrame , GRM_UI.GuildDetailsGuildInformationButton , GRM_UI.GuildInfoEditBox , -33 , -18 );
 
             GRM_R.InitializeRosterLoadButton ( FriendsFrame , { "TOPRIGHT" , FriendsFrame, "BOTTOMRIGHT" , -5 , 5 } , { 36 , 36 } , { 28 , 28 } );
 
@@ -18413,7 +18398,7 @@ GRM_UI.InitalizeGuildFrame = function()
     end
 
     -- Communities
-    GRM_UI.CreateCharacterCountText ( GRM_UI.CommunitiesGuildTextEditFrame , GRM_UI.GuildDetailsFrameEditMOTDButton , GRM_UI.MOTDEditBox , "GuildMOTDcharCount" , -33 , -18 , GRM_UI.GuildDetailsGuildInformationButton );
+    GRM_UI.CreateCharacterCountText ( GRM_UI.CommunitiesGuildTextEditFrame , GRM_UI.GuildDetailsFrameEditMOTDButton , GRM_UI.MOTDEditBox , -33 , -18 , GRM_UI.GuildDetailsGuildInformationButton );
 
     GRM_UI.MemberDetailFrame.RemoveButton:HookScript ( "OnClick" , function()
         GRM_UI.GRM_PopupWindow:Show();
@@ -18576,7 +18561,7 @@ GRM_UI.RescaleFrame = function ( frame , hide , tooltips , customCornerPos )
             GRM.RestoreTooltip();
         end)
 
-        cornerFrame:SetScript ( "OnMouseDown", function ( self , button )
+        cornerFrame:SetScript ( "OnMouseDown", function ( _ , button )
             if button == "RightButton" then
                 local sizeW , sizeH = GRM_UI.GetDefaultFrameSize ( frame:GetName() );
                 frame:SetSize ( sizeW , sizeH );
