@@ -10,7 +10,11 @@ GRM_UI.EstablishClassicFrames = function()
             -- Guild Roster Frames
             GRM_UI.GuildRosterContainerScrollChild = GuildListScrollFrameScrollChildFrame;
             GRM_UI.GuildRosterFrame = GuildFrame;
-            GRM_UI.ContainerButtonCount = GUILDMEMBERS_TO_DISPLAY;
+            if GUILDMEMBERS_TO_DISPLAY then
+                GRM_UI.ContainerButtonCount = GUILDMEMBERS_TO_DISPLAY;
+            else
+                GRM_UI.ContainerButtonCount = 16;
+            end
             GRM_UI.OldRosterButtonName = "GuildFrameButton";
             GRM_UI.GuildRosterContainer = GuildListScrollFrame;
             GRM_UI.MemberDetailFrame = GuildMemberDetailFrame;

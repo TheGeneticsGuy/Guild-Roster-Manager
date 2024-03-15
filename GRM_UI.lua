@@ -6268,12 +6268,12 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                         GRM_G.CurrentTagColorBox = 0;
                         
                         GRM_UI.ShowCustomColorPicker ( color[1] , color[2] , color[3] , 1 , i );
-                        if IsAddOnLoaded ( "ColorPickerPlus" ) then
+                        if GRM.IsAddOnLoaded ( "ColorPickerPlus" ) then
                             GRM_UI.ColorPickerFrame:SetSize ( 380 , 380 );
-                        elseif IsAddOnLoaded ( "ColorPickerAdvanced" ) then
+                        elseif GRM.IsAddOnLoaded ( "ColorPickerAdvanced" ) then
                             GRM_UI.ColorPickerFrame.hasOpacity = true;
                             GRM_UI.ColorPickerFrame.opacity = 1;
-                        elseif IsAddOnLoaded ( "ElvUI" ) then
+                        elseif GRM.IsAddOnLoaded ( "ElvUI" ) then
                             GRM_UI.ColorPickerFrame:SetSize ( 345 , 240 );
                         else
                             GRM_UI.ColorPickerFrame:SetSize ( 305 , 230 );
@@ -7437,12 +7437,12 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             GRM.RestoreTooltip();
             GRM_UI.ShowCustomColorPicker ( GRM.S().mainTagColor.r , GRM.S().mainTagColor.g , GRM.S().mainTagColor.b , 1.0 , 98 );
-            if IsAddOnLoaded ( "ColorPickerPlus" ) then
+            if GRM.IsAddOnLoaded ( "ColorPickerPlus" ) then
                 GRM_UI.ColorPickerFrame:SetSize ( 380 , 380 );
-            elseif IsAddOnLoaded ( "ColorPickerAdvanced" ) then
+            elseif GRM.IsAddOnLoaded ( "ColorPickerAdvanced" ) then
                 GRM_UI.ColorPickerFrame.hasOpacity = true;
                 GRM_UI.ColorPickerFrame.opacity = 1;
-            elseif IsAddOnLoaded ( "ElvUI" ) then
+            elseif GRM.IsAddOnLoaded ( "ElvUI" ) then
                 GRM_UI.ColorPickerFrame:SetSize ( 345 , 240 );
             else
                 GRM_UI.ColorPickerFrame:SetSize ( 305 , 230 );
@@ -7621,7 +7621,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.ColorPickerFrame.GRM_ColorPickerButtonConfirm:Show();
                 GRM_UI.ColorPickerFrame.GRM_ColorPickerButtonCancel:Show();
 
-                if IsAddOnLoaded ( "ColorPickerAdvanced" ) or IsAddOnLoaded ( "ColorPickerPlus" ) or IsAddOnLoaded ( "ElvUI" ) then
+                if GRM.IsAddOnLoaded ( "ColorPickerAdvanced" ) or GRM.IsAddOnLoaded ( "ColorPickerPlus" ) or GRM.IsAddOnLoaded ( "ElvUI" ) then
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:Hide();
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:Hide();
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:Hide();
@@ -16699,7 +16699,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM.BuildAltGroupingScrollFrame( GRM_G.currentName );
         elseif CalendarViewEventFrame and CalendarViewEventFrame:IsVisible() and CalendarViewEventFrame:IsMouseOver() then
             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:ClearAllPoints();
-            if IsAddOnLoaded ( "LOIHCal" ) and not LOIHCalDB.config.overlay then
+            if GRM.IsAddOnLoaded ( "LOIHCal" ) and not LOIHCalDB.config.overlay then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:SetPoint ( "TOP" , LOIHCal_Container , "BOTTOM" , 0 , -50 );
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:SetPoint ( "BOTTOMLEFT" , CalendarViewEventFrame , "BOTTOMRIGHT" , 11 , 0 );
@@ -16708,7 +16708,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM.BuildAltGroupingScrollFrame( GRM_G.CurrentCalendarName );
         elseif CalendarCreateEventFrame and CalendarCreateEventFrame:IsVisible() and CalendarCreateEventFrame:IsMouseOver() then
             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:ClearAllPoints();
-            if IsAddOnLoaded ( "LOIHCal" ) and not LOIHCalDB.config.overlay then
+            if GRM.IsAddOnLoaded ( "LOIHCal" ) and not LOIHCalDB.config.overlay then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:SetPoint ( "TOP" , LOIHCal_Container , "BOTTOM" , 0 , -50 );
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:SetPoint ( "BOTTOMLEFT" , CalendarCreateEventFrame , "BOTTOMRIGHT" , 11 , 0 );
@@ -17961,7 +17961,7 @@ GRM_UI.OldRosterLog_OnShow = function( isManual )
         end);
 
         local timer = 0;
-        if not GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster.Configured and IsAddOnLoaded("AddOnSkins") then
+        if not GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster.Configured and GRM.IsAddOnLoaded("AddOnSkins") then
             timer = 3.1;
         end
         GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRoster.Configured = true;
@@ -18061,7 +18061,7 @@ GRM_UI.MainRoster_OnShow = function( isManual )
         end
 
         local timer = 0;
-        if not rosterFrame.GRM_EnableMouseOver.Configured and IsAddOnLoaded("AddOnSkins") then
+        if not rosterFrame.GRM_EnableMouseOver.Configured and GRM.IsAddOnLoaded("AddOnSkins") then
             timer = 3.1;
         end
         rosterFrame.GRM_EnableMouseOver.Configured = true;

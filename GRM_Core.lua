@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9906";
-GRM_G.PatchDay = 1705430340;             -- In Epoch Time
-GRM_G.PatchDayString = "1705430340";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9907";
+GRM_G.PatchDay = 1710471750;             -- In Epoch Time
+GRM_G.PatchDayString = "1710471750";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -410,6 +410,118 @@ else
     GRM_G.CheckButtonTemplate = "OptionsSmallCheckButtonTemplate";
     GRM_G.TabTemplate = "TabButtonTemplate";
 end
+
+-------------------------------------
+-------- BUILD COMPATIBILITY --------
+-------------------------------------
+
+-- ALL these functions are to deal with possibility of Retail and Classic backend APIs no longer being sync'd the same. When 9.0 launched October 2020 the underlying API was changed for many things, but Classic did not receive those updates. It is assumed those will eventually be made the same again in future updates for Classic. By Wrapping them in a GRM function it can be easy to control by just needing to update them here rather than addon-wide.
+
+GRM.CanViewOfficerNote = function()
+    if C_GuildInfo.CanViewOfficerNote then
+        return C_GuildInfo.CanViewOfficerNote();
+    else
+        return CanViewOfficerNote();
+    end
+end
+
+GRM.CanEditOfficerNote = function()
+    if C_GuildInfo.CanEditOfficerNote then
+        return C_GuildInfo.CanEditOfficerNote();
+    else
+        return CanEditOfficerNote();
+    end
+end
+
+-- An assumption they will update this API to the namespace C_GuildInfo
+GRM.CanEditPublicNote = function()
+    if C_GuildInfo.CanEditPublicNote then
+        return C_GuildInfo.CanEditPublicNote();
+    else
+        return CanEditPublicNote();
+    end
+end
+
+GRM.GuildRoster = function()
+    if C_GuildInfo.GuildRoster then
+        if GRM_G.BuildVersion >= 100100 or GRM_G.BuildVersion < 100000 then -- Launch error for 10.0 caused frame to refresh and mess up sorting
+            C_GuildInfo.GuildRoster();
+            
+        end
+    else
+        GuildRoster();
+    end
+end
+
+GRM.GetTodaysDate = function()
+    local calendarTime;
+
+    if C_DateAndTime.GetCurrentCalendarTime then
+        -- RETAIL
+        calendarTime = C_DateAndTime.GetCurrentCalendarTime();
+        return calendarTime.weekday, calendarTime.month, calendarTime.monthDay, calendarTime.year , calendarTime.hour , calendarTime.minute;
+    else
+        -- CLASSIC
+        calendarTime = C_DateAndTime.GetTodaysDate();
+        return calendarTime.weekDay, calendarTime.month, calendarTime.day, calendarTime.year;
+    end
+end
+
+GRM.GetCurrentCalendarTime = function()
+    if C_DateAndTime.GetCurrentCalendarTime then
+        return C_DateAndTime.GetCurrentCalendarTime();
+    else
+        return C_DateAndTime.GetTodaysDate();
+    end
+end
+
+-- 10.2.5 change
+GRM.GetColorPickerFrame = function( type )
+
+    if type == 1 then
+        if ColorPickerOkayButton then
+            return ColorPickerOkayButton;
+        else
+            return GRM_UI.ColorPickerFrame.Footer.OkayButton;
+        end
+    elseif type == 2 then
+        if ColorPickerWheel then
+            return ColorPickerWheel;
+        else
+            return GRM_UI.ColorPickerFrame.Content.ColorPicker.Wheel;
+        end
+    elseif type == 3 then
+        if GRM_UI.ColorPickerFrame.Header then
+            return GRM_UI.ColorPickerFrame.Header;
+        else
+            return ColorPickerFrameHeader;
+        end
+    elseif type == 4 then
+        if ColorPickerCancelButton then
+            return ColorPickerCancelButton;
+        else
+            return GRM_UI.ColorPickerFrame.Footer.CancelButton;
+        end
+    end
+end
+
+-- 10.2 Change
+GRM.IsAddOnLoaded = function ( addonName )
+    if C_AddOns and C_AddOns.IsAddOnLoaded then
+        return C_AddOns.IsAddOnLoaded ( addonName );
+    else
+        return IsAddOnLoaded ( addonName );
+    end
+end
+
+GRM.LoadLuaAddOn = function ( addonName )
+    if C_AddOns and C_AddOns.LoadAddOn then
+        return C_AddOns.LoadAddOn ( addonName );
+    else
+        return LoadAddOn ( addonName );
+    end
+end
+
 -------------------------------
 --- END COMPATIBILITY CHECK ---
 -------------------------------
@@ -457,7 +569,7 @@ GRM_G.StatusChecking:SetScript ( "OnEvent" , function ( _ , event )
 
         elseif eventList[event] then
 
-            if GRM_G.Module.GroupInfo ~= nil then
+            if GRM_G.Module.GroupInfo ~= nil and GRM_GI then
                 GRM_GI.EventListener();
             end
 
@@ -492,7 +604,6 @@ GRM.FrameCombatHide = function()
         if GRM_UI.GRM_RosterChangeLogFrame and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
             GRM_UI.GRM_RosterChangeLogFrame:Hide();
             GRM_G.CoreFramesHidden[2] = true;
-            atLeastOneHidden = true;
             GRM_G.CoreFramesHidden.hidden = true
         end
 
@@ -500,7 +611,6 @@ GRM.FrameCombatHide = function()
         if GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
             GRM_UI.GRM_ExportLogBorderFrame:Hide();
             GRM_G.CoreFramesHidden[3] = true;
-            atLeastOneHidden = true;
             GRM_G.CoreFramesHidden.hidden = true
         end
 
@@ -1267,100 +1377,6 @@ GRM.VerifyAddonSettings = function()
         GRM_AddonSettings_Save[GRM_G.addonUser] = Validate ( GRM_AddonSettings_Save[GRM_G.addonUser] );
     end
 
-end
-
--------------------------------------
--------- BUILD COMPATIBILITY --------
--------------------------------------
-
--- ALL these functions are to deal with possibility of Retail and Classic backend APIs no longer being sync'd the same. When 9.0 launched October 2020 the underlying API was changed for many things, but Classic did not receive those updates. It is assumed those will eventually be made the same again in future updates for Classic. By Wrapping them in a GRM function it can be easy to control by just needing to update them here rather than addon-wide.
-
-GRM.CanViewOfficerNote = function()
-    if C_GuildInfo.CanViewOfficerNote then
-        return C_GuildInfo.CanViewOfficerNote();
-    else
-        return CanViewOfficerNote();
-    end
-end
-
-GRM.CanEditOfficerNote = function()
-    if C_GuildInfo.CanEditOfficerNote then
-        return C_GuildInfo.CanEditOfficerNote();
-    else
-        return CanEditOfficerNote();
-    end
-end
-
--- An assumption they will update this API to the namespace C_GuildInfo
-GRM.CanEditPublicNote = function()
-    if C_GuildInfo.CanEditPublicNote then
-        return C_GuildInfo.CanEditPublicNote();
-    else
-        return CanEditPublicNote();
-    end
-end
-
-GRM.GuildRoster = function()
-    if C_GuildInfo.GuildRoster then
-        if GRM_G.BuildVersion >= 100100 or GRM_G.BuildVersion < 100000 then -- Launch error for 10.0 caused frame to refresh and mess up sorting
-            C_GuildInfo.GuildRoster();
-            
-        end
-    else
-        GuildRoster();
-    end
-end
-
-GRM.GetTodaysDate = function()
-    local calendarTime;
-
-    if C_DateAndTime.GetCurrentCalendarTime then
-        -- RETAIL
-        calendarTime = C_DateAndTime.GetCurrentCalendarTime();
-        return calendarTime.weekday, calendarTime.month, calendarTime.monthDay, calendarTime.year , calendarTime.hour , calendarTime.minute;
-    else
-        -- CLASSIC
-        calendarTime = C_DateAndTime.GetTodaysDate();
-        return calendarTime.weekDay, calendarTime.month, calendarTime.day, calendarTime.year;
-    end
-end
-
-GRM.GetCurrentCalendarTime = function()
-    if C_DateAndTime.GetCurrentCalendarTime then
-        return C_DateAndTime.GetCurrentCalendarTime();
-    else
-        return C_DateAndTime.GetTodaysDate();
-    end
-end
-
--- 10.2.5 change
-GRM.GetColorPickerFrame = function( type )
-
-    if type == 1 then
-        if ColorPickerOkayButton then
-            return ColorPickerOkayButton;
-        else
-            return GRM_UI.ColorPickerFrame.Footer.OkayButton;
-        end
-    elseif type == 2 then
-        if ColorPickerWheel then
-            return ColorPickerWheel;
-        else
-            return GRM_UI.ColorPickerFrame.Content.ColorPicker.Wheel;
-        end
-    elseif type == 3 then
-        if GRM_UI.ColorPickerFrame.Header then
-            return GRM_UI.ColorPickerFrame.Header;
-        else
-            return ColorPickerFrameHeader;
-        end
-    elseif type == 4 then
-        if ColorPickerCancelButton then
-            return ColorPickerCancelButton;
-        else
-            return GRM_UI.ColorPickerFrame.Footer.CancelButton;
-        end
-    end
 end
 
 ---------------------------------------
@@ -4907,7 +4923,7 @@ GRM.RegisterVersionCheck = function()
             if sender ~= GRM_G.addonUser then
                 -- Just to ensure it only does a check one time from each player with the addon installed.
 
-                if not GRM_G.VersionCheckedNames[semder] then
+                if not GRM_G.VersionCheckedNames[sender] then
                     GRM_G.VersionCheckedNames[sender] = true;
                 else
                     GRM.VersionCheck ( msg );
@@ -6993,7 +7009,7 @@ GRM.InitializeDragonFlightRosterButtons = function()
 
     cFrame.MemberList.ScrollBox:ForEachFrame ( function ( scrollButton )
 
-        scrollButton:HookScript ( "OnEnter" , function ()
+        scrollButton:HookScript ( "OnEnter" , function ( self )
             if cFrame:GetSelectedClubId() == GRM_G.gClubID and GetMouseFocus() == self then
                 local name = GRM.GetRosterName ( scrollButton , false  );
 
@@ -14936,6 +14952,7 @@ GRM.BuildNewRoster = function()
         if clubID and clubID ~= "" then
             local members = C_Club.GetClubMembers ( clubID )
             local name = "";
+            local player = {};
 
             for i = 1 , #members do
                 player = C_Club.GetMemberInfo ( clubID , members[i] )
@@ -15074,7 +15091,7 @@ GRM.BuildNewGuildOrNameChange = function ( roster , forceRebuild )
                 GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i );
             end
 
-            if IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
+            if GRM.IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
                 GRM.S().joinDateDestination = 2;
             end
 
@@ -19216,7 +19233,7 @@ GRM.PopulateLanguageDropdown = function()
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:Hide();
                 end
 
-                if IsAddOnLoaded ( "AddOnSkins" ) then
+                if GRM.IsAddOnLoaded ( "AddOnSkins" ) then
                     GRM_UI.GRM_RosterChangeLogFrame:Hide();
                     GRM_UI.GRM_RosterChangeLogFrame:Show();
                     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
@@ -19316,7 +19333,7 @@ GRM.PopulateFontDropdown = function()
                 -- Additional frame check...
                 GRM_UI.ElvUIReset = true;
                 GRM_UI.ElvUIReset2 = true;
-                if IsAddOnLoaded ( "AddOnSkins" ) then
+                if GRM.IsAddOnLoaded ( "AddOnSkins" ) then
                     GRM_UI.GRM_RosterChangeLogFrame:Hide();
                     GRM_UI.GRM_RosterChangeLogFrame:Show();
                     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
@@ -20003,6 +20020,7 @@ GRM.CheckForNewPlayer = function ( name )
                 if clubID and clubID ~= "" then
                     local members = C_Club.GetClubMembers ( clubID )
                     local playerName = "";
+                    local player = {};
         
                     if members then
                         for i = 1 , #members do
@@ -20223,6 +20241,7 @@ end
 -- What it Does:    Parses player name if they are going to be kicking for quick reporting
 -- Purpose:         Control quick reporting to log and updating server.
 GRM.KickButtonLogic = function ( nameOrGUID , scanNumber , isMacro )
+    local playerThatWasKicked , realm = "" , "";
 
     if string.match ( nameOrGUID , "Player-.+" ) then -- guid
         playerThatWasKicked, realm = select ( 6 , GetPlayerInfoByGUID ( nameOrGUID ) );
@@ -27101,7 +27120,7 @@ GRM.LoadAddon = function()
     end
 
     if not GuildFrame then
-        LoadAddOn ( "Blizzard_GuildUI" );
+        GRM.LoadLuaAddOn ( "Blizzard_GuildUI" );
     end
 
     -- Modular load control
@@ -27111,7 +27130,7 @@ GRM.LoadAddon = function()
     if GRM_G.BuildVersion >= 80000 and not CommunitiesFrame then
         C_Timer.After ( 3 , function()
             GRM.LoadRecursiveErrorCheck();
-            LoadAddOn ( "Blizzard_Communities" );
+            GRM.LoadLuaAddOn ( "Blizzard_Communities" );
         end);
     else
         GRM.LoadRecursiveErrorCheck();
@@ -27340,7 +27359,7 @@ GRM.SettingsLoadedFinishDataLoad = function()
         -- MISC Quality of Life Settings...
         -- Addon Compatibility Detection
         -- EPGP uses officer notes and is an incredibly popular addon. This now ensures auto-adding not will default to PUBLIC note rather than officer.
-        if IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
+        if GRM.IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
             GRM.S().joinDateDestination = 2;
         end
         C_Timer.After ( 2 , GRM.LoadAddon );                 -- Queries do not return info immediately, gives server a 2 second delay.

@@ -1760,4 +1760,32 @@ GRML.MandarinCN = function()
     -- R1.9906
     GRM_L["To access the color wheel, due to a compatibility issue that began in 10.2.5, you will need to reload the UI. Do you wish to reload now?"] = true
     
+    -- R1.9907
+    GRM_L["Alt Promote Rule {num}"] = true
+    GRM_L["Promote/Demote Alts to Same Rank as Main"] = true
+    GRM_L["Promote/Demote Alts to Rank:"] = true
+    GRM_L["Promote Alts to Same Rank as Main"] = true
+    GRM_L["Promote Alts to Rank:"] = true
+    GRM_L["Please Choose a Destination Rank for Alts."] = true
+    GRM_L["Apply to Mains at:"] = true
+    GRM_L["Only Selected Ranks"] = true
+    GRM_L["Ignore if Offline for:"] = true
+    GRM_L["{custom1} to Change."] = true        -- "Click to change"
+    GRM_L["Sync Alts to Main:"] = true
+    GRM_L["Main's Rank: {name}"] = true      -- Example: "Main's Rank: Guild Leader"
+    GRM_L["Alt's Rank: {name}"] = true
+    GRM_L["Destination Rank: {name}"] = true
+    GRM_L["Up 1 Rank"] = true
+    GRM_L["Up {num} Ranks"] = true
+    GRM_L["Down 1 Rank"] = true
+    GRM_L["Down {num} Ranks"] = true
+    GRM_L["Ignore Alt Promotion if Offline for {num} {name}"] = true
+    GRM_L["No Restrictions"] = true
+    GRM_L["Special Rule"] = true
+    GRM_L["{num} Players are Ready for {name}."] = true
+    GRM_L["1 Player is Ready for {name}."] = true
+    GRM_L["Promotion"] = true
+    GRM_L["Demotion"] = true
+    GRM_L["Disable Demote Option. Only Promote Players"] = true
+    
 end

@@ -473,12 +473,11 @@ end
 GRM_R.RefrehsOnlineStatus = function( guildData )
    
     local count = 0;
-    local fullName , isOnline;
     
     if guildData then
         for i = 1 , GRM.GetNumGuildies() do
             
-            fullName , _, _, _, _, _, _, _, isOnline = GetGuildRosterInfo ( i );
+            local fullName , _, _, _, _, _, _, _, isOnline = GetGuildRosterInfo ( i );
         
             if guildData[fullName] then
                 guildData[fullName].isOnline = isOnline;
@@ -1542,7 +1541,7 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
                 GRM_R.BuildGuildRosterButtons ( i  , false );
 
             elseif reSizeButtons then
-                button = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i][1];
+                local button = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i][1];
                 if i == 1 then
                     button:ClearAllPoints();
                     button:SetPoint ( "TOP" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild , "TOP" , 9 , 0 );

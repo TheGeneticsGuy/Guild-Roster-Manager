@@ -163,6 +163,7 @@ GRM.GetClubMemberInfo = function ( playerName , guildClubID )
     if clubID and clubID ~= "" then
         local members = C_Club.GetClubMembers ( clubID );
         local name = "";
+        local player = {};
 
         for i = 1 , #members do
             player = C_Club.GetMemberInfo ( clubID , members[i] )

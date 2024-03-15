@@ -73,7 +73,7 @@ GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , 
             finalFrame:SetToplevel ( true );
             finalFrame:SetMovable ( "LeftButton" );
             finalFrame:SetScript ( "OnDragStart" , function()
-                if GetMouseFocus() == self then
+                if GetMouseFocus() == finalFrame then
                     finalFrame:StartMoving();
                 end
             end);
@@ -990,6 +990,7 @@ end
 GRM_UI.GetCheckboxPinNumber = function ( numCheckboxes , numberPerRow )
             
     local r = numCheckboxes % numberPerRow;
+    local result = 0;
 
     if r == 0 then
         result = numCheckboxes - ( numberPerRow - 1 );

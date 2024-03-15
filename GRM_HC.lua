@@ -253,6 +253,7 @@ GRM_HC.HardCoreInitialize = function()
             local delimiter = "";
             local playerDetails = "";
             local isMergedRealm = GRM.IsMergedRealmServer();
+            local name = "";
 
             if GRM.S().exportDelimiter[1] then
                 delimiter = GRM.S().exportDelimiter[2];

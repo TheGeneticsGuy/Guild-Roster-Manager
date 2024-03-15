@@ -268,13 +268,13 @@ GRM_API.RestoreAllPublicNotes = function( name )
                 end
 
             else
-                print("Trouble finding guild...")
+                -- print("Trouble finding guild...")
             end
         else
-            print("Player does not have permission to edit public notes")
+            -- print("Player does not have permission to edit public notes")
         end
     else
-        print("Player is not currently in a guild")
+        -- print("Player is not currently in a guild")
     end    
 end
 

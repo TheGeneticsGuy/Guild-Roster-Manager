@@ -39,7 +39,7 @@ GRM_API.CreateNewProgressBar = function ( parentFrame , frameName , width , heig
 end
 
 -- /run GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 5 );
--- Method:          GRM_API.CreateNewProgressBar ( frame , int , int , {r,g,b} , bool )
+-- Method:          GRM_API.TriggerProgressBar ( frame , int , int , {r,g,b} , bool )
 -- What it Does:    Enable the progress bar to actual display progress
 -- Purpose:         Useful quality of life feature.
 GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeToProgress , colorOnComplete , hold )
@@ -151,7 +151,7 @@ GRM_API.CheckPoint = function ( progressBar , destinationNumber , expectedCheckP
 
         elseif destinationNumber < progressBar.Percent then
             
-            GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , finalPercent , expectedCheckPointTime - ( time() ) - parentFrame[frameName].StartTime , progressBar.colorOnComplete );
+            GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , finalPercent , expectedCheckPointTime - ( time() ) - progressBar.StartTime , progressBar.colorOnComplete );
 
         end
     end

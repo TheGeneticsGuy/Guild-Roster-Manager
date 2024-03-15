@@ -1761,6 +1761,8 @@ GRML.English = function()
     GRM_L["Alt Promote Rule {num}"] = true
     GRM_L["Promote/Demote Alts to Same Rank as Main"] = true
     GRM_L["Promote/Demote Alts to Rank:"] = true
+    GRM_L["Promote Alts to Same Rank as Main"] = true
+    GRM_L["Promote Alts to Rank:"] = true
     GRM_L["Please Choose a Destination Rank for Alts."] = true
     GRM_L["Apply to Mains at:"] = true
     GRM_L["Only Selected Ranks"] = true
@@ -1781,6 +1783,7 @@ GRML.English = function()
     GRM_L["1 Player is Ready for {name}."] = true
     GRM_L["Promotion"] = true
     GRM_L["Demotion"] = true
+    GRM_L["Disable Demote Option. Only Promote Players"] = true
 
 end
 

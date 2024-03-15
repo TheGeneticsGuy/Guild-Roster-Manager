@@ -7,7 +7,7 @@ local AltsAvailableToImport = function()
     if IsInGuild() and GRM_G.guildName and GRM_G.guildName ~= "" then
 
         -- Check the Alts addon first
-        if IsAddOnLoaded ( "Alts" ) and AltsDB and AltsDB.realm and AltsDB.realm[GRM_G.realmName] and AltsDB.realm[GRM_G.realmName].altsBySource["guild:".. GRM.SlimName ( GRM_G.guildName )] GRM.TableLength ( AltsDB.realm[GRM_G.realmName].altsBySource["guild:".. GRM.SlimName ( GRM_G.guildName )] ) > 0 then
+        if GRM.IsAddOnLoaded ( "Alts" ) and AltsDB and AltsDB.realm and AltsDB.realm[GRM_G.realmName] and AltsDB.realm[GRM_G.realmName].altsBySource["guild:".. GRM.SlimName ( GRM_G.guildName )] GRM.TableLength ( AltsDB.realm[GRM_G.realmName].altsBySource["guild:".. GRM.SlimName ( GRM_G.guildName )] ) > 0 then
 
             isAvailable = true;
             table.insert  ( listOfAddons , "Alts" );

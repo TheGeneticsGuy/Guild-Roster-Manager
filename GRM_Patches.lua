@@ -37,7 +37,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         
         for k = 2 , #GRM_AddonSettings_Save[FID] do
             if GRM_AddonSettings_Save[FID][k][1] == GRM_G.addonUser then
-                isFound = true;
                 PID = k;
                 break;
             end
@@ -1098,7 +1097,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- ONLY DO THIS IF PATCH HAS BEEN COMPLETELY SUCCESSFUL!!! If we get this far it has!
         
-        GRM_Patch.ResetBackups();        -- Clearing the manual - unfortunately it needs to be done. Mostly unused feature anyway.
+        GRM_Patch.ResetBackups( true , true );        -- Clearing the manual - unfortunately it needs to be done. Mostly unused feature anyway.
 
         GRM_G.ForceAuto = true;                 -- We want to force auto-backup this session so it backs up the alt groups.
         if loopCheck ( 1.93 ) then
@@ -3256,7 +3255,7 @@ end
 -- Added in patch 1.26
 -- Noticed an issue with only 1 format
 GRM_Patch.PratCompatibilityCheck = function()
-    if IsAddOnLoaded("Prat-3.0") then
+    if GRM.IsAddOnLoaded("Prat-3.0") then
         for i = 1 , #GRM_AddonSettings_Save do
             for j = 2 , #GRM_AddonSettings_Save[i] do
                 if GRM_AddonSettings_Save[i][j][2][42] == 1 then
@@ -3328,11 +3327,10 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
     if GRM.CanEditOfficerNote() then
         local g1 = false;
         local g2 = false;
-        local rankInd , note, officerNote = 0 , "" , "";
 
         for i = 1 , GRM.GetNumGuildies() do
             -- For guild info
-            rankInd , _ , _ , _ , note , officerNote = select ( 3 , GetGuildRosterInfo ( i ) );
+            local rankInd , _ , _ , _ , note , officerNote = select ( 3 , GetGuildRosterInfo ( i ) );
             
             if rankInd == 0 then
                 -- Guild Leader identified!
@@ -7491,7 +7489,7 @@ GRM_Patch.ConvertDatabase = function( backups )
 end
 
 -- 1.93 -- Old function needed to be preserved...
-GRM_Patch.ResetBackups = function()
+GRM_Patch.ResetBackups = function( includeManual , includeAuto )
     for f in pairs ( GRM_GuildDataBackup_Save ) do
         for guild in pairs ( GRM_GuildDataBackup_Save[f] ) do
             if type ( guild ) == "string" then
@@ -7594,9 +7592,6 @@ GRM_Patch.GuildDataIntegrityCheck = function()
                             else
                                 GRM_Patch.PurgeGuildFromDatabase ( name , F2 , true );
                             end
-
-                        else
-                            print("GRM: Possible database issue - same guild found on both factions. Please report this to GRM Dev" ); -- Somehow it failed in the check. This should NEVER report, but just in case, I am adding this message as this might be some weird edge case I'd like to hear about.
                         end
 
                     elseif #GRM_LogReport_Save[F][name] > 0 then
@@ -8397,12 +8392,11 @@ GRM_Patch.AltGroupIntegrityCheck = function()
                                         -- remove the player from the altGroup now
                                         for j = #alts , 1 , -1 do
                                             if alts[j].name == member.name then
-                                                table.remove ( alts , i );
+                                                table.remove ( alts , j );
                                                 removed = true;
                                                 break;
                                             end
                                         end
-
                                     end
                                 end
 

@@ -33,7 +33,7 @@ GRM_UI.BuildSpcialRules = function()
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
 
     -- Core Special Rules Frame
-    GRM_UI.CreateCoreFrame ( "GRM_ToolSpecialRulesFrame" , GRM_UI.GRM_ToolCoreFrame , nil , 450 , 430 , "TranslucentFrameTemplate" , true , { "CENTER" , "CENTER" , 0 , 0 } , "HIGH" , true , true );
+    GRM_UI.CreateCoreFrame ( "GRM_ToolSpecialRulesFrame" , GRM_UI.GRM_ToolCoreFrame , nil , 450 , 465 , "TranslucentFrameTemplate" , true , { "CENTER" , "CENTER" , 0 , 0 } , "HIGH" , true , true );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule = {};
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.isEdit = false;
@@ -219,6 +219,32 @@ GRM_UI.BuildSpcialRules = function()
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1:SetChecked(true);
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2:SetChecked(false);
+
+    GRM_UI.UpdateDemoteOnlyText = function ( disableDemote )
+        if disableDemote then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1.GRM_SpecialButtonRadial1Text:SetText ( GRM.L ( "Promote Alts to Same Rank as Main" ) );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text:SetText ( GRM.L ( "Promote Alts to Rank:" ) );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1.GRM_SpecialButtonRadial1Text:SetText ( GRM.L ( "Promote/Demote Alts to Same Rank as Main" ) );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text:SetText ( GRM.L ( "Promote/Demote Alts to Rank:" ) );
+        end
+    end
+
+    -- Enabling and disabling the rule
+    GRM_UI.PromoteOnlycheckBoxLogic = function( self )
+        if self:GetChecked() then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.disableDemote = true;
+            GRM_UI.UpdateDemoteOnlyText ( true );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.disableDemote = false;
+            GRM_UI.UpdateDemoteOnlyText ( false );
+        end
+    end
+
+    -- Promote and Demote
+    GRM_UI.CreateCheckBox ( "GRM_SpecialPromoteOnlyCheckBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , nil , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1 , "BOTTOM" , 0 , -35 } , GRM_UI.PromoteOnlycheckBoxLogic , GRM.L ( "Disable Demote Option. Only Promote Players" ) , "GameFontNormal" , 11 );
+
+
     
     GRM_UI.SpecialRankDropdownTT = function( self )
         GRM_UI.SetTooltipScale();
@@ -290,7 +316,7 @@ GRM_UI.BuildSpcialRules = function()
     GRM_UI.CreateDropDownMenu ( "GRM_SpecialRank" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , {"TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2.GRM_SpecialButtonRadial2Text , "TOPRIGHT" , 5 , 0 } , { 175 , 25 } , GRM_UI.GetListRanks() , 2 , 12 , nil , GRM_UI.SpecialRankDropdownTT , GRM.RestoreTooltip , GRM_UI.SetSpecialDestinationSelection , GRM_UI.GetListRanks , GRM_UI.ConfigureSpecialRankDropdownLimits , true );
 
     -- Guild Roster Title
-    GRM_UI.CreateString ( "GRM_SpecialRuleText1" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "GameFontNormal" , GRM.L ( "Apply to Mains at:" ) , 16 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial2 , "BOTTOMLEFT" , -10 , -20 } , nil , { 0 , 0.82 , 1 } );
+    GRM_UI.CreateString ( "GRM_SpecialRuleText1" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , "GameFontNormal" , GRM.L ( "Apply to Mains at:" ) , 16 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialPromoteOnlyCheckBox , "BOTTOMLEFT" , -10 , -15 } , nil , { 0 , 0.82 , 1 } );
 
     -- Trigger on  the rebuilding of the checkboxes or on any changes
     GRM_UI.ConfigureSpecialRankCheckboxes = function()
@@ -1573,7 +1599,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton.GRM_ToolSyncRulesButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSyncRulesButton:SetScript ( "OnClick" , function ( _ , button )
             if button == "LeftButton" then
-                print("Pending Feature..." );
+                GRM.Report("Pending Feature..." );
             end
         end);
 
@@ -1810,10 +1836,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetScript ( "OnEnter" , function( self )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            local result = "";
 
             if GRM_UI.GRM_ToolCoreFrame.TabPosition ~= 4 then
                 local countIgnored = GRM.GetSafePlayers();
-                local result = "";
 
                 if countIgnored > 0 then
                     if countIgnored == 1 then
@@ -4059,6 +4085,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { GuildControlGetRankName ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank };
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetText( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result[1] );
 
+                    -- Disable Demote Checkbox
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.disableDemote then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialPromoteOnlyCheckBox:SetChecked ( true );
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialPromoteOnlyCheckBox:SetChecked ( false );
+                    end
+                    GRM_UI.UpdateDemoteOnlyText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.disableDemote );
+
                     -- RadialButtons2
                     if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.allRanks then                   
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1:SetChecked ( true );
@@ -4092,7 +4126,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
                     GRM_UI.SpecialSyncCheckBoxFormat ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.sync );
                     
-                    
                 else
                     ----------------- NEW RULE CONFIGURATION --------------------
                     -------------------------------------------------------------
@@ -4107,6 +4140,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result = { GuildControlGetRankName ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank ) , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.destinationRank };
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankSelected.GRM_SpecialRankSelectedText:SetText( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankMenu.result[1] );
+                    
+                    -- Disable Demote Checkbox
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialPromoteOnlyCheckBox:SetChecked ( false );
+                    GRM_UI.UpdateDemoteOnlyText ( false );
 
                     -- RadialButtons2
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialRankRadial1:SetChecked ( true );
@@ -8225,6 +8262,8 @@ GRM_Macro.BuildNewSpecialRuleTemplate = function ( ruleType , name , num )
     result.customLog = false;
     result.customLogMsg = "";
 
+    result.disableDemote = false;
+
     result.ruleIndex = ruleNumber;
     result.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
     result.GUID = "";
@@ -10084,7 +10123,7 @@ GRM_UI.GetNamesBySpecialRules = function()
                                     ruleConfirmedCheck = false;
                                     destinationRank = mainRankInd;
 
-                                    if destinationRank ~= player.rankIndex and destinationRank > GRM_G.playerRankID then
+                                    if destinationRank ~= player.rankIndex and destinationRank > GRM_G.playerRankID and ( not rule.disableDemote or ( rule.disableDemote and destinationRank < player.rankIndex ) ) then
                                         ruleConfirmedCheck = true;
 
                                         type = 2;     -- Promote (3 == demote)
@@ -10103,7 +10142,7 @@ GRM_UI.GetNamesBySpecialRules = function()
                                     ruleConfirmedCheck = false;
                                     destinationRank = rule.destinationRank - 1;     -- Rank Index is 1 less when looking at players as player rank index start at 0 for Guild Leader.
 
-                                    if destinationRank ~= player.rankIndex and destinationRank > GRM_G.playerRankID then
+                                    if destinationRank ~= player.rankIndex and destinationRank > GRM_G.playerRankID and ( not rule.disableDemote or ( rule.disableDemote and destinationRank < player.rankIndex ) )then
                                         ruleConfirmedCheck = true;
 
                                         type = 2;     -- Promote (3 == demote)
@@ -10133,7 +10172,7 @@ GRM_UI.GetNamesBySpecialRules = function()
                                     -- RULE IS GOOD - ADD PLAYER
 
                                     table.insert ( listOfPlayers , {} );
-                                    index = #listOfPlayers;
+                                    local index = #listOfPlayers;
                                     listOfPlayers[index].name = player.name;
                                     listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
                                     listOfPlayers[index].lastOnline = player.lastOnline;
@@ -11119,7 +11158,8 @@ end);
 --     GRM.B2Num ( rule.isMonths , true ) .. "?" ..                -- 11
 --     tostring ( rule.numDaysOrMonths ) .. "?" ..                 -- 12
 --     GRM.B2Num ( rule.customLog , true ) .. "?" ..               -- 13
---     getStringWithPlaceholder ( rule.customLogMsg );             -- 14
+--     getStringWithPlaceholder ( rule.customLogMsg ) .. "?" ..    -- 14
+--     GRM.B2Num ( rule.disableDemote );                           -- 15
 
 --     return result;
 -- end
@@ -11619,6 +11659,7 @@ end);
     --     rule.numDaysOrMonths = newRule[12];
     --     rule.customLog = newRule[13];
     --     rule.customLogMsg = newRule[14];
+    --     rule.disableDemote = newRule[15];
 
     -- end
 

@@ -1039,7 +1039,6 @@ GRMsync.ReviewElectResponses = function()
                 banRankRestriction = data[3];
 
             end
-
         end
 
         -- Send Message out
@@ -1267,7 +1266,7 @@ GRMsync.SetLeader = function ( leader , initiateSync , banRankRestriction )
             GRMsyncGlobals.ElectionProcessing = false;
 
             -- Initiate data sync
-            table.insert ( GRMsyncGlobals.SyncQue , sender );
+            -- table.insert ( GRMsyncGlobals.SyncQue , sender );
             C_Timer.After ( 1 , GRMsync.InitiateDataSync );
         end
     end    
@@ -1630,11 +1629,10 @@ end
 -- What it Does:    Cleans up the final list of alts so you don't process logic of adding/removing if groups already are the same.
 -- Purpose:         Keep the data sync'd properly.
 GRMsync.ClearAltGroupsthatMatch = function ( currentList , guildData , altData )
-    local finalList = finalL or {};
+    local finalList = {};
     local currentAlts = {};
 
     -- Scan through all on the current final list
-
     local orderedList = GRM.ConvertTableTo2DArray ( currentList , true );
     local repeatedName = false;
     for i = #orderedList , 1 , -1 do
@@ -2570,7 +2568,7 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
                     player.class = "HUNTER";        -- This shouldn't ever happen, but this is edge case if server fails to respond. Placholder class is set.
                 end
             elseif player.GUID == nil then
-                playuer.GUID = "";
+                player.GUID = "";
             end
 
             if addLog then
@@ -4718,7 +4716,6 @@ GRMsync.SubmitFinalSyncData = function ()
         GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[3] );
     end
 
-
     -- ALT changes sync for adding alts!
     if not GRMsyncGlobals.finalSyncProgress[3] and GRM.TableLength ( GRMsyncGlobals.FinalCorrectAltList ) > 0 then
 
@@ -5430,6 +5427,7 @@ GRMsync.CollectData = function ( msg , prefix )
         local player;
         local j;
         local banType;
+        local formerMember = false;
 
         j = GRM.GetIndexOfPlayerOnList ( GRMsyncGlobals.guildData , playerName );
 
@@ -5820,7 +5818,7 @@ GRMsync.CheckingBANChanges = function ()
                             classIndex = "0";
                         end
 
-                        rankName = player.rankName;
+                        local rankName = player.rankName;
                         rankIndex = player.rankIndex;
                         if rankName == "" or player.rankIndex == 99 then
                             rankName = "###"
@@ -5875,7 +5873,6 @@ GRMsync.CheckingMAINChanges = function ( syncRankFilter )
                     changeData = {};
 
                     if guildData[exactIndexes[4][j]].mainStatusChangeTime < GRMsyncGlobals.MainReceivedTemp[i][3] then
-                        addReceived = true;         -- In other words, don't add my own data, add the received data.
                         changeData = GRMsyncGlobals.MainReceivedTemp[i];
                         table.insert ( GRMsyncGlobals.MainReceivedTemp[i] , true ); -- Add that the leader needs to update.
                     else

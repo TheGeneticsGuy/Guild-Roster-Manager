@@ -18,6 +18,8 @@ e
 
 * Fixed an issue with the macro tool recommendations reporting to the log where it would report someone as a match right after login, but then the next check it would not. This was due to the fact that certain queries of data from the server after login were not producing accurate results until sufficient time to load after loggging in had been given. The scan now validates the data before offering suggestions to the log. This would annoyingly pop open your log every single session if say, you had a match to kick a toon, but they were the same rank or higher than you so you couldn't. Every session you'd get an identical log entry. This will no longer happen.
 
+* Fixed a lua error that could occur during sync if syncing a very old ban list with player names prior to the date I started storing GUID info (like 4 or 5 years ago maybe).
+
 
 
 ## **VERSION 1.9906 RELEASE - March 3rd 2024**
