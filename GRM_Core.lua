@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99061";
-GRM_G.PatchDay = 1710471750;             -- In Epoch Time
-GRM_G.PatchDayString = "1710471750";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9907";
+GRM_G.PatchDay = 1710666508;             -- In Epoch Time
+GRM_G.PatchDayString = "1710666508";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
@@ -332,7 +332,7 @@ GRM_G.HardcoreActive = false;
 GRM_G.HardcoreHexCode = "|CFFBF0000"; -- Default RGB = .76 , 0 , 0 (r,g,b)
 
 -- Season of Discovery
-GRM_G.SOD = C_Seasons and C_Seasons.GetActiveSeason and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery;
+GRM_G.SOD = (C_Seasons and C_Seasons.GetActiveSeason and Enum.SeasonID.SeasonOfDiscovery and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery);
 if GRM_G.SOD then
     GRM_G.LvlCap = 40;  -- Updated Season 2 For some reason on logging in it still states LvlCap = 60 on first login
 end
@@ -6915,6 +6915,8 @@ GRM.InitializeRosterButtons = function()
     local memberFrame = cFrame.MemberList;
     local buttons = memberFrame.ListScrollFrame.buttons;
     for i = 1 , #buttons do
+
+        -- I can probably get rid of the OnEnter since there is an OnUpdate.
         buttons[i]:HookScript ( "OnEnter" , function ( self )
             
             if not CommunitiesFrame.RecruitmentDialog:IsVisible() then
@@ -7008,39 +7010,6 @@ GRM.InitializeDragonFlightRosterButtons = function()
     local cFrame = CommunitiesFrame;
 
     cFrame.MemberList.ScrollBox:ForEachFrame ( function ( scrollButton )
-
-        scrollButton:HookScript ( "OnEnter" , function ( self )
-            if cFrame:GetSelectedClubId() == GRM_G.gClubID and GetMouseFocus() == self then
-                local name = GRM.GetRosterName ( scrollButton , false  );
-
-                if name ~= "" and name ~= nil and GRM.GetPlayer ( name ) then
-
-                    local memberInfo = self.memberInfo
-
-                    GRM.MemberListBlizTooltip_Update ( scrollButton , false , memberInfo.classID , memberInfo.name , memberInfo.guildRank , memberInfo.race , memberInfo.level , memberInfo.presence , memberInfo.zone , memberInfo.memberNote , memberInfo.officerNote );
-                    GRM_G.currentName = name;
-                    GRM.SubFrameCheck();
-
-                    GRM.PopulateMemberDetails ( name , memberInfo );
-                    if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        if GRM_UI.MemberDetailFrame:IsVisible() then
-                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                        else
-                            GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 34 , 5 );
-                        end
-                        if GRM.S().showMouseoverRetail then
-                            if GRM_G.guildName ~= "" then
-                                GRM_UI.GRM_MemberDetailMetaData:Show();
-                            end
-                        end
-                    end
-                else
-                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
-                    end
-                end
-            end
-        end);
         
         scrollButton:HookScript ( "OnClick" , function ( self , button )
             if button == "LeftButton" then
@@ -11366,6 +11335,8 @@ GRM.GetLeftOrKickString = function ( unitName , playerWasKicked , timePassed , l
         result = result .. "\n|CFFFFFFFF" .. GRM.L ( "Officer Note:" ) .. " " .. officerNote .. "|r";
     end
     if customNote ~= nil and customNote ~= "" then
+        customNote = GRM.RemoveLineBreaks ( customNote , "-" );
+        customNote = GRM.NoteFormatParsingProtection ( customNote );
         result = result .. "\n|CFFFFFFFF" .. GRM.L ( "Custom Notes:" ) .. "\n" .. customNote .. "|r";
     end
 
@@ -11617,6 +11588,8 @@ GRM.GetJoinOrRejoinString = function ( foundInLog , player1 , player2 , date , i
             end
 
             if customNote ~= "" then
+                customNote = GRM.RemoveLineBreaks ( customNote , "-" );
+                customNote = GRM.NoteFormatParsingProtection ( customNote );
                 customNoteString = "\n|r|CFF66B5E6" .. GRM.L ( "Additional Notes:" ) .. "|r\n" .. customNote .. "\n";
             end
 
@@ -11649,6 +11622,8 @@ GRM.GetJoinOrRejoinString = function ( foundInLog , player1 , player2 , date , i
                 nameChangeString = "\n" .. GRM.L ( "{name} has Name-Changed to {name2}" , previousName , player2 );
             end
             if customNote ~= "" then
+                customNote = GRM.RemoveLineBreaks ( customNote , "-" );
+                customNote = GRM.NoteFormatParsingProtection ( customNote );
                 customNoteString = "\n|r|CFF66B5E6" .. GRM.L ( "Additional Notes:" ) .. "|r\n" .. customNote .. "\n";
             end
             logReport = ( header .. nameChangeString .. customNoteString );
@@ -12093,22 +12068,34 @@ GRM.ScanRecommendationsList = function()
         playerRecommendation = GRM_UI.GetNamesBySpecialRules();
         local c = 0;
         local c2 = 0;
+        local f1 = 0;   -- f1 are the actually TOTAL numbers needing special. C represents unannounced so far to log.
+        local f2 = 0;
 
         for i = 1 , #playerRecommendation do
             tempListOfNames3[playerRecommendation[i].name] = {};     -- Going to be used for validating in list or not.
             player = GRM.GetPlayer ( playerRecommendation[i].name );
 
-            if playerRecommendation[i].action == "Promote" and not player.recommendSpecial then
-                player.recommendSpecial = true;     -- This acts to prevent the repeat announcement to the log.
-                c = c + 1;
-            elseif playerRecommendation[i].action == "Demote" and not player.recommendSpecial then
-                player.recommendSpecial = true;     -- This acts to prevent the repeat announcement to the log.
-                c2 = c2 + 1;
+            if playerRecommendation[i].action == "Promote" then
+                
+                if not player.recommendSpecial then
+                    player.recommendSpecial = true;     -- This acts to prevent the repeat announcement to the log.
+                    c = c + 1;
+                end
+                f1 = f1 + 1;
+
+            elseif playerRecommendation[i].action == "Demote" then
+                
+                if not player.recommendSpecial then
+                    player.recommendSpecial = true;     -- This acts to prevent the repeat announcement to the log.
+                    c2 = c2 + 1;
+                end
+                f2 = f2 + 1;
+
             end
         end
 
         if c > 0 or c2 > 0 then
-            GRM.AddEventRecommendSpecialLogEntry( c , c2 , select ( 2 , GRM.GetTimestamp() ) );
+            GRM.AddEventRecommendSpecialLogEntry( f1 , f2 , select ( 2 , GRM.GetTimestamp() ) );
         end
 
         -- Clear all names NOT on this list.
@@ -13227,15 +13214,25 @@ GRM.RecordJoinChanges = function ( member , simpleName , liveJoinDetected , date
     end
 end
 
+-- Method:          GRM.RemoveLineBreaks ( string , string/char )
+-- What it Does:    Removes Line breaks with a given char
+-- Purpose:         Presentation in the log.
+GRM.RemoveLineBreaks = function ( text , replacementChar )
+    replacementChat = replacementChar or "-";
+
+    return string.gsub ( text , "\n" , replacementChar );
+end
+
 -- Method:          GRM.RecordCustomNoteChanges ( string , string , string , boolean )
 -- What it Does:    Reports the Custom note changes to the Guild Log
 -- Purpose:         For ease of reporting to the log, as a UI feature.
 GRM.RecordCustomNoteChanges = function( newNote , oldNote , editorName , editedName , rebuildLog )
     -- Remove the linebreaks in the log reporting or it will be spammy. Replace with a dash
-    local nNote = string.gsub ( newNote , "\n" , "-" );
-    local oNote = string.gsub ( oldNote , "\n" , "-" );
+    local nNote = GRM.RemoveLineBreaks ( newNote , "-" );
+    local oNote = GRM.RemoveLineBreaks ( oldNote , "-" );
 
     local logReportWithTime , logReport = GRM.GetCustomNoteChangeString ( nNote , oNote , GRM.GetClassifiedName ( editorName , true ) , GRM.GetClassifiedName ( editedName , true ) , select ( 2 , GRM.GetTimestamp() ) );
+
     -- Ok that to the log...
     if rebuildLog and GRM.S()["toChat"].customNote then
         GRM.PrintLog ( { 19 , logReport } );
@@ -13359,6 +13356,7 @@ GRM.SetJoinDateToCustomNote = function( playerName , noteToSet )
         if GRM_G.currentName == playerName then
             GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetText ( newNote );
         end
+
     end
 end
 
@@ -23289,7 +23287,7 @@ end
 -- What it Does:    Checks a given string from a note and searches for the "Joined:" text and returns true, as well as the string at the next appropriate start position
 -- Purpose:         Make parsing notes extremely simple.
 GRM.ClearJoinTag = function ( note )
-    local headers = { GRM.L ( "Joined" ) , "joined" , "Joined" , GRM.L ( "Rejoined" ) , "rejoined" , "Rejoined" , "Rejoin" , "rejoin" , "Returned" , "returned" , GRM_G.customHeaderRejoin , GRM_G.customHeaderJoin };
+    local headers = { GRM_G.customHeaderRejoin , GRM.L ( "Rejoined" ) , "rejoined" , "Rejoined" , "Rejoin" , "rejoin" , "Returned" , "returned" , GRM.L ( "Joined" ) , "joined" , "Joined" , GRM_G.customHeaderJoin };
 
     if note and note ~= "" then
         for i = 1 , #headers do

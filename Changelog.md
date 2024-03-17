@@ -1,4 +1,4 @@
-## **VERSION 1.9907 RELEASE - March 15th 2024**
+## **VERSION 1.9907 RELEASE - March 17th 2024**
 
 
 ***NEW FEATURE - MACRO TOOL UPDATE - SPECIAL RULES***
@@ -6,7 +6,7 @@
 > 2 Options:
 > * Sync Alts to the same rank as Main
 > * Sync Alts in a group to a destination rank, depending on the rank of the Main.
-> 
+
 
 Please note the limitation - you cannot sync alts to the same rank as the guild leader, so the option is not available. However, on choosing a specific rank, this CAN be set for the guild leader.
 
@@ -22,9 +22,16 @@ When you first click the "Add Custom Rule" button to create a special rule, a sp
 
 ***QUALITY OF LIFE***
 
+* It was reported that players with custom notes that use a lot of line breaks can have REALLY long log entries when someone rejoins, or is kicked/leaves, and it is reported to the log. Rather than show all the line breaks, I now wrap the line breaks into a single line to make it clearer to read. To cleanup your log of this mess you will need to reprocess the text. You can do this easily in 2 ways:
+
+  - Go to /grm > Options Tab > General > Change language to something else, then change it back. This reprocesses all the strings in the log.
+
+  - Or, you can copy this into chat: `/run GRM.ReprocessAllLogEntriesToCurrentLanguage()`
+
+* ReadMe has been updated with updated pictures - and the Curseforge page has been updated, as well as the Github.
+
 * The Macro tool had some minor annoyances I noticed that needed to be cleaned up. For example, it would tell you that you couldn't promote someone to a certain rank if that rank was same rank or higher than you, clearly, but it still let you select that rank. I mean, most people would understand not to, but I just cleaned up some UI stuff so you couldn't select ranks like that, not just be warned.
 
-* ReadMe Updated
 
 ***BUG FIXES***
 
@@ -41,6 +48,11 @@ When you first click the "Add Custom Rule" button to create a special rule, a sp
 * Fixed an issue with the macro tool recommendations reporting to the log where it would report someone as a match right after login, but then the next check it would not. This was due to the fact that certain queries of data from the server after login were not producing accurate results until sufficient time to load after loggging in had been given. The scan now validates the data before offering suggestions to the log. This would annoyingly pop open your log every single session if say, you had a match to kick a toon, but they were the same rank or higher than you so you couldn't. Every session you'd get an identical log entry. This will no longer happen.
 
 * Fixed a lua error that could occur during sync if syncing a very old ban list with player names prior to the date I started storing GUID info (like 4 or 5 years ago maybe)
+
+* Fixed an issue in WOTLK classic where it was tagging the max level cap as 40. This is from a recent update with Season of Discovery and has been resolved.
+
+* Fixed an issue where if a player rejoins the guild, after having already left and rejoined, your note was getting left with an additional "Re" tag in the note, and it would keep adding it over and over and over if someone left and rejoined and so on. This should no longer happen.
+
 
 ## **VERSION 1.9906 RELEASE - March 3rd 2024**
 
