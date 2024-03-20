@@ -1,3 +1,12 @@
+## **VERSION 1.9908 RELEASE - March 20th 2024**
+
+**COMPATIBILITY RELEASE FOR 10.2.6**
+
+***QUALITY OF LIFE***
+
+* Modified the scanning for guild chances process to be a little bit more memory efficient, and for mega guilds, remove possible instances of stutter.
+
+
 ## **VERSION 1.9907 RELEASE - March 17th 2024**
 
 

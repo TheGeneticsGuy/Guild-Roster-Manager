@@ -14,14 +14,14 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9907";
-GRM_G.PatchDay = 1710666508;             -- In Epoch Time
-GRM_G.PatchDayString = "1710666508";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9908";
+GRM_G.PatchDay = 1710883572;             -- In Epoch Time
+GRM_G.PatchDayString = "1710883572";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.31;
+GRM_G.GroupInfoV = 1.32;
 
 -- Initialization Useful Globals 
 -- ADDON
@@ -330,6 +330,9 @@ GRM_G.InGroup = false;
 -- Hardcore Mode Classic
 GRM_G.HardcoreActive = false;
 GRM_G.HardcoreHexCode = "|CFFBF0000"; -- Default RGB = .76 , 0 , 0 (r,g,b)
+
+-- Garbage Collection timer - to USE responsibly it is only triggered once per 15 minutes of session.
+GRM_G.GC_Timer = 0;
 
 -- Season of Discovery
 GRM_G.SOD = (C_Seasons and C_Seasons.GetActiveSeason and Enum.SeasonID.SeasonOfDiscovery and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery);
@@ -1322,6 +1325,7 @@ GRM.FinalSettingsConfigurations = function()
 
     -- For sync...
     GRMsyncGlobals.timeAtLogin = time();    -- Important for Sync Leader backend election algorithm.
+    GRM_G.GC_Timer = time();
 
     -- Classic Chat coloring
     -- Only initialize when in a guild or else it coluld overwrite ElvUI without a way to disable
@@ -4067,10 +4071,9 @@ end
 -- Purpose:         Occasionally you want a list of guild members.
 GRM.GetListOfGuildies = function( slimName )
     local list = {};
-    local name;
 
     for i = 1 , GetNumGuildMembers() do
-        name = GetGuildRosterInfo ( i );
+        local name = GetGuildRosterInfo ( i );
 
         if slimName then
             name = GRM.SlimName ( name );
@@ -6914,6 +6917,7 @@ GRM.InitializeRosterButtons = function()
     local cFrame = CommunitiesFrame;
     local memberFrame = cFrame.MemberList;
     local buttons = memberFrame.ListScrollFrame.buttons;
+
     for i = 1 , #buttons do
 
         -- I can probably get rid of the OnEnter since there is an OnUpdate.
@@ -7010,6 +7014,39 @@ GRM.InitializeDragonFlightRosterButtons = function()
     local cFrame = CommunitiesFrame;
 
     cFrame.MemberList.ScrollBox:ForEachFrame ( function ( scrollButton )
+
+        -- scrollButton:HookScript ( "OnEnter" , function ()
+        --     if cFrame:GetSelectedClubId() == GRM_G.gClubID and GetMouseFocus() == self then
+        --         local name = GRM.GetRosterName ( scrollButton , false  );
+
+        --         if name ~= "" and name ~= nil and GRM.GetPlayer ( name ) then
+
+        --             local memberInfo = self.memberInfo
+
+        --             GRM.MemberListBlizTooltip_Update ( scrollButton , false , memberInfo.classID , memberInfo.name , memberInfo.guildRank , memberInfo.race , memberInfo.level , memberInfo.presence , memberInfo.zone , memberInfo.memberNote , memberInfo.officerNote );
+        --             GRM_G.currentName = name;
+        --             GRM.SubFrameCheck();
+
+        --             GRM.PopulateMemberDetails ( name , memberInfo );
+        --             if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+        --                 if GRM_UI.MemberDetailFrame:IsVisible() then
+        --                     GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
+        --                 else
+        --                     GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 34 , 5 );
+        --                 end
+        --                 if GRM.S().showMouseoverRetail then
+        --                     if GRM_G.guildName ~= "" then
+        --                         GRM_UI.GRM_MemberDetailMetaData:Show();
+        --                     end
+        --                 end
+        --             end
+        --         else
+        --             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+        --                 GRM_UI.GRM_MemberDetailMetaData:Hide();
+        --             end
+        --         end
+        --     end
+        -- end);
         
         scrollButton:HookScript ( "OnClick" , function ( self , button )
             if button == "LeftButton" then
@@ -7066,7 +7103,7 @@ end
 GRM.RosterButton_OnUpdate = function ( self , elapsed )
     GRM_G.ButtonRosterTimer = GRM_G.ButtonRosterTimer + elapsed;
     if GRM_G.ButtonRosterTimer > 0.05 and GetMouseFocus() == self and CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID then
-        
+
         local name = GRM.GetRosterName ( self , true );
 
         if name ~= "" and name ~= nil and name ~= GRM_G.currentName and not GRM_G.pause and not CommunitiesFrame.RecruitmentDialog:IsVisible() then
@@ -7127,7 +7164,7 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
     else
         buttonString = GRM_UI.OldRosterButtonName;
     end
-
+    
     for i = 1 , GRM_UI.ContainerButtonCount do
         local button = _G[ buttonString .. i ];
 
@@ -7647,10 +7684,9 @@ GRM.RosterFrame = function()
 
             -- updates zone change info on the fly, as well as online status.
             if ( time() - GRM_G.CommunitiesUpdateTimer ) > 5 then
-                local fullName , zone , isOnline , _;
 
                 for i = 1 , GRM.GetNumGuildies() do
-                    fullName, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo ( i );
+                    local fullName, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo ( i );
                     if fullName == GRM_G.currentName then
                         player.isOnline = isOnline;
 
@@ -14053,10 +14089,10 @@ GRM.CheckLogJoinOrLeave = function ( roster , data )
     return guildData;
 end
 
--- Method:          GRM.CheckPlayerChanges ( array )
+-- Method:          GRM.CheckPlayerChanges ( array , array , ind)
 -- What it Does:    Scans through guild roster and re-checks for any  (Will only fire if guild is found!)
 -- Purpose:         Keep whoever uses the addon in the know instantly of what is going and changing in the guild.
-GRM.CheckPlayerChanges = function ( roster )
+GRM.CheckPlayerChanges = function ( roster , orderedRoster , ind )
 
     if GRM_G.S.scanEnabled or GRM_G.OnFirstLoad or GRM_G.ManualScanEnabled then
         
@@ -14064,23 +14100,26 @@ GRM.CheckPlayerChanges = function ( roster )
         local newPlayerFound;
         local player = {};
         local updatedPlayer = {};
+        local c = 0;
+        local max = 350;
         
         if GRM.ScanKillSwitch() then   -- Necessary in case you purge guild in middle of scan
             return;
         end
-        for rosterName in pairs ( roster ) do
+
+        for i = ind , #orderedRoster do
 
             newPlayerFound = true;
-            player = guildData[rosterName];
-            updatedPlayer = roster[rosterName];
+            player = guildData[orderedRoster[i]];
+            updatedPlayer = roster[orderedRoster[i]];
     
             if player then
                 
                 if player.GUID == updatedPlayer.GUID or ( player.isTransfer and updatedPlayer.name == player.name and updatedPlayer.class == player.class ) then  -- In case someone deleted a toon, then joined a new toon with same name, need to confirm it is the same.
 
                     newPlayerFound = false;
-                    GRM.CheckLogChanges ( updatedPlayer , player , rosterName );
-                    GRM.CheckRosterChanges ( updatedPlayer , player , rosterName );
+                    GRM.CheckLogChanges ( updatedPlayer , player , orderedRoster[i] );
+                    GRM.CheckRosterChanges ( updatedPlayer , player , orderedRoster[i] );
                         
                 else
                     -- This means same name found, but different GUIDs, so different toon.
@@ -14098,6 +14137,15 @@ GRM.CheckPlayerChanges = function ( roster )
                     table.insert ( GRM_G.newPlayers , updatedPlayer );
                 end
             end
+
+            c = c + 1;
+            if c == max and i ~= #orderedRoster then
+                C_Timer.After ( 0.5 , function()
+                    GRM.CheckPlayerChanges ( roster , orderedRoster , i + 1 );
+                end);
+                return;
+            end
+
         end
 
         guildData = GRM.CheckLogJoinOrLeave ( roster , guildData );
@@ -14747,8 +14795,17 @@ GRM.BuildNewRoster = function()
     else
         return;
     end
+    
+    if ( time() - GRM_G.GC_Timer ) > 1800 and not GRM_G.inCombat then   -- 30 minutes minimum - USE ONLY RESPONSIBLY AND MINIMALLY.
+        -- LET'S CLEAR RAM before continuing!!!
+        -- I only did this as I noticed in some sessions garbage collection wouldn't run for quite a while and GRM had nearly tripled base RAM usage.
+        -- Each scan, depending on size of guild, can be up up to 2.5MB memory footprint in a 1000 member guild that clears on a collection. 
+        collectgarbage();
+        GRM_G.GC_Timer = time();
+    end
 
     local roster = {};
+    local orderedRoster = {};
     -- Checking if Guild Found or Not Found, to pre-check for Guild name tag.
     local guildNotFound = false;
     if not GRM.GetGuild() then
@@ -14756,10 +14813,11 @@ GRM.BuildNewRoster = function()
     end
 
     local atLeastOne = false;
-
+    
     for i = 1 , GRM.GetNumGuildies() do
         -- For guild info
         local name , rank , rankInd , level , _ , zone , note , officerNote , online , status , class , achievementPoints , _ , isMobile , _ , rep , GUID = GetGuildRosterInfo ( i );
+        table.insert ( orderedRoster , name );
 
         if GRM_G.liveAddedToons[name] then
             GRM_G.liveAddedToons[name] = nil;   -- No longer needed on this list since they are confirmed in guild.
@@ -14862,8 +14920,8 @@ GRM.BuildNewRoster = function()
                 QueryGuildEventLog();
             end
 
-            C_Timer.After ( 1.5 , function()
-                GRM.CheckPlayerChanges ( roster );
+            C_Timer.After ( 1.1 , function()
+                GRM.CheckPlayerChanges ( roster , orderedRoster , 1 );
             end);
         end
     end
@@ -15045,13 +15103,12 @@ GRM.GuildNameChanged = function ( currentGuildName )
             local numGuildies = GRM.GetNumGuildies();
             local threshold = math.floor ( numGuildies / 2 ); -- Just > 50%
             local countMatch = 0;
-            local name = "";
 
             for guildName in pairs ( GRM_GuildMemberHistory_Save ) do
                 countMatch = 0;
 
                 for i = 1 , numGuildies do
-                    name = GetGuildRosterInfo ( i );
+                    local name = GetGuildRosterInfo ( i );
 
                     if GRM_GuildMemberHistory_Save[guildName][name] then
                         countMatch = countMatch + 1;
@@ -19818,9 +19875,7 @@ end
 -- What it Does:    Live checks when a player joins the guild and reports on it
 -- Purpose:         For live detection use separate than on scheduled scan
 GRM.CheckForNewPlayer = function ( name )
-    local rosterName , rank , rankInd , level , zone , note , oNote , classFile , pts , rep , guid , _ ;
     local isFound = false;
-    local rosterIndex = 0;
 
     -- Error protection if player leaves guild within the 1 second someone joins
     if not IsInGuild() then
@@ -19828,117 +19883,115 @@ GRM.CheckForNewPlayer = function ( name )
     end
 
     for i = 1 , GRM.GetNumGuildies() do
-        rosterName , rank , rankInd , level , _ , zone , note , oNote , _ , _ , classFile , pts , _ , _ , _ , rep , guid = GetGuildRosterInfo ( i );
+        local rosterName , rank , rankInd , level , _ , zone , note , oNote , _ , _ , classFile , pts , _ , _ , _ , rep , guid = GetGuildRosterInfo ( i );
         if name == rosterName then
             isFound = true;
-            rosterIndex = i;
-            break;
-        end
-    end
-    if isFound then           -- This means it shows successfully 1 found player...
-        if not GRM_G.liveAddedToons[rosterName] then
 
-            GRM_G.liveAddedToons[rosterName] = {};
+            if not GRM_G.liveAddedToons[rosterName] then
 
-            local race , sex;
-            if guid ~= "" then
-                race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );
-            end
-            if race == nil or sex == nil then
-                race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );   -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
-                if race == nil or sex == nil then
-                    race = "";
-                    sex = 1;
+                GRM_G.liveAddedToons[rosterName] = {};
+    
+                local race , sex;
+                if guid ~= "" then
+                    race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );
                 end
-            end
-
-            local memberInfoToAdd = {};
-
-            memberInfoToAdd.name = rosterName                                           -- 1
-            memberInfoToAdd.rankName = rank;                                            -- 2
-            memberInfoToAdd.rankIndex = rankInd;                                        -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
-            memberInfoToAdd.level = level;                                              -- 4
-            memberInfoToAdd.note = note;                                                -- 5
-            if GRM.CanViewOfficerNote() then
-                memberInfoToAdd.officerNote = oNote;                                    -- 6
-            else
-                memberInfoToAdd.officerNote = nil; 
-            end
-            memberInfoToAdd.class = classFile;                                          -- 7
-            memberInfoToAdd.lastOnline = 0;                                             -- 8 Time since they last logged in in hours.
-            memberInfoToAdd.zone = zone;                                                -- 9
-            memberInfoToAdd.achievementPoints = pts;                                    -- 10    
-            memberInfoToAdd.isMobile = false;                                           -- 11
-            memberInfoToAdd.rep = rep;                                                  -- 12
-            memberInfoToAdd.isOnline = true;                                            -- 13
-            memberInfoToAdd.status = 0;                                                 -- 14
-            memberInfoToAdd.GUID = guid;                                                -- 15
-            memberInfoToAdd.race = "";                                                  -- 16
-            memberInfoToAdd.sex = 1;                                                    -- 17
-            memberInfoToAdd.rosterSelection = rosterIndex;                                        -- 18
-
-            memberInfoToAdd.faction = GRM_G.faction;
-
-            if GRM_G.BuildVersion >= 80000 then
-                memberInfoToAdd.MythicScore = 0;
-            end
-
-            if GRM_G.BuildVersion >= 80000 then
-
-                local clubID = C_Club.GetGuildClubId();
-                if clubID and clubID ~= "" then
-                    local members = C_Club.GetClubMembers ( clubID )
-                    local playerName = "";
-                    local player = {};
-        
-                    if members then
-                        for i = 1 , #members do
-                            player = C_Club.GetMemberInfo ( clubID , members[i] )
-                            playerName = GRM.GetFullNameClubMember ( player.guid );
+                if race == nil or sex == nil then
+                    race , sex = select ( 4 , GetPlayerInfoByGUID ( guid ) );   -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
+                    if race == nil or sex == nil then
+                        race = "";
+                        sex = 1;
+                    end
+                end
+    
+                local memberInfoToAdd = {};
+    
+                memberInfoToAdd.name = rosterName                                           -- 1
+                memberInfoToAdd.rankName = rank;                                            -- 2
+                memberInfoToAdd.rankIndex = rankInd;                                        -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
+                memberInfoToAdd.level = level;                                              -- 4
+                memberInfoToAdd.note = note;                                                -- 5
+                if GRM.CanViewOfficerNote() then
+                    memberInfoToAdd.officerNote = oNote;                                    -- 6
+                else
+                    memberInfoToAdd.officerNote = nil; 
+                end
+                memberInfoToAdd.class = classFile;                                          -- 7
+                memberInfoToAdd.lastOnline = 0;                                             -- 8 Time since they last logged in in hours.
+                memberInfoToAdd.zone = zone;                                                -- 9
+                memberInfoToAdd.achievementPoints = pts;                                    -- 10    
+                memberInfoToAdd.isMobile = false;                                           -- 11
+                memberInfoToAdd.rep = rep;                                                  -- 12
+                memberInfoToAdd.isOnline = true;                                            -- 13
+                memberInfoToAdd.status = 0;                                                 -- 14
+                memberInfoToAdd.GUID = guid;                                                -- 15
+                memberInfoToAdd.race = "";                                                  -- 16
+                memberInfoToAdd.sex = 1;                                                    -- 17
+                memberInfoToAdd.rosterSelection = i;                              -- 18
+                memberInfoToAdd.faction = GRM_G.faction;                                    -- 19
+    
+                if GRM_G.BuildVersion >= 80000 then
+                    memberInfoToAdd.MythicScore = 0;
+                end
+    
+                if GRM_G.BuildVersion >= 80000 then
+    
+                    local clubID = C_Club.GetGuildClubId();
+                    if clubID and clubID ~= "" then
+                        local members = C_Club.GetClubMembers ( clubID )
+                        local playerName = "";
+                        local player = {};
             
-                            if player and playerName and playerName ~= "" and playerName == rosterName then
-                                if player.overallDungeonScore then
-                                    memberInfoToAdd.MythicScore = player.overallDungeonScore;
+                        if members then
+                            for i = 1 , #members do
+                                player = C_Club.GetMemberInfo ( clubID , members[i] )
+                                playerName = GRM.GetFullNameClubMember ( player.guid );
+                
+                                if player and playerName and playerName ~= "" and playerName == rosterName then
+                                    if player.overallDungeonScore then
+                                        memberInfoToAdd.MythicScore = player.overallDungeonScore;
+                                    end
+                
+                                    if GRM_G.BuildVersion >= 100000 then
+                                        memberInfoToAdd.faction = player.faction;
+                                    end
+                                    break;
                                 end
-            
-                                if GRM_G.BuildVersion >= 100000 then
-                                    memberInfoToAdd.faction = player.faction;
-                                end
-                                break;
                             end
                         end
                     end
                 end
-            end
-
-            GRM.RecordJoinChanges ( memberInfoToAdd , GRM.GetClassColorRGB ( classFile , true ) .. GRM.SlimName ( name ) .. "|r" , true , select ( 2 , GRM.GetTimestamp() ) , true );
-
-            if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
-                GRM_R.RefreshRosterName();
-            end
     
-            -- Check Main Auto tagging...
-            if not GRM_G.OnFirstLoad then
-                GRM.SetGuildInfoDetails();
-            end
-
-            -- -- Delay for time to check "Unique Accounts" change...
-            C_Timer.After ( 10 , function()               
-                if GRM_G.DesignateMain then
-                    GRM.SetMain ( name , 1 );
-                    GRM.Report ( GRM.L ( "GRM Auto-Detect! {name} has joined the guild and will be set as Main" , GRM.GetClassifiedName ( name , true ) ) );
-                    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-                        GRM.RefreshAuditFrames ( true , true );
-                    end
+                GRM.RecordJoinChanges ( memberInfoToAdd , GRM.GetClassColorRGB ( classFile , true ) .. GRM.SlimName ( name ) .. "|r" , true , select ( 2 , GRM.GetTimestamp() ) , true );
+    
+                if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
+                    GRM_R.RefreshRosterName();
                 end
-            end);
-            -- Clear them - this prevents the spam join from server.
-            C_Timer.After ( 2 , function()
-                GRM_G.liveAddedToons[rosterName] = nil
-            end)
+        
+                -- Check Main Auto tagging...
+                if not GRM_G.OnFirstLoad then
+                    GRM.SetGuildInfoDetails();
+                end
+    
+                -- -- Delay for time to check "Unique Accounts" change...
+                C_Timer.After ( 10 , function()               
+                    if GRM_G.DesignateMain then
+                        GRM.SetMain ( name , 1 );
+                        GRM.Report ( GRM.L ( "GRM Auto-Detect! {name} has joined the guild and will be set as Main" , GRM.GetClassifiedName ( name , true ) ) );
+                        if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
+                            GRM.RefreshAuditFrames ( true , true );
+                        end
+                    end
+                end);
+                -- Clear them - this prevents the spam join from server.
+                C_Timer.After ( 2 , function()
+                    GRM_G.liveAddedToons[rosterName] = nil
+                end)
+            end
+            break;
         end
+    end       
 
-    elseif GRM_G.RejoinControlCheck <= 90 then
+    if not isFound and GRM_G.RejoinControlCheck <= 90 then
         GRM_G.RejoinControlCheck = GRM_G.RejoinControlCheck + 1;
         
         -- Try to refresh the roster
@@ -20746,46 +20799,29 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
 
         local player = GRM.GetPlayer ( handle );
         if player then
-            local fullName , zone , isOnline , _ ;
 
-            if memberInfo then
-                if memberInfo.guid ~= nil then
-                    zone = memberInfo.zone;
-                    if memberInfo.presence ~= 3 then
-                        isOnline = true;
-                    else
-                        isOnline = false;
-                    end
+            local zone , online  = "" , false;
+            if memberInfo and memberInfo.guid ~= nil then
+                zone = memberInfo.zone;
+                if memberInfo.presence ~= 3 then
+                    online = true;
                 else
-                    local found = false;
-                    for i = 1 , GRM.GetNumGuildies() do
-                        fullName, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo ( i );
-                        if fullName == handle then
-                            found = true;
-                            break;
-                        end
-                    end
-                    if not found then
-                        zone = nil;
-                    end
-
+                    online = false;
                 end
             else
-                local found = false;
                 for i = 1 , GRM.GetNumGuildies() do
-                    fullName, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo ( i );
+                    local fullName, _, _, _, _, z, _, _, isOnline = GetGuildRosterInfo ( i );
                     if fullName == handle then
-                        found = true;
+                        name = fullName;
+                        zone = z;
+                        online = isOnline;
                         break;
                     end
-                end
-                if not found then
-                    zone = nil;
                 end
             end
 
             if zone ~= nil and zone ~= "" then
-                player.isOnline = isOnline;
+                player.isOnline = online;
                 if player.zone ~= zone then
                     player.timeEnteredZone = time();    -- Resets the time
                 end
@@ -24270,134 +24306,128 @@ end
 -- What it Does:    changes the player's note date to match the GRM save date.
 -- Purpose:         Useful mini join date tool to cycle mass update join dates for guildies.
 GRM.EditSavedNoteDateManually = function ( member )
-    local player = GRM.GetPlayer ( member[1] );
-    local tempNote = "";
-    local name = "";
-    local index;
-    local success = false;
-    local noteHeader = "";
+    local player = GRM.GetPlayer ( member[1] );    
 
-    if GRM.S().includeTag then
-        noteHeader = GRM_G.customHeaderJoin;
-    end
-
-    local finalNote = "";
-    
     if player then
-        index = nil;
-        name = "";
-        tempNote = "";
+        local tempNote = "";
+        local finalNote = "";
+        local noteHeader = "";
+        local success = false;
 
-        -- Find them in the guild indexes to modify offier/public notes
-        for h = 1 , GRM.GetNumGuildies() do
-            name = GetGuildRosterInfo( h );
-            if name == member[1] then
-                index = h;
-                break;
-            end
+        if GRM.S().includeTag then
+            noteHeader = GRM_G.customHeaderJoin;
         end
 
-        -- Set the repeated note formatting to be added to note.
-        finalNote = noteHeader .. " " .. GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) .. " ";
+        -- Find them in the guild indexes to modify offier/public notes
+        for i = 1 , GRM.GetNumGuildies() do
+            local name = GetGuildRosterInfo( i );
 
-        -- Modify the notes
-        if member[3] == 4 then       -- if true, multiple locations
-            if GRM.CanViewOfficerNote() then
-                tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
-                if success then
-                    -- yes, it was modified
-                    finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
-                    if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize then                    -- To avoid errors need to add protections against trying to add > 31 chars.
-                        player.officerNote = finalNote;
-                        GuildRosterSetOfficerNote ( index , player.officerNote );
-                    else
-                        finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false, GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
-                        if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize then
-                            player.officerNote = finalNote;
-                            GuildRosterSetOfficerNote ( index , player.officerNote );
+            if name == member[1] then
+                
+                -- Set the repeated note formatting to be added to note.
+                finalNote = noteHeader .. " " .. GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) .. " ";
+
+                -- Modify the notes
+                if member[3] == 4 then       -- if true, multiple locations
+                    if GRM.CanViewOfficerNote() then
+                        tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
+                        if success then
+                            -- yes, it was modified
+                            finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
+                            if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize then                    -- To avoid errors need to add protections against trying to add > 31 chars.
+                                player.officerNote = finalNote;
+                                GuildRosterSetOfficerNote ( i , player.officerNote );
+                            else
+                                finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false, GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
+                                if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize then
+                                    player.officerNote = finalNote;
+                                    GuildRosterSetOfficerNote ( i , player.officerNote );
+                                end
+                            end
+                            success = false;
                         end
                     end
-                    success = false;
-                end
-            end
-            if ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
-                tempNote , success = GRM.RemoveDateFromNote ( player.note );
-                if success then
-                    -- yes, it was modified
-                    finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
-                    if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then                    -- To avoid errors need to add protections against trying to add > 31 chars.
-                        player.note = finalNote;
-                        GuildRosterSetPublicNote ( index , player.note );
-                    else
-                        finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
-                        if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then
-                            player.note = finalNote;
-                            GuildRosterSetPublicNote ( index , player.note );
+                    if ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
+                        tempNote , success = GRM.RemoveDateFromNote ( player.note );
+                        if success then
+                            -- yes, it was modified
+                            finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
+                            if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then                    -- To avoid errors need to add protections against trying to add > 31 chars.
+                                player.note = finalNote;
+                                GuildRosterSetPublicNote ( i , player.note );
+                            else
+                                finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
+                                if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then
+                                    player.note = finalNote;
+                                    GuildRosterSetPublicNote ( i , player.note );
+                                end
+                            end
+                            success = false;
                         end
                     end
-                    success = false;
-                end
-            end
-            tempNote , success = GRM.RemoveDateFromNote ( player.customNote[6] );
-            if success then
-                -- yes, it was modified
-                player.customNote[2] = time();
-                player.customNote[3] = GRM_G.addonUser;
-                finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
-                if GRM.GetNumLetters ( finalNote ) > GRM_G.MaxCustomNoteSize then
-                    finalNote = string.sub ( finalNote , 1 , GRM_G.MaxCustomNoteSize );  -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
-                end
-                player.customNote[6] = ( finalNote );
-                success = false;
-            end
-        else
-            if member[3] == 1 and GRM.CanViewOfficerNote()  then
-                tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
-                if success then
-                    -- yes, it was modified
-                    finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
-                    if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize  then                    -- To avoid errors need to add protections against trying to add > 31 chars.
-                        player.officerNote = finalNote;
-                        GuildRosterSetOfficerNote ( index , player.officerNote );
-                    else
-                        finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
-                        if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize  then
-                            player.officerNote = finalNote;
-                            GuildRosterSetOfficerNote ( index , player.officerNote );
+                    tempNote , success = GRM.RemoveDateFromNote ( player.customNote[6] );
+                    if success then
+                        -- yes, it was modified
+                        player.customNote[2] = time();
+                        player.customNote[3] = GRM_G.addonUser;
+                        finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
+                        if GRM.GetNumLetters ( finalNote ) > GRM_G.MaxCustomNoteSize then
+                            finalNote = string.sub ( finalNote , 1 , GRM_G.MaxCustomNoteSize );  -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
+                        end
+                        player.customNote[6] = ( finalNote );
+                        success = false;
+                    end
+                else
+                    if member[3] == 1 and GRM.CanViewOfficerNote()  then
+                        tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
+                        if success then
+                            -- yes, it was modified
+                            finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
+                            if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize  then                    -- To avoid errors need to add protections against trying to add > 31 chars.
+                                player.officerNote = finalNote;
+                                GuildRosterSetOfficerNote ( i , player.officerNote );
+                            else
+                                finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
+                                if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxOfficerNoteSize  then
+                                    player.officerNote = finalNote;
+                                    GuildRosterSetOfficerNote ( i , player.officerNote );
+                                end
+                            end
+                            success = false;
+                        end
+                    elseif member[3] == 2 and ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
+                        tempNote , success = GRM.RemoveDateFromNote ( player.note );
+                        if success then
+                            -- yes, it was modified
+                            finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
+                            if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then                    -- To avoid errors need to add protections against trying to add > 31 chars.
+                                player.note = finalNote;
+                                GuildRosterSetPublicNote ( i , player.note );
+                            else
+                                finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
+                                if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then
+                                    player.note = finalNote;
+                                    GuildRosterSetPublicNote ( i , player.note );
+                                end
+                            end
+                            success = false;
+                        end
+                    elseif member[3] == 3 then
+                        tempNote , success = GRM.RemoveDateFromNote ( player.customNote[6] );
+                        if success then
+                            -- yes, it was modified
+                            player.customNote[2] = time();
+                            player.customNote[3] = GRM_G.addonUser;
+                            finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
+                            if GRM.GetNumLetters ( finalNote ) > GRM_G.MaxCustomNoteSize then
+                                finalNote = string.sub ( finalNote , 1 , GRM_G.MaxCustomNoteSize );  -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
+                            end
+                            player.customNote[6] = ( finalNote );
+                            success = false;
                         end
                     end
-                    success = false;
                 end
-            elseif member[3] == 2 and ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) then
-                tempNote , success = GRM.RemoveDateFromNote ( player.note );
-                if success then
-                    -- yes, it was modified
-                    finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
-                    if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then                    -- To avoid errors need to add protections against trying to add > 31 chars.
-                        player.note = finalNote;
-                        GuildRosterSetPublicNote ( index , player.note );
-                    else
-                        finalNote = ( GRM.Trim ( GRM.FormatTimeStamp ( { player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] } , false , false , GRM.S().globalDateFormat ) ) .. " " .. tempNote );    -- Remove header, try adding again.
-                        if GRM.GetNumLetters ( finalNote ) <= GRM_G.MaxPublicNoteSize then
-                            player.note = finalNote;
-                            GuildRosterSetPublicNote ( index , player.note );
-                        end
-                    end
-                    success = false;
-                end
-            elseif member[3] == 3 then
-                tempNote , success = GRM.RemoveDateFromNote ( player.customNote[6] );
-                if success then
-                    -- yes, it was modified
-                    player.customNote[2] = time();
-                    player.customNote[3] = GRM_G.addonUser;
-                    finalNote = ( GRM.Trim ( finalNote .. tempNote ) );
-                    if GRM.GetNumLetters ( finalNote ) > GRM_G.MaxCustomNoteSize then
-                        finalNote = string.sub ( finalNote , 1 , GRM_G.MaxCustomNoteSize );  -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
-                    end
-                    player.customNote[6] = ( finalNote );
-                    success = false;
-                end
+                break;
             end
         end
     end
@@ -24419,25 +24449,23 @@ end
 --                  to be joined within the character count limit of the notes properly
 GRM.AddDateTagToDefaultNote = function ( member , getCount )
     local player = GRM.GetPlayer ( member[1] );
-    local name = "";
-    local index;
-    local noteHeader = "";
-    local count = 0;
-    if GRM.S().includeTag then
-        noteHeader = GRM_G.customHeaderJoin;
-    end
-    local finalNote = "";
-    local success = false;
     
     if player then
 
-        index = nil;
-        name = "";
+        local noteHeader = "";
+        local count = 0;
+        local finalNote = "";
+        local success = false;
+        local index;
+
+        if GRM.S().includeTag then
+            noteHeader = GRM_G.customHeaderJoin;
+        end
 
         -- Find them in the guild indexes to modify offier/public notes
         if not getCount then
             for h = 1 , GRM.GetNumGuildies() do
-                name = GetGuildRosterInfo( h );
+                local name = GetGuildRosterInfo( h );
                 if name == member[1] then
                     index = h;
                     break;
@@ -24543,8 +24571,8 @@ end
 -- Purpose:         To track timestamps in the notes.
 GRM.AddTimeStampToNote = function ( name , date )
     if GRM.S().addTimestampToNote then
-        for h = 1 , GRM.GetNumGuildies() do
-            local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( h );
+        for i = 1 , GRM.GetNumGuildies() do
+            local guildieName ,_,_,_,_,_, note , oNote = GetGuildRosterInfo( i );
             if not note then
                 note = "";
             end
@@ -24567,7 +24595,7 @@ GRM.AddTimeStampToNote = function ( name , date )
                     if GRM.CanEditOfficerNote() then
                         tempNote = noteDate .. " " .. GRM.RemoveDateFromNote ( oNote );
                         if oNote == "" or GRM.GetNumLetters ( tempNote ) <= GRM_G.MaxOfficerNoteSize then
-                            GuildRosterSetOfficerNote( h , tempNote );
+                            GuildRosterSetOfficerNote( i , tempNote );
 
                             if GRM_G.currentName == name then
                                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( tempNote );
@@ -24583,7 +24611,7 @@ GRM.AddTimeStampToNote = function ( name , date )
                     if GRM.CanEditPublicNote() then
                         tempNote = noteDate .. " " .. GRM.RemoveDateFromNote ( note );
                         if note == "" or GRM.GetNumLetters ( tempNote ) <= GRM_G.MaxPublicNoteSize then
-                            GuildRosterSetPublicNote( h , tempNote );
+                            GuildRosterSetPublicNote( i , tempNote );
 
                             if GRM_G.currentName == name then
                                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText ( tempNote );
@@ -24611,62 +24639,57 @@ end
 -- This should be bottom option... to prevent from erroring and removing all notes prematurely.
 GRM.RemoveDatesFromNonDefaultNotes = function( member )
     local player = GRM.GetPlayer ( member[1] );
-    local tempNote = "";
-    local name = "";
-    local index;
-    local success = false;
-
+    
     if player then
-        index = nil;
-        name = "";
-        tempNote = "";
 
         -- Find them in the guild indexes to modify offier/public notes
-        for h = 1 , GRM.GetNumGuildies() do
-            name = GetGuildRosterInfo( h );
+        for i = 1 , GRM.GetNumGuildies() do
+            local name = GetGuildRosterInfo( i );
             if name == member[1] then
-                index = h;
+                local tempNote = "";
+                local success = false;
+
+                if GRM.CanViewOfficerNote() and GRM.S().joinDateDestination ~= 1 then
+                    tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
+                    if success then
+                        -- yes, it was modified
+                        if tempNote == nil then
+                            tempNote = "";
+                        end
+                        player.officerNote = GRM.Trim ( tempNote );
+                        GuildRosterSetOfficerNote ( i , tempNote );
+                        success = false;
+                    end
+                end
+                if ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) and GRM.S().joinDateDestination ~= 2 then
+                    tempNote , success = GRM.RemoveDateFromNote ( player.note );
+                    if success then
+                        -- yes, it was modified
+                        if tempNote == nil then
+                            tempNote = "";
+                        end
+                        player.note = GRM.Trim ( tempNote );
+                        GuildRosterSetPublicNote ( i , player.note );
+                        success = false;
+                    end
+                end
+                if GRM.S().joinDateDestination ~= 3 then
+                    tempNote , success = GRM.RemoveDateFromNote ( player.customNote[6] );
+                    if success then
+                        -- yes, it was modified
+                        player.customNote[2] = time();
+                        player.customNote[3] = GRM_G.addonUser;
+                        if tempNote == nil then
+                            tempNote = "";
+                        end
+                        player.customNote[6] = GRM.Trim ( tempNote );
+                        success = false;
+                    end
+                end
                 break;
             end
         end
 
-        if GRM.CanViewOfficerNote() and GRM.S().joinDateDestination ~= 1 then
-            tempNote , success = GRM.RemoveDateFromNote ( player.officerNote );
-            if success then
-                -- yes, it was modified
-                if tempNote == nil then
-                    tempNote = "";
-                end
-                player.officerNote = GRM.Trim ( tempNote );
-                GuildRosterSetOfficerNote ( index , tempNote );
-                success = false;
-            end
-        end
-        if ( GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser ) and GRM.S().joinDateDestination ~= 2 then
-            tempNote , success = GRM.RemoveDateFromNote ( player.note );
-            if success then
-                -- yes, it was modified
-                if tempNote == nil then
-                    tempNote = "";
-                end
-                player.note = GRM.Trim ( tempNote );
-                GuildRosterSetPublicNote ( index , player.note );
-                success = false;
-            end
-        end
-        if GRM.S().joinDateDestination ~= 3 then
-            tempNote , success = GRM.RemoveDateFromNote ( player.customNote[6] );
-            if success then
-                -- yes, it was modified
-                player.customNote[2] = time();
-                player.customNote[3] = GRM_G.addonUser;
-                if tempNote == nil then
-                    tempNote = "";
-                end
-                player.customNote[6] = GRM.Trim ( tempNote );
-                success = false;
-            end
-        end
     end
 
     -- Refresh the dates on the frames!!!
@@ -25108,7 +25131,9 @@ GRM.DisplayRosterMember = function ( playerName , index )
         return nil;
     end
     local i = index or getRosterIndex();
+
     SetGuildRosterSelection ( i );
+    
     if not GRM_UI.MemberDetailFrameClassic:IsVisible() then
         GRM_UI.MemberDetailFrameClassic:Show();
     end
