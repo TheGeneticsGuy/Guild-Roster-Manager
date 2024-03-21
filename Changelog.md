@@ -12,7 +12,7 @@
 
 * Fixed the wording in the GRM options > Officer tab for the '!note notehere` instructions as previously it was maybe not clear.
 
-* Fixed the wording of the retore/transfer tool instructions so as not to be confusing as the previous wording made it somewhat sound as if a 2nd restore point could be made, but there cannot be.
+* Fixed the wording of the restore/transfer tool instructions so as not to be confusing as the previous wording made it somewhat sound as if a 2nd restore point could be made, but there cannot be.
 
 
 ## **VERSION 1.9908 RELEASE - March 20th 2024**
