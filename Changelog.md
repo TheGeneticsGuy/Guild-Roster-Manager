@@ -1,3 +1,20 @@
+## **VERSION 1.9909 RELEASE - March 21st 2024**
+
+***BUG FIXES***
+
+* The Special macro rule should now properly display the message indicating how many times you need to hit the macro in total to complete all actions, just like the other rules.
+
+* A lua error was occurring that could cause the frame to lock up momentarily and "run too long" should now be resolved.
+
+***QUALITY OF LIFE***
+
+* Fixed some spacing issues for the Russian translation in the options which text were not wrapping at end of frame.
+
+* Fixed the wording in the GRM options > Officer tab for the '!note notehere` instructions as previously it was maybe not clear.
+
+* Fixed the wording of the retore/transfer tool instructions so as not to be confusing as the previous wording made it somewhat sound as if a 2nd restore point could be made, but there cannot be.
+
+
 ## **VERSION 1.9908 RELEASE - March 20th 2024**
 
 **COMPATIBILITY RELEASE FOR 10.2.6**
@@ -8,7 +25,6 @@
 
 
 ## **VERSION 1.9907 RELEASE - March 17th 2024**
-
 
 ***NEW FEATURE - MACRO TOOL UPDATE - SPECIAL RULES***
 

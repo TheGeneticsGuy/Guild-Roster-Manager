@@ -14,7 +14,7 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9908";
+GRM_G.Version = "R1.9909";
 GRM_G.PatchDay = 1710883572;             -- In Epoch Time
 GRM_G.PatchDayString = "1710883572";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
@@ -331,15 +331,12 @@ GRM_G.InGroup = false;
 GRM_G.HardcoreActive = false;
 GRM_G.HardcoreHexCode = "|CFFBF0000"; -- Default RGB = .76 , 0 , 0 (r,g,b)
 
--- Garbage Collection timer - to USE responsibly it is only triggered once per 15 minutes of session.
-GRM_G.GC_Timer = 0;
-
 -- Season of Discovery
 GRM_G.SOD = (C_Seasons and C_Seasons.GetActiveSeason and Enum.SeasonID.SeasonOfDiscovery and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery);
 if GRM_G.SOD then
     GRM_G.LvlCap = 40;  -- Updated Season 2 For some reason on logging in it still states LvlCap = 60 on first login
 end
-
+e
 -- Useful Lookup Tables for date indexing.
 
 GRM_G.classFileIDEnum = { ["WARRIOR"]=1 , ["PALADIN"]=2 , ["HUNTER"]=3 , ["ROGUE"]=4 , ["PRIEST"]=5 , ["DEATHKNIGHT"]=6 , ["SHAMAN"]=7 , ["MAGE"]=8 , ["WARLOCK"]=9 , ["MONK"]=10 , ["DRUID"]=11 , ["DEMONHUNTER"]=12 , ["EVOKER"] = 13 };
@@ -1325,7 +1322,6 @@ GRM.FinalSettingsConfigurations = function()
 
     -- For sync...
     GRMsyncGlobals.timeAtLogin = time();    -- Important for Sync Leader backend election algorithm.
-    GRM_G.GC_Timer = time();
 
     -- Classic Chat coloring
     -- Only initialize when in a guild or else it coluld overwrite ElvUI without a way to disable
@@ -14796,14 +14792,6 @@ GRM.BuildNewRoster = function()
         return;
     end
     
-    if ( time() - GRM_G.GC_Timer ) > 1800 and not GRM_G.inCombat then   -- 30 minutes minimum - USE ONLY RESPONSIBLY AND MINIMALLY.
-        -- LET'S CLEAR RAM before continuing!!!
-        -- I only did this as I noticed in some sessions garbage collection wouldn't run for quite a while and GRM had nearly tripled base RAM usage.
-        -- Each scan, depending on size of guild, can be up up to 2.5MB memory footprint in a 1000 member guild that clears on a collection. 
-        collectgarbage();
-        GRM_G.GC_Timer = time();
-    end
-
     local roster = {};
     local orderedRoster = {};
     -- Checking if Guild Found or Not Found, to pre-check for Guild name tag.

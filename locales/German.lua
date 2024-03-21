@@ -1068,7 +1068,7 @@
         GRM_L["!note"] = true               -- !note in English will always work. This gives you the option of creating your own key to register a public note.
         GRM_L["No officer online to set {name}'s note"] = true
         GRM_L["No officer is currently online to update your note"] = true
-        GRM_L["Allow Guild Members to Type \"!note\" to Set Their Own Public Note"] = true
+        GRM_L["Allow Guild Members to Type \"!note notehere\" to Set Their Own Public Note"] = true
         GRM_L["Enabled"] = true         -- As in, the opposite of Disabled
         GRM_L["'!note' trigger has been globally ENABLED"] = true
         GRM_L["'!note' trigger has been globally DISABLED"] = true
@@ -1607,7 +1607,7 @@
     GRM_L["Transfer Tool Guide"] = true
     GRM_L["Step-by-Step guide on how to use transfer tool"] = true
     GRM_L["Step {num}:"] = true  -- Step 1: , Step 2: etc...
-    GRM_L["Click \"Set Restore Point\" to the guild you are currently in (remove the old if necessary)."] = true
+    GRM_L["Click \"Set Restore Point\" to the guild you are currently in (remove save first if one already exists)."] = true
     GRM_L["Initiate the guild transfer process."] = true
     GRM_L["Log into the new guild on the new server."] = true
     GRM_L["Open the Restore Tab again and click \"Transfer Data\" from your old guild. Confirm YES."] = true
