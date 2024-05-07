@@ -3705,13 +3705,16 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetChecked ( false );
                 end
 
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths;
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths );
-                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Months") );
-                else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Days") );
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths;
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths );
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Months") );
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected.GRM_KickEvenIfActiveTimeSelectedText:SetText ( GRM.L ( "Days") );
+                    end
                 end
+                
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
 
                 GRM_UI.ConfigureRankCheckBoxesPromoteAndDemote();
@@ -6291,6 +6294,10 @@ GRM.UpdateQueuedTooltip = function ( ind )
     local tag = "";
     local mainName = "";
     local alts = {};
+    
+    if not player then      -- Protection if player quits the guild or is kicked before you can activate the macro.
+        return;
+    end
 
     -- See if main tag is needed.
     if player.altGroup ~= "" then
@@ -6623,12 +6630,12 @@ end
 GRM.AdjustForDemoteMacroLimitation = function ( entries )
     local names = {};
     local count , num = 0 , 0;
-    local name = {};
-    local listOfMembers = GRM.GetListOfGuildies( true );
+    local name = "";
+    local listOfMembers = GRM.GetListOfGuildies ( true );
 
     for i = #entries , 1 , -1 do
 
-        if entries[i].action == "demote" then
+        if entries[i].action == "Demote" then
             num = 0;
             name = GRM.SlimName ( entries[i].name );        -- Next name
             
@@ -6639,14 +6646,10 @@ GRM.AdjustForDemoteMacroLimitation = function ( entries )
                     num = num + 1;
 
                     if num > 1 then                         -- sign of 2 copies!!!
-                        if not names[name] then             -- don't need to add more than once.
-                            names[name] = entries[i].name;  -- Add the full name for report to chat
-                            count = count + 1;
-                        end
-                        table.remove ( entries , i ); -- purge repeats
+                        names[entries[i].name] = {};  -- Add the full name for report to chat
+                        count = count + 1;
+                        break;
                     end
-                    break;
-
                 end
             end
         end
@@ -6654,17 +6657,16 @@ GRM.AdjustForDemoteMacroLimitation = function ( entries )
     end
 
     -- Now, we remove the purged names
-    for n in pairs ( names ) do
+    for playerName in pairs ( names ) do
         for i = #entries , 1 , -1 do
-            if GRM.SlimName ( entries[i].name ) == n then
+            if entries[i].name == playerName then
                 table.remove ( entries , i);
-                break;
             end
         end
     end
 
     if count > 0 then
-        for _ , fullName in pairs ( names ) do
+        for fullName in pairs ( names ) do
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Demotion Macro Limitation!!! Unable to demote {name} due to multiple players in the guild with the same name, though different realms. Please demote manually." , GRM.GetClassifiedName ( fullName , false ) ) );
         end
     end
@@ -9800,7 +9802,7 @@ end
 -- Purpose:         If a player is on the same server as you, you don't need to add their server, thus you can remove it and allow more space in the macro tool
 GRM.GetMacroFormattedName = function ( name , type )
     local result = "";
-    if ( (type == 3 or type == 4 ) and GRM_G.BuildVersion >= 80000 ) or ( type == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
+    if ( (type == 3 or type == 4 ) and GRM_G.BuildVersion >= 40000 ) or ( type == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
         result = GRM.SlimName ( name );
     else
         result = name;

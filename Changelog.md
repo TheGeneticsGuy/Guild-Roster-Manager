@@ -1,3 +1,62 @@
+## **VERSION 1.99097 RELEASE - May 7th 2024**
+
+* Retail 10.2.7 DF Compatibility release
+
+***BUG FIXES***
+
+* For people in very large guilds, on occasion it could time out when checking birthdays in the scan process, if you had it enabled to announce birthdays if they were currently active and logged in. This has been rewritten to be more efficient and not do this.'
+
+* Fixed an issue where when using the Macro tool to demote a player, if you had 2 players in the same guild, but separate realms, it was causing a problem because of the limitation of the `/gdemote` macro. Unfortunately, blizz only enables this macro to work when you remove the server name of the player. Well, in x-realm guilds, this creates an issue. I tested this to see if it would select names in alphabetical order at least, and it was completely inconsistent. I reload, use the macro and boom, it demotes player 1, instead of player 2. I reload again, next time it demotes player 2 instead of player 1. So, I've just now added a little warning that the demotion will not work for players that share the same name and will auto-remove them from the macro. This ONLY applies to the demote slash command as the promote slash command allows adding of the server tag. I really don't know why this limitation exists.
+
+
+## **VERSION 1.99096 RELEASE - May 2nd 2024**
+
+* Cata Classic Compatibility Released 
+
+*IMPORTANT NOTE - Sync may temporarily cause failure in Classic as Blizz made some unintended changes recently that they said they will be reverting "soon."*
+
+***BUG FIXES***
+
+* Noticed that the keybind setup for the guild window was not working. Basically,  if you have no keybind set to open your guild window, GRM will establish either the "J" or the semicolon symbol to be your keybind, as long as they are not already in use. This sets it to default behavior since 8.0 - I noticed that Blizz did not implement this feature in Cata with the Communities interface so I brought it back in.
+
+
+## **VERSION 1.99095 RELEASE - April 18th 2024**
+
+***BUG FIXES***
+
+* You can now edit the Demot macro rules again. Before it was erroring if you right-clicked to edit the rule.
+
+* Fixed an issue where GRM Group Info was not the correct version number
+
+* Fixed an issue where the scan for changes could fail.
+
+* In the Advanced Join Date Tool - Mousing over the button for Step 3 will no longer cause an error.
+
+* THe HC Mode in Classic Era had some debugging print statements I accidentally left in. This has been cleaned up.
+
+* Fixed an issue where an alt group would have a missing index due to a player name change where rather than renaming they were removed. This fixes that.
+
+
+## **VERSION 1.99094 RELEASE - April 11th 2024**
+
+***BUG FIXES***
+
+* Classic Hardcore should now be working again, as well as be compatible with the new way of tracking Hardcore deaths by way of the global hardcore death channel.
+
+* Fixed an issue where there would be a mouseover error on certain players and would cause the audit log to fail to load
+
+* The "Cancel" button should once again work on the Custom Note when editing it. It seems you either had to hit ESC or Confirm the note to get off focus. The cancel button is now working properly.
+
+## **VERSION 1.99093 RELEASE - April 6th 2024**
+
+* Compatibility release for Season of Discovery Season 3
+
+* When using the Special macro tool in any language but English, you should no longer receive a "Missing Key" message.
+
+## **VERSION 1.99092 RELEASE - March 23rd 2024**
+
+* Fixed a bug if a player is using certain macro rule filters that could trigger an error and crash the scan for changes and prevent new updates from being saved.
+
 ## **VERSION 1.9909 RELEASE - March 21st 2024**
 
 ***BUG FIXES***

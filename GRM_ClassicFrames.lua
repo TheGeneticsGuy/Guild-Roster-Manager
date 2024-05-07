@@ -4,7 +4,7 @@
 
 GRM_UI.EstablishClassicFrames = function()
 
-    if GRM_G.BuildVersion < 80000 then
+    if GRM_G.BuildVersion < 40000 then
         -- Vanilla WOW
         if GRM_G.BuildVersion > 10000 then
             -- Guild Roster Frames
@@ -32,15 +32,14 @@ GRM_UI.EstablishClassicFrames = function()
             
         end
 
-        -- Cata
-        if GRM_G.BuildVersion >= 40000 then
-            GRM_UI.ContainerButtonCount = 16;
-            GRM_UI.OldRosterButtonName = "GuildRosterContainerButton";
-            GRM_UI.GuildRosterContainer = GuildRosterContainer;
+        -- -- Cata
+        -- if GRM_G.BuildVersion >= 40000 then
+        --     GRM_UI.ContainerButtonCount = 16;
+        --     GRM_UI.OldRosterButtonName = "GuildRosterContainerButton";
+        --     GRM_UI.GuildRosterContainer = GuildRosterContainer;
+        -- end
 
-        end
-
-    elseif GRM_G.BuildVersion >= 80000 then
+    elseif GRM_G.BuildVersion >= 40000 then
 
         GRM_UI.MemberDetailFrame = CommunitiesFrame.GuildMemberDetailFrame;
         GRM_UI.MemberDetailFrame.RemoveButton = CommunitiesFrame.GuildMemberDetailFrame.RemoveButton;

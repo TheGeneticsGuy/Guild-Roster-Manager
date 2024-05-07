@@ -387,9 +387,6 @@ GRML.French = function()
 
     -- ERROR MESSAGES
     GRM_L["Notification Has Already Been Arranged..."] = "La notification a déjà été planifiée..."
-    GRM_L["Failed to add alt for unknown reason. Try closing Roster window and retrying!"] = "Échec de l'enregistrement pour une raison inconnue. Merci de fermer la fenêtre et réessayer !"
-    GRM_L["{name} is Already Listed as an Alt."] = "{name} est déjà enregistré comme Alt."
-    GRM_L["{name} cannot become their own alt!"] = "{name} ne peut pas être son propre Alt !"
     GRM_L["Player Cannot Add Themselves as an Alt"] = "Le joueur ne peut pas s'ajouter lui-même comme Alt"
     GRM_L["Player Not Found"] = "Joueur introuvable"
     GRM_L["Please try again momentarily... Updating the Guild Event Log as we speak!"] = "Veuillez de réessayer dans un moment... Mise à jour du journal des événements de la guilde au moment où nous parlons !"
@@ -1786,5 +1783,18 @@ GRML.French = function()
     GRM_L["Demotion"] = true
     GRM_L["Disable Demote Option. Only Promote Players"] = true
     GRM_L["Unable to Move Alts to this Rank"] = true;
+
+    -- R1.9909
+    GRM_L["When you are ready to Move the player, press the Hot-Key {name} 1 time to complete all actions"] = true
+    GRM_L["When you are ready to move the players, press the Hot-Key {name} {num} times to complete all actions"] = true
+    
+    -- R1.99094
+    GRM_L["For GRM to log guild member deaths, you will need to join the \"{name}\" channel. Do you wish to join?"] = true
+    GRM_L["You will not be asked this again."] = true
+    GRM_L["Please note, GRM will now track the deaths behind the scenes. If you wish to see the full server message, you will need to manually enable in the General Chat Settings."] = true
+    GRM_L["Joined \"{name}\" Channel to Track Deaths"] = true
+    GRM_L["HardcoreDeaths"] = true      -- Default Placeholder
+    GRM_L["Joined \"{name}\" Channel to Track Deaths"] = true
+    GRM_L["Configuring channel... one moment."] = true
     
 end

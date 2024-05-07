@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 127 - 2024-03-15
+--- Total Patches: 123 - 05/01/2024
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1555,6 +1555,41 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.99061";
         if loopCheck ( 1.99061 ) then
+            return;
+        end
+    end
+    
+    -- 128
+    if numericV < 1.99094 and baseValue < 1.99094 then
+        if C_GameRules and C_GameRules.IsHardcoreActive() then
+            GRM_Patch.AddNewSetting ( "ignoreDeathChannel" , false );
+        end
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixRanKHistError , true , true , false , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.99094";
+        if loopCheck ( 1.99094 ) then
+            return;
+        end
+    end
+
+    -- 129
+    if numericV < 1.99095 and baseValue < 1.99095 then
+
+        GRM_Patch.FixAltGroupData();
+
+        GRM_AddonSettings_Save.VERSION = "R1.99095";
+        if loopCheck ( 1.99095 ) then
+            return;
+        end
+    end
+
+     -- 130
+     if numericV < 1.99096 and baseValue < 1.99096 then
+
+        GRM_Patch.EditSetting ( "levelFilters" , GRM_Patch.AddNewLevelFilters );
+
+        GRM_AddonSettings_Save.VERSION = "R1.99096";
+        if loopCheck ( 1.99096 ) then
             return;
         end
     end
@@ -8253,7 +8288,7 @@ GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
         end
 
     else
-        player.rankHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+        player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
     end
 
     if player.rankHist and #player.rankHist[1] == 8 and player.rankHist[1][2] ~= "" then
@@ -8632,4 +8667,60 @@ GRM_Patch.JoinDateErrorFix = function ( player )
     end
 
     return player;
+end
+
+-- R1.99094         GRM_Patch.FixRanKHistError ( playerTable )
+-- What it Does:    Resets the rank history of the data was corrupted
+-- Purpose:         There was a bug that seemed to affect some players due to a previous error that crashed in middle of update.
+GRM_Patch.FixRanKHistError = function ( player )
+    if player.rankHist[1][3] == nil or player.rankHist[1][4] == nil or type(player.rankHist[1][4]) == "string" then
+        player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+    end
+    return player
+end
+
+-- R1.99095
+-- Method:          GRM_Patch.FixAltGroupData()
+-- What it Does:    Fixes the alt group from an existing error where an index was missing.
+-- Purpose:         Prevents addon from being able to complete scan for changes until error is fixed.
+GRM_Patch.FixAltGroupData = function()
+
+    for guildName in pairs ( GRM_Alts ) do
+        for groupID , alts in pairs ( GRM_Alts[guildName] ) do
+            for i = #alts , 1 , -1 do
+                if alts[i] == nil then
+                    table.remove ( alts , i );
+                end
+            end
+        end
+    end
+
+    for guildName in pairs ( GRM_GuildDataBackup_Save ) do
+        if GRM_Alts[guildName].alts then
+            for groupID , alts in pairs ( GRM_Alts[guildName].alts ) do
+                for i = #alts , 1 , -1 do
+                    if alts[i] == nil then
+                        table.remove ( alts , i );
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- R1.99096
+-- Method:              GRM_Patch.AddNewLevelFilters ( table )
+-- What it Does:        Adds 2 new boolean points in the levelFilters table, to account for Cata, and also the MOP classic changes in 10.2.7
+-- Purpose:             Ensure one build compatibility.
+GRM_Patch.AddNewLevelFilters = function ( levelFilters )
+
+    if #levelFilters == 9 then
+        table.insert ( levelFilters , true );
+    end
+
+    if #levelFilters == 10 then
+        table.insert ( levelFilters , true );
+    end
+
+    return levelFilters
 end

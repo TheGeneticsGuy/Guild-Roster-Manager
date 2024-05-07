@@ -2203,7 +2203,7 @@ GRM_R.InitializeRosterLoadButton = function ( parentFrame , points , size , text
     parentFrame.GRM_RosterTab:SetSize ( size[1] , size[2] );
     parentFrame.GRM_RosterTab:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= 40000 then
         parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 2.5 , -1.5 );
     else
         parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 0 , 0 );

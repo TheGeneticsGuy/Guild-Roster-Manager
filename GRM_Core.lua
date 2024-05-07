@@ -14,14 +14,15 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99091";
-GRM_G.PatchDay = 1711040518;             -- In Epoch Time
-GRM_G.PatchDayString = "1711040518";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.99097";
+GRM_G.PatchDay = 1715094840;             -- In Epoch Time
+GRM_G.PatchDayString = "1715094840";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
+GRM_G.RetailBaseBuild = 100000;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.32;
+GRM_G.GroupInfoV = 1.36;
 
 -- Initialization Useful Globals 
 -- ADDON
@@ -334,7 +335,7 @@ GRM_G.HardcoreHexCode = "|CFFBF0000"; -- Default RGB = .76 , 0 , 0 (r,g,b)
 -- Season of Discovery
 GRM_G.SOD = (C_Seasons and C_Seasons.GetActiveSeason and Enum.SeasonID.SeasonOfDiscovery and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery);
 if GRM_G.SOD then
-    GRM_G.LvlCap = 40;  -- Updated Season 2 For some reason on logging in it still states LvlCap = 60 on first login
+    GRM_G.LvlCap = 50;  -- Updated Season 2 For some reason on logging in it still states LvlCap = 60 on first login
 end
 
 -- Useful Lookup Tables for date indexing.
@@ -650,7 +651,7 @@ GRM.FrameCombatRestore = function()
 
     if GRM_G.CoreFramesHidden.hidden then
         if GRM_G.CoreFramesHidden[1] then
-            if ( GRM_G.BuildVersion >= 80000 and CommunitiesFrame and CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 80000 and FriendsFrame and FriendsFrame:IsVisible() ) then
+            if ( GRM_G.BuildVersion >= 40000 and CommunitiesFrame and CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 40000  and FriendsFrame and FriendsFrame:IsVisible() ) then
                 GRM_UI.GRM_MemberDetailMetaData:Show();
             end
             GRM_G.CoreFramesHidden[1] = false;
@@ -833,7 +834,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
         player.numRosterRows = 18;
 
         local rosterFrameDefault = 885;
-        if GRM_G.BuildVersion >= 80000 then
+        if GRM_G.BuildVersion >= 80000 then -- Mythic+ Size Diff
             rosterFrameDefault = rosterFrameDefault + 90;
         end
         
@@ -1094,6 +1095,7 @@ GRM.SetDefaultAddonSettings = function ( player , page )
     elseif page == 16 then
         player.includeDeathTime = true;
         player.addDeathTag = true
+        player.ignoreDeathChannel = false;
 
     end
 
@@ -1315,9 +1317,9 @@ GRM.FinalSettingsConfigurations = function()
 
     -- Re-setup macro
     if GRM_G.BuildVersion < 40000 then
-        GRM.BuildGuildRosterHotkeyAndMacroCLASSIC();
+        GRM.BuildGuildRosterHotkeyAndMacro( SocialsMicroButton );
     else
-        GRM.BuildGuildRosterHotkeyAndMacro();
+        GRM.BuildGuildRosterHotkeyAndMacro( GuildMicroButton );
     end
 
     -- For sync...
@@ -1759,7 +1761,7 @@ GRM.IsMouseOverAnyChatWindowIncludingCommunities = function()
 
     if not result then
         GetPlayerInfoByGUID(UnitGUID("PLAYER"))
-        if ( GRM_G.BuildVersion >= 80000 and CommunitiesFrame and CommunitiesFrame:IsVisible() and CommunitiesFrame:IsMouseOver() and GRM_G.gClubID == C_Club.GetGuildClubId() ) then
+        if ( GRM_G.BuildVersion >= 40000 and CommunitiesFrame and CommunitiesFrame:IsVisible() and CommunitiesFrame:IsMouseOver() and GRM_G.gClubID == C_Club.GetGuildClubId() ) then
         
             if DropDownList1.dropdown.guid ~= nil then
                 name , server = select ( 6 , GetPlayerInfoByGUID ( DropDownList1.dropdown.guid ) );
@@ -1942,7 +1944,7 @@ GRM.CancelChatTabCreation = function()
 end
 
 -- Method:          GRM.EstablishNewCustomReportWindow();
--- What it Does:    Takes a new custom one and determines if there is a window, and if there is no window asks the player if they wish to create a GRM channel\
+-- What it Does:    Takes a new custom one and determines if there is a window, and if there is no window asks the player if they wish to create a GRM channel
 -- Purpose:         Quality of Life feature for creating custom Window to send reports to.
 GRM.EstablishNewCustomReportWindow = function( channelNames )
     local isEstablished = false;
@@ -2138,6 +2140,17 @@ GRM.FormatName = function ( name )
     end
 
     return name;
+end
+
+-- Method:          GRM.Title ( string )
+-- What it Does:    It capitalize the first letter of every word in a phrase.
+-- Purpose:         Useful formatting tool. I was working in python and the string.title() implementation was really nice and wanted it in Lua, so I built it.
+GRM.Title = function ( text )
+    local words = {}
+    for word in string.gmatch ( text , "%w+" ) do
+        table.insert ( words , word:sub ( 1 , 1 ):upper() .. word:sub ( 2 ) );
+    end
+    return table.concat(words, " ")
 end
 
 -- Method:          GRM.Use24HrBasedOnDefaultLanguage()
@@ -2513,7 +2526,7 @@ GRM.LoadRestorePoint = function( guild , guildTransfer , oldName )
             GRM_GuildMemberHistory_Save[guildName] = GRM.ChangeServerNameOfAll ( GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[oldName].members ) , newServerName , false , true , false );
             GRM_GuildMemberHistory_Save[guildName].grmName = guildName; -- Need to update the saved name too.
 
-            if GRM_G.BuildVersion >= 80000 then
+            if GRM_G.BuildVersion >= 40000 then
                 GRM_GuildMemberHistory_Save[guildName].grmClubID = C_Club.GetGuildClubId();
             else
                 GRM_GuildMemberHistory_Save[guildName].grmClubID= GRM.CreateCustomGUIDValue( guildName );
@@ -3364,25 +3377,27 @@ GRM.AnnounceIfBirthday = function ( msg )
     end
 
     if GRM.GetGuild() then
+        local month , day = select ( 2 , GRM.GetTodaysDate() );
+        local color = GRM.S().logColor[11];
+
         for i = 1 , #names do
         -- Is Player in the guild?
-            player = GRM.GetPlayer ( names[i] );
-            if player then
-                -- First, check if bday even configured
-                if player.events[2][1][1] > 0 then
-                    -- Birthday is set, now we compare!
-                    local month , day = select ( 2 , GRM.GetTodaysDate() );
-                    if player.events[2][1][1] == day and player.events[2][1][2] == month then
+            if not GRM_DailyAnnounce[names[i]] then
+                player = GRM.GetPlayer ( names[i] );
+                if player then
+                    -- First, check if bday even configured
+                    if player.events[2][1][1] > 0 then
+                        -- Birthday is set, now we compare!
+                        if player.events[2][1][1] == day and player.events[2][1][2] == month then
 
-                        -- Only announce if necessary
-                        if not GRM_DailyAnnounce[player.name] then
-                            GRM_DailyAnnounce[player.name] = true;
-                            local color = GRM.S().logColor[11];
-                            C_Timer.After ( 0.1 , function()
+                            -- Only announce if necessary
+                            if not GRM_DailyAnnounce[player.name] then
+                                GRM_DailyAnnounce[player.name] = true;
+                                
                                 GRM.Report ( GRM.L ( "It's {name}'s Birthday today!!!" , GRM.GetClassifiedName ( names[i] , true ) ) , color[1] , color[2] , color[3] );
-                            end);
-                        end
+                            end
 
+                        end
                     end
                 end
             end
@@ -3453,11 +3468,11 @@ end
 -- Purpose:         Easy use to know who is online currently in case you are checking something relevant.
 GRM.GetListOfOnlinePlayers = function()
     local list = {};
-    for _ , player in pairs ( GRM.GetGuild() ) do
-        if type ( player ) == "table" then
-            if player.isOnline then
-                table.insert ( list , player.name );
-            end
+
+    for i = 1 , GRM.GetNumGuildies() do
+        local fullName, _, _, _, _, _, _, _, isOnline = GetGuildRosterInfo ( i );
+        if isOnline then
+            table.insert ( list , fullName );
         end
     end
 
@@ -4074,7 +4089,7 @@ GRM.GetListOfGuildies = function( slimName )
         if slimName then
             name = GRM.SlimName ( name );
         end
-
+        
         table.insert ( list , name );
     end
     sort ( list );
@@ -6086,7 +6101,7 @@ end
 -- Purpose:         Easily know how much time has passed since a given event based on the epochstamp
 GRM.GetTimePassedUsingEpochTime = function ( epochSeconds )
     local result = {};
-    local epochTimeStamp = GRM.EpochToDateFormat ( epochSeconds );
+    local epochTimeStamp = GRM.EpochToDateFormat ( epochSeconds , 1 );      -- Setting to 1 so it can be easily formatted for parsing.
     local details = GRM.GetTimePassedUsingTableOrString ( epochTimeStamp );
 
     result.Years = details[1];
@@ -6908,105 +6923,7 @@ end
 -- Method:          GRM.InitializeRosterButtons()
 -- What it Does:    Initializes, one time, the script handlers for the roster frames
 -- Purpose:         So main player popup window appears properly 
--- Note:            THIS ONLY WORKS WITH BFA and SL expansions 8.0 and 9.0 -- not Dragonflight
 GRM.InitializeRosterButtons = function()
-    local cFrame = CommunitiesFrame;
-    local memberFrame = cFrame.MemberList;
-    local buttons = memberFrame.ListScrollFrame.buttons;
-
-    for i = 1 , #buttons do
-
-        -- I can probably get rid of the OnEnter since there is an OnUpdate.
-        buttons[i]:HookScript ( "OnEnter" , function ( self )
-            
-            if not CommunitiesFrame.RecruitmentDialog:IsVisible() then
-                if cFrame:GetSelectedClubId() == GRM_G.gClubID and GetMouseFocus() == self then
-                    local name = GRM.GetRosterName ( buttons[i] , false  );
-
-                    if name ~= "" and name ~= nil and GRM.GetPlayer ( name ) then
-
-                        local memberInfo = self.memberInfo
-                        GRM.MemberListBlizTooltip_Update ( buttons[i] , false , memberInfo.classID , memberInfo.name , memberInfo.guildRank , memberInfo.race , memberInfo.level , memberInfo.presence , memberInfo.zone , memberInfo.memberNote , memberInfo.officerNote );
-                        GRM_G.currentName = name;
-                        GRM.SubFrameCheck();
-
-                        GRM.PopulateMemberDetails ( name , memberInfo );
-                        if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                            if GRM_UI.MemberDetailFrame:IsVisible() then
-                                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                            else
-                                GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 34 , 5 );
-                            end
-                            if GRM.S().showMouseoverRetail then
-                                if GRM_G.guildName ~= "" then
-                                    GRM_UI.GRM_MemberDetailMetaData:Show();
-                                end
-                            end
-                        end
-
-                    else
-                        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                            GRM_UI.GRM_MemberDetailMetaData:Hide();
-                        end
-
-                    end
-                end
-            end
-        end);
-        
-        buttons[i]:HookScript ( "OnClick" , function ( self , button )
-            if button == "LeftButton" then
-                local nameCopy = false;
-                if IsShiftKeyDown() then
-                    nameCopy = true;
-                end
-
-                local name = GRM.GetRosterName ( self , true );
-                if name ~= "" and name ~= nil and GRM.GetPlayer ( name ) then
-                    if not nameCopy then
-                        if name ~= GRM_G.currentName and StaticPopup1:IsVisible() and GRM_UI.GRM_PopupWindow:IsVisible() then
-                            StaticPopup1:Hide();
-                        end
-                        GRM_G.currentName = name;
-                        GRM.SubFrameCheck();
-
-                        if not CommunitiesFrame.RecruitmentDialog:IsVisible() then
-                            if cFrame:GetSelectedClubId() == GRM_G.gClubID then
-                                GRM.PopulateMemberDetails ( name , self.memberInfo );
-                                GRM_G.pause = true;
-                                if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                                    if GRM_UI.MemberDetailFrame:IsVisible() then
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrame , "TOPRIGHT" , -4 , 5 );
-                                    else
-                                        GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 34 , 5 );
-                                    end
-                                    if GRM.S().showMouseoverRetail then
-                                        if GRM_G.guildName ~= "" then
-                                            GRM_UI.GRM_MemberDetailMetaData:Show();
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    else
-                        GRM.GR_Roster_Click ( name );
-                    end
-                else
-                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
-                    end
-                end
-            end
-        end);
-
-        buttons[i]:HookScript ( "OnUpdate" , GRM.RosterButton_OnUpdate );
-    end
-end
-
--- Method:          GRM.InitializeDragonFlightRosterButtons()
--- What it Does:    Initializes, one time, the script handlers for the roster frames
--- Purpose:         So main player popup window appears properly 
-GRM.InitializeDragonFlightRosterButtons = function()
     local cFrame = CommunitiesFrame;
 
     cFrame.MemberList.ScrollBox:ForEachFrame ( function ( scrollButton )
@@ -7170,7 +7087,7 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
                 local name , rank , _ , level , _ , zone , memberNote , officerNote , _ , _ , classFile , _ , _ , isMobile , _ , _ , guid = GetGuildRosterInfo ( button.guildIndex );
                 
                 if name ~= "" and name ~= nil and GRM.GetPlayer ( name ) then
-                    if GRM_G.BuildVersion >= 80000 then
+                    if GRM_G.BuildVersion >= 40000 then
                         local presence = 1;
                         if isMobile then
                             presence = 2;
@@ -7473,10 +7390,10 @@ GRM.MemberListBlizTooltip_Update = function( self , isOldRoster , classID , name
     end
 end
 
--- Method:          GRM.BuildGuildRosterHotkeyAndMacro ( int , bool )
+-- Method:          GRM.BuildGuildRosterHotkeyAndMacro ( buttonFrame , int , bool )
 -- What it Does:    Adds tooltip and creates macro compatibiltiy to hotkey the CTRL-J just like live servers
 -- Purpose:         Continuity in experience with GRM from latest expansion live to Classic live
-GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
+GRM.BuildGuildRosterHotkeyAndMacro = function ( button , count , noptt )
     count = count or 1;
 
     local noPTT = false;
@@ -7485,17 +7402,21 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
     end
 
     local keyNum = 0;
+    local keyBindGuild = "";
 
     if IsInGuild() then
 
         for i = 1 , GetNumBindings() do
-            local name = GetBinding(i);
+            local name , _ , b = GetBinding(i);
 
             if name == "TOGGLEGUILDTAB" then
+                keyBindGuild = b;
                 keyNum = i;
                 break;
             end
         end
+
+        local listOfKeybinds = { "J" , ";" };
 
         if not noPTT and C_VoiceChat.GetPushToTalkBinding() == nil then
             C_Timer.After ( 0.5 , function()
@@ -7504,12 +7425,28 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
                 if count > 30 then
                     noPTT = true;
                 end
-                GRM.BuildGuildRosterHotkeyAndMacro ( count , noPTT );   -- Checked for 15 seconds, PTT keybind still nil, so it is not API not just loading.
+                GRM.BuildGuildRosterHotkeyAndMacro ( button , count , noPTT );   -- Checked for 15 seconds, PTT keybind still nil, so it is not API not just loading.
             end);
             return;
         else
 
-            GuildMicroButton:SetScript ( "OnEnter" , function( self )
+            local PushToTalkHotKey = "";
+
+            if not noPTT then
+                PushToTalkHotKey = C_VoiceChat.GetPushToTalkBinding()[1];
+            end
+
+            if keyBindGuild == nil then
+                -- No keybind set, let's verify the first keybind is not in use anywhere...
+                for i = 1 , #listOfKeybinds do
+                    if GetBindingByKey ( listOfKeybinds[i] ) == nil and listOfKeybinds[i] ~= PushToTalkHotKey then
+                        SetBinding( listOfKeybinds[i] , "TOGGLEGUILDTAB" );
+                        break;
+                    end
+                end
+            end
+
+            button:SetScript ( "OnEnter" , function( self )
                 local hotkey = select ( 3 , GetBinding(keyNum) );                  -- This is the hotkey to open guild and community interface.
                 local tooltipTopLine = GRM.L ( "Guild & Communities" );
 
@@ -7518,7 +7455,7 @@ GRM.BuildGuildRosterHotkeyAndMacro = function ( count , noptt )
                 end
 
                 GameTooltip:SetOwner ( self , "ANCHOR_NONE" );
-                GameTooltip:SetPoint( "BOTTOMLEFT" , GuildMicroButton , "TOPRIGHT" , 0 , 0 );   
+                GameTooltip:SetPoint( "BOTTOMLEFT" , button , "TOPRIGHT" , 0 , 0 );   
                 GameTooltip:AddLine( tooltipTopLine , 1 , 1 , 1 );
                 GameTooltip:Show();
             end);
@@ -7553,85 +7490,6 @@ GRM.BindingCurrentlyInUse = function ( keyBind )
     return result , finalName;
 end
 
--- Method:          GRM.BuildGuildRosterHotkeyAndMacroCLASSIC ( int , bool )
--- What it Does:    Adds tooltip and creates macro compatibiltiy to hotkey the CTRL-J just like live servers
--- Purpose:         Continuity in experience with GRM from latest expansion live to Classic live
-GRM.BuildGuildRosterHotkeyAndMacroCLASSIC = function( count , noptt )
-    
-    if IsInGuild() then
-    
-        count = count or 1;
-        local noPTT = false;
-        if noptt ~= nil then
-            noPTT = noptt;
-        end
-
-        local keyBindGuild = "";
-        local keyNum = 0;
-
-        for i = 1 , GetNumBindings() do
-            local name , _ , b = GetBinding(i);
-
-            if name == "TOGGLEGUILDTAB" then
-                keyBindGuild = b;
-                keyNum = i;
-                break;
-            end
-        end
-        
-        local listOfKeybinds = { "J" , ";" };
-
-        if not noPTT and C_VoiceChat.GetPushToTalkBinding() == nil then
-            C_Timer.After ( 0.5 , function()
-                count = count + 1;
-
-                if count > 30 then
-                    noPTT = true;
-                end
-                GRM.BuildGuildRosterHotkeyAndMacroCLASSIC ( count , noPTT );   -- Checked for 15 seconds, PTT keybind still nil, so it is not API not just loading.
-            end);
-            return;
-        else
-            local PushToTalkHotKey = "";
-
-            if not noPTT then
-                PushToTalkHotKey = C_VoiceChat.GetPushToTalkBinding()[1];
-            end
-
-            if keyBindGuild == nil then
-                -- No keybind set, let's verify the first keybind is not in use anywhere...
-                for i = 1 , #listOfKeybinds do
-                    if GetBindingByKey ( listOfKeybinds[i] ) == nil and listOfKeybinds[i] ~= PushToTalkHotKey then
-                        SetBinding( listOfKeybinds[i] , "TOGGLEGUILDTAB" );
-                        break;
-                    end
-                end
-            end
-
-            SocialsMicroButton:SetScript ( "OnEnter" , function( self )
-                local hotkeySocial = select ( 3 , GetBinding ( keyNum - 3 ) );                  -- This is the hotkey to open guild and community interface.
-                local hotkeyRoster = select ( 3 , GetBinding ( keyNum ) ); 
-                local tooltipTopLine = GRM.L ( "Social" );
-        
-                if hotkeySocial ~= nil then
-                    tooltipTopLine = tooltipTopLine .. " |CFFFFD100(" .. hotkeySocial .. ")|r"
-                end
-        
-                if IsInGuild() and hotkeyRoster ~= nil then
-                    tooltipTopLine = tooltipTopLine .. " " .. GRM.L ( "Roster" ) .. " |CFFFFD100(" .. hotkeyRoster .. ")|r";
-                end
-        
-                GameTooltip:SetOwner ( self , "ANCHOR_NONE" );
-                GameTooltip:SetPoint( "BOTTOMLEFT" , SocialsMicroButton , "TOPRIGHT" , 0 , 0 );   
-                GameTooltip:AddLine( tooltipTopLine , 1 , 1 , 1 );
-                GameTooltip:AddLine ( NEWBIE_TOOLTIP_SOCIAL , 1 , 0.82 , 0 , 1 , true );
-                GameTooltip:Show();
-            end);
-
-        end
-    end
-end
-
 -- Method:          GRM.ConfigureOnlineStatusText()
 -- What it Does:    So you don't need to reprocess this over and over, it translates it all just one time.
 -- Purpose:         Just resource saving.
@@ -7654,7 +7512,7 @@ GRM.RosterFrame = function()
 
             if not GRM_UI.MemberDetailFrame:IsVisible() then
                 GRM_G.pause = false;
-                if GRM_G.BuildVersion < 80000 then
+                if GRM_G.BuildVersion < 40000 then
                     GRM.ClearRosterHighlights();
                 end
             end
@@ -7662,9 +7520,9 @@ GRM.RosterFrame = function()
         end
 
         -- Ensure pinned to correct window.
-        if not GRM_G.pause and ( ( GRM_G.BuildVersion >= 80000 and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and GRM_G.BuildVersion < 80000 and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) then
+        if not GRM_G.pause and ( ( GRM_G.BuildVersion >= 40000 and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and GRM_G.BuildVersion < 40000 and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) then
 
-            if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() or ( ( ( GRM_G.BuildVersion >= 80000 and CommunitiesFrame and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and GRM_G.BuildVersion < 80000 and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) 
+            if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() or ( ( ( GRM_G.BuildVersion >= 40000 and CommunitiesFrame and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver ( 4 , -20 , -4 , 30 ) ) or ( GRM.S().showMouseoverOld and GRM_G.BuildVersion < 40000 and not GRM_UI.GuildRosterContainer:IsMouseOver ( 4 , -20 , -4 , 30 ) ) ) 
             
             and not DropDownList1MenuBackdrop:IsMouseOver ( 2 , -2 , -2 , 2 ) and not StaticPopup1:IsMouseOver ( 2 , -2 , -2 , 2 ) and not GRM_UI.GRM_MemberDetailMetaData:IsMouseOver ( 1 , -1 , -30 , 1 ) and not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame:IsMouseOver( 5 , 5 , 5 , 35 ) and not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:IsMouseOver ( 1 , 1 , 1 , 3 ) ) then  -- If player is moused over side window, it will not hide it!
                 
@@ -7765,7 +7623,7 @@ GRM.RosterFrame = function()
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:Hide();
         end
 
-        if ( GRM_G.BuildVersion >= 80000 and CommunitiesFrame and not CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 80000 and GRM.S().showMouseoverOld and GuildFrame and not GuildFrame:IsVisible() ) then
+        if ( GRM_G.BuildVersion >= 40000 and CommunitiesFrame and not CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 40000 and GRM.S().showMouseoverOld and GuildFrame and not GuildFrame:IsVisible() ) then
             GRM.ClearAllFrames( true );         -- Reset frames and hide metadata frame...
         end
     end
@@ -8124,7 +7982,9 @@ end
 -- Purpose:         Nice, simple UI feature for ease of knowing person's class by name color.
 GRM.GetClassifiedName = function ( playerFullName , removeServer )
     local result = GRM.GetStringClassColorByName ( playerFullName );
-    removeServer = removeServer or ( not GRM.S().useFullName );
+    if removeServer == nil then
+        removeServer = not GRM.S().useFullName;
+    end
     if result == "" then
         if removeServer then 
             result = GRM.SlimName ( playerFullName );
@@ -8777,7 +8637,7 @@ GRM.ImportJoinDate = function ( gName )
 
     local name = gName or "";
 
-    if GRM_G.BuildVersion >= 80000 and IsInGuild() then
+    if GRM_G.BuildVersion >= 40000 and IsInGuild() then
 
         if name == "" then
             local guildName , _ , _ , server = GetGuildInfo ( "PLAYER" );
@@ -13882,7 +13742,7 @@ GRM.CheckRosterChanges = function ( updatedPlayer , player , rosterName )
             -- Update metaframe
             if GRM_UI.GRM_MemberDetailroster ~= nil and GRM_UI.GRM_MemberDetailroster:IsVisible() and GRM_G.currentName == updatedPlayer.name then
                 if updatedPlayer.note == "" then
-                    if ( GRM.CanEditPublicNote() or ( GRM_G.BuildVersion >= 80000 and GRM_G.currentName == GRM_G.addonUser ) ) then
+                    if ( GRM.CanEditPublicNote() or ( GRM_G.BuildVersion >= 40000 and GRM_G.currentName == GRM_G.addonUser ) ) then
                         GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString1:SetText ( GRM.L ( "Click here to set a Public Note" ) );
                     else
                         GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString1:SetText ( GRM.L ( "Unable to Edit Public Note at Rank" ) );
@@ -14088,16 +13948,20 @@ end
 -- Method:          GRM.CheckPlayerChanges ( array , array , ind)
 -- What it Does:    Scans through guild roster and re-checks for any  (Will only fire if guild is found!)
 -- Purpose:         Keep whoever uses the addon in the know instantly of what is going and changing in the guild.
-GRM.CheckPlayerChanges = function ( roster , orderedRoster , ind )
+GRM.CheckPlayerChanges = function ( roster , orderedRoster , ind , guildData )
 
     if GRM_G.S.scanEnabled or GRM_G.OnFirstLoad or GRM_G.ManualScanEnabled then
         
-        local guildData = GRM.GetGuild();
+        guildData = guildData or GRM.GetGuild();
         local newPlayerFound;
         local player = {};
         local updatedPlayer = {};
         local c = 0;
         local max = 350;
+
+        if not guildData then
+            GRM_G.changeHappenedExitScan = true;    -- Forces the kill switch.
+        end
         
         if GRM.ScanKillSwitch() then   -- Necessary in case you purge guild in middle of scan
             return;
@@ -14137,7 +14001,7 @@ GRM.CheckPlayerChanges = function ( roster , orderedRoster , ind )
             c = c + 1;
             if c == max and i ~= #orderedRoster then
                 C_Timer.After ( 0.5 , function()
-                    GRM.CheckPlayerChanges ( roster , orderedRoster , i + 1 );
+                    GRM.CheckPlayerChanges ( roster , orderedRoster , i + 1 , guildData );
                 end);
                 return;
             end
@@ -14860,7 +14724,7 @@ GRM.BuildNewRoster = function()
         end
     end
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= 40000 then
 
         local clubID = C_Club.GetGuildClubId();
         if clubID and clubID ~= "" then
@@ -14926,7 +14790,7 @@ GRM.BuildNewGuildOrNameChange = function ( roster , forceRebuild )
         -- Popup window to Ask player to confirm...
         -- if confirm
 
-        if GRM_G.BuildVersion < 80000 then
+        if GRM_G.BuildVersion < 40000 then
             GRM_G.GuildNamechangeProcessing = true;
 
             local Confirm = function()
@@ -14946,7 +14810,7 @@ GRM.BuildNewGuildOrNameChange = function ( roster , forceRebuild )
         -- This reiterates over this, because sometimes it can have a delay. This ensures it is secure.
 
         local clubID = 0;
-        if GRM_G.BuildVersion >= 80000 then
+        if GRM_G.BuildVersion >= 40000 then
             clubID = C_Club.GetGuildClubId();
         else
             clubID = GRM.CreateCustomGUIDValue( GRM_G.guildName );
@@ -15078,12 +14942,12 @@ GRM.GuildNameChanged = function ( currentGuildName )
     local moveForward = false;
     local oldGuildName = "";
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= 40000 then
         if GRM_GuildMemberHistory_Save[currentGuildName] == nil or ( GRM_GuildMemberHistory_Save[currentGuildName] ~= nil and GRM_GuildMemberHistory_Save[currentGuildName].grmClubID ~= GRM_G.gClubID ) then
             moveForward = true;
         end
 
-    elseif GRM_G.BuildVersion < 80000 then
+    elseif GRM_G.BuildVersion < 40000 then
         -- Classic build cannot compare clubIDs as that did not work until 8.0. Look for confirmation of the roster ratio being same
 
         if GRM_GuildMemberHistory_Save[currentGuildName] == nil then
@@ -15363,7 +15227,7 @@ GRM.NotificationIndependentChecker = function()
 
     -- Re-Check if notifications still are on there.
     if #GRM_G.ActiveStatusQue > 0 then
-        if ( GRM_G.BuildVersion < 80000 and GuildFrame:IsVisible() ) or ( GRM_G.BuildVersion >= 80000 and CommunitiesFrame:IsVisible() ) then
+        if ( GRM_G.BuildVersion < 40000 and GuildFrame:IsVisible() ) or ( GRM_G.BuildVersion >= 40000 and CommunitiesFrame:IsVisible() ) then
             timer = 1;  -- if these windows are open the server authorizes player guild roster updates on the fly (less than 1 second)
         end
 
@@ -18416,7 +18280,7 @@ GRM.OnRankChange = function ( formerRank , newRank , promotedName , promoterName
             end
         end
 
-        if GRM_G.BuildVersion >= 80000 and CommunitiesFrame ~= nil and CommunitiesFrame.GuildMemberDetailFrame:IsVisible() and promotedName == GRM_G.currentName then
+        if GRM_G.BuildVersion >= 40000 and CommunitiesFrame ~= nil and CommunitiesFrame.GuildMemberDetailFrame:IsVisible() and promotedName == GRM_G.currentName then
             CommunitiesFrame.GuildMemberDetailFrame.RankDropdown.Text:SetText ( newRank );
         end
 
@@ -19697,7 +19561,7 @@ GRM.ResetPlayerMetaData = function ( playerName )
                 member.rosterSelection = i;                           -- 18
                 member.faction = player.faction;
 
-                if GRM_G.BuildVersion >= 80000 then
+                if GRM_G.BuildVersion >= 40000 then
                     local player = GRM.GetClubMemberInfo ( member.name )
 
                     if player then
@@ -19921,7 +19785,7 @@ GRM.CheckForNewPlayer = function ( name )
                     memberInfoToAdd.MythicScore = 0;
                 end
     
-                if GRM_G.BuildVersion >= 80000 then
+                if GRM_G.BuildVersion >= 40000 then
     
                     local clubID = C_Club.GetGuildClubId();
                     if clubID and clubID ~= "" then
@@ -20972,7 +20836,7 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
                     finalNote = player.note;
                 end
                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText ( finalNote );
-                if ( GRM.CanEditPublicNote() or ( GRM_G.BuildVersion >= 80000 and handle == GRM_G.addonUser ) ) then
+                if ( GRM.CanEditPublicNote() or ( GRM_G.BuildVersion >= 40000 and handle == GRM_G.addonUser ) ) then
                     if finalNote ~= GRM.L ( "Click here to set a Public Note" ) then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText( finalNote );
                     else
@@ -24437,11 +24301,11 @@ end
 --                  to be joined within the character count limit of the notes properly
 GRM.AddDateTagToDefaultNote = function ( member , getCount )
     local player = GRM.GetPlayer ( member[1] );
+    local count = 0;
     
     if player then
 
         local noteHeader = "";
-        local count = 0;
         local finalNote = "";
         local success = false;
         local index;
@@ -25181,44 +25045,7 @@ GRM.OpenPlayerWindow = function ( playerName )
     
         end);
 
-    elseif GRM_G.BuildVersion >= 40000 and GRM_G.BuildVersion < 80000 then
-
-        if GuildFrame and not GuildFrame:IsVisible() then
-            -- Force community Frame open
-            if GuildFrame_Toggle ~= nil then
-                GuildFrame_Toggle();
-                GuildFrame_TabClicked ( GuildFrameTab2 );
-            end
-        end
-
-        if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
-            GRM_UI.MemberDetailFrame:Hide();
-        end
-
-        local timer = 0.2;
-
-        if not GRM_G.BlizzFramePinsInitialized then
-            timer = 0.5;
-        end
-
-        -- need to set the proper index of selection
-
-        C_Timer.After ( timer , function()
-        
-            GRM_G.pause = false;
-            GRM.ClearAllFrames( true );
-            GRM_G.currentName = playerName;
-            GRM_G.RosterSelection = GRM.GetRosterSelectionID ( playerName );
-            GRM.PopulateMemberDetails ( GRM_G.currentName );
-            GRM_UI.GRM_MemberDetailMetaData:Show();        
-            GRM.DisplayRosterMember ( playerName , GRM_G.RosterSelection );
-            GRM.UpdateMemberDetailNameClassColor();
-            GRM_G.pause = true;
-
-        end);
-
-
-    elseif GRM_G.BuildVersion >= 80000 then
+    else
 
         if CommunitiesFrame then
             
@@ -25253,8 +25080,6 @@ GRM.OpenPlayerWindow = function ( playerName )
 
         end);
     end
-
-    
 end
 
 -- Method:          GRM.GetRosterSelectionID ( string )
@@ -25297,7 +25122,7 @@ GRM.GRM_FrameChatTest:SetScript ( "OnEvent" , function ( _ , event , prefix , ms
             GRM.GRM_FrameChatTest.IsInLoop = true;
             local needsLoopCheck = false;
 
-            if GRM_G.BuildVersion >= 80000 then
+            if GRM_G.BuildVersion >= 40000 then
                 needsLoopCheck = true;
                 if GuildRoster then
                     GuildInfoFrame_UpdateText();
@@ -25384,7 +25209,7 @@ GRM.TriggerPlayerNote = function ( player , msg )
 
             if #note > 0 then
                 -- Note is good, let's trigger the boolean...
-                if ( GRM_G.BuildVersion >= 80000 and GRM.CanEditPublicNote() and ( GRM.CanEditOfficerNote() or GRM_G.addonUser == player ) ) or ( GRM_G.BuildVersion < 80000 and GRM.CanEditPublicNote() ) then             -- Don't need to write your own public note.
+                if ( GRM_G.BuildVersion >= 40000 and GRM.CanEditPublicNote() and ( GRM.CanEditOfficerNote() or GRM_G.addonUser == player ) ) or ( GRM_G.BuildVersion < 40000 and GRM.CanEditPublicNote() ) then             -- Don't need to write your own public note.
                     GRM.UpdateNoteFromChat ( player , note );
                 else
  
@@ -26060,7 +25885,7 @@ GRM.SlashCommandCenter = function()
     GRM_UI.ResetScalingForAll();
     local rosterFrameDefault = 885;
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= 80000 then -- Mythic Rating Frame Size
         rosterFrameDefault = rosterFrameDefault + 90;
     end
 
@@ -26314,8 +26139,6 @@ GRM.InitiateConfirmFrame = function ( InfoText , buttonFunction , button1Text , 
     GRM_UI.GRM_RosterConfirmFrame:SetSize ( w , h );
     GRM_UI.GRM_RosterConfirmFrameText:SetWidth ( GRM_UI.GRM_RosterConfirmFrame:GetWidth() - 10 );
 
-    GRM_UI.GRM_RosterChangeLogFrame:EnableMouse( false );
-    GRM_UI.GRM_RosterChangeLogFrame:SetMovable( false );
     -- Configure info text
     if InfoText ~= nil and InfoText ~= "" then
         GRM_UI.GRM_RosterConfirmFrameText:SetText( InfoText );
@@ -26357,8 +26180,6 @@ GRM.InitiateConfirmFrame = function ( InfoText , buttonFunction , button1Text , 
             if not disableCloseFunctionOnHide then
                 cancelButtonFunction();
             end
-            GRM_UI.GRM_RosterChangeLogFrame:EnableMouse ( true );
-            GRM_UI.GRM_RosterChangeLogFrame:SetMovable ( true );
         end);
 
     -- or just the default actions
@@ -26368,10 +26189,7 @@ GRM.InitiateConfirmFrame = function ( InfoText , buttonFunction , button1Text , 
                 GRM_UI.GRM_RosterConfirmFrame:Hide();
             end
         end);
-        GRM_UI.GRM_RosterConfirmFrame:SetScript ( "OnHide" , function ()
-            GRM_UI.GRM_RosterChangeLogFrame:EnableMouse ( true );
-            GRM_UI.GRM_RosterChangeLogFrame:SetMovable ( true );
-        end);
+        GRM_UI.GRM_RosterConfirmFrame:SetScript ( "OnHide" , nil );
     end
 
     GRM_UI.GRM_RosterConfirmFrame:Show();
@@ -26620,7 +26438,7 @@ GRM.ConfigureGuild = function()
         end
     end
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= 40000 then
         if C_Club.GetGuildClubId() ~= nil then
             GRM_G.gClubID = C_Club.GetGuildClubId();
         end
@@ -26733,7 +26551,7 @@ GRM.TrackingConfiguration = function( forced )
         GRM_G.currentlyTracking = true;
             
         -- Add an escape if necessary due to unloaded data points. It will try again in 10 seconds or less, whenever the server calls back.
-        if GRM_G.guildCreationDate == "" or not GRM_G.NumberOfHoursTilRecommend["kick"] or not GRM_G.NumberOfHoursTilRecommend["kickActive"] or ( GRM_G.BuildVersion >= 80000 and GRM_G.gClubID == 0 ) then
+        if GRM_G.guildCreationDate == "" or not GRM_G.NumberOfHoursTilRecommend["kick"] or not GRM_G.NumberOfHoursTilRecommend["kickActive"] or ( GRM_G.BuildVersion >= 40000 and GRM_G.gClubID == 0 ) then
             GRM.DelayForGuildInfoCallback();
             return
         end
@@ -26788,7 +26606,7 @@ GRM.TrackingConfiguration = function( forced )
         end
 
         -- Auto import if it is player's own toon.
-        if GRM_G.BuildVersion > 80000 and ( #GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser] == 0 or not GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser][1] ) then
+        if GRM_G.BuildVersion > 40000 and ( #GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser] == 0 or not GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser][1] ) then
             local addonUser = GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser];
             if #addonUser == 0 then
                 addonUser[1] = false;
@@ -26873,7 +26691,7 @@ GRM.DelayForGuildInfoCallback = function()
 
         C_Timer.After ( 1 , GRM.DelayForGuildInfoCallback );
 
-    elseif GRM_G.BuildVersion >= 80000 and GRM_G.gClubID == 0 then
+    elseif GRM_G.BuildVersion >= 40000 and GRM_G.gClubID == 0 then
         if C_Club.GetGuildClubId() ~= nil then
             GRM_G.gClubID = C_Club.GetGuildClubId();
         end
@@ -26960,7 +26778,7 @@ GRM.LoadAddon = function()
     SystemMessageChecking:RegisterEvent ( "CHAT_MSG_SYSTEM" );
     SystemMessageChecking:SetScript ( "OnEvent" , GRM.SystemMessageHandler );
 
-	if GRM_G.BuildVersion < 80000 and GRM_G.BuildVersion >= 30000 then
+	if GRM_G.BuildVersion < 40000 and GRM_G.BuildVersion >= 30000 then
 		-- Achievements are broken in WotLK classic - so don't announce for modern versions or it'll duplicate
 	    C_ChatInfo.RegisterAddonMessagePrefix("GRMACHIEV");
 	    AchievementsChecking:RegisterEvent("CHAT_MSG_ADDON");
@@ -26999,7 +26817,7 @@ GRM.LoadAddon = function()
     GRM_G.GRMfunctionDisabled = false;
 
     -- Delay needs to be here to try to help prevent any initialization errors that might occur for some people.
-    if GRM_G.BuildVersion >= 80000 and not CommunitiesFrame then
+    if GRM_G.BuildVersion >= 40000 and not CommunitiesFrame then
         C_Timer.After ( 3 , function()
             GRM.LoadRecursiveErrorCheck();
             GRM.LoadLuaAddOn ( "Blizzard_Communities" );
@@ -27016,7 +26834,7 @@ end
 GRM.LoadRecursiveErrorCheck = function()
 
     
-    if ( GRM_G.BuildVersion < 80000 and UIDropDownMenu_CreateInfo() == nil ) or ( GRM_G.BuildVersion >= 80000 and not CommunitiesFrame ) then
+    if ( GRM_G.BuildVersion < 40000 and UIDropDownMenu_CreateInfo() == nil ) or ( GRM_G.BuildVersion >= 40000 and not CommunitiesFrame ) then
         C_Timer.After ( 3 , function()
             GRM.LoadRecursiveErrorCheck();
         end);
@@ -27082,6 +26900,9 @@ GRM.ReactivateAddon = function()
     if IsInGuild() then
         GRM.SetClassChatColoring()
         GRM.SetChatColoring();
+        if C_GameRules and C_GameRules.IsHardcoreActive() then
+            GRM_UI.VerifyIfHCChannelsEnabled();
+        end
     end
     
     C_Timer.After ( 2 , GRM.LoadAddon );
@@ -27222,6 +27043,10 @@ GRM.SettingsLoadedFinishDataLoad = function()
         
         -- Let's set window scales now...
         GRM_UI.SetAllWindowScales( true );
+
+        if C_GameRules and C_GameRules.IsHardcoreActive() and GRM.S() then
+            GRM_UI.VerifyIfHCChannelsEnabled();
+        end
 
         GRM.GuildRoster();                                       -- Initial queries...
         if GRM_G.BuildVersion >= 30000 then

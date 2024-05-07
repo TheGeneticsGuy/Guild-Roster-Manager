@@ -384,9 +384,6 @@ GRML.English = function()
     
     -- ERROR MESSAGES
     GRM_L["Notification Has Already Been Arranged..."] = true
-    GRM_L["Failed to add alt for unknown reason. Try closing Roster window and retrying!"] = true
-    GRM_L["{name} is Already Listed as an Alt."] = true
-    GRM_L["{name} cannot become their own alt!"] = true
     GRM_L["Player Cannot Add Themselves as an Alt"] = true
     GRM_L["Player Not Found"] = true
     GRM_L["Please try again momentarily... Updating the Guild Event Log as we speak!"] = true
@@ -1790,5 +1787,14 @@ GRML.English = function()
     GRM_L["When you are ready to Move the player, press the Hot-Key {name} 1 time to complete all actions"] = true
     GRM_L["When you are ready to move the players, press the Hot-Key {name} {num} times to complete all actions"] = true
 
+    -- R1.99094
+    GRM_L["For GRM to log guild member deaths, you will need to join the \"{name}\" channel. Do you wish to join?"] = true
+    GRM_L["You will not be asked this again."] = true
+    GRM_L["Please note, GRM will now track the deaths behind the scenes. If you wish to see the full server message, you will need to manually enable in the General Chat Settings."] = true
+    GRM_L["Joined \"{name}\" Channel to Track Deaths"] = true
+    GRM_L["HardcoreDeaths"] = true      -- Default Placeholder
+    GRM_L["Joined \"{name}\" Channel to Track Deaths"] = true
+    GRM_L["Configuring channel... one moment."] = true
+    
 end
 
