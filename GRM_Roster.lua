@@ -326,21 +326,31 @@ end
 -- What it Does:    Returns true if over any mouseover button, for hide/show purposes/
 -- Purpose:         Quality of life UI controls.
 GRM_R.IsOverAnyRankSelectionButtons = function()
-    local result = false;
+    local frame;
+    local name = "";
 
-    if not ( GetMouseFocus() == nil ) and not ( GetMouseFocus():GetName() == nil ) then
-        local name = GetMouseFocus():GetName();
-        
+    -- Compatibility issue with Classic vs 11.0 TWW update.
+    if GetMouseFoci then
+        frame = GetMouseFoci();
+        if frame[1] then
+            name = frame[1]:GetName();
+        end
+    else
+        frame = GetMouseFocus();
+        if frame then
+            name = frame:GetName();
+        end
+    end
 
+    if name and name ~= "" then
         for i = 1 , 9 do
-            if name == ( "GRM_RosterDropDownRankButton" .. i ) then
-                result = true;
-                break;
+            if name == "GRM_RosterDropDownRankButton" .. i then
+                return true;
             end
         end
     end
 
-    return result;
+    return false;
 end
 
 -- Method:          GRM_R.BuildPromotionRankSelectionDropDown ( buttonObject )
@@ -2203,7 +2213,7 @@ GRM_R.InitializeRosterLoadButton = function ( parentFrame , points , size , text
     parentFrame.GRM_RosterTab:SetSize ( size[1] , size[2] );
     parentFrame.GRM_RosterTab:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
 
-    if GRM_G.BuildVersion >= 40000 then
+    if GRM_G.BuildVersion >= 10000 then
         parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 2.5 , -1.5 );
     else
         parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 0 , 0 );
@@ -2438,7 +2448,7 @@ GRM_R.ConfigureRosterOptions = function()
         GRM_UI.GRM_RosterFrame:SetToplevel ( true );
         GRM_UI.GRM_RosterFrame:RegisterForDrag ( "LeftButton" );
         GRM_UI.GRM_RosterFrame:SetScript ( "OnDragStart" , function( self )
-            if GetMouseFocus() == self then
+            if GRM.GetMouseFocus( self ) then
                 GRM_UI.GRM_RosterFrame:StartMoving();
             end
         end);
@@ -2453,7 +2463,7 @@ GRM_R.ConfigureRosterOptions = function()
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions:EnableMouse ( true );
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions:RegisterForDrag ( "LeftButton" );
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions:SetScript ( "OnDragStart" , function( self )
-            if GetMouseFocus() == self then
+            if GRM.GetMouseFocus( self ) then
                 GRM_UI.GRM_RosterFrame:StartMoving();
             end
         end);

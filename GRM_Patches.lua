@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 123 - 05/01/2024
+--- Total Patches: 131 - 07/29/2024
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1590,6 +1590,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.99096";
         if loopCheck ( 1.99096 ) then
+            return;
+        end
+    end
+
+    -- 131
+    if numericV < 1.99098 and baseValue < 1.99098 then
+    
+        GRM.PlayerPromotedToOfficerNoteUpdate();
+    
+        GRM_AddonSettings_Save.VERSION = "R1.99098";
+        if loopCheck ( 1.99098 ) then
             return;
         end
     end
@@ -8723,4 +8734,20 @@ GRM_Patch.AddNewLevelFilters = function ( levelFilters )
     end
 
     return levelFilters
+end
+
+-- R1.99098
+-- Method:          GRM.PlayerPromotedToOfficerNoteUpdate()
+-- What it Does:    Sets any nil officer notes to an empty string
+-- Purpose:         Fixes an old reference issue for players who were not officers or were promoted to officer
+GRM.PlayerPromotedToOfficerNoteUpdate = function()
+    local guildData = GRM.GetGuild();
+
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            if player.officerNote == nil then
+                player.officerNote = "";
+            end
+        end
+    end 
 end

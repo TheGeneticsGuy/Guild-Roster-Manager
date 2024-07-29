@@ -73,7 +73,7 @@ GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , 
             finalFrame:SetToplevel ( true );
             finalFrame:SetMovable ( "LeftButton" );
             finalFrame:SetScript ( "OnDragStart" , function()
-                if GetMouseFocus() == finalFrame then
+                if GRM.GetMouseFocus( finalFrame ) then
                     finalFrame:StartMoving();
                 end
             end);
@@ -374,7 +374,7 @@ GRM_UI.CreateHybridScrollFrame = function ( scrollFrameName , parentFrame , widt
         parentFrame[childName]:EnableMouse ( true );
         parentFrame[childName]:RegisterForDrag ( "LeftButton" );
         parentFrame[childName]:SetScript ( "OnDragStart" , function( self )
-            if GetMouseFocus() == self then
+            if GRM.GetMouseFocus( self ) then
                 parentFrame:StartMoving();
             end
         end);

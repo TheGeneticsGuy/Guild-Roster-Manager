@@ -1,3 +1,12 @@
+## **VERSION 1.9908 RELEASE - July 29th 2024**
+
+***COMPATIBILITY UPDATE***
+
+* TWW 11.0 prepatch is here! GRM is fully compatible.
+
+* Classic Era/HC/SOD 1.15.3 compatible to the new surprise UI changes
+
+
 ## **VERSION 1.99097 RELEASE - May 7th 2024**
 
 * Retail 10.2.7 DF Compatibility release

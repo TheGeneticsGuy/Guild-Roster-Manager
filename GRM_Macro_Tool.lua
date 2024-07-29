@@ -1243,7 +1243,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM.PurgeMacrodNames();
 
                     GRM.GuildRoster();
-                    if GRM_G.BuildVersion >= 30000 then
+                    if GRM_G.BuildVersion >= 10000 then
                         QueryGuildEventLog();
                     end
                     
@@ -6936,7 +6936,7 @@ GRM.ValidateMacroRecordingSuccess = function( isReScan )
             GRM_UI.GRM_ToolCoreFrame.MacroSuccess = false
 
             GRM.GuildRoster();
-            if GRM_G.BuildVersion >= 30000 then
+            if GRM_G.BuildVersion >= 10000 then
                 QueryGuildEventLog();
             end
             
@@ -9802,7 +9802,7 @@ end
 -- Purpose:         If a player is on the same server as you, you don't need to add their server, thus you can remove it and allow more space in the macro tool
 GRM.GetMacroFormattedName = function ( name , type )
     local result = "";
-    if ( (type == 3 or type == 4 ) and GRM_G.BuildVersion >= 40000 ) or ( type == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
+    if ( (type == 3 or type == 4 ) and GRM_G.BuildVersion >= 10000 ) or ( type == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
         result = GRM.SlimName ( name );
     else
         result = name;

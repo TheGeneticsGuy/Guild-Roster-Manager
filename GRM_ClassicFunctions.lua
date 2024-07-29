@@ -24,7 +24,7 @@ end
 -- Purpose:         Porting GRM to Classic needs to have this consideration for non-existent features, like the calendar, in the original Warcraft release.
 GRM_UI.DisableFramesForClassic = function()
 
-    if GRM_G.BuildVersion < 40000 then  -- Not introduced until WOTLK
+    if GRM_G.BuildVersion < 10000 then  -- Not introduced until WOTLK
 
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButton:Disable();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
@@ -38,7 +38,7 @@ end
 GRM.ClearRosterHighlights = function()
     SetGuildRosterSelection ( 0 );      -- If you do not clear the selection, it will just re-highlight the bar when it updates.\
 
-    if GRM_G.BuildVersion < 40000 and GuildFrame and GuildFrame:IsVisible() then
+    if GRM_G.BuildVersion < 10000 and GuildFrame and GuildFrame:IsVisible() then
         for i = 1 , GRM_UI.ContainerButtonCount do
             _G[ "GuildFrameButton" .. i ]:UnlockHighlight();
         end

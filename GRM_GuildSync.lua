@@ -451,7 +451,6 @@ GRMsync.CalculateTotalSyncVolume = function()
     result.JD = {};
     result.PD = {};
     result.ALT = {};
-    result.MAIN = {};
     result.CUSTOMNOTE = {};
     result.BDAY = {};
     result.BAN = {};
@@ -494,18 +493,7 @@ GRMsync.CalculateTotalSyncVolume = function()
         end
 
         if #GRMsyncGlobals.DatabaseExactIndexes[4] > 0 then
-            result.MAIN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[4] * 2 ) / total ) * 100 ) + 0.5 ) + result.ALT[1] , GRMsync.SyncTimeEstimation ( "MAIN" , #GRMsyncGlobals.DatabaseExactIndexes[4] ) , 0 };
-            if result.MAIN[1] > 0 and result.MAIN[1] < initLength then
-                result.MAIN[1] = initLength;
-            end
-            result.MAIN[3] = totalSeconds + result.MAIN[2]
-            totalSeconds = totalSeconds + result.MAIN[2];
-        else
-            result.MAIN = { 0 , 0 , totalSeconds };
-        end
-
-        if #GRMsyncGlobals.DatabaseExactIndexes[5] > 0 then
-            result.CUSTOMNOTE = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[5] * 4) / total ) * 100 ) + 0.5 ) + result.MAIN[1] , GRMsync.SyncTimeEstimation ( "CUSTOMNOTE" , #GRMsyncGlobals.DatabaseExactIndexes[5] ) , 0 };
+            result.CUSTOMNOTE = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[4] * 4) / total ) * 100 ) + 0.5 ) + result.ALT[1] , GRMsync.SyncTimeEstimation ( "CUSTOMNOTE" , #GRMsyncGlobals.DatabaseExactIndexes[4] ) , 0 };
             if result.CUSTOMNOTE[1] > 0 and result.CUSTOMNOTE[1] < initLength then
                 result.CUSTOMNOTE[1] = initLength;
             end
@@ -515,8 +503,8 @@ GRMsync.CalculateTotalSyncVolume = function()
             result.CUSTOMNOTE = { 0 , 0 , totalSeconds };
         end
         
-        if #GRMsyncGlobals.DatabaseExactIndexes[7] > 0 then
-            result.BAN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[7] * 3 ) / total ) * 100 ) + 0.5 ) + result.CUSTOMNOTE[1] , GRMsync.SyncTimeEstimation ( "BAN" , #GRMsyncGlobals.DatabaseExactIndexes[7] ) , 0 };
+        if #GRMsyncGlobals.DatabaseExactIndexes[6] > 0 then
+            result.BAN = { math.floor ( ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[6] * 3 ) / total ) * 100 ) + 0.5 ) + result.CUSTOMNOTE[1] , GRMsync.SyncTimeEstimation ( "BAN" , #GRMsyncGlobals.DatabaseExactIndexes[6] ) , 0 };
             if result.BAN[1] > 0 and result.BAN[1] < initLength then
                 result.BAN[1] = initLength;
             end
@@ -526,8 +514,8 @@ GRMsync.CalculateTotalSyncVolume = function()
             result.BAN = { 0 , 0 , totalSeconds };
         end
 
-        if #GRMsyncGlobals.DatabaseExactIndexes[6] > 0 then
-            result.BDAY = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[6] / total ) * 100 ) + 0.5 ) + result.BAN[1] , GRMsync.SyncTimeEstimation ( "BDAY" , #GRMsyncGlobals.DatabaseExactIndexes[6] ) , 0 };
+        if #GRMsyncGlobals.DatabaseExactIndexes[5] > 0 then
+            result.BDAY = { math.floor ( ( ( #GRMsyncGlobals.DatabaseExactIndexes[5] / total ) * 100 ) + 0.5 ) + result.BAN[1] , GRMsync.SyncTimeEstimation ( "BDAY" , #GRMsyncGlobals.DatabaseExactIndexes[5] ) , 0 };
 
             result.BDAY[3] = totalSeconds + result.BDAY[2]
             totalSeconds = totalSeconds + result.BDAY[2];
@@ -555,9 +543,6 @@ GRMsync.SendTrackerCalculation = function()
     -- ALT
     result = result .. GRMsyncGlobals.TrackerData.ALT[1] .. "?" .. GRMsyncGlobals.TrackerData.ALT[2] .. "?" .. GRMsyncGlobals.TrackerData.ALT[3] .. "?";
 
-    -- MAIN
-    result = result .. GRMsyncGlobals.TrackerData.MAIN[1] .. "?" .. GRMsyncGlobals.TrackerData.MAIN[2] .. "?" .. GRMsyncGlobals.TrackerData.MAIN[3] .. "?";
-
     -- CUSTOMNOTE
     result = result .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] .. "?" .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] .. "?" .. GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] .. "?";
 
@@ -582,7 +567,6 @@ GRMsync.InitializeTrackerData = function()
     GRMsyncGlobals.TrackerData.JD = {};
     GRMsyncGlobals.TrackerData.PD = {};
     GRMsyncGlobals.TrackerData.ALT = {};
-    GRMsyncGlobals.TrackerData.MAIN = {};
     GRMsyncGlobals.TrackerData.CUSTOMNOTE = {};
     GRMsyncGlobals.TrackerData.BDAY = {};
     GRMsyncGlobals.TrackerData.BAN = {};
@@ -596,7 +580,7 @@ GRMsync.CollectTrackerCalculation = function ( msg )
 
     GRMsync.InitializeTrackerData();
 
-    GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[2] , GRMsyncGlobals.TrackerData.JD[3] , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[2] , GRMsyncGlobals.TrackerData.PD[3] , GRMsyncGlobals.TrackerData.ALT[1] , GRMsyncGlobals.TrackerData.ALT[2] , GRMsyncGlobals.TrackerData.ALT[3] , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[2] , GRMsyncGlobals.TrackerData.MAIN[3] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[2] , GRMsyncGlobals.TrackerData.BDAY[3] , GRMsyncGlobals.TrackerData.BAN[1] , GRMsyncGlobals.TrackerData.BAN[2] , GRMsyncGlobals.TrackerData.BAN[3] , GRMsyncGlobals.totalEstTime = GRM.ParseComMsg ( msg , GRM_G.MatchPattern22 );  -- Ban needs to be pared when added.
+    GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[2] , GRMsyncGlobals.TrackerData.JD[3] , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[2] , GRMsyncGlobals.TrackerData.PD[3] , GRMsyncGlobals.TrackerData.ALT[1] , GRMsyncGlobals.TrackerData.ALT[2] , GRMsyncGlobals.TrackerData.ALT[3] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[2] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[2] , GRMsyncGlobals.TrackerData.BDAY[3] , GRMsyncGlobals.TrackerData.BAN[1] , GRMsyncGlobals.TrackerData.BAN[2] , GRMsyncGlobals.TrackerData.BAN[3] , GRMsyncGlobals.totalEstTime = GRM.ParseComMsg ( msg , GRM_G.MatchPattern22 );  -- Ban needs to be pared when added.
 
     for _ , y in pairs ( GRMsyncGlobals.TrackerData ) do
         for i = 1 , #y do
