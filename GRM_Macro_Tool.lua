@@ -6248,6 +6248,8 @@ GRM.GetToolTipLine = function ( rulePart )
             table.insert ( result , " - " .. GRM.L ( "Last Online" ) .. ": " .. GRM.HoursReport ( rulePart[i][2] ) );
         elseif rulePart[i][1] == "Rank" then
             table.insert ( result , " - " .. GRM.L ( "Matching Rank" ) .. ": " .. rulePart[i][2] );
+        elseif rulePart[i][1] == GRM.L ( "Promote to Rank:" ) or rulePart[i][1] == GRM.L ( "Demote to Rank:" ) then
+            table.insert ( result , " - " .. rulePart[i][1] .. " " .. rulePart[i][2] );
         elseif rulePart[i][1] == "Level" then
             table.insert ( result , " - " .. GRM.L ( "Within Level Range: {num} - {custom1}" , nil , nil , rulePart[i][2] , rulePart[i][3] ) );
         elseif rulePart[i][1] == "Note Match" then
@@ -6621,59 +6623,6 @@ GRM.IsNameBlacklisted = function ( name )
     return result;
 end
 
--- Method:          GRM.AdjustForDemoteMacroLimitation ( table )
--- What it Does:    Checks for duplicates in the list and purges all of them. This implies there are multiple players with the same name.
--- Purpose:         The /gdemote macro command has a limitation on merged realm guilds. You cannot get the macro to work (as of patch 9.0.2) if the server is appended
---                  This ultimately creates a point of flaw where in a merged realm you can have multiple characters with the same name, but from different realms. As such, for the addon to compensate,
---                  what happens is GRM decides to just purge the names of the players with the SAME name and instead gives a notification for the player to do those demotions manually, in the rare, edge case scenario
---                  this this might occur. Hopefully Blizzard revises this macro at some point in the future.
-GRM.AdjustForDemoteMacroLimitation = function ( entries )
-    local names = {};
-    local count , num = 0 , 0;
-    local name = "";
-    local listOfMembers = GRM.GetListOfGuildies ( true );
-
-    for i = #entries , 1 , -1 do
-
-        if entries[i].action == "Demote" then
-            num = 0;
-            name = GRM.SlimName ( entries[i].name );        -- Next name
-            
-            for j = 1 , #listOfMembers do                   -- Let's compare to existing guild. If this person on the list has 2 copies of a member in the guild with the same name we are in trouble.
-
-                if name == listOfMembers[j] then
-                    -- name match!!!
-                    num = num + 1;
-
-                    if num > 1 then                         -- sign of 2 copies!!!
-                        names[entries[i].name] = {};  -- Add the full name for report to chat
-                        count = count + 1;
-                        break;
-                    end
-                end
-            end
-        end
-
-    end
-
-    -- Now, we remove the purged names
-    for playerName in pairs ( names ) do
-        for i = #entries , 1 , -1 do
-            if entries[i].name == playerName then
-                table.remove ( entries , i);
-            end
-        end
-    end
-
-    if count > 0 then
-        for fullName in pairs ( names ) do
-            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Demotion Macro Limitation!!! Unable to demote {name} due to multiple players in the guild with the same name, though different realms. Please demote manually." , GRM.GetClassifiedName ( fullName , false ) ) );
-        end
-    end
-    
-    return entries;
-end
-
 -- Method:          GRM.GetMacroEntries ()
 -- What it Does:    Determines which grouping to import
 -- Purpose:         Proper sorting of players in the guild to be added to the mass kick tool
@@ -6685,11 +6634,6 @@ GRM.GetMacroEntries = function ()
     local count = 0;
     local count2 = 0;
     local i = 1;
-
-    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
-        GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.AdjustForDemoteMacroLimitation ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
-    end
-
     local entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
     local macroSet = false;
     local type = 1;
@@ -6711,10 +6655,10 @@ GRM.GetMacroEntries = function ()
             end
 
             if count == 0 then
-                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name , type );
+                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. entries[i].name;
                 count = 1;
             else
-                tempText = tempText .. "\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name , type );
+                tempText = tempText .. "\n" .. entries[i].macro .. " " .. entries[i].name;
             end
 
             -- Macro still not full and we are still on the first set
@@ -6792,10 +6736,10 @@ GRM.GetMacroCountForPromoteAndDemote = function()
             end
 
             if count == 0 then
-                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name , type );
+                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. entries[i].name;
                 count = 1;
             else
-                tempText = tempText .. "\n" .. entries[i].macro .. " " .. GRM.GetMacroFormattedName ( entries[i].name , type );
+                tempText = tempText .. "\n" .. entries[i].macro .. " " .. entries[i].name;
             end
 
             -- Macro still not full and we are still on the first set
@@ -6975,7 +6919,7 @@ GRM.SetMacroValues = function ( ind , ind2 )
     end
 
     -- Player Name
-    line[2]:SetText ( GRM.GetMacroFormattedName ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].name , type ) );
+    line[2]:SetText ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].name );
     line[2]:SetTextColor ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].class[1] , GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].class[2] , GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].class[3] , 1 );
     line[3]:SetText ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].macro );
     line[4]:SetText ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].numRankJumps );
@@ -9795,20 +9739,6 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex )
     GRM_G.counts[ruleCount] = #listOfPlayers;
 
     return listOfPlayers;
-end
-
--- Method:          GRM.GetMacroFormattedName ( string , int )
--- What it Does:    Returns either a name with a server or not
--- Purpose:         If a player is on the same server as you, you don't need to add their server, thus you can remove it and allow more space in the macro tool
-GRM.GetMacroFormattedName = function ( name , type )
-    local result = "";
-    if ( (type == 3 or type == 4 ) and GRM_G.BuildVersion >= 10000 ) or ( type == 1 and string.find ( name , GRM_G.realmName , 1 , true ) ~= nil ) then      -- If the player has the same realm name as me than it can be shortened.
-        result = GRM.SlimName ( name );
-    else
-        result = name;
-    end
-
-    return result;
 end
 
 -- Method:          GRM.GetKickNamesByFilterRules ()

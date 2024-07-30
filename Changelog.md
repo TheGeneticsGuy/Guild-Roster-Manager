@@ -1,3 +1,7 @@
+## **VERSION 1.990991 RELEASE - July 30th 2024**
+
+* The demote ability has been added back and properly adapted to the new capabilities of the /demote macro. Blizz has introduced the ability to add the server name to the players in the /demote macro. This has not been the case for 19 years! So, good on Blizzard for finally updating that. I suspect it has to do with the x-realm guild changes in retail, and the incessant efforts of those in the Beta, like @Xulu on discord, in reporting these issues. Thank you!
+
 ## **VERSION 1.99099 RELEASE - July 29th 2024**
 
 ***COMPATIBILITY UPDATE***

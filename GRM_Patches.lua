@@ -1614,7 +1614,7 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
     if patchNeeded then
 
         -- Ok, let's update the version!
-        print ( "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 ) );
+        print ( "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. GRM_G.Version:match ( "R(.+)" ) );
 
         if numActions > 1 then
             print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... {num} patches applied." , nil , nil , numActions ) );

@@ -5772,7 +5772,7 @@ GRM_UI.PreAddonLoadUI = function()
 
     local MinimapOnEnter = function ( tooltip )
 
-        local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 );
+        local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" );
 
         if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
             versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
@@ -5915,7 +5915,7 @@ GRM_UI.PreAddonLoadUI = function()
                 GRM_UI.GRM_MinimapButton:SetScript ( "OnEnter" , function ( self )
                     GRM_UI.SetTooltipScale();
                     GameTooltip:SetOwner ( self , "ANCHOR_LEFT" );
-                    local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" ) + 1 );
+                    local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" );
                     if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
                         versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
                     end
@@ -12063,7 +12063,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     -- User with addon installed...
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameText:SetPoint ( "TOP" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame , 0 , - 3.8 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameText:SetText ( GRM.L ( "GRM Sync Info" ) .. "     ( " .. GRM.L ( "Ver: {custom1}" , nil , nil , nil , string.sub ( GRM_G.Version , string.find ( GRM_G.Version , "R" , -8 ) , #GRM_G.Version ) ) .. " )" );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameText:SetText ( GRM.L ( "GRM Sync Info" ) .. "     ( " .. GRM.L ( "Ver: {custom1}" , nil , nil , nil , GRM_G.Version:match ( "R(.+)" ) ) .. " )" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 15 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameTitleText:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollBorderFrame , "TOPLEFT" , 20 , -2 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameTitleText:SetJustifyH ( "LEFT" );
