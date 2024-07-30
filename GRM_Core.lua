@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99098";
-GRM_G.PatchDay = 1722285465;             -- In Epoch Time
-GRM_G.PatchDayString = "1722285465";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.99099";
+GRM_G.PatchDay = 1722314865;             -- In Epoch Time
+GRM_G.PatchDayString = "1722314865";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110000;
@@ -663,7 +663,7 @@ GRM.FrameCombatRestore = function()
 
     if GRM_G.CoreFramesHidden.hidden then
         if GRM_G.CoreFramesHidden[1] then
-            if ( GRM_G.BuildVersion >= 10000 and CommunitiesFrame and CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 10000 and FriendsFrame and FriendsFrame:IsVisible() ) then
+            if ( CommunitiesFrame and CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 10000 and FriendsFrame and FriendsFrame:IsVisible() ) then
                 GRM_UI.GRM_MemberDetailMetaData:Show();
             end
             GRM_G.CoreFramesHidden[1] = false;
@@ -1279,6 +1279,7 @@ GRM.LoadSettings = function()
     if not GRM.IsSettingsConfigured() then
         GRM.RefreshAllSettings();
     end
+    
     -- This means we are in the old database that needs to be updated.
     -- Pre 1.84
     if GRM.IsOldSettingsFormat() then
@@ -7117,7 +7118,7 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
                         if isMobile then
                             presence = 2;
                         end
-                        GRM.MemberListBlizTooltip_Update ( button , true , GRM_G.classFileIDEnum[classFile] , name , rank , raceIDEnum [ select ( 4 , GetPlayerInfoByGUID ( guid ) ) ] , level , presence , zone , memberNote , officerNote );
+                        GRM.MemberListBlizTooltip_Update ( button , true , GRM_G.classFileIDEnum[classFile] , name , rank , GRM_G.raceIDEnum [ select ( 4 , GetPlayerInfoByGUID ( guid ) ) ] , level , presence , zone , memberNote , officerNote );
                     end
                     
                     GRM_G.currentName = name;
@@ -7648,7 +7649,7 @@ GRM.RosterFrame = function()
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:Hide();
         end
 
-        if ( GRM_G.BuildVersion >= 10000 and CommunitiesFrame and not CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 10000 and GRM.S().showMouseoverOld and GuildFrame and not GuildFrame:IsVisible() ) then
+        if ( CommunitiesFrame and not CommunitiesFrame:IsVisible() ) or ( GRM_G.BuildVersion < 10000 and GRM.S().showMouseoverOld and GuildFrame and not GuildFrame:IsVisible() ) then
             GRM.ClearAllFrames( true );         -- Reset frames and hide metadata frame...
         end
     end
@@ -15252,7 +15253,7 @@ GRM.NotificationIndependentChecker = function()
 
     -- Re-Check if notifications still are on there.
     if #GRM_G.ActiveStatusQue > 0 then
-        if ( GRM_G.BuildVersion < 10000 and GuildFrame:IsVisible() ) or ( GRM_G.BuildVersion >= 10000 and CommunitiesFrame:IsVisible() ) then
+        if CommunitiesFrame:IsVisible() then
             timer = 1;  -- if these windows are open the server authorizes player guild roster updates on the fly (less than 1 second)
         end
 
@@ -16757,8 +16758,8 @@ GRM.BuildExportMemberDetails = function( currentMembers , specificGuild )
                     playerDetails = playerDetails .. GRM.GetClassName ( roster[i].class ) .. delimiter;   -- class
                 end
                 if GRM.S().exportFilters.race then
-                    if roster[i].race and roster[i].race ~= "" and raceIDEnum[roster[i].race] ~= nil then 
-                        playerDetails = playerDetails .. C_CreatureInfo.GetRaceInfo ( raceIDEnum[roster[i].race] ).raceName .. delimiter;   -- Race
+                    if roster[i].race and roster[i].race ~= "" and GRM_G.raceIDEnum[roster[i].race] ~= nil then 
+                        playerDetails = playerDetails .. C_CreatureInfo.GetRaceInfo ( GRM_G.raceIDEnum[roster[i].race] ).raceName .. delimiter;   -- Race
                     else
                         playerDetails = playerDetails .. GRM.L ( "Unknown" ) .. delimiter;
                     end
@@ -22040,7 +22041,7 @@ GRM.PlayerNameTooltip = function( self )
         local player = GRM.GetPlayer ( GRM_G.currentName );
         
         if player and player.race ~= "" and player.sex ~= 0 then
-            self.GRM_MemberDetailServerNameToolTip:AddLine ( GRM.L ( "{name} {name2}" , C_CreatureInfo.GetRaceInfo ( raceIDEnum[player.race] ).raceName , GRM.GetSex ( player.sex ) ) , 1 , 1 , 1 );
+            self.GRM_MemberDetailServerNameToolTip:AddLine ( GRM.L ( "{name} {name2}" , C_CreatureInfo.GetRaceInfo ( GRM_G.raceIDEnum[player.race] ).raceName , GRM.GetSex ( player.sex ) ) , 1 , 1 , 1 );
         end
 
         self.GRM_MemberDetailServerNameToolTip:AddLine ( " " );
@@ -26835,7 +26836,7 @@ GRM.LoadAddon = function()
     end
 
     if not GuildFrame then
-        GRM.LoadLuaAddOn ( "Blizzard_GuildUI" );
+        GRM.ForceLoadAddon ( "Blizzard_GuildUI" );
     end
 
     -- Modular load control
@@ -26845,7 +26846,7 @@ GRM.LoadAddon = function()
     if GRM_G.BuildVersion >= 10000 and not CommunitiesFrame then
         C_Timer.After ( 3 , function()
             GRM.LoadRecursiveErrorCheck();
-            GRM.LoadLuaAddOn ( "Blizzard_Communities" );
+            GRM.ForceLoadAddon ( "Blizzard_Communities" );
         end);
     else
         GRM.LoadRecursiveErrorCheck();
@@ -26858,7 +26859,6 @@ end
 -- Purpose:         For some reason some edge cases out there some clients load these very slow, and an addon can trigger before this is done.
 GRM.LoadRecursiveErrorCheck = function()
 
-    
     if ( GRM_G.BuildVersion < 10000 and UIDropDownMenu_CreateInfo() == nil ) or ( GRM_G.BuildVersion >= 10000 and not CommunitiesFrame ) then
         C_Timer.After ( 3 , function()
             GRM.LoadRecursiveErrorCheck();
@@ -26882,6 +26882,7 @@ GRM.finalLoadSteps = function()
     end
 
     -- Activate the GRM frames!
+    
     GRM.InitiateMemberDetailFrame();
     GRM.GuildRoster();
 
@@ -27063,7 +27064,6 @@ GRM.SettingsLoadedFinishDataLoad = function()
     -- Restore debugLog since addonloaded
     GRM_G.DebugLog = GRM_DebugLog_Save;
 
-
     if IsInGuild() then
         
         -- Let's set window scales now...
@@ -27126,6 +27126,6 @@ GRM.AnnounceAchievement = function(source, link)
 end
 
 
--- Initialize the first frames as game is being loaded.
+-- -- Initialize the first frames as game is being loaded.
 Initialization:RegisterEvent ( "ADDON_LOADED" );
 Initialization:SetScript ( "OnEvent" , GRM.ActivateAddon );

@@ -26,9 +26,6 @@ GRM_UI.ElvUIReset2 = false;
 -- Tooltip check
 GRM_G.tooltipOn = false;
 
--- Force Frame Loads
-GRM.ForceLoadAddon ( "Blizzard_Communities" );
-
 -- Core Frame
 GRM_UI.GRM_MemberDetailMetaData = CreateFrame( "Frame" , "GRM_MemberDetailMetaData" , UIParent , "TranslucentFrameTemplate" );
 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaDataCloseButton = CreateFrame( "Button" , "GRM_MemberDetailMetaDataCloseButton" , GRM_UI.GRM_MemberDetailMetaData , "UIPanelCloseButton");
@@ -3039,7 +3036,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     self:SetText( playerDetails.newNote );
     
                     -- If the memberdetailframe is open, set it as well...
-                    if GRM.SlimName ( GRM_UI.MemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
+                    if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
 
                         if GRM_G.BuildVersion >= 10000 then
                             if CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:IsVisible() then
@@ -3145,7 +3142,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     
                     if GRM_G.BuildVersion >= 10000 then
                         if GRM_UI.MemberDetailFrame:IsVisible() then
-                            if GRM.SlimName ( GRM_UI.MemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
+                            if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
                                 GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText( theNote );
                             end
                         end
@@ -18585,7 +18582,7 @@ GRM_UI.InitalizeGuildFrame = function()
     -- Communities
     GRM_UI.CreateCharacterCountText ( GRM_UI.CommunitiesGuildTextEditFrame , GRM_UI.GuildDetailsFrameEditMOTDButton , GRM_UI.MOTDEditBox , -33 , -18 , GRM_UI.GuildDetailsGuildInformationButton );
 
-    GRM_UI.MemberDetailFrame.RemoveButton:HookScript ( "OnClick" , function()
+    CommunitiesFrame.GuildMemberDetailFrame.RemoveButton:HookScript ( "OnClick" , function()
         GRM_UI.GRM_PopupWindow:Show();
     end);
 

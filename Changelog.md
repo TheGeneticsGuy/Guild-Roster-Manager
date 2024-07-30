@@ -1,4 +1,11 @@
-## **VERSION 1.9908 RELEASE - July 29th 2024**
+## **VERSION 1.99099 RELEASE - July 29th 2024**
+
+***COMPATIBILITY UPDATE***
+
+* Surprise "TAINT" changes on the backend for the 11.0 update. These errors are now resolved and you should be able to promote/demote/kick players again.
+
+
+## **VERSION 1.99098 RELEASE - July 29th 2024**
 
 ***COMPATIBILITY UPDATE***
 

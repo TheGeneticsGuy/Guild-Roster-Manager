@@ -4988,9 +4988,9 @@ GRMsync.SubmitFinalMainData = function()
 
     GRMsyncGlobals.finalSyncProgress[6] = true;
 
-    if GRMsyncGlobals.TrackerData.MAIN[1] then
-        GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[3] );
-    end
+    -- if GRMsyncGlobals.TrackerData.MAIN[1] then
+    --     GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[3] );
+    -- end
 
     GRMsync.SubmitFinalBdayData();
 end
@@ -6890,12 +6890,12 @@ GRMsync.RegisterCommunicationProtocols = function()
                         -- Final sync on Main Status
                         elseif comms.prefix2 == "GRM_MAINSYNCUP" then
 
-                            if not GRMsyncGlobals.SyncTracker.finalMain then
-                                GRMsyncGlobals.ProgressControl ( "FINALMAIN" );
-                                if GRMsyncGlobals.TrackerData.MAIN[1] then
-                                    GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[3] );
-                                end
-                            end
+                            -- if not GRMsyncGlobals.SyncTracker.finalMain then
+                            --     GRMsyncGlobals.ProgressControl ( "FINALMAIN" );
+                            --     if GRMsyncGlobals.TrackerData.MAIN[1] then
+                            --         GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.MAIN[1] , GRMsyncGlobals.TrackerData.MAIN[3] );
+                            --     end
+                            -- end
 
                             GRMsyncGlobals.TimeSinceLastSyncAction = time();
                             GRMsync.CheckMainSyncChange ( msg );
