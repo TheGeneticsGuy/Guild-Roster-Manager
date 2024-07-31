@@ -8640,7 +8640,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButtonText , "RIGHT" , 8 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2 , "RIGHT" , 2 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetText ( GRM.L ( "Do Not Show if at Max Level {num}" , nil , nil , GRM_G.LvlCap) );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text:SetText ( GRM.L ( "Do Not Show if at Max Level {num}" , nil , nil , GRM.GetLvlCap()) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2Text );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowLevelCheckButton2:SetScript ( "OnClick" , function( self , button )
         if button == "LeftButton" then
@@ -8683,7 +8683,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:SetScript ( "OnEnter" , function( self )
         GRM_UI.SetTooltipScale();
         GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine ( GRM.L ( "Mythic+ rating will only appear on members at max level {num}." , nil , nil , GRM_G.LvlCap ) );
+        GameTooltip:AddLine ( GRM.L ( "Mythic+ rating will only appear on members at max level {num}." , nil , nil , GRM.GetLvlCap() ) );
         GameTooltip:Show();
     end)
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButton:SetScript ( "OnLeave" , function()
@@ -9570,7 +9570,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter5Button:Disable();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter6Button:Disable();
 
-            if GRM_G.SOD and not GRM_G.LvlCap == 60 then
+            if GRM_G.SOD and not GRM.GetLvlCap() == 60 then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Button:Disable();
             elseif GRM_G.BuildVersion >= 20000 and GRM_G.BuildVersion < 90000 then
@@ -9589,11 +9589,11 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM.S().levelReportMin = 1;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetText ( 1 );
                 GRM_UI.SetLevelLogOptions();
-            elseif level > GRM_G.LvlCap then
-                GRM.S().levelReportMin = GRM_G.LvlCap;
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetText ( GRM_G.LvlCap );
+            elseif level > GRM.GetLvlCap() then
+                GRM.S().levelReportMin = GRM.GetLvlCap();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetText ( GRM.GetLvlCap() );
                 GRM_UI.SetLevelLogOptions();
-                GRM.Report ( GRM.L ( "The Current Lvl Cap is {num}." , nil , nil , GRM_G.LvlCap ) );
+                GRM.Report ( GRM.L ( "The Current Lvl Cap is {num}." , nil , nil , GRM.GetLvlCap() ) );
             else
                 GRM.S().levelReportMin = level;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetText ( level );
@@ -9603,7 +9603,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNote:Show();
             GRM.BuildLogComplete( true , true );
         else
-            GRM.Report ( GRM.L ( "Please enter a valid level between 1 and {num}" , nil , nil , GRM_G.LvlCap ) );
+            GRM.Report ( GRM.L ( "Please enter a valid level between 1 and {num}" , nil , nil , GRM.GetLvlCap() ) );
         end
     end);
 
@@ -10711,7 +10711,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter2Text:SetTextColor ( 1.0 , 0 , 0 , 1 );
             end
 
-            if GRM_G.SOD and GRM_G.LvlCap == 25 then
+            if GRM_G.SOD and GRM.GetLvlCap() == 25 then
                 if GRM.S().levelFilters[3] or GRM.S().levelReportMin <= 25 then
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
                 else
@@ -10798,7 +10798,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 end
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Button:Enable();
 
-            elseif GRM_G.SOD and not GRM_G.LvlCap == 60 then
+            elseif GRM_G.SOD and not GRM.GetLvlCap() == 60 then
                 if GRM.S().levelFilters[9] or GRM.S().levelReportMin <= 25 then
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
                 else
@@ -10826,7 +10826,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter5Button:Disable();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter6Button:Disable();
 
-            if GRM_G.SOD and GRM_G.LvlCap == 25 then
+            if GRM_G.SOD and GRM.GetLvlCap() == 25 then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Button:Disable();
             end
@@ -10865,7 +10865,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.S().levelFilters[filterIndex] = true;
             buttonText:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
         else
-            if GRM_G.LvlCap > levelReportMin then
+            if GRM.GetLvlCap() > levelReportMin then
 
                 GRM.S().levelFilters[filterIndex] = false;
                 if GRM.S().levelReportMin > levelReportMin then
@@ -10970,8 +10970,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.ConfigureLevelFilterButton ( self , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter90Text , 8 , 80 );
     end);
 
-    if GRM_G.SOD and not GRM_G.LvlCap == 60 then
-        if GRM_G.LvlCap == 25 then
+    if GRM_G.SOD and not GRM.GetLvlCap() == 60 then
+        if GRM.GetLvlCap() == 25 then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter2Button , "RIGHT" , 4 , 0 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetText ( "25" );
@@ -10983,7 +10983,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter3Button:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter4Button:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter5Button:Hide();            
-        elseif GRM_G.LvlCap == 40 then
+        elseif GRM.GetLvlCap() == 40 then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Button:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter5Button:Hide();
         end
@@ -10997,30 +10997,30 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         local buttons = { f.GRM_LevelFilter6Button , f.GRM_LevelFilter7Button , f.GRM_LevelFilter8Button , f.GRM_LevelFilter9Button , f.GRM_LevelFilter4Button , f.GRM_LevelFilter5Button , f.GRM_LevelFilter85Button , f.GRM_LevelFilter90Button };
         local expansionButton;
 
-        if GRM_G.SOD and GRM_G.LvlCap ~= 60 then
-            if GRM_G.LvlCap == 25 then
+        if GRM_G.SOD and GRM.GetLvlCap() ~= 60 then
+            if GRM.GetLvlCap() == 25 then
                 expansionButton = buttons[4];
-            elseif GRM_G.LvlCap == 40 then
+            elseif GRM.GetLvlCap() == 40 then
                 expansionButton = buttons[5];
-            elseif GRM_G.LvlCap == 50 then
+            elseif GRM.GetLvlCap() == 50 then
                 expansionButton = buttons[6];
             end
-        elseif GRM_G.LvlCap == 60 then
+        elseif GRM.GetLvlCap() == 60 then
             expansionButton = buttons[1];
-        elseif GRM_G.LvlCap == 70 then
+        elseif GRM.GetLvlCap() == 70 then
             expansionButton = buttons[2];
-        elseif GRM_G.LvlCap == 80 then
+        elseif GRM.GetLvlCap() == 80 then
             expansionButton = buttons[3];
-        elseif GRM_G.LvlCap == 85 then -- Cataclysm
+        elseif GRM.GetLvlCap() == 85 then -- Cataclysm
             expansionButton = buttons[7];
-        elseif GRM_G.LvlCap == 90 then -- MOP
+        elseif GRM.GetLvlCap() == 90 then -- MOP
             expansionButton = buttons[8];
 
-        -- elseif GRM_G.LvlCap == 100 then -- WoD
+        -- elseif GRM.GetLvlCap() == 100 then -- WoD
 
-        -- elseif GRM_G.LvlCap == 110 then -- Legion
+        -- elseif GRM.GetLvlCap() == 110 then -- Legion
 
-        -- elseif GRM_G.LvlCap == 120 then -- BFA
+        -- elseif GRM.GetLvlCap() == 120 then -- BFA
             
         end
 
@@ -14416,7 +14416,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 else
                     box2Level = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox2:GetText();
                     if not box2Level or box2Level == "" then
-                        box2Level = GRM_G.LvlCap;
+                        box2Level = GRM.GetLvlCap();
                     else
                         box2Level = tonumber ( box2Level );
                     end
@@ -14427,7 +14427,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 end
 
                 if box2Level == 999 then
-                    box2Level = GRM_G.LvlCap;
+                    box2Level = GRM.GetLvlCap();
                 end
 
                 -- Lower range cannot be > than higher range, so it will match if you change
@@ -14436,7 +14436,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 end
 
                 if not GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 4 then
-                    if newLevel == GRM_G.LvlCap then
+                    if newLevel == GRM.GetLvlCap() then
                         GRM.S().ExportLevelRange[1] = 999;
                     else
                         GRM.S().ExportLevelRange[1] = newLevel;
@@ -14454,8 +14454,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             local box1Level;
 
             if not newLevel or newLevel == "" then
-                button:SetText ( tostring ( GRM_G.LvlCap ) ); -- Resets back to 1
-                button.tempText = tostring ( GRM_G.LvlCap );
+                button:SetText ( tostring ( GRM.GetLvlCap() ) ); -- Resets back to 1
+                button.tempText = tostring ( GRM.GetLvlCap() );
                 if not GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 4 then
                     GRM.S().ExportLevelRange[2] = 999;
                 end
@@ -14473,7 +14473,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 end
 
                 if box1Level == 999 then
-                    box1Level = GRM_G.LvlCap;
+                    box1Level = GRM.GetLvlCap();
                 end
 
                 -- Make sure it is not LESS than
@@ -14481,12 +14481,12 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     newLevel = box1Level;
                 end
 
-                if newLevel > GRM_G.LvlCap then
-                    newLevel = GRM_G.LvlCap;
+                if newLevel > GRM.GetLvlCap() then
+                    newLevel = GRM.GetLvlCap();
                 end
 
                 if not GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 4 then
-                    if newLevel == GRM_G.LvlCap then
+                    if newLevel == GRM.GetLvlCap() then
                         GRM.S().ExportLevelRange[2] = 999;
                     else
                         GRM.S().ExportLevelRange[2] = newLevel;
@@ -14584,7 +14584,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         if not GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 4 then
             local topLevel = GRM.S().ExportLevelRange[2];
             if GRM.S().ExportLevelRange[2] == 999 then
-                topLevel = GRM_G.LvlCap;
+                topLevel = GRM.GetLvlCap();
             end
 
             self:SetText( tostring ( topLevel ) );
@@ -14884,7 +14884,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         local lower = GRM.S().ExportLevelRange[1];
         local upper = GRM.S().ExportLevelRange[2];
         if upper == 999 then
-            upper = GRM_G.LvlCap;
+            upper = GRM.GetLvlCap();
         end
 
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox1:SetText( lower );
@@ -15013,8 +15013,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         if refreshLevelRange then
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox1:SetText ( 1 );
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox1.tempText = "1";
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox2:SetText ( GRM_G.LvlCap );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox2.tempText = tostring ( GRM_G.LvlCap );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox2:SetText ( GRM.GetLvlCap() );
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox2.tempText = tostring ( GRM.GetLvlCap() );
         end
 
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox1:Show();
@@ -17368,16 +17368,16 @@ GRM_UI.BuildLogFrames = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter5Button:Enable();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter6Button:Enable();
 
-        if GRM_G.SOD and not GRM_G.LvlCap == 60 then  -- SOD
+        if GRM_G.SOD and not GRM.GetLvlCap() == 60 then  -- SOD
 
-            if GRM_G.LvlCap == 25 then
+            if GRM.GetLvlCap() == 25 then
                 if GRM.S().levelFilters[9] or GRM.S().levelReportMin <= 25 then
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
                 else
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetTextColor ( 1.0 , 0 , 0 , 1 );
                 end
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Button:Enable();
-            elseif GRM_G.LvlCap == 40 then
+            elseif GRM.GetLvlCap() == 40 then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Button:Hide();
             end
             
@@ -17449,13 +17449,13 @@ GRM_UI.BuildLogFrames = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_MinLevelText3:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter1Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter2Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
-        if not GRM_G.SOD or ( GRM_G.SOD and ( GRM_G.LvlCap == 40 or GRM_G.LvlCap == 50 ) ) then
+        if not GRM_G.SOD or ( GRM_G.SOD and ( GRM.GetLvlCap() == 40 or GRM.GetLvlCap() == 50 ) ) then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter3Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter4Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter3Button:Disable();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter4Button:Disable();
 
-            if not GRM_G.SOD or GRM_G.LvlCap == 60  then
+            if not GRM_G.SOD or GRM.GetLvlCap() == 60  then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter5Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter6Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter5Button:Disable();
@@ -17465,7 +17465,7 @@ GRM_UI.BuildLogFrames = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter1Button:Disable();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter2Button:Disable();
         
-        if GRM_G.SOD and GRM_G.LvlCap == 25 then
+        if GRM_G.SOD and GRM.GetLvlCap() == 25 then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Text:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Button:Disable();
 
@@ -17564,7 +17564,7 @@ GRM_UI.BuildLogFrames = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter85Button:Hide();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter90Button:Hide();
 
-    elseif GRM_G.SOD and GRM_G.LvlCap == 25 then
+    elseif GRM_G.SOD and GRM.GetLvlCap() == 25 then
         if GRM.S().levelFilters[9] then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter9Button:SetChecked ( true );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Button:Hide();

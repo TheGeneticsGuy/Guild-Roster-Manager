@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.990991";
-GRM_G.PatchDay = 1722374788;             -- In Epoch Time
-GRM_G.PatchDayString = "1722374788";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.990992";
+GRM_G.PatchDay = 1722439774;             -- In Epoch Time
+GRM_G.PatchDayString = "1722439774";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110000;
@@ -418,6 +418,17 @@ GRM.GetMouseFocus = function ( frame )
     return false;
 end
 
+-- Method:          GRM.GetLvlCap()
+-- What it Does:    Returns the level cap, unless you are between expansion in prepatch, it returns previous expansion lvl cap
+-- Purpose:         The server will return new level cap of new expansion, however you technically can't level yet so it is not true level cap.    
+GRM.GetLvlCap = function()
+    if GRM_G.BuildVersion == 110000 then
+        return 70;
+    else
+        return GRM_G.LvlCap;
+    end
+end
+
 -------------------------------------
 -------- BUILD COMPATIBILITY --------
 -------------------------------------
@@ -754,6 +765,11 @@ end
 -- Purpose:         Efficiency.
 GRM.BuildClassIDEnums = function()
     local class;
+    local numclasses = GetNumClasses();
+    if numclasses < 11 then     -- This is due to out of ordering of classes by expansion.
+        numClasses = 11;
+    end
+
     for i = 1 , GetNumClasses() do
         class = C_CreatureInfo.GetClassInfo(i);
         if class then
@@ -7704,11 +7720,11 @@ GRM.GetLevelRange = function()
         local addon = "";
 
         local atLeastOne = false;
-        if GRM.S().levelReportMin == GRM_G.LvlCap and GRM.S().levelFilters[#GRM.S().levelFilters] then
-            initialNumber = tostring ( GRM_G.LvlCap );
+        if GRM.S().levelReportMin == GRM.GetLvlCap() and GRM.S().levelFilters[#GRM.S().levelFilters] then
+            initialNumber = tostring ( GRM.GetLvlCap() );
             atLeastOne = true;
-        elseif GRM.S().levelReportMin < GRM_G.LvlCap then
-            initialNumber = GRM.S().levelReportMin .. "-" .. GRM_G.LvlCap;
+        elseif GRM.S().levelReportMin < GRM.GetLvlCap() then
+            initialNumber = GRM.S().levelReportMin .. "-" .. GRM.GetLvlCap();
             atLeastOne = true;
         end
 
@@ -13417,7 +13433,7 @@ GRM.RecordChanges = function ( indexOfInfo , member , memberOldInfo , logEntryMe
 
     -- 4 = level
     elseif indexOfInfo == 4 then
-        GRM.AddLeveledTempLogEntry ( simpleName , logEntryMetaData , member.level , ( member.level - memberOldInfo.level ) , dateArray , ( member.level == GRM_G.LvlCap ) , member.name );
+        GRM.AddLeveledTempLogEntry ( simpleName , logEntryMetaData , member.level , ( member.level - memberOldInfo.level ) , dateArray , ( member.level == GRM.GetLvlCap() ) , member.name );
 
     -- 5 = note
     elseif indexOfInfo == 5 then
@@ -14710,7 +14726,7 @@ GRM.BuildNewRoster = function()
         if GRM.CanViewOfficerNote() then -- Officer Note permission to view.
             roster[name].officerNote = officerNote;                 -- 6
         else
-            roster[name].officerNote = nil; -- Set Officer note to nil if needed due to player not being able to view. - If it is set to "" then player will think it is changing.
+            roster[name].officerNote = "";
         end
         roster[name].class = class;                                 -- 7
         roster[name].lastOnline = GRM.GetHoursSinceLastOnline ( i , online ); -- 8 Time since they last logged in in hours.
@@ -19791,7 +19807,7 @@ GRM.CheckForNewPlayer = function ( name )
                 if GRM.CanViewOfficerNote() then
                     memberInfoToAdd.officerNote = oNote;                                    -- 6
                 else
-                    memberInfoToAdd.officerNote = nil; 
+                    memberInfoToAdd.officerNote = ""; 
                 end
                 memberInfoToAdd.class = classFile;                                          -- 7
                 memberInfoToAdd.lastOnline = 0;                                             -- 8 Time since they last logged in in hours.
@@ -20745,7 +20761,7 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
 
             if GRM.S().showLevel then
 
-                if not GRM.S().showLevelMaxOnly or ( GRM.S().showLevelMaxOnly and player.level < GRM_G.LvlCap ) then
+                if not GRM.S().showLevelMaxOnly or ( GRM.S().showLevelMaxOnly and player.level < GRM.GetLvlCap() ) then
                     if GRML.Languages[GRM.S().selectedLang] == "Russian" or GRML.Languages[GRM.S().selectedLang] == "Korean" then
                         levelAndMythicText = tostring ( player.level ) .. GRM.L ( "Level: " );
                     else
@@ -20755,7 +20771,7 @@ GRM.PopulateMemberDetails = function( handle , memberInfo )
             end
 
             -- MYTHINC+ SCORE
-            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating and player.level == GRM_G.LvlCap then
+            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating and player.level == GRM.GetLvlCap() then
 
                 if levelAndMythicText ~= "" then
                     levelAndMythicText = levelAndMythicText .. " | " .. GRM.L ( "M+ Rating:" ) .. "  " .. GRM.GetMythicRatingToMatchRaiderIO ( player.MythicScore ) .. player.MythicScore .. "|r" ;

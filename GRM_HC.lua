@@ -242,7 +242,7 @@ GRM_HC.HardCoreInitialize = function()
                 if upper ~= "" then
                     upper = tonumber ( upper );
                 else
-                    upper = GRM_G.LvlCap;
+                    upper = GRM.GetLvlCap();
                 end
 
                 local deaths = GRM_HC.GatherAllDeaths ( { lower , upper } );

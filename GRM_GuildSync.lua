@@ -2308,11 +2308,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         memberInfoToAdd.rankIndex = 99;                                         -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
         memberInfoToAdd.level = 1;                                              -- 4
         memberInfoToAdd.note = "";                                              -- 5
-        if GRM.CanViewOfficerNote() then -- Officer Note permission to view.
-            memberInfoToAdd.officerNote = "";                                   -- 6
-        else
-            memberInfoToAdd.officerNote = nil; -- Set Officer note to nil if needed due to memberInfoToAdd not being able to view. - If it is set to "" then memberInfoToAdd will think it is changing.
-        end
+        memberInfoToAdd.officerNote = "";
         memberInfoToAdd.class = class;                                          -- 7
         memberInfoToAdd.lastOnline = 1;                                         -- 8 Time since they last logged in in hours.
         memberInfoToAdd.zone = "";                                              -- 9
@@ -5173,12 +5169,7 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
                                              -- 3 (It needs to be 1 less to match when compared to the guildRosterInfo call )
         memberInfoToAdd.level = level;                                          -- 4
         memberInfoToAdd.note = "";                                              -- 5
-        if GRM.CanViewOfficerNote() then -- Officer Note permission to view.
-            memberInfoToAdd.officerNote = "";                                   -- 6
-        else
-            memberInfoToAdd.officerNote = nil; -- Set Officer note to nil if needed due to memberInfoToAdd not being able to view. - If it is set to "" then memberInfoToAdd will think it is changing.
-        end
-
+        memberInfoToAdd.officerNote = "";
         memberInfoToAdd.class = class;                                          -- 7
         memberInfoToAdd.lastOnline = 1;                                         -- 8 Time since they last logged in in hours.
         memberInfoToAdd.zone = "";                                              -- 9
@@ -5250,7 +5241,7 @@ GRMsync.CollectData = function ( msg , prefix )
         while string.find ( msg , "?" ) ~= nil do
             name = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             msg = GRM.Next ( msg );
-            standardTime = tonumber ( string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 ) );
+            standardTime = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             msg = GRM.Next ( msg );
 
             if string.find ( msg , "?" ) ~= nil then

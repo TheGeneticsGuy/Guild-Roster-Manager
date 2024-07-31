@@ -1595,12 +1595,12 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- 131
-    if numericV < 1.99098 and baseValue < 1.99098 then
+    if numericV < 1.990992 and baseValue < 1.990992 then
     
-        GRM.PlayerPromotedToOfficerNoteUpdate();
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.PlayerPromotedToOfficerNoteUpdate , true , true , false , nil );
     
-        GRM_AddonSettings_Save.VERSION = "R1.99098";
-        if loopCheck ( 1.99098 ) then
+        GRM_AddonSettings_Save.VERSION = "R1.990992";
+        if loopCheck ( 1.990992 ) then
             return;
         end
     end
@@ -6406,7 +6406,7 @@ end
 GRM_Patch.ModifyKickRuleMaxLevel = function ( kickRules )
 
     for name in pairs ( kickRules ) do 
-        if kickRules[name].levelRange == GRM_G.LvlCap then
+        if kickRules[name].levelRange == GRM.GetLvlCap() then
             kickRules[name].levelRange = 999;
         end
     end
@@ -8680,16 +8680,6 @@ GRM_Patch.JoinDateErrorFix = function ( player )
     return player;
 end
 
--- R1.99094         GRM_Patch.FixRanKHistError ( playerTable )
--- What it Does:    Resets the rank history of the data was corrupted
--- Purpose:         There was a bug that seemed to affect some players due to a previous error that crashed in middle of update.
-GRM_Patch.FixRanKHistError = function ( player )
-    if player.rankHist[1][3] == nil or player.rankHist[1][4] == nil or type(player.rankHist[1][4]) == "string" then
-        player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
-    end
-    return player
-end
-
 -- R1.99095
 -- Method:          GRM_Patch.FixAltGroupData()
 -- What it Does:    Fixes the alt group from an existing error where an index was missing.
@@ -8736,18 +8726,29 @@ GRM_Patch.AddNewLevelFilters = function ( levelFilters )
     return levelFilters
 end
 
--- R1.99098
--- Method:          GRM.PlayerPromotedToOfficerNoteUpdate()
+-- R1.990992        GRM_Patch.FixRanKHistError ( playerTable )
+-- What it Does:    Resets the rank history of the data was corrupted
+-- Purpose:         There was a bug that seemed to affect some players due to a previous error that crashed in middle of update.
+GRM_Patch.FixRanKHistError = function ( player )
+    if type ( player.rankHist[1][5] ) == "number" then
+        if #(tostring(player.rankHist[1][5])) == 8 then
+            player.rankHist[1][5] = tostring ( player.rankHist[1][5] );
+        end
+    end
+    if player.rankHist[1][3] == nil or player.rankHist[1][4] == nil or type(player.rankHist[1][4]) == "string" or type(player.rankHist[1][5]) == "number" then
+        player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+    end
+    return player
+end
+
+-- R1.990992
+-- Method:          GRM_Patch.PlayerPromotedToOfficerNoteUpdate( playerTable )
 -- What it Does:    Sets any nil officer notes to an empty string
 -- Purpose:         Fixes an old reference issue for players who were not officers or were promoted to officer
-GRM.PlayerPromotedToOfficerNoteUpdate = function()
-    local guildData = GRM.GetGuild();
-
-    for _ , player in pairs ( guildData ) do
-        if type ( player ) == "table" then
-            if player.officerNote == nil then
-                player.officerNote = "";
-            end
-        end
-    end 
+GRM_Patch.PlayerPromotedToOfficerNoteUpdate = function( player )
+    if player.officerNote == nil then
+        player.officerNote = "";
+    end
+    player = GRM_Patch.FixRanKHistError ( player );
+    return player
 end

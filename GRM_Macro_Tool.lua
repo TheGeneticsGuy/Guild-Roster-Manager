@@ -2631,9 +2631,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 number = 1;
             end
 
-            if number >= GRM_G.LvlCap then
-                number = GRM_G.LvlCap;
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = tostring ( GRM_G.LvlCap );
+            if number >= GRM.GetLvlCap() then
+                number = GRM.GetLvlCap();
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = tostring ( GRM.GetLvlCap() );
             else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = tostring ( number );
             end
@@ -2643,11 +2643,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
             -- need to Adjust the 2nd if necessary as well.
             local number2 = tonumber ( GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:GetText() ) );
 
-            if ( number == GRM_G.LvlCap and GRM_G.LvlCap > number2 ) or ( number2 ~= GRM_G.LvlCap and number > number2 ) then
+            if ( number == GRM.GetLvlCap() and GRM.GetLvlCap() > number2 ) or ( number2 ~= GRM.GetLvlCap() and number > number2 ) then
                 number2 = number;
-                if number2 == GRM_G.LvlCap then
+                if number2 == GRM.GetLvlCap() then
                     number2 = 999;
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM_G.LvlCap );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM.GetLvlCap() );
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( number2 );
                 end
@@ -2683,9 +2683,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 number = 1;
             end
         
-            if number >= GRM_G.LvlCap then
+            if number >= GRM.GetLvlCap() then
                 number = 999;           -- 999 is default for level cap so when expansion changes and level cap goes up, it auto floats the new filters to level cap again.
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM_G.LvlCap );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM.GetLvlCap() );
             else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( number );
             end
@@ -3433,9 +3433,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( 1 );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( GRM_G.LvlCap );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( GRM.GetLvlCap() );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = "1";
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM_G.LvlCap );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM.GetLvlCap() );
                 GRM_UI.DisableLevelSelectionEditBoxes();
 
                 -- Guild Rep
@@ -3985,9 +3985,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( 1 );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( GRM_G.LvlCap );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( GRM.GetLvlCap() );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = "1";
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM_G.LvlCap );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = tostring ( GRM.GetLvlCap() );
                 GRM_UI.DisableLevelSelectionEditBoxes();
                 
                 -- Guild Rep
@@ -9131,13 +9131,13 @@ GRM.UpdateRulesTooltip = function ( ind )
     if rule.levelFilter then
         local topLevel;
         if rule.levelRange[2] == 999 then
-            topLevel = GRM_G.LvlCap;
+            topLevel = GRM.GetLvlCap();
         else
             topLevel = rule.levelRange[2];
         end
         GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "{num} to {custom1}" , nil , nil , rule.levelRange[1] , topLevel ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     else
-        GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "1 to {num}" , nil , nil , GRM_G.LvlCap ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
+        GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "1 to {num}" , nil , nil , GRM.GetLvlCap() ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     end
 
     if GRM_G.BuildVersion >= 40000 then
@@ -9519,7 +9519,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex )
 
                                 local topLevel;
                                 if rule.levelRange[2] == 999 then
-                                    topLevel = GRM_G.LvlCap;
+                                    topLevel = GRM.GetLvlCap();
                                 else
                                     topLevel = rule.levelRange[2];
                                 end
@@ -9834,7 +9834,7 @@ GRM.GetKickNamesByFilterRules = function()
 
                             local topLevel;
                             if rule.levelRange[2] == 999 then
-                                topLevel = GRM_G.LvlCap;
+                                topLevel = GRM.GetLvlCap();
                             else
                                 topLevel = rule.levelRange[2];
                             end

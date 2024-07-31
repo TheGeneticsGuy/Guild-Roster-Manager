@@ -1,3 +1,14 @@
+## **VERSION 1.990992 RELEASE - July 31st 2024**
+
+***BUG FIXES***
+
+* GRM was crashing on trying to apply patches for some people. This is now resolved and addon should work properly.
+
+* Export was not working, nor was some mouseover issues when trying to display player class in Classic versions of the game. This is now resolved.
+
+* The Mythic rating should once again show in the mouseover of a player's name in retail.
+
+
 ## **VERSION 1.990991 RELEASE - July 30th 2024**
 
 * The demote ability has been added back and properly adapted to the new capabilities of the /demote macro. Blizz has introduced the ability to add the server name to the players in the /demote macro. This has not been the case for 19 years! So, good on Blizzard for finally updating that. I suspect it has to do with the x-realm guild changes in retail, and the incessant efforts of those in the Beta, like @Xulu on discord, in reporting these issues. Thank you!
