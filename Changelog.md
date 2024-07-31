@@ -1,3 +1,7 @@
+## **VERSION 1.990993 RELEASE - July 31st 2024**
+
+*Coding Typo overlooked. Very minor fix. Sorry about that!*
+
 ## **VERSION 1.990992 RELEASE - July 31st 2024**
 
 ***BUG FIXES***
