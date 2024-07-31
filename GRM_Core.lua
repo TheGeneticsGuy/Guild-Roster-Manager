@@ -770,7 +770,7 @@ GRM.BuildClassIDEnums = function()
         numClasses = 11;
     end
 
-    for i = 1 , numClasses do
+    for i = 1 , numclasses do
         class = C_CreatureInfo.GetClassInfo(i);
         if class then
             GRM_G.classFileIDEnum[class.classFile] = i;
