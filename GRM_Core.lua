@@ -767,7 +767,7 @@ GRM.BuildClassIDEnums = function()
     local class;
     local numclasses = GetNumClasses();
     if numclasses < 11 then     -- This is due to out of ordering of classes by expansion.
-        numClasses = 11;
+        numclasses = 11;
     end
 
     for i = 1 , numclasses do
