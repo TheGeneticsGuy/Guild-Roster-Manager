@@ -1,6 +1,17 @@
-  ## **VERSION 1.990994 RELEASE - July 31st 2024**
+## **VERSION 1.990995 RELEASE - August 1st 2024**
 
-  *Coding Typo overlooked. Very minor fix. Sorry about that!*
+***BUG FIXES***
+* Coding typo overlooked, now fixed!
+
+***OPTIMIZATIONS***
+* Replaced GRM.GetLvlCap function with a global variable instead; this is a minor speed increase in certain scenarios, and should future-proof our determination of the level cap, so we no longer have to hardcode it each expansion.
+
+***APPRECIATIONS***
+Thanks to @Apathy on Discord, for helping make this minor release happen!
+
+## **VERSION 1.990994 RELEASE - July 31st 2024**
+
+*Coding Typo overlooked. Very minor fix. Sorry about that!*
 
 ## **VERSION 1.990992 RELEASE - July 31st 2024**
 
@@ -46,7 +57,7 @@
 
 ## **VERSION 1.99096 RELEASE - May 2nd 2024**
 
-* Cata Classic Compatibility Released 
+* Cata Classic Compatibility Released
 
 *IMPORTANT NOTE - Sync may temporarily cause failure in Classic as Blizz made some unintended changes recently that they said they will be reverting "soon."*
 
@@ -281,7 +292,7 @@ When you first click the "Add Custom Rule" button to create a special rule, a sp
 
 * FIxed an issue where a Lua error could happen in the error message to the player indicating the person they were syncing with went offline, effectively stopping to que with the next person who might be in que to sync.
 
-* Fixed an issue where you were not able to add someone to the ban list manually. 
+* Fixed an issue where you were not able to add someone to the ban list manually.
 
 * The player window or the search log should open when you shift-click or ctrl-shift-click names in the chat box. This was not working properly.
 
@@ -303,7 +314,7 @@ When you first click the "Add Custom Rule" button to create a special rule, a sp
 
 ***BUG FIXES***
 
-* There was an issue with GRM frame eating your keystrokes when entering combat. This should no longer happen, even if you choose to disable the option to auto-hide the frames. That is only an extra feature. 
+* There was an issue with GRM frame eating your keystrokes when entering combat. This should no longer happen, even if you choose to disable the option to auto-hide the frames. That is only an extra feature.
 
 * Fixed an issue with the join date and rank date hist not storing properly when important data from another person who has been banned.
 
@@ -336,7 +347,7 @@ When you first click the "Add Custom Rule" button to create a special rule, a sp
 *Please note, this is somewhat limited in its ability in that the server does not provide player information on people who have died while you were offline and will require some crowd sourcing for better results.*
 
 *Please provide additional feedback on where I can add more features or improve this. It is fairly barebones right now in its first form*
- 
+
 * Automatically Records the death of a player in your guild when the die, including the time of their death.
 
 * To assist ALL GRM users of who has died, and since some go offline and never quit the guild after  dying, a special "[D]" death tag will be added to the player note, as well as the timestamp of when they died, thus your fellow GRM users, and others, will be indicated that a player has died while you were offline.
@@ -461,7 +472,7 @@ end
 * Fixed an iossue where if you logged to a non-guilded alt GRM could trigger a lua error. This didn't break anything, but annoying to have your Lua error tracking catch a needless error. This is resolved.
 
 * Fixed an issue where chat could stop working after loading GRM because settings crashed on load. Not good! This is resolved now.
-sss 
+sss
 
 * Group Info was throwing a couple Lua errors. They should be gone now.
 
@@ -528,7 +539,7 @@ sss
 
 ![Expanded GRM Guild Roster](https://i.imgur.com/aVcbX9J.jpg)
 
-* The GRM Guild Roster log sorting is SMARTER! If you are sorting the roster by level, name, or last online, you can carry that sorting over when you sort by rank. In other words, let's say you are sorting by names alphabetically. If you click on the rank column to sort the roster by rank, then each rank will now be properly in order, but also within each rank they will be sorted alphabetically. The same applies to level, and last online. This can be done ascending, or descending. 
+* The GRM Guild Roster log sorting is SMARTER! If you are sorting the roster by level, name, or last online, you can carry that sorting over when you sort by rank. In other words, let's say you are sorting by names alphabetically. If you click on the rank column to sort the roster by rank, then each rank will now be properly in order, but also within each rank they will be sorted alphabetically. The same applies to level, and last online. This can be done ascending, or descending.
 
 * Added a new "Tips" section to the Options > Help tab. Just a couple items for now regarding the CTRL and SHFT modifiers when scrolling, but I will likely expand this eventually. Not quire sure what to do with tips atm.
 
@@ -546,7 +557,7 @@ sss
 
 * Fixed a lua error that could occur for some people immediately after login. It didn't break anything, but it would be annoying to get an indefinite bug every session.
 
-* Fixed a scaling bug that could occur after updating the last time... If yours was broken, it fixes the problem and then resets the scaling, so if you had resized your window you may need to do it again. It does attempt to retain your setting, but in some cases the value was corrupted so had to be reset. 
+* Fixed a scaling bug that could occur after updating the last time... If yours was broken, it fixes the problem and then resets the scaling, so if you had resized your window you may need to do it again. It does attempt to retain your setting, but in some cases the value was corrupted so had to be reset.
 
 * "---------CHANGES---------" was showing everytime you opened the log on the first time, even if there was none. This will no longer happen unless there were actual changes on login. In addition, the indication of the start of the "OLD LOG" entries should now properly show.
 
@@ -579,7 +590,7 @@ sss
 
 * Fixed a small issue where the "FRIEND" tag would show on the players logging on when it shouldn't.
 
-* Removed the old macro that doesn't need to exist anymore that was used to Ctrl-J access the old guild roster, since it is no longer necessary after Blizz removed it. 
+* Removed the old macro that doesn't need to exist anymore that was used to Ctrl-J access the old guild roster, since it is no longer necessary after Blizz removed it.
 
 * I THINK I added a fix for the issue with GRM failing to auto-verify the dates when doing a scan of the log. With that being said, be aware that the built-in guild log only shows the last 100 events in the guild, be it invites, promotes, demotions, joins, kicks, leaves. If you are in a highly active guild and you have been offline for a longer time, maybe even just a whole day in one of these mega guilds, 100 events may have already occurred so GRM is unable to verify the exact date say someone joined, but GRM can determine someone joined. With that being said, GRM should show the promotion dates as verified now consistently if it can find them.
 
@@ -607,7 +618,7 @@ sss
 
 *Due to the changes in 10.1 and the removal of the old guild roster by Blizzard, we are now no longer able to type `/groster` to bring it up! Given that the Communities window that guilds now use, introduced in BFA 8.0, does not have the ability to filter by "Last Online" I think we can all agree that this is a HUGE problem in regards to guild management, especially those of you who are in rather large guilds where scrolling is going to be a HUGE hassle. As a result, I have introduced a new feature. GRM now has its own custom guild roster. It is fairly limited right now, as I wanted to get this out ASAP for the sake of all our our sanity, but I will be able to expand on it further.*
 
-![New Custom GRM Roster](https://i.imgur.com/xKGzYth.jpg) 
+![New Custom GRM Roster](https://i.imgur.com/xKGzYth.jpg)
 
 You can access this roster by clicking the new GRM button on your Communities window. I have also added it to the social "FriendsFrame" in Classic Era and Wrath.
 
@@ -651,7 +662,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
 
 > Many of you are aware that in 10.1 Blizz has removed the old roster. Right now, there is the communities window that was introduced in 8.0 BFA. This replaced the old guild roster. However, the old roster you could still access just by typing `/groster` or by typing `Ctrl-J` on your keyboard, as I had GRM configured that way. Well, Blizz has officially removed this old guild roster window and it no longer exists in 10.1 -- this creates a problem for GRM.
 
-> A staple feature is the ability to  Ctrl-click players' names all through the addon and it will auto-bring up their player window, with the built-in side window where you can promote/demote,kick a player. Well, by Blizzard removing that old frame, being forced to use the CommunitiesFrame means this feature can no longer be used. Blizzard has the communitiesFrame so locked down that any action I do to try to auto-find the person in the guild, or even open that side window, introduces "taint" into the game, and thus all subsequent acctions of promote/demote/etc... will be blocked until you reload. Taint from an addon is just not acceptable. Just be aware that as a result of this change, it will now be harder for you to promote/demote as you are once again, forced to scroll to their position in the roster to do any action. 
+> A staple feature is the ability to  Ctrl-click players' names all through the addon and it will auto-bring up their player window, with the built-in side window where you can promote/demote,kick a player. Well, by Blizzard removing that old frame, being forced to use the CommunitiesFrame means this feature can no longer be used. Blizzard has the communitiesFrame so locked down that any action I do to try to auto-find the person in the guild, or even open that side window, introduces "taint" into the game, and thus all subsequent acctions of promote/demote/etc... will be blocked until you reload. Taint from an addon is just not acceptable. Just be aware that as a result of this change, it will now be harder for you to promote/demote as you are once again, forced to scroll to their position in the roster to do any action.
 
 > The compromise is GRM will still bring up it's own window you can look at and work with, but that side details frame you will have to manually scroll to.
 
@@ -764,7 +775,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
 
 * The Guild Backups window has been rebuilt. First, the "backups" was a bit misleading and I think confused some people. They were not a "true" backup of the addon data since WOW addons do not have write to file access to say, Windows. It did however provide a restore point if you had maybe an officer go rogue and mess up all your data. I don't want to confuse anyone further so I have rebuilt this feature more as a tool to preserve your guild's GRM data if you decide to transfer servers. This will also clear a lot of the overall GRM memory usage that was storing a copy of all GRM data mostly needlessly to now only be used when transferring guilds.
 
-> STEP BY STEP GUIDE FOR USE: 
+> STEP BY STEP GUIDE FOR USE:
   * STEP 1: Login to the guild you are planning on transferring BEFORE you transfer.
   * STEP 2: Open the GRM window *(/grm)* > Click Options Tab > Click Restore Tab
   * STEP 3: Click "Set Restore Point" to the guild you are currently in (remove the old if necessary)
@@ -774,7 +785,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
   * STEP 7: Open the Restore Tab again and click "Transfer Data" from your old guild. Confirm YES.
   * STEP 8: If you are satisfied with the transfer, remove the restore point to lower your memory usage next session.
   * **NOTE:**
-    
+
   -- It is recommended to WAIT to transfer and import the data to the guild until the majority of your members have also transferred, otherwise they will be designated as having left the guild since they are not found. Also, please be aware that the server GUID tag of each player changes on a guild transfer, so if your guild members change their names on the transfer, GRM will be unable to detect this and count them only has new members once they transfer. GRM will note them as a returning member who transferred, however, if they rejoin after the fact and are protected, but it can only do this if their name is still the same (I do check a few additional metadata points to verify other than name as then any person could change name to old member and join).
 
   -- Also, BAN DATA IS NOW REDUNDANT. The ban data will be transferred, but because you are on a new server, the GUIDs will no longer match, so even if they changed servers and tried to join your guild, GRM will be unable to flag them if they have changed their names. While GRM will not automatically purge your old and now redundant ban list, I do recommend going into it and doing it yourself.
@@ -817,7 +828,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
 
 * Fixed a bug that could prvent someone who had not installed GRM since 2017 from updating to the current version.
 
-* Fixed an issue with the minimap icon where it was leaving a "ghost" empty icon, in addition to a correct one, if you were using certain minimap brokers like Azilroka. This should no longer be any issue with ANY minimap brokers. 
+* Fixed an issue with the minimap icon where it was leaving a "ghost" empty icon, in addition to a correct one, if you were using certain minimap brokers like Azilroka. This should no longer be any issue with ANY minimap brokers.
 
 * Fixed an issue where the minimap icon did not path around the minimap properly as of 10.0 changes in DF. I didn't notice this since mainly LibD minimap broker took it over, but if you disabled all addons but GRM and let GRM management, the pathing had changed on the minimap so this has now been fixed.
 
@@ -1010,7 +1021,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
 
 * Fixed an issue where the log would report a demotion, immediately after a promotion was made, in error, then it would correctly re-report the promotion. This would seemingly affect only some people, oddly enough. In some rare cases this could also occur when someone leaves the guild, it would report they are returning. This should no longer occur.
 
-* Some people may have found their join dates disappeared recently. There was an error on a patch and was not caught until it was reported by someone it happened to. It does not affect everyone. Fortunately, you can use the "Advanced Join Date Tool" in the /grm audit window if you were affected, and re-import the dates from the notes. 
+* Some people may have found their join dates disappeared recently. There was an error on a patch and was not caught until it was reported by someone it happened to. It does not affect everyone. Fortunately, you can use the "Advanced Join Date Tool" in the /grm audit window if you were affected, and re-import the dates from the notes.
 
 * Issue with sync not starting properly for some has been resolved. There seems to be a few different issues here with sync failing and I am working to clean them up. If you are getting any issues where sync fails to start, please let me know, or you type /grm sync and it won't trigger, let me know. It should trigger automatically after X seconds after logging in (default is 60). But, some people set it as early zs 10 seconds, or just disable it altogether and only sync when theyt manually /grm sync command it.
 
@@ -1091,7 +1102,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
 
 * Fixed the new minimap compatibility issue error that was causing GRM to crash for people hiding the minimap button. If you are wondering why GRM stopped working for some people, this fix resolves that.
 
-* Fixed a Lua error that could occur when changing fonts or on load in Classic  
+* Fixed a Lua error that could occur when changing fonts or on load in Classic
 
 * Fixed an issue where the mouseover could get locked even after closing the window. This seemed to only happen on the "Old" roster window.
 
@@ -1102,7 +1113,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
 
 ***QUALITY OF LIFE***
 
-* Added compatibility to the LibDBIcon data broker, which is commonly used for MINIMAP Icons. The broker is not natively included within GRM, and the default GRM icon will work regardless. However, if GRM finds it installed, which is likely given the prevelance of other addons, it will take advantage of it and create a broker compatible icon. You may notice your minimap position has been reset. 
+* Added compatibility to the LibDBIcon data broker, which is commonly used for MINIMAP Icons. The broker is not natively included within GRM, and the default GRM icon will work regardless. However, if GRM finds it installed, which is likely given the prevelance of other addons, it will take advantage of it and create a broker compatible icon. You may notice your minimap position has been reset.
 
 ***BUG FIXES***
 
@@ -1161,7 +1172,7 @@ You can access this roster by clicking the new GRM button on your Communities wi
 
 * /grm guid was not posting to chat for some people - a delay has been added to ensure the proper clearing of the chat in the UI has enough time to occur and the player GUID pastes there to be copied.
 
-* (Classic Only) - When using the `/grm search playerName` - you will no longer get spammed about a missing key. 
+* (Classic Only) - When using the `/grm search playerName` - you will no longer get spammed about a missing key.
 
 
 
@@ -1358,12 +1369,12 @@ You can access this roster by clicking the new GRM button on your Communities wi
 * player.joinDateHist
 
 ```lua
-player.rankHist = 
-{ 
+player.rankHist =
+{
     {
          rankName (string),
          day (int),
-         month (int), 
+         month (int),
          year (int),
          dateInEpoch (int),
          epochTimeOfChange (int),
@@ -1373,10 +1384,10 @@ player.rankHist =
 }
 
 player.joinDateHist =
-{ 
+{
     {
          day (int),
-         month (int), 
+         month (int),
          year (int),
          dateInEpoch (int),
          epochTimeOfChange (int),
@@ -1447,7 +1458,7 @@ _______________________
 
 * Compatibility with TBC - also updates Classic - brings retail all into the same codebase.
 
-* Another minor bandaid fix to some alt group issues until the major release is ready - 
+* Another minor bandaid fix to some alt group issues until the major release is ready -
 
 Note: this is not a feature or bug update, but a compatibility one for TBC launch and unifying the codebase now. Larger update is pending soon, hopefully by June 1st (at least beta release on Discord).
 
@@ -1531,7 +1542,7 @@ Note: this is not a feature or bug update, but a compatibility one for TBC launc
 
 **Promotions and Demotion Feature with Rules Added!**
 
-*This has been a long time coming. While it may not seem that complicated, there were a lot of pieces under the hood that needed to come together to make this work, coupled with the less time I was able to spend on the addon this year due to RL obligations with work and increased time with the kids around due to schools being closed. I have to say, my vision for GRM has always been centered on a single principle, however. Does it make your life as an officer or a leader easier? Does it save you time? If so, I want it...* 
+*This has been a long time coming. While it may not seem that complicated, there were a lot of pieces under the hood that needed to come together to make this work, coupled with the less time I was able to spend on the addon this year due to RL obligations with work and increased time with the kids around due to schools being closed. I have to say, my vision for GRM has always been centered on a single principle, however. Does it make your life as an officer or a leader easier? Does it save you time? If so, I want it...*
 
 *I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that hustles and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. That's the main reason I do it. I get to build my guild and shape it with the culture I wish to have. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it.*
 
@@ -1758,7 +1769,7 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 ***QUALITY OF LIFE***
 
-* EXPORT UPDATES: 
+* EXPORT UPDATES:
 
 ![Export Tool Improvements](https://i.imgur.com/J3RS4v0.jpg)
 
@@ -1770,7 +1781,7 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * Added the option in the Member/Former member export to only export players that are listed as a "main" in the guild, or the opposite, an alt.
 
-* Added an additional option to mass check all or uncheck the member export filters. There's 17 buttons so it is a bit tedious to go through all of them 
+* Added an additional option to mass check all or uncheck the member export filters. There's 17 buttons so it is a bit tedious to go through all of them
 
 * Added the ability to export the "Rank History" of the player to the export info as well. This sort of messes up your old columns a bit as it didn't make sense adding this to the end, just be aware this inserts a column. Also of note, this only includes the most recent 10 rank changes. If someone has like a 50 rank change history, it is just too much text spam for export and will not be included. This shouldn't be an issue for 99.99% of the community.
 
@@ -1871,7 +1882,7 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * If swapping languages or date formats, the addon would reprocess the entire log to new format, or translation, but in some old old ban formats it was failing as it was set to the wrong index identifier as an unban. This will now auto-fix and resolve.
 
-* Fixed a bug where sync could fail on some occasions when syncing the "main" info as there was an incorrect insert into a table, instead of setting a value as an integer, causing arithmetic lua error. 
+* Fixed a bug where sync could fail on some occasions when syncing the "main" info as there was an incorrect insert into a table, instead of setting a value as an integer, causing arithmetic lua error.
 
 * Fixed an issue with major updates of people who have significantly large databases never getting through the update.
 
@@ -1905,7 +1916,7 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 **PLUGIN FRAMEWORK**
 
-As time has passed, GRM has really grown to be a fairly large addon, ever growing with more and more features. While I attempt to focus on features that are within the **scope** of guild management, I find that there is room for a little bit of grey area feature support. Furthermore, I find that in many ways the overall addon can be useful for all players, but there are just some features that are completely unnecessary unless you are an officer. So, in an attempt to keep GRM's core from growing *too* bloated, I built an underlying framework to support my own "modules" - plugins, so to speak. Some things are just going to be far too niche for many guild members that there is just no reason to bloat the core addon with those features. I will use them, many leaders will use them, but maybe they will be better suited for a smaller module addon to the GRM core. An example of this is my future plans for the new retail "Recruitment" system. Clearly this only has to do with officers, so in the future I have it planned as another module rather than a core addon feature. 
+As time has passed, GRM has really grown to be a fairly large addon, ever growing with more and more features. While I attempt to focus on features that are within the **scope** of guild management, I find that there is room for a little bit of grey area feature support. Furthermore, I find that in many ways the overall addon can be useful for all players, but there are just some features that are completely unnecessary unless you are an officer. So, in an attempt to keep GRM's core from growing *too* bloated, I built an underlying framework to support my own "modules" - plugins, so to speak. Some things are just going to be far too niche for many guild members that there is just no reason to bloat the core addon with those features. I will use them, many leaders will use them, but maybe they will be better suited for a smaller module addon to the GRM core. An example of this is my future plans for the new retail "Recruitment" system. Clearly this only has to do with officers, so in the future I have it planned as another module rather than a core addon feature.
 
 *Of note, if it still falls explicitly within the scope of the original core addon goal, that will not be compartmentalized off, but kept within the core of the addon. So, today I introduce the **first** GRM module!!!*
 
@@ -2012,7 +2023,7 @@ As time has passed, GRM has really grown to be a fairly large addon, ever growin
 
 *My lenghty and probably unnecessary exposition that prefaces large releases*
 
-Phase II has been a long time coming. As I began building the custom rules, the ideas began to expand. Initially I had sketched out some plans on where I wanted to go with the design, laid some groundwork, had some ambitions, and when I started building it my thoughts evolved and ultimately went a different direction altogether. Utility, user experience, and ease is generally what I find the most important and what I wanted this to be. This also took me a while, aside from the many real-life distractions and priorities I have had over this the last month, because I felt this feature was so important that I wanted to make sure I got it right. It's a lot of work and there is nothing more soul killing in design when you dump so much time into something, realize you hated it, and decide to start over from the ground up. I have been there. 
+Phase II has been a long time coming. As I began building the custom rules, the ideas began to expand. Initially I had sketched out some plans on where I wanted to go with the design, laid some groundwork, had some ambitions, and when I started building it my thoughts evolved and ultimately went a different direction altogether. Utility, user experience, and ease is generally what I find the most important and what I wanted this to be. This also took me a while, aside from the many real-life distractions and priorities I have had over this the last month, because I felt this feature was so important that I wanted to make sure I got it right. It's a lot of work and there is nothing more soul killing in design when you dump so much time into something, realize you hated it, and decide to start over from the ground up. I have been there.
 
 You see, just for a little insight into my personal behavior and thought process, when I am building something for GRM, even though I can be presented with logical arguments from others and rationalize to myself as to why some ideas are good, I have no joy in building them if they don't "click" for me. I want to feel them, to be excited to put it together. As this remains a hobby project for me, I have to get enjoyment out of it, and I really do. So, for a while I would start development again, start adding UI frames and I just felt no energy in doing so, no excitement, no deep feeling that what I was building was "right" for the job. The underlying code was simple and had already been built, but then came designing and integrating it in meaningful ways. There was no passion inside for it. I was not having fun doing it because I didn't have a clear picture of what I wanted. So, after chipping away at it, going back to the drawing board on some design issues, pruning out some unnecessary filters that made no sense (like I built a filter for race/class which didn't make sense to just say, kick all gnomes from your guild). I can now say I am happy with the final design (and happy for continued suggestions on further improvements). While it is my personal preference in design, I hope that it is an overall improvement for people that use the GRM Macro Tool as well.
 
@@ -2113,7 +2124,7 @@ The fix is all done behind the scenes and automatically, but it is merely a stop
 
 * Right click should work again on the roster when setting main
 
-* Found an issue where you could theoretically encounter 2 join dates and the 2 one is set at an earlier date. How it works is if a player joins the guild they auto join at the lowest rank. The addon will record that rank. However, if let's say someone joins the guild while you are offline AND they get promoted, before you ever record them, the addon will take note that they joined the guild AND they were promoted. Here is the scenario. Let's say the day that they joined the guild was > 100 events ago, thus the date is unverified. If that is the case the addon puts a placeholder unverified date in the history tree as the date you logged in. But, then the addon detects they are no longer the same rank so they got a promotion, and now addon checks and guess what, their promotion <= 100 events that occurred, so now it can accurately report the date. You end up getting the first promotion/join date as an unverified date the day you logged in, but now the 2nd promotion received is given an accurate date X time previous, thus you end up with a potential for 2 promotion dates to be recorded, but 1 of them to be today and the other to be further in the past, even though it was a more recent promotion. Silly nuance, would be rare to find, but definitely possible to happen if you don't log on very much or are in an extremely high activity guild so events get pushed through faster. 
+* Found an issue where you could theoretically encounter 2 join dates and the 2 one is set at an earlier date. How it works is if a player joins the guild they auto join at the lowest rank. The addon will record that rank. However, if let's say someone joins the guild while you are offline AND they get promoted, before you ever record them, the addon will take note that they joined the guild AND they were promoted. Here is the scenario. Let's say the day that they joined the guild was > 100 events ago, thus the date is unverified. If that is the case the addon puts a placeholder unverified date in the history tree as the date you logged in. But, then the addon detects they are no longer the same rank so they got a promotion, and now addon checks and guess what, their promotion <= 100 events that occurred, so now it can accurately report the date. You end up getting the first promotion/join date as an unverified date the day you logged in, but now the 2nd promotion received is given an accurate date X time previous, thus you end up with a potential for 2 promotion dates to be recorded, but 1 of them to be today and the other to be further in the past, even though it was a more recent promotion. Silly nuance, would be rare to find, but definitely possible to happen if you don't log on very much or are in an extremely high activity guild so events get pushed through faster.
 
 * Fixed an issue where the promotion date was not properly getting added and the audit log was not reporting it properly even though the filters showed it was complete.
 
@@ -2289,7 +2300,7 @@ It took me more hours than I even dare try to tally or say here, but it was wort
 
 * Found a bug that could exist if you had not updated GRM in a while, created a new toon, then the first time you updated GRM was also the first time you logged on to a new toon, it could faily to load properly. This likely got missed because a reload/relog would self resolve it. But now this will prevent that from happening.
 
-* On resetting defaults, it was not resetting the UI beyond the core GRM frame. It should now be properly set, as well as 
+* On resetting defaults, it was not resetting the UI beyond the core GRM frame. It should now be properly set, as well as
 
 * Addressed an issue in regards to the hotkey macro being tried to be created whilst in combat, which is restricted. The addon will now delay the creation of the macro while in combat and enable it when combat ends.
 
@@ -2477,7 +2488,7 @@ So, after thinking about it more and more, @Xulu#1278 (discord) really was right
 
 * Added Race/Sex information of a player. this can be found as an export option. Be aware, this might mess up your column allignment so you will need to readjust. I just couldn't add these details to the end without it not feeling right.
 
-* Removed .toc CommunitiesFrame addon depencies. This is no longer necessary and also will prevent the addon from force loading Communities before your global C_Value settings configured, forcing them to be set to default, ignoring custom settings. 
+* Removed .toc CommunitiesFrame addon depencies. This is no longer necessary and also will prevent the addon from force loading Communities before your global C_Value settings configured, forcing them to be set to default, ignoring custom settings.
 
 
 ***BUG FIXES***
@@ -2613,7 +2624,7 @@ So, after thinking about it more and more, @Xulu#1278 (discord) really was right
 
 If you are reading this, I want to share with you a parable. Bear with me, I am not preaching here, only sharing an applicable story. Let me tell you about *The Parable of the Unjust Judge.*  It appears in the Gospel of Luke 18:1-8. This story is a parable of a judge who lacks compassion, who doe not care for what people thought, and who was essentially, *unjust.* This was not a good person and he had no issue letting others know he was not a good person. Something happens that bothers this judge. A woman goes to him and tells that she has been wronged, that she is seeking justice. He doesn't care. He brushes her off. He can't be bothered with her. She keeps coming back, over and over, begging for justice. Finally, the judge thinks to himself, "I'll just give her what she wants to be rid of her!" The *unjust* judge grants her justice.
 
-The Biblical moral of the story was to show the people that they should pray often and not weary of it, being that if an unjust judge still granted what they asked if bothered enough, how much more would a loving God grant them what they asked. Yet, in my case, I find that I am comparing myself to the unjust judge. 
+The Biblical moral of the story was to show the people that they should pray often and not weary of it, being that if an unjust judge still granted what they asked if bothered enough, how much more would a loving God grant them what they asked. Yet, in my case, I find that I am comparing myself to the unjust judge.
 
 You see, I had zero intention on getting to the "Export" tool anytime soon as I was interested in other projects, busy with them. It was far enough down the list to say that it would be a while before I got around to it. Then, something happened. About the last month or so, especially since Classic launch, I feel like the requests for exporting data have been coming almost daily. Over and over and over I was having to explain to people I did not have a method to export. It was like 10 to 1 compared to any other request. I have about half a dozen PMs on Curseforge requesting it, not including the comments on discord.
 
@@ -2628,7 +2639,7 @@ _______________________
 ![Log Details](https://i.imgur.com/MWgmxWT.jpg)
 ![Member Details](https://i.imgur.com/cetws2s.jpg)
 
-*Access in 3 ways: 
+*Access in 3 ways:
 * /grm export
 * Audit Window (top right)
 * Log Tools window
@@ -2782,8 +2793,8 @@ _______________________
 
 * Anything after the !note trigger will be set as the public note (up to 31 characters). The previous note will be overwritten completely.
 
-* Examples: !note iLvl=115, Eng 250, Alch 300 
- 
+* Examples: !note iLvl=115, Eng 250, Alch 300
+
 
 
 **--------------**
@@ -2801,7 +2812,7 @@ _______________________
 
 * CLASSIC: Noticed Portuguese BR localization file was not properly inserted into the .toc file in Classic. It was working in Retail, just not classic.
 
-* CLASSIC: Found an issue where if an addon called the CommunitiesFrame dependcy, the mouseover window would stop working in Classic. Cleaned up!  
+* CLASSIC: Found an issue where if an addon called the CommunitiesFrame dependcy, the mouseover window would stop working in Classic. Cleaned up!
 
 * BOTH: Fixed a bug where a Lua error would occur when a player logged off a the Member Alert message would not be shown (line 2091), and only if they had "Main Tag" designation disabled.
 
@@ -2827,7 +2838,7 @@ _______________________
 
 * BOTH: The "Ignore Macro Tool Filters" button should now no longer overlap the alts window when you have 12 alts and will adjust its spacing if < 12 or > 12 or exactly 12, which is necessary
 
-* BOTH: Language names are now translated in all 14 supported langues in their language selection dropdowns. 
+* BOTH: Language names are now translated in all 14 supported langues in their language selection dropdowns.
 
 * BOTH Localization efforts for translation work can now create their very own /grm slash command. /grm not make sense in your language? Make your own acronym!!! Note, /grm will always work, it allows you to create an additional slash command trigger. I have placed the slash command option at the top of each locale file
 
@@ -2866,7 +2877,7 @@ _______________________
 **QUALITY OF LIFE**
 **--------------**
 
-* RETAIL: Players promoted/demoted should now be detected instantly in retail, and no longer just when you do it, but if another officer in the guild changes someone's rank you will instantly update yours based on the system message. Please note that this does not work in Classic in full capacity due to limitations of the lack of a guild event log. The compromise is GRM will instantly detect your own changes, but not necessarily those of your officers when it comes to promotions/demotions. This may change in the future, but it will require me to go parse the strings for 11 clients rather than rely on the logs, so not priority. 
+* RETAIL: Players promoted/demoted should now be detected instantly in retail, and no longer just when you do it, but if another officer in the guild changes someone's rank you will instantly update yours based on the system message. Please note that this does not work in Classic in full capacity due to limitations of the lack of a guild event log. The compromise is GRM will instantly detect your own changes, but not necessarily those of your officers when it comes to promotions/demotions. This may change in the future, but it will require me to go parse the strings for 11 clients rather than rely on the logs, so not priority.
 
 * RETAIL: People kicked/leaving the guild should now also be consistently detected instantly. Same circumtstance for Classic as above.
 
@@ -3144,7 +3155,7 @@ _______________________
 **--------------**
 **QUALITY OF LIFE**
 **--------------**
-  
+
 * QoL1: Dutch compatibility has been built-in. While it is not yet localized into Dutch, it can now be selected as a language option as we patiently await the translation work (as of now roughly 900 lines to do all. So much work!)
 
 * QoL2: Cleaned up a littl ebit of unnecessary processing in the background that could be optimized a little bit.
@@ -3167,7 +3178,7 @@ _______________________
 
 *Nothing too major. Some large stuff in the pipeline, so this is a minor cleanup patch with a couple Quality of Life improvements, and some added customization.*
 
-* New1: Players now have the ability to choose which channel to send GRM messages to, in the General Options - 
+* New1: Players now have the ability to choose which channel to send GRM messages to, in the General Options -
 
 *   - If you wish, GRM will create the channel for you when you type in a custom name, and if it doesn't exist, it will prompt you for permission to create it.
 
@@ -3399,7 +3410,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 **QUALITY OF LIFE**
 **--------------**
 
-* QOL1: HYBRID SCROLL FRAMES!!! As a lot of people know, this is the superior way to truly do scroll frames. I suppose I never had imagined scrolling frames getting so absurdly large, not thinking long term, but when 
+* QOL1: HYBRID SCROLL FRAMES!!! As a lot of people know, this is the superior way to truly do scroll frames. I suppose I never had imagined scrolling frames getting so absurdly large, not thinking long term, but when
 @Xulu#1278 (discord) got on my case about them and when @Nightdragon#2207 (discord) mentioned how he has like 30,000 logged event entries in a single guild, of a 17 guild community, and with Xulu expressing his passion for it I finally relented. I basically didn't want to bother with it for various reasons, but one is I wanted to build a template system to make it more reusable. I ended up doing just that with the new JD Audit tool and I was able to reuse the template, for the most part, for the core log. This is not entirely true as the core log is a bit more complex due to the variety of different string heigts due to wrapping and multi-lines so I had to modify it slightly.
 
 * QOL2: MORE SLASH COMMANDS! They are now expanded to support all GRM window tabs. Example */grm users* or */grm events* or /grm options (or opt) are all supported and will bring them up with a simple slash command. If it sounds right, it probably works. Please feel free to recommend additional slash commands. They are quite simple to implement and I am a believer of the command line.
@@ -3420,7 +3431,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 
 * QoL10: Player should no longer erroneously get "(NG)" tag on the "(player) has logged in" system message in chat after shortly logging in. This would occur due to the GRM database not being fully loaded yet, but the System message listener already being initialized. Now it waits to modify the incoming system messages in the chat window with the tags until GRM is fully loaded and ready in the background.
 
-* QoL11: The FrameStrate of the core GRM frame is now set to MEDIUM, to reflect most frames in WOW so you can click other flames and have them come to the front without it permanently being set on top. 
+* QoL11: The FrameStrate of the core GRM frame is now set to MEDIUM, to reflect most frames in WOW so you can click other flames and have them come to the front without it permanently being set on top.
 
 **--------------**
 **BUGS AND BUGS!**
@@ -3675,7 +3686,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 
 * QOL5: Noticed the Rejoins and rejoin bans were reporting in the log on separate log entry lines. This is now all on one line properly, which makes more sense. This only affects new log entries, not retroactive ones, for now.
 
-* QOL6: Fixed some of the coloring as well to be more consistent with what they are doing. 
+* QOL6: Fixed some of the coloring as well to be more consistent with what they are doing.
 
 * QOL7: Custom notes as "additional notes" now show properly without being a jumped mess of words when a player rejoins the guild.
 
@@ -3685,7 +3696,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 
 * BUG1: Promotion/demotion changes were not always reporting to the log properly if the player hadn't logged on since you last checked.This was a simple modification I did last update I forgot to remove.
 
-* BUG2: Promotion date was still saying "Unknown" in cases where it should not have been on player mouseover. This has been automatically corrected. 
+* BUG2: Promotion date was still saying "Unknown" in cases where it should not have been on player mouseover. This has been automatically corrected.
 
 * BUG3: Inactive Returns were previously not being removed from the guild when filtered to just them, and using line number X through Y selection removal tool. This is now fixed.
 
@@ -3745,12 +3756,12 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 * BUG4: Fixed Lua error that could occur if hitting enter on the Level filter entry when no level is selected.
 
 
-**VERSION 8.1.0R1.40 DATE: January 21st, 2019** 
+**VERSION 8.1.0R1.40 DATE: January 21st, 2019**
 
 *Small typo fix on something was meant to be deleted*
 
 
-**VERSION 8.1.0R1.39 DATE: January 21st, 2019** 
+**VERSION 8.1.0R1.39 DATE: January 21st, 2019**
 
 (Happy MLK Day to the USA users!)
 
@@ -3784,7 +3795,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 **BUGS AND BUGS!**
 **--------------**
 
-* BUG1: BAN LIST should now properly sync in all cases! 
+* BUG1: BAN LIST should now properly sync in all cases!
 
 * BUG1: One caveat, in some edge cases it might take 2 syncs to build it all because if it is a new guildie using GRM, they have to create metadata profiles from scratch for players they may have never encountered and are no longer in the guild, so what happens is they first create a blank profile, then they tell the person sending the ban information that they do not have a profile of the player yet so the player then forwards the known metadata on to build the profile properly and THEN and only then can a proper ban be established. The problem is these back and forth comms are not instant, and for me to avoid things like latency bugs, almost like a TCP protocol where you wait for a callback, rather than UDP, then it takes some seconds. Due to my lack of desire to create separate trees for qued up ban data to que up these lists, if the callback isn't fast enough it just builds the profiles without acknowledging the given ban data yet, though the subsequent sync should then work. This only applies to people wwho just installed GRM in your guild, for the most part.
 
@@ -3994,7 +4005,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 **QUALITY OF LIFE**
 **--------------**
 
-* QoL1: Functionality has been expanded in the ability to FORCE and unify settings. The player can now force set the sync rank for ban lists and custom notes as well. 
+* QoL1: Functionality has been expanded in the ability to FORCE and unify settings. The player can now force set the sync rank for ban lists and custom notes as well.
 
 * QoL2: Freeing up character space in the officer note, the Guild Info will now house the leader control tags to force settings. Example, g2^9 is not going to be placed into the guild info tab to work.
 
@@ -4257,7 +4268,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 
 * QoL1: Community frame scrolling for mouseover popup window - Keep the mouse cursor stationary, but use the mousewheel to scrool and you may have noticed that the player window did not update (not mine or Blizz's tooltip), only when you manually moved the mouse over each button.
 
-* QoL1: Now, the names will updated on a static scroll. 
+* QoL1: Now, the names will updated on a static scroll.
 
 * QoL2: In relation to this, I noticed that Blizz's player tooltip seemed to work fine on mouseover with the Community window "CHAT" tab, but not the "ROSTER" tab, so on the guild community, I have fixed it, and the tooltip should now be working properly (I will remove my code if Blizz ever fixes it)
 
@@ -4319,7 +4330,7 @@ The goal of this tool was to be able to easily guild-wide rectify this. However,
 **NEW FEATURE**
 **--------------**
 
-* Guild Leader can now add "-GRM1" or "+GRM1" to enable or disable, guild-wide, the !note adding ability. 
+* Guild Leader can now add "-GRM1" or "+GRM1" to enable or disable, guild-wide, the !note adding ability.
 
 * If an officer in the game logs in, they scan the officer note, and they will adhere to the restrictions of the GL's officer note, allowing the GL to control Officer settings. This will be expanded in the future
 
@@ -4458,7 +4469,7 @@ QoL6: Tooltips should now properly updated when hitting the ESC key, like on the
 
 QoL7: Ban List, Users, and Events windows should now have their columns properly alligned.
 
-QoL8: Default scan time has been changed, for new players, from 10 to 30 seconds, to prevent spamminess. 
+QoL8: Default scan time has been changed, for new players, from 10 to 30 seconds, to prevent spamminess.
 
 QoL9: Default BFA position of the memberdetailframe was poorly placed over the side tabs. This fixes that.
 
@@ -4573,7 +4584,7 @@ QoL10: Lots and lots of code optimization on the backend thanks to some major co
 
 * QoL3: "Time as Member" is now included in the log entries when a player leaves the guild, but only if it was known how long they were a member. If their join date was never configured this will be ignored.
 
-* QoL4: "Time as Member" now included in the mouseover tooltip on the Member join date. 
+* QoL4: "Time as Member" now included in the mouseover tooltip on the Member join date.
 
 * QoL5: "Join Date" button is now properly alligned, I just never noticed since I use the English version...
 
@@ -4713,7 +4724,7 @@ Type this out in chat:
 > /run GRM.ClearCustomNoteMatches("YourText")
 
 > "YourText" can be any identifying string to match your custom note. BE SPECIFIC! It is case sensitive. Make sure it is unique to the spammed one.
- 
+
 
 **BUG FIXES**
 
@@ -4841,7 +4852,7 @@ Type this out in chat:
 * Bug3: Names should no longer be errneously added to the friends list.
 
 **QUALITY OF LIFE**
- 
+
 * QoL1: In the AUDIT window, players can now shift-ctrl-click a name for it to auto-search the log for any events concerning them.
 
 
@@ -5704,7 +5715,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * Feature: Slash command '/roster sync' will now trigger a one-time manual sync, even if the player has sync disabled.
 
-* Feature: Option to restrict sync only with players who have your version of the addon or higher. 
+* Feature: Option to restrict sync only with players who have your version of the addon or higher.
 
 * QOL: Options menu mostly redone. Makes more sense know. Slash commands included. There is some open space atm, but to be added with future additions I have pending.
 
@@ -5726,7 +5737,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * NOTE: Players that are in the middle of syncing that enter a loading screen the sync will fail. There is no API for another player to know that the other player is on loading screen, thus I can't que the data to wait til they are off it when sharing info. For live updating this is not an issue, but in batch sending data, the sync will fail. Just be aware.
 
-* Yes, definitely working on some others major features, but these were just so game-breaking for some players they were necessary to fix. 
+* Yes, definitely working on some others major features, but these were just so game-breaking for some players they were necessary to fix.
 
 
 
@@ -5853,7 +5864,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * Note: Oddly, Blizz changed GuildControlSetRank() API function to now a protected function. Not sure why, but it limits ability to pull info on guild rank restrictions and so on... Minor issue, but could potentially cause issues for guilds who have a rank with guild chat restricted. Prob rare case usage.
 
-* Bug Fix1: Error could occur in some cases when parsing through the guild event log to find out WHO did promotions/demotions and so on if server did not provide full info. 
+* Bug Fix1: Error could occur in some cases when parsing through the guild event log to find out WHO did promotions/demotions and so on if server did not provide full info.
 
 
 **VERSION 7.2.5R1.075 - DATE: 27 Aug, 2017**
@@ -5951,7 +5962,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * Bug Fix7: Sync on large guilds will now be a bit slower, but it seems it was spamming and disconnecting people even at the previous throttled rate
 
-* Bug Fix7: The new Throttle rate is literally 25% the speed of the previous sync rate. Fortunately it all happens in the background so its not noticeable, just be 
+* Bug Fix7: The new Throttle rate is literally 25% the speed of the previous sync rate. Fortunately it all happens in the background so its not noticeable, just be
 
 * Bug Fix7: aware Sync will not update within seconds on LARGE guilds, but actually, a couple of minutes to prevent disconnect due to Blizz comm limits.
 
@@ -5964,11 +5975,11 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * Bug Fix1: Never noticed string handling on comms since I tested on single word realm.
 
-* Bug Fix2: Syncing could crash on MEGA guilds! In my 250+ guild, I never noticed any disconnects, but in larger guilds, too much data would be sent 
+* Bug Fix2: Syncing could crash on MEGA guilds! In my 250+ guild, I never noticed any disconnects, but in larger guilds, too much data would be sent
 
 * Bug Fix2: across the server and would disconnect the player. Now, based on amount of info/size of guild, data packet is controlled to prevent disconnect.
 
-* Bug Fix2: For some larger guilds, sync may no longer take 2-3 seconds for larger guilds. 500 to 1000 member guilds will take anywhere from 15-40 seconds, depending on 
+* Bug Fix2: For some larger guilds, sync may no longer take 2-3 seconds for larger guilds. 500 to 1000 member guilds will take anywhere from 15-40 seconds, depending on
 
 * Bug Fix2: how much alt data needs to sync too. I want to speed it up, but Blizz has internel limits to prevent server spamming. Don't worry, it all happens in background.
 
@@ -6098,7 +6109,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * MISC2: Add Event Calendar now restricts the player to adding 1 event to calendar per 5 seconds, due to internal Blizz server limit.
 
-* MISC3: Several more things being tracked in the background... to be implemented in future patch 
+* MISC3: Several more things being tracked in the background... to be implemented in future patch
 
 * MISC4: And several other minor things not worth mentioning...
 

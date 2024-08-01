@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.990994";
-GRM_G.PatchDay = 1722448476;             -- In Epoch Time
-GRM_G.PatchDayString = "1722448476";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.990995";
+GRM_G.PatchDay = 1722513600;             -- In Epoch Time
+GRM_G.PatchDayString = "1722513600";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 -- Determine level cap
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
