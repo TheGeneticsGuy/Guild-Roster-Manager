@@ -23,7 +23,7 @@ GRM_HC.HardCoreInitialize = function()
     }
 
     GRM_G.HardCoreDeaths = region[GRM_G.Region];
-    
+
     if C_GameRules and C_GameRules.IsHardcoreActive() then
         GRM_G.HardcoreActive = true;
 
@@ -49,7 +49,7 @@ GRM_HC.HardCoreInitialize = function()
         GRM_HC.ParseOutPlayerName = function ( text )
             return text:match ( "%[([^%]]+)%]" );
         end
-        
+
         -- Method:          GRM_HC.LogDeath ( string )
         -- What it Does:    Logs the death of the player
         -- Purpose:         Ensure accurate time reporting of a player's death.
@@ -75,7 +75,7 @@ GRM_HC.HardCoreInitialize = function()
                 GRM_HC.ReportDeathToLog( player.name , player.class , player.level , dateArray );
 
             end
-        
+
         end
 
         -- Method:          GRM_HC.ExportDeathTag ( string , table )
@@ -84,7 +84,7 @@ GRM_HC.HardCoreInitialize = function()
         GRM_HC.ExportDeathTag = function ( player , dateArray )
             for i = 1 , GRM.GetNumGuildies() do
                 local memberName , _ , _ , _ , _ , _ , memberNote = GetGuildRosterInfo ( i );
-                
+
                 if memberName == player.name then
                     if not memberNote:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
                         local tagToAdd = "[" .. GRM.L ( "D" ) .. "]";
@@ -139,10 +139,10 @@ GRM_HC.HardCoreInitialize = function()
                         if finalNote ~= "" then
 
                             finalNote = GRM.Trim(finalNote);
-                            
+
                             local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
                             local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , memberNote , finalNote , select ( 2 , GRM.GetTimestamp() ) );
-            
+
                             if GRM.S().toChat.note then
                                 GRM.PrintLog ( { 4 , logReport } );
                             end
@@ -152,7 +152,7 @@ GRM_HC.HardCoreInitialize = function()
                             player.note = finalNote;
                             GuildRosterSetPublicNote ( i , finalNote );
                         end
-                    
+
                     end
                     break;
                 end
@@ -164,7 +164,7 @@ GRM_HC.HardCoreInitialize = function()
         -- What it Does:    Adds to the log when a player days
         -- Purpose:         Death reporting feature.
         GRM_HC.ReportDeathToLog = function ( name , class , level , dateArray )
-            
+
             local logReportWithTime = GRM.GetDeathString ( name , class , level , dateArray );
 
             -- No need to report to chat since the chat already notifies everyone in guild.
@@ -242,7 +242,7 @@ GRM_HC.HardCoreInitialize = function()
                 if upper ~= "" then
                     upper = tonumber ( upper );
                 else
-                    upper = GRM.GetLvlCap();
+                    upper = GRM_G.LvlCap;
                 end
 
                 local deaths = GRM_HC.GatherAllDeaths ( { lower , upper } );
@@ -299,7 +299,7 @@ GRM_HC.HardCoreInitialize = function()
                 playerDetails = "";
 
                 if num1 <= #deaths then
-                    
+
                     -- Build the string
                     -- Name:
                     name = deaths[i].name;
@@ -319,13 +319,13 @@ GRM_HC.HardCoreInitialize = function()
                     -- Level:
                     playerDetails = playerDetails .. deaths[i].class .. delimiter;
 
-                    -- TimeOfDeath = 
+                    -- TimeOfDeath =
                     playerDetails = playerDetails .. deaths[i].date .. delimiter;
 
 
                     if #playerDetails > 0 then
                         local modifier = 1;
-    
+
                         if delimiter == "||" or delimiter == "\\t" or delimiter == "::" then
                             modifier = 2;
                         end
@@ -334,7 +334,7 @@ GRM_HC.HardCoreInitialize = function()
                             completeString = completeString .. playerDetails .. "\n";
                         else
                             completeString = completeString .. playerDetails;               -- Don't need to add the line break at the end.
-                        end 
+                        end
                     end
 
                 else
@@ -347,7 +347,7 @@ GRM_HC.HardCoreInitialize = function()
                 GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:Show();
                 GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( completeString );
                 GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
-                
+
                 C_Timer.After ( 2 , function()
                     GRM.ExportScrollSliderConfigure( scrollWidth );
                 end);
@@ -393,10 +393,9 @@ GRM_HC.HardCoreInitialize = function()
                 GRM.InitiateConfirmFrame ( GRM.L ( "For GRM to log guild member deaths, you will need to join the \"{name}\" channel. Do you wish to join?" , GRM_G.HardCoreDeaths ) .. "\n\n" .. msg , EnabledChannel , nil , nil , IgnoreDeathChannel , false , 375 , 140 );
             end
 
-            return false;            
+            return false;
         end
     end
 end
 
 GRM_HC.HardCoreInitialize();
-
