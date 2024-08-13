@@ -1,3 +1,13 @@
+## **VERSION 1.990996 RELEASE - August 13th 2024**
+
+* Compatibility Update for 11.0.2
+
+***BUG FIXES***
+
+* The "TriggerProgressBar" error should no longer occur when trying to sync
+
+*Note: I am in the process of doing a closed beta with the large sync rewrite so that will be coming soon. This is just a compatibility fix for new update so GRM works again. Very minor.*
+
 ## **VERSION 1.990995 RELEASE - August 1st 2024**
 
 ***BUG FIXES***

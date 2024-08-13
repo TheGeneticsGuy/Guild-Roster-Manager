@@ -1450,7 +1450,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     if numericV < 1.986 and baseValue < 1.986 then
 
-        if C_GameRules and C_GameRules.IsHardcoreActive() then
+        if GRM.IsHardcoreActive() then
             GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddHardcoreVariables , true , true , false , nil );
 
             GRM_Patch.AddNewSetting ( "addDeathTag" , true );
@@ -1561,9 +1561,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- 128
     if numericV < 1.99094 and baseValue < 1.99094 then
-        if C_GameRules and C_GameRules.IsHardcoreActive() then
-            GRM_Patch.AddNewSetting ( "ignoreDeathChannel" , false );
-        end
+        GRM_Patch.AddNewSetting ( "ignoreDeathChannel" , false );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixRanKHistError , true , true , false , nil );
 
         GRM_AddonSettings_Save.VERSION = "R1.99094";

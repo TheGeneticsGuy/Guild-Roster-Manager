@@ -22,7 +22,7 @@ GRM_API.CreateNewProgressBar = function ( parentFrame , frameName , width , heig
     parentFrame[frameName][textName]:SetPoint ( "RIGHT" , parentFrame[frameName] , "LEFT" , -7 , 0 );
     parentFrame[frameName][textName]:SetJustifyH ( "RIGHT" );
     parentFrame[frameName][textName]:SetText ( "0%" );
-    
+
     -- Initialize Texture
     parentFrame[frameName][textureName]:SetPoint ( "LEFT" , parentFrame[frameName] , "LEFT" );
     parentFrame[frameName][textureName]:SetColorTexture ( colorTable[1] , colorTable[2] , colorTable[3] , 1 );
@@ -35,7 +35,7 @@ GRM_API.CreateNewProgressBar = function ( parentFrame , frameName , width , heig
     parentFrame[frameName].killSwitch = false;
     parentFrame[frameName].Hold = false;
     parentFrame[frameName].colorOnComplete = {};
-    
+
 end
 
 -- /run GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 5 );
@@ -55,6 +55,8 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
         if colorOnComplete then
             progressBar.colorOnComplete = colorOnComplete;
         end
+
+        timeToProgress = timeToProgress or 1
 
         if timeToProgress > 0 and timeToProgress < 1 then
             t = 1;
@@ -86,7 +88,7 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
             if timeToProgress > 0 and timeToProgress < 1 then
                 loopDelay = loopDelay / ( 1 / timeToProgress );
             end
-            
+
             progressBar.StartTime = time();
             if hold and destinationNumber > 0 then
                 progressBar.Hold = true;
@@ -98,16 +100,16 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
                     if self.Timer >= loopDelay then
 
                         self.RemainingTime = t - ( time() - self.StartTime );
-            
+
                         if ascending then
                             self.Percent = self.Percent + 1;
                         else
                             self.Percent = self.Percent - 1;
                         end
-                        
+
                         progressBarText:SetText ( math.floor ( self.Percent + 0.5 ) .. "%" );
                         progressBarTexture:SetSize ( ( self.Percent / 100 ) * barWidth , 20 )
-            
+
                         if ( ascending and progressBar.Percent >= destinationNumber ) or ( not ascending and self.Percent <= destinationNumber ) then
                             self:SetScript ( "OnUpdate" , nil );
                             if colorOnComplete then
@@ -120,7 +122,7 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
                             end
 
                         end
-            
+
                         self.Timer = 0;
                     end
                 else
@@ -128,7 +130,7 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
                     self.killSwitch = true;
                     self.RemainingTime = 0;
                 end
-        
+
             end);
 
         end
@@ -149,7 +151,7 @@ GRM_API.CheckPoint = function ( progressBar , destinationNumber , expectedCheckP
             GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , destinationNumber , 1 , progressBar.colorOnComplete , true , { finalPercent , GRMsyncGlobals.totalEstTime - progressBar.RemainingTime } );
 
         elseif destinationNumber < progressBar.Percent then
-            
+
             GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , finalPercent , expectedCheckPointTime - ( time() ) - progressBar.StartTime , progressBar.colorOnComplete );
 
         end
@@ -163,7 +165,7 @@ GRM_API.SetProgressBarColor = function ( progressBar , colors )
 
     if colors and type ( colors ) == "table" and #colors == 3 then
         local progressBarTexture = progressBar[progressBar:GetName() .. "Texture" ];
-    
+
         progressBarTexture:SetColorTexture ( colors[1] , colors[2] , colors[3] , 1 );
     end
 
@@ -184,7 +186,7 @@ GRM_API.ResetProgressBar = function ( progressBar , colors , isVert )
     end
 
     if colors and type ( colors ) == "table" and #colors == 3 then
-    
+
         progressBarTexture:SetColorTexture ( colors[1] , colors[2] , colors[3] , 1 );
     end
 

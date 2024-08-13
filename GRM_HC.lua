@@ -24,7 +24,7 @@ GRM_HC.HardCoreInitialize = function()
 
     GRM_G.HardCoreDeaths = region[GRM_G.Region];
 
-    if C_GameRules and C_GameRules.IsHardcoreActive() then
+    if GRM.IsHardcoreActive() then
         GRM_G.HardcoreActive = true;
 
         GRM_HC.deathEvent:RegisterEvent ( "CHAT_MSG_CHANNEL" );

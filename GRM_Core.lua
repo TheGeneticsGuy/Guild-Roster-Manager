@@ -14,9 +14,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.990995";
-GRM_G.PatchDay = 1722513600;             -- In Epoch Time
-GRM_G.PatchDayString = "1722513600";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.990996";
+GRM_G.PatchDay = 1723561550;             -- In Epoch Time
+GRM_G.PatchDayString = "1723561550";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 -- Determine level cap
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
@@ -24,7 +24,7 @@ else -- This should work for everything else
     GRM_G.LvlCap = GetMaxPlayerLevel();
 end
 GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110000;
+GRM_G.RetailBaseBuild = 110002;
 
 -- GroupInfo
 GRM_G.GroupInfoV = 1.37;
@@ -371,10 +371,10 @@ local AchievementsChecking = CreateFrame ( "Frame" );
 GRM_G.StatusChecking = CreateFrame ( "Frame" );
 GRM_G.StatusChecking.Timer = 0;
 
---------------------------------------------
------ COMPATIBILITY WITH CLASSIC BUILDS ----
--------- NEEDED DUE TO 10.0 DF CHANGES -----
---------------------------------------------
+----------------------------------------------
+----- COMPATIBILITY WITH CLASSIC BUILDS ------
+-------- NEEDED DUE TO UNALIGNED CHANGES -----
+----------------------------------------------
 
 
 -- Method           GRM.CreateTexture ( frame , string , string )
@@ -416,6 +416,20 @@ GRM.GetMouseFocus = function ( frame )
         end
     else
         return GetMouseFocus() == frame;
+    end
+    return false;
+end
+
+-- Method:          GRM.IsHardcoreActive()
+-- What it Does:    Returns true if hardcore is active
+-- Purpose:         11.0.2 added the IsgameRule Active and Removed IsHardcoreActive function - still not live on Classic
+GRM.IsHardcoreActive = function()
+    if C_GameRules then
+        if C_GameRules.IsGameRuleActive then
+            return C_GameRules.IsGameRuleActive ( Enum.GameRule.HardcoreRuleset );
+        elseif C_GameRules.IsHardcoreActive then
+            return C_GameRules.IsHardcoreActive();
+        end
     end
     return false;
 end
@@ -26933,7 +26947,7 @@ GRM.ReactivateAddon = function()
     if IsInGuild() then
         GRM.SetClassChatColoring()
         GRM.SetChatColoring();
-        if C_GameRules and C_GameRules.IsHardcoreActive() then
+        if GRM.IsHardcoreActive() then
             GRM_UI.VerifyIfHCChannelsEnabled();
         end
     end
@@ -27076,7 +27090,7 @@ GRM.SettingsLoadedFinishDataLoad = function()
         -- Let's set window scales now...
         GRM_UI.SetAllWindowScales( true );
 
-        if C_GameRules and C_GameRules.IsHardcoreActive() and GRM.S() then
+        if GRM.IsHardcoreActive() and GRM.S() then
             GRM_UI.VerifyIfHCChannelsEnabled();
         end
 
