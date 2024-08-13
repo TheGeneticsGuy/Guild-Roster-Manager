@@ -14,7 +14,7 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.990996";
+GRM_G.Version = "R1.990997";
 GRM_G.PatchDay = 1723561550;             -- In Epoch Time
 GRM_G.PatchDayString = "1723561550";     -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 -- Determine level cap
@@ -7186,21 +7186,7 @@ GRM.InitializeOldRosterButtons = function( classicSpecific )
                         if GRM.S().showMouseoverOld then
                             GRM.SubFrameCheck();
                             GRM.PopulateMemberDetails ( name );
-                            if GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                                GRM_G.pause = true;
-                            else
-                                GRM_G.pause = false;
-                            end
-                            if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                                if GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.MemberDetailFrameClassic , "TOPRIGHT" , -4 , 5 );
-                                else
-                                    GRM_UI.GRM_MemberDetailMetaData:SetPoint ( "TOPLEFT" , GRM_UI.GuildRosterFrame , "TOPRIGHT" , -4 , 5 );
-                                end
-                                if GRM_G.guildName ~= "" then
-                                    GRM_UI.GRM_MemberDetailMetaData:Show();
-                                end
-                            end
+                            GRM_G.pause = false;
                         end
 
                         GRM.UpdateMemberDetailNameClassColor();
@@ -17759,9 +17745,6 @@ GRM.SetAllIncompleteJoinUnknown = function()
                             if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                 GRM_UI.MemberDetailFrame:Hide();
                             end
-                            if GuildFrame and GRM_UI.MemberDetailFrameClassic and GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                                GRM_UI.MemberDetailFrameClassic:Hide();
-                            end
                             GRM_G.pause = true;
                         end
                     end
@@ -17782,9 +17765,6 @@ GRM.SetAllIncompleteJoinUnknown = function()
                             GRM_UI.GRM_MemberDetailMetaData:Show();
                             if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                 GRM_UI.MemberDetailFrame:Hide();
-                            end
-                            if GuildFrame and GRM_UI.MemberDetailFrameClassic and GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                                GRM_UI.MemberDetailFrameClassic:Hide();
                             end
                             GRM_G.pause = true;
                         end
@@ -17861,9 +17841,6 @@ GRM.SetAllIncompleteBdayUnknown = function()
                                 if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                     GRM_UI.MemberDetailFrame:Hide();
                                 end
-                                if GuildFrame and GRM_UI.MemberDetailFrameClassic and GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                                    GRM_UI.MemberDetailFrameClassic:Hide();
-                                end
                                 GRM_G.pause = true;
                             end
                         end
@@ -17882,9 +17859,6 @@ GRM.SetAllIncompleteBdayUnknown = function()
                             GRM_UI.GRM_MemberDetailMetaData:Show();
                             if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                 GRM_UI.MemberDetailFrame:Hide();
-                            end
-                            if GuildFrame and GRM_UI.MemberDetailFrameClassic and GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                                GRM_UI.MemberDetailFrameClassic:Hide();
                             end
                             GRM_G.pause = true;
                         end
@@ -21118,10 +21092,6 @@ end
 GRM.SelectPlayerOnRoster = function ( playerName )
     if GRM_UI.MemberDetailFrame:IsVisible() then
         GRM_UI.MemberDetailFrame:Hide();
-    end
-
-    if GuildFrame and GRM_UI.MemberDetailFrameClassic:IsVisible() then
-        GRM_UI.MemberDetailFrameClassic:Hide();
     end
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:ClearFocus();
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:ClearFocus();
@@ -25032,10 +25002,6 @@ GRM.DisplayRosterMember = function ( playerName , index )
     local i = index or getRosterIndex();
 
     SetGuildRosterSelection ( i );
-
-    if not GRM_UI.MemberDetailFrameClassic:IsVisible() then
-        GRM_UI.MemberDetailFrameClassic:Show();
-    end
     if GRM_G.BuildVersion < 40000 then
         GuildStatus_Update();
     else

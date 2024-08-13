@@ -1378,10 +1378,6 @@ GRM_UI.ReloadAllFrames = function( isManualUpdate , defaultSettingsReset )
         GRM_UI.MemberDetailFrame:Hide();
     end
 
-    if GuildRoster and GRM_UI.MemberDetailFrameClassic and GRM_UI.MemberDetailFrameClassic:IsVisible() then
-        GRM_UI.MemberDetailFrameClassic:Hide();
-    end
-
     if GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
         GRM.PopulateMemberDetails ( GRM_G.currentName );
     end
@@ -11970,10 +11966,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     GRM_UI.MemberDetailFrame:Hide();
                     GRM_G.pause = true;
 
-                elseif GRM_UI.MemberDetailFrameClassic ~= nil and GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                    GRM_UI.MemberDetailFrameClassic:Hide();
-                    GRM_G.pause = true;
-
                 elseif GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame and GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:IsVisible() then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:Hide();
 
@@ -18120,9 +18112,6 @@ GRM_UI.OldRosterLog_OnShow = function( isManual )
             if self:GetChecked() then
                 GRM.S().showMouseoverOld = true;
                 GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetTextColor ( 1 , 0.82 , 0 , 1 );
-                if GRM_UI.MemberDetailFrameClassic:IsVisible() then
-                    GRM_UI.MemberDetailFrameClassic:Hide();
-                end
             else
                 GRM.S().showMouseoverOld = false;
                 GRM_UI.GuildRosterFrame.GRM_EnableMouseOverOldRosterText:SetTextColor ( 1 , 0 , 0 , 1 );
@@ -18561,7 +18550,6 @@ GRM_UI.InitalizeGuildFrame = function()
             GRM.ClearAllFrames ( true );
             GRM_G.pause = false;
         end
-        GRM_UI.MemberDetailFrameClassic:Hide();
 
     else
 
