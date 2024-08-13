@@ -27,7 +27,7 @@ GRM_G.BuildVersion = select ( 4 , GetBuildInfo() ); -- Technically the build lev
 GRM_G.RetailBaseBuild = 110002;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.37;
+GRM_G.GroupInfoV = 1.38;
 
 -- Initialization Useful Globals
 -- ADDON
