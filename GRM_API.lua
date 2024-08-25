@@ -71,7 +71,7 @@ GRM_API.GetMemberAlts = function ( name , guild )
     isValid , name , guild = GRM_API.GetCheck ( name , guild );
 
     if isValid then
-        result = GRM.GetAlts ( GRM_GuildMemberHistory_Save[guild][name] , GRM_Alts[guild] );
+        result = GRM.GetAltNamesList ( GRM.GetPlayer ( name , false , guild ) , GRM.GetGuildAlts ( guild ) );
     end
 
     return result;
@@ -79,7 +79,7 @@ end
 
 
 -- GRM_API.GetCustomNote = function()
-    
+
 
 -- end
 
@@ -200,10 +200,10 @@ GRM_API.RestoreAllPublicNotesFromSave = function()
     local name = "";
 
     if GRM.CanEditPublicNote() then
-        for i = 1 , GRM.GetNumGuildies() do 
+        for i = 1 , GRM.GetNumGuildies() do
             name = GetGuildRosterInfo ( i );
-            for n , player in pairs ( guildData ) do 
-                if type ( player ) == "table" and name == n then 
+            for n , player in pairs ( guildData ) do
+                if type ( player ) == "table" and name == n then
                     GuildRosterSetPublicNote ( i , player.note);
                 end
             end
@@ -219,10 +219,10 @@ GRM_API.RestoreAllOfficerNotesFromSave = function()
     local name = "";
 
     if GRM.CanEditOfficerNote() then
-        for i = 1 , GRM.GetNumGuildies() do 
+        for i = 1 , GRM.GetNumGuildies() do
             name = GetGuildRosterInfo ( i );
-            for n , player in pairs ( guildData ) do 
-                if type ( player ) == "table" and name == n then 
+            for n , player in pairs ( guildData ) do
+                if type ( player ) == "table" and name == n then
                     GuildRosterSetOfficerNote ( i , player.officerNote );
                 end
             end
@@ -253,13 +253,13 @@ GRM_API.RestoreAllPublicNotes = function( name )
             else
                 guildName = name;
             end
-            local guildData = GRM_GuildMemberHistory_Save[guildName]
-    
+            local guildData = GRM.GetGuild( guildName );
+
             if guildData then
-                for i = 1 , GRM.GetNumGuildies() do 
+                for i = 1 , GRM.GetNumGuildies() do
                     name = GetGuildRosterInfo ( i );
-                    for n , player in pairs ( guildData ) do 
-                        if type ( player ) == "table" and name == n then 
+                    for n , player in pairs ( guildData ) do
+                        if type ( player ) == "table" and name == n then
 
                             GuildRosterSetPublicNote ( i , player.note);
                             break;
@@ -275,14 +275,14 @@ GRM_API.RestoreAllPublicNotes = function( name )
         end
     else
         -- print("Player is not currently in a guild")
-    end    
+    end
 end
 
 -- Method:          GRM_API.SetAllUnlinkedPlayersToMain()
 -- What it Does:    Any player that is not a main, and does not have any linked alts will be set as main.
 -- Purpose:         Mass tool for OCD people who want to set all as main.
 GRM_API.SetAllUnlinkedPlayersToMain = function()
-    local guildData = GRM_GuildMemberHistory_Save[GRM_G.guildName];
+    local guildData = GRM.GetGuild();
 
     for name , player in pairs ( guildData ) do
         if type ( player ) == "table" then
@@ -292,9 +292,7 @@ GRM_API.SetAllUnlinkedPlayersToMain = function()
         end
     end
 
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-        GRM.RefreshAuditFrames ( true , true );
-    end
+    GRM_UI.RefreshSelectFrames ( false , true , false , true , true , false );
 
 end
 
@@ -305,8 +303,9 @@ end
 GRM_API.SetAllUnknownPromoteDates = function ( day , month , year )
 
     if GRM.IsValidSubmitDate ( day , month , year ) then
+        local guildData = GRM.GetGuild();
 
-        for _ , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.guildName] ) do
+        for _ , player in pairs ( guildData ) do
             if type ( player ) == "table" then
 
                 -- Ok, let's do the rank history first
@@ -321,7 +320,7 @@ GRM_API.SetAllUnknownPromoteDates = function ( day , month , year )
                     player.rankHist[1][6] = time();
                     player.rankHist[1][7] = true;
                     player.rankHist[1][8] = 1;
-                    
+
                     -- If player had it set to "unknown before"
                     player.promoteDateUnknown = false;
 
@@ -330,9 +329,7 @@ GRM_API.SetAllUnknownPromoteDates = function ( day , month , year )
             end
         end
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-            GRM.RefreshAuditFrames ( true , true );
-        end
+        GRM_UI.RefreshSelectFrames ( false , true , false , false , false , true );
 
     end
 end
@@ -342,10 +339,11 @@ end
 -- Purpose:         Mass tool to cleanup timestamps if you really do not want to investigate
 -- NOTES:           This is not really recommended to use, in that it is better to try to determine at least relative join dates
 GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
+    local guildData = GRM.GetGuild();
 
     if GRM.IsValidSubmitDate ( day , month , year ) then
 
-        for _ , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.guildName] ) do
+        for _ , player in pairs ( guildData ) do
             if type ( player ) == "table" then
 
                 -- Now, Join Date
@@ -364,16 +362,11 @@ GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
                     player.events[1][2] = false;  -- Gotta Reset the "reported already" boolean!
                     GRM.RemoveFromCalendarQue ( player.name , 1 , nil );
 
-                end 
+                end
             end
         end
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-            GRM.RefreshAuditFrames ( true , true );
-        end
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame:IsVisible() then
-            GRM.RefreshAddEventFrame()
-        end
+        GRM_UI.RefreshSelectFrames ( false , true , false , false , false , true );
 
     end
 end
@@ -382,22 +375,36 @@ end
 -- What it Does:    Removes all the unverified promotion dates, but only the first layer, and it will not remove it if it is the ONLY promotion date
 -- Purpose:         Save for the rank change error.
 GRM_API.ClearAllUnverifiedPromoteDates = function()
+    local guildData = GRM.GetGuild();
 
-    for _ , player in pairs ( GRM_GuildMemberHistory_Save[GRM_G.guildName] ) do
+    for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
 
             -- Ok, let's do the rank history first
             if #player.rankHist > 1 and not player.rankHist[1][7] then
                 table.remove ( player.rankHist , 1 );
-
             end
 
         end
     end
-
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-        GRM.RefreshAuditFrames ( true , true );
-    end
-    
+    GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
 end
 
+-- Method:          GRM_API.RollBackToVerifiedPromotionDatesOnly()
+-- What it Does:    Rather than just rolling back ALL dates, it only rolls back as long as the previous date is verified.
+-- Purpose:         Rank change error, but not general for all.
+GRM_API.RollBackToVerifiedPromotionDatesOnly = function()
+    local guildData = GRM.GetGuild();
+
+    for _ , player in pairs ( guildData ) do
+        if type(player) == "table" then
+            if #player.rankHist > 1 then
+                if not player.rankHist[1][7] and player.rankHist[2][7] then
+                    table.remove(player.rankHist , 1)
+                end
+            end
+        end
+    end
+
+    GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
+end

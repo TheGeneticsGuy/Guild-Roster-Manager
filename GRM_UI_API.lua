@@ -18,7 +18,7 @@ GRM_UI = {};
 
 -- Formatting stuff
 local buildVersion = select ( 4 , GetBuildInfo() );
-local CheckButtonTemplate = "InterfaceOptionsCheckButtonTemplate"
+local CheckButtonTemplate = "InterfaceOptionsCheckButtonTemplate";
 
 if buildVersion < 100000 then
     CheckButtonTemplate = "OptionsSmallCheckButtonTemplate";
@@ -61,7 +61,7 @@ GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , 
 
         if points then
             finalFrame:SetPoint ( points[1] , point , points[2] , points[3] , points[4] );
-        end        
+        end
 
         if strata then
             finalFrame:SetFrameStrata ( strata );
@@ -105,15 +105,15 @@ GRM_UI.CreateString = function ( name , parentFrame , template , text , fontSize
         if textColor then
             parentFrame[name]:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
         end
-    
+
         if alignment then
             parentFrame[name]:SetJustifyH ( alignment );       -- Default is LEFT alignment
         end
-    
+
         if Width then
             parentFrame[name]:SetWidth ( Width );
         end
-    
+
         if wrappable then
             parentFrame[name]:SetWordWrap ( true );
             parentFrame[name]:SetSpacing ( 1 );
@@ -121,7 +121,7 @@ GRM_UI.CreateString = function ( name , parentFrame , template , text , fontSize
             parentFrame[name]:SetWordWrap ( false );
         end
     end
-       
+
     parentFrame[name]:SetText ( text );
     parentFrame[name]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
 
@@ -171,7 +171,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
 
         if buttonScript then
             parentFrame[name]:SetScript ( "OnClick" , function( self , button )
-            
+
                 if button == "LeftButton" then
                     buttonScript( self );
                 end
@@ -186,7 +186,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
                     toolTipScript( self );
                 end);
             else
-                parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
+                parentFrame[name]:SetScript ( "OnEnter" , function ( self )
                     GRM_UI.CreateTooltipFromTable ( self , toolTipScript )
                 end);
             end
@@ -199,7 +199,7 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
                 end
             end);
         end
-        
+
 
     end
 
@@ -232,7 +232,7 @@ GRM_UI.CreateRadialButtons = function ( name , parentFrame , template , textForE
             if textColor then
                 parentFrame[buttonName][buttonText]:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
             end
-            
+
             if buttonTextRight then
                 parentFrame[buttonName][buttonText]:SetPoint ( "LEFT" , parentFrame[buttonName] , "RIGHT" , 2 , 0 );
             else
@@ -249,7 +249,7 @@ GRM_UI.CreateRadialButtons = function ( name , parentFrame , template , textForE
 
                         parentFrame[buttonName][buttonText]:SetText ( textForEachButton[i] );
                         parentFrame[buttonName][buttonText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
-                        
+
                         parentFrame[buttonName]:SetPoint ( "LEFT" , parentFrame[previousName] , "RIGHT" , parentFrame[buttonName][buttonText]:GetWidth() + 10 , 0 );
                     end
                 else
@@ -258,7 +258,7 @@ GRM_UI.CreateRadialButtons = function ( name , parentFrame , template , textForE
             end
 
             parentFrame[buttonName]:SetScript ( "OnClick" , function ( self , button )
-            
+
                 if button == "LeftButton" then
                     if self:GetChecked() then
 
@@ -302,7 +302,7 @@ GRM_UI.CreateCheckBox = function ( name , parentFrame , template , size , points
 
     local fontStringText = name.."Text";
     local checkBoxTemplate = template or CheckButtonTemplate;
-    
+
     if not parentFrame[name] then
 
         parentFrame[name] = CreateFrame ( "CheckButton" , name , parentFrame , checkBoxTemplate );
@@ -318,7 +318,7 @@ GRM_UI.CreateCheckBox = function ( name , parentFrame , template , size , points
 
         if buttonScript then
             parentFrame[name]:SetScript ( "OnClick" , function( self , button )
-            
+
                 if button == "LeftButton" then
                     buttonScript( self );
                 end
@@ -437,7 +437,7 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
         if maxLetters then
             parentFrame[name]:SetMaxLetters ( maxLetters );
         end
-        
+
         if numbersOnly then
             parentFrame[name]:SetNumeric ( true );
         else
@@ -457,12 +457,12 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
                 GameTooltip:Hide();
             end
         end);
-    
+
         parentFrame[name]:SetScript ( "OnEscapePressed" , function ( self )
             self:SetText ( parentFrame[name].tempText );
             self:ClearFocus();
         end);
-    
+
         parentFrame[name]:SetScript ( "OnEnterPressed" , function ( self )
             self:ClearFocus();
         end);
@@ -475,7 +475,7 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
         parentFrame[name]:SetScript ( "OnEditFocusGained" , function ( self )
             self:HighlightText ( 0 );
             self:SetCursorPosition ( 0 );
-            
+
             if ToolTipClearLogic then
                 ToolTipClearLogic();
             else
@@ -489,7 +489,7 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
             if trimWhiteSpace then
                 self:SetText ( GRM.Trim ( self:GetText() ) );
             end
-    
+
             if self:GetText() == "" and textChangedFunction then
                 textChangedFunction();
             end
@@ -497,22 +497,22 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
             if enterPressedLogic then
                 enterPressedLogic()
             end
-    
+
             parentFrame[name].tempText = self:GetText();
         end)
-    
+
         if textChangedFunction then
             parentFrame[name]:SetScript ( "OnTextChanged" , function ()
                 textChangedFunction();
             end);
         end
-    
+
         if createClearButton then
             local buttonName = name .. "ClearButton";
             local ClearButton = function()
                 parentFrame[name]:SetText("");
                 parentFrame[name]:ClearFocus();
-                parentFrame[name][buttonName]:Hide(); 
+                parentFrame[name][buttonName]:Hide();
             end
 
             GRM_UI.CreateButton ( buttonName , parentFrame[name] , nil , "X" , (height * 0.7) , (height * 0.7) , { "LEFT" , parentFrame[name] , "RIGHT" , 1 , 3 } , ClearButton , "GameFontWhite" , ( (height * 0.7) / 1.75 ) , "CENTER" , 2 );
@@ -551,7 +551,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
 
     local fontStringTextTitle = name.."Text";
     local fontStringTextValue = name.."Text2";
-    
+
     if not parentFrame[name] then
 
         parentFrame[name] = CreateFrame ( "Slider" , name , parentFrame , template );
@@ -593,7 +593,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
                     toolTipScript( self );
                 end);
             else
-                parentFrame[name]:SetScript ( "OnEnter" , function ( self ) 
+                parentFrame[name]:SetScript ( "OnEnter" , function ( self )
                     GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
                 end);
             end
@@ -612,7 +612,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
             _G[name.."High"]:Hide()
         end
 
-    end 
+    end
 end
 
 -- Method:          GRM_UI.CreateDropDownMenu ( string , frame , string , array , intArray , stringArray , int , floatArray , function , function , function , function , bool )
@@ -660,7 +660,7 @@ GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , s
         parentFrame[menuFrame]:SetFrameStrata ( "DIALOG" );
         parentFrame[menuFrame]:SetPoint ( "TOP" , parentFrame[selectedFrame] , "BOTTOM" );
         parentFrame[menuFrame]:SetBackdrop ( GRM_UI.GetBackdrop(1) );
-        
+
         -- Function and logic
         if toolTipScript then
 
@@ -669,7 +669,7 @@ GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , s
                     toolTipScript( self );
                 end);
             else
-                parentFrame[selectedFrame]:SetScript ( "OnEnter" , function ( self ) 
+                parentFrame[selectedFrame]:SetScript ( "OnEnter" , function ( self )
                     GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
                 end);
             end
@@ -699,7 +699,7 @@ GRM_UI.CreateDropDownMenu = function ( name , parentFrame , template , point , s
             end);
         end
 
-        parentFrame[selectedFrame]:SetScript ( "OnShow" , function() 
+        parentFrame[selectedFrame]:SetScript ( "OnShow" , function()
             parentFrame[menuFrame]:Hide();
         end)
 
@@ -745,7 +745,7 @@ GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelect
     for i = 1 , #dropDownMenu.Buttons do
         dropDownMenu.Buttons[i][1]:Hide();
     end
-    
+
     for i = 1 , #list do
         if not dropDownMenu.Buttons[i] then
             local tempButton = CreateFrame ( "Button" , name .. "Button" .. i , dropDownMenu );
@@ -757,7 +757,7 @@ GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelect
         button:SetWidth ( dropDownMenu:GetWidth() );
         button:SetHeight ( fontSize );
         button:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
-        
+
         buttonText:SetText ( list[i] );
         buttonText:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
         buttonText:SetWidth ( dropDownMenu:GetWidth() - 5 );
@@ -774,14 +774,14 @@ GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelect
             height = height + button:GetHeight() + buffer;
         end
 
-        button:SetScript ( "OnClick" , function( _ , button ) 
+        button:SetScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
                 local tempResult = GRM.DeepCopyArray ( dropDownMenu.result );   -- Making a copy incase need to restore
                 dropDownMenu.result = { buttonText:GetText() , i };
                 dropDownMenuSelectedText:SetText ( buttonText:GetText() );
                 dropDownMenu:Hide();
                 dropDownMenuSelected:Show();
-                
+
                 if optionalSelectFunction then
                     optionalSelectFunction( i , tempResult );    -- Include the selection index
                 end
@@ -811,7 +811,7 @@ GRM_UI.SaveFramePosition = function ( frame )
         GRM.S()[savePoints][3] = point1;
         GRM.S()[savePoints][4] = point2;
     end
-    
+
 end
 
 -- Method:          GRM_UI.GetBackdrop ( int )
@@ -829,7 +829,7 @@ GRM_UI.GetBackdrop = function ( index )
             edgeSize = 8,
             insets = { left = 2 , right = 2 , top = 3 , bottom = 2 }
         }
-    
+
     -- Formerly called in GRM GRM_UI.noteBackdrop3
     elseif index == 2 then
         return {
@@ -878,7 +878,7 @@ end
 GRM_UI.CreateTooltipFromTable = function ( self , ... )
 
     local lines = {...};
-                
+
     if #lines > 0 then
         GRM_UI.SetTooltipScale();
         GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
@@ -912,10 +912,10 @@ GRM_UI.CreateTooltipFromTable = function ( self , ... )
             end
 
         end
-        
+
         GameTooltip:Show();
     end
-    
+
 end
 
 -- Method:          GRM_UI.CreateToolTipScript ( int (1 or 2) , bool , stringInputs(unlimited) )
@@ -949,9 +949,9 @@ GRM_UI.CreateToolTipScript = function ( ... )
     local textLines = ( #lines - i + 1 );
 
     if textLines > 0 then
-        
+
         if numC == 2 and textLines % 2 == 1 then
-            table.insert ( lines , " " );   -- Adding a line to make it even 
+            table.insert ( lines , " " );   -- Adding a line to make it even
             textLines = textLines + 1;
         end
 
@@ -959,7 +959,7 @@ GRM_UI.CreateToolTipScript = function ( ... )
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
 
             while i <= #lines do
-                
+
                 if numC == 1 then
                     GameTooltip:AddLine( lines[i] );
                     i = i + 1;
@@ -986,7 +986,7 @@ end
 -- Purpose:         Be bale to have dynamic access to building checkbox or button grids of any size, for example in GRM use, a guild might have 10 ranks, or it might have 5 ranks. If I build a checkbox grid of all the ranks, I need to know which row to pin my next frame to properly.
 -- Usage:           Useful in grid design of checkboxes
 GRM_UI.GetCheckboxPinNumber = function ( numCheckboxes , numberPerRow )
-            
+
     local r = numCheckboxes % numberPerRow;
     local result = 0;
 
@@ -995,7 +995,7 @@ GRM_UI.GetCheckboxPinNumber = function ( numCheckboxes , numberPerRow )
     else
         result = numCheckboxes - r  + 1
     end
-    
+
     return result
 end
 
@@ -1074,7 +1074,7 @@ GRM_UI.WrapText = function ( text , maxLength )
                     end
                 end
             end
-            
+
             if frontSpace == -1 or lastSpace == -1 then
                 if frontSpace > -1 and lastSpace == -1 then
                     if frontSpace >= ( maxLength - maxOverUnder ) then    -- Don't want to
@@ -1103,7 +1103,7 @@ GRM_UI.WrapText = function ( text , maxLength )
 
             if #remainingText <= maxLength then
                 result = result .. remainingText;
-            end                              
+            end
 
         end
     else

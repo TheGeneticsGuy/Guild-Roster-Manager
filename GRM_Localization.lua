@@ -107,21 +107,21 @@ GRML.listOfFonts = {
     "FONTS\\ARKai_T.TTF",
     -- Traditional Chines
     "FONTS\\blei00d.TTF",
-    
+
     ---------------
     -- CUSTOM FONTS (so far none are Asian character friendly)
     ---------------
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Action_Man.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Ancient.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Bitter-Regular.OTF",
-    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Cardinal.TTF",      
-    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Continuum_Medium.TTF",    
+    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Cardinal.TTF",
+    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Continuum_Medium.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Expressway.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Merriweather-Regular.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\PT_Sans_Narrow.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Roboto-Regular.TTF",
     "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\AvantGarde_Bold.TTF",
-    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Nunito-ExtraBold.TTF" 
+    "Interface\\AddOns\\Guild_Roster_Manager\\media\\fonts\\Nunito-ExtraBold.TTF"
 }
 
 -- Method:          GRM.ConfigureAlternativeSlashCommands()
@@ -144,7 +144,7 @@ GRML.SetNewLanguage = function ( index , firstLoad , resetAllDefaults )
     local font = 1;
     if GRM.S() then
         font = GRM.S().selectedFont;
-    end 
+    end
     GRML.LoadLanguage[index]();
     GRM_G.FontChoice = GRML.listOfFonts[font];
     GRML.SetFontModifier();
@@ -254,9 +254,12 @@ end
 -------- DIRECT FROM THE SERVER!!!!!! --------
 ----------------------------------------------
 
--- All of these values are static and cannot be changed by the addon as they are system messages based on the player's language settings. Whilst they can manually change the language they are 
+-- All of these values are static and cannot be changed by the addon as they are system messages based on the player's language settings. Whilst they can manually change the language they are
 -- using for the addon, they cannot adjust the language of the WOW client without exiting WOW and adjusting the settings in the Battle.net launcher settings. This is not possible from within game so these values will
 -- be static and are used for identifying and parsing system message events.
+
+-- DEFAULT LOCALIZATIONS IN ALL (DO NOT CHANGE)
+GRM_L["{num}{custom1}: "] = true
 
 -- German Defaults
 if GRM_G.Region == "deDE" then
@@ -268,7 +271,7 @@ if GRM_G.Region == "deDE" then
     GRM_L["left the guild."] = "hat die Gilde verlassen."
     GRM_L["has promoted"] = "befördert."
     GRM_L["has demoted"] = "degradiert."
-    GRM_L["Professions"] = "Berufe"  
+    GRM_L["Professions"] = "Berufe"
     GRM_L["added to friends"] = "zur Kontaktliste hinzugefügt."
     GRM_L["is already your friend"] = "ist bereits einer Eurer Kontakte."
     GRM_L["Player not found."] = "Spieler nicht gefunden."
@@ -353,7 +356,7 @@ elseif GRM_G.Region == "itIT" then
     GRM_L["has promoted"] = "al grado"
     GRM_L["has demoted"] = " degrada "
     GRM_L["Professions"] = "Professioni"
-    GRM_L["added to friends"] = "all'elenco amici."   
+    GRM_L["added to friends"] = "all'elenco amici."
     GRM_L["is already your friend"] = "è già nell'elenco amici."
     GRM_L["Player not found."] = "Personaggio non trovato."
     GRM_L["has come online."] = "è ora online."

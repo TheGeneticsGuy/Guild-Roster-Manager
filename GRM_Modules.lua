@@ -8,7 +8,7 @@ GRM_M.CreateModule = function ( moduleName , createSettingsTab )
 
     -- Name must have no whiteSpace
     GRM_G.Modules[name] = {};
-    
+
     if createSettingsTab then
         GRM_G.Modules[name].SettingsTab = true;
     else

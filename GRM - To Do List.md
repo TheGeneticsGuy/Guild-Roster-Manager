@@ -6,14 +6,8 @@
 **PRIORITY BUILD CHANGES**
 
 ** SYNC PROGRESS BAR - Finish getting it working.
-    
-** SYNC ISSUES SOME STILL FAILING, particularly on manual triger
 
 ** HYBRID SCROLLFRAME FOR BAN window...
-
-** ADD MYTHIC+ OPTION for macro tool on promotions/demotions...
-
-* Compress and decompress sync data.
 
 * Lightweight Note tool that does the following:
 
@@ -22,12 +16,10 @@
   -- RBG rating
   -- Arena rating
 
-  -- Possibly give option to set it to custom note if you are in GRM, share alt data as well. 
+  -- Possibly give option to set it to custom note if you are in GRM, share alt data as well.
 
 
 # **BUG FIXES**
-
-* StaticPopup is closing on Escape, which is bad if you die and hit escape. It should only on the GRM one. This seems to be affecting Classic Vanilla only, but I haven't been able to reproduce though I saw it once lol.
 
 * Birthday column on Audit window is not sorting when clicked. Note, when selecting "Include bdays as incomplete," the sorting works fine, interestingly enough.
 
@@ -36,19 +28,15 @@
 
 * UI 2.0 - See Discord for details
 
-* Occasionally GRM's window is appearing when a player is logging out, the ban attachment. That should not happen. This seems to be happening in Classic Vanilla, mainly.
-
 * Make a video guide for the macro tool
 
-* Radio button for the "Send outgoing data" 
+* Radio button for the "Send outgoing data"
     1) Receive changes from selected rank and above, send changes to everyone. >OR<
     2) Receive and Send changes to and from the selected rank and above only.
 
 * Add step in Join Date tool that also syncs all alts to mains.
 
-* Export option to also include rank history
-
-* Custom hotkey for macro tool
+* Export rank history and join history - This should actually be pretty easy to implement
 
 * Tips for GRM users, like how shift and control scroll adjust scroll speed
 
@@ -56,15 +44,13 @@
 
 * Add export tool tips:
  -- EXPORT: 'Excel: Paste data into Excel, Click the Data Tab, Click "Text to Columns" '
-- - 'Google Sheets: Paste data into Google Sheets, Click the Data Tab, Click Split "text to columns" ' 
+- - 'Google Sheets: Paste data into Google Sheets, Click the Data Tab, Click Split "text to columns" '
 
 # **CODE IMPROVEMENTS**
 
-* BanList is outdated scrollframe format - just realized it is NOT a hybridscrollframe and needs to be updated. Completely forgot about this.
-
 * Replace GRM.SlimName everywhere with GRM.FormatName -- this is to give player the option choose the full name or the slimname, and only force the full name as needed on the backend database. Right now it is my own discretionary use and should me normalized.
 
-* Leverage LibAlts data if it is found. Not relying on it, just pulling the data to help the alt lists automatically.
+* Leverage LibAlts data if it is found. Not relying on it, just pulling the data to help the alt lists automatically - OR BUILD MORE FLESHED OUT MODULE SUPPORT
 
 * Auto-select proper font when adjusting the language.
 
@@ -297,7 +283,7 @@
 
 * Slashcommand integration - /remind [Your Message] -- /remind Recheck AH or /remind Recheck AH - 30 min
 
-* Upon typing the slash command, it will then popup a time window of when to remind, unless this was already configured in the slash command text after the " - " 
+* Upon typing the slash command, it will then popup a time window of when to remind, unless this was already configured in the slash command text after the " - "
 
 
 **GUILD TICKET SYSTEM**

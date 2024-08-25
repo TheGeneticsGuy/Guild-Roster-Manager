@@ -5,9 +5,10 @@ GRM_AddonSettings_Save = GRM_AddonSettings_Save or {};                          
 GRM_LogReport_Save = GRM_LogReport_Save or {};                                  -- This will be the stored Log of events and changes.
 GRM_GuildMemberHistory_Save = GRM_GuildMemberHistory_Save or {}                 -- Detailed information on each guild member
 GRM_PlayersThatLeftHistory_Save = GRM_PlayersThatLeftHistory_Save or {};        -- Data storage of all players that left the guild, so metadata is stored if they return. Useful for "rejoin" tracking, and to see if players were banned.
-GRM_CalendarAddQue_Save = GRM_CalendarAddQue_Save or {};                        -- Since the add to calendar is protected, and requires a player input, this will be qued here between sessions. { name , eventTitle , eventMonth , eventDay , eventYear , eventDescription } 
+GRM_CalendarAddQue_Save = GRM_CalendarAddQue_Save or {};                        -- Since the add to calendar is protected, and requires a player input, this will be qued here between sessions. { name , eventTitle , eventMonth , eventDay , eventYear , eventDescription }
 GRM_PlayerListOfAlts_Save = GRM_PlayerListOfAlts_Save or {};                    -- This is used so the player has a working alt list to reference, so they can add themselves to an alt list.
 GRM_Alts = GRM_Alts or {};                                                      -- Alt groupings
+GRM_Mains = GRM_Mains or {};                                                    -- Mains Group
 GRM_DebugLog_Save = GRM_DebugLog_Save or {};                                    -- Character specific debug log for addon dev use submission.
 GRM_Misc = GRM_Misc or {};                                                      -- This serves as a backup placeholder to hold important values if a player logs off in the middle of something, it can carry on where it left off by storing a marker.
 GRM_DailyAnnounce = GRM_DailyAnnounce or {};
@@ -153,12 +154,23 @@ GRM.GetGuildAlts = function ( name )
     end
 end
 
+-- Method:          GRM.GetGuildAlts ( string )
+-- What it Does:    Returns the database of mains for the given guild or current guild
+-- Purpose:         Call the data easily.
+GRM.GetMains = function ( name )
+    if name then
+        return GRM_Mains[name];
+    else
+        return GRM_Mains[GRM_G.guildName];
+    end
+end
+
 -- Method:          GRM.GetClubMemberInfo ( string , int )
 -- What it Does:    Returns the info provided by the Club API on a member
 -- Purpose:         The GetGuildRosterInfo provides some info that Club API does not, and the club API provides some info the guild API does not. This is an easy lookup by name.
-GRM.GetClubMemberInfo = function ( playerName , guildClubID )
+GRM.GetClubMemberInfo = function ( playerName , clubID )
     local result;
-    local clubID = guildClubID or C_Club.GetGuildClubId();
+    clubID = clubID or C_Club.GetGuildClubId();
 
     if clubID and clubID ~= "" then
         local members = C_Club.GetClubMembers ( clubID );
@@ -180,6 +192,42 @@ GRM.GetClubMemberInfo = function ( playerName , guildClubID )
     return result;
 end
 
+-- Method:          GRM.GetMemberInfoWithFullName ( int , int )
+-- What it Does:    Returns the Club member info, as well as their full name-serverName
+-- Purpose:         It is necessary to have the full player-serverName, but the Club API only returns the slim non-server name. This ensures you have their full name as well by utilizing the guid.
+GRM.GetMemberInfoWithFullName = function ( memberID , clubID )
+    clubID = clubID or C_Club.GetGuildClubId();
+
+    local memberInfo = C_Club.GetMemberInfo ( clubID , memberID );
+    local fullName = "";
+
+    if memberInfo then
+        fullName = GRM.GetFullNameClubMember ( memberInfo.guid );
+    end
+
+    return memberInfo , fullName;
+end
+
+-- Method:          GRM.GetListOfGuildies( bool )
+-- What it Does:    Returns a list of all current members of the guild in alphabetical order
+-- Purpose:         Occasionally you want a list of guild members.
+GRM.GetListOfGuildies = function( slimName )
+    local list = {};
+    local members = C_Club.GetClubMembers ( GRM_G.gClubID );
+    local fullName = "";
+
+    for i = 1 , #members do
+        if slimName then
+            table.insert ( list , C_Club.GetMemberInfo ( GRM_G.gClubID , members[i] ).name );
+        else
+            fullName = select ( 2 , GRM.GetMemberInfoWithFullName ( members[i] ) );
+            table.insert ( list , fullName );
+        end
+    end
+    sort ( list );
+    return list;
+end
+
 -- Method:          GRM.GetIndexOfPlayerOnList ( table , string )
 -- What it Does:    Returns index of player in a list, or nil if not found.
 -- Purpose:         Faster searching using binary search algorithm.
@@ -199,24 +247,8 @@ GRM.GetIndexOfPlayerOnList = function ( sortedTable , name )
 
         else                            -- It is above!
             bottomNum = mid + 1;
-
         end
     end
 
     return nil;
-end
-
--- Method:          GRM.GetNumKeyedEntries ( table )
--- What it Does:    Returns the count of the number of keyed entries in a table
--- Purpose:         Generic use iterator to return count since '#' only works on string length and arrays length
-GRM.GetNumKeyedEntries = function ( t )
-    local c = 0;
-
-    for x in pairs ( t ) do
-        if type ( x ) == "string" then
-            c = c + 1;
-        end
-    end
-
-    return c;
 end

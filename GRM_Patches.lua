@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 131 - 07/29/2024
+--- Total Patches: 131 - 2024 - 08 - 06
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1451,16 +1451,14 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.986 and baseValue < 1.986 then
 
         if GRM.IsHardcoreActive() then
-            GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddHardcoreVariables , true , true , false , nil );
-
-            GRM_Patch.AddNewSetting ( "addDeathTag" , true );
-            GRM_Patch.AddNewSetting ( "includeDeathTime" , true );
             GRM_Patch.AddNewSetting ( "death" , true , nil , "toChat" );
             GRM_Patch.AddNewSetting ( "death" , true , nil , "toLog" );
             GRM_Patch.AddNewSetting ( 15 , { 0.76 , 0 , 0 } , nil , "logColor" );
-            GRM_Patch.AddNewSetting ( "exportHardcoreSort" , 1 );
-
         end
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddHardcoreVariables , true , true , false , nil );
+        GRM_Patch.AddNewSetting ( "addDeathTag" , true );
+        GRM_Patch.AddNewSetting ( "includeDeathTime" , true );
+        GRM_Patch.AddNewSetting ( "exportHardcoreSort" , 1 );
 
         GRM_Patch.AddMemberSpecificData ( "alts" , nil );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixStandardFormatAndRankHistFormat , true , true , false , nil );
@@ -1561,10 +1559,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- 128
     if numericV < 1.99094 and baseValue < 1.99094 then
+
         GRM_Patch.AddNewSetting ( "ignoreDeathChannel" , false );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixRanKHistError , true , true , false , nil );
 
-        GRM_AddonSettings_Save.VERSION = "R1.99094";
+    GRM_AddonSettings_Save.VERSION = "R1.99094";
         if loopCheck ( 1.99094 ) then
             return;
         end
@@ -1581,8 +1580,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
-     -- 130
-     if numericV < 1.99096 and baseValue < 1.99096 then
+    -- 130
+    if numericV < 1.99096 and baseValue < 1.99096 then
 
         GRM_Patch.EditSetting ( "levelFilters" , GRM_Patch.AddNewLevelFilters );
 
@@ -1593,12 +1592,28 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- 131
-    if numericV < 1.990992 and baseValue < 1.990992 then
+    if numericV < 1.9910 and baseValue < 1.9910 then
 
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.PlayerPromotedToOfficerNoteUpdate , true , true , false , nil );
+        GRM_Patch.BuildNewMainAltDB();
+        GRM_Patch.EditSetting ( "banInfoReport" , nil );
+        GRM_Patch.AddMemberSpecificData ( "lastOnlineTime" , { 0 , 0 , 0 , 1 } );
 
-        GRM_AddonSettings_Save.VERSION = "R1.990992";
-        if loopCheck ( 1.990992 ) then
+        GRM_AddonSettings_Save.VERSION = "R1.9910";
+        if loopCheck ( 1.9910 ) then
+            return;
+        end
+    end
+
+    -- 132
+    if numericV < 1.9911 and baseValue < 1.9911 then
+
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.ModifyCustomNote , true , true , false , nil );
+        GRM_Patch.EditSetting ( "syncBDays" , nil );
+        GRM_Patch.AddNewSetting ( "banInfoReport" , false );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9911";
+        if loopCheck ( 1.9911 ) then
             return;
         end
     end
@@ -7142,7 +7157,7 @@ end
 -- Purpose:         To make the macro sync process easier.]
 GRM_Patch.CreateMacroGUID = function ( rule )
 
-    rule.GUID = tostring ( GRM.ConvertStringToVal ( rule.name ) + rule.editTime );
+    rule.GUID = tostring ( GRMsync.ConvertStringToVal ( rule.name ) + rule.editTime );
 
     return rule
 end
@@ -8297,7 +8312,7 @@ GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
         end
 
     else
-        player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+        player.rankHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
     end
 
     if player.rankHist and #player.rankHist[1] == 8 and player.rankHist[1][2] ~= "" then
@@ -8323,7 +8338,7 @@ end
 -- Purpose:         Resolve some older edge case bugs
 GRM_Patch.AltGroupIntegrityCheck = function()
     for guildName in pairs ( GRM_GuildMemberHistory_Save ) do
-        if type ( GRM_GuildMemberHistory_Save ) == "table" then
+        if type ( GRM_GuildMemberHistory_Save[guildName] ) == "table" then
             local guildData = GRM_GuildMemberHistory_Save[guildName]
             local altsGroup = GRM_Alts[guildName];
             local player;
@@ -8749,4 +8764,179 @@ GRM_Patch.PlayerPromotedToOfficerNoteUpdate = function( player )
     end
     player = GRM_Patch.FixRanKHistError ( player );
     return player
+end
+
+-- R1.9910
+-- Method:          GRM_Patch.BuildNewMainAltDB()
+-- What it Does:    Adds the mains to the new database
+-- Purpose:         Building a custom relational DB with the groupID as the foreign key in the new Mains table -- easier lookup
+GRM_Patch.BuildNewMainAltDB = function()
+    local timestamp = time();
+
+    -- For current guild.
+    for guildName , guildData in pairs ( GRM_GuildMemberHistory_Save ) do
+        if type ( guildData ) == "table" then
+            local alts = GRM.GetGuildAlts ( guildName );
+
+            -- Let's create the new guild entry (or set it to it in case player say, disconnected in middle of update)
+            GRM_Mains[guildName] = GRM_Mains[guildName] or {};
+
+            -- Now we need to add all the mains to the new Main DB
+            for name , player in pairs ( guildData ) do
+                if type ( player ) == "table" then
+
+                    group = alts[player.altGroup];
+
+                    -- Mains
+                    if player.isMain and group and group.main == name then
+                        GRM_Mains[guildName][name] = player.altGroup;
+                    end
+
+                    -- Alt Group timestamp
+                    if not player.altGroupLeft then
+                        player.altGroupLeft = 0;
+                    end
+
+                    -- Legacy bug where incorrect number was used in timestamp
+                    if group then
+                        player.altGroupLeft = 0; -- Player is in a group...
+
+                        if group.timeModified >= timestamp or group.timeModified == 0 then
+                            group.timeModified = 1;
+                        end
+
+                        if player.mainStatusChangeTime >= timestamp then
+                            player.mainStatusChangeTime = 1;
+                        end
+
+                        if #group == 1 then -- only a main
+                            if player.isMain and player.mainStatusChangeTime < timestamp then
+                                group.timeModified = tonumber ( player.mainStatusChangeTime );
+
+                            elseif not player.isMain then   -- In a 1 person group but is not the main. Group should not exist.
+                                GRM_Mains[guildName][name] = nil;
+                                alts[player.altGroup] = nil;
+                                player.altGroupLeft = 0;
+                                player.altGroup = "";
+                            end
+                        end
+                    else
+                        if player.altGroupModified then
+                            player.altGroupLeft = tonumber ( player.altGroupModified ); -- has left a group
+                        end
+                        player.altGroup = "";       -- Eliminates an old bug reference if player had an altGroup but no alt Group
+                    end
+
+                    if player.altGroupLeft >= timestamp then
+                        player.altGroupLeft = 1;
+                    end
+
+                    -- Lineup the timestamps
+                    if group and group.timeModified ~= player.altGroupLeft then
+                        if group.timeModified < player.altGroupLeft then
+                            group.timeModified = tonumber ( player.altGroupLeft );
+                        else
+                            player.altGroupLeft = 0;
+                        end
+                    end
+
+                    -- Now, wipe the old data
+                    player.isMain = nil;
+                    player.mainStatusChangeTime = nil;
+                    player.altGroupModified = nil;
+
+                end
+            end
+        end
+    end
+    -- For backups
+    for guildName , guildData in pairs ( GRM_GuildDataBackup_Save ) do
+        if type ( guildData ) == "table" then
+            local alts = guildData.alts;
+            guildData.mains = guildData.mains or {};
+
+            -- This indicates that there is actual save data
+            if alts and guildData.numGuildies > 0 then
+                for name , player in pairs ( guildData.members ) do
+                    if type ( player ) == "table" then
+
+                        group = alts[player.altGroup];
+
+                        -- Mains
+                        if player.isMain and group and group.main == name then
+                            GRM_Mains[guildName][name] = player.altGroup;
+                        end
+
+                        -- Alt Group timestamp
+                        if not player.altGroupLeft then
+                            player.altGroupLeft = 0;
+                        end
+
+                        -- Legacy bug where incorrect number was used in timestamp
+                        if group then
+                            player.altGroupLeft = 0; -- Player is in a group...
+
+                            if group.timeModified >= timestamp or group.timeModified == 0 then
+                                group.timeModified = 1;
+                            end
+
+                            if player.mainStatusChangeTime >= timestamp then
+                                player.mainStatusChangeTime = 1;
+                            end
+                            if #group == 1 then -- only a main
+                                if player.isMain and player.mainStatusChangeTime < timestamp then
+                                    group.timeModified = tonumber ( player.mainStatusChangeTime );
+
+                                elseif not player.isMain then   -- In a 1 person group but is not the main. Group should not exist.
+                                    GRM_Mains[guildName][name] = nil;
+                                    alts[player.altGroup] = nil;
+                                    player.altGroupLeft = 0;
+                                    player.altGroup = "";
+                                end
+                            end
+                        else
+                            if player.altGroupModified then
+                                player.altGroupLeft = tonumber ( player.altGroupModified ); -- has left a group
+                            end
+                        end
+
+                        if player.altGroupLeft >= timestamp then
+                            player.altGroupLeft = 1;
+                        end
+
+                        -- Lineup the timestamps
+                        if group and group.timeModified ~= player.altGroupLeft then
+                            if group.timeModified < player.altGroupLeft then
+                                group.timeModified = tonumber ( player.altGroupLeft );
+                            else
+                                player.altGroupLeft = 0;
+                            end
+                        end
+
+                        -- Now, wipe the old data
+                        player.isMain = nil;
+                        player.mainStatusChangeTime = nil;
+                        player.altGroupModified = nil;
+
+                    end
+                end
+            end
+        end
+    end
+
+end
+
+
+-- 1.9911
+-- Method:          GRM_Patch.ModifyCustomNote ( playerTable )
+-- What it Does:    Removes the 4th rank restriction index from the custom Note.
+-- Purpose:         This is deprecated and only left in to not have to deal with rewriting a lot. The overall custom note sync rank restriction handles this now.
+GRM_Patch.ModifyCustomNote = function ( player )
+    if #player.customNote == 6 then
+        table.remove ( player.customNote , 4 ); -- Remove the depreceated index
+    end
+    if #player.customNote == 5 then
+        table.remove ( player.customNote , 4 ); -- Remove the rank action deprecated index next, which is now in same position
+    end
+    return player;
 end

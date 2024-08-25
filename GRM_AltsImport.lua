@@ -1,5 +1,4 @@
 -- LibAlt import
-
 local AltsAvailableToImport = function()
     local isAvailable = false;
     local listOfAddons = {};
@@ -7,34 +6,36 @@ local AltsAvailableToImport = function()
     if IsInGuild() and GRM_G.guildName and GRM_G.guildName ~= "" then
 
         -- Check the Alts addon first
-        if GRM.IsAddOnLoaded ( "Alts" ) and AltsDB and AltsDB.realm and AltsDB.realm[GRM_G.realmName] and AltsDB.realm[GRM_G.realmName].altsBySource["guild:".. GRM.SlimName ( GRM_G.guildName )] GRM.TableLength ( AltsDB.realm[GRM_G.realmName].altsBySource["guild:".. GRM.SlimName ( GRM_G.guildName )] ) > 0 then
+        if GRM.IsAddOnLoaded("Alts") and AltsDB and AltsDB.realm and AltsDB.realm[GRM_G.realmName] and
+            AltsDB.realm[GRM_G.realmName].altsBySource["guild:" .. GRM.SlimName(GRM_G.guildName)] and
+            GRM.TableLength(AltsDB.realm[GRM_G.realmName].altsBySource["guild:" .. GRM.SlimName(GRM_G.guildName)]) > 0 then
 
             isAvailable = true;
-            table.insert  ( listOfAddons , "Alts" );
+            table.insert(listOfAddons, "Alts");
 
         end
-            
+
     end
 
-    return isAvailable , listOfAddons
+    return isAvailable, listOfAddons
 end
 
 local DBCheck = function()
 
-    local isAvailable , listOfAddons = AltsAvailableToImport();
+    local isAvailable, listOfAddons = AltsAvailableToImport();
     if isAvailable then
 
     end
 
 end
 
-GRM.ExportMainTagToNotes = function ( destinationNote )
+GRM.ExportMainTagToNotes = function(destinationNote)
     -- 1 = note, 2 == officerNote, 3 = custom
     local destination = destinationNote or 1;
 
 end
 
-GRM.ExportAltTagToNotes = function ( destinationNote )
+GRM.ExportAltTagToNotes = function(destinationNote)
 
     local destination = destinationNote or 1;
 

@@ -39,7 +39,7 @@ With the original work, added to with many great suggestions from people in this
 
 * Auto-Add join date to public, officer, or custom note when a player joins the guild
 
-* Guild Log Notification for when changes have occurred: 
+* Guild Log Notification for when changes have occurred:
 
     * Joined or Rejoined log entries (with who did the invite in Retail version)
     * Kicked or Left (with who kicked in Retail)
@@ -51,7 +51,7 @@ With the original work, added to with many great suggestions from people in this
     * Recommendations to remove a player if offline too long, based on setting.
     * and several others.
 
-* Macro Tool to assist in mass kicking inactive players 
+* Macro Tool to assist in mass kicking inactive players
 
 * Export Tool to make it easy to export all guild player details, including core player details as well as GRM specific. Export the Log, as well as former member details too.
 
@@ -64,7 +64,7 @@ With the original work, added to with many great suggestions from people in this
 
 Due to the nature of addons being restricted from connecting to the net, building a *decentralized* database that is shared between other GRM users was required. As such, changes are only accepted by determining what was the most recent change and accepting it. In other words, you don't want a player who has been offline for a year to log back in and then sync outdated information to everyone. As such, all of it is timestamped and controlled.
 
-Ultimately, this means that each individual GRM user has their own database, account-wide, including all servers and guilds they play on stored onto a single save file. This is *NOT* a centralized database that other users can access. It is unique to you. While GRM includes some features that give the guild leadership the ability to unify some settings, so, for example, your officers don’t accidentally sync your ban lists to everyone, you still have full control to disable syncing and just use GRM your own way. 
+Ultimately, this means that each individual GRM user has their own database, account-wide, including all servers and guilds they play on stored onto a single save file. This is *NOT* a centralized database that other users can access. It is unique to you. While GRM includes some features that give the guild leadership the ability to unify some settings, so, for example, your officers don’t accidentally sync your ban lists to everyone, you still have full control to disable syncing and just use GRM your own way.
 
 While most people are more likely to enjoy the benefits of syncing and sharing info among their guildies, I just want to make it clear that if you wish to use GRM in your own personal way within your own database, you can. No other GRM user can dictate how you use this addon. While it is encouraged for you to actively participate in a meaningful way within your guild, ultimately so you can enjoy the rich features that GRM provides, there is no over-reaching hand that can come into your system and restrict your addon. That is the power that GRM provides. Ultimately, it is your addon, your account, and your data.
 
@@ -201,7 +201,7 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * *Management of the Log:*
 
-   * Delete lines individually or in chunks. 
+   * Delete lines individually or in chunks.
    * Filter the log to only show what you find important
    * Search the log
    * Export the log clear it.
@@ -336,7 +336,7 @@ Is your guild transferring servers? Easily carry over and transfer your guild da
 
 * **Group Info**
 
-    
+
 ![Mouseover Information](https://i.imgur.com/MKwNQQv.jpg)
 
 ![Lock window, then mouseover each name for more details](https://i.imgur.com/Y6ySSca.jpg)

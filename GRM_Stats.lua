@@ -38,7 +38,6 @@ GRM_API.CreateNewProgressBar = function ( parentFrame , frameName , width , heig
 
 end
 
--- /run GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , 5 );
 -- Method:          GRM_API.TriggerProgressBar ( frame , int , int , {r,g,b} , bool )
 -- What it Does:    Enable the progress bar to actual display progress
 -- Purpose:         Useful quality of life feature.
@@ -52,11 +51,11 @@ GRM_API.TriggerProgressBar = function ( progressBar , destinationNumber , timeTo
         local progressBarText = progressBar[progressBar:GetName() .. "Text" ];
         local barWidth = progressBar:GetWidth();
         local t = 0; -- Time placeholder
+        timeToProgress = timeToProgress or 1
+
         if colorOnComplete then
             progressBar.colorOnComplete = colorOnComplete;
         end
-
-        timeToProgress = timeToProgress or 1
 
         if timeToProgress > 0 and timeToProgress < 1 then
             t = 1;

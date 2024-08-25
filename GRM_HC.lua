@@ -82,82 +82,84 @@ GRM_HC.HardCoreInitialize = function()
         -- What it Does:    Exports the death tag to the player note
         -- Purpose:         Report on when a player dies... Useful since there is not UI Interface
         GRM_HC.ExportDeathTag = function ( player , dateArray )
-            for i = 1 , GRM.GetNumGuildies() do
-                local memberName , _ , _ , _ , _ , _ , memberNote = GetGuildRosterInfo ( i );
+            local i = GRM.GetRosterSelectionID ( player.name );
+            if i then
 
-                if memberName == player.name then
-                    if not memberNote:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
-                        local tagToAdd = "[" .. GRM.L ( "D" ) .. "]";
-                        local maxLetters = GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:GetMaxLetters();
+                local memberNote = select ( 7 , GetGuildRosterInfo( i ) );
+                if not note then
+                    note = "";
+                end
 
-                        local day , month;
-                        if dateArray[1] < 10 then
-                            day = "0" .. tostring ( dateArray[1] );
+                if not memberNote:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
+                    local tagToAdd = "[" .. GRM.L ( "D" ) .. "]";
+                    local maxLetters = GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:GetMaxLetters();
+
+                    local day , month;
+                    if dateArray[1] < 10 then
+                        day = "0" .. tostring ( dateArray[1] );
+                    else
+                        day = tostring ( dateArray[1] );
+                    end
+
+                    if dateArray[2] < 10 then
+                        month = "0" .. tostring ( dateArray[2] );
+                    else
+                        month = tostring ( dateArray[2] );
+                    end
+
+                    local possibleTag = tagToAdd .. "-" .. dateArray[3] .. month .. day;
+                    local finalNote = "";
+
+                    if GRM.S().includeDeathTime then
+
+                        if #(memberNote .. " " .. possibleTag) <= maxLetters then
+                            finalNote = memberNote .. " " .. possibleTag;
+
+                        elseif #(memberNote .. possibleTag) <= maxLetters then
+                            finalNote = memberNote .. possibleTag;
+
+                        elseif #(memberNote .. " " .. tagToAdd) <= maxLetters then
+                            finalNote = memberNote .. " " .. tagToAdd;
+
+                        elseif #(memberNote .. tagToAdd) <= maxLetters then
+                            finalNote = memberNote .. tagToAdd;
+
                         else
-                            day = tostring ( dateArray[1] );
+                            -- Critical to know, so force overwrite of at least 3 chars.
+                            finalNote = "[" .. GRM.L ( "D" ) .. "]" .. memberNote:sub ( 1 , #memberNote - 3 );
                         end
+                    else
+                        if #(memberNote .. " " .. tagToAdd) <= maxLetters then
+                            finalNote = memberNote .. " " .. tagToAdd;
 
-                        if dateArray[2] < 10 then
-                            month = "0" .. tostring ( dateArray[2] );
+                        elseif #(memberNote .. tagToAdd) <= maxLetters then
+                            finalNote = memberNote .. tagToAdd;
                         else
-                            month = tostring ( dateArray[2] );
+                            -- Critical to know, so force overwrite of at least 3 chars.
+                            finalNote = "[" .. GRM.L ( "D" ) .. "]" .. memberNote:sub ( 1 , #memberNote - 3 );
                         end
+                    end
 
-                        local possibleTag = tagToAdd .. "-" .. dateArray[3] .. month .. day;
-                        local finalNote = "";
+                    if finalNote ~= "" then
 
-                        if GRM.S().includeDeathTime then
+                        finalNote = GRM.Trim(finalNote);
 
-                            if #(memberNote .. " " .. possibleTag) <= maxLetters then
-                                finalNote = memberNote .. " " .. possibleTag;
+                        local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
+                        local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , memberNote , finalNote , select ( 2 , GRM.GetTimestamp() ) );
 
-                            elseif #(memberNote .. possibleTag) <= maxLetters then
-                                finalNote = memberNote .. possibleTag;
-
-                            elseif #(memberNote .. " " .. tagToAdd) <= maxLetters then
-                                finalNote = memberNote .. " " .. tagToAdd;
-
-                            elseif #(memberNote .. tagToAdd) <= maxLetters then
-                                finalNote = memberNote .. tagToAdd;
-
-                            else
-                                -- Critical to know, so force overwrite of at least 3 chars.
-                                finalNote = "[" .. GRM.L ( "D" ) .. "]" .. memberNote:sub ( 1 , #memberNote - 3 );
-                            end
-                        else
-                            if #(memberNote .. " " .. tagToAdd) <= maxLetters then
-                                finalNote = memberNote .. " " .. tagToAdd;
-
-                            elseif #(memberNote .. tagToAdd) <= maxLetters then
-                                finalNote = memberNote .. tagToAdd;
-                            else
-                                -- Critical to know, so force overwrite of at least 3 chars.
-                                finalNote = "[" .. GRM.L ( "D" ) .. "]" .. memberNote:sub ( 1 , #memberNote - 3 );
-                            end
+                        if GRM.S().toChat.note then
+                            GRM.PrintLog ( { 4 , logReport } );
                         end
+                        -- Also adding it to the log!
+                        GRM.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , select ( 2 , GRM.GetTimestamp() ) } );
 
-                        if finalNote ~= "" then
-
-                            finalNote = GRM.Trim(finalNote);
-
-                            local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
-                            local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , memberNote , finalNote , select ( 2 , GRM.GetTimestamp() ) );
-
-                            if GRM.S().toChat.note then
-                                GRM.PrintLog ( { 4 , logReport } );
-                            end
-                            -- Also adding it to the log!
-                            GRM.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , select ( 2 , GRM.GetTimestamp() ) } );
-
-                            player.note = finalNote;
-                            GuildRosterSetPublicNote ( i , finalNote );
-                        end
+                        player.note = finalNote;
+                        GuildRosterSetPublicNote ( i , finalNote );
 
                     end
-                    break;
+
                 end
             end
-
         end
 
         -- Method:          GRM_HC.ReportDeathToLog ( string , string , int , table )
@@ -399,3 +401,4 @@ GRM_HC.HardCoreInitialize = function()
 end
 
 GRM_HC.HardCoreInitialize();
+
