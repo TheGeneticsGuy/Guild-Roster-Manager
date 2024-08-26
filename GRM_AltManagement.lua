@@ -3,9 +3,6 @@
 -- As GRM has grown, the core file has grown quite large. This will help me from trying to remember
 -- if a function exists and trying to seek it out, to instead putting it in a more compact file.
 
-
-GRM_Mains = {};
-
 --------------------------------
 ---- MAIN DESIGNATION LOGIC ----
 --------------------------------
@@ -23,20 +20,14 @@ GRM.SetMain = function ( playerName , timestamp )
         timestamp = timestamp or time();
         local group = GRM.GetAltGroup ( player.altGroup );
 
-        if GRM.GetMains()[playerName] == nil then    -- No need to set to main if player is already main.
+        if not group or ( group and group.main ~= playerName ) then    -- No need to set to main if player is already main.
 
             if group then
 
                 if group.timeModified < timestamp then
                     -- Player is in a group
-                    -- Now, need to see if there is already an existing main
-                    if group.main ~= "" then
-                        -- Main already set, we need to them remove the current main.
-                        GRM.RemovePlayerFromMainsDB ( group.main );
-                    end
                     group.main = playerName;
                     group.timeModified = timestamp;
-                    GRM.AddPlayerToMainsDB ( playerName , player.altGroup );
                 end
             elseif player.altGroupLeft < timestamp then
                 -- Player is not in a group, need to create new altGroup and set as main.
@@ -88,15 +79,13 @@ GRM.DemotePlayerFromMain = function ( playerName , timestamp )
         local group = GRM.GetAltGroup ( player.altGroup );
 
         if group then
-            if #group == 1 and GRM.GetMains()[player.name] then
+            if #group == 1 and group.main == player.name then
                 -- Just 1, since no longer a main, let's purge this altGroup
                 GRM.RemoveAltGroup ( player.altGroup , timestamp )
 
             elseif #group > 1 and group.main == player.name then
                 group.main = "";
                 group.timeModified = timestamp;
-                -- Also, remove from the mains DB
-                GRM.RemovePlayerFromMainsDB ( player.name );
             end
 
             -- LIVE FRAMES UPDATE
@@ -114,26 +103,6 @@ GRM.DemotePlayerFromMain = function ( playerName , timestamp )
                 end
             end
         end
-    end
-end
-
-
--- Method:          GRM.AddPlayerToMainsDB ( string , string )
--- What it Does:    Adds a player's name to the mains list, and sets the groupID -
---                  groupID is the primaryKey of the group, and the foreign key in the main list as a relational DB
--- Purpose:         Manage the Mains DB
-GRM.AddPlayerToMainsDB = function( name , groupID )
-    if name and name ~= "" and groupID then
-        GRM.GetMains()[name] = groupID;
-    end
-end
-
--- Method:          GRM.RemovePlayerFromMainsDB ( string )
--- What it Does:    Removes a main from the Mains DB Save Variable
--- Purpose:         Managed the Mains DB
-GRM.RemovePlayerFromMainsDB = function ( name )
-    if name and name ~= "" then
-        GRM.GetMains()[name] = nil;
     end
 end
 
@@ -171,19 +140,16 @@ end
 -- Purpose:         Useful lookup for many purposes...
 GRM.GetPlayerMain = function ( playerName )
     local player = GRM.GetPlayer ( playerName);
-    local result = "";
 
     if player then
-        if GRM.GetMains()[player.name] then
-            result = player.name;
-        else
-            local group = GRM.GetAltGroup ( player.altGroup );
-            if group and group.main ~= "" then
-                result = group.main;
-            end
+
+        local group = GRM.GetAltGroup ( player.altGroup );
+
+        if group and group.main ~= "" then
+            return group.main;
         end
     end
-    return result;
+    return "";
 end
 
 -- Method:          GRM.GetFormattedMainName ( string )
@@ -222,8 +188,13 @@ end
 -- What it Does:    Returns true if the given player is listed as a Main
 -- Purpose:         Easy lookup code for mains.
 GRM.IsMain = function ( playerName )
-    if GRM.GetMains()[playerName] then
-        return true;
+    local player = GRM.GetPlayer( playerName );
+
+    if player then
+        local group = GRM.GetAltGroup ( player.altGroup );
+        if group and group.main == playerName then
+            return true;
+        end
     end
     return false;
 end
@@ -278,7 +249,6 @@ GRM.CreateAltGroup = function ( playerName , setAsMain , timestamp )
 
         if setAsMain then
             group.main = player.name;
-            GRM.AddPlayerToMainsDB ( player.name , groupID );
         else
             group.main = "";
         end
@@ -364,13 +334,11 @@ GRM.AddAlt = function ( playerName , secondPlayerName , timestamp )
                 GRM.GetGuildAlts()[player2.altGroup] = nil;
                 local setAsMain = false;
 
-                if altGroup1.main ~= "" then
+                if altGroup1.main == "" then
                     -- Since the group1 w/alts also has a main, then demote the player2 from main
-                    GRM.GetMains()[player2.name] = nil;
-                else
-                    -- In this case we are designating the toon being added as the new main
                     setAsMain = true;
                 end
+
                 player2.altGroup = "";
                 GRM.AddPlayerToAltGroup ( player2 , player.altGroup , timestamp , setAsMain );
 
@@ -379,10 +347,7 @@ GRM.AddAlt = function ( playerName , secondPlayerName , timestamp )
                 GRM.GetGuildAlts()[player.altGroup] = nil;
                 local setAsMain = false;
 
-                if altGroup2.main ~= "" then
-                    -- Since the group2 w/alts also has a main, then demote the player1 from main
-                    GRM.GetMains()[player.name] = nil;
-                else
+                if altGroup2.main == "" then
                     -- In this case we are designating the toon being added as the new main
                     setAsMain = true;
                 end
@@ -445,10 +410,6 @@ GRM.RemoveAltGroup = function ( groupID , timestamp )
     timestamp = timestamp or time();
 
     if altGroup then
-        -- First, remove the mains table link
-        if altGroup.main ~= "" then
-            GRM.GetMains()[altGroup.main] = nil;
-        end
 
         -- next, purge the altGroupID from all of the players in the alt grouping
         for i = 1 , #altGroup do
@@ -550,7 +511,6 @@ GRM.GetListOfAlts = function ( player , includeGUID , altData )
 
     elseif player.altGroup ~= "" then
         -- Redundancy for a legacy bug
-        GRM.GetMains()[player.name] = nil;
         player.altGroup = "";
     end
 
@@ -635,12 +595,7 @@ GRM.AddPlayerToAltGroup = function ( player , groupID , timestamp , setAsMain , 
             group[#group].class = player.class;
 
             if setAsMain then
-                local mains = GRM.GetMains();
-                if group.main ~= "" then
-                    mains[group.main] = nil;
-                end
                 group.main = player.name;
-                mains[player.name] = groupID;
             end
 
             group.timeModified = timestamp;
@@ -665,6 +620,7 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
 
     if player then
         local group = GRM.GetAltGroup ( player.altGroup );
+        local playerIsMain = false;
         timestamp = timestamp or time();
 
         if group then
@@ -673,6 +629,7 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
                 if group[i].name == playerName then
                     table.remove ( group , i );
                     if group.main == playerName then
+                        playerIsMain = true;
                         group.main = "";
                     end
                     break;
@@ -708,7 +665,7 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
             end
 
             -- Check if he is main, if so, some additional logic necessary.
-            if keepMainStatus and GRM.GetMains()[playerName] then
+            if keepMainStatus and playerIsMain then
                 -- Now, we are not going to remove him from main status just because he is removed from a group. He will be removed but still kept as main in his own  group.
                 -- So, we now need to create a new altGroup. This will also set as main, and it will change the GroupID
                 player.altGroup = "";
@@ -717,8 +674,7 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
                 player.altGroup = "";
                 if not syncChange then
                     player.altGroupLeft = timestamp;
-                end
-                GRM.GetMains()[playerName] = nil;
+                end;
             end
 
         elseif player.altGroupLeft ~= timestamp then
@@ -854,9 +810,10 @@ GRM.AddPlayerToOwnAltList = function()
                     -- Make sure it is not the player.
 
                     player = GRM.GetPlayer ( altName );
-                    if altName ~= GRM_G.addonUser and player then
+                    if player and altName ~= GRM_G.addonUser then
 
-                        if GRM.GetMains()[altName] then
+                        if GRM.IsMain ( altName ) then
+
                             -- ADD ALT HERE!!!!!!
                             local addToAltsGroup = GRM.AddAlt ( GRM_G.addonUser , altName );
                             GRM.SyncBirthdayWithNewAlt ( GRM_G.addonUser , altName , addToAltsGroup );
@@ -916,13 +873,6 @@ GRM.ChangePlayerNameInAltGrouping = function ( oldName , newName )
                 -- Update main name if necessary.
                 if alts.main == oldName then
                     alts.main = newName;
-
-                    -- Need to update the main DB as wll
-                    if GRM.GetMains()[oldName] then
-                        GRM.GetMains()[oldName] = nil;
-                        GRM.GetMains()[newName] = groupID;
-                    end
-
                 end
                 return;
             end
@@ -1515,17 +1465,21 @@ GRM.AddAltAutoComplete = function()
     local tag = 0;
     local players = {};
     local guildData = GRM.GetGuild();
+    local altGroup = {};
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
             if player.name ~= GRM_G.currentName then   -- no need to go through player's own window
                 -- Determine alt/main tag
                 tag = 0;
+                altGroup = GRM.GetAltGroup ( player.altGroup );
                 -- 0 = no tag, 1 = main, 2 = alt
-                if GRM.GetMains()[player.name] then
-                    tag = 1;
-                elseif GRM.PlayerHasAlts ( player ) then
-                    tag = 2;
+                if altGroup then
+                    if altGroup.main == player.name then
+                        tag = 1;
+                    elseif #altGroup > 1 then
+                        tag = 2;
+                    end
                 end
 
                 table.insert ( players , { player.name , player.class , tag } );

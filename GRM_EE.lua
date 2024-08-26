@@ -3,13 +3,13 @@
 
 -- { GuildName , What to Say }
 GRM_G.listOfGuilds = {
-    ["Mysterious Intent-EmeraldDream"] = "RogFactor",
+    ["Mysterious Intent-Tichondrius"] = "RogFactor",
     ["Is a Subatomic Particle-Zul'jin"] = "SAP Times"
 
 }
 
 GRM_G.listOfPlayers = {
-    ["Rognon-EmeraldDream"] = "|cffff0000R" .. "|cffff6a00o" .. "|cfffff700g" .. "|cff44ff00F" .. "|cff0000ffa" .. "|cffa200ffc" .. "|cffff00f2t" .. "|cffff0000o" .. "|cffff6a00r", -- Gonna make this colorful for fun.
+    ["Tauros-EmeraldDream"] = "|cffff0000R" .. "|cffff6a00o" .. "|cfffff700g" .. "|cff44ff00F" .. "|cff0000ffa" .. "|cffa200ffc" .. "|cffff00f2t" .. "|cffff0000o" .. "|cffff6a00r", -- Gonna make this colorful for fun.
 
 }
 

@@ -1838,7 +1838,6 @@ GRMsync.ProcessFullAltGroupChange = function ( leadName , finalAltGroup )
             end
 
             guildData[leadName].altGroup = "";
-            GRM.GetMains()[leadName] =   nil;
             currentAltGroup = nil;
         end
     end
@@ -3236,7 +3235,6 @@ GRMsync.ReviewAndSendPrecheckData = function( completedPath )
         return;
     end
     completedPath[6] = true;
-
     GRMsync.SendMessage ( "GRM_SYNC" , "GRM_FINALPRE?" .. GRMsyncGlobals.syncRankFilter .. "?" , GRMsyncGlobals.CurrentSyncPlayer );
 end
 
@@ -3361,13 +3359,17 @@ GRMsync.ContinueSyncInCategory = function( ind )
 
     local IsCompatibleEnum = {};
     if ind ~= 4 then
+
         IsCompatibleEnum[ind] = function()
-            return { GRMsync.IsCompatibleToShareData ( false , false , false , true ) , ( GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM.S().syncRank and GRM_G.playerRankID <= GRMsyncGlobals.senderMaxRankReq ) };
+            return { GRMsync.IsCompatibleToShareData ( false , false , false , true ) , ( ( GRM.S().exportAllRanks or GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM.S().syncRank ) and GRM_G.playerRankID <= GRMsyncGlobals.senderMaxRankReq ) };
         end
+
     else
+
         IsCompatibleEnum[ind] = function()
-            return { GRMsync.IsCompatibleToShareData ( false , false , false , false , true ) , ( GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM.S().syncRankCustom and GRM_G.playerRankID <= GRMsyncGlobals.senderCustRankReq ) };
+            return { GRMsync.IsCompatibleToShareData ( false , false , false , false , true ) , ( ( GRM.S().exportAllRanks or GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM.S().syncRankCustom ) and GRM_G.playerRankID <= GRMsyncGlobals.senderCustRankReq ) };
         end
+
     end
 
 
@@ -3499,6 +3501,7 @@ end
 -- What it Does:    Processes the precheck data and sets the database markers or the actual data that is latest
 -- Purpose:         Part of the sync process and efficiency.
 GRMsync.ProcessPreCheckDataAndBeginSync = function()
+
     local needsUpdatedPath = false;
     for i = 1 , 6 do
         if i ~= 5 and GRMsyncGlobals.SyncPath[i] then -- If no alts to update.
@@ -5888,7 +5891,6 @@ GRMsync.ProcessFinalAltChanges = function( sendCompletedMsg )
                     end
 
                     guildData[leadName].altGroup = "";
-                    GRM.GetMains()[leadName] =   nil;
                     currentAltGroup = nil;
                 end
             end

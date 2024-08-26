@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9912";
-GRM_G.PatchDay = 1724572201; -- In Epoch Time
-GRM_G.PatchDayString = "1724572201"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.9913";
+GRM_G.PatchDay = 1724626298; -- In Epoch Time
+GRM_G.PatchDayString = "1724626298"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 -- Determine level cap
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
@@ -2682,7 +2682,6 @@ GRM.AddGuildBackup = function(guildName, creationDate)
                 GRM_PlayersThatLeftHistory_Save[guildName]);
             GRM_GuildDataBackup_Save[guildName].log = GRM.DeepCopyArray(GRM.GetLog(guildName));
             GRM_GuildDataBackup_Save[guildName].alts = GRM.DeepCopyArray(GRM_Alts[guildName]);
-            GRM_GuildDataBackup_Save[guildName].mains = GRM.DeepCopyArray(GRM_Mains[guildName]);
 
             GRM.Report(GRM.L("Backup Point Set for Guild \"{name}\"", guildName));
 
@@ -2749,8 +2748,6 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
             GRM_LogReport_Save[guildName] = GRM.DeepCopyArray(GRM_GuildDataBackup_Save[oldName].log);
             GRM_Alts[guildName] = GRM.ChangeServerNameOfAll(GRM.DeepCopyArray(GRM_GuildDataBackup_Save[oldName].alts),
                 newServerName, true, false, false, false);
-            GRM_Mains[guildName] = GRM.ChangeServerNameOfAll(GRM.DeepCopyArray(GRM_GuildDataBackup_Save[oldName].mains),
-                newServerName, false, false, false, true);
             GRM_CalendarAddQue_Save[guildName] = {};
 
             -- Clear the backup point
@@ -2786,7 +2783,6 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
                 GRM_GuildDataBackup_Save[guildName].formerMembers);
             GRM_LogReport_Save[guildName] = GRM.DeepCopyArray(GRM_GuildDataBackup_Save[guildName].log);
             GRM_Alts[guildName] = GRM.DeepCopyArray(GRM_GuildDataBackup_Save[guildName].alts);
-            GRM_Mains[guildName] = GRM.DeepCopyArray(GRM_GuildDataBackup_Save[guildName].mains);
             GRM.Report(GRM.L("Backup Point Restored for Guild \"{name}\"", guildName));
             GRM_CalendarAddQue_Save[guildName] = {};
 
@@ -2962,7 +2958,6 @@ GRM.PurgeGuildFromDatabase = function(guildName)
         GRM_GuildDataBackup_Save[guildName] = nil;
         GRM_PlayerListOfAlts_Save[guildName] = nil;
         GRM_Alts[guildName] = nil;
-        GRM_Mains[guildName] = nil;
         GRM_AddonSettings_Save[guildName] = nil;
 
         if finalMsg then
@@ -3222,7 +3217,18 @@ end
 -- What it Does:    Returns the total number of players designated as "Main" in the guild
 -- Purpose:         Mainly for audit log stat reporting.
 GRM.GetNumMains = function()
-    return GRM.TableLength(GRM.GetMains());
+    local alts = GRM.GetGuildAlts();
+    local mains = {};
+    local count = 0;
+
+    for _ , altGroup in pairs ( alts ) do
+        if altGroup.main and altGroup.main ~= "" and not mains[altGroup.main] then
+            count = count + 1;
+            mains[altGroup.main] = {};
+        end
+    end
+
+    return count;
 end
 
 -- Method:          GetListOfGuildRanks( bool )
@@ -6765,7 +6771,7 @@ end
 -- Method:          GRM.HoursReport( table )
 -- What it Does:    Reports as a string the time passed since player last logged on.
 -- Purpose:         Convert the information provide by the communities API to turn into useful info for player
-GRM.HoursReport = function(lastOnlineTime)
+GRM.HoursReport = function( lastOnlineTime )
     local result = "";
     -- lastOnlineTime = { y , m , d , h };
 
@@ -13590,7 +13596,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
         end
 
         if added and GRM.S().addTimestampToNote and GRM.S().joinDateDestination < 3 then
-            local rosterMember = ({GetGuildRosterInfo(member.rosterSelection)});
+            local rosterMember = ( { GetGuildRosterInfo( member.rosterSelection ) } );
             local name = rosterMember[1];
             local note = rosterMember[7];
             local oNote = rosterMember[8];
@@ -14629,8 +14635,9 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     if updatedPlayer.lastOnline then
 
         -- Report inactive returns
-        if GRM.S().reportInactiveReturn and player.lastOnline > GRM.S().inactiveHours and updatedPlayer.lastOnline <
+        if GRM.S().reportInactiveReturn and player.lastOnline >= GRM.S().inactiveHours and updatedPlayer.lastOnline <
             GRM.S().inactiveHours and player.lastOnline > updatedPlayer.lastOnline then -- Player has logged in after having been inactive for greater than given time
+
             local needsToReport = true;
 
             local alts = GRM.GetAltNamesList(player);
@@ -14642,6 +14649,7 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
             end
 
             if needsToReport then
+
                 GRM.RecordChanges(13, updatedPlayer.name, player.lastOnlineTime, nil, select(2, GRM.GetTimestamp())); -- Recording the change in hours to log
             end
         end
@@ -14683,6 +14691,15 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         player.isTransfer = nil;
     end
 end
+
+-- GRM.TimeBetweenLastOnline = function ( oldTimeTable , newTimeTable )
+--     local year , month , day , hours
+
+--     year = oldTimeTable[1] - newTimeTable[1];
+
+
+-- end
+
 
 -- Method:          GRM.CheckLogJoinOrLeave ( table )
 -- What it Does:    Registers if a player as joined or left the guild and builds the string after making changes
@@ -15607,8 +15624,7 @@ GRM.BuildRosterClassicMethod = function()
         roster[name].class = class;
         roster[name].isOnline = online;
         local years, months, days, hours = GetGuildRosterLastOnline(i);
-        roster[name].lastOnline = GRM.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0,
-                                                           roster[name].isOnline});
+        roster[name].lastOnline = GRM.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
         roster[name].lastOnlineTime = {years or 0, months or 0, days or 0, hours or 0};
         roster[name].zone = zone;
         roster[name].achievementPoints = achievementPoints;
@@ -15880,10 +15896,6 @@ GRM.BuildNewGuildOrNameChange = function(roster, forceRebuild)
                 GRM_Alts[GRM_G.guildName] = {};
             end
 
-            if GRM_Mains[GRM_G.guildName] == nil then
-                GRM_Mains[GRM_G.guildName] = {};
-            end
-
             for player in pairs(roster) do
                 -- Build the guild and add each player
                 GRM.AddMemberRecord(roster[player], false, nil);
@@ -15948,9 +15960,6 @@ GRM.ProcessGuildNameChange = function(currentGuildName, oldGuildName)
 
     GRM_Alts[currentGuildName] = GRM.DeepCopyArray(GRM_Alts[oldGuildName]);
     GRM_Alts[oldGuildName] = nil;
-
-    GRM_Mains[currentGuildName] = GRM.DeepCopyArray(GRM_Mains[oldGuildName]);
-    GRM_Mains[oldGuildName] = nil;
 
     -- Also need to change the guild's name in the saved database...
     if GRM_GuildDataBackup_Save[oldGuildName].date ~= "" then
@@ -20884,7 +20893,7 @@ GRM.ResetPlayerMetaData = function(playerName)
         GRM.Report(GRM.L("{name}'s saved data has been wiped!", GRM.GetClassifiedName(playerName)));
 
         local member = {};
-        local player = GRM.GetClubMemberInfo(playerName, GRM_G.gClubID)
+        local player = GRM.GetPlayer ( playerName );
         local name, sex = GRM.GetFullNameClubMember(player.guid);
 
         if name and name ~= "" then
@@ -20979,9 +20988,6 @@ GRM.ResetAllSavedData = function()
     GRM_Alts = nil;
     GRM_Alts = {};
 
-    GRM_Mains = nil;
-    GRM_Mains = {};
-
     GRM.ConfigureAnnounceOnLogin(true);
 
     -- Hide the window frame so it can quickly be reloaded.
@@ -21029,8 +21035,6 @@ GRM.ResetGuildSavedData = function(guildName)
 
     GRM_Alts[guildName] = nil;
 
-    GRM_Mains[guildName] = nil;
-
     GRM.ConfigureAnnounceOnLogin(true);
 
     -- Hide the window frame so it can quickly be reloaded.
@@ -21072,7 +21076,7 @@ end
 -- Method:          GRM.CheckForNewPlayer ( string )
 -- What it Does:    Live checks when a player joins the guild and reports on it
 -- Purpose:         For live detection use separate than on scheduled scan
-GRM.CheckForNewPlayer = function(name)
+GRM.CheckForNewPlayer = function( name )
     local isFound = false;
 
     -- Error protection if player leaves guild within the 1 second someone joins
@@ -21080,83 +21084,104 @@ GRM.CheckForNewPlayer = function(name)
         return;
     end
 
-    local player = GRM.GetClubMemberInfo(name, GRM_G.gClubID)
-    local rosterName, sex = GRM.GetFullNameClubMember(player.guid);
+    for i = 1 , GRM.GetNumGuildies() do
+        local rosterName , rank , rankInd , level , _ , zone , note , oNote , online , status , classFile , pts , _ , _ , _ , rep , guid = GetGuildRosterInfo ( i );
 
-    if player then
-        isFound = true;
+        if name == rosterName then
 
-        if not GRM_G.liveAddedToons[rosterName] then
-
-            GRM_G.liveAddedToons[rosterName] = {};
-
-            local memberInfoToAdd = {};
-            memberInfoToAdd.name = name;
-            memberInfoToAdd.rankName = player.guildRank;
-            memberInfoToAdd.rankIndex = player.guildRankOrder - 1; -- Subtract one due to legacy changes - it used to start at index 0 until 8.0
-            memberInfoToAdd.level = player.level;
-            if player.memberNote then
-                memberInfoToAdd.note = player.memberNote;
-            else
-                memberInfoToAdd.note = "";
-            end
-
-            memberInfoToAdd.officerNote = ""; -- Officer note will be "nil" if not an officer, so setting it to empty string
-            if GRM.CanViewOfficerNote() and player.officerNote then
-                memberInfoToAdd.officerNote = player.officerNote;
-            end
-
-            memberInfoToAdd.class = C_CreatureInfo.GetClassInfo(player.classID).classFile;
-            memberInfoToAdd.lastOnline = GRM.CalculateTotalHours({player.lastOnlineYear or 0,
-                                                                  player.lastOnlineMonth or 0,
-                                                                  player.lastOnlineDay or 0, player.lastOnlineHour or 0});
-            memberInfoToAdd.lastOnlineTime = {player.lastOnlineYear or 0, player.lastOnlineMonth or 0,
-                                              player.lastOnlineDay or 0, player.lastOnlineHour or 0};
-            memberInfoToAdd.zone = player.zone;
-            memberInfoToAdd.achievementPoints = player.achievementPoints;
-            memberInfoToAdd.rep = GRM.GetPlayerGuildRep(name);
-            memberInfoToAdd.status = player.presence;
-            memberInfoToAdd.isOnline = GRM.IsPresenceOnline(player.presence);
-            memberInfoToAdd.GUID = player.guid;
-            memberInfoToAdd.race = C_CreatureInfo.GetRaceInfo(player.race).clientFileString;
-            memberInfoToAdd.sex = sex;
-            memberInfoToAdd.rosterSelection = i;
-
-            if GRM_G.BuildVersion > 80000 then
-                memberInfoToAdd.MythicScore = 0;
-                if player.overallDungeonScore then
-                    memberInfoToAdd.MythicScore = player.overallDungeonScore;
+            local race, sex = select(4, GetPlayerInfoByGUID(guid));
+            if race == nil or sex == nil then
+                race, sex = select(4, GetPlayerInfoByGUID(guid)); -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
+                if race == nil or sex == nil then
+                    race = "";
+                    sex = 1;
                 end
             end
 
-            memberInfoToAdd.faction = GRM_G.faction;
-            if GRM_G.BuildVersion >= 100000 then
-                memberInfoToAdd.faction = player.faction;
-            end
+            isFound = true;
 
-            GRM.RecordJoinChanges(memberInfoToAdd, GRM.GetClassColorRGB(classFile, true) .. GRM.SlimName(name) .. "|r",
-                true, select(2, GRM.GetTimestamp()), true);
+            if not GRM_G.liveAddedToons[rosterName] then
 
-            GRM_UI.RefreshSelectFrames(false, false, false, false, true, false);
+                GRM_G.liveAddedToons[rosterName] = {};
 
-            -- Check Main Auto tagging...
-            if not GRM_G.OnFirstLoad then
-                GRM.SetGuildInfoDetails();
-            end
-
-            -- -- Delay for time to check "Unique Accounts" change...
-            C_Timer.After(10, function()
-                if GRM_G.DesignateMain then
-                    GRM.SetMain(name);
-                    GRM.Report(GRM.L("GRM Auto-Detect! {name} has joined the guild and will be set as Main",
-                        GRM.GetClassifiedName(name, true)));
-                    GRM_UI.RefreshSelectFrames(false, true, false, true, true, false);
+                local memberInfoToAdd = {};
+                memberInfoToAdd.name = name;
+                memberInfoToAdd.rankName = rank;
+                memberInfoToAdd.rankIndex = rankInd
+                memberInfoToAdd.level = level;
+                if note then
+                    memberInfoToAdd.note = note;        -- Rejoining players the note might be the same
+                else
+                    memberInfoToAdd.note = "";
                 end
-            end);
-            -- Clear them - this prevents the spam join from server.
-            C_Timer.After(2, function()
-                GRM_G.liveAddedToons[rosterName] = nil
-            end)
+
+                memberInfoToAdd.officerNote = ""; -- Officer note will be "nil" if not an officer, so setting it to empty string
+                if GRM.CanViewOfficerNote() and oNote then
+                    memberInfoToAdd.officerNote = oNote;
+                end
+
+                memberInfoToAdd.class = classFile;
+                memberInfoToAdd.isOnline = online;
+
+                local years, months, days, hours = GetGuildRosterLastOnline( i );
+                memberInfoToAdd.lastOnline = GRM.CalculateTotalHours({ years or 0 , months or 0 , days or 0 , hours or 0 , online});
+                memberInfoToAdd.lastOnlineTime = {years or 0, months or 0, days or 0, hours or 0};
+
+                memberInfoToAdd.zone = zone;
+                memberInfoToAdd.achievementPoints = pts;
+                memberInfoToAdd.rep = rep;
+                memberInfoToAdd.status = status;
+
+                memberInfoToAdd.GUID = guid;
+                memberInfoToAdd.race = race;
+                memberInfoToAdd.sex = sex;
+                memberInfoToAdd.rosterSelection = i;
+                memberInfoToAdd.faction = GRM_G.faction;
+
+                if GRM_G.BuildVersion >= 80000 then
+                    memberInfoToAdd.MythicScore = 0;
+                end
+
+                if C_Club.GetClubMembers and GRM_G.gClubID and GRM_G.gClubID ~= 0 then
+                    local player = GRM.GetClubMemberInfo ( name , GRM_G.gClubID );
+                    if player then
+                        if player.overallDungeonScore then
+                            memberInfoToAdd.MythicScore = player.overallDungeonScore;
+                        end
+
+                        if player.faction then
+                            memberInfoToAdd.faction = player.faction;
+                        end
+
+                    end
+                end
+
+                GRM.RecordJoinChanges( memberInfoToAdd , GRM.GetClassColorRGB( classFile, true) .. GRM.SlimName(name) .. "|r",
+                    true, select(2, GRM.GetTimestamp()), true);
+
+                GRM_UI.RefreshSelectFrames(false, false, false, false, true, false);
+
+                -- Check Main Auto tagging...
+                if not GRM_G.OnFirstLoad then
+                    GRM.SetGuildInfoDetails();
+                end
+
+                -- -- Delay for time to check "Unique Accounts" change...
+                C_Timer.After(10, function()
+                    if GRM_G.DesignateMain then
+                        GRM.SetMain(name);
+                        GRM.Report(GRM.L("GRM Auto-Detect! {name} has joined the guild and will be set as Main",
+                            GRM.GetClassifiedName(name, true)));
+                        GRM_UI.RefreshSelectFrames(false, true, false, true, true, false);
+                    end
+                end);
+
+                -- Clear them - this prevents the spam join from server.
+                C_Timer.After( 2 , function()
+                    GRM_G.liveAddedToons[rosterName] = nil
+                end)
+            end
+            break;
         end
     end
 

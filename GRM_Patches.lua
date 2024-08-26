@@ -1598,6 +1598,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.BuildNewMainAltDB();
         GRM_Patch.EditSetting ( "banInfoReport" , nil );
         GRM_Patch.AddMemberSpecificData ( "lastOnlineTime" , { 0 , 0 , 0 , 1 } );
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.ConvertHours , true , false , false , nil );
 
         GRM_AddonSettings_Save.VERSION = "R1.9910";
         if loopCheck ( 1.9910 ) then
@@ -1614,6 +1615,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.9911";
         if loopCheck ( 1.9911 ) then
+            return;
+        end
+    end
+
+    -- 133
+    if numericV < 1.9913 and baseValue < 1.9913 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixLegacyFormattingErrorOnRankAndJoinHist , true , true , false , nil );
+        GRM_Patch.AltGroupUpdateTweak();
+
+        GRM_AddonSettings_Save.VERSION = "R1.9913";
+        if loopCheck ( 1.9913 ) then
             return;
         end
     end
@@ -8772,6 +8784,7 @@ end
 -- Purpose:         Building a custom relational DB with the groupID as the foreign key in the new Mains table -- easier lookup
 GRM_Patch.BuildNewMainAltDB = function()
     local timestamp = time();
+    local GRM_Mains = {};
 
     -- For current guild.
     for guildName , guildData in pairs ( GRM_GuildMemberHistory_Save ) do
@@ -8853,7 +8866,6 @@ GRM_Patch.BuildNewMainAltDB = function()
     for guildName , guildData in pairs ( GRM_GuildDataBackup_Save ) do
         if type ( guildData ) == "table" then
             local alts = guildData.alts;
-            guildData.mains = guildData.mains or {};
 
             -- This indicates that there is actual save data
             if alts and guildData.numGuildies > 0 then
@@ -8926,7 +8938,6 @@ GRM_Patch.BuildNewMainAltDB = function()
 
 end
 
-
 -- 1.9911
 -- Method:          GRM_Patch.ModifyCustomNote ( playerTable )
 -- What it Does:    Removes the 4th rank restriction index from the custom Note.
@@ -8939,4 +8950,178 @@ GRM_Patch.ModifyCustomNote = function ( player )
         table.remove ( player.customNote , 4 ); -- Remove the rank action deprecated index next, which is now in same position
     end
     return player;
+end
+
+-- 1.9913
+-- Method:          GRM_Patch.AltGroupUpdateTweak()
+-- What it Does;    Does an integrity check fix from a carryover bug on the DB overhaul
+-- Purpose:         Ensure DB has a good starting point.
+GRM_Patch.AltGroupUpdateTweak = function()
+
+    local namesCollected = {};
+    local altGroups = {};
+    local player = {};
+    local count = 0;
+    local count2 = 0;
+
+    for guildName , guildData in pairs ( GRM_GuildMemberHistory_Save ) do
+        if type ( guildData ) == "table" then
+            altGroups = GRM.GetGuildAlts ( guildName );
+            namesCollected = {};                        -- Reset for each guild
+
+            if altGroups then
+
+                -- First, scan through every alt group, check every toon and ensure it corresponds to their player altGroup reference in playerTable.
+                for groupNum , group in pairs ( altGroups ) do
+                    if #group > 0 then
+                        for i = #group , 1, -1 do
+
+                            player = GRM.GetPlayer ( group[i].name , false , guildName );
+
+                            if player then
+                                -- Ok, player exists, now let's ensure the alt group is properly matching.
+                                if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
+                                    -- THEY DO NOT MATCH AND name has not been processed.
+                                    player.altGroup = groupNum;
+
+                                elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
+                                    -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
+                                    -- Since already processed, we are just going to purge the alt from the group, and assume player.altGroup is good.
+                                    table.remove ( group , i );
+                                    if #group == 0 then -- After removing, no one is left.
+                                        GRM_Alts[guildName][groupNum] = nil;
+                                    elseif group.main == player.name then
+                                        group.main = "";
+                                    end
+
+                                elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
+                                    -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
+                                    count2 = count2 + 1;
+                                end
+
+
+                            else
+                                -- Remove player from the alt group since it doesn't exist in guild.
+                                table.remove ( group , i );
+                                if #group == 0 then -- After removing, no one is left.
+                                    GRM_Alts[guildName][groupNum] = nil;
+                                elseif group.main == player.name then
+                                    group.main = "";
+                                end
+                            end
+                            namesCollected[ group[i].name ] = true;
+                            count = count +1;
+                        end
+                    else
+                        GRM_Alts[guildName][groupNum] = nil;        -- This should never happen, but cleanup in case of older legacy issue
+                    end
+                end
+
+            end
+        end
+    end
+
+    -- For backups
+    for guildName , guildData in pairs ( GRM_GuildDataBackup_Save ) do
+        if type ( guildData ) == "table" then
+            altGroups = guildData.alts;
+            namesCollected = {};                        -- Reset for each guild
+
+            -- This indicates that there is actual save data
+            if altGroups and guildData.numGuildies > 0 then
+
+                -- First, scan through every alt group, check every toon and ensure it corresponds to their player altGroup reference in playerTable.
+                for groupNum , group in pairs ( altGroups ) do
+                    if #group > 0 then
+                        for i = #group , 1, -1 do
+
+                            player = guildData.members[ group[i].name ];
+
+                            if player then
+                                -- Ok, player exists, now let's ensure the alt group is properly matching.
+                                if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
+                                    -- THEY DO NOT MATCH AND name has not been processed.
+                                    player.altGroup = groupNum;
+
+                                elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
+                                    -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
+                                    -- Since already processed, we are just going to purge the alt from the group, and assume player.altGroup is good.
+                                    table.remove ( group , i );
+                                    if #group == 0 then -- After removing, no one is left.
+                                        altGroups[groupNum] = nil;
+                                    elseif group.main == player.name then
+                                        group.main = "";
+                                    end
+
+                                elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
+                                    -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
+                                    count2 = count2 + 1;
+                                end
+
+
+                            else
+                                -- Remove player from the alt group since it doesn't exist in guild.
+                                table.remove ( group , i );
+                                if #group == 0 then -- After removing, no one is left.
+                                    altGroups[groupNum] = nil;
+                                elseif group.main == player.name then
+                                    group.main = "";
+                                end
+                            end
+                            namesCollected[ group[i].name ] = true;
+                            count = count +1;
+                        end
+                    else
+                        altGroups[groupNum] = nil;        -- This should never happen, but cleanup in case of older legacy issue
+                    end
+                end
+
+
+            end
+        end
+    end
+end
+
+-- R1.9913          GRM_Patch.FixLegacyFormattingErrorOnRankAndJoinHist ( playerTable )
+-- What it Does:    Resets the rank history of the data was corrupted
+-- Purpose:         There was a bug that seemed to affect some players due to a previous error that crashed in middle of update.
+GRM_Patch.FixLegacyFormattingErrorOnRankAndJoinHist = function ( player )
+
+    if type (player.rankHist[1][6]) == "string" then
+        if player.rankHist[1][7] == true and player.rankHist[1][2] and type ( player.rankHist[1][2] ) == "number" and player.rankHist[1][2] > 0 and player.rankHist[1][3] and type ( player.rankHist[1][3] ) == "number" and player.rankHist[1][3] > 0 and player.rankHist[1][4] and type ( player.rankHist[1][4] ) == "number" and player.rankHist[1][4] > 0 and type ( player.rankHist[1][5] ) == "string" and #player.rankHist[1][5] == 8 then
+            player.rankHist[1][6] = 1;  -- Placeholder time as verified.
+        else
+            player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+        end
+    end
+
+    if type (player.joinDateHist[1][5]) == "string" then
+        if player.joinDateHist[1][5] == true and player.joinDateHist[1][1] and type ( player.joinDateHist[1][1] ) == "number" and player.joinDateHist[1][1] > 0 and player.joinDateHist[1][2] and type ( player.joinDateHist[1][2] ) == "number" and player.joinDateHist[1][2] > 0 and player.joinDateHist[1][3] and type ( player.joinDateHist[1][3] ) == "number" and player.joinDateHist[1][3] > 0 and type ( player.joinDateHist[1][4] ) == "string" and #player.joinDateHist[1][4] == 8 then
+            player.joinDateHist[1][5] = 1;  -- Placeholder time as verified.
+        else
+            player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+        end
+    end
+
+    return player
+end
+
+-- R1.9913
+-- Method:          GRM_Patch.ConvertHours ( playerTable )
+-- What it Does:    Converts the total number of hours into a table representing count of each day
+-- Purpose:         Added a new table, this fixes that.
+GRM_Patch.ConvertHours = function( player )
+    local totalHrs = player.lastOnline;
+
+    local years = math.floor( totalHrs / 8760)  -- 8760 hours in a year (365 days * 24 hours)
+    totalHrs = totalHrs % 8760                    -- Remaining hours after extracting years
+
+    local months = math.floor( totalHrs / 720)  -- 720 hours in a month (30 days * 24 hours)
+    totalHrs = totalHrs % 720                     -- Remaining hours after extracting months
+
+    local days = math.floor( totalHrs / 24 )     -- 24 hours in a day
+    local remaining_hours = totalHrs % 24      -- Remaining hours after extracting days
+    player.lastOnlineTime = { years , months , days , remaining_hours };
+
+    return player
 end

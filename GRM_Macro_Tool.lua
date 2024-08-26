@@ -6579,7 +6579,7 @@ GRM.BuildKickQueuedScrollButtons = function ( ind , isResizeAction )
         end);
 
         coreButton:SetScript ( "OnMouseDown" , function ( _ , button )
-            local playerName = GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i][2]:GetText() );
+            local playerName = GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText() );
 
             if string.find ( playerName , "|" ) then
                 playerName = string.match ( playerName , "(.+)|CFF" );

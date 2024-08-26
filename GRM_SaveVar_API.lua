@@ -8,7 +8,6 @@ GRM_PlayersThatLeftHistory_Save = GRM_PlayersThatLeftHistory_Save or {};        
 GRM_CalendarAddQue_Save = GRM_CalendarAddQue_Save or {};                        -- Since the add to calendar is protected, and requires a player input, this will be qued here between sessions. { name , eventTitle , eventMonth , eventDay , eventYear , eventDescription }
 GRM_PlayerListOfAlts_Save = GRM_PlayerListOfAlts_Save or {};                    -- This is used so the player has a working alt list to reference, so they can add themselves to an alt list.
 GRM_Alts = GRM_Alts or {};                                                      -- Alt groupings
-GRM_Mains = GRM_Mains or {};                                                    -- Mains Group
 GRM_DebugLog_Save = GRM_DebugLog_Save or {};                                    -- Character specific debug log for addon dev use submission.
 GRM_Misc = GRM_Misc or {};                                                      -- This serves as a backup placeholder to hold important values if a player logs off in the middle of something, it can carry on where it left off by storing a marker.
 GRM_DailyAnnounce = GRM_DailyAnnounce or {};
@@ -151,17 +150,6 @@ GRM.GetGuildAlts = function ( name )
         return GRM_Alts[name];
     else
         return GRM_Alts[GRM_G.guildName];
-    end
-end
-
--- Method:          GRM.GetGuildAlts ( string )
--- What it Does:    Returns the database of mains for the given guild or current guild
--- Purpose:         Call the data easily.
-GRM.GetMains = function ( name )
-    if name then
-        return GRM_Mains[name];
-    else
-        return GRM_Mains[GRM_G.guildName];
     end
 end
 
