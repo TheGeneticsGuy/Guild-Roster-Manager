@@ -1,3 +1,9 @@
+## **VERSION 1.99131 RELEASE - August 26th, 2024**
+
+* For some people, the last update made it so GRM was not updating for them. This is should now be fixed.
+
+* The GRM log mess that a player has been REINVITED is now displaying properly in Russian.
+
 
 ## **VERSION 1.9913 RELEASE - August 25th, 2024**
 

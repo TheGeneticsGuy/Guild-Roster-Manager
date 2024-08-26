@@ -34,6 +34,22 @@ GRM_R.BuildRosterFrames = function ()
         end)
     end
 
+    -- This will query the guild log to trigger, which triggers the roster to be updated every 10 seconds
+    if not GRM_UI.GRM_RosterFrame.isHooked then
+        GRM_UI.GRM_RosterFrame.isHooked = true;
+        GRM_UI.GRM_RosterFrame.timer = 0;
+
+        GRM_UI.GRM_RosterFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
+            GRM_UI.GRM_RosterFrame.timer = GRM_UI.GRM_RosterFrame.timer + elapsed;
+            if GRM_UI.GRM_RosterFrame.timer >= 10 then
+                -- Refresh the log every 10 seconds when it is open, just to be certain. There is a problem with the guild roster not updating properly when guild changes occur in status.
+                GRM.GuildRoster();
+                QueryGuildEventLog();
+                GRM_UI.GRM_RosterFrame.timer = 0;
+            end
+        end)
+    end
+
     -- Options Menu
     GRM_UI.CreateCoreFrame ( "GRM_RosterOptions" , GRM_UI.GRM_RosterFrame , nil , coreSize , 90 , "TranslucentFrameTemplate" , false , { "TOP" , "BOTTOM" , 0 , 8 } , "FULLSCREEN_DIALOG" , false , false );
 
@@ -480,8 +496,7 @@ end
 -- Method:          GRM_R.RefreshOnlineStatus();
 -- What it Does:    Refreshes the online status of all the players in the guild for the DB
 -- Purpose:         To ensure the GRM custom roster is accurate always.
-GRM_R.RefrehsOnlineStatus = function( guildData )
-
+GRM_R.RefreshOnlineStatus = function( guildData )
     local count = 0;
 
     if guildData then
@@ -514,7 +529,7 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
     local addPlayer;
 
     -- Refresh the online status for accuracy
-    GRM_R.RefrehsOnlineStatus ( guildData );
+    GRM_R.RefreshOnlineStatus ( guildData );
 
     addPlayer = function ( player , altAdd )
         local tempPlayer = {};

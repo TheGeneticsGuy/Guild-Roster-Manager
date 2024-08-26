@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9913";
-GRM_G.PatchDay = 1724626298; -- In Epoch Time
-GRM_G.PatchDayString = "1724626298"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.99131";
+GRM_G.PatchDay = 1724684072; -- In Epoch Time
+GRM_G.PatchDayString = "1724684072"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 -- Determine level cap
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
@@ -531,10 +531,7 @@ end
 
 GRM.GuildRoster = function()
     if C_GuildInfo.GuildRoster then
-        if GRM_G.BuildVersion >= 100100 or GRM_G.BuildVersion < 100000 then -- Launch error for 10.0 caused frame to refresh and mess up sorting
-            C_GuildInfo.GuildRoster();
-
-        end
+        C_GuildInfo.GuildRoster();
     else
         GuildRoster();
     end
@@ -12013,7 +12010,7 @@ end
 -- Method:          GRM.GetJoinOrRejoinString ()
 -- What it Does:    Builds the string for players joined or rejoined the guild
 -- Purpose:         Ease of reusing this code and ease of reading it.
-GRM.GetJoinOrRejoinString = function(foundInLog, player1, player2, date, isRejoin, playerLevel, previousName,
+GRM.GetJoinOrRejoinString = function( foundInLog, player1, player2, date, isRejoin, playerLevel, previousName,
     numTimesInGuild, isBanned, reasonBanned, dateLeft, howLongAgo, dateOriginallyJoined, origRank, customNote,
     isTransfer)
 
@@ -12033,7 +12030,7 @@ GRM.GetJoinOrRejoinString = function(foundInLog, player1, player2, date, isRejoi
     if customNote == nil then
         customNote = "";
     end
-
+    -- /run local e = GRM.GetLog()[1248];print(GRM.GetJoinOrRejoinString(e[3], e[4], e[5], e[6], e[7],e[8],e[9],e[10],e[11],e[12],e[13],e[14],e[15],e[16],e[17]))
     -- Rejoin String details!!!
     if isRejoin then
 
@@ -12065,7 +12062,7 @@ GRM.GetJoinOrRejoinString = function(foundInLog, player1, player2, date, isRejoi
         else
 
             if foundInLog and player1 ~= nil then
-                header = GRM.L("{name} has REINVITED {name2} to the guild", player1, player2) .. " " ..
+                header = GRM.L("{name} has REINVITED {name2} to the guild", player1, player2 ) .. " " ..
                              GRM.L("(LVL: {num})", nil, nil, playerLevel);
             else
                 header = GRM.L("{name} has REJOINED the guild", player2) .. " " ..

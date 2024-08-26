@@ -8983,6 +8983,7 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                 if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
                                     -- THEY DO NOT MATCH AND name has not been processed.
                                     player.altGroup = groupNum;
+                                    namesCollected[ group[i].name ] = true;
 
                                 elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
                                     -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
@@ -8997,11 +8998,13 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                 elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
                                     -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
                                     count2 = count2 + 1;
+                                    namesCollected[ group[i].name ] = true;
                                 end
 
 
                             else
                                 -- Remove player from the alt group since it doesn't exist in guild.
+                                namesCollected[ group[i].name ] = true;
                                 table.remove ( group , i );
                                 if #group == 0 then -- After removing, no one is left.
                                     GRM_Alts[guildName][groupNum] = nil;
@@ -9009,7 +9012,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                     group.main = "";
                                 end
                             end
-                            namesCollected[ group[i].name ] = true;
                             count = count +1;
                         end
                     else
@@ -9042,6 +9044,7 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                 if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
                                     -- THEY DO NOT MATCH AND name has not been processed.
                                     player.altGroup = groupNum;
+                                    namesCollected[ group[i].name ] = true;
 
                                 elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
                                     -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
@@ -9056,11 +9059,13 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                 elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
                                     -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
                                     count2 = count2 + 1;
+                                    namesCollected[ group[i].name ] = true;
                                 end
 
 
                             else
                                 -- Remove player from the alt group since it doesn't exist in guild.
+                                namesCollected[ group[i].name ] = true;
                                 table.remove ( group , i );
                                 if #group == 0 then -- After removing, no one is left.
                                     altGroups[groupNum] = nil;
@@ -9068,7 +9073,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                     group.main = "";
                                 end
                             end
-                            namesCollected[ group[i].name ] = true;
                             count = count +1;
                         end
                     else
@@ -9080,6 +9084,7 @@ GRM_Patch.AltGroupUpdateTweak = function()
             end
         end
     end
+    print(count .. " : " .. count2)
 end
 
 -- R1.9913          GRM_Patch.FixLegacyFormattingErrorOnRankAndJoinHist ( playerTable )
