@@ -8798,6 +8798,10 @@ GRM_Patch.BuildNewMainAltDB = function()
             for name , player in pairs ( guildData ) do
                 if type ( player ) == "table" then
 
+                    if player.mainStatusChangeTime == nil then
+                        return;
+                    end
+
                     group = alts[player.altGroup];
 
                     -- Mains
@@ -8871,6 +8875,10 @@ GRM_Patch.BuildNewMainAltDB = function()
             if alts and guildData.numGuildies > 0 then
                 for name , player in pairs ( guildData.members ) do
                     if type ( player ) == "table" then
+
+                        if player.mainStatusChangeTime == nil then
+                            return;
+                        end
 
                         group = alts[player.altGroup];
 
@@ -8961,8 +8969,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
     local namesCollected = {};
     local altGroups = {};
     local player = {};
-    local count = 0;
-    local count2 = 0;
 
     for guildName , guildData in pairs ( GRM_GuildMemberHistory_Save ) do
         if type ( guildData ) == "table" then
@@ -8997,7 +9003,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
 
                                 elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
                                     -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
-                                    count2 = count2 + 1;
                                     namesCollected[ group[i].name ] = true;
                                 end
 
@@ -9012,7 +9017,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                     group.main = "";
                                 end
                             end
-                            count = count +1;
                         end
                     else
                         GRM_Alts[guildName][groupNum] = nil;        -- This should never happen, but cleanup in case of older legacy issue
@@ -9058,7 +9062,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
 
                                 elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
                                     -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
-                                    count2 = count2 + 1;
                                     namesCollected[ group[i].name ] = true;
                                 end
 
@@ -9073,7 +9076,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                     group.main = "";
                                 end
                             end
-                            count = count +1;
                         end
                     else
                         altGroups[groupNum] = nil;        -- This should never happen, but cleanup in case of older legacy issue
@@ -9084,7 +9086,6 @@ GRM_Patch.AltGroupUpdateTweak = function()
             end
         end
     end
-    print(count .. " : " .. count2)
 end
 
 -- R1.9913          GRM_Patch.FixLegacyFormattingErrorOnRankAndJoinHist ( playerTable )

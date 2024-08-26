@@ -1,3 +1,8 @@
+## **VERSION 1.99132 RELEASE - August 26th, 2024**
+
+* Due to a previous issue that caused GRM to not load for some players, they rolled back to a working build. Then, on re-installing GRM, they encountered a new error not allowing them to load again. This error was because GRM was looking to update the Database again, except it had already been done. The patching process will now check to see if the patch had already properly been applied now and GRM should properly load. This bug only affected people who rolled back to an earlier build.
+
+
 ## **VERSION 1.99131 RELEASE - August 26th, 2024**
 
 * For some people, the last update made it so GRM was not updating for them. This is should now be fixed.
