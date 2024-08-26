@@ -9006,15 +9006,15 @@ GRM_Patch.AltGroupUpdateTweak = function()
                                     namesCollected[ group[i].name ] = true;
                                 end
 
-
                             else
                                 -- Remove player from the alt group since it doesn't exist in guild.
                                 namesCollected[ group[i].name ] = true;
+                                if group[i].name == group.main then
+                                    group.main = "";
+                                end
                                 table.remove ( group , i );
                                 if #group == 0 then -- After removing, no one is left.
                                     GRM_Alts[guildName][groupNum] = nil;
-                                elseif group.main == player.name then
-                                    group.main = "";
                                 end
                             end
                         end
@@ -9069,11 +9069,12 @@ GRM_Patch.AltGroupUpdateTweak = function()
                             else
                                 -- Remove player from the alt group since it doesn't exist in guild.
                                 namesCollected[ group[i].name ] = true;
+                                if group[i].name == group.main then
+                                    group.main = "";
+                                end
                                 table.remove ( group , i );
                                 if #group == 0 then -- After removing, no one is left.
                                     altGroups[groupNum] = nil;
-                                elseif group.main == player.name then
-                                    group.main = "";
                                 end
                             end
                         end
