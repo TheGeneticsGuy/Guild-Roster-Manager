@@ -2091,7 +2091,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     newNote = GRM.Trim ( newNote );
 
                     if newNote ~= player.note then
-                        local i = GRM.GetRosterSelectionID ( player.name );
+                        local i = GRM.GetRosterSelectionID ( player.name , player.GUID );
 
                         if i then
 
@@ -2953,7 +2953,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
         if player then
             -- First, let's add the change to the official server-sde note
-            local h = GRM.GetRosterSelectionID ( playerDetails.name );
+            local h = GRM.GetRosterSelectionID ( playerDetails.name , player.GUID );
             if h then
                 local publicNote = select ( 7 , GetGuildRosterInfo( h ) );
                 if not publicNote then
@@ -3060,7 +3060,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
         if player then
             -- First, let's add the change to the official server-sde note
-            local h = GRM.GetRosterSelectionID ( playerDetails.name );
+            local h = GRM.GetRosterSelectionID ( playerDetails.name , player.GUID );
             if h then
                 local officerNote = select ( 8 , GetGuildRosterInfo( h ) );
                 if not officerNote then

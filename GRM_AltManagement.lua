@@ -962,7 +962,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                 -- Let's set those officer/public notes as well!
                 if GRM.S().addTimestampToNote and ( GRM.CanEditOfficerNote() or GRM.CanEditPublicNote() ) then -- By default I block non officers from auto-adding notes
                     for h = 1 , GRM.GetNumGuildies() do
-                        local h = GRM.GetRosterSelectionID ( tempAlt.name );
+                        local h = GRM.GetRosterSelectionID ( tempAlt.name , tempAlt.GUID );
                         if h then
                             local rosterMember = ( { select ( 7 , GetGuildRosterInfo ( h ) ) } );
                             local note = rosterMember[1];

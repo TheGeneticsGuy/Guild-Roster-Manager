@@ -197,13 +197,13 @@ end
 -- Purpose:         In case someone nefariously overwrites all public notes
 GRM_API.RestoreAllPublicNotesFromSave = function()
     local guildData = GRM_GuildDataBackup_Save[GRM_G.guildName].members;
-    local name = "";
 
     if GRM.CanEditPublicNote() then
         for i = 1 , GRM.GetNumGuildies() do
-            name = GetGuildRosterInfo ( i );
-            for n , player in pairs ( guildData ) do
-                if type ( player ) == "table" and name == n then
+            local member = ( { GetGuildRosterInfo ( i ) } );
+
+            for name , player in pairs ( guildData ) do
+                if type ( player ) == "table" and member[1] == name and member[17] == player.GUID then
                     GuildRosterSetPublicNote ( i , player.note);
                 end
             end
@@ -216,13 +216,13 @@ end
 -- Purpose:         In case someone nefariously overwrites all officer notes
 GRM_API.RestoreAllOfficerNotesFromSave = function()
     local guildData = GRM_GuildDataBackup_Save[GRM_G.guildName].members;
-    local name = "";
 
     if GRM.CanEditOfficerNote() then
         for i = 1 , GRM.GetNumGuildies() do
-            name = GetGuildRosterInfo ( i );
-            for n , player in pairs ( guildData ) do
-                if type ( player ) == "table" and name == n then
+            local member = ( { GetGuildRosterInfo ( i ) } );
+
+            for name , player in pairs ( guildData ) do
+                if type ( player ) == "table" and member[1] == name and member[17] == player.GUID then
                     GuildRosterSetOfficerNote ( i , player.officerNote );
                 end
             end
@@ -256,10 +256,12 @@ GRM_API.RestoreAllPublicNotes = function( name )
             local guildData = GRM.GetGuild( guildName );
 
             if guildData then
+                local memberName = "";
+
                 for i = 1 , GRM.GetNumGuildies() do
-                    name = GetGuildRosterInfo ( i );
+                    member = ( { GetGuildRosterInfo ( i ) } );
                     for n , player in pairs ( guildData ) do
-                        if type ( player ) == "table" and name == n then
+                        if type ( player ) == "table" and member[1] == n and member[17] == player.GUID then
 
                             GuildRosterSetPublicNote ( i , player.note);
                             break;
@@ -354,7 +356,7 @@ GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
 
                     player.joinDateUnknown = false;
 
-                    GRM.AddTimeStampToNote ( player.name , GRM.FormatTimeStamp ( { day , month , year } , false , false , false ) );
+                    GRM.AddTimeStampToNote ( player.name , player.GUID , GRM.FormatTimeStamp ( { day , month , year } , false , false , false ) );
 
                     player.events[1][1][1] = day;
                     player.events[1][1][2] = month;

@@ -78,11 +78,37 @@ GRM_HC.HardCoreInitialize = function()
 
         end
 
+        -- Method:              GRM_HC.SetPlayerAsDeadByGUID ( string , int , int , string )
+        -- What it Does:        Finds a player in the roster by GUID, then updates their note and sets them to being dead.
+        -- Purpose:             Handling the situation of double copies of players still in the guild because of name copies
+        GRM.SetPlayerAsDeadByGUID = function ( guid , lastOnline , i , note )
+            if GRM.CanEditPublicNote() and not string.find ( note , "[D]" ) then
+                local  playerGUID = select ( 17 , GetGuildRosterInfo(i) );
+                if playerGUID == guid then
+                    local deathNote = "[D]-" .. GRM_HC.ConvertLastOnlineHoursToTimestamp ( lastOnline );
+                    GuildRosterSetPublicNote ( i, deathNote );
+                end
+            end
+        end
+
+        -- Method:          GRM_HC.ConvertLastOnlineHoursToTimestamp ( int )
+        -- What it Does:    It converts the last online hours into an actual standard date formatted timestamp.
+        -- Purpose:         Useful for tagging dead players in HC mode when it is determined the toon is dead/deleted.
+        GRM_HC.ConvertLastOnlineHoursToTimestamp = function ( lastOnlineHours )
+            -- First, convert hours into seconds.
+            local seconds = lastOnlineHours * 3600;
+            -- Second, let's take current epoch time, and subtract how many seconds ago. This will give us epoch stamp, within an hour, of last login, assuming they don't login a dead toon.
+            local epochTime = ( time() - seconds );
+            local timestamp = select ( 2 , GRM.EpochToDateFormat( epochTime , false) );
+
+            return GRM.ConvertToStandardFormatDate ( timestamp[1] , timestamp[2] , timestamp[3] );
+        end
+
         -- Method:          GRM_HC.ExportDeathTag ( string , table )
         -- What it Does:    Exports the death tag to the player note
         -- Purpose:         Report on when a player dies... Useful since there is not UI Interface
         GRM_HC.ExportDeathTag = function ( player , dateArray )
-            local i = GRM.GetRosterSelectionID ( player.name );
+            local i = GRM.GetRosterSelectionID ( player.name , player.GUID );
             if i then
 
                 local memberNote = select ( 7 , GetGuildRosterInfo( i ) );

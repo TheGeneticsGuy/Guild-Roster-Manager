@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99133";
-GRM_G.PatchDay = 1724702213; -- In Epoch Time
-GRM_G.PatchDayString = "1724702213"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
+GRM_G.Version = "R1.99134";
+GRM_G.PatchDay = 1724795613; -- In Epoch Time
+GRM_G.PatchDayString = "1724795613"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
 -- Determine level cap
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
@@ -7391,15 +7391,17 @@ end
 -- Purpose:         Need the full name-server, untruncated, to be able to correctly identify the player in database, in case 2 players with same name, but diff. servers
 GRM.GetRosterName = function(button, isMouseClick)
     local name = "";
+    local guid = "";
 
     if not GRM_G.pause or isMouseClick then
 
         local memberInfo = button.memberInfo;
-        if memberInfo ~= nil then
+        if memberInfo then
             name = memberInfo.name;
+            guid = memberInfo.guid;
 
             if name ~= nil and memberInfo.guid ~= nil and string.find(name, "-") == nil then
-                local fullName = GRM.GetFullNameClubMember(memberInfo.guid);
+                local fullName = GRM.GetFullNameClubMember( guid );
                 if fullName and fullName ~= "" then
                     name = fullName;
                 end
@@ -7407,7 +7409,7 @@ GRM.GetRosterName = function(button, isMouseClick)
 
         end
     end
-    return name;
+    return name , guid;
 end
 
 -- Method:          GRM.InitializeRosterButtons()
@@ -7425,13 +7427,19 @@ GRM.InitializeRosterButtons = function()
                     nameCopy = true;
                 end
 
-                local name = GRM.GetRosterName(self, true);
-                if name ~= "" and name ~= nil and GRM.GetPlayer(name) then
+                local name , guid = GRM.GetRosterName(self, true);
+                local player = GRM.GetPlayer ( name );
+
+                if name then
+                    GRM_G.currentName = name;
+                end
+
+                if player and player.GUID == guid then
                     if not nameCopy then
                         if name ~= GRM_G.currentName and StaticPopup1:IsVisible() and GRM_UI.GRM_PopupWindow:IsVisible() then
                             StaticPopup1:Hide();
                         end
-                        GRM_G.currentName = name;
+
                         GRM.SubFrameCheck();
                         if cFrame:GetSelectedClubId() == GRM_G.gClubID then
                             GRM.PopulateMemberDetails(name, self.memberInfo);
@@ -7476,13 +7484,14 @@ GRM.RosterButton_OnUpdate = function(self, elapsed)
     if GRM_G.ButtonRosterTimer > 0.05 and GRM.GetMouseFocus(self) and CommunitiesFrame:GetSelectedClubId() ==
         GRM_G.gClubID then
 
-        local name = GRM.GetRosterName(self, true);
+        local name , guid = GRM.GetRosterName(self, true);
 
-        if name ~= "" and name ~= nil and name ~= GRM_G.currentName and not GRM_G.pause and
+        if name and name ~= GRM_G.currentName and not GRM_G.pause and
             not CommunitiesFrame.RecruitmentDialog:IsVisible() then
+            GRM_G.currentName = name;
 
-            if GRM.GetPlayer(name) then
-                GRM_G.currentName = name;
+            local player = GRM.GetPlayer(name);
+            if player and player.GUID == guid then
                 GRM.SubFrameCheck();
 
                 if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID then
@@ -7504,8 +7513,12 @@ GRM.RosterButton_OnUpdate = function(self, elapsed)
                     end
                 end
             else
-                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                    GRM_UI.GRM_MemberDetailMetaData:Hide();
+                if not GRM_G.HardcoreActive then
+                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                        GRM_UI.GRM_MemberDetailMetaData:Hide();
+                    end
+                else
+                    GRM.PopulateMemberDetails( name , self.memberInfo , true );
                 end
             end
         end
@@ -8095,7 +8108,7 @@ GRM.CopyFromPromoDate = function()
                                               player.joinDateHist[1][3]}, false);
 
         -- Update timestamp to officer note.
-        GRM.AddTimeStampToNote(player.name, joinDate);
+        GRM.AddTimeStampToNote( player.name, player.GUID , joinDate);
 
         -- Gotta update the event tracker date too!
         player.events[1][1][1] = tStamp[2];
@@ -12030,7 +12043,7 @@ GRM.GetJoinOrRejoinString = function( foundInLog, player1, player2, date, isRejo
     if customNote == nil then
         customNote = "";
     end
-    -- /run local e = GRM.GetLog()[1248];print(GRM.GetJoinOrRejoinString(e[3], e[4], e[5], e[6], e[7],e[8],e[9],e[10],e[11],e[12],e[13],e[14],e[15],e[16],e[17]))
+
     -- Rejoin String details!!!
     if isRejoin then
 
@@ -13165,6 +13178,10 @@ end
 GRM.IsRejoinAndSetDetails = function(member, simpleName, tempTimeStamp, liveJoinDetected, tempJoinStorage,
     logEntryMetaData)
     local oldMemberData = GRM.GetFormerMembers();
+    if not oldMemberData then
+        return;
+    end
+
     local useTimeStamp = false;
     local timeStamp = "";
 
@@ -13314,6 +13331,7 @@ GRM.IsRejoinAndSetDetails = function(member, simpleName, tempTimeStamp, liveJoin
                         local name = rosterMember[1];
                         local note = rosterMember[7];
                         local oNote = rosterMember[8];
+                        local guid = rosterMember[17];
                         if not note then
                             note = "";
                         end
@@ -15472,15 +15490,15 @@ GRM.NoLivecheck = function()
     return result;
 end
 
--- Method:          GRM.GetPlayerGuildRep ( string )
+-- Method:          GRM.GetPlayerGuildRep ( string , string )
 -- What it Does:    Returns the integer of the given player's guild rep
 -- Purpose:         Default windows don't show guild rep anymre. This allows you to see it.
-GRM.GetPlayerGuildRep = function(name)
+GRM.GetPlayerGuildRep = function( name , guid )
     local player;
     for i = 1, GRM.GetNumGuildies() do
         player = ({GetGuildRosterInfo(i)}); -- Wrap the whole data points into an array. Easier to go through
 
-        if player[1] == name then
+        if player[1] == name and player[17] == guid then
             return player[16];
         end
     end
@@ -15590,13 +15608,39 @@ GRM.GetPlayerRace = function(GUID)
     return "";
 end
 
+-- Method:          GRM.GetNewerAccountByGUID ( string , string
+-- What it Does:    Returns the GUID that is created more recently by comparing the values of the player
+-- Purpose:         For double copies of players, it is easy to quickly determine which account is most current.
+-- Notes:           GUID's by Blizz are numerical integer stamps converted to hexadecimals so easy to reverse engineer
+GRM.GetNewerAccountByGUID = function ( guid1 , guid2 )
+    if guid1 and guid2 then
+        local guidPattern = "Player%-5099%-(%x+)";
+        local match1 = string.match( guid1, guidPattern );
+        local match2 = string.match( guid2, guidPattern );
+
+        if match1 and match2 then
+            -- Now, let's convert the hexadecimal to a number. Use the "tonumber" with base 16 for hex to int conversion
+            local num1 = tonumber ( match1 , 16 );
+            local num2 = tonumber ( match2 , 16 );
+
+            if num1 > num2 then
+                return guid1;
+            else
+                return guid2;
+            end
+        end
+    end
+    return;
+end
+
 -- Method:          GRM.BuildRosterClassicMethod()
 -- What it Does:    Builds the roster for scanning using the older API
 -- Purpose:         In case the old API is ever needed. This seems to work also when in a guild but on a trial account, GRM can still work.
 GRM.BuildRosterClassicMethod = function()
-
+    local count = 0;
     local roster, orderedRoster, atLeastOne = {}, {}, false;
     local members = {};
+
     if C_Club.GetClubMembers and GRM_G.gClubID and GRM_G.gClubID ~= 0 then
         members = C_Club.GetClubMembers(GRM_G.gClubID)
     end
@@ -15611,43 +15655,67 @@ GRM.BuildRosterClassicMethod = function()
             GRM_G.liveAddedToons[name] = nil; -- No longer needed on this list since they are confirmed in guild.
         end
 
-        roster[name] = {}; -- For easy referencing.
-        roster[name].name = name
-        roster[name].rankName = rank;
-        roster[name].rankIndex = rankInd;
-        roster[name].level = level;
-        roster[name].note = note or "";
-        roster[name].officerNote = officerNote or "";
-        roster[name].class = class;
-        roster[name].isOnline = online;
-        local years, months, days, hours = GetGuildRosterLastOnline(i);
-        roster[name].lastOnline = GRM.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
-        roster[name].lastOnlineTime = {years or 0, months or 0, days or 0, hours or 0};
-        roster[name].zone = zone;
-        roster[name].achievementPoints = achievementPoints;
-        roster[name].isMobile = isMobile;
-        roster[name].rep = rep;
-        roster[name].status = status;
-        roster[name].GUID = GUID;
-        roster[name].rosterSelection = i;
-        roster[name].faction = GRM_G.faction;
+        if roster[name] then
 
-        local race, sex = select(4, GetPlayerInfoByGUID(GUID));
-        if race == nil or sex == nil then
-            race, sex = select(4, GetPlayerInfoByGUID(GUID)); -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
-            if race == nil or sex == nil then
-                race = "";
-                sex = 1;
+            if GRM.GetNewerAccountByGUID( roster[name].GUID , GUID ) == GUID then
+                if GRM_G.HardcoreActive then
+                    -- Add the death note indicating dead player on account
+                    GRM.SetPlayerAsDeadByGUID ( roster[name].GUID , roster[name].lastOnline , roster[name].rosterSelection , roster[name].note );
+                end
+                roster[name] = nil;
+            else
+                -- The player at index i is dead.
+                if GRM_G.HardcoreActive then
+                    -- Add the death note indicating dead player on account
+                    GRM.SetPlayerAsDeadByGUID ( GUID , lastOnline , i , note );
+                end
+
             end
+            count = count + 1;
         end
 
-        roster[name].race = race;
-        roster[name].sex = sex;
+        if not roster[name] then
 
-        if GRM_G.BuildVersion >= 80000 then
-            roster[name].MythicScore = 0;
+            roster[name] = {}; -- For easy referencing.
+            roster[name].name = name
+            roster[name].rankName = rank;
+            roster[name].rankIndex = rankInd;
+            roster[name].level = level;
+            roster[name].note = note or "";
+            roster[name].officerNote = officerNote or "";
+            roster[name].class = class;
+            roster[name].isOnline = online;
+            local years, months, days, hours = GetGuildRosterLastOnline(i);
+            roster[name].lastOnline = GRM.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
+            roster[name].lastOnlineTime = {years or 0, months or 0, days or 0, hours or 0};
+            roster[name].zone = zone;
+            roster[name].achievementPoints = achievementPoints;
+            roster[name].isMobile = isMobile;
+            roster[name].rep = rep;
+            roster[name].status = status;
+            roster[name].GUID = GUID;
+            roster[name].rosterSelection = i;
+            roster[name].faction = GRM_G.faction;
+
+            local race, sex = select(4, GetPlayerInfoByGUID(GUID));
+            if race == nil or sex == nil then
+                race, sex = select(4, GetPlayerInfoByGUID(GUID)); -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
+                if race == nil or sex == nil then
+                    race = "";
+                    sex = 1;
+                end
+            end
+
+            roster[name].race = race;
+            roster[name].sex = sex;
+
+            if GRM_G.BuildVersion >= 80000 then
+                roster[name].MythicScore = 0;
+            end
+            atLeastOne = true;
+
         end
-        atLeastOne = true;
+
     end
 
     for memberName in pairs(GRM_G.liveKickedToons) do
@@ -15665,7 +15733,7 @@ GRM.BuildRosterClassicMethod = function()
             player = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
             name = GRM.GetFullNameClubMember(player.guid);
 
-            if name ~= "" and roster[name] then
+            if name ~= "" and roster[name] and roster[name].GUID == player.guid then
                 if player.overallDungeonScore then
                     roster[name].MythicScore = player.overallDungeonScore;
                 end
@@ -15677,7 +15745,8 @@ GRM.BuildRosterClassicMethod = function()
             end
         end
     end
-    return roster, orderedRoster, atLeastOne;
+
+    return roster, orderedRoster, atLeastOne , count;
 end
 
 -- Methood:         GRM.BuildRosterCommunitiesMethod()
@@ -15689,6 +15758,7 @@ GRM.BuildRosterCommunitiesMethod = function()
     local name = "";
     local sex = 0;
     local player = {};
+    local count = 0;
 
     for i = 1, #members do
         player = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
@@ -15702,47 +15772,73 @@ GRM.BuildRosterCommunitiesMethod = function()
                 GRM_G.liveAddedToons[name] = nil; -- No longer needed on this list since they are confirmed in guild.
             end
 
-            roster[name] = {}; -- For easy referencing.
-            roster[name].name = name;
-            roster[name].rosterSelection = GRM.GetRosterSelectionID(name);
-            roster[name].rankName = player.guildRank;
-            roster[name].rankIndex = player.guildRankOrder - 1; -- Subtract one due to legacy changes - it used to start at index 0 until 8.0
-            roster[name].level = player.level;
-            roster[name].note = player.memberNote or "";
-            roster[name].officerNote = player.officerNote or "";
-            roster[name].class = C_CreatureInfo.GetClassInfo(player.classID).classFile;
-            roster[name].isOnline = GRM.IsPresenceOnline(player.presence);
-            roster[name].lastOnline = GRM.CalculateTotalHours(
-                {player.lastOnlineYear or 0, player.lastOnlineMonth or 0, player.lastOnlineDay or 0,
-                 player.lastOnlineHour or 0}, roster[name].isOnline);
-            roster[name].lastOnlineTime = {player.lastOnlineYear or 0, player.lastOnlineMonth or 0,
-                                           player.lastOnlineDay or 0, player.lastOnlineHour or 0};
-            roster[name].zone = player.zone;
-            roster[name].achievementPoints = player.achievementPoints;
-            roster[name].rep = GRM.GetPlayerGuildRep(name);
-            roster[name].status = player.presence;
-            roster[name].GUID = player.guid;
-            roster[name].sex = sex;
+            if roster[name] then
 
-            local race = player.race;
-            if race then
-                roster[name].race = C_CreatureInfo.GetRaceInfo(player.race).clientFileString;
+                if GRM.GetNewerAccountByGUID( roster[name].GUID , player.guid ) == player.guid then
+                    if GRM_G.HardcoreActive then
+                        -- Add the death note indicating dead player on account
+                        GRM.SetPlayerAsDeadByGUID ( roster[name].GUID , roster[name].lastOnline , roster[name].rosterSelection , roster[name].note );
+                    end
+                    roster[name] = nil;
+                else
+                    -- The player at index i is dead.
+                    if GRM_G.HardcoreActive then
+                        -- Add the death note indicating dead player on account
+                        local lastOnline = GRM.CalculateTotalHours(
+                            {player.lastOnlineYear or 0, player.lastOnlineMonth or 0, player.lastOnlineDay or 0,
+                            player.lastOnlineHour or 0}, GRM.IsPresenceOnline(player.presence) );
+                        GRM.SetPlayerAsDeadByGUID ( player.guid , lastOnline , GRM.GetRosterSelectionID ( player.name , player.guid ) , player.note or "" );
+                    end
+
+                end
+                count = count + 1;
+            end
+
+            if not roster[name] then
+
+                roster[name] = {}; -- For easy referencing.
+                roster[name].name = name;
+                roster[name].rosterSelection = GRM.GetRosterSelectionID( name , player.guid );
+                roster[name].rankName = player.guildRank;
+                roster[name].rankIndex = player.guildRankOrder - 1; -- Subtract one due to legacy changes - it used to start at index 0 until 8.0
+                roster[name].level = player.level;
+                roster[name].note = player.memberNote or "";
+                roster[name].officerNote = player.officerNote or "";
+                roster[name].class = C_CreatureInfo.GetClassInfo(player.classID).classFile;
+                roster[name].isOnline = GRM.IsPresenceOnline(player.presence);
+                roster[name].lastOnline = GRM.CalculateTotalHours(
+                    {player.lastOnlineYear or 0, player.lastOnlineMonth or 0, player.lastOnlineDay or 0,
+                    player.lastOnlineHour or 0}, roster[name].isOnline);
+                roster[name].lastOnlineTime = {player.lastOnlineYear or 0, player.lastOnlineMonth or 0,
+                                            player.lastOnlineDay or 0, player.lastOnlineHour or 0};
+                roster[name].zone = player.zone;
+                roster[name].achievementPoints = player.achievementPoints;
+                roster[name].rep = GRM.GetPlayerGuildRep( name , player.guid );
+                roster[name].status = player.presence;
+                roster[name].GUID = player.guid;
+                roster[name].sex = sex;
+
+                local race = player.race;
+                if race then
+                    roster[name].race = C_CreatureInfo.GetRaceInfo(player.race).clientFileString;
+                else
+                    roster[name].race = GRM.GetPlayerRace(player.guid);
+                end
+
+                if GRM_G.BuildVersion > 80000 then
+                    roster[name].MythicScore = player.overallDungeonScore or 0;
+                end
+
+                roster[name].faction = GRM_G.faction;
+                if GRM_G.BuildVersion >= 100000 then
+                    roster[name].faction = player.faction;
+                end
             else
-                roster[name].race = GRM.GetPlayerRace(player.guid);
+                count = count + 1;
             end
-
-            if GRM_G.BuildVersion > 80000 then
-                roster[name].MythicScore = player.overallDungeonScore or 0;
-            end
-
-            roster[name].faction = GRM_G.faction;
-            if GRM_G.BuildVersion >= 100000 then
-                roster[name].faction = player.faction;
-            end
-
         end
     end
-    return roster, orderedRoster, atLeastOne;
+    return roster, orderedRoster, atLeastOne , count;
 end
 
 -- Method:          GRM.BuildNewRoster()
@@ -15764,7 +15860,7 @@ GRM.BuildNewRoster = function()
         guildNotFound = true;
     end
 
-    local roster, orderedRoster, atLeastOne = GRM.BuildRosterClassicMethod();
+    local roster, orderedRoster, atLeastOne , count = GRM.BuildRosterClassicMethod();
 
     -- if C_Club.GetGuildClubId() and GRM_G.gClubID and GRM_G.gClubID ~= "" then
     --     roster , orderedRoster, atLeastOne = GRM.BuildRosterCommunitiesMethod();
@@ -15773,7 +15869,7 @@ GRM.BuildNewRoster = function()
     -- end
 
     -- For some reason, on occasion the entire guild DB doesn't load on the full server query, typically only happens shortly after loginc so to prevent issues
-    if GRM.TableLength(roster) ~= GRM.GetNumGuildies() then
+    if GRM.TableLength(roster) ~= ( GRM.GetNumGuildies() - count ) then-- GRM.GetNumGuildies() then
         C_Timer.After(3, function()
             GRM.GuildRoster();
         end);
@@ -18719,7 +18815,7 @@ GRM.InitializeDropDownMonth = function()
     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetHeight(height + 15);
 end
 
--- Method:          GRM.SetJoinDate()
+-- Method:          GRM.SetJoinDate( string , int , int , int )
 -- What it Does:    Sets the player's join date properly, be it the first time, a modified time, or an edit.
 -- Purpose:         For so many uses! Anniversary tracking, for editing the date, and so on...
 GRM.SetJoinDate = function(name, dayJoined, monthJoined, yearJoined)
@@ -18762,7 +18858,7 @@ GRM.SetJoinDate = function(name, dayJoined, monthJoined, yearJoined)
             GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:SetText(finalTStamp);
 
             -- Update timestamp to note.
-            GRM.AddTimeStampToNote(name, finalTStamp);
+            GRM.AddTimeStampToNote( name , player.GUID , finalTStamp);
 
             -- Gotta update the event tracker date too!
             player.events[1][1][1] = dayJoined;
@@ -20916,7 +21012,7 @@ GRM.ResetPlayerMetaData = function(playerName)
                                      player.lastOnlineHour or 0};
             member.zone = player.zone;
             member.achievementPoints = player.achievementPoints;
-            member.rep = GRM.GetPlayerGuildRep(name);
+            member.rep = GRM.GetPlayerGuildRep(name , player.guid);
             member.status = player.presence;
             member.isOnline = GRM.IsPresenceOnline(player.presence);
             member.GUID = player.guid;
@@ -21084,7 +21180,7 @@ GRM.CheckForNewPlayer = function( name )
     for i = 1 , GRM.GetNumGuildies() do
         local rosterName , rank , rankInd , level , _ , zone , note , oNote , online , status , classFile , pts , _ , _ , _ , rep , guid = GetGuildRosterInfo ( i );
 
-        if name == rosterName then
+        if name == rosterName and online then -- Need to check if online, as this is a live update, and if a double copy from a deleted toon in HC mode, that could be pointing at wrong name.
 
             local race, sex = select(4, GetPlayerInfoByGUID(guid));
             if race == nil or sex == nil then
@@ -22039,11 +22135,11 @@ end
 ----- ALL THINGS UX ARE HERE --
 -------------------------------
 
--- Method:          GRM.GRM.PopulateMemberDetails ( string )
+-- Method:          GRM.GRM.PopulateMemberDetails ( string , memberTable , bool )
 -- What it Does:    Builds the details for the core MemberInfoFrame
 -- Purpose:         Iterate on each mouseover... Furthermore, this is being kept in "Local" for even the most infinitesimal cost-saving on resources
 --                  by not indexing it in a table. Buried in it will be mostly non-compartmentalized logic, few function calls.
-GRM.PopulateMemberDetails = function(handle, memberInfo)
+GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
     if handle ~= "" and handle ~= nil and GRM_G.guildName ~= "" and IsInGuild() then -- If the handle is failed to be returned, it is returned as an empty string. Just logic to not populate if on failure.
         GRM_G.rankDateSet = false; -- resetting tracker
 
@@ -22067,24 +22163,54 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 end
             end
 
-            if zone ~= nil and zone ~= "" then
-                player.isOnline = online;
-                if player.zone ~= zone then
-                    player.timeEnteredZone = time(); -- Resets the time
+            if not doubleCopy then
+                if zone ~= nil and zone ~= "" then
+                    player.isOnline = online;
+                    if player.zone ~= zone then
+                        player.timeEnteredZone = time(); -- Resets the time
+                    end
+                    player.zone = zone;
                 end
-                player.zone = zone;
             end
 
             --- CLASS
-            local classColors = GRM.GetClassColorRGB(player.class);
+            local class;
+            if memberInfo then
+                class = C_CreatureInfo.GetClassInfo(memberInfo.classID).classFile;
+            else
+                class = player.class;
+            end
+
+            local classColors = GRM.GetClassColorRGB( class );
             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailNameText:SetTextColor(classColors[1], classColors[2],
                 classColors[3], 1.0);
 
             -- FACTION ICON
-            GRM.FactionIcon(player.faction);
+            local faction;
+            if memberInfo then
+                faction = memberInfo.faction;
+            else
+                faction = player.faction;
+            end
+
+            GRM.FactionIcon( faction );
+
+            local note;
+            if memberInfo then
+                note = memberInfo.memberNote;
+            else
+                note = player.note;
+            end
 
             -- HARDCORE MODE
-            GRM.DeathStatus(player);
+            if not doubleCopy then
+                GRM.DeathStatus(player);
+            else
+                if not note then
+                    note = "";
+                end
+                GRM.DeathStatus ( nil , true , string.match ( note , "[D]-(%d+)" ) );
+            end
 
             -- PLAYER NAME
             -- Let's scale the name too!
@@ -22099,13 +22225,13 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
             end
 
             -- IS MAIN
-            if GRM.IsMain(player.name) then
+            if not doubleCopy and GRM.IsMain ( player.name ) then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Show();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMainText:Hide();
 
-                if GRM.PlayerIsAnAlt(player) then
+                if not doubleCopy and GRM.PlayerIsAnAlt(player) then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Show();
                 else
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailAltText:Hide();
@@ -22114,30 +22240,45 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
 
             --- LEVEL
             local levelAndMythicText = "";
+            local level;
+            if memberInfo then
+                level = memberInfo.level;
+            else
+                level = player.level;
+            end
 
             if GRM.S().showLevel then
 
-                if not GRM.S().showLevelMaxOnly or (GRM.S().showLevelMaxOnly and player.level < GRM_G.LvlCap) then
+                if not GRM.S().showLevelMaxOnly or (GRM.S().showLevelMaxOnly and level < GRM_G.LvlCap) then
                     if GRML.Languages[GRM.S().selectedLang] == "Russian" or GRML.Languages[GRM.S().selectedLang] ==
                         "Korean" then
-                        levelAndMythicText = tostring(player.level) .. GRM.L("Level: ");
+                        levelAndMythicText = tostring(level) .. GRM.L("Level: ");
                     else
-                        levelAndMythicText = GRM.L("Level: ") .. player.level;
+                        levelAndMythicText = GRM.L("Level: ") .. level;
                     end
                 end
             end
 
             -- MYTHINC+ SCORE
-            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating and player.level == GRM_G.LvlCap then
+            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating and level == GRM_G.LvlCap then
+
+                local mythicScore;
+                if memberInfo and memberInfo.overallDungeonScore then
+                    mythicScore = memberInfo.overallDungeonScore;
+                elseif player.MythicScore then
+                    mythicScore = player.MythicScore;
+                else
+                    mythicScore = 0;
+                end
 
                 if levelAndMythicText ~= "" then
                     levelAndMythicText = levelAndMythicText .. " | " .. GRM.L("M+ Rating:") .. "  " ..
-                                             GRM.GetMythicRatingToMatchRaiderIO(player.MythicScore) ..
-                                             player.MythicScore .. "|r";
+                                             GRM.GetMythicRatingToMatchRaiderIO(mythicScore) ..
+                                             mythicScore .. "|r";
                 else
                     levelAndMythicText = GRM.L("M+ Rating:") .. "  " ..
-                                             GRM.GetMythicRatingToMatchRaiderIO(player.MythicScore) ..
-                                             player.MythicScore .. "|r";
+                                             GRM.GetMythicRatingToMatchRaiderIO(mythicScore) ..
+                                             mythicScore .. "|r";
                 end
             end
 
@@ -22149,7 +22290,7 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
 
             -- ZONE INFORMATION
             if not GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() then
-                if player.isOnline then
+                if not doubleCopy and player.isOnline then
                     if player.zone ~= nil then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone); -- Zone
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailMetaZoneInfoTimeText2:SetText(
@@ -22167,14 +22308,14 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 end
 
                 -- RANK PROMO DATE
-                if player.promoteDateUnknown then
+                if not doubleCopy and player.promoteDateUnknown then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:SetText(GRM.L("Promoted:") .. " " ..
                                                                                             GRM.L("Unknown"));
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:Show();
                     GRM_UI.GRM_MemberDetailMetaData.GRM_SetPromoDateButton:Hide();
                     GRM_G.rankDateSet = true;
                 else
-                    if #player.rankHist[1][5] == 1 then --- Promotion has never been recorded!
+                    if doubleCopy or #player.rankHist[1][5] == 1 then --- Promotion has never been recorded!
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:Hide();
                         GRM_UI.GRM_MemberDetailMetaData.GRM_SetPromoDateButton:Show();
                     else
@@ -22189,12 +22330,12 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 end
 
                 -- JOIN DATE
-                if player.joinDateUnknown then
+                if not doubleCopy or player.joinDateUnknown then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton:Hide();
                     GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:SetText(GRM.L("Unknown"));
                     GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:Show();
                 else
-                    if player.joinDateHist[1][1] == 0 then
+                    if doubleCopy or player.joinDateHist[1][1] == 0 then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:Hide();
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton:Show();
                     else
@@ -22209,7 +22350,7 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 end
 
                 -- Birthday
-                if GRM.S().showBDay then
+                if not doubleCopy and GRM.S().showBDay then
                     -- Title should always be here
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText:Show();
                     if player.birthdayUnknown then
@@ -22245,11 +22386,12 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Hide();
 
                 -- Set Public Note if is One
-                if player.note ~= nil and player.note ~= "" then
-                    finalNote = player.note;
+                if note and note ~= "" then
+                    finalNote = note;
                 end
+
                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText(finalNote);
-                if (GRM.CanEditPublicNote() or (GRM_G.BuildVersion >= 10000 and handle == GRM_G.addonUser)) then
+                if ( GRM.CanEditPublicNote() or handle == GRM_G.addonUser ) then
                     if finalNote ~= GRM.L("Click here to set a Public Note") then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText(finalNote);
                     else
@@ -22260,12 +22402,19 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                         "Unable to Edit Public Note at Rank"));
                 end
 
+                local officerNote;
+                if memberInfo then
+                    officerNote = memberInfo.officerNote;
+                else
+                    officerNote = player.officerNote;
+                end
+
                 -- Set O Note
                 if GRM.CanViewOfficerNote() == true then
-                    if player.officerNote ~= nil and player.officerNote ~= "" then
-                        finalONote = player.officerNote;
+                    if officerNote and officerNote ~= "" then
+                        finalONote = officerNote;
                     end
-                    if finalONote == GRM.L("Click here to set an Officer's Note") and GRM.CanEditOfficerNote() ~= true then
+                    if finalONote == GRM.L("Click here to set an Officer's Note") and not GRM.CanEditOfficerNote() then
                         finalONote = GRM.L("Unable to Edit Officer Note at Rank");
                     end
                     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText(finalONote);
@@ -22280,7 +22429,7 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 end
 
                 -- Custom Note CheckBox
-                if player.customNote[1] then
+                if not doubleCopy and player.customNote[1] then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetChecked(
                         true);
                 else
@@ -22298,7 +22447,11 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:Disable();
                 end
                 -- Set Custom Note details
-                GRM.BuildCustomNoteScrollFrame(player.customNote[4]);
+                local cNote = "";
+                if not doubleCopy then
+                    cNote = player.customNote[4];
+                end
+                GRM.BuildCustomNoteScrollFrame( cNote );
                 if GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
                 end
@@ -22309,7 +22462,7 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
             end
 
             -- Last Online
-            if player.isOnline then
+            if not doubleCopy and player.isOnline then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLastOnlineTxt:SetText(GRM.L("Online"));
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailLastOnlineTxt:SetText(GRM.HoursReport(
@@ -22317,7 +22470,7 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
             end
 
             -- Reputation
-            if GRM.S().viewGuildRep and GRM_G.BuildVersion >= 40000 then -- Cataclysm feature added
+            if not doubleCopy and GRM.S().viewGuildRep and GRM_G.BuildVersion >= 40000 then -- Cataclysm feature added
                 GRM_UI.GRM_MemberDetailMetaData.GRM_ReputationLevelText:SetText(GRM.GetReputationTextLevel(
                     player.guildRep, true));
                 GRM_UI.GRM_MemberDetailMetaData.GRM_ReputationLevelText:Show();
@@ -22326,7 +22479,7 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
             end
 
             -- Group Invite Button -- Setting script here
-            if player.isOnline and handle ~= GRM_G.addonUser and
+            if not doubleCopy and player.isOnline and handle ~= GRM_G.addonUser and
                 not GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
                 GRM.SetGroupInviteButton(handle);
                 GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:Show();
@@ -22334,7 +22487,7 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetPoint("LEFT",
                     GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton, "RIGHT", 5, 0);
                 GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Show();
-            elseif not player.isOnline or handle == GRM_G.addonUser then
+            elseif not doubleCopy and ( not player.isOnline or handle == GRM_G.addonUser ) then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:Hide();
 
                 if handle ~= GRM_G.addonUser and
@@ -22346,11 +22499,17 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
                 else
                     GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Hide();
                 end
+            elseif doubleCopy then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:Hide();
             end
 
             -- IF PLAYER WAS PREVIOUSLY BANNED AND REJOINED
             -- Player was previous banned and rejoined logic! This will unban the player.
-            local isGuildieBanned = player.bannedInfo[1];
+            local isGuildieBanned = false;
+            if not doubleCopy then
+                isGuildieBanned = player.bannedInfo[1];
+            end
+
             if isGuildieBanned and handle ~= GRM_G.addonUser then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBannedIgnoreButton:SetScript("OnClick",
                     function(_, button)
@@ -22377,7 +22536,9 @@ GRM.PopulateMemberDetails = function(handle, memberInfo)
             end
 
             -- ALTS
-            GRM.PopulateAltFrames(handle);
+            if not doubleCopy then
+                GRM.PopulateAltFrames(handle);
+            end
 
             -- Font note handling
             GRM_UI.ReconfigureNoteFonts();
@@ -22446,19 +22607,43 @@ GRM.FactionIcon = function(index)
     end
 end
 
--- Method:          GRM.DeathStatus ( playerObject )
+-- Method:          GRM.DeathStatus ( playerObject , bool )
 -- What it Does:    Controls the texture visibility in the mouseover window
 -- Purpose:         Hardcore mode support indicates player is DEAD.
-GRM.DeathStatus = function(player)
-    if GRM_G.HardcoreActive and player.HC.isDead then
-        GRM_UI.GRM_MemberDetailMetaData.GRM_DeathTexture:Show();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_ClearDeathButton:Show();
+GRM.DeathStatus = function( player , isDead , timestamp )
+    if isDead or ( GRM_G.HardcoreActive and player.HC.isDead ) then
 
-        GRM_UI.GRM_MemberDetailMetaData.GRM_RIPtext:SetText(GRM.L("R.I.P. - {custom1}", nil, nil, nil,
-            GRM.FormatTimeStamp({player.HC.timeOfDeath[1], player.HC.timeOfDeath[2], player.HC.timeOfDeath[3]})));
-        GRM_UI.GRM_MemberDetailMetaData.GRM_RIPtext:SetTextColor(GRM.S().logColor[15][1], GRM.S().logColor[15][2],
-            GRM.S().logColor[15][3]);
-        GRM_UI.GRM_MemberDetailMetaData.GRM_RIPtext:Show();
+        if isDead then
+            GRM_UI.GRM_MemberDetailMetaData.GRM_DeathTexture:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\deleted.png" );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_ClearDeathButton:Hide();
+        else
+            GRM_UI.GRM_MemberDetailMetaData.GRM_DeathTexture:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\dead.png" );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_ClearDeathButton:Show();
+        end
+        GRM_UI.GRM_MemberDetailMetaData.GRM_DeathTexture:Show();
+
+        if not isDead or ( isDead and timestamp ) then
+            local time = {};
+            if player then
+                time = { player.HC.timeOfDeath[1] , player.HC.timeOfDeath[2] , player.HC.timeOfDeath[3] };
+            elseif timestamp and #timestamp == 8 then
+                local day , month , year = GRM.ParseStandardFormatDate ( timestamp );
+                if day then
+                    time = { day , month , year };
+                end
+            end
+
+            if #time > 0 then
+
+                GRM_UI.GRM_MemberDetailMetaData.GRM_RIPtext:SetText(GRM.L("R.I.P. - {custom1}", nil, nil, nil,
+                    GRM.FormatTimeStamp({time[1], time[2], time[3]})));
+                GRM_UI.GRM_MemberDetailMetaData.GRM_RIPtext:SetTextColor(GRM.S().logColor[15][1], GRM.S().logColor[15][2],
+                    GRM.S().logColor[15][3]);
+                GRM_UI.GRM_MemberDetailMetaData.GRM_RIPtext:Show();
+            end
+        else
+            GRM_UI.GRM_MemberDetailMetaData.GRM_RIPtext:Hide();
+        end
     else
         GRM_UI.GRM_MemberDetailMetaData.GRM_DeathTexture:Hide();
         GRM_UI.GRM_MemberDetailMetaData.GRM_ClearDeathButton:Hide();
@@ -25770,7 +25955,7 @@ end
 -- What it Does:    changes the player's note date to match the GRM save date.
 -- Purpose:         Useful mini join date tool to cycle mass update join dates for guildies.
 GRM.EditSavedNoteDateManually = function(member)
-    local player = GRM.GetPlayer(member[1]);
+    local player = GRM.GetPlayer( member[1] );
 
     if player then
         local tempNote = "";
@@ -25783,7 +25968,7 @@ GRM.EditSavedNoteDateManually = function(member)
         end
 
         -- Find them in the guild indexes to modify offier/public notes
-        local i = GRM.GetRosterSelectionID(member[1]);
+        local i = GRM.GetRosterSelectionID( member[1] , player.GUID );
 
         if i then
 
@@ -25942,7 +26127,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
 
         -- Find them in the guild indexes to modify offier/public notes
         if not getCount then
-            index = GRM.GetRosterSelectionID(member[1]);
+            index = GRM.GetRosterSelectionID( member[1] , player.GUID );
         end
 
         -- Set the repeated note formatting to be added to note.
@@ -26047,13 +26232,13 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
     return count;
 end
 
--- Method:          GRM.AddTimeStampToNote ( string , string )
+-- Method:          GRM.AddTimeStampToNote ( string , string , string )
 -- What it Does:    Adds the new timestamp of when a player joins to the destination note
 -- Purpose:         To track timestamps in the notes.
-GRM.AddTimeStampToNote = function(name, date)
+GRM.AddTimeStampToNote = function(name , GUID , date)
     if GRM.S().addTimestampToNote then
 
-        local i = GRM.GetRosterSelectionID(name);
+        local i = GRM.GetRosterSelectionID ( name , GUID );
 
         if i then
 
@@ -26061,6 +26246,7 @@ GRM.AddTimeStampToNote = function(name, date)
             local guildieName = rosterMember[1];
             local note = rosterMember[7];
             local oNote = rosterMember[8];
+            local guid = rosterMember[17];
 
             if not note then
                 note = "";
@@ -26069,7 +26255,7 @@ GRM.AddTimeStampToNote = function(name, date)
                 oNote = "";
             end
 
-            if name == guildieName then
+            if name == guildieName and GUID == guid then
 
                 local player = GRM.GetPlayer(name);
 
@@ -26129,7 +26315,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
     local player = GRM.GetPlayer(member[1]);
 
     if player then
-        local i = GRM.GetRosterSelectionID(member[1]);
+        local i = GRM.GetRosterSelectionID( member[1] , player.GUID );
 
         if i then
 
@@ -26654,13 +26840,14 @@ GRM.OpenPlayerWindow = function(playerName)
     end);
 end
 
--- Method:          GRM.GetRosterSelectionID ( string )
+-- Method:          GRM.GetRosterSelectionID ( string , string )
 -- What it Does:    Updates the selected index of the manually opened player window
 -- Purpose:         To ensure regular update intervals are accurately looking at the correct player.
-GRM.GetRosterSelectionID = function(name)
+GRM.GetRosterSelectionID = function( name , guid )
 
     for i = 1, GRM.GetNumGuildies() do
-        if GetGuildRosterInfo(i) == name then
+        local player = ( { GetGuildRosterInfo(i) } );
+        if player[1] == name and player[17] == guid then
             return i;
         end
     end
@@ -26826,7 +27013,7 @@ end
 -- Method:          GRM.UpdateNoteFromChat ( string , string )
 -- What it Does:    Updates the player note if you are an officer to do it, and the player typed !note in chat
 -- Purpose:         Help with adding public notes for guildies who it is restricted due to officer changes.
-GRM.UpdateNoteFromChat = function(playerName, note)
+GRM.UpdateNoteFromChat = function( playerName , note)
     local maxNoteSize = 31;
 
     if GRM.GetNumLetters(note) > maxNoteSize then
@@ -26836,17 +27023,20 @@ GRM.UpdateNoteFromChat = function(playerName, note)
         end);
     end
     -- Let's find the player
-    local i = GRM.GetRosterSelectionID(playerName);
-    if i then
-        GuildRosterSetPublicNote(i, note);
+    local player = GRM.GetPlayer ( playerName );
+    if player then
+        local i = GRM.GetRosterSelectionID( playerName , player.GUID );
+        if i then
+            GuildRosterSetPublicNote(i, note);
 
-        if GRM.S().toChat.note then
-            C_Timer.After(1, function()
-                GRM_G.ReportedNoOfficerOnly = false;
-                GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(playerName)));
-            end);
+            if GRM.S().toChat.note then
+                C_Timer.After(1, function()
+                    GRM_G.ReportedNoOfficerOnly = false;
+                    GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(playerName)));
+                end);
+            end
+
         end
-
     end
 end
 
