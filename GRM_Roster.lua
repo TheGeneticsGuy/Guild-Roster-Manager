@@ -1582,8 +1582,10 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
         end
 
         if i >= ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset - hybridScrollFrameButtonCount + 1 ) and i <= GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset then
-            GRM_R.SetGuildRosterValues ( i - ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset - hybridScrollFrameButtonCount ) , i );
-            GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i - ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset - hybridScrollFrameButtonCount )][1]:Show();
+            if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i - ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset - hybridScrollFrameButtonCount )] then
+                GRM_R.SetGuildRosterValues ( i - ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset - hybridScrollFrameButtonCount ) , i );
+                GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i - ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset - hybridScrollFrameButtonCount )][1]:Show();
+            end
         end
 
         -- Slider Height is controlled by tallying how many of these are necessary
@@ -1975,66 +1977,69 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
     local line = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind];
     local name = "";
 
-    line[2]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].level );
+    if line then
 
-    -- Player Name
-    if GRM_UI.GRM_RosterFrame.Entries[ind2].isMain then
-        if GRM.S().showMainTags then
-            name = GRM_UI.GRM_RosterFrame.Entries[ind2].name .. " " .. GRM_G.mainTag;
+        line[2]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].level );
+
+        -- Player Name
+        if GRM_UI.GRM_RosterFrame.Entries[ind2].isMain then
+            if GRM.S().showMainTags then
+                name = GRM_UI.GRM_RosterFrame.Entries[ind2].name .. " " .. GRM_G.mainTag;
+            else
+                name = GRM_UI.GRM_RosterFrame.Entries[ind2].name;
+            end
+
+        elseif GRM_UI.GRM_RosterFrame.Entries[ind2].isAlt then
+            if GRM.S().showAltTags then
+                name = GRM_UI.GRM_RosterFrame.Entries[ind2].name .. " " .. GRM_G.altTag;
+            else
+                name = GRM_UI.GRM_RosterFrame.Entries[ind2].name;
+            end
         else
             name = GRM_UI.GRM_RosterFrame.Entries[ind2].name;
         end
 
-    elseif GRM_UI.GRM_RosterFrame.Entries[ind2].isAlt then
-        if GRM.S().showAltTags then
-            name = GRM_UI.GRM_RosterFrame.Entries[ind2].name .. " " .. GRM_G.altTag;
-        else
-            name = GRM_UI.GRM_RosterFrame.Entries[ind2].name;
+        -- Alt vs Main
+        if GRM.S().showMains and GRM.S().groupByMain and GRM_UI.GRM_RosterFrame.Entries[ind2].isAlt then
+            name = "     " .. name;
         end
-    else
-        name = GRM_UI.GRM_RosterFrame.Entries[ind2].name;
-    end
 
-    -- Alt vs Main
-    if GRM.S().showMains and GRM.S().groupByMain and GRM_UI.GRM_RosterFrame.Entries[ind2].isAlt then
-        name = "     " .. name;
-    end
+        if GRM_G.HardcoreActive and GRM_UI.GRM_RosterFrame.Entries[ind2].isDead then
+            name = name .. " " .. GRM_G.HardcoreHexCode .. "[" .. GRM.L ( "Dead" ) .. "]|r"
+        end
 
-    if GRM_G.HardcoreActive and GRM_UI.GRM_RosterFrame.Entries[ind2].isDead then
-        name = name .. " " .. GRM_G.HardcoreHexCode .. "[" .. GRM.L ( "Dead" ) .. "]|r"
-    end
+        line[3]:SetText ( name );
+        line[3]:SetTextColor ( GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[1] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[2] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[3] );
 
-    line[3]:SetText ( name );
-    line[3]:SetTextColor ( GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[1] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[2] , GRM_UI.GRM_RosterFrame.Entries[ind2].classColor[3] );
+        line[4]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].hoursReport );
+        if GRM_UI.GRM_RosterFrame.Entries[ind2].hoursReport == GRM.L ( "Online" ) then
+            line[4]:SetTextColor( 0.12 , 1 , 0 );
+        else
+            line[4]:SetTextColor ( 1 , 1 , 1);
+        end
+        line[5]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].rankName );
 
-    line[4]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].hoursReport );
-    if GRM_UI.GRM_RosterFrame.Entries[ind2].hoursReport == GRM.L ( "Online" ) then
-        line[4]:SetTextColor( 0.12 , 1 , 0 );
-    else
-        line[4]:SetTextColor ( 1 , 1 , 1);
-    end
-    line[5]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].rankName );
+        if GRM_G.BuildVersion >= 80000 then
+            line[6]:SetText ( GRM.GetMythicRatingToMatchRaiderIO ( GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore ) .. GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore );
+        end
 
-    if GRM_G.BuildVersion >= 80000 then
-        line[6]:SetText ( GRM.GetMythicRatingToMatchRaiderIO ( GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore ) .. GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore );
-    end
+        line[7]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].note );
+        line[8]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].officerNote );
+        line[9]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].customNote );
 
-    line[7]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].note );
-    line[8]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].officerNote );
-    line[9]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].customNote );
+        -- Update the tooltip if underlying data changes
+        if GameTooltip:IsVisible() and GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][1]:IsMouseOver() then
+            GRM_R.UpdateGuildRosterTooltip ( ind );
+        end
 
-    -- Update the tooltip if underlying data changes
-    if GameTooltip:IsVisible() and GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][1]:IsMouseOver() then
-        GRM_R.UpdateGuildRosterTooltip ( ind );
-    end
-
-    if GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:IsVisible() and GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][1]:IsMouseOver() then
-        if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10]:IsMouseOver() then
-            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10] , ind , 7 );
-        elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][11]:IsMouseOver() then
-            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][11] , ind , 8 );
-        elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][12]:IsMouseOver() then
-            GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][12] , ind , 9 );
+        if GRM_UI.GRM_RosterFrame.GRM_RosterFrameNoteTooltip:IsVisible() and GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][1]:IsMouseOver() then
+            if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10]:IsMouseOver() then
+                GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][10] , ind , 7 );
+            elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][11]:IsMouseOver() then
+                GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][11] , ind , 8 );
+            elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][12]:IsMouseOver() then
+                GRM_R.UpdateNoteText ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind][12] , ind , 9 );
+            end
         end
     end
 end

@@ -307,7 +307,6 @@ GRM_HC.HardCoreInitialize = function()
             local completeString = "";
             local delimiter = "";
             local playerDetails = "";
-            local isMergedRealm = GRM.IsMergedRealmServer();
             local name = "";
 
             if GRM.S().exportDelimiter[1] then
@@ -335,11 +334,7 @@ GRM_HC.HardCoreInitialize = function()
                         name = GRM.RemoveSpecialCharacters ( name );
                     end
 
-                    if isMergedRealm then
-                        playerDetails = playerDetails .. name .. delimiter;                                   -- name
-                    else
-                        playerDetails = playerDetails .. GRM.SlimName ( name ) .. delimiter;                  -- name
-                    end
+                    playerDetails = playerDetails .. name .. delimiter;
 
                     -- Level:
                     playerDetails = playerDetails .. deaths[i].level .. delimiter;
@@ -408,7 +403,7 @@ GRM_HC.HardCoreInitialize = function()
                     GRM.S().ignoreDeathChannel = true;
                     GRM.Report ( GRM.L ( "Please note, GRM will now track the deaths behind the scenes. If you wish to see the full server message, you will need to manually enable in the General Chat Settings." ) );
 
-                    if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame:IsVisible() then
+                    if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:IsVisible() then
                         GRM_UI.ConfigureHCOptions();
                     end
                 end

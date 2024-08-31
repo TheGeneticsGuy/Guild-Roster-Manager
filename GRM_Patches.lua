@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 131 - 2024 - 08 - 06
+--- Total Patches: 134 - 2024 - 08 - 29
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1629,6 +1629,21 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    -- 134
+    if numericV < 1.99141 and baseValue < 1.99141 then
+        GRM_Patch.AltGroupUpdateTweak();    -- Running again, but this time it is slightly tweaked due to a slight oversight.
+        GRM_Patch.AddNewSetting ( "ProfReportUpdatesToChat" , true );
+        GRM_Patch.AddNewSetting ( "ProfRankAutoUpdate" , false );
+        GRM_Patch.AddNewSetting ( "ProfNoteDestination" , 1 );  -- 1 = public note, 2 = officer note, 3 = custom note
+        GRM_Patch.AddNewSetting ( "realm" , true , nil , "exportFilters");
+
+        GRM_AddonSettings_Save.VERSION = "R1.99141";
+        if loopCheck ( 1.99141 ) then
+            return;
+        end
+    end
+
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -8982,40 +8997,55 @@ GRM_Patch.AltGroupUpdateTweak = function()
                     if #group > 0 then
                         for i = #group , 1, -1 do
 
-                            player = GRM.GetPlayer ( group[i].name , false , guildName );
+                            if group[i] then
 
-                            if player then
-                                -- Ok, player exists, now let's ensure the alt group is properly matching.
-                                if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
-                                    -- THEY DO NOT MATCH AND name has not been processed.
-                                    player.altGroup = groupNum;
-                                    namesCollected[ group[i].name ] = true;
+                                if group[i].name then
+                                    player = GRM.GetPlayer ( group[i].name , false , guildName );
 
-                                elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
-                                    -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
-                                    -- Since already processed, we are just going to purge the alt from the group, and assume player.altGroup is good.
-                                    table.remove ( group , i );
-                                    if #group == 0 then -- After removing, no one is left.
-                                        GRM_Alts[guildName][groupNum] = nil;
-                                    elseif group.main == player.name then
-                                        group.main = "";
+                                    if player then
+                                        -- Ok, player exists, now let's ensure the alt group is properly matching.
+                                        if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
+                                            -- THEY DO NOT MATCH AND name has not been processed.
+                                            player.altGroup = groupNum;
+                                            namesCollected[ group[i].name ] = true;
+
+                                        elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
+                                            -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
+                                            -- Since already processed, we are just going to purge the alt from the group, and assume player.altGroup is good.
+                                            table.remove ( group , i );
+                                            if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                                GRM_Alts[guildName][groupNum] = nil;
+                                                break;
+                                            elseif group.main == player.name then
+                                                group.main = "";
+                                            end
+
+                                        elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
+                                            -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
+                                            namesCollected[ group[i].name ] = true;
+                                        end
+
+                                    else
+                                        -- Remove player from the alt group since it doesn't exist in guild.
+                                        namesCollected[ group[i].name ] = true;
+                                        if group[i].name == group.main then
+                                            group.main = "";
+                                        end
+                                        table.remove ( group , i );
+                                        if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                            GRM_Alts[guildName][groupNum] = nil;
+                                            break;
+                                        end
                                     end
-
-                                elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
-                                    -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
-                                    namesCollected[ group[i].name ] = true;
+                                else
+                                    table.remove ( group , i );
+                                    if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                        GRM_Alts[guildName][groupNum] = nil;
+                                        break;
+                                    end
                                 end
-
                             else
-                                -- Remove player from the alt group since it doesn't exist in guild.
-                                namesCollected[ group[i].name ] = true;
-                                if group[i].name == group.main then
-                                    group.main = "";
-                                end
-                                table.remove ( group , i );
-                                if #group == 0 then -- After removing, no one is left.
-                                    GRM_Alts[guildName][groupNum] = nil;
-                                end
+                                GRM_Alts[guildName][groupNum] = nil;    -- Missing index in alt array - purge the group
                             end
                         end
                     else
@@ -9041,49 +9071,61 @@ GRM_Patch.AltGroupUpdateTweak = function()
                     if #group > 0 then
                         for i = #group , 1, -1 do
 
-                            player = guildData.members[ group[i].name ];
+                            if group[i] then
+                                if group[i].name then
+                                    player = guildData.members[ group[i].name ];
 
-                            if player then
-                                -- Ok, player exists, now let's ensure the alt group is properly matching.
-                                if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
-                                    -- THEY DO NOT MATCH AND name has not been processed.
-                                    player.altGroup = groupNum;
-                                    namesCollected[ group[i].name ] = true;
+                                    if player then
+                                        -- Ok, player exists, now let's ensure the alt group is properly matching.
+                                        if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
+                                            -- THEY DO NOT MATCH AND name has not been processed.
+                                            player.altGroup = groupNum;
+                                            namesCollected[ group[i].name ] = true;
 
-                                elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
-                                    -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
-                                    -- Since already processed, we are just going to purge the alt from the group, and assume player.altGroup is good.
-                                    table.remove ( group , i );
-                                    if #group == 0 then -- After removing, no one is left.
-                                        altGroups[groupNum] = nil;
-                                    elseif group.main == player.name then
-                                        group.main = "";
+                                        elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
+                                            -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
+                                            -- Since already processed, we are just going to purge the alt from the group, and assume player.altGroup is good.
+                                            table.remove ( group , i );
+                                            if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                                altGroups[groupNum] = nil;
+                                                break;
+
+                                            elseif group.main == player.name then
+                                                group.main = "";
+                                            end
+
+                                        elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
+                                            -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
+                                            namesCollected[ group[i].name ] = true;
+                                        end
+
+                                    else
+                                        -- Remove player from the alt group since it doesn't exist in guild.
+                                        namesCollected[ group[i].name ] = true;
+                                        if group[i].name == group.main then
+                                            group.main = "";
+                                        end
+                                        table.remove ( group , i );
+                                        if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                            altGroups[groupNum] = nil;
+                                            break;
+                                        end
                                     end
-
-                                elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
-                                    -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
-                                    namesCollected[ group[i].name ] = true;
+                                else
+                                    table.remove ( group , i );
+                                    if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                        altGroups[groupNum] = nil;
+                                        break;
+                                    end
                                 end
-
-
                             else
-                                -- Remove player from the alt group since it doesn't exist in guild.
-                                namesCollected[ group[i].name ] = true;
-                                if group[i].name == group.main then
-                                    group.main = "";
-                                end
-                                table.remove ( group , i );
-                                if #group == 0 then -- After removing, no one is left.
-                                    altGroups[groupNum] = nil;
-                                end
+                                altGroups[groupNum] = nil;    -- Missing index in alt array - purge the group
                             end
                         end
                     else
                         altGroups[groupNum] = nil;        -- This should never happen, but cleanup in case of older legacy issue
                     end
                 end
-
-
             end
         end
     end

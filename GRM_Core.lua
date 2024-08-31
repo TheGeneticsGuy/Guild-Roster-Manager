@@ -12,10 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99134";
-GRM_G.PatchDay = 1724795613; -- In Epoch Time
-GRM_G.PatchDayString = "1724795613"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory. Extremely minor gains, but very useful if syncing thousands of pieces of data in large guilds as Blizzard only allows data in string format to be sent
--- Determine level cap
+GRM_G.Version = "R1.99141";
+GRM_G.PatchDay = 1725091698; -- In Epoch Time
+GRM_G.PatchDayString = "1725091698"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
 else -- This should work for everything else
@@ -994,7 +993,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
             rosterFrameDefault = rosterFrameDefault + 90;
         end
 
-        player.UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1075, 540, 1.0}, {875, 400, 1.0},
+        player.UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0},
                             {rosterFrameDefault, 525, 1.0}};
 
         -- General Options Tab
@@ -1180,6 +1179,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.exportFilters.cNote = true;
         player.exportFilters.mythicScore = true;
         player.exportFilters.faction = true;
+        player.exportFilters.Realm = true;
         player.exportFilters.GUID = false;
         player.exportFilters.MainOrAlt = false;
         player.exportFilters.mainOnly = true;
@@ -1244,11 +1244,17 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.GIModule.enabled = true;
         player.GIModule.DisableGroupInfoTooltip = false;
 
-        -- Hardcore Mode
+        -- Classic Tab
     elseif page == 16 then
+        -- HARDCORE MODE
         player.includeDeathTime = true;
         player.addDeathTag = true
         player.ignoreDeathChannel = false;
+
+        -- Classic In General
+        player.ProfReportUpdatesToChat = false;
+        player.ProfRankAutoUpdate = false;
+        player.ProfNoteDestination = 1;
 
     end
 
@@ -1778,7 +1784,7 @@ GRM.GetPageIndex = function()
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame] = 7,
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame] = 8,
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame] = 15,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame] = 16
+        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame] = 16
     };
     local result;
 
@@ -2636,28 +2642,6 @@ GRM.GetNumGuildiesInGuild = function(guildData)
     return c;
 end
 
--- Method:          GRM.IsMergedRealmServer()
--- What it Does:    Returns true if the player is currently on a merged realm server
--- Purpose:         Useful to know in certain circumstances, like not relying on the guild name alone to identify guild home.
-GRM.IsMergedRealmServer = function()
-    local result = false;
-    if #GetAutoCompleteRealms() > 0 then
-        result = true;
-    end
-    return result
-end
-
--- Method:          GRM.GetAllConnectedRealms()
--- What it Does:    Returns all the connected realm names in an array, and if there are none, it just returns the player's own array.
--- Purpose:         Useful for autocomplete reasons.
-GRM.GetAllConnectedRealms = function()
-    local realms = GetAutoCompleteRealms();
-    if #realms == 0 then
-        realms = {GRM_G.realmName};
-    end
-    return realms;
-end
-
 --------------------------------
 -- TRANSFER/RESTORE POINT ------
 --------------------------------
@@ -3055,7 +3039,7 @@ end
 -- Method:          GRM.GetFullNameClubMember ( guid(as string) )
 -- What it Does:    Appends the server to the end of the player name properly...
 -- Purpose:         To append the full player name properly since it is not given by default
-GRM.GetFullNameClubMember = function(memberGUID)
+GRM.GetFullNameClubMember = function( memberGUID )
     local fullName = "";
     local sex;
 
@@ -3063,17 +3047,17 @@ GRM.GetFullNameClubMember = function(memberGUID)
         local s, name, realm = select(5, GetPlayerInfoByGUID(memberGUID));
         sex = s;
         -- For some reason the server sometimes fails to give info on the first ask that session.
-        if name == nil or name == "" then
+        if not name or name == "" then
             for i = 1, 10 do
                 sex, name, realm = select(5, GetPlayerInfoByGUID(memberGUID));
 
-                -- if name ~= nil and name ~= "" then
-                --     break;
-                -- end
+                if name and name ~= "" then
+                    break;
+                end
             end
         end
 
-        if name ~= nil and name ~= "" then
+        if name and name ~= "" then
             if realm == "" then
                 fullName = name .. "-" .. GRM_G.realmName;
             else
@@ -3120,85 +3104,46 @@ GRM.AppendServerName = function(name, currentGuild)
     return name;
 end
 
--- Method:          GRM.GetPlayerServer ( string , bool )
+-- Method:          GRM.GetPlayerServer ( string )
 -- What it Does:    Attempts to determine the player's serverName, for database purposes.
 -- Purpose:         Unfortunately, some system messages do not inlcude the metadata to determine a player's name
-GRM.GetPlayerServer = function(name, currentGuild)
-    local server = GRM_G.realmName;
+GRM.GetPlayerServer = function( name )
+    local server = ""
 
     if string.find(name, "-") then
         server = string.match(name, "%-(.+)");
     else
 
-        -- Logic on merged realms is a bit more complicated.
-        if GRM.IsMergedRealmServer() then
-            local realms = GRM.GetAllConnectedRealms();
-            local listOfNames = {};
-            local player = {};
+        local guildData = GRM.GetGuild();
+        local matches = {};
 
-            for i = 1, #realms do
-
-                if currentGuild == nil then
-                    player = GRM.GetPlayer(name .. "-" .. realms[i]);
-
-                    if not player then
-                        player = GRM.GetFormerPlayer(name .. "-" .. realms[i]);
-                    end
-
-                else
-                    if currentGuild then
-                        player = GRM.GetPlayer(name .. "-" .. realms[i]);
-                    else
-                        player = GRM.GetFormerPlayer(name .. "-" .. realms[i]);
-                    end
+        for memberName , player in pairs ( guildData ) do
+            if type ( player ) == "table" then
+                if name == GRM.SlimName ( memberName ) then
+                    table.insert ( matches , memberName );
                 end
-
-                if player then
-                    table.insert(listOfNames, player.name);
-                end
-
             end
-
-            -- More than 1 player found with same name, but different servers...
-            if #listOfNames > 1 then
-
-                for i = 1, #listOfNames do
-
-                    if currentGuild == nil then
-                        player = GRM.GetPlayer(listOfNames[i]);
-
-                        if not player then
-                            player = GRM.GetFormerPlayer(listOfNames[i]);
-                        end
-                    else
-                        if currentGuild then
-                            player = GRM.GetPlayer(listOfNames[i]);
-                        else
-                            player = GRM.GetFormerPlayer(listOfNames[i]);
-                        end
-                    end
-
-                    if player then
-
-                        -- Logic isn't perfect, but I will just default if player is online.
-                        if player.isOnline then
-                            server = string.match(listOfNames[i], "-(.+)");
-                            break
-                        end
-
-                    end
-
-                end
-
-            elseif #listOfNames == 1 then
-                server = string.match(listOfNames[1], "-(.+)");
-            end
-
         end
-    end
 
+        if #matches == 0 then
+            guildData = GRM.GetFormerMembers();
+            for memberName , player in pairs ( guildData ) do
+                if type ( player ) == "table" then
+                    if name == GRM.SlimName ( memberName ) then
+                        table.insert ( matches , memberName );
+                    end
+                end
+            end
+        end
+
+        if #matches >= 1 then
+            server = matches[1]:match ( "-(.+)" );-- FLAW IF 2 PLAYERS SAME NAME DIFF SERVERS!!!
+        end
+
+    end
     return server;
 end
+
 
 -- Method:          GRM.GetNumGuildies()
 -- What it Does:    Returns the int number of total toons within the guild, including main/alts
@@ -7463,8 +7408,12 @@ GRM.InitializeRosterButtons = function()
                         GRM.GR_Roster_Click(name);
                     end
                 else
-                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
+                    if not GRM_G.HardcoreActive then
+                        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                            GRM_UI.GRM_MemberDetailMetaData:Hide();
+                        end
+                    else
+                        GRM.PopulateMemberDetails( name , self.memberInfo , true );
                     end
                 end
             end
@@ -7479,12 +7428,12 @@ end
 --                  the player mouseover popup window if so.
 -- Purpose:         The main purpose is this allows the frames to be updated if the mouse is stationary over the hybrid scrollframe button, but the mousewheels still scrolls
 --                  This is important because the core logic happens "OnEnter" rather than on update.
-GRM.RosterButton_OnUpdate = function(self, elapsed)
+GRM.RosterButton_OnUpdate = function( self, elapsed )
     GRM_G.ButtonRosterTimer = GRM_G.ButtonRosterTimer + elapsed;
-    if GRM_G.ButtonRosterTimer > 0.05 and GRM.GetMouseFocus(self) and CommunitiesFrame:GetSelectedClubId() ==
+    if GRM_G.ButtonRosterTimer > 0.05 and GRM.GetMouseFocus( self ) and CommunitiesFrame:GetSelectedClubId() ==
         GRM_G.gClubID then
 
-        local name , guid = GRM.GetRosterName(self, true);
+        local name , guid = GRM.GetRosterName( self, true );
 
         if name and name ~= GRM_G.currentName and not GRM_G.pause and
             not CommunitiesFrame.RecruitmentDialog:IsVisible() then
@@ -13937,7 +13886,7 @@ GRM.SetCustomNote = function()
         -- The trim is so that just a white space doesn't somehow count as a new note.
         if GRM.Trim(GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText()) ~=
             player.customNote[4] then
-            local oldNote = player.customNote[4];
+            local oldNote = tostring ( player.customNote[4] );
             local timestamp = time();
             player.customNote[2] = timestamp;
             player.customNote[3] = GRM_G.addonUser;
@@ -14345,7 +14294,7 @@ GRM.CheckForDeadAccounts = function(isManual)
                              GRM.L("Would you like to remove them?");
         end
 
-        GRM.SetConfirmationWindow(kickDeadNames, numDeadMsg .. "\n\n" .. GRM.L(
+        GRM.SetConfirmationWindow( kickDeadNames, numDeadMsg .. "\n\n" .. GRM.L(
             "Click CONFIRM to review the names, IGNORE to remove this pop-up permanently, or CANCEL to be reminded next session."),
             ignoreDeadNames, {320, 140})
 
@@ -14573,7 +14522,7 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         end
 
         if isDifferent then
-            GRM.RecordChanges(5, updatedPlayer, player, nil, select(2, GRM.GetTimestamp()));
+            GRM.RecordChanges( 5, updatedPlayer, player, nil, select(2, GRM.GetTimestamp()) );
             player.note = updatedPlayer.note;
             -- Update metaframe
             if GRM_UI.GRM_MemberDetailroster ~= nil and GRM_UI.GRM_MemberDetailroster:IsVisible() and GRM_G.currentName ==
@@ -14691,6 +14640,10 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     if updatedPlayer.sex ~= "" then
         player.sex = updatedPlayer.sex; -- Sex
     end
+
+    -- PROFESSIONS
+    player.prof1 = updatedPlayer.prof1;
+    player.prof2 = updatedPlayer.prof2;
 
     player.zone = updatedPlayer.zone; -- zone
     player.achievementPoints = updatedPlayer.achievementPoints; -- Achievement pts
@@ -15376,6 +15329,7 @@ GRM.FinalReportInformation = function(needToReport)
         -- Let's do an announcement
         GRM.AnnounceIfBirthday();
         GRM.CheckForDeadAccounts(false);
+        GRM.Prof.AutoStartProfessionUpdate();
 
     end
 
@@ -15740,6 +15694,17 @@ GRM.BuildRosterClassicMethod = function()
 
                 if GRM_G.BuildVersion >= 100000 then
                     roster[name].faction = player.faction;
+                end
+
+                roster[name].prof1 = {};
+                roster[name].prof2 = {};
+
+                if player.profession2ID then
+                    roster[name].prof1 = { player.profession2ID , player.profession2Rank };
+                end
+
+                if player.profession1ID then
+                    roster[name].prof2 = { player.profession1ID , player.profession1Rank };
                 end
 
             end
@@ -17456,7 +17421,7 @@ GRM.GetSearchLog = function(isSearch, searchString, currentPosition, finalResult
             if trueString then
                 if (isSearch and needsToAddSearchString) or (not isSearch) then
                     totalCount = totalCount + 1;
-                    result = addLogEntry(result, logTxt, logTxt, index, i, totalCount);
+                    result = addLogEntry( result , logTxt , logTxt , index , i , totalCount );
                 end
             end
             i = i - 1;
@@ -17528,7 +17493,7 @@ end
 -- Method:          GRM.BuildHybridLog( string , bool , bool , bool , table , int )
 -- What it Does:    Builds the guildLog frame details for the scrollframe
 -- Purpose:         You aren't tracking all of that info for nothing!
-GRM.BuildLog = function(searchString, fullRefresh, delayedSearch, fullLogMatch, TotalCount)
+GRM.BuildLog = function( searchString , fullRefresh , delayedSearch , fullLogMatch , TotalCount )
     local isSearch = false;
     local hybridScrollFrameButtonCount = 29; -- Exactly 25 buttons
     local buttonHeight = 17.138
@@ -17542,7 +17507,7 @@ GRM.BuildLog = function(searchString, fullRefresh, delayedSearch, fullLogMatch, 
 
         -- Only rebuild the log if necessary based on new parameters.
         if fullRefresh then
-            GRM_G.fullLogMatch, GRM_G.CurrentTotalCount = GRM.GetSearchLog(isSearch, searchString);
+            GRM_G.fullLogMatch, GRM_G.CurrentTotalCount = GRM.GetSearchLog ( isSearch , searchString );
         end
     else
         GRM_G.fullLogMatch = fullLogMatch;
@@ -17579,9 +17544,7 @@ GRM.BuildLog = function(searchString, fullRefresh, delayedSearch, fullLogMatch, 
                 local button = CreateFrame("Button", "LogButton" .. i, GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
                     .GRM_RosterChangeLogScrollChildFrame);
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i] =
-                    {button, button:CreateFontString(nil), button:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
-                     0 -- index of the log
-                    };
+                    { button, button:CreateFontString(nil), button:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),0 };
 
                 if i == 1 then
                     button:SetPoint("TOP",
@@ -17594,6 +17557,7 @@ GRM.BuildLog = function(searchString, fullRefresh, delayedSearch, fullLogMatch, 
                 GRM.BuildCoreLogFontstrings(i, buttonHeight, buttonWidth);
             end
         end
+
         if (i >=
             (GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset -
                 hybridScrollFrameButtonCount + 1) and i <=
@@ -17706,11 +17670,47 @@ GRM.BuildCoreLogFontstrings = function(ind, size, buttonWidth, isResizeAction)
                             break
                         end
                     end
+
+                -- CTRL-Click on opening the player window
+                elseif IsControlKeyDown() then
+                    local names = {};
+                    local text = logFontString:GetText();
+                    local fullName = "";
+
+                    for name in text:gmatch ( "|cff%x%x%x%x%x%x(.-)|r" ) do
+                        if not name:find ( "%d" ) and not name:find ( "*" ) and not name:find ( GRM.L ( "Hurray!" ) ) then
+                            table.insert ( names , { name } );
+                        end
+                    end
+
+                    if #names > 0 then
+                        local ind = 1;
+                        if #names > 1 then
+                            ind = 2;        -- The 2nd name is the one with action against them so player should open that window
+                        end
+
+                        if string.find ( names[ind][1] , "-" ) then
+                            fullName = names[ind][1];
+                        else
+                            local realm = GRM.GetPlayerServer ( names[ind][1] );
+                            if realm and realm ~= "" then
+                                fullName = names[ind][1] .. "-" .. realm;
+                            else
+                                fullName = names[ind][1];
+                            end
+                        end
+
+                        if fullName and fullName ~= "" and string.find ( fullName , "-" ) and GRM.GetPlayer ( fullName ) then
+                            GRM.OpenPlayerWindow ( fullName );
+
+                        elseif fullName ~= "" and not GRM.GetPlayer ( fullName ) then
+                            GRM.Report ( GRM.L ( "{name} is no longer in the guild" , names[ind][1] ) );
+                        end
+                    end
                 end
             end
         end);
     end
-
 end
 
 -- Method:          GRM.RefreshLogTooltip()
@@ -17807,14 +17807,14 @@ end
 GRM.ExportMemberDetailsHeaders = function(returnString)
     local scrollWidth = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:GetWidth() - 3;
     local headerOrder = {"name", "rank", "level", "class", "race", "sex", "lastOnline", "mainAlt", "alts", "joinDate",
-                         "promoteDate", "rankHist", "bday", "rep", "note", "oNote", "cNote", "mythicScore", "faction",
+                         "promoteDate", "rankHist", "bday", "rep", "note", "oNote", "cNote", "mythicScore", "faction", "realm" ,
                          "GUID"};
 
     local headers = {GRM.L("Name"), GRM.L("Rank"), GRM.L("Level"), GRM.L("Class"), GRM.L("Race"), GRM.L("Sex"),
                      GRM.L("Last Online (Days)"), GRM.L("Main/Alt"), GRM.L("Player Alts"), GRM.L("Join Date"),
                      GRM.L("Promo Date"), GRM.L("Rank History"), GRM.L("Birthday"), GRM.L("Guild Rep"),
                      GRM.L("Public Note"), GRM.L("Officer Note"), GRM.L("Custom Note"), GRM.L("Mythic+ Score"),
-                     GRM.L("Faction"), GRM.L("Player GUID")};
+                     GRM.L("Faction"), GRM.L ("Realm Name") ,GRM.L("Player GUID")};
 
     local delimiter = "";
     if GRM.S().exportDelimiter[1] then
@@ -17911,7 +17911,6 @@ GRM.BuildExportMemberDetails = function(currentMembers, specificGuild)
     local altList = {};
     local alts = {};
     local altString = "";
-    local isMergedRealm = GRM.IsMergedRealmServer();
     local playerDetails = "";
 
     local sex = "";
@@ -17987,11 +17986,7 @@ GRM.BuildExportMemberDetails = function(currentMembers, specificGuild)
                         name = GRM.RemoveSpecialCharacters(name);
                     end
 
-                    if isMergedRealm then
-                        playerDetails = playerDetails .. name .. delimiter; -- name
-                    else
-                        playerDetails = playerDetails .. GRM.SlimName(name) .. delimiter; -- name
-                    end
+                    playerDetails = playerDetails .. name .. delimiter; -- name
                 end
                 if GRM.S().exportFilters.rank then
                     playerDetails = playerDetails .. roster[i].rankName .. delimiter; -- rank
@@ -18195,6 +18190,11 @@ GRM.BuildExportMemberDetails = function(currentMembers, specificGuild)
                     end
 
                 end
+
+                if GRM.S().exportFilters.realm then -- Realm Name
+                    playerDetails = playerDetails .. string.match ( roster[i].name , "-(.+)" ) .. delimiter;
+                end
+
                 if GRM.S().exportFilters.GUID then -- GUID
                     playerDetails = playerDetails .. roster[i].GUID .. delimiter;
                 end
@@ -19527,7 +19527,7 @@ end
 -- What it Does:    Returns true if the player is an officer
 -- Purpose:         The old API no longer applies and works right. Now, all officers have access to
 GRM.IsPlayerAnOfficer = function()
-    return GRM.CanEditOfficerNote();
+    return C_GuildInfo.IsGuildOfficer();
 end
 
 -- Method:          GRM.GetRankIndex ( string , 2Darray )
@@ -22330,7 +22330,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                 end
 
                 -- JOIN DATE
-                if not doubleCopy or player.joinDateUnknown then
+                if not doubleCopy and player.joinDateUnknown then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton:Hide();
                     GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:SetText(GRM.L("Unknown"));
                     GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:Show();
@@ -27242,7 +27242,7 @@ GRM.OptionTabFrameControl = function(tabNotToUnlock)
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame,
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame,
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame};
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame};
     local fadeFrame;
     local fadeInFrame;
 
@@ -27722,7 +27722,7 @@ GRM.SlashCommandCenter = function()
         rosterFrameDefault = rosterFrameDefault + 90;
     end
 
-    GRM.S().UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1075, 540, 1.0}, {875, 400, 1.0},
+    GRM.S().UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0},
                          {rosterFrameDefault, 525, 1.0}};
 end
 
@@ -27756,7 +27756,8 @@ GRM.SlashCommandHelp = function()
                    GRM.L("Does a one-time manual scan for changes") .. "\n" .. slash .. " " .. GRM.L("dead") ..
                    "             - " .. GRM.L("Does a one-time check for dead accounts") .. "\n" .. slash .. " " ..
                    GRM.L("version") .. "         - " .. GRM.L("Displays current Addon version") .. "\n" .. slash .. " " ..
-                   "guid" .. "           - " .. GRM.L("Add unique player GUID to chat window to copy") .. "\n" .. slash ..
+                   "guid" .. "              - " .. GRM.L("Add unique player GUID to chat window to copy") .. "\n" .. slash .. " " ..
+                   "prof" .. "              - " .. GRM.L("Update profession ranks (Classic Era Only)") .. "\n" .. slash ..
                    " " .. GRM.L("hardreset") .. "      - " ..
                    GRM.L("WARNING! Complete hard wipe, including settings, as if addon was just installed."));
 end
@@ -27942,6 +27943,21 @@ GRM.SlashCommandGUID = function()
         function() -- Need to add slight delay as hitting enter on the keyboard for the command auto closes.
             ChatFrame_OpenChat(UnitGUID("PLAYER"));
         end);
+end
+
+-- Method:          GRM.SlashCommandProf()
+-- What it Does:    Triggers the profession note update to run with a slash command
+-- Purpose:         Allow the quick updating of professions.
+GRM.SlashCommandProf = function()
+    if GRM_G.BuildVersion < 20000 and C_GuildInfo.IsGuildOfficer() then
+        GRM_UI.ExportProfessionConfirm();
+    else
+        if GRM_G.BuildVersion >= 20000 then
+            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Only Available in Classic Era" ) );
+        elseif not C_GuildInfo.IsGuildOfficer() then
+            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Only Available for Officers" ) );
+        end
+    end
 end
 
 GRM.SlashCommandSearch = function(text)
@@ -28216,6 +28232,9 @@ SlashCmdList["GRM"] = function(input)
 
     elseif command == "guid" then
         GRM.SlashCommandGUID();
+
+    elseif command == "prof" or command == string.lower ( GRM.L ( "Prof" ) ) then
+        GRM.SlashCommandProf();
 
         -- /grm search
     elseif string.match(command, "(" .. string.lower(GRM.L("Search")) .. ").+") ~= nil or

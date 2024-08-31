@@ -1780,9 +1780,8 @@ GRML.French = function()
     GRM_L["For GRM to log guild member deaths, you will need to join the \"{name}\" channel. Do you wish to join?"] = true
     GRM_L["You will not be asked this again."] = true
     GRM_L["Please note, GRM will now track the deaths behind the scenes. If you wish to see the full server message, you will need to manually enable in the General Chat Settings."] = true
-    GRM_L["Joined \"{name}\" Channel to Track Deaths"] = true
+    GRM_L["Join \"{name}\" Channel to Track Deaths"] = true
     GRM_L["HardcoreDeaths"] = true      -- Default Placeholder
-    GRM_L["Joined \"{name}\" Channel to Track Deaths"] = true
     GRM_L["Configuring channel... one moment."] = true
 
     -- R1.9911
@@ -1817,5 +1816,50 @@ GRML.French = function()
     GRM_L["Unfortunately, {name} was not able to be identified. You must be grouped or targeting the player to obtain server identification details."] = true
     GRM_L["Enable All"] = true
     GRM_L["Disable All"] = true
+
+    --R1.9914
+    -- PROFESSION TRACKING DETAILS
+    GRM_L["BS"] = true      -- Blacksmithing
+    GRM_L["LW"] = true      -- Leatherworking
+    GRM_L["Alc"] = true     -- Alchemy
+    GRM_L["Herb"] = true    -- Herbalism
+    GRM_L["Mine"] = true    -- Mining
+    GRM_L["TL"] = true      -- Tailoring
+    GRM_L["Eng"] = true     -- Engineering
+    GRM_L["Ench"] = true    -- Enchanting
+    GRM_L["Skin"] = true    -- Skinning
+    GRM_L["JC"] = true      -- Jewelcrafting
+    GRM_L["Insc"] = true    -- Inscription
+    GRM_L["Classic"] = true
+    GRM_L["Classic Era, HC, and SOD"] = true    -- Classic Era, Hardcore, and Season of Discovery is the acronymns
+    GRM_L["Classic Professions"] = true
+    GRM_L["Auto Set and Update Profession Details to Player Notes"] = true
+    GRM_L["Display Settings"] = true
+    GRM_L["Format (If same rank):"] = true
+    GRM_L["Details will only be added to the note if space is available."] = true
+    GRM_L["Profession Update Report"] = true
+    GRM_L["Update will only occur once per session to avoid note change spam."] = true
+    GRM_L["No Professions Have Changed"] = true
+    GRM_L["Total Notes Updated with Profession Details: {num}"] = true
+    GRM_L["Total Notes not able to update: {num}"] = true
+    GRM_L["Click to View All Names"] = true
+    GRM_L["Report Details to Chat if Professions Updated"] = true
+    GRM_L["Note too long: Free up {num} characters"] = true
+    GRM_L["Click to Continue - {num} Members Remaining"] = true
+    GRM_L["Choose Destination:"] = true
+    GRM_L["Click to Set\nProfession Details"] = true        --\n is a line break -- It just looks better this way. Remove translation if you can write itm ore concise
+    GRM_L["This will add or update available profession details to every member's {name}."] = true      -- ...every member's public note [officer, [custom ]
+    GRM_L["Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."] = true
+    GRM_L["Auto-update is disabled. This will only update your notes a single time"] = true
+    GRM_L["Cancel Auto-Update"] = true
+    GRM_L["Only Available in Classic Era"] = true
+    GRM_L["Only Available for Officers"] = true
+    GRM_L["One moment. Processing profession data..."] = true
+    GRM_L["Update profession ranks (Classic Era Only)"] = true
+    GRM_L["Prof"] = true        -- /grm prof SLASH COMMAND -- Make your own slash command
+    GRM_L["Realm Name"] = true
+    GRM_L["{name} is no longer in the guild"] = true
+    GRM_L["{custom1} Entry to Open Player Window"] = true
+
 
 end

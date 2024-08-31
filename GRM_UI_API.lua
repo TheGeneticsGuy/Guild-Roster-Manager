@@ -156,6 +156,10 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
         parentFrame[name]:SetSize ( width , height );
         parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
 
+        if text and not textTemplate then
+            textTemplate = "GameFontWhite";
+        end
+
         if textTemplate then
             parentFrame[name][fontStringText] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
             parentFrame[name][fontStringText]:SetPoint ( "CENTER" , parentFrame[name] , "CENTER" , indent , heightM );
@@ -203,7 +207,9 @@ GRM_UI.CreateButton = function ( name , parentFrame , template , text , width , 
 
     end
 
-    if text then
+    if text and textTemplate then
+        fontSize = fontSize or 12;
+
         parentFrame[name][fontStringText]:SetText ( text );
         parentFrame[name][fontStringText]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
     end

@@ -1196,25 +1196,10 @@ GRMsync.ElectedLeader = function ( msg )
     -- Message should just be the name, so no need to parse.
     GRM_G.MatchPattern5 = GRM_G.MatchPattern5 or GRM.BuildComPattern ( 5 , "?" , false );
     local leader , banRankRestriction , maxRankRestriction , syncRankRestriction , customRankRestriction = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern5 );
-
     GRMsyncGlobals.senderBanRankReq = tonumber ( banRankRestriction );
     GRMsyncGlobals.senderMaxRankReq = tonumber ( maxRankRestriction );
     GRMsyncGlobals.senderRankRequirement = tonumber ( syncRankRestriction );
     GRMsyncGlobals.senderCustRankReq = tonumber ( customRankRestriction );
-
-    if string.find ( leader , "-" ) == nil then
-        if GRM.IsMergedRealmServer() then
-            local listOfGuildiesOnline = GRM.GetListOfOnlinePlayers();
-            for i = 1 , #listOfGuildiesOnline do
-                if GRM.SlimName ( listOfGuildiesOnline[i] ) == leader then
-                    leader = listOfGuildiesOnline[i];
-                    break;
-                end
-            end
-        else
-            leader = leader .. "-" .. GRM_G.realmName;      -- Not a merged realm, so just add the server, since you are both on it.
-        end
-    end
 
     GRMsyncGlobals.DesignatedLeader = leader;
     GRMsyncGlobals.IsElectedLeader = false;
@@ -1264,23 +1249,7 @@ end
 GRMsync.SetLeader = function ( leader , initiateSync , msg )
     GRM_G.MatchPattern4 = GRM_G.MatchPattern4 or GRM.BuildComPattern ( 4 , "?" , false );
     local banRankRestriction , maxRankRestriction , syncRankRestriction , customRankRestriction = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern4 );
-
     GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
-
-    -- Error protection
-    if string.find ( leader , "-" ) == nil then
-        if GRM.IsMergedRealmServer() then
-            local listOfGuildiesOnline = GRM.GetListOfOnlinePlayers();
-            for i = 1 , #listOfGuildiesOnline do
-                if GRM.SlimName ( listOfGuildiesOnline[i] ) == leader then
-                    leader = listOfGuildiesOnline[i];
-                    break;
-                end
-            end
-        else
-            leader = leader .. "-" .. GRM_G.realmName;      -- Not a merged realm, so just add the server, since you are both on it.
-        end
-    end
 
     GRMsyncGlobals.DesignatedLeader = leader;
     GRMsyncGlobals.LeadershipEstablished = true;
@@ -2530,18 +2499,24 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
                         addLog = true;
                     end
 
+                    if isAnEdit and player.reasonBanned == reason then
+                        addLog = false;
+                    end
+
                     player.bannedInfo[1] = true;
                     player.bannedInfo[2] = banTimeEpoch;
                     player.bannedInfo[3] = false;
                     player.bannedInfo[4] = playerWhoBanned;
                     player.reasonBanned = reason;
 
-                    if not isAnEdit then
-                        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
-                        GRMsyncGlobals.updatesEach[6] = GRMsyncGlobals.updatesEach[6] + 1;
-                    else
-                        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
-                        GRMsyncGlobals.updatesEach[8] = GRMsyncGlobals.updatesEach[8] + 1;
+                    if not isAnEdit or ( isAnEdit and addLog ) then
+                        if not isAnEdit then
+                            GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
+                            GRMsyncGlobals.updatesEach[6] = GRMsyncGlobals.updatesEach[6] + 1;
+                        else
+                            GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
+                            GRMsyncGlobals.updatesEach[8] = GRMsyncGlobals.updatesEach[8] + 1;
+                        end
                     end
 
                 elseif banType == "2" then
@@ -2555,18 +2530,24 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
                         addLog = true;
                     end
 
+                    if isAnEdit and player.reasonBanned == reason then
+                        addLog = false;
+                    end
+
                     player.bannedInfo[1] = false;
                     player.bannedInfo[2] = banTimeEpoch;
                     player.bannedInfo[3] = true;
                     player.bannedInfo[4] = playerWhoBanned;
                     player.reasonBanned = "";
 
-                    if not isAnEdit then
-                        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
-                        GRMsyncGlobals.updatesEach[7] = GRMsyncGlobals.updatesEach[7] + 1;
-                    else
-                        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
-                        GRMsyncGlobals.updatesEach[8] = GRMsyncGlobals.updatesEach[8] + 1;
+                    if not isAnEdit or ( isAnEdit and addLog ) then
+                        if not isAnEdit then
+                            GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
+                            GRMsyncGlobals.updatesEach[7] = GRMsyncGlobals.updatesEach[7] + 1;
+                        else
+                            GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
+                            GRMsyncGlobals.updatesEach[8] = GRMsyncGlobals.updatesEach[8] + 1;
+                        end
                     end
                 end
 
@@ -3116,8 +3097,8 @@ GRMsync.SendOverallDataHashes = function ()
     GRMsync.PreCheckHashValues = GRMsync.GetCustomPseudoHash();
 
     local msg = "GRM_PREHASHALL?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsync.PreCheckHashValues[1].compareHash .. "?" .. GRMsync.PreCheckHashValues[2].compareHash .. "?" .. GRMsync.PreCheckHashValues[3].compareHash .. "?" .. GRMsync.PreCheckHashValues[4].compareHash .. "?" .. GRMsync.PreCheckHashValues[5].compareHash .. "?" .. GRMsync.PreCheckHashValues[6].compareHash .. "?" .. GRMsync.PreCheckHashValues[7];
-
     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRMsyncGlobals.sizeModifier;
+
     GRMsync.SendMessage ( "GRM_SYNC" , msg , GRMsyncGlobals.CurrentSyncPlayer );        -- No need to consider loop delay as minimal data has been shared at this point. Still count it.
 end
 
@@ -3198,7 +3179,6 @@ end
 -- Purpose:         Smaller amount of code to determine who needs data updated.
 GRMsync.ReviewAndSendPrecheckData = function( completedPath )
     completedPath = completedPath or { false , false , false , false , false , false }; -- 5 would be bdays b ut skip for now
-
     -- Join Dates
     if not completedPath[1] and GRMsyncGlobals.SyncPath[1] then
         GRMsync.SendPrecheckData ( completedPath , 1 );

@@ -5354,7 +5354,6 @@ GRM_UI.PreAddonLoadUI = function()
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:SetScript ( "OnHide" , function()
         GRM.RestoreTooltip();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText("");
 
         -- The new info / old log headers to be added or not.
         GRM_G.FirstTimeViewed = false;
@@ -6078,7 +6077,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     -- LOG TOOLS
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:Hide();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:SetPoint ( "TOP" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame , "BOTTOM" , 0 , -1 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:SetSize ( 608 , 155 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:SetSize ( 608 , 175 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton:SetPoint ( "TOP" , GRM_UI.GRM_RosterCheckBoxSideFrame , "BOTTOM" , 0 , -1 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton:SetSize ( 100 , 47 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton:SetScript ( "OnClick" , function ( _ , button )
@@ -6090,6 +6089,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             end
         end
     end);
+
+    GRM_UI.CreateString ( "GRM_LogControlClick" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame , "GameFontNormal" , ( "|CFFFF0000* " .. GRM.L ( "{custom1} Entry to Open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) .. "|r" ) , 11 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame , "BOTTOMLEFT" , 20 , 20 } )
+
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton.GRM_LogExtraOptionsButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton.GRM_LogExtraOptionsButtonText:SetText ( GRM.L ( "Open Log Tools" ) );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton.GRM_LogExtraOptionsButtonText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 11.5 );
@@ -6699,16 +6701,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     GRM_UI.HardcoreTabClick = function( button )
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame:IsVisible() then
+        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:IsVisible() then
             button:LockHighlight();
             GRM.OptionTabFrameControl ( button );
         end
     end
 
     -- Hardcore Tab
-    GRM_UI.CreateButton ( "GRM_HardcoreTab" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , "MinimalTabTemplate" , nil , 76 , 25 , { "RIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab , "LEFT" , -1 , 0 } , GRM_UI.HardcoreTabClick , nil , nil , nil , nil , nil , { 1 , "Classic Hardcore Mode" } , GRM.RestoreTooltip );
+    GRM_UI.CreateButton ( "GRM_HardcoreTab" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , "MinimalTabTemplate" , nil , 76 , 25 , { "RIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab , "LEFT" , -1 , 0 } , GRM_UI.HardcoreTabClick , nil , nil , nil , nil , nil , { 1 , GRM.L ( "Classic Era, HC, and SOD" ) } , GRM.RestoreTooltip );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:SetHighlightTexture ( "Interface\\Buttons\\ButtonHilight-Square" );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab.Text:SetText ( GRM.L ( "Hardcore" ) );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab.Text:SetText ( GRM.L ( "Classic" ) );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab.Text:SetWidth ( 71 );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab:SetPoint ( "RIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab , "LEFT" , -1 , 0 );
@@ -6812,9 +6814,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     -- BUILD HARDCORE OPTIONS PAGE
-    GRM_UI.CreateCoreFrame ( "GRM_HardcoreFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , nil , 600 , 480 , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
+    GRM_UI.CreateCoreFrame ( "GRM_ClassicOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , nil , 600 , 480 , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
 
-    GRM_UI.CreateString ( "GRM_HardcoreFrameTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame , "GameFontNormal" , GRM.L ( "Classic Hardcore Mode" ) , 18 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame , "TOPLEFT" , 18 , - 12 } , nil , { 0.0 , 0.8 , 1.0 } );
+    GRM_UI.CreateString ( "GRM_HardcoreFrameTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "GameFontNormal" , GRM.L ( "Classic Hardcore Mode" ) , 18 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "TOPLEFT" , 18 , - 12 } , nil , { 0.0 , 0.8 , 1.0 } );
 
     -- Method:          GRM_UI.ChannelEnabled ( string )
     -- What it Does:    Returns true if player has joined this channel
@@ -6831,40 +6833,40 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     GRM_UI.ConfigureHCOptions = function ( force , force2 )
         if force or ( GRM_UI.ChannelEnabled ( GRM_G.HardCoreDeaths ) and force2 == nil ) then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox:Enable();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox.GRM_HardcoreAddTagCheckboxText:SetTextColor ( 1.0 , 0.82 , 0.0 );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox:Enable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox.GRM_HardcoreAddTagCheckboxText:SetTextColor ( 1.0 , 0.82 , 0.0 );
             if GRM.S().addDeathTag then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:Enable();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 1.0 , 0.82 , 0.0 );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:Enable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 1.0 , 0.82 , 0.0 );
             else
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:Disable();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:Disable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
             end
         elseif ( not force and not force2 ) or force2 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox:Disable();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox.GRM_HardcoreAddTagCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:Disable();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox.GRM_HardcoreAddTagCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
 
         end
 
         if force == nil and force2 == nil then
             if GRM.S().addDeathTag then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox:SetChecked ( true );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox:SetChecked ( true );
             else
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox:SetChecked ( false );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox:SetChecked ( false );
             end
 
             if GRM.S().includeDeathTime then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:SetChecked ( true );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:SetChecked ( true );
             else
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:SetChecked ( false );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:SetChecked ( false );
             end
 
             if GRM_UI.ChannelEnabled ( GRM_G.HardCoreDeaths ) then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_DeathsChannelEnabledCheckbox:SetChecked ( true );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_DeathsChannelEnabledCheckbox:SetChecked ( true );
             else
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_DeathsChannelEnabledCheckbox:SetChecked ( false );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_DeathsChannelEnabledCheckbox:SetChecked ( false );
             end
         end
     end
@@ -6888,18 +6890,18 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.HCtagCheckBoxScript = function( button )
         if button:GetChecked() then
             GRM.S().addDeathTag = true;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:Enable();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 1.0 , 0.82 , 0.0 );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:Enable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 1.0 , 0.82 , 0.0 );
         else
             GRM.S().addDeathTag = false;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:Disable();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
         end
     end
 
-    GRM_UI.CreateCheckBox ( "GRM_DeathsChannelEnabledCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreFrameTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.ConfigureHCDeathsChannelAccess , GRM.L ( "Joined \"{name}\" Channel to Track Deaths" , GRM_G.HardCoreDeaths ) , "GameFontNormal" , 12 );
+    GRM_UI.CreateCheckBox ( "GRM_DeathsChannelEnabledCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreFrameTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.ConfigureHCDeathsChannelAccess , GRM.L ( "Join \"{name}\" Channel to Track Deaths" , GRM_G.HardCoreDeaths ) , "GameFontNormal" , 12 );
 
-    GRM_UI.CreateCheckBox ( "GRM_HardcoreAddTagCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_DeathsChannelEnabledCheckbox , "BOTTOMRIGHT" , 0 , -6 } , GRM_UI.HCtagCheckBoxScript , GRM.L ( "Add Death Indicator Tag to Player Note" ) , "GameFontNormal" , 12 );
+    GRM_UI.CreateCheckBox ( "GRM_HardcoreAddTagCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_DeathsChannelEnabledCheckbox , "BOTTOMRIGHT" , 0 , -6 } , GRM_UI.HCtagCheckBoxScript , GRM.L ( "Add Death Indicator Tag to Player Note" ) , "GameFontNormal" , 12 );
 
     GRM_UI.HCtagTimeCheckBox = function( button )
         if button:GetChecked() then
@@ -6909,18 +6911,165 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
     end
 
-    GRM_UI.CreateCheckBox ( "GRM_HardcoreAddTimeCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.HCtagTimeCheckBox , GRM.L ( "Include Date Player Died" ) , "GameFontNormal" , 12 );
+    GRM_UI.CreateCheckBox ( "GRM_HardcoreAddTimeCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.HCtagTimeCheckBox , GRM.L ( "Include Date Player Died" ) , "GameFontNormal" , 12 );
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame:SetScript ( "OnShow" , function()
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:SetScript ( "OnShow" , function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:Show();
 
         if not GRM_G.HardcoreActive then
 
-            GRM_UI.CreateString ( "GRM_HardcoreDisabled" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame , "GameFontNormal" , "(" .. GRM.L ( "Disabled" ) .. ")" , 18 , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreFrameTitle , "RIGHT" , 10 , 0 } , nil , { 1 , 0 , 0 } );
+            GRM_UI.CreateString ( "GRM_HardcoreDisabled" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "GameFontNormal" , "(" .. GRM.L ( "Disabled" ) .. ")" , 18 , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreFrameTitle , "RIGHT" , 10 , 0 } , nil , { 1 , 0 , 0 } );
 
         end
     end);
+
+    GRM_UI.CreateString ( "GRM_ProfessionsOptionsTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "GameFontNormal" , GRM.L ( "Classic Professions" ) , 18 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox , "BOTTOMLEFT" , -20 , - 14 } , nil , { 0.0 , 0.8 , 1.0 } );
+
+    -- Auto Updating the profession details in player notes.
+    GRM_UI.ProfRankAutoUpdate = function ( button )
+        if button:GetChecked() then
+            GRM.S().ProfRankAutoUpdate = true;
+        else
+            GRM.S().ProfRankAutoUpdate = false;
+        end
+    end
+
+    GRM_UI.CreateCheckBox ( "GRM_ProfAutoUpdateCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.ProfRankAutoUpdate , GRM.L ( "Auto Set and Update Profession Details to Player Notes" ) , "GameFontNormal" , 12 );
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetScript ( "OnEnter" , function( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        GameTooltip:AddLine ( GRM.L ( "Display Settings" ) , 0 , 0.8 , 1 );
+        GameTooltip:AddDoubleLine ( GRM.L ( "Format:" ) , ( "[" .. GRM.L ( "Eng" ) .. "]300/[" .. GRM.L( "Alc" ) .. "]250" ) , nil , nil , nil , 1 , 1 , 1 );
+        GameTooltip:AddDoubleLine( GRM.L ( "Format (If same rank):" ) , ("[" .. GRM.L ( "Eng" ) .. "]/[" .. GRM.L( "Alc" ) .. "]300" ) , nil , nil , nil , 1 , 1 , 1 );
+        GameTooltip:AddLine( " " );
+        GameTooltip:AddLine( GRM.L ( "Details will only be added to the note if space is available." ) );
+        GameTooltip:AddLine( GRM.L ( "Update will only occur once per session to avoid note change spam." ) );
+        GameTooltip:Show();
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetScript ( "OnLeave" , function()
+        GRM.RestoreTooltip()
+    end)
+
+    GRM_UI.ProfReportUpdatesToChat = function( button )
+        if button:GetChecked() then
+            GRM.S().ProfReportUpdatesToChat = true;
+        else
+            GRM.S().ProfReportUpdatesToChat = false;
+        end
+    end
+
+    GRM_UI.CreateCheckBox ( "GRM_ProfReportUpdatesToChatCheckBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.ProfReportUpdatesToChat , GRM.L ( "Report Details to Chat if Professions Updated" ) , "GameFontNormal" , 12 );
+
+    GRM_UI.ProfNoteDestination = function ( buttonNum )
+        GRM.S().ProfNoteDestination = buttonNum;
+        GRM_UI.ConfigureProfRadial ( buttonNum );
+    end
+
+    GRM_UI.ConfigureProfRadial = function ( buttonNum , disable )
+        for i = 1 , 3 do
+            local button = _G["GRM_ProfNoteDestinationRadial" .. i];
+            local buttonText = button["GRM_ProfNoteDestinationRadial" .. i .. "Text"];
+
+            if i == buttonNum then
+                button:SetChecked ( true );
+            else
+                button:SetChecked ( false );
+            end
+
+            if not disable then
+                if i == buttonNum then
+                    buttonText:SetTextColor ( 1 , 0 , 0 );
+                else
+                    buttonText:SetTextColor ( 1 , 0.8 , 0 );
+                end
+            else
+                buttonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                button:Disable();
+            end
+        end
+    end
+
+    GRM_UI.CreateString ( "GRM_ProfessionsOptionsRadialTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "GameFontNormal" , GRM.L ( "Choose Destination:" ) , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox , "BOTTOMLEFT" , 8 , - 6 } , nil );
+
+    GRM_UI.CreateRadialButtons ( "GRM_ProfNoteDestination" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , { GRM.L ( "Public Note" ) , GRM.L ( "Officer Note" ) , GRM.L ( "Custom Note" ) } , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle , "BOTTOMLEFT" , 5 , -6 } , false , true , 12 , nil , GRM_UI.ProfNoteDestination );
+
+    -- Function
+    GRM_UI.ProfessionNoteUpdate = function()
+        if GRM.S().ProfReportUpdatesToChat and GRM.GetNumGuildies() > 225 then      -- 225 is 3x multiplier
+            GRM.Report ( GRM.L ( "One moment. Processing profession data..." ) );
+        end
+        GRM.Prof.InitiateProfessionUpdate( GRM.S().ProfReportUpdatesToChat );
+    end
+
+    GRM_UI.ExportProfessionConfirm = function()
+        local noteEnum = { [1] = GRM.L ( "Public Note") , [2] = GRM.L ( "Officer Note" ) , [3] = GRM.L ( "Custom Note" ) };
+
+        -- Optional function - only show it to give option to cancel tracking
+        local cancel;
+        local warning = GRM.L ( "This will add or update available profession details to every member's {name}." , noteEnum [GRM.S().ProfNoteDestination] );
+        if GRM.S().ProfRankAutoUpdate then
+            cancel = function()
+                GRM.S().ProfRankAutoUpdate = false;
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetChecked ( false );
+            end
+            warning = warning .. "\n\n" .. "Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."
+        else
+            warning = warning .. "\n\n" .. "Auto-update is disabled. This will only update your notes a single time"
+        end
+
+        GRM.SetConfirmationWindow( GRM_UI.ProfessionNoteUpdate , warning , cancel , { 350 , 175 } , GRM.L ( "Cancel Auto-Update" ) );
+
+    end
+
+    GRM_UI.CreateButton ( "GRM_SetProfessionsToNoteButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "UIPanelButtonTemplate" , GRM.L ( "Click to Set\nProfession Details" ) , 150 , 50 , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfNoteDestinationRadial2.GRM_ProfNoteDestinationRadial2Text , "RIGHT" , 30 , 0 } , GRM_UI.ExportProfessionConfirm , "GameFontWhite" , 12 , "CENTER" );
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton.GRM_SetProfessionsToNoteButtonText:SetWordWrap ( true );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton.GRM_SetProfessionsToNoteButtonText:SetSpacing ( 1 );
+
+    GRM_UI.ConfigureClassicProfessionOptions = function()
+
+        if GRM.S().ProfRankAutoUpdate then
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetChecked ( true );
+        else
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetChecked ( false );
+        end
+
+        if GRM.S().ProfReportUpdatesToChat then
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox:SetChecked ( true );
+        else
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox:SetChecked ( false );
+        end
+
+
+        if GRM_G.BuildVersion < 20000 and C_GuildInfo.IsGuildOfficer() then
+            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination );
+        else
+            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , true );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            local text = "";
+            if GRM_G.BuildVersion >= 20000 then
+                text = "|cffff0000(" .. GRM.L ( "Only Available in Classic Era") .. ")|r";
+            elseif not C_GuildInfo.IsGuildOfficer() then
+                text = "|cffff0000(" .. GRM.L ( "Only Available for Officers" ) .. ")|r";
+            end
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsTitle:SetText ( GRM.L ( "Classic Professions" ) .. " " .. text );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox.GRM_ProfAutoUpdateCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox.GRM_ProfReportUpdatesToChatCheckBoxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton.GRM_SetProfessionsToNoteButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+
+            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , true );
+        end
+    end
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
@@ -6969,8 +7118,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame:Hide();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame:SetAlpha ( 0 );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame:Hide();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:Hide();
     end
 
     -- OPTIONS TEXT INFO
@@ -11937,6 +12086,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame:SetScript ( "OnHide" , function()
         GRM_G.banListTimer = 60;         -- Just resetting this timer since it is on an internal 60 second clock but I want it to start at zero when refreshing...
         GRM_G.SearchFocusControl = false;
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText("");
     end);
 
     --Side frame for reporting controls
@@ -13176,7 +13326,7 @@ end
     GRM_UI.GRM_ExportLogBorderFrame:Hide();
     GRM_UI.GRM_ExportLogBorderFrame:ClearAllPoints();
     GRM_UI.GRM_ExportLogBorderFrame:SetPoint ( "CENTER" , UIParent );
-    GRM_UI.GRM_ExportLogBorderFrame:SetSize ( 1075 , 540 );
+    GRM_UI.GRM_ExportLogBorderFrame:SetSize ( 1100 , 540 );
     GRM_UI.GRM_ExportLogBorderFrame:SetFrameStrata ( "HIGH");
     GRM_UI.GRM_ExportLogBorderFrame:SetToplevel ( true );
     GRM_UI.GRM_ExportLogBorderFrame:SetMovable ( true );
@@ -13602,7 +13752,17 @@ end
         end
     end);
 
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter23 , "BOTTOMLEFT" , 0 , -4 );
+    GRM_UI.ExportFilterRealm = function ( button )
+        if button:GetChecked() then
+            GRM.S().exportFilters.realm = true;
+        else
+            GRM.S().exportFilters.realm = false;
+        end
+    end
+
+    GRM_UI.CreateCheckBox ( "GRM_ExportFilterRealm" , GRM_UI.GRM_ExportLogBorderFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter23 , "BOTTOMLEFT" , 0 , -4 } , GRM_UI.ExportFilterRealm , GRM.L ( "Realm Name" ) , "GameFontNormal" , 12 );
+
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilterRealm , "BOTTOMLEFT" , 0 , -4 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20 , "RIGHT" , 2 , 0 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20.GRM_ExportFilter20Text:SetText ( GRM.L ( "Player GUID" ) );
@@ -13802,7 +13962,7 @@ end
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter9 , "BOTTOMLEFT" , 0 , -4 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetHitRectInsets( 0 , -75 , 0 , 0 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetPoint ( "LEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10 , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetJustifyH ( "LEFT" );
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text:SetText ( GRM.L ( "Guild Rep" ) );
 
@@ -14061,6 +14221,8 @@ end
                 end
             end
 
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilterRealm:SetChecked ( true );
+
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Enable();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 1 , 0.82 , 0 );
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Enable();
@@ -14080,6 +14242,8 @@ end
                     _G[ "GRM_ExportFilter" .. i ]:SetChecked ( false );
                 end
             end
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilterRealm:SetChecked ( false );
 
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Disable();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1Text:SetTextColor ( 0.5 , 0.5 , 0.5 );
@@ -14195,6 +14359,9 @@ end
             if GRM.S().exportFilters.rankHist then
                 GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter18:SetChecked(true);
             end
+            if GRM.S().exportFilters.Realm then
+                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilterRealm:SetChecked(true);
+            end
             if GRM.S().exportFilters.GUID then
                 GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter20:SetChecked(true);
             end
@@ -14228,6 +14395,8 @@ end
                 end
             end
 
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilterRealm:Show();
+
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Show();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Show();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:Show();
@@ -14238,6 +14407,9 @@ end
                     _G[ "GRM_ExportFilter" .. i ]:Hide();
                 end
             end
+
+            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilterRealm:Hide();
+
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial1:Hide();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter17_Radial2:Hide();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton:Hide();
@@ -16186,7 +16358,7 @@ end
             GRM.BuildLogComplete( true , true );
 
             if not needsDelayedRefresh then
-                GRM_UI.SendBannedSyncMessage( fullName , epochTimeStamp , banReason , class , guid , GRM_G.isChecked2 )
+                GRM_UI.SendBannedSyncMessage( fullName , epochTimeStamp , banReason , GRM_G.CurrentBanSelectedName[2] , guid , GRM_G.isChecked2 )
             end
 
             -- Finally, close the window
@@ -16201,6 +16373,8 @@ end
 
                     -- For same realm adds - use the add Friends trick to identify
                     local timer = 5;
+                    local class = "";
+
                     GRM.Report ( "\n" ..GRM.L ( "GRM:" ) .. " " .. GRM.L ( "One moment, requesting additional details on {name} from the server. Ban List will soon update." , colorCode .. GRM.SlimName ( fullName ) .. "|r\n" ) );
 
                     if string.match ( fullName , ".--(.+)" ) ~= GRM_G.realmName then
@@ -16222,7 +16396,7 @@ end
 
                     end
 
-                    C_Timer.After ( timer , function()
+                    C_Timer.After ( timer + 0.1 , function()
                         GRM.RefreshBanListFrames();
                         GRM_UI.SendBannedSyncMessage( fullName , epochTimeStamp , banReason , class , guid , GRM_G.isChecked2 )
                     end);
@@ -17743,18 +17917,20 @@ GRM_UI.BuildLogFrames = function()
 
     -- Hardcore Options
     if not GRM_G.HardcoreActive then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_DeathsChannelEnabledCheckbox:Disable();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_DeathsChannelEnabledCheckbox.GRM_DeathsChannelEnabledCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_DeathsChannelEnabledCheckbox:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_DeathsChannelEnabledCheckbox.GRM_DeathsChannelEnabledCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox:Disable();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTagCheckbox.GRM_HardcoreAddTagCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox.GRM_HardcoreAddTagCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox:Disable();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTimeCheckbox.GRM_HardcoreAddTimeCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
 
     else
         GRM_UI.ConfigureHCOptions();
     end
+
+    GRM_UI.ConfigureClassicProfessionOptions();
 
     -- LogExtras...
     GRM_UI.RefreshLogExtraOptions();
@@ -18490,7 +18666,7 @@ GRM_UI.GetDefaultFrameSize = function ( frameName )
         ["GRM_RosterChangeLogFrame"] = { 600 , 535 },
         ["GRM_MemberDetailMetaData"] = { 400 , 439 },
         ["GRM_ToolCoreFrame"] = { 1200 , 515 },
-        ["GRM_ExportLogBorderFrame"] = { 1075 , 540 },
+        ["GRM_ExportLogBorderFrame"] = { 1100 , 540 },
         ["GRM_AuditJDTool"] = { 875 , 400 },
         ["GRM_RosterFrame"] = { rosterFrameDefault , 525 }
     }

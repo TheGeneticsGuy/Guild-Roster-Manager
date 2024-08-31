@@ -1,3 +1,52 @@
+## **VERSION 1.99141 RELEASE - August 31st, 2024**
+
+***NEW FEATURE - CLASSIC ERA ONLY***
+
+*Please note, this feature could technically be added to retail, or Cata Classic, but it has little value as the profession data is not as useful as the built-in profession window in the Guild communities frame, of which doesn't exist in Classic Era.*
+
+Blizzard, when they did the surprise update adding Communities to the Classic Era guild interface, they also let some API slip in that had previously been unavailable, including profession information. I am now able to query the server and pull the 2 main professions, and their rank, of every member of the guild. This is super useful in Classic Era. So, GRM will now give you the option to not only collect the profession information, but export the information to the player note, officer note, or custom public note:
+
+![Note Options](https://i.imgur.com/r7LNgCP.jpeg)
+
+* Feature is available ONLY to officers in the guild.
+
+* Format of the profession details will be like this: **[Eng]/[Alc]300** or **[Eng]300/[Alc]275** if they do not share the same level.
+
+![Note Example](https://i.imgur.com/zWXXNtv.jpeg)
+
+* Profession changes will be auto-updated to the destination note, if you allow it. I have it set to only do 1 report, shortly after login, to prevent note change spam for other GRM users that maybe don't need a note report every single time the profession incrememnts up by 1. You CAN force it to update
+
+![Report Example](https://i.imgur.com/YtktBuw.jpeg)
+
+* If there is not enough room in the note, GRM will not overwrite the note already there, but GRM will create a report of all of the players who were not able to be updated. You can click the hyperlink in chat at the end of the report to see the names, and then each of the player names will be hyperlinked to open their respective player window. The report will only report 15 names at a time and a new link will generate when ready to continue viewing the next batch of names, or to ignore.
+
+![Report Results](https://i.imgur.com/4u8Q2Lx.gif)
+
+* If you don't want to wait for the next session, typing `/grm prof` will trigger it to update the profession details.
+
+***QOL***
+
+* Export log window is now properly sized so the hardcore tab doesn't overlap the window to copy the text
+
+* "Realm Name" has been added to the list of Export options for members and former members.
+
+* The log will no longer reset the search box when you jump between tabs. It will now only reset if the entire window has been closed.
+
+* Ctrl-Click entries in the log and if that player is still in the guild, it will open the player window. Note, that if there are 2 names in a log entry, you will go to the name of the player being acted open. Example. If it says "Bill promotes Ted to officer" then the player window that opens will be Ted's window.
+
+![Ctrl-Click Log](https://i.imgur.com/2UGdJRk.jpeg)
+
+***BUG FIXES***
+
+* An error preventing some people from loading GRM properly should now be resolved. This wwas causing a patch to fail.
+
+* Fixed an issue where when creating a new ban of a player, it would lua error and not sync those changes live to to other GRM users online. This will no longer happen.
+
+* Fixed an issue where GRM might re-report all the ban updates to your log after syncing.
+
+* Fixed an issue where the join date on the mouseover window was stating "Unknown" for the player date in error.
+
+
 ## **VERSION 1.99134 RELEASE - August 27th, 2024**
 
 GRM would not load for guilds that were experiencing issues with double names on the roster, particularly in Classic Era Hardcore guilds where they would die, delete, and make a new toon the same name. For some reason, those names would not get purged from the roster by Blizzard until the weekly maintenance, and that itself wasn't always consistent. In some cases you could have many players with multiple copies of the same name from dying multiple times. This caused a lot of problems. The funny thing is, a guild weekly maintenance might occur, then GRM seems to work again, then all of a sudden as the week progresses it breaks. This is because once again, someone died, deleted, and made a new toon. Just weird Blizz doesn't auto-delete them from the roster if the toon is deleted, but I wrote a fix for it.
