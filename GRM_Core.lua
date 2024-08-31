@@ -15621,7 +15621,7 @@ GRM.BuildRosterClassicMethod = function()
                 -- The player at index i is dead.
                 if GRM_G.HardcoreActive then
                     -- Add the death note indicating dead player on account
-                    GRM.SetPlayerAsDeadByGUID ( GUID , lastOnline , i , note );
+                    GRM.SetPlayerAsDeadByGUID ( GUID , roster[name].lastOnline , i , note );
                 end
 
             end
