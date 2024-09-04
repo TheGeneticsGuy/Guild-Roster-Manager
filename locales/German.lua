@@ -1232,7 +1232,6 @@
         GRM_L["Guildies: {num}"] = true
         GRM_L["Former Guildies: {num}"] = true
         GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
-        GRM_L["Other Connected Realm Members: {num}"] = true
         GRM_L["Total in Group: {num}"] = true
         GRM_L["Date Left"] = true
         GRM_L["1 Alt Still in Guild"] = true
@@ -1868,6 +1867,17 @@
     GRM_L["Realm Name"] = true
     GRM_L["{name} is no longer in the guild"] = true
     GRM_L["{custom1} Entry to Open Player Window"] = true
+
+    -- R1.99142
+    GRM_L["On higher ranked alt"] = true
+    GRM_L["{num} player can be kicked by higher ranked alt {name}"] = true
+    GRM_L["{num} players can be kicked by higher ranked alt {name}"] = true
+    GRM_L["{num} player can be promoted by higher ranked alt {name}"] = true
+    GRM_L["{num} players can be promoted by higher ranked alt {name}"] = true
+    GRM_L["{num} player can be demoted by higher ranked alt {name}"] = true
+    GRM_L["{num} players can be demoted by higher ranked alt {name}"] = true
+    GRM_L["{num} player is ready to shift ranks by higher ranked alt {name}"] = true
+    GRM_L["{num} players are ready to shift ranks by higher ranked alt {name}"] = true
 
 
 end

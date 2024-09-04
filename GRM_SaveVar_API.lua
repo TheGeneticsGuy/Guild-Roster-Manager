@@ -19,6 +19,8 @@ GRM_MinimapPosition = GRM_MinimapPosition or {};                                
 -- Functions table
 GRM = {};
 
+-- local ghostSettings;    -- In case a player leaves the guild abruptly.
+
 --------------------------
 --- DATA Queries ---------
 --------------------------
@@ -36,12 +38,37 @@ GRM.S = function ( name )
         return GRM_AddonSettings_Save[name];
     else
         if GRM_G.playerOnlySettings then
+            -- if GRM_AddonSettings_Save[GRM_G.addonUser] then
             return GRM_AddonSettings_Save[GRM_G.addonUser];
+            -- else
+            --     ghostSettings = ghostSettings or BuildGhostSettings();
+            --     return ghostSettings;
+            -- end
         else
+            -- if GRM_AddonSettings_Save[GRM_G.guildName] then
             return GRM_AddonSettings_Save[GRM_G.guildName];
+            -- else
+            --     ghostSettings = ghostSettings or BuildGhostSettings();
+            --     return ghostSettings;
+            -- end
         end
     end
 end
+
+-- -- Method:          BuildGhostSettings()
+-- -- What it Does:    Creates a parallel settings profile
+-- -- Purpose:         Since settings are tied to the guild, or to the player, if someone quits a guild, all of a sudden the settings unload
+-- --                  Well, this is a problem if there are frames in the middle of loading, or various GRM features still being processed and calling settings variables.
+-- --                  Now, if the settings are called, and instead of returning a nil, it will just return the placeholder default setting, which doesn't relaly matter
+-- --                  as you are now in the guild, but it will allow those edge cases to finish running and not cause lua errors when leaving a guild abruptly.
+-- local BuildGhostSettings = function()
+--     local player = {};
+--     for i = 0, GRM_G.SettingsPages do
+--         GRM.SetDefaultAddonSettings (player, i);
+--     end
+
+--     return player;
+-- end
 
 -- Method:          GRM.GetPlayer ( string [, bool] [, string] )
 -- What it Does:    Returns the playerTable

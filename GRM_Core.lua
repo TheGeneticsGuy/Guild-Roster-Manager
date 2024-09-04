@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99141";
-GRM_G.PatchDay = 1725091698; -- In Epoch Time
-GRM_G.PatchDayString = "1725091698"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.Version = "R1.99142";
+GRM_G.PatchDay = 1725435600; -- In Epoch Time
+GRM_G.PatchDayString = "1725435600"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
 else -- This should work for everything else
@@ -24,7 +24,7 @@ GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level o
 GRM_G.RetailBaseBuild = 110002;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.39;
+GRM_G.GroupInfoV = 1.40;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -33,7 +33,6 @@ GRM_G.addonName = "Guild_Roster_Manager";
 GRM_G.guildName = "";
 GRM_G.realmName = string.gsub(string.gsub(GetRealmName(), "-", ""), "%s+", ""); -- Remove the space since server return calls don't include space on multi-name servers, also removes a hyphen if server is hyphened.Necessary for backend addon to addon comms formatting sende bvcxr.
 GRM_G.addonUser = (GetUnitName("PLAYER", false) .. "-" .. GRM_G.realmName); -- Oddly, GetUnitName set as true will not reliably return realm name on non-merged realms without this formatting.
-GRM_G.playerRankID = -1; -- Player personal rank ID based on rank in the guild. The lowest, 0 , is the Guild Leader. This is only used for sync purposes and is configured on sync configuration.
 GRM_G.clubID = 0; -- The currently selected clubID (for community frame added in 8.0)
 GRM_G.gClubID = 0; -- The immutable guild clubID
 GRM_G.faction = 0;
@@ -922,32 +921,6 @@ GRM.GetRankRestrictedDefaultRankIndex = function()
     return rankRestrictedDefault;
 end
 
--- Method:          GRM.GetFirstOfficerRank()
--- What it Does:    Gets the first rank that can view officer notes, thus IS an officer
--- Purpose:         So it can have a default Ban Sync Rank.
-GRM.GetFirstOfficerRank = function()
-    local rank = 1;
-
-    for i = 2, GuildControlGetNumRanks() do
-        if not C_GuildInfo.GuildControlGetRankFlags(i)[12] then
-            rank = i - 1;
-            break
-        end
-    end
-
-    return rank - 1; -- Because it starts at Index 0 whilst these control Ranks start at 1
-end
-
--- Method:          GRM.IsOfficerRankByIndex ( int )
--- What it Does:    Returns boolean if player given rankIndex is an officer rank. Of note, rank index start at zero, but settings check starts at 1, so this adjusts.
--- Purpose:         Useful check to determine if a player is moving from an officer to a non-officer rank.
-GRM.IsOfficerRankByIndex = function(rankIndex)
-    if C_GuildInfo.GuildControlGetRankFlags(rankIndex + 1)[12] then
-        return true;
-    end
-    return false;
-end
-
 -- Method:          GRM.SetDefaultAddonSettings( object , int )
 -- What it Does:    Establishes the default addon setttings for all of the options and some other misc. stored variables, like minimap position
 -- Purpose:         Easy access to settings on a default reset.
@@ -1515,7 +1488,7 @@ GRM.VerifyAddonSettings = function()
     -- Build the template
     local player = {};
     for i = 0, GRM_G.SettingsPages do
-        GRM.SetDefaultAddonSettings(player, i);
+        GRM.SetDefaultAddonSettings (player, i);
     end
 
     local Validate = function(saveSettings)
@@ -1992,7 +1965,7 @@ GRM.SetReportWindow = function(count)
     local chatFrame;
     count = count or 1;
 
-    if GRM.S() == nil then
+    if not IsInGuild() then
         GRM_G.Chat = {DEFAULT_CHAT_FRAME};
         return;
     end
@@ -4418,12 +4391,27 @@ end
 -- What it does:    Returns the rank index of the given player's name, or 0 if unable to find player
 -- Purpose:         Rank needs to be known in certain circumstances, like knowing if something was a promotion or a demotion.
 GRM.GetGuildMemberRankID = function(name)
-    local result = -1;
+    local result
     -- Prevents errors if the other players sends a sync call too early, it will just ignore it.
     if GRM.GetGuild() and GRM.GetPlayer(name) then
         result = GRM.GetPlayer(name).rankIndex;
     end
     return result;
+end
+
+-- Method:          GRM.GetPlayerRankIDAtStart()
+-- What it Does:    Sets the player's rankID for the guild
+-- Purpose:         Critical to have player's rank
+GRM.GetPlayerRankIDAtStart = function ()
+    local player = {};
+    for i = 1 , GRM.GetNumGuildies() do
+        player = ( { GetGuildRosterInfo(i) } );
+
+        if player[1] == GRM_G.addonUser then
+            return player[3];
+        end
+    end
+    return;
 end
 
 -- Method:          GRM.GetReputationTextLevel ( int , bool )
@@ -5380,7 +5368,7 @@ GRM.AddonUserRegister = function(sender, msg)
         local rankOfSender = GRM.GetGuildMemberRankID(sender);
         local playerRankID = GRM.GetGuildMemberRankID(GRM_G.addonUser)
         -- Error protection.
-        if rankOfSender == -1 or playerRankID == -1 then
+        if not rankOfSender or not playerRankID then
             return;
         end
 
@@ -12530,6 +12518,7 @@ GRM.ScanRecommendationsList = function()
     GRM.RuleIntegrityCheck();
 
     local playerRecommendation = {};
+    local ruleDisabledList = {};
     local tempListOfNames = {};
     local tempListOfNames2 = {};
     local tempListOfNames3 = {};
@@ -12543,7 +12532,7 @@ GRM.ScanRecommendationsList = function()
 
     -- Kick Recommendations
     if CanGuildRemove() then -- No need to do the work and report if you cannot remove players
-        playerRecommendation = GRM.GetKickNamesByFilterRules();
+        playerRecommendation , _ , ruleDisabledList = GRM.GetKickNamesByFilterRules();
         tempListOfNames = {};
         ruleNames = "";
 
@@ -12563,7 +12552,7 @@ GRM.ScanRecommendationsList = function()
 
         -- Clear all names NOT on this list.
         for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendToKick and tempListOfNames[p.name] == nil then
+            if type(p) == "table" and p.recommendToKick and tempListOfNames[p.name] == nil and not ruleDisabledList[p.name] then
                 p.recommendToKick = false;
             end
         end
@@ -12571,7 +12560,7 @@ GRM.ScanRecommendationsList = function()
 
     -- Promotion Recommendations
     if CanGuildPromote() then -- No need to do the work and report if you cannot remove players
-        playerRecommendation = GRM.GetPromoteAndDemoteNamesByFilterRules(2);
+        playerRecommendation , _ , ruleDisabledList = GRM.GetPromoteAndDemoteNamesByFilterRules(2);
         tempListOfNames = {};
         ruleNames = "";
 
@@ -12590,7 +12579,7 @@ GRM.ScanRecommendationsList = function()
 
         -- Clear all names NOT on this list.
         for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendToPromote and tempListOfNames[p.name] == nil then
+            if type(p) == "table" and p.recommendToPromote and tempListOfNames[p.name] == nil and not ruleDisabledList[p.name] then
                 p.recommendToPromote = false;
             end
         end
@@ -12598,7 +12587,7 @@ GRM.ScanRecommendationsList = function()
 
     -- Demotion Recommendations
     if CanGuildDemote() then -- No need to do the work and report if you cannot remove players
-        playerRecommendation = GRM.GetPromoteAndDemoteNamesByFilterRules(3);
+        playerRecommendation , _ , ruleDisabledList = GRM.GetPromoteAndDemoteNamesByFilterRules(3);
         ruleNames = "";
 
         for i = 1, #playerRecommendation do
@@ -12616,14 +12605,14 @@ GRM.ScanRecommendationsList = function()
 
         -- Clear all names NOT on this list.
         for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendToDemote and tempListOfNames2[p.name] == nil then
+            if type(p) == "table" and p.recommendToDemote and tempListOfNames2[p.name] == nil and not ruleDisabledList[p.name] then
                 p.recommendToDemote = false;
             end
         end
     end
 
     if CanGuildDemote() and CanGuildPromote() then
-        playerRecommendation = GRM_UI.GetNamesBySpecialRules();
+        playerRecommendation , _ , ruleDisabledList = GRM_UI.GetNamesBySpecialRules();
         local c = 0;
         local c2 = 0;
         local f1 = 0; -- f1 are the actually TOTAL numbers needing special. C represents unannounced so far to log.
@@ -12658,7 +12647,7 @@ GRM.ScanRecommendationsList = function()
 
         -- Clear all names NOT on this list.
         for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendSpecial and tempListOfNames3[p.name] == nil then
+            if type(p) == "table" and p.recommendSpecial and tempListOfNames3[p.name] == nil and not ruleDisabledList[p.name] then
                 p.recommendSpecial = false;
             end
         end
@@ -14184,6 +14173,10 @@ GRM.AddonPlayerRankChange = function(newRankIndex)
 
     local needsUpdate = false;
     local needsToSync = false;
+    if not GRM_G.playerRankID then
+        GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+    end
+
     if newRankIndex ~= GRM_G.playerRankID then
         needsUpdate = true;
     end
@@ -15605,6 +15598,10 @@ GRM.BuildRosterClassicMethod = function()
             isMobile, _, rep, GUID = GetGuildRosterInfo(i);
         table.insert(orderedRoster, name);
 
+        if name == GRM_G.addonUser and not GRM_G.playerRankID then
+            GRM_G.playerRankID = rankInd;
+        end
+
         if GRM_G.liveAddedToons[name] then
             GRM_G.liveAddedToons[name] = nil; -- No longer needed on this list since they are confirmed in guild.
         end
@@ -15621,6 +15618,8 @@ GRM.BuildRosterClassicMethod = function()
                 -- The player at index i is dead.
                 if GRM_G.HardcoreActive then
                     -- Add the death note indicating dead player on account
+                    local years, months, days, hours = GetGuildRosterLastOnline(i);
+                    local lastOnline = GRM.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
                     GRM.SetPlayerAsDeadByGUID ( GUID , lastOnline , i , note );
                 end
 
@@ -16876,9 +16875,7 @@ GRM.CheckPlayerEvents = function( rescanning )
                                 -- Resetting the event report to false if parameters meet
                             elseif player.events[r][2] then -- It is still true! Event has been reported! Let's check if time has passed sufficient to wipe it to false
 
-                                if (daysTil > GRM.S().eventAdvanceDays) or
-                                    (GRM.S().onlyAnnounceForMain and not GRM.IsMain(player.name)) then -- Event is behind us now
-
+                                if (daysTil > GRM.S().eventAdvanceDays) or (GRM.S().onlyAnnounceForMain and not GRM.IsMain(player.name)) then -- Event is behind us now
                                     player.events[r][2] = false;
                                     GRM.ResetPlayerEvent(player.name, r, title);
                                     cleanupHappened = true;
@@ -19516,11 +19513,37 @@ end
 -- Method:          GRM.GetPlayerRankPermissions ( string , int )
 -- What it Does:    Returns the rank permission of the player/rank for promoting, demoting, or kicking
 -- Purpose:         For the macro tool this is important ot know who to allow sync with.
-GRM.GetPlayerRankPermissions = function(name, rank)
-    local id = rank or GRM.GetGuildMemberRankID(name);
-    local permissions = C_GuildInfo.GuildControlGetRankFlags(id + 1);
+GRM.GetPlayerRankPermissions = function( name , rank )
+    rank = rank or GRM.GetGuildMemberRankID(name);
+    local permissions = C_GuildInfo.GuildControlGetRankFlags(rank + 1);
 
     return permissions[5], permissions[6], permissions[8]; -- Promote , demote , kick
+end
+
+-- Method:          GRM.GetFirstOfficerRank()
+-- What it Does:    Gets the first rank that can view officer notes, thus IS an officer
+-- Purpose:         So it can have a default Ban Sync Rank.
+GRM.GetFirstOfficerRank = function()
+    local rank = 1;
+
+    for i = 2, GuildControlGetNumRanks() do
+        if not C_GuildInfo.GuildControlGetRankFlags(i)[12] then
+            rank = i - 1;
+            break
+        end
+    end
+
+    return rank - 1; -- Because it starts at Index 0 whilst these control Ranks start at 1
+end
+
+-- Method:          GRM.IsOfficerRankByIndex ( int )
+-- What it Does:    Returns boolean if player given rankIndex is an officer rank. Of note, rank index start at zero, but settings check starts at 1, so this adjusts.
+-- Purpose:         Useful check to determine if a player is moving from an officer to a non-officer rank.
+GRM.IsOfficerRankByIndex = function(rankIndex)
+    if C_GuildInfo.GuildControlGetRankFlags(rankIndex + 1)[12] then
+        return true;
+    end
+    return false;
 end
 
 -- Method:          GRM.IsPlayerAnOfficer ()
@@ -27949,10 +27972,10 @@ end
 -- What it Does:    Triggers the profession note update to run with a slash command
 -- Purpose:         Allow the quick updating of professions.
 GRM.SlashCommandProf = function()
-    if GRM_G.BuildVersion < 20000 and C_GuildInfo.IsGuildOfficer() then
+    if GRM_G.BuildVersion < 50000 and C_GuildInfo.IsGuildOfficer() then
         GRM_UI.ExportProfessionConfirm();
     else
-        if GRM_G.BuildVersion >= 20000 then
+        if GRM_G.BuildVersion >= 50000 then
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Only Available in Classic Era" ) );
         elseif not C_GuildInfo.IsGuildOfficer() then
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Only Available for Officers" ) );
@@ -28779,6 +28802,8 @@ GRM.ReactivateAddon = function()
 
     C_Timer.After(5, GRM.RegisterGuildChatPermission);
 
+    GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
+
     GRM.SetGuildInfoDetails();
     GRM.GuildRoster();
     if GRM_G.BuildVersion >= 10000 then
@@ -28835,6 +28860,7 @@ GRM.ManageGuildStatus = function()
                 GRM_G.GRMfunctionDisabled = true;
                 GRMsyncGlobals.SyncOK = false;
                 GRM_G.IndexOfLastLogEntry = 0;
+                GRM_G.playerRankID = nil;
                 GRM_G.OnFirstLoad = true;
                 GRM_G.guildName = "";
                 GRM_G.guildCreationDate = "";
@@ -28941,6 +28967,8 @@ GRM.SettingsLoadedFinishDataLoad = function()
     GRM_G.DebugLog = GRM_DebugLog_Save;
 
     if IsInGuild() then
+
+        GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
 
         -- Let's set window scales now...
         GRM_UI.SetAllWindowScales(true);

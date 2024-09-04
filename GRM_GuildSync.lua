@@ -8247,7 +8247,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                     end
 
                     comms.senderRankID = GRM.GetGuildMemberRankID ( sender );
-                    if GRM_G.playerRankID == -1 then    -- Configure only first time
+                    if not GRM_G.playerRankID then    -- Configure only first time
                         GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
                     end
 
@@ -8725,7 +8725,7 @@ GRMsync.Initialize = function()
                 GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
                 GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
 
-                if GRM_G.playerRankID and GRM_G.playerRankID ~= -1 then
+                if GRM_G.playerRankID then
                     GRMsync.BuildSyncNetwork();
                 end
 

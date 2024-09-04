@@ -892,7 +892,7 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanN
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionWarningText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" );
 -- Name selection to add ban
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox = CreateFrame( "EditBox" , "GRM_AddBanNameSelectionEditBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame , "InputBoxTemplate" );
-GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox = CreateFrame( "EditBox" , "GRM_AddBanNameSelectionEditBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame , "InputBoxTemplate" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox = CreateFrame( "EditBox" , "GRM_AddBanServerSelectionEditBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame , "InputBoxTemplate" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 -- Server selection to add ban
 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBoxText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
@@ -5224,15 +5224,26 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
         end
     end);
 
+    GRM_UI.GetMacroCountMessage = function ( firstNum, highestNum )
+
+        if highestNum > 0 then
+            local highest = GRM_UI.GetYourOwnAltHighestRank();
+            if highest[1] < GRM_G.playerRankID and highest[2] ~= GRM_G.addonUser then
+                return ( firstNum .. " ( " .. highestNum .. " - " .. GRM.L ( "On higher ranked alt" ) .. ")" );
+            end
+        end
+        return firstNum;
+    end
+
     GRM_UI.GRM_LoadToolButton:SetScript ( "OnEnter" , function ( self )
         if GRM_UI.GRM_LoadToolButton.total > 0 then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine ( GRM.L ( "Macro Tool" ) , 0 , 0.8 , 1 );
-            GameTooltip:AddDoubleLine( GRM.L ( "Players to Kick:" ) , GRM_UI.GRM_LoadToolButton.count[1] );
-            GameTooltip:AddDoubleLine( GRM.L ( "Players to Promote:" ) , GRM_UI.GRM_LoadToolButton.count[2] );
-            GameTooltip:AddDoubleLine( GRM.L ( "Players to Demote:" ) , GRM_UI.GRM_LoadToolButton.count[3] );
-            GameTooltip:AddDoubleLine( GRM.L ( "Special Rule Match:" ) , GRM_UI.GRM_LoadToolButton.count[4] );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Kick:" ) , GRM_UI.GetMacroCountMessage ( GRM_UI.GRM_LoadToolButton.count[1] , GRM_UI.GRM_LoadToolButton.count[6] ) );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Promote:" ) , GRM_UI.GetMacroCountMessage ( GRM_UI.GRM_LoadToolButton.count[2] , GRM_UI.GRM_LoadToolButton.count[7] ) );
+            GameTooltip:AddDoubleLine( GRM.L ( "Players to Demote:" ) , GRM_UI.GetMacroCountMessage ( GRM_UI.GRM_LoadToolButton.count[3] , GRM_UI.GRM_LoadToolButton.count[8] ) );
+            GameTooltip:AddDoubleLine( GRM.L ( "Special Rule Match:" ) , GRM_UI.GetMacroCountMessage ( GRM_UI.GRM_LoadToolButton.count[4] , GRM_UI.GRM_LoadToolButton.count[9] ) );
             GameTooltip:Show();
         end
     end);
@@ -7044,14 +7055,14 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
 
 
-        if GRM_G.BuildVersion < 20000 and C_GuildInfo.IsGuildOfficer() then
+        if GRM_G.BuildVersion < 50000 and C_GuildInfo.IsGuildOfficer() then
             GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination );
         else
             GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , true );
 
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle:SetTextColor ( 0.5 , 0.5 , 0.5 );
             local text = "";
-            if GRM_G.BuildVersion >= 20000 then
+            if GRM_G.BuildVersion >= 50000 then
                 text = "|cffff0000(" .. GRM.L ( "Only Available in Classic Era") .. ")|r";
             elseif not C_GuildInfo.IsGuildOfficer() then
                 text = "|cffff0000(" .. GRM.L ( "Only Available for Officers" ) .. ")|r";
@@ -7076,7 +7087,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:Hide();
 
     -- LOAD MODULE UI HOUSING
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame:SetScript ( "OnShow" , function()
+    GRM_UI.LoadModulesFrameOnShow = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
         if GRM.GetNumModules() > 0 then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:Hide();
@@ -7098,8 +7109,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             end
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:Hide();
         end
+    end
 
-    end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame:SetScript ( "OnShow" , GRM_UI.LoadModulesFrameOnShow );
 
     -- no need to reset the frames if the UI is already loaded.
     if not GRM_G.UIIsLoaded then
@@ -15223,9 +15235,7 @@ end
         end
     end);
 
-    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnShow" , function ()
-        GRM_UI.SetExportTabHighlights();
-    end);
+    GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnShow" , GRM_UI.SetExportTabHighlights );
 
     GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetScript ( "OnEscapePressed" , function ( self )
         self:ClearFocus();
@@ -18348,7 +18358,7 @@ GRM_UI.MainRoster_OnShow = function( isManual )
         rosterFrame.GRM_EnableMouseOver.Configured = true;
 
         C_Timer.After ( timer , function()
-            if GRM.S().showMouseoverRetail then
+            if GRM.S() and GRM.S().showMouseoverRetail then
                 rosterFrame.GRM_EnableMouseOver:SetChecked ( true );
                 rosterFrame.GRM_EnableMouseOverText:SetTextColor ( 1 , 0.82 , 0 , 1 );
             else

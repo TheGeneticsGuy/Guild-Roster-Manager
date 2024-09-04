@@ -38,7 +38,7 @@ Prof.GetProfessionsNote = function ( name )
         GRM_L[GRM_G.professionNoteFormat] = true;
     end
 
-    if player then
+    if player and player.prof1 and player.prof2 then
 
         -- Same number so let's format it differently.
         if #player.prof1 > 0 and #player.prof2 > 0 and player.prof1[2] == player.prof2[2] then
@@ -291,7 +291,7 @@ end
 -- What it Does:    Acts as the gate for auto-starting the note update
 -- Purpose:         To only run this when designated to do so.
 Prof.AutoStartProfessionUpdate = function()
-    if GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < 20000 and C_GuildInfo.IsGuildOfficer() then
+    if GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < 50000 and C_GuildInfo.IsGuildOfficer() then
         Prof.InitiateProfessionUpdate( GRM.S().ProfReportUpdatesToChat );
     end
 end

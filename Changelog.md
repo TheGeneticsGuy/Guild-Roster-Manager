@@ -1,3 +1,29 @@
+## **VERSION 1.99142 RELEASE - September 4th, 2024**
+
+***QUALITY OF LIFE FEATURES***
+
+* The new auto-updating professions feature, to track all member main professions, and profession rank levels in a designated note, is now fully unlocked in Cataclysm Classic. Again, this is a Classic only feature of GRM as it holds little value in retail given the built-in profession window. Please see the previous update notes for more details.
+
+* Macro Tool information Enhancment!!! Are you an officer who has lower ranked alts that you log on? GRM will inform you if there players in your guild that meet the macro rules, but you are currently on an alt that does not have access.
+
+![Unable to kick, but alt Arkaan can](https://i.imgur.com/pIGIJYg.jpeg)
+
+![Macro Button tooltip](https://i.imgur.com/ANIOvaJ.jpeg)
+
+* When you uncheck a macro rule to temporarily disable it, re-checking it will nto force spam your log all of the recommendations of the macro matching again. This felt a bit spammy.
+
+***BUG FIXES***
+
+* Fixed an issue where players names were not showing in the macro tool properly
+
+* Fixed a Lua error that would trigger if when tabbing off the level range boxes in the macro rule creation settings and there was no number there. It will now default back rather than error out.
+
+* Fixed an issue where GRM would not load properly, but only in HC guilds.
+
+* Fixed a Lua error that could occur when
+
+
+
 ## **VERSION 1.99141 RELEASE - August 31st, 2024**
 
 ***NEW FEATURE - CLASSIC ERA ONLY***

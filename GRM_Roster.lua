@@ -24,14 +24,17 @@ GRM_R.BuildRosterFrames = function ()
         GRM_UI.GRM_RosterFrame:Hide();
     end
 
-    if not GRM_UI.GRM_RosterFrame:GetScript("OnShow") then
-        GRM_UI.GRM_RosterFrame:SetScript ( "OnShow" , function()
-            GRM_R.RefreshRosterName();
-            GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider.ThumbTexture:Show()
-            GRM_UI.GRM_MemberDetailMetaData:Hide();
+    -- So it can be called in AddonSkins
+    GRM_UI.RosterFrameSetScript = function()
+        GRM_R.RefreshRosterName();
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider.ThumbTexture:Show()
+        GRM_UI.GRM_MemberDetailMetaData:Hide();
 
-            GRM_R.ConfigureRosterOptions();
-        end)
+        GRM_R.ConfigureRosterOptions();
+    end
+
+    if not GRM_UI.GRM_RosterFrame:GetScript("OnShow") then
+        GRM_UI.GRM_RosterFrame:SetScript ( "OnShow" , GRM_UI.RosterFrameSetScript )
     end
 
     -- This will query the guild log to trigger, which triggers the roster to be updated every 10 seconds
