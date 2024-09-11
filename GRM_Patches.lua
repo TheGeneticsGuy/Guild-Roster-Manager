@@ -8653,9 +8653,13 @@ end
 -- Purpose:         Cleanup player settings from features due to Blizz restricting interact distance API
 GRM_Patch.CleanUpGroupInfo = function( setting )
 
-    setting.InteractDistanceIndicator = nil;
-    setting.tradeIndicatorColorAny = nil;
-    setting.tradeIndicatorColorConnectedRealm = nil;
+    if setting then
+
+        setting.InteractDistanceIndicator = nil;
+        setting.tradeIndicatorColorAny = nil;
+        setting.tradeIndicatorColorConnectedRealm = nil;
+
+    end
 
     return setting;
 end

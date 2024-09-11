@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99142";
-GRM_G.PatchDay = 1725435600; -- In Epoch Time
-GRM_G.PatchDayString = "1725435600"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.Version = "R1.99143";
+GRM_G.PatchDay = 1725987032; -- In Epoch Time
+GRM_G.PatchDayString = "1725987032"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
 else -- This should work for everything else
@@ -6058,6 +6058,22 @@ GRM.ConvertToEpoch = function(d, m, y)
         month = m,
         year = y
     });
+end
+
+-- Method:          GRM.ValidateHist ( playerTable )
+-- What it Does:    It verifies that the data is stored properly
+-- Purpose:         Prevents some edge case errors that have not been properly sourced where the verified bool has been flipped but no date added.
+GRM.ValidateHist = function ( player )
+
+    if player.rankHist[1][7] and ( player.rankHist[1][2]==0 or player.rankHist[1][3]==0 or player.rankHist[1][4]==0 ) then
+        player.rankHist = {{player.rankName, 0, 0, 0, "0", 0, false, 1, 0}};
+    end
+
+    if player.joinDateHist[1][6] and ( player.joinDateHist[1][1]==0 or player.joinDateHist[1][2]==0 or player.joinDateHist[1][3]==0 ) then
+        player.joinDateHist = {{0, 0, 0, "0", 0, false, 1}};
+    end
+
+    return player;
 end
 
 -- Method:          GRM.GetTimestamp()
@@ -13756,7 +13772,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                 local timestamp2 = currentTime;
                 local epochTime = time();
                 local nameOfBaseRank = GuildControlGetRankName(GuildControlGetNumRanks());
-                local added, logEntryMetaData = GRM.GetGuildEventString(2, member.name, nameOfBaseRank, member.rankName,
+                local added, logEntryMetaData = GRM.GetGuildEventString( 2, member.name, nameOfBaseRank, member.rankName,
                     liveJoinDetected);
 
                 -- I don't want to have an instance where I have the promotion date in the log but the join date is too old os it has fallen off,
@@ -13772,7 +13788,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                 -- For SYNC
                 local dates = GRM.ConvertGenericTimestampToIntValues(timestamp2);
 
-                if #player.rankHist[1][5] == 1 then
+                if #player.rankHist[1][5] == 1 or player.rankHist[1][6] == 0 then
 
                     player.rankHist[1][1] = member.rankName;
                     player.rankHist[1][2] = dates[1];
@@ -16130,6 +16146,9 @@ GRM.VerifyAllRankDates = function(numDays)
     for _, player in pairs(guildData) do
         if type(player) == "table" then
             readyToUpdate = false;
+
+            player = GRM.ValidateHist ( player );
+
             if #player.rankHist > 0 and player.rankHist[1][2] ~= 0 and player.rankHist[1][7] == false then
                 -- Player has a date set, but it is not verified.
                 if dateRestriction then
@@ -16184,6 +16203,9 @@ GRM.VerifyAllJoinDates = function(numDays)
     for _, player in pairs(guildData) do
         if type(player) == "table" then
             readyToUpdate = false;
+
+            player = GRM.ValidateHist ( player );
+
             if #player.joinDateHist > 0 and player.joinDateHist[1][1] ~= 0 and player.joinDateHist[1][6] == false then
                 -- Player has a date set, but it is not verified.
                 if dateRestriction then
@@ -19606,7 +19628,7 @@ GRM.OnRankChange = function(formerRank, newRank, promotedName, promoterName)
             local formerRankName = player.rankName; -- For the reporting string!
             local standardDate = GRM.ConvertToStandardFormatDate(dates[1], dates[2], dates[3]);
 
-            if player.rankHist[1][6] == 0 then
+            if player.rankHist[1][6] == 0 or player.rankHist[1][2] == 0 or player.rankHist[1][3] == 0 or player.rankHist[1][4] == 0 then
 
                 player.rankHist[1][1] = formerRankName;
                 player.rankHist[1][2] = dates[1];
@@ -19630,8 +19652,7 @@ GRM.OnRankChange = function(formerRank, newRank, promotedName, promoterName)
             player.rankHist[1][7] = true;
 
             -- For history
-            table.insert(player.rankHist, 1,
-                {player.rankName, dates[1], dates[2], dates[3], standardDate, time(), true, 1});
+            table.insert( player.rankHist, 1, {player.rankName, dates[1], dates[2], dates[3], standardDate, time(), true, 1} );
 
             -- Let's update it on the fly!
             local simpleName = GRM.GetStringClassColorByName(promotedName) .. GRM.SlimName(promotedName) .. "|r";
@@ -21391,6 +21412,9 @@ GRM.SendBannedSyncMessageForAlts = function(playerThatWasKicked, epochTimeStamp,
         if reason == "" then
             reason = "###";
         end
+
+        index = index or 1;
+        index2 = index2 or 1;
 
         local syncMessage = "GRM_BAN?" .. tostring(GRM.S().syncRankBanList) .. "?" .. playerThatWasKicked .. "~|~" ..
                                 epochTimeStamp .. "~|~" .. reason .. "~|~" .. class .. "~|~" .. GUID .. "~|~" ..

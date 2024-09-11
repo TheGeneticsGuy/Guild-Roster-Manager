@@ -5108,7 +5108,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
         local name = GRM_G.currentName;
         local player = GRM.GetPlayer ( name );
 
-        if player then
+        if player and player.rankHist[1][2] ~= 0 then
             -- For SYNC
             player.rankHist[1][6] = time();
             player.rankHist[1][7] = true;
@@ -5138,7 +5138,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
         local name = GRM_G.currentName;
         local player = GRM.GetPlayer ( name );
 
-        if player then
+        if player and player.joinDateHist[1][1] ~= 0 then
             -- For SYNC
             player.joinDateHist[1][5] = time();
             player.joinDateHist[1][6] = true;

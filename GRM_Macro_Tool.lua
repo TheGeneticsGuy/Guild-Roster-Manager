@@ -1111,6 +1111,26 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText = GRM_
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton = CreateFrame ( "CheckButton" , "GRM_ToolSyncButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InterfaceOptionsCheckButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
+-- Method:          GRM_R.SelectAllRuleLogic ( buttonLogic )
+-- What it Does:    Activates and Deactivates all the rules in that category
+-- Purpose:         Quality of life convenience to enable or disable all rules.
+GRM_R.SelectAllRuleLogic = function( self )
+    if self:GetChecked() then
+        -- Enable all
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Disable All" ) );
+        for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
+            rule.isEnabled = true;
+        end
+    else
+        -- Disable all
+        GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
+        for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
+            rule.isEnabled = false;
+        end
+    end
+    GRM_UI.RefreshManagementTool();
+end
+
 GRM_UI.CreateCheckBox ( "GRM_MacroRuleSelectAllCheckBox" , GRM_UI.GRM_ToolCoreFrame , nil , {26,26} , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "BOTTOMLEFT" , 15 , 5 } , GRM_R.SelectAllRuleLogic , GRM.L ( "Enable All" ) , "GameFontNormal" , 11 );
 
 GRM_UI.BuildMacroToolFrame(); -- To be expanded
@@ -2399,26 +2419,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
             end
         end
-    end
-
-    -- Method:          GRM_R.SelectAllRuleLogic ( buttonLogic )
-    -- What it Does:    Activates and Deactivates all the rules in that category
-    -- Purpose:         Quality of life convenience to enable or disable all rules.
-    GRM_R.SelectAllRuleLogic = function( self )
-        if self:GetChecked() then
-            -- Enable all
-            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Disable All" ) );
-            for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
-                rule.isEnabled = true;
-            end
-        else
-            -- Disable all
-            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
-            for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
-                rule.isEnabled = false;
-            end
-        end
-        GRM_UI.RefreshManagementTool();
     end
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetText( GRM.L ( "Name:" ) );
@@ -9451,9 +9451,10 @@ local PromoteFilterMatch = function( player , ruleName , rule , tempRuleCollecti
     local ruleConfirmedCheck = false;
     local alts = GRM.GetAltNamesList ( player );
 
+    player = GRM.ValidateHist ( player );
+
     -- Initial activity
     if ( rule.sinceAtRank and player.rankHist[1][7] and GRM.HasTimeExceededDate ( GRM.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) or ( not rule.sinceAtRank and player.joinDateHist[1][6] and GRM.HasTimeExceededDate ( GRM.ConvertToEpoch ( player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
-
 
         -- It appears the player HAS been at the rank for that given amount of time - now, do we promote no matter what, or do we check for inactivity?
         if rule.regardlessOfActivity then
@@ -9985,6 +9986,8 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                         -- We know that the rank is valid at this point as it has been made true
                         ruleConfirmedCheck = false;
 
+                        player = GRM.ValidateHist ( player );
+
                         local epochDate = GRM.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] );
 
                         if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.GetHoursSinceTimestamp ( epochDate ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
@@ -10164,7 +10167,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                         elseif not rule.isEnabled then
                             ruleDisabledList[player.name] = true;
 
-                        else
+                        elseif not player.safeList.kick[1] and isHigherAlt and rule.isEnabled then
                             higherAltCount = higherAltCount + 1;
                         end
                     end
@@ -10209,7 +10212,7 @@ GRM_Macro.GetJumpsMsg = function ( numJumps , type )
 
 end
 
--- Method:          GRM.GetFullDatabaseAltsWithMain()
+-- Method:          GRM_Macro.GetFullDatabaseAltsWithMain()
 -- What it Does:    Returns a table with the names of all mains, with all their alts underneath
 -- Purpose:         Useful when checking special rules for syncing alt to main rank or designated.
 GRM_Macro.GetFullDatabaseAltsWithMain = function()
@@ -10282,7 +10285,7 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
                 for ruleName , rule in pairs ( GRM.S().specialRules ) do
 
                     -- Confirm that this rule applies to main at this rank
-                    if rule.allRanks or ( not rule.allRanks and rule.ranks[(GuildControlGetNumRanks() - mainRankInd)] ) then
+                    if (rule.syncToMain and mainRankInd ~= 0) and ( rule.allRanks or ( not rule.allRanks and rule.ranks[(GuildControlGetNumRanks() - mainRankInd)] ) ) then
                         ruleConfirmedCheck = true;
                         tempRuleCollection = {};
 
@@ -10376,7 +10379,7 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
                             elseif not isHigherAlt and not rule.isEnabled then
                                 ruleDisabledList[player.name] = true;
 
-                            elseif isHigherAlt then
+                            elseif isHigherAlt and rule.isEnabled then
                                 higherAltCount = higherAltCount + 1;
                             end
                         end

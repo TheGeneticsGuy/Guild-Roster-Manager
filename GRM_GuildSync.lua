@@ -1432,7 +1432,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
 
         epochTimeOfChange = tonumber ( epochTimeOfChange );
         -- Let's see if there was a change
-        if player.joinDateHist[1][5] <= epochTimeOfChange or not player.joinDateHist[1][6] then
+        if day ~= 0 and ( player.joinDateHist[1][5] <= epochTimeOfChange or not player.joinDateHist[1][6] ) then
 
             player.joinDateHist[1][1] = day;
             player.joinDateHist[1][2] = month;
@@ -1512,7 +1512,7 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
 
         epochTimeOfChange = tonumber ( epochTimeOfChange );
 
-        if player.rankHist[1][6] <= epochTimeOfChange or not player.rankHist[1][7] then -- Overwrite it if note verified
+        if day ~= 0 and ( player.rankHist[1][6] <= epochTimeOfChange or not player.rankHist[1][7] ) then -- Overwrite it if note verified
             player.rankHist[1][2] = day;  -- day
             player.rankHist[1][3] = month;  -- month
             player.rankHist[1][4] = year;  -- year
