@@ -1,3 +1,12 @@
+## **VERSION 1.99144 RELEASE - September 13th, 2024**
+
+***BUG FIXES***
+
+* GRM was not indicating on the mouseover if a player was AFK or Busy, they all stated they were just "Active" or "Offline." GRM should once again distinguish.
+
+* Fixed an issue that could cause the scan for changes to fail and cause a Lua error as I was returning with a missing value when checking the macro rule filters.
+
+
 ## **VERSION 1.99143 RELEASE - September 11th, 2024**
 
 *QUICK MOMENT I ASK TO REMEMBER THE EVENTS AND LIVES LOST ON 9/11/2001*

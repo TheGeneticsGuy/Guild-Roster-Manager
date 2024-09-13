@@ -9572,6 +9572,7 @@ end
 -- Purpose:         Macro Tool use
 GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHigherAlt , highest )
     local listOfPlayers = {};
+    local ruleDisabledList = {};
     local higherAltCount = 0;
     local ruleCount = ruleTypeIndex or GRM_UI.GRM_ToolCoreFrame.TabPosition;
 
@@ -9583,7 +9584,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
 
     -- No need to do all the work if there are no rules to check!
     if GRM.GetRulesCount ( ruleCount ) == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
-        return listOfPlayers , higherAltCount;
+        return listOfPlayers , higherAltCount , ruleDisabledList;
     end
 
     -- The name formatting is purely to be used for the macro to be added.
@@ -9593,7 +9594,6 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
     local rankDestination = { [2] = GRM.L ( "Promote to Rank:" ) , [3] = GRM.L ( "Demote to Rank:" ) };
     local playerMatch = false;
     local isHigherAlt = false;
-    local ruleDisabledList = {};
 
     local guildData = GRM.GetGuild();
     for _ , player in pairs ( guildData ) do
@@ -9903,6 +9903,7 @@ end
 -- Purpose:         To populate the macro tool
 GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
     local listOfPlayers = {};
+    local ruleDisabledList = {};
     local higherAltCount = 0;
     local isHigherAlt = false;
     GRM_G.countAction[1] = time();
@@ -9913,14 +9914,13 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
 
     -- No need to do all the work if there are no rules to check!
     if GRM.GetRulesCount ( 1 ) == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
-        return listOfPlayers , higherAltCount;
+        return listOfPlayers , higherAltCount , ruleDisabledList;
     end
 
     -- The name formatting is purely to be used for the macro to be added.
     local tempRuleCollection = {};
     local ruleConfirmedCheck = true
     local guildData = GRM.GetGuild();
-    local ruleDisabledList = {};
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" and ( player.name ~= GRM_G.addonUser or ( includeHigherAlt and highest[2] ~= player.name ) ) then
@@ -10254,6 +10254,7 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
     GRM_G.countAction[4] = time();
     local listOfPlayers = {};
     local higherAltCount = 0;
+    local ruleDisabledList = {};
 
     if not GRM_G.playerRankID then
         GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
@@ -10261,7 +10262,7 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
 
     -- No need to do all the work if there are no rules to check!
     if GRM.GetRulesCount (4) == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
-        return listOfPlayers , higherAltCount;
+        return listOfPlayers , higherAltCount , ruleDisabledList;
     end
 
     -- The name formatting is purely to be used for the macro to be added.
@@ -10274,7 +10275,6 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
     local numJumps = 0;
     local type = 0;
     local isHigherAlt = false;
-    local ruleDisabledList = {};
 
     for _ , group in pairs ( altGroups ) do
         mainRankInd = group.rankIndex

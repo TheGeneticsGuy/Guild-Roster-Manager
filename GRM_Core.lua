@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99143";
-GRM_G.PatchDay = 1725987032; -- In Epoch Time
-GRM_G.PatchDayString = "1725987032"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.Version = "R1.99144";
+GRM_G.PatchDay = 1726243228; -- In Epoch Time
+GRM_G.PatchDayString = "1726243228"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 if GetMaxLevelForPlayerExpansion then -- This works for retail
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
 else -- This should work for everything else
@@ -7825,21 +7825,21 @@ GRM.RosterFrame = function()
                 end
 
                 -- ACTIVE
-                if player.isOnline and player.status ~= 4 and player.status ~= 5 and player.status ~= 2 then
+                if player.isOnline and player.status == 0 then
                     if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:GetText() ~= GRM_G.Status[1] then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:SetTextColor(0.12, 1.0, 0.0, 1.0);
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[1]);
                     end
 
                     -- AFK
-                elseif player.status == 4 then
+                elseif player.status == 1 then
                     if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:GetText() ~= GRM_G.Status[4] then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:SetTextColor(1.0, 0.96, 0.41, 1.0);
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[4]);
                     end
 
                     -- BUSY
-                elseif player.status == 5 then
+                elseif player.status == 2 then
                     if GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:GetText() ~= GRM_G.Status[5] then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:SetTextColor(0.77, 0.12, 0.23, 1.0);
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[5]);
