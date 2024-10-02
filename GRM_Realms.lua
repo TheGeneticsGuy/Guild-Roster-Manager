@@ -1,4 +1,4 @@
--- Realms updated on: 2024-09-02 UTC
+-- Realms updated on: 2024-10-02 UTC
 -- Author: Aaron Topping (GenomeWhisperer) - Using custom written program WarcraftRealms.py
 
 
