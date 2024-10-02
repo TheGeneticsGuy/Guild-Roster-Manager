@@ -1,4 +1,4 @@
-## **VERSION 1.99145 RELEASE - October 2nd, 2024**
+## **VERSION 1.9915 RELEASE - October 2nd, 2024**
 
 **Compatibility update for 1.15.4 - Classic Era Release**
 
