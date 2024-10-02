@@ -560,32 +560,32 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
 
     if not parentFrame[name] then
 
-        parentFrame[name] = CreateFrame ( "Slider" , name , parentFrame , template );
+        parentFrame[name] = CreateFrame ( "Frame" , name , parentFrame , template );
         parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
-        parentFrame[name]:SetMinMaxValues ( min , max );
-        parentFrame[name]:SetObeyStepOnDrag ( true );
-        parentFrame[name]:SetValueStep ( steps );
+        parentFrame[name].Slider:SetMinMaxValues ( min , max );
+        parentFrame[name].Slider:SetObeyStepOnDrag ( true );
+        parentFrame[name].Slider:SetValueStep ( steps );
 
-        parentFrame[name][fontStringTextTitle] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
-        parentFrame[name][fontStringTextValue] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
+        parentFrame[name].Slider[fontStringTextTitle] = parentFrame[name].Slider:CreateFontString ( nil , "OVERLAY" , textTemplate );
+        parentFrame[name].Slider[fontStringTextValue] = parentFrame[name].Slider:CreateFontString ( nil , "OVERLAY" , textTemplate );
 
-        parentFrame[name][fontStringTextTitle]:SetPoint ( "RIGHT" , parentFrame[name] , "LEFT" , -5 , 0 );
-        parentFrame[name][fontStringTextTitle]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
-        parentFrame[name][fontStringTextTitle]:SetText ( textTitle );
+        parentFrame[name].Slider[fontStringTextTitle]:SetPoint ( "RIGHT" , parentFrame[name].Slider , "LEFT" , -5 , 0 );
+        parentFrame[name].Slider[fontStringTextTitle]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+        parentFrame[name].Slider[fontStringTextTitle]:SetText ( textTitle );
 
-        parentFrame[name][fontStringTextValue]:SetPoint ( "LEFT" , parentFrame[name] , "RIGHT" , 5 , 0 );
-        parentFrame[name][fontStringTextValue]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+        parentFrame[name].Slider[fontStringTextValue]:SetPoint ( "LEFT" , parentFrame[name].Slider , "RIGHT" , 5 , 0 );
+        parentFrame[name].Slider[fontStringTextValue]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
 
-        parentFrame[name][fontStringTextValue]:SetText ( tostring ( defaultValue ) );
+        parentFrame[name].Slider[fontStringTextValue]:SetText ( tostring ( defaultValue ) );
 
-        parentFrame[name]:SetScript ( "OnValueChanged" , function( _ , value )
+        parentFrame[name].Slider:SetScript ( "OnValueChanged" , function( _ , value )
             valueChangeScript ( value );
             if GameTooltip:IsVisible() then
                 GRM.RestoreTooltip();
             end
         end);
 
-        parentFrame[name]:SetScript ( "OnMouseUp" , function ( self , button )
+        parentFrame[name].Slider:SetScript ( "OnMouseUp" , function ( self , button )
             if button == "RightButton" then
                 self:SetValue ( defaultValue ); -- Right is to reset
             end
@@ -595,16 +595,16 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
         if toolTipScript then
 
             if type ( toolTipScript ) == "function" then
-                parentFrame[name]:SetScript ( "OnEnter" , function( self )
+                parentFrame[name].Slider:SetScript ( "OnEnter" , function( self )
                     toolTipScript( self );
                 end);
             else
-                parentFrame[name]:SetScript ( "OnEnter" , function ( self )
+                parentFrame[name].Slider:SetScript ( "OnEnter" , function ( self )
                     GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
                 end);
             end
 
-            parentFrame[name]:SetScript ( "OnLeave" , function()
+            parentFrame[name].Slider:SetScript ( "OnLeave" , function()
                 if toolTipClearScript then
                     toolTipClearScript();
                 else
@@ -614,8 +614,8 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
         end
 
         if not includeLowHigh then
-            _G[name.."Low"]:Hide()
-            _G[name.."High"]:Hide()
+            parentFrame[name].Forward:Hide()
+            parentFrame[name].Back:Hide()
         end
 
     end
@@ -1117,4 +1117,76 @@ GRM_UI.WrapText = function ( text , maxLength )
     end
 
     return result;
+end
+
+-- Method:          GRM_UI.BuildSliderTextures ( sliderFrame )
+-- What it Does:    Adds the texture ends to the outside of the input slider frame
+-- Purpose:         Blizz deprecated some frame designs I like so this modifies and adds my own custom design using a texture made by ChatGPT for me.
+GRM_UI.BuildSliderTextures = function ( slider )
+
+    local size = slider:GetWidth();
+
+    slider.bg = slider:CreateTexture ( nil , "BACKGROUND" );
+    slider.bg:SetAllPoints(slider);
+    slider.bg:SetTexture ( "Interface\\DialogFrame\\UI-DialogBox-Background" );
+    slider.bg:SetDrawLayer("BACKGROUND");
+
+    slider.top = slider:CreateTexture( nil, "BORDER", nil, 1)
+    slider.top:SetTexture("Interface\\AddOns\\Guild_Roster_Manager\\media\\icons\\sliderEnd.png")  -- Use a custom rounded texture
+    slider.top:SetWidth(size);
+    slider.top:SetHeight(size)
+    slider.top:SetPoint("BOTTOM", slider, "TOP" , 0 , -1);
+    slider.top:SetRotation ( math.pi );
+
+    slider.bot = slider:CreateTexture( nil, "BORDER", nil, 1)
+    slider.bot:SetTexture("Interface\\AddOns\\Guild_Roster_Manager\\media\\icons\\sliderEnd.png")  -- Use a custom rounded texture
+    slider.bot:SetWidth(size);
+    slider.bot:SetHeight(size)
+    slider.bot:SetPoint("TOP", slider, "BOTTOM" , 0 , 1 );
+
+    slider.topTextureFrame = CreateFrame ( "FRAME" , nil , slider );
+    slider.topTextureFrame:SetWidth(size);
+    slider.topTextureFrame:SetHeight(size)
+    slider.topTextureFrame:SetPoint( "TOP", slider.top, "TOP" );
+    slider.topTextureFrame:EnableMouse ( true );
+
+    slider.botTextureFrame = CreateFrame ( "FRAME" , nil , slider );
+    slider.botTextureFrame:SetWidth(size);
+    slider.botTextureFrame:SetHeight(size)
+    slider.botTextureFrame:SetPoint( "TOP", slider.bot, "TOP" );
+    slider.botTextureFrame:EnableMouse ( true );
+
+    slider.NineSlice:Hide()
+
+    slider.botTextureFrame:SetScript( "OnMouseDown" , function( _ , button)
+        if button == "LeftButton" then
+            local currentValue = slider:GetValue();
+            local max = select ( 2 , slider:GetMinMaxValues() );
+
+            if currentValue < max then
+                local value = currentValue + 15;
+                if value > max then
+                    value = max;
+                end
+                slider:SetValue ( value );
+            end
+        end
+    end)
+
+    slider.topTextureFrame:SetScript( "OnMouseDown" , function( _ , button)
+        if button == "LeftButton" then
+            local currentValue = slider:GetValue()
+            local min = slider:GetMinMaxValues();
+
+            if currentValue > min then
+                local value = currentValue - 15;
+                if value < min then
+                    value = min;
+                end
+
+                slider:SetValue ( value );
+            end
+
+        end
+    end)
 end

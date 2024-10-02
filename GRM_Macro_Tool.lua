@@ -878,7 +878,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollBorderFrame = CreateFrame ( "Frame"
 -- CONTENT FRAME (Child Frame)
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame = CreateFrame ( "Frame" , "GRM_ToolMacrodScrollChildFrame" );
 -- SLIDER
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolMacrodScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrame , "UIPanelScrollBarTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolMacrodScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrame , "UIPanelScrollBarTrimTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrameSilder:Hide();
 
 -- Queued Scroll Frame
@@ -887,7 +887,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollBorderFrame = CreateFrame ( "Frame"
 -- CONTENT FRAME (Child Frame)
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame = CreateFrame ( "Frame" , "GRM_ToolQueuedScrollChildFrame" );
 -- SLIDER
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolQueuedScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame , "UIPanelScrollBarTemplate" )
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolQueuedScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame , "UIPanelScrollBarTrimTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:Hide();
 
 -- Ignored Scroll Frame
@@ -896,7 +896,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollBorderFram
 -- CONTENT FRAME (Child Frame)
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollChildFrame = CreateFrame ( "Frame" , "GRM_ToolIgnoredScrollChildFrame" );
 -- SLIDER
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolIgnoredScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrame , "UIPanelScrollBarTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolIgnoredScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrame , "UIPanelScrollBarTrimTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrameSilder:Hide();
 
 -- Rules Scroll Frame
@@ -905,7 +905,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame = CreateFrame ( "Frame" 
 -- CONTENT FRAME (Child Frame)
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame = CreateFrame ( "Frame" , "GRM_ToolRulesScrollChildFrame" );
 -- SLIDER
-GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolRulesScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrame , "UIPanelScrollBarTemplate" )
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder = CreateFrame ( "Slider" , "GRM_ToolRulesScrollFrameSilder" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrame , "UIPanelScrollBarTrimTemplate" )
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder:Hide();
 
 -- Text
@@ -3323,13 +3323,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 end
                 local levelRange = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[1];
                 if levelRange == 999 then
-                    levelRange = GetMaxPlayerLevel();
+                    levelRange = GRM_G.LvlCap
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( levelRange );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:GetText();
                 levelRange = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[2];
                 if levelRange == 999 then
-                    levelRange = GetMaxPlayerLevel();
+                    levelRange = GRM_G.LvlCap
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( levelRange );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:GetText();
@@ -3843,13 +3843,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 local levelRange = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[1];
 
                 if levelRange == 999 then
-                    levelRange = GetMaxPlayerLevel();
+                    levelRange = GRM_G.LvlCap
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( levelRange );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:GetText();
                 levelRange = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[2];
                 if levelRange == 999 then
-                    levelRange = GetMaxPlayerLevel();
+                    levelRange = GRM_G.LvlCap
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( levelRange );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox.levelNameText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:GetText();
@@ -10285,7 +10285,7 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
                 for ruleName , rule in pairs ( GRM.S().specialRules ) do
 
                     -- Confirm that this rule applies to main at this rank
-                    if (rule.syncToMain and mainRankInd ~= 0) and ( rule.allRanks or ( not rule.allRanks and rule.ranks[(GuildControlGetNumRanks() - mainRankInd)] ) ) then
+                    if ( not rule.syncToMain or ( rule.syncToMain and mainRankInd ~= 0 ) ) and ( rule.allRanks or ( not rule.allRanks and rule.ranks[(GuildControlGetNumRanks() - mainRankInd)] ) ) then
                         ruleConfirmedCheck = true;
                         tempRuleCollection = {};
 

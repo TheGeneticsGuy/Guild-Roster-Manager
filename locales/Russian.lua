@@ -811,6 +811,7 @@ GRML.Russian = function()
     GRM_L["|CFFE6CC7FClick|r to select player's realm."] = "|CFFE6CC7FЛКМ|r для выбора реалма игрока."
     GRM_L["All Connected Realms are available to choose."] = "Все подключенные реалмы доступны для выбора."
     GRM_L["{num} players were found to have the same name. Please manually select the player's realm"] = true
+    GRM_L["Click or Press TAB to cycle through each step."] = true
     GRM_L["Former and Current Members"] = "Бывшие и текущие участники"
     GRM_L["No Matches Found. Add a Custom New Player or Match"] = "Совпадений не найдено. Добавить нового игрока"       -- as in, autocomplete typing matching
 

@@ -1,3 +1,22 @@
+## **VERSION 1.99145 RELEASE - October 2nd, 2024**
+
+**Compatibility update for 1.15.4 - Classic Era Release**
+
+***BUG FIXES***
+
+* Fixed an issue where the "Special Rule" to sync all alts to a specific rank of a given main was not working. They sync all alts to the same rank of the main was not, but a recent udpdate I did broke the previous implementation and I didn't realize it until it was reported on Discord. It will now properly work again!
+
+* Added the missing translation string for the Russian Client as I had apparently deleted it on accident. You will no longer be spammed of missing key.
+
+* Fixed an issue where the "level cap" was only showing the level cap you had payed for for an expansion, which was causing a problem. For example, if you had not yet purchased TWW expansion, GRM was showing your level cap as the DF cap of 70, rather than the actual server level cap of 80. This has now been fixed.
+
+* When exporting names - the realm name will no longer be appended to the player name. It seemed a bit redundant to have the name-realm, and then an extra column for the realm. Now, the realm name will be a separate column. Of note, the ordering of all these player details is not ideal how I want it at the moment, and I'd like to make it configurable, but that is future plans.
+
+* Fixed an issue where the GRM Custom Note "Slider" was not showing if alt groups had never been configured.
+
+* Fixed all of the issues around the deprecated scrollframe templates that appear to have been implemented in the 1.15.4 update, and likely will carry over into Classic Cata and Retail as soon as they get their next update. It sort of seems like an oversight by Blizz and might be a bug, but I cannot guarantee that so I wrote my own Slider template and added some custom scrollframe textures. The horizontal sliders in the options have been updated to non deprecated templates as well. This was actually a pretty annoying bug to resolve for such a small "stealth" update.
+
+
 ## **VERSION 1.99144 RELEASE - September 13th, 2024**
 
 ***BUG FIXES***
@@ -5,7 +24,6 @@
 * GRM was not indicating on the mouseover if a player was AFK or Busy, they all stated they were just "Active" or "Offline." GRM should once again distinguish.
 
 * Fixed an issue that could cause the scan for changes to fail and cause a Lua error as I was returning with a missing value when checking the macro rule filters.
-
 
 ## **VERSION 1.99143 RELEASE - September 11th, 2024**
 

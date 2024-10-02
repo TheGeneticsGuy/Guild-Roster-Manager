@@ -288,7 +288,7 @@ GRM_R.BuildRosterFrames = function ()
     GRM_UI.CreateCheckBox ( "GRM_RosterOptionsGroupByMain" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , nil , nil , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMainTag , "RIGHT" , 100 , 0 } , GRM_R.GroupByMainLogic , GRM.L ( "Group Alts With Main" ) , "GameFontNormal" , 11 , GRM_R.GroupByMainTT , GRM_R.TooltipReset );
 
     -- Number of Rows Options Slider
-    GRM_UI.CreateOptionsSlider( "GRM_RowsCountSlider" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "OptionsSliderTemplate" , { "RIGHT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "RIGHT" , -90 , 5 } , 10 , 40 , 1 , 11 , GRM.L ( "Rows:" ) , 18 ,  "GameFontNormal"  , GRM_R.NumRowsSliderLogic, GRM_R.NumRowsSliderTT , GRM_R.TooltipReset  ,GRM_R.SliderMouseUpLogic , false )
+    GRM_UI.CreateOptionsSlider( "GRM_RowsCountSlider" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "MinimalSliderWithSteppersTemplate" , { "RIGHT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "RIGHT" , -90 , 5 } , 10 , 40 , 1 , 11 , GRM.L ( "Rows:" ) , 18 ,  "GameFontNormal"  , GRM_R.NumRowsSliderLogic, GRM_R.NumRowsSliderTT , GRM_R.TooltipReset  ,GRM_R.SliderMouseUpLogic , false )
 
 end
 
@@ -2419,7 +2419,7 @@ end
 -- Purpose:         Great customization for leaders to view the roster.
 GRM_R.NumRowsSliderLogic = function ( value )
     GRM.S().numRosterRows = value;
-    GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RowsCountSlider.GRM_RowsCountSliderText2:SetText ( GRM.L ( "{num} Rows" , nil , nil , value ) );
+    GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RowsCountSlider.Slider.GRM_RowsCountSliderText2:SetText ( GRM.L ( "{num} Rows" , nil , nil , value ) );
 
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetValueStep ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame:GetHeight() / GRM.S().numRosterRows );
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetStepsPerPage ( GRM.S().numRosterRows )
@@ -2547,8 +2547,8 @@ GRM_R.ConfigureRosterOptions = function()
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsGroupByMain:SetChecked ( true );
     end
 
-    GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RowsCountSlider:SetValue ( GRM.S().numRosterRows );
-    GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RowsCountSlider.GRM_RowsCountSliderText2:SetText ( GRM.L ( "{num} Rows" , nil , nil , GRM.S().numRosterRows ) );
+    GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RowsCountSlider.Slider:SetValue ( GRM.S().numRosterRows );
+    GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RowsCountSlider.Slider.GRM_RowsCountSliderText2:SetText ( GRM.L ( "{num} Rows" , nil , nil , GRM.S().numRosterRows ) );
 
 
 end

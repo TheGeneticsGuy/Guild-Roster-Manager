@@ -12,19 +12,15 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99144";
-GRM_G.PatchDay = 1726243228; -- In Epoch Time
-GRM_G.PatchDayString = "1726243228"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-if GetMaxLevelForPlayerExpansion then -- This works for retail
-    GRM_G.LvlCap = GetMaxLevelForPlayerExpansion();
-else -- This should work for everything else
-    GRM_G.LvlCap = GetMaxPlayerLevel();
-end
+GRM_G.Version = "R1.9915";
+GRM_G.PatchDay = 1727848595; -- In Epoch Time
+GRM_G.PatchDayString = "1727848595"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110002;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.40;
+GRM_G.GroupInfoV = 1.41;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -337,8 +333,8 @@ GRM_G.HardcoreHexCode = "|CFFBF0000"; -- Default RGB = .76 , 0 , 0 (r,g,b)
 GRM_G.SOD =
     (C_Seasons and C_Seasons.GetActiveSeason and Enum.SeasonID.SeasonOfDiscovery and C_Seasons.GetActiveSeason() ==
         Enum.SeasonID.SeasonOfDiscovery);
-if GRM_G.SOD then
-    GRM_G.LvlCap = 60; -- For some reason in SOD level cap seems to not report properly as it has been 25, then 40, then 50, now 60 in Season 4;
+if GRM_G.SOD and GetMaxLevelForPlayerExpansion then
+    GRM_G.LvlCap = GetMaxLevelForPlayerExpansion(); -- For some reason in SOD level cap seems to not report properly as it has been 25, then 40, then 50, now 60 in Season 4;
 end
 
 -- Enums
@@ -610,6 +606,24 @@ GRM.ForceLoadAddon = function(addonName)
         GRM.LoadLuaAddOn(addonName);
     end
 end
+
+GRM.GetMaxPlayerLevel = function()
+    if GetMaxLevelForPlayerExpansion then -- This works for retail
+        return GetMaxLevelForPlayerExpansion();
+    else -- This should work for everything else
+        return GetMaxPlayerLevel();
+    end
+end
+
+-- 1.15.4 Changes - soon to be retail
+GRM.SetSliderTemplate = function()
+    if pcall ( CreateFrame , "Frame" , nil , UIParent , "UISliderTemplateWithLabels" ) then -- pcall will not throw errors, just return false if doesnt' exist
+        GRM_G.SliderTemplate = "UISliderTemplateWithLabels"
+    else
+        GRM_G.SliderTemplate = "UISliderTemplate"
+    end
+end
+GRM_G.SliderTemplate = "UISliderTemplate"
 
 -------------------------------
 --- END COMPATIBILITY CHECK ---
@@ -927,7 +941,8 @@ end
 GRM.SetDefaultAddonSettings = function(player, page)
 
     -- Misc needs a tab home
-    player.useFullName = false;
+    player.nameFormat = 1;      -- 1 = Blizzard naming convention(only include if not server), 2 = Always include server, 3 = Always remove server
+
     if not player.removedMacroRules then
         player.removedMacroRules = {};
     end
@@ -2302,14 +2317,16 @@ GRM.SlimName = function(name)
 end
 
 -- Method:          GRM.FormatName ( string )
--- What it Does:    For purposes of standardizing the name formatting, this removes the server appending ONLY if same realm and the player does not have them permanently enabled.
+-- What it Does:    Standardizes the formatting of player names
 -- Purpose:         Customizing how the name appears in log and elsewhere.
-GRM.FormatName = function(name)
-
+-- Formatting:      1 = Blzzard convention of always showing except those on same realm, 2 = always show realm, 3 = never show realm
+GRM.FormatName = function( name )
     if name then
-        if not GRM.S().useFullName then
-            if string.find(name, "-") then
-                name = string.gsub(name, "%-.+", "");
+        if string.find( name, "-") then
+            if GRM.S().nameFormat == 1 or GRM.S().nameFormat == 3 then     -- Blizzard naming convention - only remove server if same realm
+                if GRM.S().nameFormat == 3 or ( name:match ("%-(.+)" ) == GRM_G.realmName ) then
+                    return string.gsub( name, "%-.+", "" );
+                end
             end
         end
     else
@@ -17999,7 +18016,7 @@ GRM.BuildExportMemberDetails = function(currentMembers, specificGuild)
 
                 if GRM.S().exportFilters.name then
 
-                    name = roster[i].name;
+                    name = GRM.SlimName ( roster[i].name );
 
                     if GRM.S().specialCharRemoval then
                         name = GRM.RemoveSpecialCharacters(name);
@@ -23839,15 +23856,13 @@ GRM.AltNameTooltip = function(self)
         if GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame:IsMouseOver(5, 5, 5, 35) and player and
             GRM.GetNumAlts(player.altGroup) >= 12 then
             GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:Show();
-            GRM_CoreAltScrollFrameSliderThumbTexture:Show();
         else
             GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:Hide();
         end
 
-        if self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrame:IsMouseOver(1, 1, 1, 13) and
+        if self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrame:IsMouseOver(10, 1, 1, 30) and
             select(2, self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:GetMinMaxValues()) > 0 then
             self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:Show();
-            GRM_CustomNoteScrollFrameSliderThumbTexture:Show()
         else
             self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:Hide();
         end
@@ -23868,6 +23883,18 @@ GRM.AltNameTooltip = function(self)
         if self.GRM_ExtraAltDetailsArrowButton:IsVisible() then
             self.GRM_ExtraAltDetailsArrowButton:Hide();
         end
+    end
+end
+
+-- Method:          GRM.CustomNoteSlider ( parentFrameOfSlider )
+-- What it Does:    Controls logic of mouseover of the custom note frame within the OnUpdate of the mouseover
+-- Purpose:         Show the scrollSlider, but only if necessary
+GRM.CustomNoteSlider = function( self )
+    if self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrame:IsMouseOver(10, 1, 1, 30) and
+    select(2, self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:GetMinMaxValues()) > 0 then
+        self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:Show();
+    else
+        self.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:Hide();
     end
 end
 
@@ -23930,6 +23957,9 @@ GRM.MemberDetailToolTips = function(self, elapsed)
 
             -- ALT NAMES
             GRM.AltNameTooltip(self);
+
+            -- Custom Note Slider
+            GRM.CustomNoteSlider ( self )
 
             -- PLAYER STATUS
             GRM.PlayerStatusNotificationTooltip(self);
@@ -26702,6 +26732,10 @@ GRM.SetHybridScrollFrameSliderParameters = function(childFrame, HscrollFrame, Hs
         scrollMax = 0;
     else
         scrollMax = scrollMax + buttonH;
+    end
+
+    if HscrollFrameSlider.Slider then
+        HscrollFrameSlider = HscrollFrameSlider.Slider;
     end
 
     HscrollFrameSlider:SetMinMaxValues(0, scrollMax);

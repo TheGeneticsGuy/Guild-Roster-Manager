@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 134 - 2024 - 08 - 29
+--- Total Patches: 135 - 2024-10-01
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1640,6 +1640,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.99141";
         if loopCheck ( 1.99141 ) then
+            return;
+        end
+    end
+
+    -- 135
+    if numericV < 1.9915 and baseValue < 1.9915 then
+        GRM_Patch.EditSetting ( "useFullName" , nil );
+        GRM_Patch.AddNewSetting ( "nameFormat" , 1 );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9915";
+        if loopCheck ( 1.9915 ) then
             return;
         end
     end
