@@ -3984,7 +3984,7 @@ GRMsync.BuildPromoteDatesForSync = function()
             -- Cycle through guild data to find them. This is now in array format, remember, so that arrays align.
             for j = 1, #guildData do
                 if guildData[j].name == dataIndexes[i][1] then
-                    if guildData[j].rankHist[1][7] then
+                    if guildData[j].rankHist[1][7] and GRMsync.ValidatePromoteDataForSync( guildData[j].rankHist ) then
 
                         table.insert ( playersWithPromoteDates , { guildData[j].name , guildData[j].rankHist[1][5] , guildData[j].rankHist[1][6] } );    -- Name, standardDate "YYYYMMDD", epochTimestamp
 
@@ -3997,6 +3997,35 @@ GRMsync.BuildPromoteDatesForSync = function()
     end
 
     return playersWithPromoteDates;
+end
+
+-- Method:          GRMsync.ValidatePromoteDataForSync ( list )
+-- What it Does:    Fixes the standard date if not properly formatted and returns if validated
+-- Purpose:         Data sync integrity
+GRMsync.ValidatePromoteDataForSync = function( rankHist )
+    local validated = false;
+
+    if #rankHist[1][5] > 1 then
+        if #rankHist[1][5] > 8 then
+            if rankHist[1][2] > 0 and rankHist[1][3] > 0 and rankHist[1][4] > 0 then
+                rankHist[1][5] = GRM.ConvertToStandardFormatDate ( rankHist[1][2] , rankHist[1][3] , rankHist[1][4] );
+                validated = true;
+            else
+                validated = false;
+            end
+        elseif #rankHist[1][5] == 8 then
+            validated = true;
+        end
+    elseif rankHist[1][2] > 0 and rankHist[1][3] > 0 and rankHist[1][4] > 0 then
+        rankHist[1][5] = GRM.ConvertToStandardFormatDate ( rankHist[1][2] , rankHist[1][3] , rankHist[1][4] );
+        validated = true;
+    end
+
+    if not validated then
+        rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+    end
+
+    return validated
 end
 
 -- Method:          GRMsync.SendAltNamesNotMine ( table , int , int )

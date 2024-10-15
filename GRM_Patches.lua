@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 135 - 2024-10-01
+--- Total Patches: 136 - 2024-10-14
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1651,6 +1651,15 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.9915";
         if loopCheck ( 1.9915 ) then
+            return;
+        end
+    end
+    -- 136
+    if numericV < 1.99151 and baseValue < 1.99151 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.StandardDateFix , true , true , false , nil )
+
+        GRM_AddonSettings_Save.VERSION = "R1.99151";
+        if loopCheck ( 1.99151 ) then
             return;
         end
     end
@@ -9186,6 +9195,98 @@ GRM_Patch.ConvertHours = function( player )
     local days = math.floor( totalHrs / 24 )     -- 24 hours in a day
     local remaining_hours = totalHrs % 24      -- Remaining hours after extracting days
     player.lastOnlineTime = { years , months , days , remaining_hours };
+
+    return player
+end
+
+-- R1.99151
+-- Method:          GRM_Patch.StandardDateFix ( playerTable )
+-- What it Does:    Some epoch numbers got saved from the epoch timestamp into the place of the standard date in error This overwrites them
+-- Purpose:         Fix previous error
+GRM_Patch.StandardDateFix = function ( player )
+
+    -- Promotion Dates
+    for i = 1 , #player.rankHist do
+        if type ( player.rankHist[i][5] ) == "string" then
+            -- Ok, it's in the correct type.
+            if #player.rankHist[i][5] > 8 then
+                -- This means standard date was input wrong. Let's just rewrite it if we have the date values
+                if player.rankHist[i][2] > 0 and player.rankHist[i][3] > 0 and player.rankHist[i][4] > 0 then
+                    player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+                else
+                    if i == 1 then
+                        player.rankHist[1] = { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 }
+                    else
+                        table.remove ( player.rankHist , i );
+                    end
+                end
+            elseif #player.rankHist[i][5] == 8 then
+                year = string.sub ( player.rankHist[i][5] , 1 , 4 )
+                if tonumber (year) < 2000 then
+                    if i == 1 then
+                        player.rankHist[1] = { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 }
+                    else
+                        table.remove ( player.rankHist , i );
+                    end
+                end
+            elseif #player.rankHist[i][5] > 1 or ( #player.rankHist[i][5] == 1 and (player.rankHist[i][2] ~= 0 or player.rankHist[i][3] ~= 0 or player.rankHist[i][4] ~= 0 ) ) then
+                if i == 1 then
+                    player.rankHist[1] = { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 }
+                else
+                    table.remove ( player.rankHist , i );
+                end
+            end
+
+        else
+            if i == 1 then
+                player.rankHist[1] = { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 }
+            else
+                table.remove ( player.rankHist , i );
+            end
+        end
+    end
+
+    -- Join Dates
+    -- Promotion Dates
+    for i = 1 , #player.joinDateHist do
+        if type ( player.joinDateHist[i][4] ) == "string" then
+            -- Ok, it's in the correct type.
+            if #player.joinDateHist[i][4] > 8 then
+                -- This means standard date was input wrong. Let's just rewrite it if we have the date values
+                if player.joinDateHist[i][1] > 0 and player.joinDateHist[i][2] > 0 and player.joinDateHist[i][3] > 0 then
+                    player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+                else
+                    if i == 1 then
+                        player.joinDateHist[1] = { 0 , 0 , 0 , "0" , 0 , false , 1 }
+                    else
+                        table.remove ( player.joinDateHist , i );
+                    end
+                end
+            elseif #player.joinDateHist[i][4] == 8 then
+                year = string.sub ( player.joinDateHist[i][4] , 1 , 4 )
+                if tonumber (year) < 2000 then
+                    if i == 1 then
+                        player.joinDateHist[1] = { 0 , 0 , 0 , "0" , 0 , false , 1 }
+                    else
+                        table.remove ( player.joinDateHist , i );
+                    end
+                end
+            elseif #player.joinDateHist[i][4] > 1 or ( #player.joinDateHist[i][4] == 1 and (player.joinDateHist[i][1] ~= 0 or player.joinDateHist[i][2] ~= 0 or player.joinDateHist[i][3] ~= 0 ) ) then
+                if i == 1 then
+                    player.joinDateHist[1] = { 0 , 0 , 0 , "0" , 0 , false , 1 }
+                else
+                    table.remove ( player.joinDateHist , i );
+                end
+            end
+
+        else
+            if i == 1 then
+                player.joinDateHist[1] = { 0 , 0 , 0 , "0" , 0 , false , 1 }
+            else
+                table.remove ( player.joinDateHist , i );
+            end
+        end
+    end
 
     return player
 end

@@ -3832,7 +3832,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
             if group then
                 for i = 1 , #group do              -- Loop through all alts
-                    alt = GRM.GetPlayer ( group.name );
+                    alt = GRM.GetPlayer ( group[i].name );
                     if alt ~= nil then
                         -- No point in adding yourself.
                         local safeList = GRM.DeepCopyArray ( player.safeList );

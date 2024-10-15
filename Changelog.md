@@ -1,3 +1,14 @@
+## **VERSION 1.99151 RELEASE - October 14th, 2024**
+
+***BUG FIXES***
+
+* Fixed an issue where in Harcore mode you could not change the language or the date format without causing errors.
+
+* Fixed a bug with the promotion date formatting that could cause sync to fail. This is due to a legacy bug that had stored data in the DB incorrectly before and had not been cleaned up. The DB will now be properly cleaned of this error.
+
+* Fixed a bug where if you ctrl-shift-clicked the "ignore filter" rule on the mouseover window to force the same filters to ALL alts, it wasn't working. It should now work properly again.
+
+
 ## **VERSION 1.9915 RELEASE - October 2nd, 2024**
 
 **Compatibility update for 1.15.4 - Classic Era Release**

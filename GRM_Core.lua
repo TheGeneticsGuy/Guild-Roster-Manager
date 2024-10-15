@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9915";
-GRM_G.PatchDay = 1727848595; -- In Epoch Time
-GRM_G.PatchDayString = "1727848595"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.Version = "R1.99151";
+GRM_G.PatchDay = 1728940710; -- In Epoch Time
+GRM_G.PatchDayString = "1728940710"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110002;
@@ -4056,6 +4056,15 @@ GRM.GetAllGuildiesInPromoDateOrder = function(fullNameNeeded, newFirst)
             joinDate, promoDate, mainStatus, isComplete, classColors, birthDate =
                 GRM.GetAuditLinePlayervalues(player, isComplete);
 
+            if #player.rankHist[1][5] > 1 and #player.rankHist[1][5] > 8 then
+                if player.rankHist[1][2] ~= 0 and player.rankHist[1][3] ~= 0 and player.rankHist[1][4] ~= 0 then
+                    player.rankHist[1][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] );
+
+                else
+                    player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+                end
+            end
+
             if #player.rankHist[1][5] > 1 then
                 -- find a proper place to sort
                 local standardTime = tonumber(player.rankHist[1][5]);
@@ -7168,8 +7177,7 @@ GRM.GetTimestampOfLastRankChange = function(player)
     local result = "";
 
     if player and #player.rankHist[1][5] > 1 then
-        result =
-            GRM.FormatTimeStamp({player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]}, false, false);
+        result = GRM.FormatTimeStamp({player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]}, false, false);
     end
 
     return result;
@@ -7309,6 +7317,8 @@ GRM.AllignTwoColumns = function(listOfStrings, spacing)
     local result = "\n";
     local modifier = 7;
     local size = 17.08;
+    local longest_ind = 2;
+
     if GRM.S().showLineNumbers then
         modifier = 8.5;
     end
@@ -7321,6 +7331,7 @@ GRM.AllignTwoColumns = function(listOfStrings, spacing)
         local tempW = GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetWidth();
         if tempW > longestW then
             longestW = tempW;
+            longest_ind = i;
         end
     end
 
@@ -7332,6 +7343,12 @@ GRM.AllignTwoColumns = function(listOfStrings, spacing)
             GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetText(
                 GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetText() .. " "); -- Keep adding spaces until it matches
         end
+
+        if longest_ind == i then
+            GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetText(
+                GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetText() .. "   "); -- Longest needs some white space added to compensate the fuzzy width comparisons
+        end
+
         if listOfStrings[i][2] ~= nil then
             result = result .. GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetText() .. listOfStrings[i][2];
         else
@@ -9000,8 +9017,8 @@ GRM.GetMessageRGB = function(index)
     return r, g, b;
 end
 
--- Method:          GRM.AddLog( array , string )
--- What it Does:    Adds a simple array to the Logreport that includes the indexcode for color, and the included changes as a string
+-- Method:          GRM.AddLog( list , string )
+-- What it Does:    Adds a simple list to the Logreport that includes the indexcode for color, and the included changes as a string
 -- Purpose:         For ease in adding to the core log.
 GRM.AddLog = function(logEntry, name)
     local guildName = name or GRM_G.guildName;
@@ -12330,7 +12347,7 @@ GRM.ReProcessLogString = function(logEntry)
 
             -- Hardcore Mode
         elseif entryIndex == 24 then
-            result = GRM.GetDeathString(logEntry[3], logEntry[4], logEntry[5], logEntry[5]);
+            result = GRM.GetDeathString(logEntry[3], logEntry[4], logEntry[5], logEntry[6]);
 
             -- Special Macro Rule Log Announce
         elseif entryIndex == 25 then

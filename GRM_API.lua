@@ -313,7 +313,7 @@ GRM_API.SetAllUnknownPromoteDates = function ( day , month , year )
                 -- Ok, let's do the rank history first
                 if player.promoteDateUnknown or player.rankHist[1][2] == 0 then
 
-                    player.rankHist = { { player.rankName , 0 , 0 , 0 , 0 , 0 , false , 1 } }; -- Wipe the history
+                    player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } }; -- Wipe the history
                     player.rankHist[1][1] = player.rankName;
                     player.rankHist[1][2] = day;
                     player.rankHist[1][3] = month;
@@ -410,3 +410,33 @@ GRM_API.RollBackToVerifiedPromotionDatesOnly = function()
 
     GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
 end
+
+-----------------
+-- LOG DETAILS --
+-----------------
+
+-- GRM_API.AddCustomLogEntry = function ( type_of_entry , text , name , name2 , refresh_log )
+
+--     GRM.AddLog
+
+--     -- Only refresh log if directed to do so, and it is visible
+--     if refresh_log and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
+--         GRM.BuildLogComplete( true , true );
+--     end
+-- end
+
+GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoined , date_rejoined_table , date_left_table , first_ever_join_table , times_in_guild , player_level,
+    optional_previous_name, orig_rank )
+
+    local how_long_ago = GRM.ConvertToStandardFormatDate ( date_left_table[1] , date_left_table[2] , date_left_table[3] )
+
+    local rejoinText = GRM.GetJoinOrRejoinString( true , player_who_invited, player_who_rejoined , date_rejoined_table, true , player_level, optional_previous_name, times_in_guild, false, "", date_left_table , how_long_ago, first_ever_join_table, orig_rank, "", false);
+
+    GRM.AddLog ( { 7 , rejoinText , true , player_who_invited, player_who_rejoined, date_rejoined_table, true, player_level, optional_previous_name, times_in_guild, false, "", date_left_table , how_long_ago, first_ever_join_table, orig_rank, "", false })
+
+    if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
+        GRM.BuildLogComplete( true , true );
+    end
+end
+
+-- /run GRM_API.AddCustomRejoinEntry("PlayerWhoInvited-Server","RejoiningName-Server",{10,9,2023,21,5},{1,9,2024},{10,9,2010},2,80,"RejoinOriginal-Name","Officer")
