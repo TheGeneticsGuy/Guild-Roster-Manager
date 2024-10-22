@@ -9804,13 +9804,13 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
 
                                 elseif rule.ruleType == 2 then
 
-                                    if ( not GRM.S().promoteOnlineOnly ) or ( GRM.S().promoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
+                                    if ( not GRM.S().promoteOnlineOnly ) or ( GRM.S().promoteOnlineOnly and GRM.IsGuildieOnline ( player.name , player ) ) then
                                         playerMatch = true;
                                     end
 
                                 elseif rule.ruleType == 3 then
 
-                                    if ( not GRM.S().demoteOnlineOnly ) or ( GRM.S().demoteOnlineOnly and GRM.IsGuildieOnline ( player.name ) ) then
+                                    if ( not GRM.S().demoteOnlineOnly ) or ( GRM.S().demoteOnlineOnly and GRM.IsGuildieOnline ( player.name , player ) ) then
                                         playerMatch = true;
                                     end
 

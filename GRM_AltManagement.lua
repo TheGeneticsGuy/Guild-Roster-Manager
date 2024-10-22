@@ -517,6 +517,31 @@ GRM.GetListOfAlts = function ( player , includeGUID , altData )
     return names , mainName;
 end
 
+-- Method:          GRM.GetListOfAltsLowerRankThanMyself ( playerTable )
+-- What it Does:    Returns the list of alts who are capable of being kicked
+-- Purpose:         To easily mass kick an list of alts.
+GRM.GetListOfAltsLowerRankThanMyself = function( player )
+    local alts = GRM.GetListOfAlts( player );
+    local unableToKick = {};
+
+    if #alts > 0 then
+        sort ( alts , function ( a , b ) return a[1] < b[1] end );
+        local guild_data = GRM.GetGuild();
+        local alt = {};
+        local myRank = GRM.GetPlayer(GRM_G.addonUser).rankIndex
+
+        for i = #alts , 1 , -1 do
+            alt = GRM.GetPlayer(alts[i][1])
+            if alt and alt.rankIndex <= myRank then
+                table.insert ( unableToKick , alts[i][1] )  -- Add to a name
+                table.remove ( alts, i );               -- Alt rank is higher than my current toon, so unable to kick.
+            end
+        end
+    end
+
+    return alts, unableToKick;
+end
+
 -- Method:          GRM.PlayerIsAnAlt ( playerTable )
 -- What it Does:    Returns true if the given player is considered an "alt" not a main, or no designation
 -- Purpose:         To inform if the player is an alt more easily.
@@ -964,9 +989,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                     for h = 1 , GRM.GetNumGuildies() do
                         local h = GRM.GetRosterSelectionID ( tempAlt.name , tempAlt.GUID );
                         if h then
-                            local rosterMember = ( { select ( 7 , GetGuildRosterInfo ( h ) ) } );
-                            local note = rosterMember[1];
-                            local oNote = rosterMember[2];
+                            local note , oNote = select ( 7 , GetGuildRosterInfo(h) );
 
                             if not note then
                                 note = "";
@@ -1533,28 +1556,24 @@ GRM.AddAltAutoComplete = function()
     end
 end
 
--- Method:              GRM.KickAllAlts ( string , string , int )
+-- Method:              GRM.KickAllAlts ( string , list , string , int )
 -- What it Does:        Bans all listed alts of the player as well and adds them to the ban list. Of note, addons cannot kick players anymore, so this only adds to ban list.
 -- Purpose:             QoL. Option to ban players' alts as well if they are getting banned.
-GRM.KickAllAlts = function ( playerName , banReason , epochTimeStamp )
+GRM.KickAllAlts = function ( playerName , alts , banReason , epochTimeStamp )
     GRM_G.KickAllAltsTable = {};
-    local player = GRM.GetPlayer ( playerName );
-
     epochTimeStamp = epochTimeStamp or time();
 
-    if player then
+    if #alts > 0 then
     -- Ok, let's parse the player's data!
         local tempAlt;
         local instructionNote = GRM.L ( "Reason Banned?" ) .. "\n" .. GRM.L ( "Click \"YES\" When Done" );
         local result = banReason or "";
 
-        if GRM.GetNumAlts ( player.altGroup ) > 0 and ( GRM_G.isChecked2 or GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() ) then
-            local index;
-            local group = GRM.GetAltGroup ( player.altGroup );
+        if GRM_G.isChecked2 or GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() then
 
-            for i = 1 , #group do
-                if group[i].name ~= player.name and group[i].name ~= GRM_G.addonUser then   -- Can't include themselves to kick
-                    tempAlt = GRM.GetPlayer ( group[i].name );
+            for i = 1 , #alts do
+                if alts[i][1] ~= playerName and alts[i][1] ~= GRM_G.addonUser then   -- Can't include themselves to kick
+                    tempAlt = GRM.GetPlayer ( alts[i][1] );
 
                     -- The banning...
                     if GRM_G.isChecked or GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() then
@@ -1584,7 +1603,7 @@ GRM.KickAllAlts = function ( playerName , banReason , epochTimeStamp )
                     if GRM_G.isChecked2 then
 
                         table.insert ( GRM_G.KickAllAltsTable , {} );
-                        index = #GRM_G.KickAllAltsTable;
+                        local index = #GRM_G.KickAllAltsTable;
                         GRM_G.KickAllAltsTable[index].name = tempAlt.name;
                         GRM_G.KickAllAltsTable[index].class = GRM.GetClassColorRGB ( tempAlt.class );
                         GRM_G.KickAllAltsTable[index].lastOnline = tempAlt.lastOnline;
@@ -1617,10 +1636,10 @@ GRM.KickAllAlts = function ( playerName , banReason , epochTimeStamp )
                 end
             end
         end
-    end
 
-    -- Refresh the frames!
-    GRM_UI.RefreshSelectFrames ( true , true , true , false , true , true );
+        -- Refresh the frames!
+        GRM_UI.RefreshSelectFrames ( true , true , true , false , true , true );
+    end
 end
 
 ------------------------

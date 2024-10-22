@@ -1654,6 +1654,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
     -- 136
     if numericV < 1.99151 and baseValue < 1.99151 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.StandardDateFix , true , true , false , nil )
@@ -9207,7 +9208,7 @@ GRM_Patch.StandardDateFix = function ( player )
 
     -- Promotion Dates
     for i = 1 , #player.rankHist do
-        if type ( player.rankHist[i][5] ) == "string" then
+        if type ( player.rankHist[i][5] ) == "string" and type ( player.rankHist[i][2] ) == "number" and type (player.rankHist[i][3] ) == "number" and type ( player.rankHist[i][4] ) == "number" then
             -- Ok, it's in the correct type.
             if #player.rankHist[i][5] > 8 then
                 -- This means standard date was input wrong. Let's just rewrite it if we have the date values
@@ -9249,7 +9250,7 @@ GRM_Patch.StandardDateFix = function ( player )
     -- Join Dates
     -- Promotion Dates
     for i = 1 , #player.joinDateHist do
-        if type ( player.joinDateHist[i][4] ) == "string" then
+        if type ( player.joinDateHist[i][4] ) == "string" and type(player.joinDateHist[i][1]) == "number" and type(player.joinDateHist[i][2]) == "number" and type(player.joinDateHist[i][3]) == "number" then
             -- Ok, it's in the correct type.
             if #player.joinDateHist[i][4] > 8 then
                 -- This means standard date was input wrong. Let's just rewrite it if we have the date values

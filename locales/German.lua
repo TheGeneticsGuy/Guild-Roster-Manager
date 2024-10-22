@@ -1879,6 +1879,8 @@
     GRM_L["{num} player is ready to shift ranks by higher ranked alt {name}"] = true
     GRM_L["{num} players are ready to shift ranks by higher ranked alt {name}"] = true
 
+    -- R1.99152
+    GRM_L["Unable to kick these alts:"] = true
 
 end
 

@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99151";
-GRM_G.PatchDay = 1728940710; -- In Epoch Time
-GRM_G.PatchDayString = "1728940710"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.Version = "R1.99152";
+GRM_G.PatchDay = 1729583399; -- In Epoch Time
+GRM_G.PatchDayString = "1729583399"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110002;
@@ -4431,10 +4431,10 @@ end
 GRM.GetPlayerRankIDAtStart = function ()
     local player = {};
     for i = 1 , GRM.GetNumGuildies() do
-        player = ( { GetGuildRosterInfo(i) } );
+        local guildie_name , _ , rank_index = GetGuildRosterInfo(i);
 
-        if player[1] == GRM_G.addonUser then
-            return player[3];
+        if guildie_name == GRM_G.addonUser then
+            return rank_index;
         end
     end
     return;
@@ -5974,10 +5974,10 @@ end
 -- What it Does:    Returns the numbers of hours of time passed given the lastOnline x years,months,days,hours
 -- Purpose:         Accuracy in determine how long someone has been offline.
 GRM.CalculateTotalHours = function(timeTable)
-    local today = ({GRM.GetTodaysDate()});
+    local _, month, _, year = GRM.GetTodaysDate();
 
-    local currentMonth = today[2];
-    local currentYear = today[4];
+    local currentMonth = month;
+    local currentYear = year;
 
     local years = timeTable[1] or 0;
     local months = timeTable[2] or 0;
@@ -7525,10 +7525,10 @@ GRM.RecolorText = function(button)
 
     if color then
         if button.guildIndex ~= nil then
-            local player = ({select(9, GetGuildRosterInfo(button.guildIndex))});
+            local isOnline , _ , class = select(9, GetGuildRosterInfo(button.guildIndex))
 
-            if player[1] then
-                local colors = GRM.GetClassColorRGB(player[3], false);
+            if isOnline then
+                local colors = GRM.GetClassColorRGB(class, false);
 
                 _G[button:GetName() .. "Name"]:SetTextColor(colors[1], colors[2], colors[3]);
             end
@@ -12831,10 +12831,10 @@ GRM.GetGuildEventString = function(index, playerName, initRank, finRank, class, 
     return added, logEntryMetaData;
 end
 
--- Method:          GRM.RecordKickChanges ( string , boolean , array , string )
+-- Method:          GRM.RecordKickChanges ( string , boolean , array , string , bool )
 -- What it Does:    Records and logs the changes for when a guildie either is KICKED or leaves the guild
 -- Purpose:         Having its own function saves on repeating a lot of code here.
-GRM.RecordKickChanges = function(unitName, playerWasKicked, dateArray, officerThatKicked)
+GRM.RecordKickChanges = function(unitName, playerWasKicked, dateArray, officerThatKicked , refresh_macro_tool )
     local tArray = select(2, GRM.GetTimestamp());
     local timeEpoch = time();
     local oldMemberData = GRM.GetFormerMembers();
@@ -12968,8 +12968,12 @@ GRM.RecordKickChanges = function(unitName, playerWasKicked, dateArray, officerTh
                 end
             end
 
-            -- Let's overwrite the listOfAts
-            GRM.RemovePlayerFromAltGroup(unitName, 0, false, true, false, true);
+            -- -- Let's overwrite the listOfAts
+            if refresh_macro_tool == nil then
+                refresh_macro_tool = true
+            end
+
+            GRM.RemovePlayerFromAltGroup(unitName, 0, false, refresh_macro_tool , false , true);
 
             -- Set alt to main if it is only one left.
             if GRM.IsFormerMemberMain(oldMemberData[unitName]) and #alts == 1 then
@@ -13315,11 +13319,8 @@ GRM.IsRejoinAndSetDetails = function(member, simpleName, tempTimeStamp, liveJoin
                     end
 
                     if index ~= nil then
-                        local rosterMember = ({GetGuildRosterInfo(member.rosterSelection)});
-                        local name = rosterMember[1];
-                        local note = rosterMember[7];
-                        local oNote = rosterMember[8];
-                        local guid = rosterMember[17];
+                        local name , _ , _ , _ , _ , _ , note , oNote , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(member.rosterSelection);
+
                         if not note then
                             note = "";
                         end
@@ -13599,10 +13600,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
         end
 
         if added and GRM.S().addTimestampToNote and GRM.S().joinDateDestination < 3 then
-            local rosterMember = ( { GetGuildRosterInfo( member.rosterSelection ) } );
-            local name = rosterMember[1];
-            local note = rosterMember[7];
-            local oNote = rosterMember[8];
+            local name , _ , _ , _ , _ , _ , note , oNote = GetGuildRosterInfo(member.rosterSelection);
 
             if name == member.name then
                 if not note then
@@ -15493,10 +15491,10 @@ end
 GRM.GetPlayerGuildRep = function( name , guid )
     local player;
     for i = 1, GRM.GetNumGuildies() do
-        player = ({GetGuildRosterInfo(i)}); -- Wrap the whole data points into an array. Easier to go through
+        local player_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , rep_standing , player_guid  = GetGuildRosterInfo(i);
 
-        if player[1] == name and player[17] == guid then
-            return player[16];
+        if player_name == name and player_guid == guid then
+            return rep_standing;
         end
     end
     return 4; -- Neutral
@@ -15526,29 +15524,26 @@ end
 -- Purpose:         Easy use to know who is online currently in case you are checking something relevant.
 GRM.GetListOfOnlinePlayers = function()
     local list = {};
-    local player;
 
     for i = 1, GRM.GetNumGuildies() do
-        player = {GetGuildRosterInfo(i)};
-        if player[9] then
-            table.insert(list, player[1]);
+        local player_name , _ , _ , _ , _ , _ , _ , _ , is_online = GetGuildRosterInfo(i);
+        if is_online then
+            table.insert(list, player_name);
         end
     end
     sort(list);
     return list;
 end
 
--- Method:          GRM.IsGuildieOnline( string )
+-- Method:          GRM.IsGuildieOnline( string , playerTable )
 -- What it Does:    Lets you know if a guildie is currently online by returning true
 -- Purpose:         It is useful to save resources and for knowledge to know if a player is currently online or not. No need to scan certain things wastefully if they are offline.
-GRM.IsGuildieOnline = function(name)
-    local player;
+GRM.IsGuildieOnline = function(name , player )
 
-    for i = 1, GRM.GetNumGuildies() do
-        player = {GetGuildRosterInfo(i)};
-        if player[1] == name and player[9] then
-            return true;
-        end
+    player = player or GRM.GetGuild()[name];
+
+    if player and player.isOnline then
+        return true;
     end
     return false;
 end
@@ -21425,7 +21420,7 @@ GRM.LiveKickDetection = function(text, scanNumber)
             if playerThatWasKicked then
                 GRM_G.liveKickedToons[playerThatWasKicked] = {};
             end
-            GRM_G.KickAction(playerThatWasKicked, playerThatKicked);
+            GRM.KickAction(playerThatWasKicked, playerThatKicked);
         end
 
         GRM_G.LiveScanningBlock.kick[scanNumber] = false;
@@ -21495,18 +21490,32 @@ GRM.BanAndKickingAltsByPlayer = function(playerThatWasKicked, scanNumber)
     local banGeneric = GRM.L("Reason Banned?") .. "\n" .. GRM.L("Click \"YES\" When Done");
     local reason = "";
     local epochTimeStamp = time();
+    local player = GRM.GetPlayer(playerThatWasKicked);
 
     if banReason ~= banGeneric and banReason ~= "" and banReason ~= nil then
         reason = banReason;
     end
 
     if GRM_G.isChecked2 then
-        GRM.KickAllAlts(playerThatWasKicked, reason, epochTimeStamp);
+        local alts , unableToKick = GRM.GetListOfAltsLowerRankThanMyself ( player )
+        local altNames = "";
+
+        for i = 1 , #unableToKick do
+            if i < #unableToKick then
+                altNames = altNames .. GRM.GetClassifiedName ( unableToKick[i] , true ) .. ", ";
+            else
+                altNames = altNames .. GRM.GetClassifiedName ( unableToKick[i] , true )
+            end
+        end
+        GRM.Report ( GRM.L ( "Unable to kick these alts:" ) );
+        GRM.Report ( altNames );
+
+        GRM.KickAllAlts(playerThatWasKicked, alts , reason, epochTimeStamp);
     end
 
     if GRM_G.isChecked then -- Box is checked, so YES player should be banned. -This boolean is useful because this is a reused Blizz default frame, since protected function.
         -- Popup edit box - BAN logic...
-        local player = GRM.GetPlayer(playerThatWasKicked);
+
         if player then
             player.bannedInfo[1] = true; -- This officially tags the player as BANNED!
             player.bannedInfo[2] = epochTimeStamp;
@@ -21536,7 +21545,7 @@ GRM.BanAndKickingAltsByPlayer = function(playerThatWasKicked, scanNumber)
                 GRM_G.isChecked2);
         end
     end
-    GRM_G.KickAction(playerThatWasKicked, GRM_G.addonUser, scanNumber, false);
+    GRM.KickAction(playerThatWasKicked, GRM_G.addonUser, scanNumber, false , false);
 
     GRM_G.isChecked = false;
     GRM_G.isChecked2 = false;
@@ -21596,7 +21605,7 @@ GRM.KickButtonLogic = function(nameOrGUID, scanNumber, isMacro)
             end
 
             if isMacro then
-                GRM_G.KickAction(playerThatWasKicked, GRM_G.addonUser, scanNumber, isMacro);
+                GRM.KickAction(playerThatWasKicked, GRM_G.addonUser, scanNumber, isMacro);
             else
                 GRM.BanAndKickingAltsByPlayer(playerThatWasKicked, scanNumber);
             end
@@ -21610,7 +21619,7 @@ GRM.KickButtonLogic = function(nameOrGUID, scanNumber, isMacro)
         end
 
         if isMacro then
-            GRM_G.KickAction(playerThatWasKicked, GRM_G.addonUser, scanNumber, isMacro);
+            GRM.KickAction(playerThatWasKicked, GRM_G.addonUser, scanNumber, isMacro);
         else
             GRM.BanAndKickingAltsByPlayer(playerThatWasKicked, scanNumber);
         end
@@ -21619,16 +21628,20 @@ GRM.KickButtonLogic = function(nameOrGUID, scanNumber, isMacro)
 
 end
 
--- Method:          GRM_G.KickAction ( string , string )
+-- Method:          GRM.KickAction ( string , string , int , bool , bool)
 -- What it Does:    Records the data of who was kicked, who did the kicking, and for their alts if necessary
 -- Purpose:         Management of kicking logic.
-GRM_G.KickAction = function(kickedToon, kickerOfficer, scanNumber, isMacro)
+GRM.KickAction = function(kickedToon, kickerOfficer, scanNumber, isMacro , refresh_macro_tool )
     if kickerOfficer ~= nil and #kickerOfficer > 0 then
 
-        -- Calculate the changesGRM.RecordKickChanges
+        -- Calculate the changes
+        if refresh_macro_tool == nil then
+            refresh_macro_tool = true
+        end
+
         local unitName, playerKicked, timePassed, logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date,
             isFoundInEventLog, _, playerLevel, customNote = GRM.RecordKickChanges(kickedToon, true,
-            select(2, GRM.GetTimestamp()), kickerOfficer);
+            select(2, GRM.GetTimestamp()), kickerOfficer , refresh_macro_tool);
 
         local logReportWithTime, logReport = GRM.GetLeftOrKickString(unitName, playerKicked, timePassed,
             logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date, isFoundInEventLog, nil, nil,
@@ -21649,7 +21662,7 @@ GRM_G.KickAction = function(kickedToon, kickerOfficer, scanNumber, isMacro)
         if kickerOfficer ~= GRM_G.addonUser or
             (kickerOfficer == GRM_G.addonUser and GRM_UI.GRM_ToolCoreFrame ~= nil and
                 not GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.isChecked2) then
-            GRM_UI.RefreshSelectFrames(true, true, true, true, false, true);
+            GRM_UI.RefreshSelectFrames(true, true, true, refresh_macro_tool, false, true);
         end
 
         GRM_UI.RefreshSelectFrames(false, false, false, false, true, false);
@@ -26335,12 +26348,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
         local i = GRM.GetRosterSelectionID ( name , GUID );
 
         if i then
-
-            local rosterMember = ({GetGuildRosterInfo(i)});
-            local guildieName = rosterMember[1];
-            local note = rosterMember[7];
-            local oNote = rosterMember[8];
-            local guid = rosterMember[17];
+            local guildieName , _ , _ , _ , _ , _ , note , oNote , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
             if not note then
                 note = "";
@@ -26944,8 +26952,8 @@ end
 GRM.GetRosterSelectionID = function( name , guid )
 
     for i = 1, GRM.GetNumGuildies() do
-        local player = ( { GetGuildRosterInfo(i) } );
-        if player[1] == name and player[17] == guid then
+        local player_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , player_guid  = GetGuildRosterInfo(i);
+        if player_name == name and player_guid == guid then
             return i;
         end
     end

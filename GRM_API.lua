@@ -200,10 +200,10 @@ GRM_API.RestoreAllPublicNotesFromSave = function()
 
     if GRM.CanEditPublicNote() then
         for i = 1 , GRM.GetNumGuildies() do
-            local member = ( { GetGuildRosterInfo ( i ) } );
+            local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
             for name , player in pairs ( guildData ) do
-                if type ( player ) == "table" and member[1] == name and member[17] == player.GUID then
+                if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
                     GuildRosterSetPublicNote ( i , player.note);
                 end
             end
@@ -219,10 +219,10 @@ GRM_API.RestoreAllOfficerNotesFromSave = function()
 
     if GRM.CanEditOfficerNote() then
         for i = 1 , GRM.GetNumGuildies() do
-            local member = ( { GetGuildRosterInfo ( i ) } );
+            local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
             for name , player in pairs ( guildData ) do
-                if type ( player ) == "table" and member[1] == name and member[17] == player.GUID then
+                if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
                     GuildRosterSetOfficerNote ( i , player.officerNote );
                 end
             end
@@ -259,9 +259,9 @@ GRM_API.RestoreAllPublicNotes = function( name )
                 local memberName = "";
 
                 for i = 1 , GRM.GetNumGuildies() do
-                    member = ( { GetGuildRosterInfo ( i ) } );
+                    local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
                     for n , player in pairs ( guildData ) do
-                        if type ( player ) == "table" and member[1] == n and member[17] == player.GUID then
+                        if type ( player ) == "table" and guildie_name == n and guid == player.GUID then
 
                             GuildRosterSetPublicNote ( i , player.note);
                             break;
@@ -425,8 +425,7 @@ end
 --     end
 -- end
 
-GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoined , date_rejoined_table , date_left_table , first_ever_join_table , times_in_guild , player_level,
-    optional_previous_name, orig_rank )
+GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoined , date_rejoined_table , date_left_table , first_ever_join_table , times_in_guild , player_level, optional_previous_name, orig_rank )
 
     local how_long_ago = GRM.ConvertToStandardFormatDate ( date_left_table[1] , date_left_table[2] , date_left_table[3] )
 
@@ -438,5 +437,3 @@ GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoine
         GRM.BuildLogComplete( true , true );
     end
 end
-
--- /run GRM_API.AddCustomRejoinEntry("PlayerWhoInvited-Server","RejoiningName-Server",{10,9,2023,21,5},{1,9,2024},{10,9,2010},2,80,"RejoinOriginal-Name","Officer")

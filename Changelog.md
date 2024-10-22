@@ -1,3 +1,16 @@
+## **VERSION 1.99152 RELEASE - October 22nd, 2024**
+
+***BUG FIXES***
+
+* Fixed an errorr where the addon wouldn't load for some people after the last release as it failed to patch. This should no longer occur.
+
+* Fixed an issue that could cause scanning of the roster if you had a lot of macro promotion/demotion rules set, and were in a very large guild, to be sluggish, even cause a timeout error from taking too long. Oops! This shouldn't happen anymore.
+
+* Fixed a bug where when you kick someone, if you put a check in the box to kick all their alts as well it was not populating in the macro tool with all their names.
+
+* In addition to adding the names of all the alts to be kicked, it now will no longer include names you cannot kick as they are the same or higher rank. They previously were not being filtered when using the kick all alts option as well.
+
+
 ## **VERSION 1.99151 RELEASE - October 14th, 2024**
 
 ***BUG FIXES***
