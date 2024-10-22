@@ -1656,11 +1656,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- 136
-    if numericV < 1.99151 and baseValue < 1.99151 then
+    if numericV < 1.99153 and baseValue < 1.99153 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.StandardDateFix , true , true , false , nil )
 
-        GRM_AddonSettings_Save.VERSION = "R1.99151";
-        if loopCheck ( 1.99151 ) then
+        GRM_AddonSettings_Save.VERSION = "R1.99153";
+        if loopCheck ( 1.99153 ) then
             return;
         end
     end
@@ -9200,7 +9200,7 @@ GRM_Patch.ConvertHours = function( player )
     return player
 end
 
--- R1.99151
+-- R1.99153
 -- Method:          GRM_Patch.StandardDateFix ( playerTable )
 -- What it Does:    Some epoch numbers got saved from the epoch timestamp into the place of the standard date in error This overwrites them
 -- Purpose:         Fix previous error

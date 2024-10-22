@@ -12,9 +12,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99152";
-GRM_G.PatchDay = 1729583399; -- In Epoch Time
-GRM_G.PatchDayString = "1729583399"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.Version = "R1.99153";
+GRM_G.PatchDay = 1729587385; -- In Epoch Time
+GRM_G.PatchDayString = "1729587385"; -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110002;
@@ -14296,6 +14296,7 @@ GRM.CheckForDeadAccounts = function(isManual)
     end
 
     if #GRM_G.customKickList > 0 then
+
         sort(GRM_G.customKickList, function(a, b)
             return a[1] < b[1]
         end);
@@ -14337,7 +14338,7 @@ GRM.CheckForDeadAccounts = function(isManual)
 
         GRM.SetConfirmationWindow( kickDeadNames, numDeadMsg .. "\n\n" .. GRM.L(
             "Click CONFIRM to review the names, IGNORE to remove this pop-up permanently, or CANCEL to be reminded next session."),
-            ignoreDeadNames, {320, 140})
+            ignoreDeadNames, {320, 200})
 
     end
 

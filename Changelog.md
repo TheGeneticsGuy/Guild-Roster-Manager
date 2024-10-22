@@ -1,3 +1,12 @@
+## **VERSION 1.99153 RELEASE - October 22nd, 2024**
+
+***BUG FIXES***
+
+* Dead name (long inactive player) detection window will now be properly sized to show all the text.
+
+* Fixed one additional bug that could stop GRM from loading due to a patching error for some people.
+
+
 ## **VERSION 1.99152 RELEASE - October 22nd, 2024**
 
 ***BUG FIXES***
