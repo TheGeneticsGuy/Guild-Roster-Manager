@@ -5826,7 +5826,7 @@ GRM_UI.PreAddonLoadUI = function()
                     GameTooltip:AddLine ( versionLine );
                     GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
                     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
-                    GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
+                    GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
                     GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
 
 

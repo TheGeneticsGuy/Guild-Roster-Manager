@@ -1,6 +1,16 @@
+## **VERSION 1.99155 RELEASE - October 29th, 2024**
+
+*Compatibility Release for Cata Classic 4.4.1 Update*
+
+
 ## **VERSION 1.99154 RELEASE - October 22nd, 2024**
 
 *11.0.5 - 20th Anniversay Compatibility Release*
+
+***BUG FIXES***
+
+* Fixed an issue where if the LibDBIcon Ace Databroker is not found with another addon, then the mouseover on the minimap had a localization error
+
 
 ## **VERSION 1.99153 RELEASE - October 22nd, 2024**
 
