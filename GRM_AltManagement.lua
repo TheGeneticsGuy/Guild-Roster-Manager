@@ -474,7 +474,7 @@ GRM.GetAltNamesList = function ( player , alts , includeOwnName )
     local names = {};
     alts = alts or GRM.GetGuildAlts();
 
-    if alts and player and player.altGroup ~= "" then
+    if alts and player and player.altGroup ~= "" and alts[player.altGroup] then
         for i = 1 , #alts[player.altGroup] do
             if alts[player.altGroup][i].name ~= player.name or includeOwnName then
                 table.insert ( names , alts[player.altGroup][i].name );

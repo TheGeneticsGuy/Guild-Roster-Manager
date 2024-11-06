@@ -1,3 +1,10 @@
+## **VERSION 1.99156 RELEASE - November 6th, 2024**
+
+* Fixed a Lua error that could occur on rare occasions when zoning into a dungeon.
+
+* Fixed an error that could cause the addon from configuring properly at login, notably the macro tool would not work.
+
+
 ## **VERSION 1.99155 RELEASE - October 29th, 2024**
 
 *Compatibility Release for Cata Classic 4.4.1 Update*
