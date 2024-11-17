@@ -1,3 +1,7 @@
+## **VERSION 1.99158 RELEASE - November 17th, 2024**
+
+* Bug with uploader - need to re-release so it appears as non-duplicate
+
 ## **VERSION 1.99157 RELEASE - November 17th, 2024**
 
 * GRM was not patching for some people and thus was crashing on load. It should now apply patches appropriately.
