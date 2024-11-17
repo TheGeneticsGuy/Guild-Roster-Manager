@@ -7063,7 +7063,13 @@ GRMsync.CheckingALTChanges = function()
                 namesAdded[altGroup[i]] = {}
             end
             if altGroup == nil or altGroup[1] == nil or altGroup[1][1] == nil then
-                print("GRM SYNC BUG 2 - PLEASE REPORT TO DISCORD: " .. j)
+                if altGroup == nil then
+                    print("GRM SYNC BUG 2 - PLEASE REPORT TO DISCORD: ");
+                elseif altGroup[1] == nil then
+                    print("GRM SYNC BUG 3 - PLEASE REPORT TO DISCORD: ");
+                elseif altGroup[1][1] == nil then
+                    print("GRM SYNC BUG 4 - PLEASE REPORT TO DISCORD: ");
+                end
                 print(5+nil)    -- Force failure
             end
             table.insert ( GRMsyncGlobals.AltChangesFullGroup , { altGroup , false } );
@@ -7080,7 +7086,7 @@ GRMsync.CheckingALTChanges = function()
 
         if #altData[3][i] > 1 then
             if altData[3][i] == nil then
-                print("GRM SYNC BUG 3 - PLEASE REPORT TO DISCORD: " .. j)
+                print("GRM SYNC BUG 3 - PLEASE REPORT TO DISCORD: " .. i)
                 print(5+nil)    -- Force failure
             end
             table.insert ( GRMsyncGlobals.AltChangesFullGroup , { altData[3][i] , true } );
