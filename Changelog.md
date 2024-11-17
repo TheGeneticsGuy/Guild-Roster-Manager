@@ -1,3 +1,8 @@
+## **VERSION 1.99157 RELEASE - November 17th, 2024**
+
+* GRM was not patching for some people and thus was crashing on load. It should now apply patches appropriately.
+
+
 ## **VERSION 1.99156 RELEASE - November 6th, 2024**
 
 * Fixed a Lua error that could occur on rare occasions when zoning into a dungeon.
