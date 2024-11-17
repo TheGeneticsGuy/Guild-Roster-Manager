@@ -2,9 +2,6 @@
 
 * GRM was not patching for some people and thus was crashing on load. It should now apply patches appropriately.
 
-* Note, there is an error someone reported on discord and I am trying to trace a somwhat rare but out there sync error. There will be a trace that prints out if you encounter it saying to report it to discord. It's the only way I know to get this resolved as I need that trace report. Almost no one will experience this.
-
-
 ## **VERSION 1.99156 RELEASE - November 6th, 2024**
 
 * Fixed a Lua error that could occur on rare occasions when zoning into a dungeon.
