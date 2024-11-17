@@ -7079,7 +7079,7 @@ GRMsync.CheckingALTChanges = function()
         end
 
         if #altData[3][i] > 1 then
-            if altData[3][j] == nil then
+            if altData[3][i] == nil then
                 print("GRM SYNC BUG 3 - PLEASE REPORT TO DISCORD: " .. j)
                 print(5+nil)    -- Force failure
             end
