@@ -7013,6 +7013,10 @@ GRMsync.CheckingALTChanges = function()
                         isFound = true;
                         if altData[3][j].timeModified >= receivedgroup.timeModified and #altData[3][j] > 1 then
 
+                            if altData[3][j] == nil then
+                                print("GRM SYNC BUG 1 - PLEASE REPORT TO DISCORD: " .. j)
+                                print(5+nil)    -- Force failure
+                            end
                             table.insert ( GRMsyncGlobals.AltChangesFullGroup , { altData[3][j] , true } );
                             for r = 1 , #altData[3][j] do
                                 namesAdded[altData[3][j][r]] = {};
@@ -7058,7 +7062,10 @@ GRMsync.CheckingALTChanges = function()
             for i = 1 , #altGroup do
                 namesAdded[altGroup[i]] = {}
             end
-
+            if altGroup == nil or altGroup[1] == nil or altGroup[1][1] == nil then
+                print("GRM SYNC BUG 2 - PLEASE REPORT TO DISCORD: " .. j)
+                print(5+nil)    -- Force failure
+            end
             table.insert ( GRMsyncGlobals.AltChangesFullGroup , { altGroup , false } );
         end
     end
@@ -7072,6 +7079,10 @@ GRMsync.CheckingALTChanges = function()
         end
 
         if #altData[3][i] > 1 then
+            if altData[3][j] == nil then
+                print("GRM SYNC BUG 3 - PLEASE REPORT TO DISCORD: " .. j)
+                print(5+nil)    -- Force failure
+            end
             table.insert ( GRMsyncGlobals.AltChangesFullGroup , { altData[3][i] , true } );
         end
     end
