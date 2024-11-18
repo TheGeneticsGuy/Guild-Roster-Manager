@@ -8991,11 +8991,15 @@ end
 -- What it Does:    Removes the 4th rank restriction index from the custom Note.
 -- Purpose:         This is deprecated and only left in to not have to deal with rewriting a lot. The overall custom note sync rank restriction handles this now.
 GRM_Patch.ModifyCustomNote = function ( player )
-    if #player.customNote == 6 then
-        table.remove ( player.customNote , 4 ); -- Remove the depreceated index
-    end
-    if #player.customNote == 5 then
-        table.remove ( player.customNote , 4 ); -- Remove the rank action deprecated index next, which is now in same position
+    if player.customNote then
+        if #player.customNote == 6 then
+            table.remove ( player.customNote , 4 ); -- Remove the depreceated index
+        end
+        if #player.customNote == 5 then
+            table.remove ( player.customNote , 4 ); -- Remove the rank action deprecated index next, which is now in same position
+        end
+    else
+        player.customNote = {true, 0, "", ""};
     end
     return player;
 end
@@ -9161,20 +9165,28 @@ end
 -- Purpose:         There was a bug that seemed to affect some players due to a previous error that crashed in middle of update.
 GRM_Patch.FixLegacyFormattingErrorOnRankAndJoinHist = function ( player )
 
-    if type (player.rankHist[1][6]) == "string" then
-        if player.rankHist[1][7] == true and player.rankHist[1][2] and type ( player.rankHist[1][2] ) == "number" and player.rankHist[1][2] > 0 and player.rankHist[1][3] and type ( player.rankHist[1][3] ) == "number" and player.rankHist[1][3] > 0 and player.rankHist[1][4] and type ( player.rankHist[1][4] ) == "number" and player.rankHist[1][4] > 0 and type ( player.rankHist[1][5] ) == "string" and #player.rankHist[1][5] == 8 then
-            player.rankHist[1][6] = 1;  -- Placeholder time as verified.
-        else
-            player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+    if player.rankHist then
+        if type (player.rankHist[1][6]) == "string" then
+            if player.rankHist[1][7] == true and player.rankHist[1][2] and type ( player.rankHist[1][2] ) == "number" and player.rankHist[1][2] > 0 and player.rankHist[1][3] and type ( player.rankHist[1][3] ) == "number" and player.rankHist[1][3] > 0 and player.rankHist[1][4] and type ( player.rankHist[1][4] ) == "number" and player.rankHist[1][4] > 0 and type ( player.rankHist[1][5] ) == "string" and #player.rankHist[1][5] == 8 then
+                player.rankHist[1][6] = 1;  -- Placeholder time as verified.
+            else
+                player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+            end
         end
+    else
+        player.rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
     end
 
-    if type (player.joinDateHist[1][5]) == "string" then
-        if player.joinDateHist[1][5] == true and player.joinDateHist[1][1] and type ( player.joinDateHist[1][1] ) == "number" and player.joinDateHist[1][1] > 0 and player.joinDateHist[1][2] and type ( player.joinDateHist[1][2] ) == "number" and player.joinDateHist[1][2] > 0 and player.joinDateHist[1][3] and type ( player.joinDateHist[1][3] ) == "number" and player.joinDateHist[1][3] > 0 and type ( player.joinDateHist[1][4] ) == "string" and #player.joinDateHist[1][4] == 8 then
-            player.joinDateHist[1][5] = 1;  -- Placeholder time as verified.
-        else
-            player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+    if player.joinDateHist then
+        if type (player.joinDateHist[1][5]) == "string" then
+            if player.joinDateHist[1][5] == true and player.joinDateHist[1][1] and type ( player.joinDateHist[1][1] ) == "number" and player.joinDateHist[1][1] > 0 and player.joinDateHist[1][2] and type ( player.joinDateHist[1][2] ) == "number" and player.joinDateHist[1][2] > 0 and player.joinDateHist[1][3] and type ( player.joinDateHist[1][3] ) == "number" and player.joinDateHist[1][3] > 0 and type ( player.joinDateHist[1][4] ) == "string" and #player.joinDateHist[1][4] == 8 then
+                player.joinDateHist[1][5] = 1;  -- Placeholder time as verified.
+            else
+                player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
+            end
         end
+    else
+        player.joinDateHist = { { 0 , 0 , 0 , "0" , 0 , false , 1 } };
     end
 
     return player

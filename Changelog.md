@@ -1,3 +1,8 @@
+## **VERSION 1.99159 RELEASE - November 18th, 2024**
+
+* Fixed a bug that directly affected the patching process for some people.
+
+
 ## **VERSION 1.99158 RELEASE - November 17th, 2024**
 
 * Bug with uploader - need to re-release so it appears as non-duplicate
