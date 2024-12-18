@@ -200,6 +200,17 @@ Time.ParseStandardFormatDate = function(date)
 
 end
 
+-- Method:          Time.ConvertToEpoch ( int , int , int )
+-- What it Does:    Converts a time to epochTime
+-- Purpose:         Useful in comparing amounts.
+Time.ConvertToEpoch = function(d, m, y)
+    return time({
+        day = d,
+        month = m,
+        year = y
+    });
+end
+
 -- Method:          Time.ValidateHist ( playerTable )
 -- What it Does:    It verifies that the data is stored properly
 -- Purpose:         Prevents some edge case errors that have not been properly sourced where the verified bool has been flipped but no date added.

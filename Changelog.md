@@ -1,4 +1,8 @@
 
+## **VERSION 1.99162 RELEASE - December 18th, 2024**
+
+*QUICK Bug Fix from previous update in the macro tool*
+
 ## **VERSION 1.99161 RELEASE - December 18th, 2024**
 
 ***COMPATIBILITY RELEASE - CLASSIC 1.15.5 and RETAIL 11.0.7**

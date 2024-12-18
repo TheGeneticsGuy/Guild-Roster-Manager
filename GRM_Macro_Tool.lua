@@ -9454,7 +9454,7 @@ local PromoteFilterMatch = function( player , ruleName , rule , tempRuleCollecti
     player = GRM.Time.ValidateHist ( player );
 
     -- Initial activity
-    if ( rule.sinceAtRank and player.rankHist[1][7] and GRM.HasTimeExceededDate ( GRM.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) or ( not rule.sinceAtRank and player.joinDateHist[1][6] and GRM.HasTimeExceededDate ( GRM.ConvertToEpoch ( player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
+    if ( rule.sinceAtRank and player.rankHist[1][7] and GRM.HasTimeExceededDate ( GRM.Time.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) or ( not rule.sinceAtRank and player.joinDateHist[1][6] and GRM.HasTimeExceededDate ( GRM.Time.ConvertToEpoch ( player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
 
         -- It appears the player HAS been at the rank for that given amount of time - now, do we promote no matter what, or do we check for inactivity?
         if rule.regardlessOfActivity then
@@ -9988,7 +9988,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
 
                         player = GRM.Time.ValidateHist ( player );
 
-                        local epochDate = GRM.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] );
+                        local epochDate = GRM.Time.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] );
 
                         if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.Time.GetHoursSinceTimestamp ( epochDate ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
                             ruleConfirmedCheck = true;

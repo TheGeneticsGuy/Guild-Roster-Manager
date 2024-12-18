@@ -13,7 +13,7 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99161";
+GRM_G.Version = "R1.99162";
 GRM_G.PatchDayString = "1734498136";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.PatchDay = 1734498136;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
@@ -14811,7 +14811,7 @@ GRM.VerifyAllRankDates = function(numDays)
                 -- Player has a date set, but it is not verified.
                 if dateRestriction then
                     if (time() - ((numDays * 86400) + 86400)) <=
-                        GRM.ConvertToEpoch(player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]) then
+                        GRM.Time.ConvertToEpoch(player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]) then
                         readyToUpdate = true;
                     end
                 else
@@ -14868,7 +14868,7 @@ GRM.VerifyAllJoinDates = function(numDays)
                 -- Player has a date set, but it is not verified.
                 if dateRestriction then
                     if (time() - ((numDays * 86400) + 86400)) <=
-                        GRM.ConvertToEpoch(player.joinDateHist[1][1], player.joinDateHist[1][2],
+                        GRM.Time.ConvertToEpoch(player.joinDateHist[1][1], player.joinDateHist[1][2],
                             player.joinDateHist[1][3]) then
                         readyToUpdate = true;
                     end
