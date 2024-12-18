@@ -1425,7 +1425,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
     end
 
     -- set the timestamp
-    local day , month , year = GRM.ParseStandardFormatDate ( standardDate );
+    local day , month , year = GRM.Time.ParseStandardFormatDate ( standardDate );
     local player = GRM.GetPlayer ( playerName );
 
     if player then
@@ -1445,7 +1445,6 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
             -- Gotta update the event tracker date too!
             player.events[1][1][1] = day;
             player.events[1][1][2] = month;
-            player.events[1][1][3] = year;
             player.events[1][2] = false;  -- Gotta Reset the "reported already" boolean!
             GRM.RemoveFromCalendarQue ( player.name , 1 , nil );
 
@@ -1506,7 +1505,7 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
     end
 
     local player = GRM.GetPlayer ( playerName );
-    local day , month , year = GRM.ParseStandardFormatDate ( standardDate );
+    local day , month , year = GRM.Time.ParseStandardFormatDate ( standardDate );
 
     if player then
 
@@ -2134,10 +2133,10 @@ end
 -- Purpose:         All birthday info to be shared.
 GRMsync.CheckBirthdayChange = function ( msg , sender , isFullSync )
     -- No sense in doing the work if option is disabled...
-    GRM_G.MatchPattern5 = GRM_G.MatchPattern5 or GRM.BuildComPattern ( 5 , "?" , false );
-    local name , day , month , date , timestamp = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern5 );
+    GRM_G.MatchPattern4 = GRM_G.MatchPattern4 or GRM.BuildComPattern ( 4 , "?" , false );
+    local name , day , month , timestamp = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern4 );
 
-    GRM.SetBirthday ( name , tonumber (day) , tonumber ( month ) , 1 , date , tonumber ( timestamp ) , true , sender , isFullSync );
+    GRM.SetBirthday ( name , tonumber (day) , tonumber ( month ) , tonumber ( timestamp ) , true , sender , isFullSync );
 end
 
 -- Method:          GRMsync.CheckBirthdayForSync (string or table)
@@ -2149,7 +2148,6 @@ GRMsync.CheckBirthdayForSync = function ( data )
     local timestamp;
     local month = 0;
     local day = 0;
-    local year = 0;
     local date = "";
 
     if type ( data ) == "string" then
@@ -2172,12 +2170,8 @@ GRMsync.CheckBirthdayForSync = function ( data )
         month = data[4];
     end
 
-    year = select ( 4 , GRM.GetTodaysDate() );
-
     if day > 0 and month > 0 then
-
-        date = GRM.GetTimestampFromTable ( { day , month , year } ) -- Places current year as placeholder
-        GRM.SetBirthday ( name , day , month , 1 , date , timestamp , nil , nil , true );
+        GRM.SetBirthday ( name , day , month , timestamp , nil , nil , true );
     else
         GRM.ResetBirthdayForAltGroup ( name , timestamp , false , nil , true );
     end
@@ -2223,7 +2217,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
     local banSet = false;
     local isAnEdit = false;
     local isFormerMember = false;
-    local timeArray = select ( 2 , GRM.GetTimestamp() );
+    local timeArray = GRM.Time.GetTimestamp();
     local player = GRM.GetPlayer ( name );
 
     if not player then
@@ -2304,7 +2298,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
             memberInfoToAdd.MythicScore = 0;
         end
 
-        GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , GRM.ConvertToStandardFormatDate ( timeArray[1] , timeArray[2] , timeArray[3]) , 0 , sender , true );
+        GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , GRM.Time.ConvertToStandardFormatDate ( timeArray[1] , timeArray[2] , timeArray[3]) , 0 , sender , true );
 
         -- Now, let's implement the ban!
         player = GRM.GetFormerPlayer ( name );
@@ -2352,9 +2346,9 @@ GRMsync.CheckUnbanListChangeLive = function ( msg , sender )
             name = GRM.GetClassifiedName ( name , true );
         end
 
-        local logReportWithTime , logReport = GRM.GetUnBanString ( GRM.GetClassifiedName ( sender , true ) , name , select ( 2 , GRM.GetTimestamp() ) );
+        local logReportWithTime , logReport = GRM.GetUnBanString ( GRM.GetClassifiedName ( sender , true ) , name , GRM.Time.GetTimestamp() );
 
-        GRM.AddLog ( { 21 , logReportWithTime , GRM.GetClassifiedName ( sender , true ) , name , select ( 2 , GRM.GetTimestamp() ) } );
+        GRM.AddLog ( { 21 , logReportWithTime , GRM.GetClassifiedName ( sender , true ) , name , GRM.Time.GetTimestamp() } );
 
         if GRM.S().syncChatEnabled and GRM.S().toChat.banned then
             GRM.Report ( logReport );
@@ -2570,16 +2564,16 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
                     local colorCode = GRM.GetClassColorRGB ( player.class , true );
                     local tempName = colorCode .. GRM.FormatName ( player.name ) .. "|r";
 
-                    local banEditMsgWithTime = GRM.GetBanStatusSyncString ( banStatus , isAnEdit , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , select ( 2 , GRM.GetTimestamp() ) );
+                    local banEditMsgWithTime = GRM.GetBanStatusSyncString ( banStatus , isAnEdit , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , GRM.Time.GetTimestamp() );
 
                     -- unban = 21 , ban = 20
                     if banType == "1" then
 
-                        GRM.AddLog ( { 20 , banEditMsgWithTime , false , isAnEdit , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , select ( 2 , GRM.GetTimestamp() ) } );
+                        GRM.AddLog ( { 20 , banEditMsgWithTime , false , isAnEdit , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , GRM.Time.GetTimestamp() } );
 
                     elseif banType == "2" then
 
-                        GRM.AddLog ( { 21 , banEditMsgWithTime , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , select ( 2 , GRM.GetTimestamp() ) } );
+                        GRM.AddLog ( { 21 , banEditMsgWithTime , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , GRM.Time.GetTimestamp() } );
                     end
                 end
             end
@@ -2803,7 +2797,7 @@ GRMsync.GetCustomPseudoHash = function( dataRequested )
         for i = 1 , #guildData do
             player = guildData[i];
 
-            if player.events[2][4] > 0 then
+            if player.events[2][3] > 0 then
                 bday1 = bday1 + player.events[2][1][1] + player.events[2][1][2] + GRMsync.ConvertStringToVal ( player.name );
             end
         end
@@ -2957,11 +2951,11 @@ GRMsync.GetListOfPlayersWithModifiedBdays = function( guildData , getFullProfile
     local list = {};
 
     for i = 1 , #guildData do
-        if guildData[i].events[2][4] > 0 then
+        if guildData[i].events[2][3] > 0 then
             if not getFullProfile then
-                table.insert ( list , { guildData[i].name , guildData[i].events[2][4] } );   -- { name , timestamp }
+                table.insert ( list , { guildData[i].name , guildData[i].events[2][3] } );   -- { name , timestamp }
             else
-                table.insert ( list , { guildData[i].name , guildData[i].events[2][4] , guildData[i].events[2][1][1] , guildData[i].events[2][1][2] , guildData[i].altGroup } );   -- { name , timestamp , day , month , altGroup }
+                table.insert ( list , { guildData[i].name , guildData[i].events[2][3] , guildData[i].events[2][1][1] , guildData[i].events[2][1][2] , guildData[i].altGroup } );   -- { name , timestamp , day , month , altGroup }
             end
         end
     end
@@ -3030,9 +3024,9 @@ GRMsync.GetListBannedAndUnbannedPlayers = function( data , getFullProfile )
                             if #data[i][j].joinDateHist[1][4] == 8 then
                                 standardDate = data[i][j].joinDateHist[1][4];
                             else
-                                local dates = select ( 2 , GRM.GetTimestamp() );
+                                local dates = GRM.Time.GetTimestamp();
                                 epochOriginalTimestamp = 0;         -- Ensures that both are aligned so it will be unverified.
-                                standardDate = GRM.ConvertToStandardFormatDate ( dates[1] , dates[2] , dates[3] );
+                                standardDate = GRM.Time.ConvertToStandardFormatDate ( dates[1] , dates[2] , dates[3] );
                             end
 
                             playerData = { rankName , rankIndex , data[i][j].level , classIndex , standardDate , epochOriginalTimestamp , GUID };
@@ -4008,7 +4002,7 @@ GRMsync.ValidatePromoteDataForSync = function( rankHist )
     if #rankHist[1][5] > 1 then
         if #rankHist[1][5] > 8 then
             if rankHist[1][2] > 0 and rankHist[1][3] > 0 and rankHist[1][4] > 0 then
-                rankHist[1][5] = GRM.ConvertToStandardFormatDate ( rankHist[1][2] , rankHist[1][3] , rankHist[1][4] );
+                rankHist[1][5] = GRM.Time.ConvertToStandardFormatDate ( rankHist[1][2] , rankHist[1][3] , rankHist[1][4] );
                 validated = true;
             else
                 validated = false;
@@ -4017,7 +4011,7 @@ GRMsync.ValidatePromoteDataForSync = function( rankHist )
             validated = true;
         end
     elseif rankHist[1][2] > 0 and rankHist[1][3] > 0 and rankHist[1][4] > 0 then
-        rankHist[1][5] = GRM.ConvertToStandardFormatDate ( rankHist[1][2] , rankHist[1][3] , rankHist[1][4] );
+        rankHist[1][5] = GRM.Time.ConvertToStandardFormatDate ( rankHist[1][2] , rankHist[1][3] , rankHist[1][4] );
         validated = true;
     end
 
@@ -4845,9 +4839,9 @@ GRMsync.BuildBdayDatesForSync = function()
             -- Cycle through guild data to find them. This is now in array format, remember, so that arrays align.
             for j = 1, #guildData do
                 if guildData[j].name == dataIndexes[i][1] then
-                    if guildData[j].events[2][4] > 0 then
+                    if guildData[j].events[2][3] > 0 then
 
-                        table.insert ( playersWithBdays , { guildData[j].name , guildData[j].events[2][4] , guildData[j].events[2][1][1] , guildData[j].events[2][1][2] } );    -- Name, epochTimestamp day , month
+                        table.insert ( playersWithBdays , { guildData[j].name , guildData[j].events[2][3] , guildData[j].events[2][1][1] , guildData[j].events[2][1][2] } );    -- Name, epochTimestamp day , month
                     end
                     break;
                 end
@@ -5967,8 +5961,8 @@ GRMsync.UnifyBirthdaysAmongAltGroups = function()
         if #altGroup > 1 then
             for i = 1 , #altGroup do
                 player = guildData[ altGroup[i].name ];
-                if player and player.events[2][4] > 0 and player.events[2][4] > newest[2] then
-                    newest = { player.name , player.events[2][1][1] , player.events[2][1][2] , player.events[2][3] , player.events[2][4] };
+                if player and player.events[2][3] > 0 and player.events[2][3] > newest[2] then
+                    newest = { player.name , player.events[2][1][1] , player.events[2][1][2] , player.events[2][3] };
                     hasBdaySet = true;
                 end
             end
@@ -5994,10 +5988,6 @@ GRMsync.UnifyBirthdaysAmongAltGroups = function()
                     if player.events[2][3] ~= newest[4] then
                         needToRemoveFromQue = true;
                         player.events[2][3] = newest[4];
-                    end
-                    if player.events[2][4] ~= newest[5] then
-                        needToRemoveFromQue = true;
-                        player.events[2][4] = newest[5];
                     end
 
                     if needToRemoveFromQue then
@@ -6475,7 +6465,7 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
             memberInfoToAdd.MythicScore = 0;
         end
 
-        local day , month , year = GRM.ParseStandardFormatDate ( standardDate );
+        local day , month , year = GRM.Time.ParseStandardFormatDate ( standardDate );
         GRM.AddMemberToLeftPlayers ( memberInfoToAdd , {day , month , year} , standardDate , originalJoinEpoch , nil , true );
 
         -- Need to be added to the temp tables to during sync.
@@ -6519,8 +6509,8 @@ GRMsync.CollectBanData = function ( msg , prefix )
 
             -- Need some kind of placeholder standard date
         if standardDate == "0" then
-            local dates = select ( 2 , GRM.GetTimestamp() );
-            standardDate = GRM.ConvertToStandardFormatDate ( dates[1] , dates[2] , dates[3] );
+            local dates = GRM.Time.GetTimestamp();
+            standardDate = GRM.Time.ConvertToStandardFormatDate ( dates[1] , dates[2] , dates[3] );
         end
 
         if rankName == "##" then

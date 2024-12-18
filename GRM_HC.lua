@@ -61,7 +61,7 @@ GRM_HC.HardCoreInitialize = function()
             local player = GRM.GetPlayer ( name );
 
             if player then
-                local dateArray = select ( 2 , GRM.GetTimestamp() );
+                local dateArray = GRM.Time.GetTimestamp();
                 dateArray[6] = true;
 
                 player.HC.isDead = true;
@@ -99,9 +99,9 @@ GRM_HC.HardCoreInitialize = function()
             local seconds = lastOnlineHours * 3600;
             -- Second, let's take current epoch time, and subtract how many seconds ago. This will give us epoch stamp, within an hour, of last login, assuming they don't login a dead toon.
             local epochTime = ( time() - seconds );
-            local timestamp = select ( 2 , GRM.EpochToDateFormat( epochTime , false) );
+            local timestamp = select ( 2 , GRM.Time.EpochToDateFormat( epochTime , false) );
 
-            return GRM.ConvertToStandardFormatDate ( timestamp[1] , timestamp[2] , timestamp[3] );
+            return GRM.Time.ConvertToStandardFormatDate ( timestamp[1] , timestamp[2] , timestamp[3] );
         end
 
         -- Method:          GRM_HC.ExportDeathTag ( string , table )
@@ -171,13 +171,13 @@ GRM_HC.HardCoreInitialize = function()
                         finalNote = GRM.Trim(finalNote);
 
                         local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
-                        local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , memberNote , finalNote , select ( 2 , GRM.GetTimestamp() ) );
+                        local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() );
 
                         if GRM.S().toChat.note then
                             GRM.PrintLog ( { 4 , logReport } );
                         end
                         -- Also adding it to the log!
-                        GRM.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , select ( 2 , GRM.GetTimestamp() ) } );
+                        GRM.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() } );
 
                         player.note = finalNote;
                         GuildRosterSetPublicNote ( i , finalNote );
@@ -221,7 +221,7 @@ GRM_HC.HardCoreInitialize = function()
                 deathReport.name = p.name;
                 deathReport.class = p.class;
                 deathReport.level = p.level;
-                deathReport.date = tonumber ( GRM.ConvertToStandardFormatDate ( p.HC.timeOfDeath[1] , p.HC.timeOfDeath[2] , p.HC.timeOfDeath[3] ) );
+                deathReport.date = tonumber ( GRM.Time.ConvertToStandardFormatDate ( p.HC.timeOfDeath[1] , p.HC.timeOfDeath[2] , p.HC.timeOfDeath[3] ) );
                 deathReport.dateVerified = p.HC.timeOfDeath[6];
                 deathReport.currentMember = currentMember;
 

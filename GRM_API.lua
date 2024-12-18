@@ -304,7 +304,7 @@ end
 -- NOTES:           This is not really recommended to use, in that it is better to try to determine at least relative join dates
 GRM_API.SetAllUnknownPromoteDates = function ( day , month , year )
 
-    if GRM.IsValidSubmitDate ( day , month , year ) then
+    if GRM.Time.IsValidSubmitDate ( day , month , year ) then
         local guildData = GRM.GetGuild();
 
         for _ , player in pairs ( guildData ) do
@@ -343,7 +343,7 @@ end
 GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
     local guildData = GRM.GetGuild();
 
-    if GRM.IsValidSubmitDate ( day , month , year ) then
+    if GRM.Time.IsValidSubmitDate ( day , month , year ) then
 
         for _ , player in pairs ( guildData ) do
             if type ( player ) == "table" then
@@ -352,15 +352,14 @@ GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
                 if player.joinDateUnknown or player.joinDateHist[1][1] == 0 then
 
                     player.joinDateHist = {};
-                    table.insert ( player.joinDateHist , { day , month , year , GRM.ConvertToStandardFormatDate ( day , month , year ) , time() , true , 1 } );
+                    table.insert ( player.joinDateHist , { day , month , year , GRM.Time.ConvertToStandardFormatDate ( day , month , year ) , time() , true , 1 } );
 
                     player.joinDateUnknown = false;
 
-                    GRM.AddTimeStampToNote ( player.name , player.GUID , GRM.FormatTimeStamp ( { day , month , year } , false , false , false ) );
+                    GRM.AddTimeStampToNote ( player.name , player.GUID , GRM.Time.FormatTimeStamp ( { day , month , year } , false , false , false ) );
 
                     player.events[1][1][1] = day;
                     player.events[1][1][2] = month;
-                    player.events[1][1][3] = year;
                     player.events[1][2] = false;  -- Gotta Reset the "reported already" boolean!
                     GRM.RemoveFromCalendarQue ( player.name , 1 , nil );
 
@@ -435,5 +434,19 @@ GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoine
 
     if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
         GRM.BuildLogComplete( true , true );
+    end
+end
+
+-- MISC DEV TOOLS
+--------------------
+
+-- Help figure out the value of new interface rules
+-- GetCVar('useClassicGuildUI') -- Need the string
+GRM_API.DetermineInterfaceRule = function( text_match )
+    local settings = ConsoleGetAllCommands();
+    for i = 1 , #settings do
+        if string.find(string.lower(settings[i].command),text_match) ~= nil then
+            print(settings[i].command .. " - " ..i);
+        end
     end
 end

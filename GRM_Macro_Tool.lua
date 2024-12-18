@@ -6333,7 +6333,7 @@ GRM.GetToolTipLine = function ( rulePart )
 
     for i = 1 , #rulePart do
         if rulePart[i][1] == "Inactive" then
-            table.insert ( result , " - " .. GRM.L ( "Last Online" ) .. ": " .. GRM.ComplexHoursReport ( rulePart[i][2] ) );
+            table.insert ( result , " - " .. GRM.L ( "Last Online" ) .. ": " .. GRM.Time.ComplexHoursReport ( rulePart[i][2] ) );
         elseif rulePart[i][1] == "Rank" then
             table.insert ( result , " - " .. GRM.L ( "Matching Rank" ) .. ": " .. rulePart[i][2] );
         elseif rulePart[i][1] == GRM.L ( "Promote to Rank:" ) or rulePart[i][1] == GRM.L ( "Demote to Rank:" ) then
@@ -7813,7 +7813,7 @@ GRM.UpdateIgnoredToolTip = function ( ind )
         atLeastOne = true;
 
         if index ~= nil then
-            lastOnline = GRM.HoursReport ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries[index].lastOnlineTime );
+            lastOnline = GRM.Time.HoursReport ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries[index].lastOnlineTime );
             GameTooltip:AddLine ( GRM.L ( "Last Online" ) );
             GameTooltip:AddLine ( lastOnline , 1 , 1 , 1 );
         end
@@ -9451,7 +9451,7 @@ local PromoteFilterMatch = function( player , ruleName , rule , tempRuleCollecti
     local ruleConfirmedCheck = false;
     local alts = GRM.GetAltNamesList ( player );
 
-    player = GRM.ValidateHist ( player );
+    player = GRM.Time.ValidateHist ( player );
 
     -- Initial activity
     if ( rule.sinceAtRank and player.rankHist[1][7] and GRM.HasTimeExceededDate ( GRM.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) or ( not rule.sinceAtRank and player.joinDateHist[1][6] and GRM.HasTimeExceededDate ( GRM.ConvertToEpoch ( player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
@@ -9986,14 +9986,14 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                         -- We know that the rank is valid at this point as it has been made true
                         ruleConfirmedCheck = false;
 
-                        player = GRM.ValidateHist ( player );
+                        player = GRM.Time.ValidateHist ( player );
 
                         local epochDate = GRM.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] );
 
-                        if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.GetHoursSinceTimestamp ( epochDate ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
+                        if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.Time.GetHoursSinceTimestamp ( epochDate ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
                             ruleConfirmedCheck = true;
                             table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
-                            table.insert ( tempRuleCollection , { "RankTime" , GRM.GetTimePassedUsingEpochTime ( epochDate )[4] } );
+                            table.insert ( tempRuleCollection , { "RankTime" , GRM.Time.GetTimePassedUsingTableOrString ( { player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] } )[4] } );
                         end
                     end
 

@@ -1,7 +1,26 @@
+
+## **VERSION 1.99161 RELEASE - December 18th, 2024**
+
+***COMPATIBILITY RELEASE - CLASSIC 1.15.5 and RETAIL 11.0.7**
+
+Please note, with the re-introduction of the classic roster, I was going to go back and re-add compatibility for it, but as I was doing it I was just hit by how limited it was when the communities roster was right there. Plus, maintaining compatibility for multiple interfaces is sort of a pain. So, I have decided to refrain from bringing that back for now unless I get some serious outcry for it (of which there has been none so far lol). But, I did add a notification to let players know about this change (since it defaults to the old classic roster), that a one-time only notice will appear for players if they are using the Classic roster when the communities is available, and an option to enable the Communities through GRM's popup. Which again, is a one-time only thing. I HIGHLY encourage using the Communities interface if you are a guild officer in any way.
+
+***QUALITY OF LIFE***
+
+* Realm names updated to the auto-complete table for all regions that were added in the new Anniversary Classic Era servers.
+
+* I started the process of updating some of the backend code so that I don't just have a super class anymore. Going to compartmentalize it a bit which is going to make debugging what has now become a rather large addon a bit easier to handle. Baby steps though. Just a little at a time.
+
+***BUG FIXES***
+
+* Noticed that even when a player had left from the guild, it was still saying that they were "no longer in the guild." When it can find the log entry that they left on their own, and were not kicked, it should say appropriately in the log now. The "No longer in the guild" is the default message when the addon cannot determine if they were kicked or left because the built-in log does not have record of it because it happened too many guild actions previous. This has had to have been here a long time. I am surprised it went unreported so long lol.
+
+* The "dead" names that GRM scans for when logging in will no longer scan for them if you don't have the permission to remove players. This was a bit of an oversight. You can view this with `/grm dead` to generate.
+
+
 ## **VERSION 1.99159 RELEASE - November 18th, 2024**
 
 * Fixed a bug that directly affected the patching process for some people.
-
 
 ## **VERSION 1.99158 RELEASE - November 17th, 2024**
 

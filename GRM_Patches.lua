@@ -1657,13 +1657,26 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- 136
     if numericV < 1.99153 and baseValue < 1.99153 then
-        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.StandardDateFix , true , true , false , nil )
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.StandardDateFix , true , true , false )
 
         GRM_AddonSettings_Save.VERSION = "R1.99153";
         if loopCheck ( 1.99153 ) then
             return;
         end
     end
+
+    -- 137
+    if numericV < 1.99161 and baseValue < 1.99161 then
+        GRM_Patch.ConvertBackupDate();
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.UpdateBdaySaveFormat , true , true , false );
+        GRM_Patch.AddNewSetting ( "ProfRankAutoUpdate" , false );
+
+        GRM_AddonSettings_Save.VERSION = "R1.99161";
+        if loopCheck ( 1.99161 ) then
+            return;
+        end
+    end
+
 
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
@@ -1682,7 +1695,7 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         else
             print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... 1 patch applied." ) );
         end
-        print ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.GetTimePassedInZone ( startTime ) );
+        print ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.Time.GetTimePassedInZone ( startTime ) );
 
     end
 
@@ -2044,7 +2057,7 @@ GRM.TimeStampToEpoch = function ( timestamp , IsStartOfDay , knownHour , knownMi
     local day , month, year , hour , minute , seconds , leapYear;
 
     if type ( timestamp ) == "string" then
-        timestamp = GRM.GetCleanTimestamp ( timestamp );
+        timestamp = GRM.Time.GetCleanTimestamp ( timestamp );
         year = GRM.GetEventYear ( timestamp );
         month = monthEnum [ GRM.GetEventMonth ( timestamp ) ];
         day = GRM.GetEventDay ( timestamp );
@@ -2057,7 +2070,7 @@ GRM.TimeStampToEpoch = function ( timestamp , IsStartOfDay , knownHour , knownMi
         end
     end
 
-    leapYear = GRM.IsLeapYear ( year );
+    leapYear = GRM.Time.IsLeapYear ( year );
 
     -- End timestamp Parsing...
 
@@ -2078,7 +2091,7 @@ GRM.TimeStampToEpoch = function ( timestamp , IsStartOfDay , knownHour , knownMi
     -- calculate the number of seconds passed since 1970 based on number of years that have passed.
     local totalSeconds = 0;
     for i = year - 1 , 1970 , -1 do
-        if GRM.IsLeapYear ( i ) then
+        if GRM.Time.IsLeapYear ( i ) then
             totalSeconds = totalSeconds + ( 366 * 86400 ); -- leap year = 366 days + 1 extra day
         else
             totalSeconds = totalSeconds + ( 365 * 86400 ); -- 365 days in normal year
@@ -2900,7 +2913,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
             if type ( GRM_GuildDataBackup_Save[factionInd][i][1] ) == "table" then
                 if GRM_GuildDataBackup_Save[factionInd][i][1][1] == guildName then
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
-                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true  , false , forcedForm ) == backupPoint then
+                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.Time.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true  , false , forcedForm ) == backupPoint then
                             if reportChange then
                                 GRM.Report ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
@@ -2917,7 +2930,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
             elseif type ( GRM_GuildDataBackup_Save[factionInd][i][1] ) == "string" then
                 if GRM_GuildDataBackup_Save[factionInd][i][1] == guildName then
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
-                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true  , false , forcedForm ) == backupPoint then
+                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.Time.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true  , false , forcedForm ) == backupPoint then
                             if reportChange then
                                 GRM.Report ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
@@ -2938,7 +2951,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
             if type ( GRM_GuildDataBackup_Save[factionInd][i][1] ) == "table" then
                 if GRM_GuildDataBackup_Save[factionInd][i][1][1] == guildName and GRM_GuildDataBackup_Save[factionInd][i][1][2] == creationDate then
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
-                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true , false , forcedForm  ) == backupPoint then
+                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.Time.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true , false , forcedForm  ) == backupPoint then
                             if reportChange then
                                 GRM.Report ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
@@ -2955,7 +2968,7 @@ GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , 
             else
                 if GRM_GuildDataBackup_Save[factionInd][i][1] == guildName then
                     for j = 2 , #GRM_GuildDataBackup_Save[factionInd][i] do
-                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true  , false , forcedForm ) == backupPoint then
+                        if GRM_GuildDataBackup_Save[factionInd][i][j][1] ~= nil and GRM.Time.FormatTimeStamp ( GRM_GuildDataBackup_Save[factionInd][i][j][1] , true  , false , forcedForm ) == backupPoint then
                             if reportChange then
                                 GRM.Report ( "|CFFFFD100" .. GRM.L ( "Backup Point Removed for Guild \"{name}\"" , guildName ) );
                             end
@@ -3517,6 +3530,22 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
     end
 end
 
+-- Method:          GRM_Patch.ConvertGenericTimestampToIntValues(string)
+-- What it Does:    Returns an array with the day , month , year values set
+-- Purpose:         To be used in converting old method of parsing string timestamps to int values for easier conversion and less processing
+GRM_Patch.ConvertGenericTimestampToIntValues = function(timeStamp)
+    local tempStamp = GRM.Time.GetCleanTimestamp(timeStamp); -- ensure proper formatting
+    local day = GRM.GetEventDay(tempStamp); -- set the day
+    local month = GRM.Time.Enums.abbrev_month_ind[GRM.GetEventMonth(tempStamp)]; -- set the month
+    local year = GRM.GetEventYear(tempStamp); -- set the year
+
+    if day ~= nil and month ~= nil and year ~= nil then
+        return {day, month, year};
+    else
+        return nil;
+    end
+end
+
 -- Method:          GRM_Patch.ConvertAndModifyAnniversaryStorageFormat()
 -- What it Does:    Converts the old string format to the new better storage format for anniversary dates
 -- Purpose:         Better, cleaner scanning of events. Less parsing text
@@ -3528,7 +3557,7 @@ GRM_Patch.ConvertAndModifyAnniversaryStorageFormat = function()
         for j = 2 , #GRM_GuildMemberHistory_Save[i] do                  -- The guilds in each faction
             for r = 2 , #GRM_GuildMemberHistory_Save[i][j] do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
                 if not GRM_GuildMemberHistory_Save[i][j][r][40] and #GRM_GuildMemberHistory_Save[i][j][r][20] > 0 then
-                    date = GRM.ConvertGenericTimestampToIntValues ( GRM_GuildMemberHistory_Save[i][j][r][20][#GRM_GuildMemberHistory_Save[i][j][r][20]] );
+                    date = GRM_Patch.ConvertGenericTimestampToIntValues ( GRM_GuildMemberHistory_Save[i][j][r][20][#GRM_GuildMemberHistory_Save[i][j][r][20]] );
                     if date ~= nil then
                         GRM_GuildMemberHistory_Save[i][j][r][22][1] = { { date[1] , date[2] , date[3] } , false , "" };
                     else
@@ -3547,7 +3576,7 @@ GRM_Patch.ConvertAndModifyAnniversaryStorageFormat = function()
         for j = 2 , #GRM_PlayersThatLeftHistory_Save[i] do                  -- The guilds in each faction
             for r = 2 , #GRM_PlayersThatLeftHistory_Save[i][j] do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
                 if not GRM_PlayersThatLeftHistory_Save[i][j][r][40] and #GRM_PlayersThatLeftHistory_Save[i][j][r][20] > 0 then
-                    date = GRM.ConvertGenericTimestampToIntValues ( GRM_PlayersThatLeftHistory_Save[i][j][r][20][#GRM_PlayersThatLeftHistory_Save[i][j][r][20]] );
+                    date = GRM_Patch.ConvertGenericTimestampToIntValues ( GRM_PlayersThatLeftHistory_Save[i][j][r][20][#GRM_PlayersThatLeftHistory_Save[i][j][r][20]] );
                     if date ~= nil then
                         GRM_PlayersThatLeftHistory_Save[i][j][r][22][1] = { { date[1] , date[2] , date[3] } , false , "" };
                     else
@@ -3571,7 +3600,7 @@ GRM_Patch.ConvertAndModifyAnniversaryStorageFormat = function()
                         for m = 3 , 4 do
                             for n = 2 , #GRM_GuildDataBackup_Save[i][j][s][m] do
                                 if not GRM_GuildDataBackup_Save[i][j][s][m][n][40] and #GRM_GuildDataBackup_Save[i][j][s][m][n][20] > 0 then
-                                    date = GRM.ConvertGenericTimestampToIntValues ( GRM_GuildDataBackup_Save[i][j][s][m][n][20][#GRM_GuildDataBackup_Save[i][j][s][m][n][20]] );
+                                    date = GRM_Patch.ConvertGenericTimestampToIntValues ( GRM_GuildDataBackup_Save[i][j][s][m][n][20][#GRM_GuildDataBackup_Save[i][j][s][m][n][20]] );
                                     if date ~= nil then
                                         GRM_GuildDataBackup_Save[i][j][s][m][n][22][1] = { { date[1] , date[2] , date[3] } , false , "" };
                                     else
@@ -4290,7 +4319,7 @@ GRM_Patch.CleanupPromoJoinDateOriginalTemplateDates = function ( player )
         player[15] = {};
         player[16] = nil;
         player[16] = {};
-        player[2] = GRM.GetTimestamp();
+        player[2] = "1 Jan '01 12:01am";
         player[3] = time();
         player[35] = { "" , 0 };
         player[40] = false;
@@ -4488,7 +4517,7 @@ end
 GRM_Patch.CleanupJoinAndPromosSetUnknownError = function( player )
     -- join date
     if #player[20] == 0 and player[36][1] ~= "" and player[35][1] ~= "1 Jan '01" and player[35][1] ~= "1 Jan '01 12:01am" then
-        if player[35][1] ~= GRM_Patch.SlimDate ( GRM.GetTimestamp() ) then
+        if player[35][1] ~= GRM_Patch.SlimDate ( "1 Jan '01 12:01am" ) then
             table.insert ( player[20] , GRM_Patch.SlimDate ( player[35][1] ) );
             table.insert ( player[21] , player[35][2] );
             player[40] = false;     -- unknown set to false
@@ -4565,7 +4594,7 @@ GRM_Patch.CleanupJoinDateRepeats = function ( guildData , date )
                 guildData[i][3] = guildData[i][21][#guildData[i][21]];
                 guildData[i][35] = { guildData[i][20][#guildData[i][20]] , guildData[i][21][#guildData[i][21]] };
             else
-                guildData[i][2] = GRM.GetTimestamp();
+                guildData[i][2] = "1 Jan '01 12:01am";
                 guildData[i][3] = time();
                 guildData[i][15] = {};
                 guildData[i][16] = {};
@@ -6541,7 +6570,7 @@ GRM_Patch.ValidateUnverifiedDate = function( player , dateVersion )
 
                 if player[dateVersion][1] ~= "" then
                     player.rankHistory[i][1] = player.rankName;
-                    player.rankHistory[i][2] = GRM.GetCleanTimestamp ( player[dateVersion][1] );
+                    player.rankHistory[i][2] = GRM.Time.GetCleanTimestamp ( player[dateVersion][1] );
                     player.rankHistory[i][3] = GRM.TimeStampToEpoch ( player.rankHistory[i][2] , true );
                 end
             else
@@ -6555,7 +6584,7 @@ GRM_Patch.ValidateUnverifiedDate = function( player , dateVersion )
                 elseif ( not player.rankHistory[i][3] or type ( player.rankHistory[i][3] ) ~= "number" ) then
 
                     if player.rankHistory[i][2] ~= "" then
-                        player.rankHistory[i][3] = GRM.TimeStampToEpoch ( GRM.GetCleanTimestamp ( player.rankHistory[i][2] ) , true );
+                        player.rankHistory[i][3] = GRM.TimeStampToEpoch ( GRM.Time.GetCleanTimestamp ( player.rankHistory[i][2] ) , true );
                     else
                         toRemove = true;
                     end
@@ -6647,12 +6676,12 @@ GRM_Patch.FixVerifiedDatesForRejoins = function ( player )
     end
 
     if #player.verifiedJoinDate[1] > 0 and #player.joinDate > 0 then
-        if GRM.GetCleanTimestamp ( player.verifiedJoinDate[1] ) ~= GRM.GetCleanTimestamp ( player.joinDate[#player.joinDate] ) then
-            player.joinDate[#player.joinDate] = GRM.GetCleanTimestamp ( player.verifiedJoinDate[1] );
+        if GRM.Time.GetCleanTimestamp ( player.verifiedJoinDate[1] ) ~= GRM.Time.GetCleanTimestamp ( player.joinDate[#player.joinDate] ) then
+            player.joinDate[#player.joinDate] = GRM.Time.GetCleanTimestamp ( player.verifiedJoinDate[1] );
             player.joinDateEpoch[#player.joinDateEpoch] = GRM.TimeStampToEpoch ( player.joinDate[#player.joinDate] , true );
         end
     elseif #player.verifiedJoinDate[1] > 0 and #player.joinDate == 0 then
-        player.joinDate[1] = GRM.GetCleanTimestamp ( player.verifiedJoinDate[1] );
+        player.joinDate[1] = GRM.Time.GetCleanTimestamp ( player.verifiedJoinDate[1] );
         player.joinDateEpoch[1] = GRM.TimeStampToEpoch ( player.joinDate[1] , true );
     end
 
@@ -6668,14 +6697,14 @@ GRM_Patch.FixVerifiedDatesForRejoins = function ( player )
     end
 
     if #player.verifiedPromoteDate[1] > 0 and #player.rankHistory > 0 then
-        if GRM.GetCleanTimestamp ( player.verifiedPromoteDate[1] ) ~= GRM.GetCleanTimestamp ( player.rankHistory[#player.rankHistory][2] ) then
+        if GRM.Time.GetCleanTimestamp ( player.verifiedPromoteDate[1] ) ~= GRM.Time.GetCleanTimestamp ( player.rankHistory[#player.rankHistory][2] ) then
             player.rankHistory[#player.rankHistory][1] = player.rankName;
-            player.rankHistory[#player.rankHistory][2] = GRM.GetCleanTimestamp ( player.verifiedPromoteDate[1] );
+            player.rankHistory[#player.rankHistory][2] = GRM.Time.GetCleanTimestamp ( player.verifiedPromoteDate[1] );
             player.rankHistory[#player.rankHistory][3] = GRM.TimeStampToEpoch ( player.rankHistory[#player.rankHistory][2] , true );
         end
     elseif #player.verifiedPromoteDate[1] > 0 and #player.rankHistory == 0 then
         player.rankHistory[1][1] = player.rankName;
-        player.rankHistory[1][2] = GRM.GetCleanTimestamp ( player.verifiedPromoteDate[1] );
+        player.rankHistory[1][2] = GRM.Time.GetCleanTimestamp ( player.verifiedPromoteDate[1] );
         player.rankHistory[1][3] = GRM.TimeStampToEpoch ( player.rankHistory[1][2] , true );
     end
 
@@ -6912,7 +6941,7 @@ GRM_Patch.ConvertRankHistoryToRanks = function ( player , isFormerMembers )
     if player.verifiedPromoteDate ~= nil then
         -- First, add verified date into first index - we are always going to insert new into the first index.
         if player.verifiedPromoteDate[1] ~= nil and type ( player.verifiedPromoteDate[1] ) == "string" and player.verifiedPromoteDate[1] ~= "" then
-            timeTable = GRM.ConvertGenericTimestampToIntValues ( player.verifiedPromoteDate[1] );
+            timeTable = GRM_Patch.ConvertGenericTimestampToIntValues ( player.verifiedPromoteDate[1] );
 
             if timeTable and player.verifiedPromoteDate[2] ~= nil and type ( player.verifiedPromoteDate[2] ) == "number" and player.verifiedPromoteDate[2] > 0 and player.verifiedPromoteDate[2] ~= 978375660 then  -- Removing old date redundancy
                 table.insert ( player.rankHist , 1 , { player.rankName , timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.verifiedPromoteDate[1] ) , player.verifiedPromoteDate[2] , true , 1 } );
@@ -6932,11 +6961,11 @@ GRM_Patch.ConvertRankHistoryToRanks = function ( player , isFormerMembers )
             end
 
             if #player.leftGuildEpoch > 0 then
-                timeArray = GRM.ConvertGenericTimestampToIntValues ( player.leftGuildDate[#player.leftGuildDate] );
+                timeArray = GRM_Patch.ConvertGenericTimestampToIntValues ( player.leftGuildDate[#player.leftGuildDate] );
                 leftGuildEpoch = player.leftGuildEpoch[#player.leftGuildEpoch];
                 verified = true;
             else
-                timeArray = select ( 2 , GRM.GetTimestamp() );
+                timeArray = GRM.Time.GetTimestamp();
                 leftGuildEpoch = time();
                 verified = false;
             end
@@ -6957,7 +6986,7 @@ GRM_Patch.ConvertRankHistoryToRanks = function ( player , isFormerMembers )
         for i = ( #player.rankHistory - startingPoint ) , 1 , -1 do
 
             if player.rankHistory[i] ~= nil and player.rankHistory[i][2] ~= nil and type ( player.rankHistory[i][2] ) == "string" and player.rankHistory[i][2] ~= "" then
-                timeTable = GRM.ConvertGenericTimestampToIntValues ( player.rankHistory[i][2] );
+                timeTable = GRM_Patch.ConvertGenericTimestampToIntValues ( player.rankHistory[i][2] );
 
                 if timeTable and player.rankHistory[i][1] ~= nil and type ( player.rankHistory[i][1] ) == "string" and player.rankHistory[i][3] ~= nil and type ( player.rankHistory[i][3] ) == "number" and player.rankHistory[i][3] > 0 then
 
@@ -7022,19 +7051,19 @@ GRM_Patch.ConvertJoinHistory = function ( player )
         for i = #player.joinDate , 1 , -1 do
 
             if player.joinDate[i] ~= nil and type ( player.joinDate[i] ) == "string" and player.joinDate[i] ~= "" then
-                timeTable = GRM.ConvertGenericTimestampToIntValues ( player.joinDate[i] );
+                timeTable = GRM_Patch.ConvertGenericTimestampToIntValues ( player.joinDate[i] );
 
                 if timeTable and player.joinDateEpoch[i] ~= nil and player.joinDateEpoch[i] ~= nil and type ( player.joinDateEpoch[i] ) == "number" and player.joinDateEpoch[i] > 0 then
                     verified = false;
 
                     if player.leftGuildDate[i] ~= nil then
                         leftGuildEpoch = player.leftGuildEpoch[i];
-                        tTable = GRM.ConvertGenericTimestampToIntValues ( player.leftGuildDate[i] );
+                        tTable = GRM_Patch.ConvertGenericTimestampToIntValues ( player.leftGuildDate[i] );
                         table.insert ( player.joinDateHist , { tTable[1] , tTable[2] , tTable[3] , leftGuildEpoch , leftGuildEpoch , true , 2 } );
                     end
 
                     if i == #player.joinDate and player.verifiedJoinDate[1] ~= nil and type ( player.verifiedJoinDate[1] ) == "string" and player.verifiedJoinDate[1] ~= "" then
-                        timeTable = GRM.ConvertGenericTimestampToIntValues ( player.verifiedJoinDate[1] );
+                        timeTable = GRM_Patch.ConvertGenericTimestampToIntValues ( player.verifiedJoinDate[1] );
 
                         if timeTable and player.verifiedJoinDate[2] ~= nil and type ( player.verifiedJoinDate[2] ) == "number" and player.verifiedJoinDate[2] > 0 and player.verifiedJoinDate[2] ~= 978375660 then  -- Removing old date redundancy
                             table.insert ( player.joinDateHist , 1 , { timeTable[1] , timeTable[2] , timeTable[3] , GRM.TimeStampToEpoch ( player.verifiedJoinDate[1] ) , player.verifiedJoinDate[2] , true , 1 } );
@@ -7134,7 +7163,7 @@ GRM_Patch.FixTimestamps = function ( player )
             player.joinDateHist[i][5] = 0;
         end
         if player.joinDateHist[i][4] > 0 then
-            timeTable = select ( 2 , GRM.EpochToDateFormat ( player.joinDateHist[i][4] , forcedForm ) );
+            timeTable = select ( 2 , GRM.Time.EpochToDateFormat ( player.joinDateHist[i][4] , forcedForm ) );
 
             if timeTable and ( player.joinDateHist[i][1] ~= timeTable[1] or player.joinDateHist[i][2] ~= timeTable[2] or player.joinDateHist[i][3] ~= timeTable[3] ) then
                 player.joinDateHist[i][1] = timeTable[1];
@@ -7150,7 +7179,7 @@ GRM_Patch.FixTimestamps = function ( player )
         timeTable = {};
 
         if player.rankHist[i][5] > 0 then
-            timeTable = select ( 2 , GRM.EpochToDateFormat ( player.rankHist[i][5] , forcedForm ) );
+            timeTable = select ( 2 , GRM.Time.EpochToDateFormat ( player.rankHist[i][5] , forcedForm ) );
 
             if timeTable and ( player.rankHist[i][2] ~= timeTable[1] or player.rankHist[i][3] ~= timeTable[2] or player.rankHist[i][4] ~= timeTable[3] ) then
                 player.rankHist[i][2] = timeTable[1];
@@ -8230,7 +8259,7 @@ GRM_Patch.ModifyJoinAndPromoteDates = function ( player )
                 if player.joinDateHist[i][1] == 0 then
                     player.joinDateHist[i][4] = "0";
                 else
-                    player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+                    player.joinDateHist[i][4] = GRM.Time.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
                 end
             end
         end
@@ -8246,7 +8275,7 @@ GRM_Patch.ModifyJoinAndPromoteDates = function ( player )
                 if player.rankHist[i][2] == 0 then
                     player.rankHist[i][5] = "0";
                 else
-                    player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+                    player.rankHist[i][5] = GRM.Time.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
                 end
             end
         end
@@ -8354,7 +8383,7 @@ GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
                 if player.joinDateHist[i][1] == 0 then
                     player.joinDateHist[i][4] = "0";
                 else
-                    player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+                    player.joinDateHist[i][4] = GRM.Time.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
                 end
             end
         end
@@ -8369,7 +8398,7 @@ GRM_Patch.FixStandardFormatAndRankHistFormat = function ( player )
                 if player.rankHist[i][2] == 0 then
                     player.rankHist[i][5] = "0";
                 else
-                    player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+                    player.rankHist[i][5] = GRM.Time.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
                 end
             end
         end
@@ -9231,7 +9260,7 @@ GRM_Patch.StandardDateFix = function ( player )
             if #player.rankHist[i][5] > 8 then
                 -- This means standard date was input wrong. Let's just rewrite it if we have the date values
                 if player.rankHist[i][2] > 0 and player.rankHist[i][3] > 0 and player.rankHist[i][4] > 0 then
-                    player.rankHist[i][5] = GRM.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
+                    player.rankHist[i][5] = GRM.Time.ConvertToStandardFormatDate ( player.rankHist[i][2] , player.rankHist[i][3] , player.rankHist[i][4] );
                 else
                     if i == 1 then
                         player.rankHist[1] = { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 }
@@ -9273,7 +9302,7 @@ GRM_Patch.StandardDateFix = function ( player )
             if #player.joinDateHist[i][4] > 8 then
                 -- This means standard date was input wrong. Let's just rewrite it if we have the date values
                 if player.joinDateHist[i][1] > 0 and player.joinDateHist[i][2] > 0 and player.joinDateHist[i][3] > 0 then
-                    player.joinDateHist[i][4] = GRM.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
+                    player.joinDateHist[i][4] = GRM.Time.ConvertToStandardFormatDate ( player.joinDateHist[i][1] , player.joinDateHist[i][2] , player.joinDateHist[i][3] );
                 else
                     if i == 1 then
                         player.joinDateHist[1] = { 0 , 0 , 0 , "0" , 0 , false , 1 }
@@ -9308,4 +9337,33 @@ GRM_Patch.StandardDateFix = function ( player )
     end
 
     return player
+end
+
+-- 1.99160
+-- Method:          GRM_Patch.ConvertBackupDate()
+-- What it Does:    Changes the formatting of the backup date timestamp so it can be adjusted to player preferred formating when displayed
+-- Purpose:         Timestamp format is being updated
+GRM_Patch.ConvertBackupDate = function()
+    for guildName in pairs ( GRM_GuildDataBackup_Save ) do
+            if type ( GRM_GuildDataBackup_Save[guildName].date ) ~= table then
+            if GRM_GuildDataBackup_Save[guildName].date == "" or GRM_GuildDataBackup_Save[guildName].epochDate == 0 then
+                GRM_GuildDataBackup_Save[guildName].date = { 0 , 0 , 0 };
+                GRM_GuildDataBackup_Save[guildName].epochDate = 0;
+            else
+                GRM_GuildDataBackup_Save[guildName].date = select ( 2 , GRM.Time.EpochToDateFormat ( GRM_GuildDataBackup_Save[guildName].epochDate , 1 ) );
+            end
+        end
+    end
+end
+
+-- 1.99160
+-- Method:          GRM_Patch.UpdateBdaySaveFormat( playerTable )
+-- What it Does:    Removes the useless year index since year doesn't matter with bdays, and the string timestamp
+-- Purpose:         There is no need for the year in the DB, and ther eis no need for the pre-made unformatted string timestamp
+GRM_Patch.UpdateBdaySaveFormat = function( player )
+    if #player.events[2][1] == 3 then
+        table.remove ( player.events[2][1] , 3 );
+        table.remove( player.events[2] , 3 );
+    end
+    return player;
 end

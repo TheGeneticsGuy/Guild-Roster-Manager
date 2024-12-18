@@ -1882,6 +1882,12 @@
     -- R1.99152
     GRM_L["Unable to kick these alts:"] = true
 
+    -- R1.99161
+    GRM_L["One Time Notice"] = true;
+    GRM_L["Blizzard re-introduced the Classic roster, which you currently have enabled. GRM features will be limited. The communities roster will give you access to all of GRM's features."] = true;
+    GRM_L["Would you like to enable the communities roster?"] = true
+    GRM_L["Communities Roster is now Enabled."] = true
+
 end
 
     -- THANK YOU @Nehry for this full translation up to R1.20

@@ -2095,13 +2095,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
                             local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
 
-                            local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , player.note , newNote , select ( 2 , GRM.GetTimestamp() ) );
+                            local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , player.note , newNote , GRM.Time.GetTimestamp() );
 
                             if GRM.S().toChat.note then
                                 GRM.PrintLog ( { 4 , logReport } );
                             end
                             -- Also adding it to the log!
-                            GRM.AddLog ( { 4 , logReportWithTime , simpleName , player.note , newNote , select ( 2 , GRM.GetTimestamp() ) } );
+                            GRM.AddLog ( { 4 , logReportWithTime , simpleName , player.note , newNote , GRM.Time.GetTimestamp() } );
 
                             player.note = newNote;
                             GuildRosterSetPublicNote ( i , newNote );
@@ -2970,13 +2970,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
                     -- To metadata reporting
                     local simpleName = GRM.GetStringClassColorByName ( playerDetails.name ) .. GRM.SlimName ( playerDetails.name ) .. "|r";
-                    local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , publicNote , playerDetails.newNote , select ( 2 , GRM.GetTimestamp() ) );
+                    local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
 
                     if GRM.S().toChat.note then
                         GRM.PrintLog ( { 4 , logReport } );
                     end
                     -- Also adding it to the log!
-                    GRM.AddLog ( { 4 , logReportWithTime , simpleName , publicNote , playerDetails.newNote , select ( 2 , GRM.GetTimestamp() ) } );
+                    GRM.AddLog ( { 4 , logReportWithTime , simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
 
                     -- Set the note
                     local theNote = "";
@@ -3076,13 +3076,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
                     -- To metadata reporting
                     local simpleName = GRM.GetStringClassColorByName ( playerDetails.name ) .. GRM.SlimName ( playerDetails.name ) .. "|r";
-                    local logReportWithTime , logReport = GRM.GetOfficerNoteChangeString ( simpleName , officerNote , playerDetails.newNote , select ( 2 , GRM.GetTimestamp() ) );
+                    local logReportWithTime , logReport = GRM.GetOfficerNoteChangeString ( simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
 
                     if GRM.S().toChat.officerNote then
                         GRM.PrintLog ( { 5 , logReport } );
                     end
                     -- Also adding it to the log!
-                    GRM.AddLog ( { 5 , logReportWithTime , simpleName , officerNote , playerDetails.newNote , select ( 2 , GRM.GetTimestamp() ) } );
+                    GRM.AddLog ( { 5 , logReportWithTime , simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
 
                     local theNote = "";
                     if #playerDetails.newNote == 0 then
@@ -3185,8 +3185,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 local date = "";
                 local timeLeft = "";
                 if player.safeList.kick[4] > 0 then
-                    date = GRM.EpochToDateFormat ( player.safeList.kick[4] - ( player.safeList.kick[3] * 86400 ) );
-                    timeLeft = GRM.GetTimePassedInZone ( nil , player.safeList.kick[4] - time() , true );
+                    date = GRM.Time.EpochToDateFormat ( player.safeList.kick[4] - ( player.safeList.kick[3] * 86400 ) );
+                    timeLeft = GRM.Time.GetTimePassedInZone ( nil , player.safeList.kick[4] - time() , true );
                 end
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonDateSetText:SetText ( GRM.L ( "Configured: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. date .. "|r" ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. timeLeft .. "|r" ) );
@@ -3221,8 +3221,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 local date = "";
                 local timeLeft = "";
                 if player.safeList.promote[4] > 0 then
-                    date = GRM.EpochToDateFormat ( player.safeList.promote[4] - ( player.safeList.promote[3] * 86400 ) );
-                    timeLeft = GRM.GetTimePassedInZone ( nil , player.safeList.promote[4] - time() , true );
+                    date = GRM.Time.EpochToDateFormat ( player.safeList.promote[4] - ( player.safeList.promote[3] * 86400 ) );
+                    timeLeft = GRM.Time.GetTimePassedInZone ( nil , player.safeList.promote[4] - time() , true );
                 end
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonDateSetText:SetText ( GRM.L ( "Configured: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. date .. "|r" ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. timeLeft .. "|r" ) );
@@ -3258,8 +3258,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 local date = "";
                 local timeLeft = "";
                 if player.safeList.demote[4] > 0 then
-                    date = GRM.EpochToDateFormat ( player.safeList.demote[4] - ( player.safeList.demote[3] * 86400 ) );
-                    timeLeft = GRM.GetTimePassedInZone ( nil , player.safeList.demote[4] - time() , true );
+                    date = GRM.Time.EpochToDateFormat ( player.safeList.demote[4] - ( player.safeList.demote[3] * 86400 ) );
+                    timeLeft = GRM.Time.GetTimePassedInZone ( nil , player.safeList.demote[4] - time() , true );
                 end
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonDateSetText:SetText ( GRM.L ( "Configured: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. date .. "|r" ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. timeLeft .. "|r" ) );
@@ -3328,18 +3328,18 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             local player = GRM.GetPlayer ( GRM_G.currentName );
             -- Kick
             if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:IsVisible() and player.safeList.kick[4] > 0 then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , player.safeList.kick[4] - time() , true ) .. "|r" ) );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.Time.GetTimePassedInZone ( nil , player.safeList.kick[4] - time() , true ) .. "|r" ) );
             end
 
             -- Promote
             if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:IsVisible() and player.safeList.promote[4] > 0 then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , player.safeList.promote[4] - time() , true ) .. "|r" ) );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListPromoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.Time.GetTimePassedInZone ( nil , player.safeList.promote[4] - time() , true ) .. "|r" ) );
             end
 
 
             -- Demote
             if GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:IsVisible() and player.safeList.demote[4] > 0 then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.GetTimePassedInZone ( nil , player.safeList.demote[4] - time() , true ) .. "|r" ) );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText:SetText ( GRM.L ( "Time Left: {custom1}" , nil , nil , nil , "|CFFFFFFFF" .. GRM.Time.GetTimePassedInZone ( nil , player.safeList.demote[4] - time() , true ) .. "|r" ) );
             end
 
             if ( time() >= player.safeList.kick[4] ) or  ( time() >= player.safeList.kick[4] ) or  ( time() >= player.safeList.kick[4] ) then
@@ -3998,7 +3998,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     else
                         GameTooltip:AddLine( GRM.L ( "Edited by {name}" , player.customNote[3] .. " (" .. GRM.L( "|CFFFF0000Player No Longer in Guild" ) .. ")"  ) );
                     end
-                    GameTooltip:AddLine ( GRM.EpochToDateFormat ( player.customNote[2] ) );
+                    GameTooltip:AddLine ( GRM.Time.EpochToDateFormat ( player.customNote[2] ) );
                     GameTooltip:Show();
                 end
             end
@@ -8878,7 +8878,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     if player then
                         if player.events[2][1][1] ~= 0 then
                             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
-                            GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.FormatTimeStamp ( player.events[2][3] , false , true ) );
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.Time.FormatTimeStamp ( { player.events[2][1][1] , player.events[2][1][2]} , false , true ) );
                             GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
                         else
                             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Show();
@@ -9235,9 +9235,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         local formatJD = "";
 
         if GRM.S().includeTag then
-            formatJD = ( GRM_G.customHeaderJoin .. " " .. GRM.FormatTimeStamp ( select ( 2 , GRM.GetTimestamp() ) , false , false , GRM.S().globalDateFormat ) );
+            formatJD = ( GRM_G.customHeaderJoin .. " " .. GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) );
         else
-            formatJD = ( GRM.FormatTimeStamp ( select ( 2 , GRM.GetTimestamp() ) , false , false , GRM.S().globalDateFormat ) );
+            formatJD = ( GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) );
         end
 
         GRM_UI.SetTooltipScale();
@@ -9282,10 +9282,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
             if GRM.IsCustomJoinRestricted() and not CanEditGuildInfo() then
                 GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
-                GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , GRM_G.customHeaderJoin .. " " .. GRM.FormatTimeStamp ( select ( 2 , GRM.GetTimestamp() ) , false , false , GRM.S().globalDateFormat ) ) );
+                GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , GRM_G.customHeaderJoin .. " " .. GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) ) );
                 self:Disable();
             else
-                GameTooltip:AddLine ( GRM_G.customHeaderJoin .. " " .. GRM.FormatTimeStamp ( select ( 2 , GRM.GetTimestamp() ) , false , false , GRM.S().globalDateFormat ) );
+                GameTooltip:AddLine ( GRM_G.customHeaderJoin .. " " .. GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) );
                 self:Enable();
             end
 
@@ -9356,10 +9356,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
             if GRM.IsCustomReJoinRestricted() and not CanEditGuildInfo() then
                 GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
-                GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , GRM_G.customHeaderRejoin .. " " .. GRM.FormatTimeStamp ( select ( 2 , GRM.GetTimestamp() ) , false , false , GRM.S().globalDateFormat ) ) );
+                GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , GRM_G.customHeaderRejoin .. " " .. GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) ) );
                 self:Disable();
             else
-                GameTooltip:AddLine ( GRM_G.customHeaderRejoin .. " " .. GRM.FormatTimeStamp ( select ( 2 , GRM.GetTimestamp() ) , false , false , GRM.S().globalDateFormat ) );
+                GameTooltip:AddLine ( GRM_G.customHeaderRejoin .. " " .. GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) );
                 self:Enable();
             end
 
@@ -16321,8 +16321,8 @@ end
                 memberInfoToAdd.rosterSelection = 0;                                    -- 18
 
                 -- Add ban of in-guild guildie with notification!!!
-                local timeArray = select ( 2 , GRM.GetTimestamp() )
-                GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , GRM.ConvertToStandardFormatDate ( timeArray[1] , timeArray[2] , timeArray[3] ) , 0 , GRM_G.addonUser , false );
+                local timeArray = GRM.Time.GetTimestamp()
+                GRM.AddMemberToLeftPlayers ( memberInfoToAdd , timeArray , GRM.Time.ConvertToStandardFormatDate ( timeArray[1] , timeArray[2] , timeArray[3] ) , 0 , GRM_G.addonUser , false );
 
                 -- Now, let's implement the ban!
                 player = oldMemberData[ fullName ];
@@ -16364,9 +16364,9 @@ end
                 bannedName = colorCode .. GRM.SlimName ( fullName ) .. "|r";
             end
 
-            local logReportWithTime , logReport = GRM.GetBanLogUpdateAndEditString ( GRM_G.isChecked2 , isAnEdit , banningName , bannedName , banReason , select ( 2 , GRM.GetTimestamp() ) );
+            local logReportWithTime , logReport = GRM.GetBanLogUpdateAndEditString ( GRM_G.isChecked2 , isAnEdit , banningName , bannedName , banReason , GRM.Time.GetTimestamp() );
 
-            GRM.AddLog ( { 20 , logReportWithTime , GRM_G.isChecked2 , isAnEdit , banningName , bannedName , banReason , select ( 2 , GRM.GetTimestamp() ) } );
+            GRM.AddLog ( { 20 , logReportWithTime , GRM_G.isChecked2 , isAnEdit , banningName , bannedName , banReason , GRM.Time.GetTimestamp() } );
 
             if GRM.S().toChat.banned then
                 GRM.Report ( logReport );
@@ -16561,9 +16561,9 @@ end
                 if GRM_G.TempBanTarget ~= nil and #GRM_G.TempBanTarget ~= 0 then
                     local colorCode = GRM.rgbToHex ( { GRM_G.TempBanTarget[2][1] , GRM_G.TempBanTarget[2][2] , GRM_G.TempBanTarget[2][3] } );
                     local name = colorCode .. GRM.SlimName ( GRM_G.TempBanTarget[1] ) .. "|r";
-                    local finalMsgWithTime , finalMsg = GRM.GetUnBanString  ( name , GRM.GetClassifiedName ( GRM_G.addonUser ) , select ( 2 , GRM.GetTimestamp() ) );
+                    local finalMsgWithTime , finalMsg = GRM.GetUnBanString  ( name , GRM.GetClassifiedName ( GRM_G.addonUser ) , GRM.Time.GetTimestamp() );
 
-                    GRM.AddLog ( { 21 , finalMsgWithTime , name , GRM.GetClassifiedName ( GRM_G.addonUser , true ) , select ( 2 , GRM.GetTimestamp() ) } );
+                    GRM.AddLog ( { 21 , finalMsgWithTime , name , GRM.GetClassifiedName ( GRM_G.addonUser , true ) , GRM.Time.GetTimestamp() } );
 
                     if GRM.S().toChat.banned then
                         GRM.Report ( finalMsg );
@@ -17967,202 +17967,6 @@ end
 ------ MISC CONFIGURATION ---------
 -----------------------------------
 
------------------
---- CALENDAR ----
------------------
-
--- if GRM_G.BuildVersion >= 30000 then  -- < 2 = Classic and < 3 = TBC - no calendar yet existed
---     local UI_CalendarTrigger = CreateFrame( "Frame" );
---     UI_CalendarTrigger:RegisterEvent ( "CALENDAR_UPDATE_EVENT_LIST" );
---     UI_CalendarTrigger:RegisterEvent ( "CALENDAR_UPDATE_INVITE_LIST" );
---     UI_CalendarTrigger:RegisterEvent ( "CALENDAR_OPEN_EVENT" );
---     UI_CalendarTrigger:RegisterEvent("CALENDAR_UPDATE_EVENT");
---     UI_CalendarTrigger:RegisterEvent("GUILD_ROSTER_UPDATE");
---     UI_CalendarTrigger:RegisterEvent("PLAYER_GUILD_UPDATE");
---     UI_CalendarTrigger:SetScript ( "OnEvent" , function ()
---         if CalendarCreateEventFrame and CalendarViewEventFrame and CalendarViewEventInviteList.ScrollBar and CalendarCreateEventInviteList.ScrollBar then
---             if not GRM_G.CalendarRegistered then
---                 -- View Window
---                 local events = { "OnEvent" };
-
---                 for i = 1 , #events do
---                     CalendarViewEventInviteList.ScrollBar:HookScript ( events[i] , GRM_UI.CalendarEventOpenRefresh );
---                 end
---                 CalendarViewEventFrame:HookScript ( "OnShow" , GRM_UI.CalendarEventOpenRefresh );
---                 CalendarViewEventFrame:HookScript ( "OnHide" , function()
---                     GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
---                     GRM_G.currentCalendarOffset = 1;    -- Resets this for triggering.
---                 end);
-
---                 -- Create and Edit Window
---                 for i = 1 , #events do
---                     CalendarCreateEventInviteList.ScrollBar:HookScript ( events[i] , GRM_UI.CalendarEventCreateRefresh );
---                 end
---                 CalendarCreateEventFrame:HookScript ( "OnShow" , GRM_UI.CalendarEventCreateRefresh );
---                 CalendarCreateEventFrame:HookScript ( "OnHide" , function()
---                     GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
---                     GRM_G.currentCalendarOffset = 1;    -- Resets this for triggering.
---                 end);
---                 GRM_G.CalendarRegistered = true;
---                 GRM_UI.CalendarEventOpenRefresh ();
---                 GRM_UI.CalendarEventCreateRefresh ();
-
---             else
---                 GRM_UI.CalendarDelayRefresh( 2 );
---             end
---             GRM_G.currentCalendarOffset = 1;
---         end
---     end);
-
---     -- Method:          GRM_UI.CalendarDelayRefresh ( float )
---     -- What it Does:    Adds a delay as Blizz frames
---     GRM_UI.CalendarDelayRefresh = function ( time )
---         C_Timer.After ( time , function()
---             if CalendarCreateEventFrame:IsVisible() then
---                 GRM_UI.CalendarEventCreateRefresh();
---             elseif CalendarViewEventFrame:IsVisible() then
---                 GRM_UI.CalendarEventOpenRefresh();
---             end
---         end);
---     end
-
---     -- Method:          GRM_UI.CalendarEventOpenRefresh()
---     -- What it Does:    Calls to the event update for the calendar invite scrollframe
---     -- Purpose:         Keep code bloat down... multiple use.
---     GRM_UI.CalendarEventOpenRefresh = function()
---         GRM_UI.UpdateCalendarInviteNames ( CalendarViewEventInviteList.ScrollBox );
---         GRM_UI.InitializeCalendarButtons ( CalendarViewEventInviteList.ScrollBox );
---     end
-
---     -- Method:          GRM_UI.CalendarEventCreateRefresh()
---     -- What it Does:    Calls to the event update for the calendar invite scrollframe
---     -- Purpose:         Keep code bloat down... multiple use.
---     GRM_UI.CalendarEventCreateRefresh = function( _ , event )
---         print("Refreshing: " .. tostring ( event ) )
---         GRM_UI.UpdateCalendarInviteNames ( CalendarCreateEventInviteList.ScrollBox );
---         GRM_UI.InitializeCalendarButtons ( CalendarCreateEventInviteList.ScrollBox );
---     end
-
---     -- Method:          GRM_UI.InitializeCalendarButtons( frame )
---     -- What it Does:    Initializes the tooltip logic for the calendar invite list on mouseover
---     -- Purpose:         So that tooltips are available on the calendar frames!
---     GRM_UI.InitializeCalendarButtons = function( calendarFrame )
---         local buttons = { CalendarCreateEventInviteList.ScrollBox.ScrollTarget:GetChildren() };
---         for i = 1 , #buttons do
---             local button = buttons[i];
-
---             button:SetScript ( "OnEnter" , function( self )
---                 local inviteIndex = i + GRM_G.currentCalendarOffset;
---                 local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
-
---                 if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
---                     local name = GRM.AppendServerName ( inviteInfo.name );
---                     GRM_G.CurrentCalendarName = name;
-
---                     local classHexCode = GRM.GetClassColorRGB ( inviteInfo.classFilename , true );
---                     GRM_G.CurrentCalendarHexCode = classHexCode;
---                     name = classHexCode .. GRM.GetNameWithMainTags ( name , false , true , true , false ) .. "|r";
-
---                     GRM_UI.SetTooltipScale();
---                     GameTooltip:SetOwner ( self  , "ANCHOR_CURSOR" );
---                     GameTooltip:AddLine ( name );
-
---                     if GRM_G.IsAltGrouping then
---                         GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to view more alt details." ) );
---                     end
-
---                     GameTooltip:AddLine( GRM.L ( "{custom1} for Additional Options" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Right-Click" ) .. "|r" ) );
---                     -- For calendar timing
---                     local responseTime = C_Calendar.EventGetInviteResponseTime ( button.inviteIndex );
-
---                     if ( responseTime and responseTime.weekday ~= 0 ) then
---                         GameTooltip:AddLine ( CALENDAR_TOOLTIP_INVITE_RESPONDED );
---                         -- date
---                         GameTooltip:AddLine(
---                             format ( FULLDATE, GRM.GetFullDate ( responseTime.weekday, responseTime.month, responseTime.monthDay, responseTime.year ) ),
---                             HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b
---                         );
---                         -- time
---                         GameTooltip:AddLine(
---                             GameTime_GetFormattedTime ( responseTime.hour , responseTime.minute , true),
---                             HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b
---                         );
---                     end
-
---                     GameTooltip:Show();
---                 end
-
---             end);
-
---             button:SetScript ( "OnLeave" , function()
---                 GRM_G.IsAltGrouping = false;
---                 GRM.RestoreTooltip();
---             end);
-
---             -- Hold the action button script holders...
---             button:SetScript ( "OnMouseDown" , function( _ , button )
---                 if button == "LeftButton" then
---                     if GRM_G.IsAltGrouping then
-
---                         if GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:IsVisible() then
---                             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide()
---                             return;
---                         end
-
---                         if not GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:IsVisible() then
---                             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Show();
---                         else
---                             GRM_UI.GRM_MemberDetailMetaData:Hide();
---                             GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame.timer2 = 0;
---                             GRM.BuildAltGroupingScrollFrame( GRM_G.CurrentCalendarName );
---                             GRM.RestoreTooltip();
---                         end
-
---                     else
---                         GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:Hide();
---                     end
---                 end
---             end);
---         end
---     end
-
---     -- Method:          GRM_UI.UpdateCalendarInviteNames ( frame )
---     -- What it Does:    Updates the frames and replaces the names of each player with the proper main tags
---     -- Purpose:         To add new functionality to the Calendar frames
---     GRM_UI.UpdateCalendarInviteNames = function( calendarFrame )
---         if C_Calendar.AreNamesReady() then
---             local offset = HybridScrollFrame_GetOffset ( calendarFrame );
---             if offset ~= GRM_G.currentCalendarOffset then
---                 GRM_G.currentCalendarOffset = offset;                               -- Set the new offset
---                 -- local buttons = { CalendarCreateEventInviteList.ScrollBox.ScrollTarget:GetChildren() };
---                 -- -- Parse all the buttons
---                 -- for i = 1 , #buttons do
---                 --     local button = buttons[i];
---                 --     local buttonName = button:GetName();
---                 --     print("buttonName: " .. buttonName)
---                 --     local inviteIndex = i + offset;
---                 --     local inviteInfo = C_Calendar.EventGetInvite ( inviteIndex );
-
---                 --     if ( inviteInfo ~= nil and inviteInfo.name ) then               -- Verify the buttons.
---                 --         local name = GRM.AppendServerName ( inviteInfo.name );
---                 --         local classColor = ( inviteInfo.classFilename and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS) [ inviteInfo.classFilename ] ) or NORMAL_FONT_COLOR;
---                 --         local buttonFontString = _G [ buttonName .. "Name" ];
---                 --         buttonFontString:SetText ( GRM.GetNameWithMainTags ( name , true , false , true , false ) );
---                 --         buttonFontString:SetTextColor(classColor.r, classColor.g, classColor.b);
---                 --     end
---                 -- end
---             end
---         else
---             -- Retry in 0.5 seconds
---             C_Timer.After ( 0.5 , function()
---                 GRM_UI.UpdateCalendarInviteNames ( calendarFrame );
---             end);
---             return;
---         end
---     end
-
--- end
-
 GRM_UI.ConfigureClassicRankShiftButtons = function()
     GuildControlPopupFrame.GRM_ShiftUpButtonUp = CreateFrame ( "Button" , "GRM_ShiftUpButtonUp" , GuildControlPopupFrame , "UIPanelScrollUpButtonTemplate" );
     GuildControlPopupFrame.GRM_ShiftUpButtonUp.GRM_ShiftUpButtonUpText = GuildControlPopupFrame.GRM_ShiftUpButtonUp:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
@@ -18548,12 +18352,10 @@ GRM_UI.CommunitesFrame_OnShow = function()
     GRM_G.pause = false;
     GRM_G.clubID = CommunitiesFrame:GetSelectedClubId();            -- Establish the clubID immediately...
 
-    if GRM_G.BuildVersion >= 10000 then
-        if not GRM_G.CommunityInitialized then
-            GRM.InitializeRosterButtons();
-            GRM_UI.MainRoster_OnShow ( false );
-            GRM_G.CommunityInitialized = true;
-        end
+    if not GRM_G.CommunityInitialized then
+        GRM.InitializeCommunitiesButtons();
+        GRM_UI.MainRoster_OnShow ( false );
+        GRM_G.CommunityInitialized = true;
     end
 end
 

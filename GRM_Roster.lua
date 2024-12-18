@@ -626,7 +626,7 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
                     end
 
                     if not player.isOnline then
-                        tempPlayer.hoursReport = GRM.HoursReport ( player.lastOnlineTime );
+                        tempPlayer.hoursReport = GRM.Time.HoursReport ( player.lastOnlineTime );
                     else
                         tempPlayer.hoursReport = GRM.L ( "Online" );
                         tempPlayer.lastOnline = 0;
