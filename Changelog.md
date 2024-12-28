@@ -1,4 +1,18 @@
 
+## **VERSION 1.99163 RELEASE - December 28th, 2024**
+
+***BUG FIXES***
+
+* Fixed a bug that could prevent some people from patching the game properly in the recent update.
+
+* Export log should now properly export ALL the mains or alts you are requestig, not just a small portion of them. In addition, the export should now properly indicate their main/alt status at time of leaving the guild... If at the time they left the guild not as a main themselves, or part of a group as main, they are not really considered an alt as status is unknown, so will be blank on the main/alt designation.
+
+* Fixed an bug that was throwing a Lua error when adding an alt in some circumstances, notably to an alt group that didn't have the bday set. The alt still got linked appropriately, but the Lua error should now no longer occur.
+
+***QUALITY OF LIFE***
+
+* Slowly reworking the backend. You may notice additional files being added. This is just an attempt to compartmentalize some of the code better and partition off the entire addon to be more on-demand load. The ultimate goal is I want to break the addon into pieces so I can easily enable things like "GRM for Officers" or non-officers and so on, thus it is a bit lighter weight of features not necessary to certain players, but able to be enabled if they prefer. This will be a slow process, but each update I do a little more so as not to get burnt out lol.
+
 ## **VERSION 1.99162 RELEASE - December 18th, 2024**
 
 *QUICK Bug Fix from previous update in the macro tool*

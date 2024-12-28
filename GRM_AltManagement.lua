@@ -209,6 +209,15 @@ GRM.IsFormerMemberMain = function ( player )
     return false;
 end
 
+-- Method:          GRM.IsFormerMemberAnAlt( playerTable )
+-- What it Does:    Returns true if the player was an alt previously.
+-- Purpose:         Useful in exporting data to know if they were alt/main previously in guild
+GRM.IsFormerMemberAnAlt = function ( player )
+    if #player.mainAtTimeOfLeaving > 0 and player.mainAtTimeOfLeaving[1] ~= player.name then
+        return true;
+    end
+    return false;
+end
 
 ----------------------------------
 --- END MAIN DESIGNATION LOGIC ---
@@ -1812,10 +1821,15 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt , timestamp )
 
             needToRemoveFromQue = false;
 
-            if tempAlt.events[2][1][1] ~= player.events[2][1][1] or tempAlt.events[2][1][2] ~= player.events[2][1][2] then
+            if tempAlt.events[2][1][1] ~= player.events[2][1][1] then
                 needToRemoveFromQue = true;
-                tempAlt.events[2][1] = player.events[2][1];
+                tempAlt.events[2][1][1] = player.events[2][1][1];
             end
+            if tempAlt.events[2][1][2] ~= player.events[2][1][2] then
+                needToRemoveFromQue = true;
+                tempAlt.events[2][1][2] = player.events[2][1][2];
+            end
+
             if tempAlt.events[2][2] ~= player.events[2][2] then
                 needToRemoveFromQue = true;
                 tempAlt.events[2][2] = player.events[2][2];
@@ -1831,16 +1845,17 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt , timestamp )
                 end
                 GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
             end
-
             -- Update frames if looking at them on the spot...
-            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and name == GRM_G.currentName and GRM.S().showBDay and tempAlt.events[2][1] ~= 0 then
+
+            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and tempAlt.name == GRM_G.currentName and GRM.S().showBDay and tempAlt.events[2][1][1] ~= 0 then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
+                print("Name: " .. tempAlt.name)
                 GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.Time.FormatTimeStamp ( { tempAlt.events[2][1][1] , tempAlt.events[2][1][2] } , false , true ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
             end
-
-            GRM_UI.RefreshSelectFrames ( false , true , false , true , true , true );
         end
+
+        GRM_UI.RefreshSelectFrames ( false , true , false , true , true , true );
     end
 end
 

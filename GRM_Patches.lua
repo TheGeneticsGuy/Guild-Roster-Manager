@@ -9361,9 +9361,15 @@ end
 -- What it Does:    Removes the useless year index since year doesn't matter with bdays, and the string timestamp
 -- Purpose:         There is no need for the year in the DB, and ther eis no need for the pre-made unformatted string timestamp
 GRM_Patch.UpdateBdaySaveFormat = function( player )
-    if #player.events[2][1] == 3 then
-        table.remove ( player.events[2][1] , 3 );
-        table.remove( player.events[2] , 3 );
+    if player.events then
+        if #player.events[2][1] == 3 then
+            table.remove ( player.events[2][1] , 3 );
+            if #player.events[2] == 4 then
+                table.remove( player.events[2] , 3 );
+            end
+        end
+    else
+        player.events = { { {0,0,0} , false ,"" } , { {0,0} , false , 0 } };
     end
     return player;
 end

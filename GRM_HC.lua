@@ -1,13 +1,13 @@
 
 -- Classic HARDCORE Mode feature set for GRM
-
 -- Live collection of when someone has died
 
-local GRM_HC = {};
+local HC = {};
+GRM.HC = HC;
 
-GRM_HC.deathEvent = CreateFrame ( "Frame" );
+HC.deathEvent = CreateFrame ( "Frame" );
 
-GRM_HC.HardCoreInitialize = function()
+HC.HardCoreInitialize = function()
 
     local region = {
         ["enUS"] = "HardcoreDeaths",
@@ -27,16 +27,16 @@ GRM_HC.HardCoreInitialize = function()
     if GRM.IsHardcoreActive() then
         GRM_G.HardcoreActive = true;
 
-        GRM_HC.deathEvent:RegisterEvent ( "CHAT_MSG_CHANNEL" );
-        GRM_HC.deathEvent:SetScript ( "OnEvent" , function ( _ , _ , text , playerName , _ , _ ,  _ , _ , _ , _ , channel )
+        HC.deathEvent:RegisterEvent ( "CHAT_MSG_CHANNEL" );
+        HC.deathEvent:SetScript ( "OnEvent" , function ( _ , _ , text , playerName , _ , _ ,  _ , _ , _ , _ , channel )
 
             if GRM_G.HardCoreDeaths == channel then
-                local name = GRM_HC.ParseOutPlayerName ( text );
+                local name = HC.ParseOutPlayerName ( text );
 
                 if name then
                     local player = GRM.GetPlayer ( name , true );
                     if player then
-                        GRM_HC.LogDeath ( player.name );
+                        HC.LogDeath ( player.name );
                     end
                 end
             end
@@ -46,14 +46,14 @@ GRM_HC.HardCoreInitialize = function()
         -- Method:          GRM.GetParsedJoinPlayerName ( string )
         -- What it Does:    Parses out the player name from the death report all 11 clients
         -- Purpose:         To live determine the name of the player that died
-        GRM_HC.ParseOutPlayerName = function ( text )
+        HC.ParseOutPlayerName = function ( text )
             return text:match ( "%[([^%]]+)%]" );
         end
 
-        -- Method:          GRM_HC.LogDeath ( string )
+        -- Method:          HC.LogDeath ( string )
         -- What it Does:    Logs the death of the player
         -- Purpose:         Ensure accurate time reporting of a player's death.
-        GRM_HC.LogDeath = function ( name )
+        HC.LogDeath = function ( name )
 
             if not name:find ( "-" , 1 , true ) then
                 name = name .. "-" .. GRM_G.realmName;
@@ -68,33 +68,33 @@ GRM_HC.HardCoreInitialize = function()
                 player.HC.timeOfDeath = { dateArray[1] , dateArray[2] , dateArray[3] , dateArray[4] , dateArray[5] , true };
 
                 if GRM.S().addDeathTag and GRM.CanEditPublicNote() then
-                    GRM_HC.ExportDeathTag ( player , dateArray );
+                    HC.ExportDeathTag ( player , dateArray );
 
                 end
 
-                GRM_HC.ReportDeathToLog( player.name , player.class , player.level , dateArray );
+                HC.ReportDeathToLog( player.name , player.class , player.level , dateArray );
 
             end
 
         end
 
-        -- Method:              GRM_HC.SetPlayerAsDeadByGUID ( string , int , int , string )
+        -- Method:              HC.SetPlayerAsDeadByGUID ( string , int , int , string )
         -- What it Does:        Finds a player in the roster by GUID, then updates their note and sets them to being dead.
         -- Purpose:             Handling the situation of double copies of players still in the guild because of name copies
         GRM.SetPlayerAsDeadByGUID = function ( guid , lastOnline , i , note )
             if GRM.CanEditPublicNote() and not string.find ( note , "[D]" ) then
                 local  playerGUID = select ( 17 , GetGuildRosterInfo(i) );
                 if playerGUID == guid then
-                    local deathNote = "[D]-" .. GRM_HC.ConvertLastOnlineHoursToTimestamp ( lastOnline );
+                    local deathNote = "[D]-" .. HC.ConvertLastOnlineHoursToTimestamp ( lastOnline );
                     GuildRosterSetPublicNote ( i, deathNote );
                 end
             end
         end
 
-        -- Method:          GRM_HC.ConvertLastOnlineHoursToTimestamp ( int )
+        -- Method:          HC.ConvertLastOnlineHoursToTimestamp ( int )
         -- What it Does:    It converts the last online hours into an actual standard date formatted timestamp.
         -- Purpose:         Useful for tagging dead players in HC mode when it is determined the toon is dead/deleted.
-        GRM_HC.ConvertLastOnlineHoursToTimestamp = function ( lastOnlineHours )
+        HC.ConvertLastOnlineHoursToTimestamp = function ( lastOnlineHours )
             -- First, convert hours into seconds.
             local seconds = lastOnlineHours * 3600;
             -- Second, let's take current epoch time, and subtract how many seconds ago. This will give us epoch stamp, within an hour, of last login, assuming they don't login a dead toon.
@@ -104,10 +104,10 @@ GRM_HC.HardCoreInitialize = function()
             return GRM.Time.ConvertToStandardFormatDate ( timestamp[1] , timestamp[2] , timestamp[3] );
         end
 
-        -- Method:          GRM_HC.ExportDeathTag ( string , table )
+        -- Method:          HC.ExportDeathTag ( string , table )
         -- What it Does:    Exports the death tag to the player note
         -- Purpose:         Report on when a player dies... Useful since there is not UI Interface
-        GRM_HC.ExportDeathTag = function ( player , dateArray )
+        HC.ExportDeathTag = function ( player , dateArray )
             local i = GRM.GetRosterSelectionID ( player.name , player.GUID );
             if i then
 
@@ -188,10 +188,10 @@ GRM_HC.HardCoreInitialize = function()
             end
         end
 
-        -- Method:          GRM_HC.ReportDeathToLog ( string , string , int , table )
+        -- Method:          HC.ReportDeathToLog ( string , string , int , table )
         -- What it Does:    Adds to the log when a player days
         -- Purpose:         Death reporting feature.
-        GRM_HC.ReportDeathToLog = function ( name , class , level , dateArray )
+        HC.ReportDeathToLog = function ( name , class , level , dateArray )
 
             local logReportWithTime = GRM.GetDeathString ( name , class , level , dateArray );
 
@@ -208,10 +208,10 @@ GRM_HC.HardCoreInitialize = function()
 
         end
 
-        -- Method:          GRM_HC.GatherAllDeaths ( [ int , int ] )
+        -- Method:          HC.GatherAllDeaths ( [ int , int ] )
         -- What it Does:    Returns table of every player death
         -- Purpose:         For player reporting and tracking.
-        GRM_HC.GatherAllDeaths = function( levelRange )
+        HC.GatherAllDeaths = function( levelRange )
             local result = {};
             local guild = GRM.GetGuild();
             local formerGuild = GRM.GetFormerMembers();
@@ -251,40 +251,12 @@ GRM_HC.HardCoreInitialize = function()
             return result;
         end
 
-        -- Method:          GRM_UI.GetHardcoreDeaths( bool )
-        -- What it Does:    Reports back the integer count number of deaths
-        -- Purpose:         Useful for counting the number dead
-        -- NOTE             Set on global GRM_UI table for access from the UI
-        GRM_UI.GetHardcoreDeaths = function( useLevelFilter )
-
-            if not useLevelFilter then
-                return GRM_HC.GatherAllDeaths();
-            else
-                local lower = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox1:GetText();
-                local upper = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLevelRangeEditBox2:GetText();
-                if lower ~= "" then
-                    lower = tonumber ( lower );
-                else
-                    lower = 1;
-                end
-                if upper ~= "" then
-                    upper = tonumber ( upper );
-                else
-                    upper = GRM_G.LvlCap;
-                end
-
-                local deaths = GRM_HC.GatherAllDeaths ( { lower , upper } );
-
-                return #deaths , deaths;
-            end
-        end
-
         -- Method:          GRM_UI.GetAllDeathsSorted()
         -- What it Does:    Collects all of the hardcore deaths and then sorts them
         -- Purpose:         For export reasons...
-        GRM_HC.GetAllDeathsSorted = function()
+        HC.GetAllDeathsSorted = function()
 
-            local _ , deaths = GRM_UI.GetHardcoreDeaths ( true );
+            local _ , deaths = GRM.Export.GetHardcoreDeaths ( true );
 
             if GRM.S().exportHardcoreSort == 1 then
                 sort ( deaths , function ( a , b ) return a.name < b.name end );
@@ -297,84 +269,6 @@ GRM_HC.HardCoreInitialize = function()
             end
 
             return deaths;
-        end
-
-        -- Method:          GRM_UI.BuildExportDeaths()
-        -- What it Does:    Builds the list of names to be exported to the Export Log window
-        -- Purpose:         Export the hardcore mode death lists...
-        GRM_UI.BuildExportDeaths = function()
-            local scrollWidth = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollFrame:GetWidth() - 3;
-            local completeString = "";
-            local delimiter = "";
-            local playerDetails = "";
-            local name = "";
-
-            if GRM.S().exportDelimiter[1] then
-                delimiter = GRM.S().exportDelimiter[2];
-            end
-
-            -- Build the arrays to use.
-            local deaths = GRM_HC.GetAllDeathsSorted();
-
-            local num1 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox1:GetText() );
-            local num2 = tonumber ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportRangeEditBox2:GetText() );
-
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( "" );
-            GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetSize ( scrollWidth , 12 );   -- Default Size at one line
-
-            for i = num1 , num2 do
-                playerDetails = "";
-
-                if num1 <= #deaths then
-
-                    -- Build the string
-                    -- Name:
-                    name = deaths[i].name;
-                    if GRM.S().specialCharRemoval then
-                        name = GRM.RemoveSpecialCharacters ( name );
-                    end
-
-                    playerDetails = playerDetails .. name .. delimiter;
-
-                    -- Level:
-                    playerDetails = playerDetails .. deaths[i].level .. delimiter;
-
-                    -- Level:
-                    playerDetails = playerDetails .. deaths[i].class .. delimiter;
-
-                    -- TimeOfDeath =
-                    playerDetails = playerDetails .. deaths[i].date .. delimiter;
-
-
-                    if #playerDetails > 0 then
-                        local modifier = 1;
-
-                        if delimiter == "||" or delimiter == "\\t" or delimiter == "::" then
-                            modifier = 2;
-                        end
-                        playerDetails = string.sub ( playerDetails , 1 , #playerDetails - modifier );  -- eliminate the last delimiter
-                        if i < num2 then
-                            completeString = completeString .. playerDetails .. "\n";
-                        else
-                            completeString = completeString .. playerDetails;               -- Don't need to add the line break at the end.
-                        end
-                    end
-
-                else
-                    break;
-                end
-            end
-
-            if completeString ~= "" then
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:HighlightText ( 0 );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:Show();
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogFrameEditBox:SetText ( completeString );
-                GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();
-
-                C_Timer.After ( 2 , function()
-                    GRM.ExportScrollSliderConfigure( scrollWidth );
-                end);
-            end
         end
 
         -- Method:          GRM_UI.VerifyIfHCChannelsEnabled()
@@ -421,5 +315,5 @@ GRM_HC.HardCoreInitialize = function()
     end
 end
 
-GRM_HC.HardCoreInitialize();
+HC.HardCoreInitialize();
 

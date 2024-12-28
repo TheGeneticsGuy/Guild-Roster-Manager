@@ -1765,7 +1765,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
 
                     if finalString ~= "" then
-                        GRM.BuildExportAnyText ( finalString )
+                        GRM.Export.BuildExportAnyText ( finalString )
                     end
                 end
 

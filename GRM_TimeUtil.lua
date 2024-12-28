@@ -1027,6 +1027,14 @@ Time.FormatTimeStamp = function(timestamp, includeHour, removeYear, forcedForm)
         monthNum = tostring(timestamp[2]);
         if timestamp[3] then
             year = timestamp[3];
+
+            if year > 2000 then
+                year = year - 2000;
+            end
+            if not removeYear and year < 10 then
+                year = "0" .. tostring(year);
+            end
+
         else
             removeYear = true;
         end
@@ -1035,12 +1043,6 @@ Time.FormatTimeStamp = function(timestamp, includeHour, removeYear, forcedForm)
             day = "0" .. tostring(day);
         end
 
-        if year > 2000 then
-            year = year - 2000;
-        end
-        if not removeYear and year < 10 then
-            year = "0" .. tostring(year);
-        end
         month = tostring(Time.Enums.ind_to_month_abbrev[tonumber(monthNum)]);
 
         if #monthNum == 1 then

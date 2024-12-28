@@ -1,4 +1,5 @@
-
+local LOC = {};
+GRM.LOC = LOC;
 
 -- LOCALIZATION ENUMS AND LOGIC
 
@@ -154,6 +155,11 @@ GRML.SetNewLanguage = function ( index , firstLoad , resetAllDefaults )
         GRM_UI.ReloadAllFrames ( true , resetAllDefaults );
     end
 
+    -- This will eventually replace all the
+    if not firstLoad then
+        LOC.ReprocessStrings();
+    end
+
     -- Allow implementation of custom slash command.
     GRM.ConfigureAlternativeSlashCommands();
 end
@@ -197,6 +203,9 @@ GRML.SetNewFont = function( index )
     GRM_G.FontChoice = GRML.listOfFonts[index];
     GRML.SetFontModifier();
     GRM_UI.ReloadAllFrames( true , false );
+
+    -- This will eventually replace all the
+    LOC.ReprocessStrings();
 end
 
 -- Method:          GRML.GetFontChoice() -- Not necessary for the most part as I can use "STANDARD_TEXT_FONT" - but, just in case...
@@ -246,6 +255,13 @@ GRML.GetNumberUntranslatedLines = function ( languageIndex )
         end
     end
     return result;
+end
+
+-- Method:          LOC.ReprocessStrings()
+-- What it Does:    Reprocesses On Demand loaded strings
+-- Purpose:         Assist in localization on the fly. Houses all string reprocess functions.
+LOC.ReprocessStrings = function()
+    GRM.Export.BuildExportStrings();
 end
 
 ----------------------------------------------
