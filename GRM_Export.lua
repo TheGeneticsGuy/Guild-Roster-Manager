@@ -788,7 +788,7 @@ Export.SetExportTabHighlights = function()
             Export.ExportHardcoreOptions( false );
         end
 
-        GRM_G.CounterCap = GRM_G.CurrentTotalCount;
+        GRM_G.CounterCap = #GRM.GetLog();
 
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_LogExportFiltersFrame.GRM_ExportLogObeysFiltersText , "BOTTOMLEFT" , 8 , -25 );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportTotalSizeText:SetText ( GRM.L ( "Total Entries: {num}" , nil , nil , GRM_G.CounterCap ) );

@@ -1,9 +1,20 @@
 
+## **VERSION 1.99164 RELEASE - December 29th, 2024**
+
+***BUG FIXES***
+
+* Fixed an issue where when you first open the export window the log count wasn't showing unless you had first opened the log.
+
+* Fixed an issue where guild Restore points were not working and the page wasn't loading.
+
+* There was an issue with even though a date a player joined was being properly recorded, it was failing to auto-verify, so you had to right-click to verify the date. This ia recent logic typo from a build in the last month so hopefully won't be too many names affected. This should now properly auto-verify players.
+
+
 ## **VERSION 1.99163 RELEASE - December 28th, 2024**
 
 ***BUG FIXES***
 
-* Fixed a bug that could prevent some people from patching the game properly in the recent update.
+* Fixed a bug that could prevent some people from patching GRM properly in the recent update.
 
 * Export log should now properly export ALL the mains or alts you are requestig, not just a small portion of them. In addition, the export should now properly indicate their main/alt status at time of leaving the guild... If at the time they left the guild not as a main themselves, or part of a group as main, they are not really considered an alt as status is unknown, so will be blank on the main/alt designation.
 

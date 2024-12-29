@@ -12,10 +12,10 @@ GRML = {};
 SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
--- Addon Details:
-GRM_G.Version = "R1.99163";
-GRM_G.PatchDayString = "1735377436";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1735377436;            -- In Epoch Time
+-- Addon Details:qw
+GRM_G.Version = "R1.99164";
+GRM_G.PatchDayString = "1735454974";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1735454974;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110007;
@@ -1816,7 +1816,7 @@ GRM.ResetDefaultSettings = function(pageIndex)
             GRM.BuildLogComplete(true, false);
         end
 
-        if (resetAll or page == 9) and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
+        if (resetAll or page == 9) and GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
             GRM.Export.SetExportTabHighlights();
         end
 
@@ -2620,7 +2620,8 @@ GRM.AddGuildBackup = function(guildName, creationDate)
     if creationDate ~= GRM.L("Unknown") then
 
         if GRM_GuildMemberHistory_Save[guildName] then
-            GRM_GuildDataBackup_Save[guildName].date = GRM.Time.FormatTimeStamp();
+            local dates = GRM.Time.GetTimestamp()
+            GRM_GuildDataBackup_Save[guildName].date = { dates[1] , dates[2] , dates[3] };
             GRM_GuildDataBackup_Save[guildName].epochDate = time();
             GRM_GuildDataBackup_Save[guildName].numGuildies = GRM.GetNumGuildiesInGuild(
                 GRM_GuildMemberHistory_Save[guildName]);
@@ -2742,11 +2743,11 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
 
         GRM.RefreshAllMacroToolFrames();
 
-        if GRM_UI.GRM_AuditJDTool:IsVisible() then
+        if GRM_UI.GRM_AuditJDTool and GRM_UI.GRM_AuditJDTool:IsVisible() then
             GRM.AuditRefresh(true);
         end
 
-        if GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
+        if GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
             GRM.Export.SetExportTabHighlights();
         end
 
@@ -12120,6 +12121,7 @@ GRM.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDet
                     end
                 end
                 -- Make sure the namechange is adjusted in the database or you will get a double report
+                print("JOIN2: " .. member.name)
                 GRM.AddMemberRecord(member, true, GRM.DeepCopyArray(player), liveJoinDetected, logEntryMetaData);
 
                 if liveJoinDetected and GRM.AddRejoinToAltGroup(GRM.GetPlayer(member.name), player.isTransfer) then
@@ -12332,6 +12334,12 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
         -- adding join date to history and rank date.
         if player then
 
+            local epochTimeStamp = 0;
+
+            if added then
+                epochTimeStamp = time();
+            end
+
             -- Add the tempTimeStamp to officer note... this avoids report spam
             -- Promo Date stamp
             if added then
@@ -12343,11 +12351,11 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                     player.joinDateHist[1][2] = date_table[2];
                     player.joinDateHist[1][3] = date_table[3];
                     player.joinDateHist[1][4] = timeStandard;
-                    player.joinDateHist[1][5] = 0;
-                    player.joinDateHist[1][6] = false;
+                    player.joinDateHist[1][5] = epochTimeStamp;
+                    player.joinDateHist[1][6] = added;
                     player.joinDateHist[1][7] = 1;
                 else
-                    table.insert(player.joinDateHist, 1, {date_table[1], date_table[2], date_table[3], timeStandard, 0, false, 1});
+                    table.insert(player.joinDateHist, 1, {date_table[1], date_table[2], date_table[3], timeStandard, epochTimeStamp, added, 1});
                 end
 
                 player.events[1][1][1] = date_table[1];
@@ -12367,8 +12375,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                     player.joinDateHist[1][7] = 1;
                 else
                     table.insert(player.joinDateHist, 1, {date_table[1], date_table[2], date_table[3],
-                    timeStandard, 0,
-                                                          false, 1});
+                    timeStandard, 0, false, 1});
                 end
                 player.events[1][1][1] = date_table[1];
                 player.events[1][1][2] = date_table[2];
@@ -12382,13 +12389,12 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                 player.rankHist[1][3] = date_table[2];
                 player.rankHist[1][4] = date_table[3];
                 player.rankHist[1][5] = timeStandard;
-                player.rankHist[1][6] = time();
+                player.rankHist[1][6] = epochTimeStamp;
                 player.rankHist[1][7] = added
                 player.rankHist[1][8] = 1;
             else
-                table.insert(player.rankHist, 1,
-                    {GuildControlGetRankName(GuildControlGetNumRanks()), date_table[1], date_table[2], date_table[3],
-                     timeStandard, time(), true, 1});
+                table.insert(player.rankHist, 1, {GuildControlGetRankName(GuildControlGetNumRanks()), date_table[1], date_table[2], date_table[3],
+                     timeStandard, epochTimeStamp, added, 1});
             end
 
             if not liveJoinDetected and added then
@@ -12436,10 +12442,13 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                 end
             end
 
+            if epochTimeStamp == 0 then
+                epochTimeStamp = time();
+            end
+
             -- Promotion Info
             if member.rankIndex < (GuildControlGetNumRanks() - 1) then
                 -- Promotion Obtained since joining!
-                local epochTime = time();
                 local nameOfBaseRank = GuildControlGetRankName(GuildControlGetNumRanks());
                 local added, logEntryMetaData = GRM.GetGuildEventString( 2, member.name, nameOfBaseRank, member.rankName,
                     liveJoinDetected);
@@ -12458,7 +12467,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                     player.rankHist[1][3] = date_table[2];
                     player.rankHist[1][4] = date_table[3];
                     player.rankHist[1][5] = timeStandard;
-                    player.rankHist[1][6] = epochTime;
+                    player.rankHist[1][6] = epochTimeStamp;
                     player.rankHist[1][7] = added;
                     player.rankHist[1][8] = 1;
 
@@ -12470,7 +12479,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
 
                     table.insert(player.rankHist, 1,
                         {player.rankName, date_table[1], date_table[2], date_table[3],
-                        timeStandard, epochTime, added, 1});
+                        timeStandard, epochTimeStamp, added, 1});
                 end
 
                 player.rankName = member.rankName; -- Saving new rank Info
@@ -25958,18 +25967,22 @@ end
 -- Purpose:         Give player access to feature@
 GRM.SlashCommandExport = function()
     if IsInGuild() then
-        if not GRM_UI.GRM_ExportLogBorderFrame then
-            GRM.Export.LoadExportUI( false );
-            GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
-            GRM.Export.SetExportTabHighlights();
-            GRM_UI.GRM_ExportLogBorderFrame:Show();
-        else
-            if not GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
+        if GRM_G.guildName ~= "" then
+            if not GRM_UI.GRM_ExportLogBorderFrame then
+                GRM.Export.LoadExportUI( false );
                 GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
+                GRM.Export.SetExportTabHighlights();
                 GRM_UI.GRM_ExportLogBorderFrame:Show();
             else
-                GRM_UI.GRM_ExportLogBorderFrame:Hide();
+                if not GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
+                    GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
+                    GRM_UI.GRM_ExportLogBorderFrame:Show();
+                else
+                    GRM_UI.GRM_ExportLogBorderFrame:Hide();
+                end
             end
+        else
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("One moment, GRM is still being configured."));
         end
     else
         GRM.Report(GRM.L("{name} is not currently in a guild. Unable to Proceed!", GRM.SlimName(GRM_G.addonUser)));

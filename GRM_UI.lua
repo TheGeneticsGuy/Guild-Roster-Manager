@@ -16461,7 +16461,9 @@ GRM_UI.ResetScalingForAll = function ()
     local frames = { "GRM_RosterChangeLogFrame" , "GRM_MemberDetailMetaData" , "GRM_ToolCoreFrame" , "GRM_ExportLogBorderFrame" , "GRM_AuditJDTool" };
 
     for i = 1 , #frames do
-        GRM_UI[frames[i]]:SetSize ( GRM_UI.GetDefaultFrameSize ( frames[i] ) );
+        if GRM_UI[frames[i]] then
+            GRM_UI[frames[i]]:SetSize ( GRM_UI.GetDefaultFrameSize ( frames[i] ) );
+        end
     end
 end
 

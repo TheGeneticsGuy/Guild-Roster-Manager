@@ -1677,6 +1677,15 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 137
+    if numericV < 1.99164 and baseValue < 1.99164 then
+        GRM_Patch.ConvertBackupDate();
+        GRM_AddonSettings_Save.VERSION = "R1.99164";
+        if loopCheck ( 1.99164 ) then
+            return;
+        end
+    end
+
 
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
@@ -9345,8 +9354,8 @@ end
 -- Purpose:         Timestamp format is being updated
 GRM_Patch.ConvertBackupDate = function()
     for guildName in pairs ( GRM_GuildDataBackup_Save ) do
-            if type ( GRM_GuildDataBackup_Save[guildName].date ) ~= table then
-            if GRM_GuildDataBackup_Save[guildName].date == "" or GRM_GuildDataBackup_Save[guildName].epochDate == 0 then
+        if type ( GRM_GuildDataBackup_Save[guildName].date ) ~= "table" then
+            if #GRM_GuildDataBackup_Save[guildName].date < 10 or GRM_GuildDataBackup_Save[guildName].epochDate == 0 then
                 GRM_GuildDataBackup_Save[guildName].date = { 0 , 0 , 0 };
                 GRM_GuildDataBackup_Save[guildName].epochDate = 0;
             else
