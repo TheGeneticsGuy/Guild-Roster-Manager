@@ -7,7 +7,7 @@
 
 * Fixed an issue where guild Restore points were not working and the page wasn't loading.
 
-* There was an issue with even though a date a player joined was being properly recorded, it was failing to auto-verify, so you had to right-click to verify the date. This ia recent logic typo from a build in the last month so hopefully won't be too many names affected. This should now properly auto-verify players.
+* There was an issue with even though a date a player joined was being properly recorded, it was failing to auto-verify, so you had to right-click to verify the date. This is a recent logic typo from a build in the last month so hopefully won't be too many names affected. This should now properly auto-verify players.
 
 
 ## **VERSION 1.99163 RELEASE - December 28th, 2024**
