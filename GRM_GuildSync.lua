@@ -1442,10 +1442,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
             player.joinDateHist[1][6] = true;
             player.joinDateHist[1][7] = 1;
 
-            -- Gotta update the event tracker date too!
-            player.events[1][1][1] = day;
-            player.events[1][1][2] = month;
-            player.events[1][2] = false;  -- Gotta Reset the "reported already" boolean!
+            player.anniversaryAnnounced = false;  -- Gotta Reset the "reported already" boolean!
             GRM.RemoveFromCalendarQue ( player.name , 1 , nil );
 
             -- In case of Unknown
@@ -1795,7 +1792,6 @@ GRMsync.ProcessFullAltGroupChange = function ( leadName , finalAltGroup )
     local groupID = "";
 
     currentAltGroup = GRM.GetAltGroup ( guildData[leadName].altGroup );
-
     -- VERIFICATION CHECK TO PREVENT ERRORS
     if currentAltGroup then
         if not GRM.IsPlayerInAltGroup( guildData[leadName].altGroup , leadName ) then
@@ -2794,11 +2790,13 @@ GRMsync.GetCustomPseudoHash = function( dataRequested )
 
     -- Bday data
     if ( not specificData or specificData == 5 ) and GRMsync.IsCompatibleToShareData( true ) then
+        local birthdayInfo = {};
         for i = 1 , #guildData do
             player = guildData[i];
 
-            if player.events[2][3] > 0 then
-                bday1 = bday1 + player.events[2][1][1] + player.events[2][1][2] + GRMsync.ConvertStringToVal ( player.name );
+            birthdayInfo = GRM.GetBirthday(player);
+            if birthdayInfo.timeUpdated > 0 then
+                bday1 = bday1 + birthdayInfo.date[1] + birthdayInfo.date[2] + GRMsync.ConvertStringToVal ( player.name );
             end
         end
         bday2.compareHash = bday1;
@@ -2949,13 +2947,16 @@ end
 -- Purpose:         Control the flow of sync data.
 GRMsync.GetListOfPlayersWithModifiedBdays = function( guildData , getFullProfile )
     local list = {};
+    local birthdayInfo = {};
 
     for i = 1 , #guildData do
-        if guildData[i].events[2][3] > 0 then
+
+        birthdayInfo = GRM.GetBirthday(guildData[i]);
+        if birthdayInfo.timeUpdated > 0 then
             if not getFullProfile then
-                table.insert ( list , { guildData[i].name , guildData[i].events[2][3] } );   -- { name , timestamp }
+                table.insert ( list , { guildData[i].name , birthdayInfo.timeUpdated } );   -- { name , timestamp }
             else
-                table.insert ( list , { guildData[i].name , guildData[i].events[2][3] , guildData[i].events[2][1][1] , guildData[i].events[2][1][2] , guildData[i].altGroup } );   -- { name , timestamp , day , month , altGroup }
+                table.insert ( list , { guildData[i].name , birthdayInfo.timeUpdated , birthdayInfo.date[1] , birthdayInfo.date[2] , guildData[i].altGroup } );   -- { name , timestamp , day , month , altGroup }
             end
         end
     end
@@ -4831,6 +4832,7 @@ GRMsync.BuildBdayDatesForSync = function()
     local dataIndexes = GRMsyncGlobals.DatabaseMarkers[5];
     local guildData = GRMsyncGlobals.guildData;
     local playersWithBdays = {};
+    local birthdayInfo = {};
 
     -- Cycle through the names that need to be sent.
     for i = 1 , #dataIndexes do
@@ -4839,9 +4841,11 @@ GRMsync.BuildBdayDatesForSync = function()
             -- Cycle through guild data to find them. This is now in array format, remember, so that arrays align.
             for j = 1, #guildData do
                 if guildData[j].name == dataIndexes[i][1] then
-                    if guildData[j].events[2][3] > 0 then
 
-                        table.insert ( playersWithBdays , { guildData[j].name , guildData[j].events[2][3] , guildData[j].events[2][1][1] , guildData[j].events[2][1][2] } );    -- Name, epochTimestamp day , month
+                    birthdayInfo = GRM.GetBirthday(guildData[j]);
+                    if birthdayInfo.timeUpdated > 0 then
+
+                        table.insert ( playersWithBdays , { guildData[j].name , birthdayInfo.timeUpdated , birthdayInfo.date[1] , birthdayInfo.date[2] } );    -- Name, epochTimestamp day , month
                     end
                     break;
                 end
@@ -5953,6 +5957,7 @@ GRMsync.UnifyBirthdaysAmongAltGroups = function()
     local player;
     local hasBdaySet = false;
     local needToRemoveFromQue = false;
+    local birthdayInfo;
 
     for altGroupID , altGroup in pairs ( alts ) do
         hasBdaySet = false;
@@ -5961,8 +5966,9 @@ GRMsync.UnifyBirthdaysAmongAltGroups = function()
         if #altGroup > 1 then
             for i = 1 , #altGroup do
                 player = guildData[ altGroup[i].name ];
-                if player and player.events[2][3] > 0 and player.events[2][3] > newest[2] then
-                    newest = { player.name , player.events[2][1][1] , player.events[2][1][2] , player.events[2][3] };
+                birthdayInfo = GRM.GetBirthday(player);
+                if player and birthdayInfo.timeUpdated > 0 and birthdayInfo.timeUpdated > newest[2] then
+                    newest = { player.name , birthdayInfo.date[1] , birthdayInfo.date[2] , birthdayInfo.timeUpdated };
                     hasBdaySet = true;
                 end
             end
@@ -5972,27 +5978,38 @@ GRMsync.UnifyBirthdaysAmongAltGroups = function()
             for i = 1 , #altGroup do
                 if altGroup[i].name ~= newest[1] then
                     player = GRM.GetPlayer ( altGroup[i].name );
+                    birthdayInfo = GRM.GetBirthday(player);
 
                     needToRemoveFromQue = false
 
-                    if player.events[2][1][1] ~= newest[2] then
+                    if birthdayInfo.date[1] ~= newest[2] then
                         needToRemoveFromQue = true;
-                        player.events[2][1][1] = newest[2];
-                        player.events[2][2] = false;        -- Have it re-report if timestamp is getting updated - but only date
+
+                        birthdayInfo.date[1] = newest[2];
+                        birthdayInfo.announced = false;        -- Have it re-report if timestamp is getting updated - but only date
+
+                        player.birthdayInfo.date[1] = newest[2];
+                        player.birthdayInfo.announced = false;
                     end
-                    if player.events[2][1][2] ~= newest[3] then
+                    if birthdayInfo.date[2] ~= newest[3] then
                         needToRemoveFromQue = true;
-                        player.events[2][1][2] = newest[3];
-                        player.events[2][2] = false;        -- Have it re-report if timestamp is getting updated - but only date
+
+                        birthdayInfo.date[2] = newest[3];
+                        birthdayInfo.announced = false;        -- Have it re-report if timestamp is getting updated - but only date
+
+                        player.birthdayInfo.date[2] = newest[3];
+                        player.birthdayInfo.announced = false;
                     end
-                    if player.events[2][3] ~= newest[4] then
+                    if birthdayInfo.timeUpdated ~= newest[4] then
                         needToRemoveFromQue = true;
-                        player.events[2][3] = newest[4];
+                        birthdayInfo.timeUpdated = newest[4];
+                        player.birthdayInfo.timeUpdated = newest[4];
                     end
 
                     if needToRemoveFromQue then
-                        if player.birthdayUnknown then
-                            player.birthdayUnknown = false
+                        if birthdayInfo.unknown then
+                            birthdayInfo.unknown = false
+                            player.birthdayInfo.unknown = false
                         end
                         GRM.RemoveFromCalendarQue ( player.name , 2 , nil );
                     end
@@ -7454,7 +7471,7 @@ end
 -- What it Does:    Collects the request for missing messages
 -- Prupose:         Sync integrity.
 GRMsync.CollectMissingMsgRequest = function( msg , prefix )
-    local group = { ["GRM_REQMISJDF"] = "JDF" , ["GRM_REQMISJD"] = "JD" , ["GRM_REQMISPDF"] = "PD" , ["GRM_REQMISPD"] = "PD" , ["GRM_REQMISALTF"] = "ALTF" , ["GRM_REQMISALT"] = "ALT" , ["GRM_REQMISCUSTF"] = "CUSTF" , ["GRM_REQMISCUST"] = "CUST" , ["GRM_REQMISBANF"] = "BANF" , ["GRM_REQMISBAN"] = "BAN" , ["GRM_REQMISBDAYF"] = "BDAYF" , ["GRM_REQMISBDAY"] = "BDAY" , ["GRM_REQJDFIN"] = "JDFINAL" , ["GRM_REQPDFIN"] = "PDFINAL" , ["GRM_REQALTFIN"] = "ALTFINAL" , ["GRM_REQCUSTFIN"] = "CUSTFINAL" , ["GRM_REQBANFIN"] = "BANFINAL" , ["GRM_REQBDAYFIN"] = "BDAYFINAL" };
+    local group = { ["GRM_REQMISJDF"] = "JDF" , ["GRM_REQMISJD"] = "JD" , ["GRM_REQMISPDF"] = "PDF" , ["GRM_REQMISPD"] = "PD" , ["GRM_REQMISALTF"] = "ALTF" , ["GRM_REQMISALT"] = "ALT" , ["GRM_REQMISCUSTF"] = "CUSTF" , ["GRM_REQMISCUST"] = "CUST" , ["GRM_REQMISBANF"] = "BANF" , ["GRM_REQMISBAN"] = "BAN" , ["GRM_REQMISBDAYF"] = "BDAYF" , ["GRM_REQMISBDAY"] = "BDAY" , ["GRM_REQJDFIN"] = "JDFINAL" , ["GRM_REQPDFIN"] = "PDFINAL" , ["GRM_REQALTFIN"] = "ALTFINAL" , ["GRM_REQCUSTFIN"] = "CUSTFINAL" , ["GRM_REQBANFIN"] = "BANFINAL" , ["GRM_REQBDAYFIN"] = "BDAYFINAL" };
 
     if #GRMsyncGlobals.MissingRequest[group[prefix]] == 0 then
         GRMsyncGlobals.MissingRequest[group[prefix]] = GRMsync.ConvertIntStringToArray ( msg );

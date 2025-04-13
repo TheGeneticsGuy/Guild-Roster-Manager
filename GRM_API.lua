@@ -358,9 +358,8 @@ GRM_API.SetAllUnknownJoinDates = function ( day , month , year )
 
                     GRM.AddTimeStampToNote ( player.name , player.GUID , GRM.Time.FormatTimeStamp ( { day , month , year } , false , false , false ) );
 
-                    player.events[1][1][1] = day;
-                    player.events[1][1][2] = month;
-                    player.events[1][2] = false;  -- Gotta Reset the "reported already" boolean!
+                    player.anniversaryAnnounced = false;
+
                     GRM.RemoveFromCalendarQue ( player.name , 1 , nil );
 
                 end
@@ -408,6 +407,31 @@ GRM_API.RollBackToVerifiedPromotionDatesOnly = function()
     end
 
     GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
+end
+
+-- Method:          GRM_API.ValidateAllDates( bool , bool )
+-- What it Does:    Adds the ability to auto-validate all dates within a guild that have the "!!" unverified designation
+-- Purpose:         Often requested to just get the ball rolling as you can't use the macro tool without validated dates.
+GRM_API.ValidateAllDates = function( validateJoin , validatedRank )
+    local guildData = GRM.GetGuild();
+    local t = time();
+
+    for _ , player in pairs ( guildData ) do
+        if type(player) == "table" then
+            if validateJoin then
+                if player.joinDateHist[1][1] ~= 0 and not player.joinDateHist[1][6] then
+                    player.rankHist[1][5]=t;
+                    player.rankHist[1][6]=true;
+                end
+            end
+            if validatedRank then
+                if player.rankHist[1][2] ~= 0 and not player.rankHist[1][7] then
+                    player.rankHist[1][6]=time();
+                    player.rankHist[1][7]=true;
+                end
+            end
+        end
+    end
 end
 
 -----------------

@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 136 - 2024-10-14
+--- Total Patches: 138 - 2025-04-13
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1682,6 +1682,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.ConvertBackupDate();
         GRM_AddonSettings_Save.VERSION = "R1.99164";
         if loopCheck ( 1.99164 ) then
+            return;
+        end
+    end
+
+    -- 138
+    if numericV < 1.99165 and baseValue < 1.99165 then
+        GRM_Patch.UpdateAnnivAndBdayFormat();
+
+        GRM_AddonSettings_Save.VERSION = "R1.99165";
+        if loopCheck ( 1.99165 ) then
             return;
         end
     end
@@ -9381,4 +9391,108 @@ GRM_Patch.UpdateBdaySaveFormat = function( player )
         player.events = { { {0,0,0} , false ,"" } , { {0,0} , false , 0 } };
     end
     return player;
+end
+
+-- 1.99165
+-- Method:          GRM_Patch.UpdateAnnivAndBdayFormat()
+-- What it Does:    We are going to eliminate the .events method to make bday it's own variable
+-- Purpose:         Easier to read code in quicker notation without nested loops - Also, only need to use the join date for anniversary date.
+GRM_Patch.UpdateAnnivAndBdayFormat = function()
+
+    local data = { GRM_GuildMemberHistory_Save , GRM_GuildDataBackup_Save };
+    local altGroups = {};
+    local members = {};
+
+    for i = 1 , #data do
+
+        for guildName , guildData in pairs ( data[i] ) do
+            if type ( guildData ) == "table" then
+                if i == 1 then
+                    altGroups = GRM.GetGuildAlts ( guildName );
+                    members = guildData;
+                else
+                    altGroups = guildData.alts;
+                    members = guildData.members;
+                end
+
+                -- Update the alt Groups
+                for _ , group in pairs ( altGroups ) do
+                    if not group.birthdayInfo then
+                        group.birthdayInfo = {};
+                        group.birthdayInfo.date = { 0 , 0 };    -- day, month
+                        group.birthdayInfo.announced = false;   -- If announced for the log
+                        group.birthdayInfo.timeUpdated = 0;     -- Epoch Timestamp of update
+                        group.birthdayInfo.unknown = false;
+                    end
+                end
+
+                for _ , player in pairs ( members ) do
+                    if type( player ) == "table" then
+
+                        -- No need to carry on if this has been updated.
+                        if player.events then
+
+                            -- Let's do anniversary data first
+                            player.anniversaryAnnounced = false;
+                            if player.joinDateHist[1][6] then       -- Only need to transfer over the dates IF the date is verified
+                                if player.events and player.events[1][2] then
+                                    player.anniversaryAnnounced = true;
+                                end
+                            end
+
+                            -- Now, we do birthdays;
+                            player.birthdayInfo = {};
+                            player.birthdayInfo.date = { player.events[2][1][1] , player.events[2][1][2] };                     -- day, month
+                            player.birthdayInfo.announced = player.events[2][2];                    -- If announced for the log
+                            player.birthdayInfo.timeUpdated = player.events[2][3];                      -- Epoch Timestamp of update
+
+                            local isUnknown = false;
+                            if player.birthdayUnknown ~= nil and player.birthdayUnknown == true then
+                                isUnknown = true;
+                            end
+                            player.birthdayInfo.unknown = isUnknown;     -- Unknown bday as placeholder.
+
+                            -- Transfer over the date from events to the alt Group for birthdays.
+                            if player.altGroup ~= "" then
+                                if  altGroups[player.altGroup] then
+                                    if not altGroups[player.altGroup].birthdayInfo then
+                                        altGroups[player.altGroup].birthdayInfo.date = { 0 , 0 };
+                                        altGroups[player.altGroup].birthdayInfo.announced = false;
+                                        altGroups[player.altGroup].birthdayInfo.timeUpdated = 0;
+                                        altGroups[player.altGroup].birthdayInfo.unknown = false;
+                                    end
+
+                                    if altGroups[player.altGroup].birthdayInfo.date[1] == 0 and player.events[2][1][1] ~= 0 and player.events[2][1][2] ~= 0 then
+                                        altGroups[player.altGroup].birthdayInfo.date = { player.events[2][1][1] , player.events[2][1][2] };
+                                        altGroups[player.altGroup].birthdayInfo.announced = player.events[2][2];
+                                        altGroups[player.altGroup].birthdayInfo.timeUpdated = player.events[2][3];
+                                        altGroups[player.altGroup].birthdayInfo.unknown = false;
+                                    end
+                                end
+                            elseif player.altGroup == "" and player.events[2][1][1] ~= 0 and player.events[2][1][2] ~= 0 then
+                                -- No alt group, but bday is still set, let's look at the playerBday
+                                player.birthdayInfo = {};
+                                player.birthdayInfo.date = { player.events[2][1][1] , player.events[2][1][2] };
+                                player.birthdayInfo.announced = player.events[2][2];
+                                player.birthdayInfo.timeUpdated = player.events[2][3];
+                                player.birthdayInfo.unknown = false;
+                            end
+
+                        elseif not player.birthdayInfo then
+                            player.birthdayInfo = {};
+                            player.birthdayInfo.date = { 0 , 0 };
+                            player.birthdayInfo.announced = false;
+                            player.birthdayInfo.timeUpdated = 0;
+                            player.birthdayInfo.unknown = false;
+                        end
+
+                        -- Now, we purge the old events info.
+                        player.events = nil;
+                        player.birthdayUnknown = nil;
+                    end
+                end
+            end
+        end
+    end
+
 end

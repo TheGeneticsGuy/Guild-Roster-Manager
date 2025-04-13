@@ -251,7 +251,6 @@ GRM.CreateAltGroup = function ( playerName , setAsMain , timestamp )
     timestamp = timestamp or time();
 
     if player and player.altGroup == "" then
-
         local groupID = GRM.CreateNewAltGroupID();
         GRM.GetGuildAlts()[groupID] = {};
         local group = GRM.GetGuildAlts()[groupID];
@@ -269,6 +268,19 @@ GRM.CreateAltGroup = function ( playerName , setAsMain , timestamp )
         group.timeModified = timestamp;
         player.altGroupLeft = 0;
         player.altGroup = groupID;
+
+        group.birthdayInfo = {};
+        group.birthdayInfo.date = { 0 , 0 };                     -- day, month
+        group.birthdayInfo.announced = false;                    -- If announced for the log
+        group.birthdayInfo.timeUpdated = 0;                      -- Epoch Timestamp of update
+        group.birthdayInfo.unknown = false;                     -- Unknown bday as placeholder.
+        if player.birthdayInfo.timeUpdated ~= 0 then
+            group.birthdayInfo.date[1] = player.birthdayInfo.date[1];
+            group.birthdayInfo.date[2] = player.birthdayInfo.date[2];
+            group.birthdayInfo.announced = player.birthdayInfo.announced;          -- If announced for the log
+            group.birthdayInfo.timeUpdated = player.birthdayInfo.timeUpdated;      -- Epoch Timestamp of update
+            group.birthdayInfo.unknown = player.birthdayInfo.unknown;
+        end
     end
 end
 
@@ -621,6 +633,17 @@ GRM.AddPlayerToAltGroup = function ( player , groupID , timestamp , setAsMain , 
         end
 
         if player.altGroup == "" then      -- This will ONLY add to a group if they are not already in one.
+
+            if player.birthdayInfo.date[1] ~= 0 and player.birthdayInfo.timeUpdated > group.birthdayInfo.timeUpdated then
+                GRM.SetBirthdayForAltGrouping ( group[1].name , player.birthdayInfo.date[1] , player.birthdayInfo.date[2] , player.birthdayInfo.timeUpdated , syncChange , player.birthdayInfo.announced , player.birthdayInfo.unknown );
+            elseif group.birthdayInfo.timeUpdated > player.birthdayInfo.timeUpdated then
+                player.birthdayInfo.date[1] = group.birthdayInfo.date[1];
+                player.birthdayInfo.date[2] = group.birthdayInfo.date[2];
+                player.birthdayInfo.announced = group.birthdayInfo.announced;
+                player.birthdayInfo.timeUpdated = group.birthdayInfo.timeUpdated;
+                player.birthdayInfo.unknown = group.birthdayInfo.unknown;
+            end
+
             timestamp = timestamp or time();
 
             -- adding name/class to group
@@ -766,21 +789,31 @@ GRM.IsAnyAltActiveForRecommendKicks = function ( alts , ruleName )
     local result = false;
     local player;
 
-    for i = 1 , #alts do
+    -- Verify the numbers have been calculated first
 
-        player = GRM.GetPlayer ( alts[i] );
+    if GRM_G.NumberOfHoursTilRecommend.kick == nil then   -- Shortly after login this might not be active if they open the window too soon.
+        GRM.RefreshNumberOfHoursTilRecommend();
+    end
 
-        if player then
+    if GRM_G.NumberOfHoursTilRecommend.kick ~= nil then
 
-            if GRM_G.NumberOfHoursTilRecommend.kick[ruleName] == nil then
-                GRM.RefreshNumberOfHoursTilRecommend();
-            end
+        for i = 1 , #alts do
 
-            if player.lastOnline < GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
-                result = true;
-                break;
+            player = GRM.GetPlayer ( alts[i] );
+
+            if player then
+
+                if GRM_G.NumberOfHoursTilRecommend.kick[ruleName] == nil then
+                    GRM.RefreshNumberOfHoursTilRecommend();
+                end
+
+                if player.lastOnline < GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
+                    result = true;
+                    break;
+                end
             end
         end
+
     end
 
     return result;
@@ -1028,10 +1061,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                 end
 
                 -- Gotta update the event tracker date too!
-                tempAlt.events[1][1][1] = date[1];
-                tempAlt.events[1][1][2] = date[2];
-                tempAlt.events[1][1][3] = date[3];
-                tempAlt.events[1][2] = false;  -- Gotta Reset the "reported already" boolean!
+                tempAlt.anniversaryAnnounced = false;  -- Gotta Reset the "reported already" boolean!
                 -- Update the Calendar Que since anniversary dates might be changed as a result
                 GRM.RemoveFromCalendarQue ( tempAlt.name , 1 , nil );
 
@@ -1151,9 +1181,15 @@ GRM.PopulateAltFrames = function ( playerName )
     local alts = GRM.GetListOfAlts ( player );
     local numAlts = #alts;
     local main = "";
+    GRM_UI.GRM_MemberDetailMetaData.alts = {};
 
     if player.altGroup ~= "" then
         main = GRM.GetAltGroup( player.altGroup ).main;
+
+        -- Now, let's build an alt reference dict...
+        for i = 1 , #alts do
+            GRM_UI.GRM_MemberDetailMetaData.alts[ string.lower(alts[i][1]) ] = {};
+        end
     end
     local color = {};
 
@@ -1497,11 +1533,10 @@ GRM.AddAltAutoComplete = function()
     local tag = 0;
     local players = {};
     local guildData = GRM.GetGuild();
-    local altGroup = {};
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.name ~= GRM_G.currentName then   -- no need to go through player's own window
+            if player.name ~= GRM_G.currentName and not GRM_UI.GRM_MemberDetailMetaData.alts[string.lower(player.name)] then   -- no need to go through player's own window
                 -- Determine alt/main tag
                 tag = 0;
                 altGroup = GRM.GetAltGroup ( player.altGroup );
@@ -1548,6 +1583,8 @@ GRM.AddAltAutoComplete = function()
             if string.lower ( GRM_G.currentName ) == string.lower ( partName ) then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Cannot Add Themselves as an Alt" ) );
                 GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
+            elseif GRM_UI.GRM_MemberDetailMetaData.alts[string.lower ( partName )] then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player is Already in this Alt Group" ) );
             else
                 GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Not Found" ) );
             end
@@ -1658,42 +1695,63 @@ end
 --- BIRTHDAY LOGIC ---
 ----------------------
 
--- Method:          GRM.SetBirthdayForAltGrouping ( string , int , int  , int , bool )
+-- Method:          GRM.SetBirthdayForAltGrouping ( string , int , int  , int , bool , bool , bool )
 -- What it Does:    Sets all of the alts to the same birthday as well when there is a modification
 -- Purpose:         Ensure birthdays are set for all alts, as it is assumed it is one player
-GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , timeStamp , isFullSync )
+GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , timeStamp , isFullSync , announced , unknown )
     local player = GRM.GetPlayer ( playerName );
     local tempAlt;
+    if announced == nil then
+        announced = false;
+    end
+    if unknown == nil then
+        unknown = false;
+    end
 
-    if player and GRM.PlayerHasAlts ( player ) then
-        local alts = GRM.GetAltNamesList ( player );
-        for i = 1 , #alts do
+    if player and player.altGroup ~= "" then
+        local alts = GRM.GetAltGroup ( player.altGroup );
 
-            tempAlt = GRM.GetPlayer ( alts[i] );
+        if alts then
+            -- First, set the alt group to the birthdate.
+            alts.birthdayInfo.date[1] = day;
+            alts.birthdayInfo.date[2] = month;
+            alts.birthdayInfo.announced = announced
+            alts.birthdayInfo.timeUpdated = timeStamp;
+            alts.birthdayInfo.birthdayUnknown = unknown;
 
-            if tempAlt then
+            local counted = false;
 
-                if i == 1 and isFullSync and ( tempAlt.events[2][1][1] ~= day or tempAlt.events[2][1][2] ~= month ) then
-                    GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + #alts;
-                    GRMsyncGlobals.updatesEach[5] = GRMsyncGlobals.updatesEach[5] + #alts;
-                end
+            -- The reason we need to cycle through the alts is it is possible their birthdate data is still showing on their individual character and should be cleared.
+            for i = 1 , #alts do
+                tempAlt = GRM.GetPlayer ( alts[i].name );
 
-                -- Alt found!
-                tempAlt.events[2][1] = { day , month };
-                tempAlt.events[2][2] = false;
-                tempAlt.events[2][3] = timeStamp;
+                if tempAlt then
 
-                if tempAlt.birthdayUnknown then
-                    tempAlt.birthdayUnknown = false
-                end
+                    -- For sync reporting - of note, this will only increment up if someone formerly grouped loses their bday status.
+                    if not counted and tempAlt.name ~= playerName and isFullSync and ( ( tempAlt.birthdayInfo.date[1] > 0 and tempAlt.birthdayInfo.date[1] ~= day ) or ( tempAlt.birthdayInfo.date[2] > 0 and tempAlt.birthdayInfo.date[2] ~= month ) ) then
 
-                GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
+                        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + #alts;
+                        GRMsyncGlobals.updatesEach[5] = GRMsyncGlobals.updatesEach[5] + #alts;
+                        counted = true;
 
-                -- Update frames if looking at them on the spot...
-                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and tempAlt.name == GRM_G.currentName and GRM.S().showBDay then
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.Time.FormatTimeStamp ( { day , month } , false , true ) );
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
+                    end
+
+                    -- Alt found!
+                    tempAlt.birthdayInfo.date[1] = day;
+                    tempAlt.birthdayInfo.date[2] = month;
+                    tempAlt.birthdayInfo.announced = announced
+                    tempAlt.birthdayInfo.timeUpdated = timeStamp;
+                    tempAlt.birthdayInfo.birthdayUnknown = unknown;
+
+                    -- Need to remove them from the calendar queue if in it.
+                    GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
+
+                    -- Update frames if looking at them on the spot...
+                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and tempAlt.name == GRM_G.currentName and GRM.S().showBDay then
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.Time.FormatTimeStamp ( { day , month } , false , true ) );
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
+                    end
                 end
             end
         end
@@ -1705,13 +1763,13 @@ end
 -- Purpose:         Birthday is universal of an alt grouping... keeps them together.
 -- Note:            It does leave a timstamp of the change so that you will not resync the player data again from other players, if you wanted to remove the bday.
 --                  This is a unique removal to just yourself.
-GRM.ResetBirthdayForAltGroup = function ( name , timestamp , isUnknown , sender , isFullSync )
+GRM.ResetBirthdayForAltGroup = function ( name , timeUpdated , isUnknown , sender , isFullSync )
 
     local player = GRM.GetPlayer ( name );
 
     if player then
 
-        timestamp = timestamp or time();
+        timeUpdated = timeUpdated or time();
 
         -- Live frame update on the fly
         local updateUI = function ( altName )
@@ -1721,44 +1779,53 @@ GRM.ResetBirthdayForAltGroup = function ( name , timestamp , isUnknown , sender 
             end
         end
 
-        if isFullSync and player.events[2][1][1] ~= 0 then
+        if isFullSync and player.birthdayInfo.date[1] ~= 0 then
             -- Only count if actually making a change, not if just updating the timestamp
             GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
             GRMsyncGlobals.updatesEach[5] = GRMsyncGlobals.updatesEach[5] + 1;
         end
 
-        player.events[2] = { { 0 , 0 } , false , timestamp };
 
-        if not isUnknown then
-            player.birthdayUnknown = false;
-        end
+        player.birthdayInfo.date[1] = 0;
+        player.birthdayInfo.date[2] = 0;
+        player.birthdayInfo.timeUpdated = timeUpdated;
+        player.birthdayInfo.announced = false;
+        player.birthdayInfo.birthdayUnknown = false;
 
         updateUI ( name );
         GRM.RemoveFromCalendarQue ( player.name , 2 , nil );
 
-        local alts = GRM.GetAltNamesList ( player );
-        local tempAlt;
-        for i = 1 , #alts do
-            tempAlt = GRM.GetPlayer ( alts[i] );
+        local alts = GRM.GetAltGroup ( player.altGroup );
 
-            if tempAlt then
+        if alts then
 
-                if i == 1 and isFullSync and tempAlt.events[2][1][1] ~= 0 then
-                    GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + #alts;
-                    GRMsyncGlobals.updatesEach[5] = GRMsyncGlobals.updatesEach[5] + #alts;
+            alts.birthdayInfo.date[1] = 0;
+            alts.birthdayInfo.date[2] = 0;
+            alts.birthdayInfo.announced = false
+            alts.birthdayInfo.timeUpdated = timeUpdated;
+            alts.birthdayInfo.birthdayUnknown = false;
+
+            local tempAlt;
+            for i = 1 , #alts do
+                tempAlt = GRM.GetPlayer ( alts[i].name );
+
+                if tempAlt then
+
+                    if i == 1 and isFullSync and tempAlt.birthdayInfo.date[1] ~= 0 then
+                        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + #alts;
+                        GRMsyncGlobals.updatesEach[5] = GRMsyncGlobals.updatesEach[5] + #alts;
+                    end
+
+                    tempAlt.birthdayInfo.date[1] = 0;
+                    tempAlt.birthdayInfo.date[2] = 0;
+                    tempAlt.birthdayInfo.announced = false
+                    tempAlt.birthdayInfo.timeUpdated = timeUpdated;
+                    tempAlt.birthdayInfo.birthdayUnknown = false;
+
+                    GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
+
+                    updateUI ( alts[i] );
                 end
-
-                tempAlt.events[2] = { { 0 , 0 } , false , timestamp };
-
-                GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
-
-                if not isUnknown then
-                    tempAlt.birthdayUnknown = false;
-                else
-                    tempAlt.birthdayUnknown = true;
-                end
-
-                updateUI ( alts[i] );
             end
         end
 
@@ -1770,10 +1837,10 @@ GRM.ResetBirthdayForAltGroup = function ( name , timestamp , isUnknown , sender 
                     if GRM.S().exportAllRanks then
                         syncRankFilter = GuildControlGetNumRanks() - 1;
                     end
-                    GRMsync.SendMessage ( "GRM_SYNC" , "GRM_BDAYREM?" .. syncRankFilter .. "?" .. name .. "?" .. tostring ( timestamp ) , "GUILD" );
+                    GRMsync.SendMessage ( "GRM_SYNC" , "GRM_BDAYREM?" .. syncRankFilter .. "?" .. name .. "?" .. tostring ( timeUpdated ) , "GUILD" );
                 end
 
-                if #alts > 0 then
+                if alts and #alts > 0 then
                     GRM.Report ( GRM.L ( "{name}'s alt grouping has had their Birthday removed" , GRM.GetClassifiedName ( name , true ) ) );
                 else
                     GRM.Report ( GRM.L ( "{name}'s Birthday has been removed." , GRM.GetClassifiedName ( name , true ) ) );
@@ -1781,7 +1848,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , timestamp , isUnknown , sender 
 
             elseif GRM.S().syncChatEnabled then
                 local msg = "";
-                if #alts > 0 then
+                if alts and #alts > 0 then
                     GRM.Report ( GRM.L ( "{name}'s alt grouping has had their Birthday removed by: {name2}" , GRM.GetClassifiedName ( name , true ) , GRM.GetClassifiedName ( sender , true ) ) );
                 else
                     msg = "{name}'s Birthday has been removed by: {name2}";
@@ -1802,7 +1869,6 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt , timestamp )
     local tempAlt;
     local needToRemoveFromQue = false;
 
-
     if useAlt then
         player = GRM.GetPlayer ( newAlt );
     else
@@ -1810,52 +1876,62 @@ GRM.SyncBirthdayWithNewAlt = function ( name , newAlt , useAlt , timestamp )
     end
 
     if player and GRM.PlayerHasAlts ( player ) then  -- Validate player found in databse AND player has alts.
-        local alts = GRM.GetAltNamesList ( player );
+        local alts = GRM.GetAltGroup ( player.altGroup );
 
-        if timestamp and timestamp ~= player.events[2][3] then
-            player.events[2][3] = timestamp;
-        end
-
-        for i = 1 , #alts do
-            tempAlt = GRM.GetPlayer ( alts[i] );
-
-            needToRemoveFromQue = false;
-
-            if tempAlt.events[2][1][1] ~= player.events[2][1][1] then
-                needToRemoveFromQue = true;
-                tempAlt.events[2][1][1] = player.events[2][1][1];
-            end
-            if tempAlt.events[2][1][2] ~= player.events[2][1][2] then
-                needToRemoveFromQue = true;
-                tempAlt.events[2][1][2] = player.events[2][1][2];
+        if alts then
+            if timestamp and timestamp ~= alts.birthdayInfo.timeUpdated then
+                alts.birthdayInfo.timeUpdated = timestamp;
             end
 
-            if tempAlt.events[2][2] ~= player.events[2][2] then
-                needToRemoveFromQue = true;
-                tempAlt.events[2][2] = player.events[2][2];
-            end
-            if tempAlt.events[2][3] ~= player.events[2][3] then
-                needToRemoveFromQue = true;
-                tempAlt.events[2][3] = player.events[2][3];
+            -- Let's update the bday to the alt group if it hasn't been yet.
+            if alts.birthdayInfo.date[1] == 0 and player.birthdayInfo.date[1] ~= 0 then
+                alts.birthdayInfo.date[1] = player.birthdayInfo.date[1];
+                alts.birthdayInfo.date[2] = player.birthdayInfo.date[2];
+                alts.birthdayInfo.announced = player.birthdayInfo.announced;
+                alts.birthdayInfo.timeUpdated = player.birthdayInfo.timeUpdated;
+                alts.birthdayInfo.unknown = player.birthdayInfo.unknown;
             end
 
-            if needToRemoveFromQue then
-                if tempAlt.birthdayUnknown then
-                    tempAlt.birthdayUnknown = false
+            for i = 1 , #alts do
+                tempAlt = GRM.GetPlayer ( alts[i].name );
+
+                needToRemoveFromQue = false;
+
+                if tempAlt.birthdayInfo.date[1] ~= alts.birthdayInfo.date[1] then
+                    needToRemoveFromQue = true;
+                    tempAlt.birthdayInfo.date[1] = alts.birthdayInfo.date[1];
                 end
-                GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
-            end
-            -- Update frames if looking at them on the spot...
+                if tempAlt.birthdayInfo.date[2] ~= alts.birthdayInfo.date[2] then
+                    needToRemoveFromQue = true;
+                    tempAlt.birthdayInfo.date[2] = alts.birthdayInfo.date[2];
+                end
 
-            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and tempAlt.name == GRM_G.currentName and GRM.S().showBDay and tempAlt.events[2][1][1] ~= 0 then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
-                print("Name: " .. tempAlt.name)
-                GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.Time.FormatTimeStamp ( { tempAlt.events[2][1][1] , tempAlt.events[2][1][2] } , false , true ) );
-                GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
+                if tempAlt.birthdayInfo.announced ~= alts.birthdayInfo.announced then
+                    needToRemoveFromQue = true;
+                    tempAlt.birthdayInfo.announced = alts.birthdayInfo.announced;
+                end
+                if tempAlt.birthdayInfo.timeUpdated ~= alts.birthdayInfo.timeUpdated then
+                    needToRemoveFromQue = true;
+                    tempAlt.birthdayInfo.timeUpdated = alts.birthdayInfo.timeUpdated;
+                end
+
+                if needToRemoveFromQue then
+                    if tempAlt.birthdayInfo.unknown then
+                        tempAlt.birthdayInfo.unknown = false
+                    end
+                    GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
+                end
+                -- Update frames if looking at them on the spot...
+
+                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and tempAlt.name == GRM_G.currentName and GRM.S().showBDay and tempAlt.birthdayInfo.date[1] ~= 0 then
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText ( GRM.Time.FormatTimeStamp ( { tempAlt.birthdayInfo.date[1] , tempAlt.birthdayInfo.date[2] } , false , true ) );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
+                end
             end
+
+            GRM_UI.RefreshSelectFrames ( false , true , false , true , true , true );
         end
-
-        GRM_UI.RefreshSelectFrames ( false , true , false , true , true , true );
     end
 end
 

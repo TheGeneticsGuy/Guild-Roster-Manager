@@ -613,7 +613,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
             end);
         end
 
-        if not includeLowHigh then
+        if not includeLowHigh and parentFrame[name].Forward then
             parentFrame[name].Forward:Hide()
             parentFrame[name].Back:Hide()
         end

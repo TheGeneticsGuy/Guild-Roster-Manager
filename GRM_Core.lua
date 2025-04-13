@@ -13,15 +13,15 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99164";
-GRM_G.PatchDayString = "1735454974";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1735454974;            -- In Epoch Time
+GRM_G.Version = "R1.99165";
+GRM_G.PatchDayString = "1744528984";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1744528984;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110007;
+GRM_G.RetailBaseBuild = 110100;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.44;
+GRM_G.GroupInfoV = 1.45;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -167,6 +167,7 @@ GRM_G.changeHappenedExitScan = false;
 GRM_G.silenceOfficerNoteReporting = false;
 GRM_G.silenceOfficerTimer = 0;
 GRM_G.ReScanningEvents = false;
+GRM_G.UpdatingProfessions = false;
 
 -- Live Detection Controls
 GRM_G.RejoinControlCheck = 0;
@@ -2292,14 +2293,14 @@ GRM.SlimName = function(name)
     end
 end
 
--- Method:          GRM.FormatName ( string )
+-- Method:          GRM.FormatName ( string , bool )
 -- What it Does:    Standardizes the formatting of player names
 -- Purpose:         Customizing how the name appears in log and elsewhere.
 -- Formatting:      1 = Blzzard convention of always showing except those on same realm, 2 = always show realm, 3 = never show realm
-GRM.FormatName = function( name )
+GRM.FormatName = function( name , normalize )
     if name then
         if string.find( name, "-") then
-            if GRM.S().nameFormat == 1 or GRM.S().nameFormat == 3 then     -- Blizzard naming convention - only remove server if same realm
+            if GRM.S().nameFormat == 1 or GRM.S().nameFormat == 3 or normalize then     -- Blizzard naming convention - only remove server if same realm
                 if GRM.S().nameFormat == 3 or ( name:match ("%-(.+)" ) == GRM_G.realmName ) then
                     return string.gsub( name, "%-.+", "" );
                 end
@@ -3066,8 +3067,22 @@ end
 GRM.AppendServerName = function(name, currentGuild)
     if name ~= nil and name ~= "" and not string.find(name, "-", 1, true) then
         name = name .. "-" .. GRM.GetPlayerServer(name, currentGuild);
+    elseif name == nil then
+        name = "";
     end
 
+    return name;
+end
+
+-- Method:          GRM.AppendServerName(string,string)
+-- What it Does:    Appends the realm name to a player's name if not alreayd appended
+-- Purpose:         Useful as database matchign requires full name-server.
+GRM.AppendServerName = function ( name , server )
+
+    if not string.find(name,"-") then
+        server = server or GRM_G.realmName;
+        name = name .. "-" .. server;
+    end
     return name;
 end
 
@@ -3564,9 +3579,10 @@ GRM.AnnounceIfBirthday = function(msg)
                 player = GRM.GetPlayer(names[i]);
                 if player then
                     -- First, check if bday even configured
-                    if player.events[2][1][1] > 0 then
+                    local birthdayInfo = GRM.GetBirthday( player );
+                    if birthdayInfo then
                         -- Birthday is set, now we compare!
-                        if player.events[2][1][1] == day and player.events[2][1][2] == month then
+                        if birthdayInfo.date[1] == day and birthdayInfo.date[2] == month then
 
                             -- Only announce if necessary
                             if not GRM_DailyAnnounce[player.name] then
@@ -3582,6 +3598,93 @@ GRM.AnnounceIfBirthday = function(msg)
             end
         end
     end
+end
+
+-- Method:          GRM.GetBirthday ( playerTable )
+-- What it Does:    Returns the birthday table, be it from the player if not in an alt group, or from altGroup
+-- Purpose:         If player is NOT in an alt group, they should still have an index for birthday info.
+GRM.GetBirthday = function ( player )
+
+    if player.altGroup ~= "" then
+        local alts = GRM.GetAltGroup ( player.altGroup );
+        if alts then
+            return alts.birthdayInfo;
+        end
+    else
+        return player.birthdayInfo;
+    end
+
+end
+
+-- Method:          GRM.SetBirthdayInfo ( playerTable , int , int , bool , int , bool )
+-- What it Does:    Sets the birthdate to alt Group if player has one, and to player data
+-- Purpose:         Easily update bday info for an alt group as necessary.
+GRM.SetBirthdayInfo = function ( player , day , month , announced , timeUpdated , unknown )
+    local noAlts = true;
+
+    if player.altGroup ~= "" then
+        local alts = GRM.GetAltGroup ( player.altGroup );
+        if alts then
+            noAlts = false;
+
+            if day then
+                alts.birthdayInfo.date[1] = day;
+            end
+            if month then
+                alts.birthdayInfo.date[2] = month;
+            end
+            if announced ~= nil then
+                alts.birthdayInfo.announced = announced;
+            end
+            if timeUpdated then
+                alts.birthdayInfo.timeUpdated = timeUpdated;
+            end
+            if unknown ~= nil then
+                alts.birthdayInfo.unknown = unknown;
+            end
+
+            -- Update each of the alts.
+            for i = 1 , #alts do
+                local alt = GRM.GetPlayer ( alts[i].name );
+                if alt then
+                    if day then
+                        alt.birthdayInfo.date[1] = day;
+                    end
+                    if month then
+                        alt.birthdayInfo.date[2] = month;
+                    end
+                    if announced ~= nil then
+                        alt.birthdayInfo.announced = announced;
+                    end
+                    if timeUpdated then
+                        alt.birthdayInfo.timeUpdated = timeUpdated;
+                    end
+                    if unknown ~= nil then
+                        alt.birthdayInfo.unknown = unknown;
+                    end
+                end
+            end
+        end
+    end
+
+    if noAlts then
+        if day then
+            player.birthdayInfo.date[1] = day;
+        end
+        if month then
+            player.birthdayInfo.date[2] = month;
+        end
+        if announced ~= nil then
+            player.birthdayInfo.announced = announced;
+        end
+        if timeUpdated then
+            player.birthdayInfo.timeUpdated = timeUpdated;
+        end
+        if unknown ~= nil then
+            player.birthdayInfo.unknown = unknown;
+        end
+    end
+
 end
 
 -- Method:          GRM.AnnounceIfMacroReady( string )
@@ -3849,9 +3952,10 @@ GRM.GetAuditLinePlayervalues = function(data, isComplete)
 
     -- Birthdate
     local birthDate = "";
+    local birthdayInfo = GRM.GetBirthday(player);
 
-    if player.events[2][1][1] == 0 then
-        if player.birthdayUnknown then
+    if birthdayInfo.date[1] == 0 then
+        if birthdayInfo.unknown then
             birthDate = GRM.L("Unknown");
             if GRM.S().unknownIsComplete then
                 isComplete = false;
@@ -3861,7 +3965,7 @@ GRM.GetAuditLinePlayervalues = function(data, isComplete)
             isComplete = false;
         end
     else
-        birthDate = GRM.Time.FormatTimeStamp({ player.events[2][1][1] , player.events[2][1][2] } , false,
+        birthDate = GRM.Time.FormatTimeStamp({ birthdayInfo.date[1] , birthdayInfo.date[2] } , false,
             true);
     end
 
@@ -4205,9 +4309,10 @@ GRM.GetAllGuildiesByBirthdayDateOrder = function(fullNameNeeded, newFirst)
 
             if GRM.S().includeBirthdaysInAudit then
 
-                if player.events[2][1][1] ~= 0 then
+                local birthdayInfo = GRM.GetBirthday(player);
+                if birthdayInfo.date[1] ~= 0 then
                     -- find a proper place to sort
-                    local timestamp = GRM.Time.Enums.days_before_month[player.events[2][1][2]] + player.events[2][1][1];
+                    local timestamp = GRM.Time.Enums.days_before_month[birthdayInfo.date[2]] + birthdayInfo.date[1];
 
                     if #listOfGuildiesWithDates == 0 then -- the first one can be a straight insert
                         table.insert(listOfGuildiesWithDates,
@@ -6769,9 +6874,11 @@ GRM.CopyFromPromoDate = function()
 
         player.joinDateUnknown = false;
 
-        if player.events[2][1][1] ~= 0 then
+        local birthdayInfo = GRM.GetBirthday ( player );
+
+        if birthdayInfo.date[1] ~= 0 then
             showBdayText = true;
-            formatBdayStamp = GRM.Time.FormatTimeStamp( { player.events[2][1][1] , player.events[2][1][2] }, false, true);
+            formatBdayStamp = GRM.Time.FormatTimeStamp( { birthdayInfo.date[1] , birthdayInfo.date[2] }, false, true);
         end
 
         local joinDate = GRM.Time.FormatTimeStamp({player.joinDateHist[1][1], player.joinDateHist[1][2],
@@ -6780,11 +6887,7 @@ GRM.CopyFromPromoDate = function()
         -- Update timestamp to officer note.
         GRM.AddTimeStampToNote( player.name, player.GUID , joinDate);
 
-        -- Gotta update the event tracker date too!
-        player.events[1][1][1] = tStamp[2];
-        player.events[1][1][2] = tStamp[3];
-        player.events[1][1][3] = tStamp[4];
-        player.events[1][2] = false; -- Gotta Reset the "reported already" boolean!
+        player.anniversaryAnnounced = false; -- Gotta Reset the "reported already" boolean!
         GRM.RemoveFromCalendarQue(player.name, 1, nil);
 
         if player.rankHist[1][2] == 0 and not player.promoteDateUnknown then
@@ -7403,8 +7506,18 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     member.reasonBanned = ""; -- 18
     member.rankHist = {{memberInfo.rankName, 0, 0, 0, "0", 0, false, 1, 0}}; -- { rankName , day , month , year , timeInEpoch , timeChangedManually , isVerified , typeOfRankChange }
     member.joinDateHist = {{0, 0, 0, "0", 0, false, 1}}; -- { day , month , year , timeInEpoch , timeChangedManually , isVerified , join/leave } - 1 = join; 2 = leave;
+    member.joinDateUnknown = false; -- 40
+    member.promoteDateUnknown = false -- 41
 
-    member.events = {{{0, 0, 0}, false, ""}, {{0, 0}, false, 0}}; -- 1 = anniversary , Position 2 = birthday
+    -- bday and anniversary data
+    -- Note, bday data will ONLY update here if not in an alt group, otherwise the alt group carries the data
+    member.anniversaryAnnounced = false;
+    member.birthdayInfo = {};
+    member.birthdayInfo.date = { 0 , 0 };     -- day, month
+    member.birthdayInfo.announced = false;    -- If announced for the log
+    member.birthdayInfo.timeUpdated = 0;      -- Epoch Timestamp of update
+    member.birthdayInfo.unknown = false;      -- Placeholder if unknown.
+
     member.customNote = {true, 0, "", ""}; -- 23 { syncEnabled , epochStampOfEdit , "NameOfPlayerWhoEdited" , "customNoteString" }
 
     member.lastOnline = memberInfo.lastOnline;
@@ -7420,11 +7533,8 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     member.timeEnteredZone = timeSeconds; -- 32
     member.isOnline = memberInfo.isOnline; -- 33
     member.status = memberInfo.status; -- 34 AFK, Active, Busy
-    member.joinDateUnknown = false; -- 40
-    member.promoteDateUnknown = false -- 41
     member.GUID = memberInfo.GUID; -- 42
     member.isUnknown = false; -- 43
-    member.birthdayUnknown = false; -- 44
     member.safeList = {} -- Updated R1.92    - Kick , promote , demote
     member.safeList.kick = {false, false, 0, 0}; -- Macro Tool monitoring protection
     member.safeList.promote = {false, false, 0, 0};
@@ -7445,7 +7555,7 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     if isReturningMember then
         if oldMemberInfo.rankIndex ~= 99 then
 
-            member.events = oldMemberInfo.events;
+            member.birthdayInfo = oldMemberInfo.birthdayInfo;
             member.customNote = oldMemberInfo.customNote;
             member.rankHist = oldMemberInfo.rankHist;
             member.joinDateHist = oldMemberInfo.joinDateHist;
@@ -10023,8 +10133,9 @@ GRM.GetIncompleteGuildDataCounts = function()
             end
 
             -- Birthdays
-            if player.events[2][1][1] == 0 then
-                if player.birthdayUnknown then
+            local birthdayInfo = GRM.GetBirthday ( player );
+            if birthdayInfo.date[1] == 0 then
+                if birthdayInfo.unknown then
                     numBdayUnknown = numBdayUnknown + 1;
                     if GRM.S().unknownIsComplete and GRM.S().includeBirthdaysInAudit then
                         isComplete = false;
@@ -12121,7 +12232,6 @@ GRM.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDet
                     end
                 end
                 -- Make sure the namechange is adjusted in the database or you will get a double report
-                print("JOIN2: " .. member.name)
                 GRM.AddMemberRecord(member, true, GRM.DeepCopyArray(player), liveJoinDetected, logEntryMetaData);
 
                 if liveJoinDetected and GRM.AddRejoinToAltGroup(GRM.GetPlayer(member.name), player.isTransfer) then
@@ -12340,6 +12450,8 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                 epochTimeStamp = time();
             end
 
+            player.anniversaryAnnounced = false;
+
             -- Add the tempTimeStamp to officer note... this avoids report spam
             -- Promo Date stamp
             if added then
@@ -12358,9 +12470,6 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                     table.insert(player.joinDateHist, 1, {date_table[1], date_table[2], date_table[3], timeStandard, epochTimeStamp, added, 1});
                 end
 
-                player.events[1][1][1] = date_table[1];
-                player.events[1][1][2] = date_table[2];
-                player.events[1][1][3] = date_table[3];
             else
                 -- Clear if set to unknown
                 player.promoteDateUnknown = false;
@@ -12377,9 +12486,7 @@ GRM.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArray
                     table.insert(player.joinDateHist, 1, {date_table[1], date_table[2], date_table[3],
                     timeStandard, 0, false, 1});
                 end
-                player.events[1][1][1] = date_table[1];
-                player.events[1][1][2] = date_table[2];
-                player.events[1][1][3] = date_table[3];
+
             end
 
             -- Promo Date
@@ -13480,6 +13587,7 @@ GRM.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
 
             if player then
 
+                -- Compare GUIDs not just names
                 if player.GUID == updatedPlayer.GUID or
                     (player.isTransfer and updatedPlayer.name == player.name and updatedPlayer.class == player.class) then -- In case someone deleted a toon, then joined a new toon with same name, need to confirm it is the same.
 
@@ -14265,11 +14373,6 @@ end
 GRM.BuildRosterClassicMethod = function()
     local count = 0;
     local roster, orderedRoster, atLeastOne = {}, {}, false;
-    local members = {};
-
-    if C_Club.GetClubMembers and GRM_G.gClubID and GRM_G.gClubID ~= 0 then
-        members = C_Club.GetClubMembers(GRM_G.gClubID)
-    end
 
     for i = 1, GRM.GetNumGuildies() do
         -- For guild info
@@ -14356,139 +14459,76 @@ GRM.BuildRosterClassicMethod = function()
         end
     end
 
-    if #members > 0 then
-
-        local name = "";
-        local player = {};
-
-        for i = 1, #members do
-            player = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
-            name = GRM.GetFullNameClubMember(player.guid);
-
-            if name ~= "" and roster[name] and roster[name].GUID == player.guid then
-                if player.overallDungeonScore then
-                    roster[name].MythicScore = player.overallDungeonScore;
-                end
-
-                if GRM_G.BuildVersion >= 100000 then
-                    roster[name].faction = player.faction;
-                end
-
-                roster[name].prof1 = {};
-                roster[name].prof2 = {};
-
-                if player.profession2ID then
-                    roster[name].prof1 = { player.profession2ID , player.profession2Rank };
-                end
-
-                if player.profession1ID then
-                    roster[name].prof2 = { player.profession1ID , player.profession1Rank };
-                end
-
-            end
-        end
-    end
-
-    return roster, orderedRoster, atLeastOne , count;
+    GRM.UpdateRosterWithCommunitiesAPI ( roster, orderedRoster, atLeastOne , count );
 end
 
--- Methood:         GRM.BuildRosterCommunitiesMethod()
--- What it Does:    Builds the member roster profile for scanning for changes
--- Purpose:         To be able to determine what changes have occurred in the guild.
-GRM.BuildRosterCommunitiesMethod = function()
-    local roster, orderedRoster, atLeastOne = {}, {}, false;
-    local members = C_Club.GetClubMembers(GRM_G.gClubID);
-    local name = "";
-    local sex = 0;
-    local player = {};
-    local count = 0;
+-- Method:          GRM.UpdateRosterWithCommunitiesAPI ( table , table. bool, int , int , table )
+-- What it Does:    Throttles the querying of the data by the Communities C_Club API. This server call seems much slower and can overload if too fast.
+-- Purpose:         Avoid stutter.
+GRM.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster, atLeastOne , count , index , members )
 
-    for i = 1, #members do
-        player = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
-        name, sex = GRM.GetFullNameClubMember(player.guid);
+    if not GRM_G.UpdatingProfessions or index then
+        GRM_G.UpdatingProfessions = true;
 
-        if name and name ~= "" then
-            atLeastOne = true;
-            table.insert(orderedRoster, name);
+        if C_Club.GetClubMembers and GRM_G.gClubID and GRM_G.gClubID ~= 0 then
+            members = members or C_Club.GetClubMembers(GRM_G.gClubID);
+        else
+            GRM_G.UpdatingProfessions = false;
+            GRM.BuildNewRoster ( roster, orderedRoster, atLeastOne , count );
+            return
+        end
 
-            if GRM_G.liveAddedToons[name] then
-                GRM_G.liveAddedToons[name] = nil; -- No longer needed on this list since they are confirmed in guild.
-            end
+        if #members > 0 then
 
-            if roster[name] then
+            local name = "";
+            local player = {};
+            index = index or 1;
 
-                if GRM.GetNewerAccountByGUID( roster[name].GUID , player.guid ) == player.guid then
-                    if GRM_G.HardcoreActive then
-                        -- Add the death note indicating dead player on account
-                        GRM.SetPlayerAsDeadByGUID ( roster[name].GUID , roster[name].lastOnline , roster[name].rosterSelection , roster[name].note );
+            while index <= #members do
+                player = C_Club.GetMemberInfo(GRM_G.gClubID, members[index])
+                name = GRM.AppendServerName(player.name);
+
+                if name ~= "" and roster[name] and roster[name].GUID == player.guid then
+                    if player.overallDungeonScore then
+                        roster[name].MythicScore = player.overallDungeonScore;
                     end
-                    roster[name] = nil;
-                else
-                    -- The player at index i is dead.
-                    if GRM_G.HardcoreActive then
-                        -- Add the death note indicating dead player on account
-                        local lastOnline = GRM.Time.CalculateTotalHours(
-                            {player.lastOnlineYear or 0, player.lastOnlineMonth or 0, player.lastOnlineDay or 0,
-                            player.lastOnlineHour or 0}, GRM.IsPresenceOnline(player.presence) );
-                        GRM.SetPlayerAsDeadByGUID ( player.guid , lastOnline , GRM.GetRosterSelectionID ( player.name , player.guid ) , player.note or "" );
+
+                    if GRM_G.BuildVersion >= 100000 then
+                        roster[name].faction = player.faction;
+                    end
+
+                    roster[name].prof1 = {};
+                    roster[name].prof2 = {};
+
+                    if player.profession2ID then
+                        roster[name].prof1 = { player.profession2ID , player.profession2Rank };
+                    end
+
+                    if player.profession1ID then
+                        roster[name].prof2 = { player.profession1ID , player.profession1Rank };
                     end
 
                 end
-                count = count + 1;
-            end
 
-            if not roster[name] then
-
-                roster[name] = {}; -- For easy referencing.
-                roster[name].name = name;
-                roster[name].rosterSelection = GRM.GetRosterSelectionID( name , player.guid );
-                roster[name].rankName = player.guildRank;
-                roster[name].rankIndex = player.guildRankOrder - 1; -- Subtract one due to legacy changes - it used to start at index 0 until 8.0
-                roster[name].level = player.level;
-                roster[name].note = player.memberNote or "";
-                roster[name].officerNote = player.officerNote or "";
-                roster[name].class = C_CreatureInfo.GetClassInfo(player.classID).classFile;
-                roster[name].isOnline = GRM.IsPresenceOnline(player.presence);
-                roster[name].lastOnline = GRM.Time.CalculateTotalHours(
-                    {player.lastOnlineYear or 0, player.lastOnlineMonth or 0, player.lastOnlineDay or 0,
-                    player.lastOnlineHour or 0}, roster[name].isOnline);
-                roster[name].lastOnlineTime = {player.lastOnlineYear or 0, player.lastOnlineMonth or 0,
-                                            player.lastOnlineDay or 0, player.lastOnlineHour or 0};
-                roster[name].zone = player.zone;
-                roster[name].achievementPoints = player.achievementPoints;
-                roster[name].rep = GRM.GetPlayerGuildRep( name , player.guid );
-                roster[name].status = player.presence;
-                roster[name].GUID = player.guid;
-                roster[name].sex = sex;
-
-                local race = player.race;
-                if race then
-                    roster[name].race = C_CreatureInfo.GetRaceInfo(player.race).clientFileString;
-                else
-                    roster[name].race = GRM.GetPlayerRace(player.guid);
+                index = index + 1;
+                if index % 250 == 0 then
+                    C_Timer.After ( 0.5 , function()
+                        GRM.UpdateRosterWithCommunitiesAPI ( roster, orderedRoster, atLeastOne , count , index , members );
+                    end);
+                    return
                 end
-
-                if GRM_G.BuildVersion > 80000 then
-                    roster[name].MythicScore = player.overallDungeonScore or 0;
-                end
-
-                roster[name].faction = GRM_G.faction;
-                if GRM_G.BuildVersion >= 100000 then
-                    roster[name].faction = player.faction;
-                end
-            else
-                count = count + 1;
             end
         end
     end
-    return roster, orderedRoster, atLeastOne , count;
+    GRM_G.UpdatingProfessions = false;
+    GRM.BuildNewRoster ( roster, orderedRoster, atLeastOne , count );
 end
 
--- Method:          GRM.BuildNewRoster()
+-- Method:          GRM.BuildNewRoster([table], table , bool , int)
 -- What it does:    Rebuilds the roster to check against for any changes.
 -- Purpose:         To track for guild changes of course!
-GRM.BuildNewRoster = function()
-    if not GRM_G.CurrentlyScanning and not GRM.ScanKillSwitch() and not GRM_G.MacroInProgress then -- Necessary in case you purge guild in middle of
+GRM.BuildNewRoster = function( roster, orderedRoster, atLeastOne , count )
+    if roster or ( not GRM_G.CurrentlyScanning and not GRM.ScanKillSwitch() and not GRM_G.MacroInProgress ) then -- Necessary in case you purge guild in middle of
 
         GRM_G.CurrentlyScanning = true;
         GRM_G.ScanControl = time();
@@ -14503,13 +14543,12 @@ GRM.BuildNewRoster = function()
         guildNotFound = true;
     end
 
-    local roster, orderedRoster, atLeastOne , count = GRM.BuildRosterClassicMethod();
-
-    -- if C_Club.GetGuildClubId() and GRM_G.gClubID and GRM_G.gClubID ~= "" then
-    --     roster , orderedRoster, atLeastOne = GRM.BuildRosterCommunitiesMethod();
-    -- else
-
-    -- end
+    if not roster then
+        -- Building the roster needs ot be done asynchronously so we will
+        -- recall the BuildNewRoster function when it is time.
+         GRM.BuildRosterClassicMethod();
+         return;
+    end
 
     -- For some reason, on occasion the entire guild DB doesn't load on the full server query, typically only happens shortly after loginc so to prevent issues
     if GRM.TableLength(roster) ~= ( GRM.GetNumGuildies() - count ) then-- GRM.GetNumGuildies() then
@@ -15073,33 +15112,36 @@ end
 -- Method:          GRM.SetBirthday ( string , int , int , int , boolean , string , boolean )
 -- What it Does:    Sets the player's birthday
 -- Purpose:         To take advantage of the player birthdate feature!
-GRM.SetBirthday = function(name, day, month, timeStamp, isSync, sender, isFullSync)
+GRM.SetBirthday = function(name, day, month, timeUpdated, isSync, sender, isFullSync)
     local player = GRM.GetPlayer(name);
     if player then
-        if player.events[2][3] <= timeStamp then
 
-            if isFullSync and (player.events[2][1][1] ~= day or player.events[2][1][2] ~= month) then
+        local birthdayInfo = GRM.GetBirthday ( player );
+
+        if birthdayInfo.timeUpdated <= timeUpdated then
+
+            if isFullSync and (birthdayInfo.date[1] ~= day or birthdayInfo.date[2] ~= month) then
 
                 GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
                 GRMsyncGlobals.updatesEach[5] = GRMsyncGlobals.updatesEach[5] + 1;
             end
 
-            player.events[2][1] = {day, month};
-            player.events[2][2] = false;
-            player.events[2][3] = timeStamp;
-
-            if player.birthdayUnknown then
-                player.birthdayUnknown = false
+            if day == 0 or player.birthdayInfo.date[1] ~= day or player.birthdayInfo.date[2] ~= month then
+                player.birthdayInfo.announced = false;
             end
+            player.birthdayInfo.date[1] = day;
+            player.birthdayInfo.date[2] = month;
+            player.birthdayInfo.timeUpdated = timeUpdated;
+            player.birthdayInfo.birthdayUnknown = false;
 
             GRM.RemoveFromCalendarQue(player.name, 2 , nil);
 
             -- Check Alts as well
-            GRM.SetBirthdayForAltGrouping(name, day, month, timeStamp, isFullSync);
+            GRM.SetBirthdayForAltGrouping(name, day, month, timeUpdated, isFullSync , false , false);
 
             local altGroup = GRM.GetAltGroup(player.altGroup);
             -- Now, send the details out...
-            if altGroup and not isFullSync then
+            if not isFullSync then
 
                 if not isSync then
                     if GRM.S().syncEnabled then
@@ -15109,9 +15151,9 @@ GRM.SetBirthday = function(name, day, month, timeStamp, isSync, sender, isFullSy
                         end
                         GRMsync.SendMessage("GRM_SYNC",
                             "GRM_BDAY?" .. syncRankFilter .. "?" .. name .. "?" .. tostring(day) .. "?" ..
-                                tostring(month) .. "?" .. tostring(timeStamp), "GUILD");
+                                tostring(month) .. "?" .. tostring(timeUpdated), "GUILD");
                     end
-                    if #altGroup > 1 then
+                    if altGroup and #altGroup > 1 then
                         local msg = "";
                         if #altGroup == 2 then -- 1 alt
                             msg = "Birthday set for {name} and {num} alt: {custom1}";
@@ -15129,7 +15171,7 @@ GRM.SetBirthday = function(name, day, month, timeStamp, isSync, sender, isFullSy
 
                     if GRM.S().syncChatEnabled then
 
-                        if #altGroup > 1 then
+                        if altGroup and #altGroup > 1 then
                             local msg = "";
                             if #altGroup == 2 then -- 1 alt
                                 msg = "{name} has set {name2}'s Birthday, and {num} alt: {custom1}";
@@ -15158,7 +15200,7 @@ GRM.SetBirthday = function(name, day, month, timeStamp, isSync, sender, isFullSy
     end
 end
 
--- Method:          GRM.CleanupBirthdays ( int , int )
+-- Method:          GRM.CleanupBirthdays ( int , int , bool , guildTable )
 -- What it Does:    Searches for all matches of this birthdate, and resets them to default empty value
 -- Purpose:         Help cleanup a bug introduced from 1.33
 GRM.CleanupBirthdays = function(day, month, forceOthers, g)
@@ -15166,14 +15208,19 @@ GRM.CleanupBirthdays = function(day, month, forceOthers, g)
         if day > 0 and day < 32 and month > 0 and month < 13 then
             local guildData = g or GRM.GetGuild();
             local count = 0;
-            local timeStamp = 0;
+            local timeUpdated = 0;
+            local birthdayInfo;
+
             if forceOthers then
-                timeStamp = time();
+                timeUpdated = time();
             end
-            for member in pairs(guildData) do
-                if type(guildData[member]) == "table" then
-                    if guildData[member].events[2][1][1] == day and guildData[member].events[2][1][2] == month then
-                        guildData[member].events[2] = {{0, 0}, false, timeStamp};
+
+            for _, player in pairs(guildData) do
+                if type(player) == "table" then
+
+                    birthdayInfo = GRM.GetBirthday ( player );
+                    if birthdayInfo.date[1] == day and birthdayInfo.date[2] == month then
+                        GRM.SetBirthdayInfo ( player , 0 , 0 , false , timeUpdated , false );
                         count = count + 1;
                     end
                 end
@@ -15251,11 +15298,13 @@ end
 -- Purpose:         If the player wipes his save history, it does not wipe what is added to in-game calendar. This just double-checks to avoid double adding.
 GRM.IsCalendarEventAlreadyAdded = function(name, title, day, month, year, typeIndex)
 
-    local titleGeneric = "";
+    local titleGeneric, titleGeneric2 = "","";
     if typeIndex == 1 then
         titleGeneric = GRM.SlimName(name) .. "'s Anniversary!"; -- The title argument received is properly sourced, this just adds a layer of compatibility for guilds that might use a combo of English in the guild and their own translation.
+        titleGeneric2 = name .. "'s Anniversary!";
     elseif typeIndex == 2 then
         titleGeneric = GRM.SlimName(name) .. "'s Birthday!";
+        titleGeneric2 = name .. "'s Birthday!";
     end
 
     local result = false;
@@ -15272,7 +15321,7 @@ GRM.IsCalendarEventAlreadyAdded = function(name, title, day, month, year, typeIn
     end
     for i = 1, C_Calendar.GetNumDayEvents(monthIndex, day) do -- Let's look at all the events on the day of the event
         dayEvent = C_Calendar.GetDayEvent(monthIndex, day, i).title;
-        if dayEvent == titleGeneric or dayEvent == title then
+        if dayEvent == titleGeneric or dayEvent == titleGeneric2 or dayEvent == title then
             result = true;
             break
         end
@@ -15443,132 +15492,217 @@ GRM.CleanupEventsFromplayers = function()
     end
 end
 
+-- Method:          GRM.CheckPlayerAnniversary ( playerTable , int , int , int , int )
+-- What it Does:    Checks the player if their anniversary is coming up
+--
+GRM.CheckPlayerAnniversary = function( player , day , month , year , count )
+    local cleanupHappened = false;
+
+    if GRM.S().annivAnnounce then
+
+        if player.joinDateHist[1][6] then   -- No need to move on and check anniversary for unverified dates.
+            if not player.anniversaryAnnounced then
+                local description = "";
+                local title = "";
+                local eventDay = player.joinDateHist[1][1];
+                local eventMonthIndex = player.joinDateHist[1][2];
+                local eventYear = player.joinDateHist[1][3];
+                local daysTil = GRM.Time.GetDaysBetweenDates({day, month, year},{eventDay, eventMonthIndex, eventYear});
+                local count = 0;
+
+                -- Not reported AND there is a day recorded...
+                if eventDay ~= 0 and (not GRM.S().onlyAnnounceForMain or GRM.IsMain(player.name) ) then
+
+
+                    -- Now, let's check if it needs to be reported!
+                    if GRM.S().calendarAnnouncements and daysTil <= GRM.S().eventAdvanceDays then
+
+                        -- YES! It needs reporting! It is within the threshold!
+                        -- Configure some of the dates
+                        local numYears = year - eventYear;
+                        if month == 12 and eventMonthIndex == 1 then
+                            numYears = numYears + 1;
+                        end
+
+                        local isLeapYear = GRM.Time.IsLeapYear(eventYear);
+
+                        if (eventDay == 29 and eventMonthIndex == 2) and not isLeapYear then -- If anniversary happened on leap year date, and the current year is NOT a leap year, then put it on 1 Mar.
+                            eventDay = 1;
+                            eventMonthIndex = 3;
+                        end
+
+                        -- Join Date Anniversary -- Let's see if player has it set to ONLY announce anniversary event on Calendar for a player's "main"
+                        if numYears ~= 0 then
+
+                            title = GRM.L("{name}'s Anniversary!", GRM.FormatName(player.name));
+                            description = GRM.GetAnniversaryLogReport(player.name, player.class, numYears)
+                            GRM.AddEventEntry (1, player.name, player.class, eventDay, eventMonthIndex,
+                                isLeapYear, GRM.Time.GetTimestamp(), numYears);
+
+                        end
+
+                        -- Now, let's add it to the calendar!!!
+                        if description ~= "" then
+                            local finalYear = year;
+                            if month == 12 and eventMonthIndex == 1 then
+                                finalYear = finalYear + 1;
+                            end
+
+                            if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, r ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
+
+
+                                GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
+                                    description, 1);
+
+                                cleanupHappened = true;
+                                count = count + 1;
+
+                            end
+                        end
+                        -- This has been reported, save it!
+                        player.anniversaryAnnounced = true;
+                    end
+
+                    -- Resetting the event report to false if parameters meet
+                elseif player.anniversaryAnnounced then -- It is still true! Event has been reported! Let's check if time has passed sufficient to wipe it to false
+
+                    if (daysTil > GRM.S().eventAdvanceDays) or (GRM.S().onlyAnnounceForMain and not GRM.IsMain(player.name)) then -- Event is behind us now
+                        player.anniversaryAnnounced = false;
+                        GRM.ResetPlayerEvent(player.name, 1, title);
+                        cleanupHappened = true;
+
+                    end
+                end
+            end
+        elseif player.anniversaryAnnounced then
+            player.anniversaryAnnounced = false;
+        end
+
+    elseif player.anniversaryAnnounced then
+        player.anniversaryAnnounced = false;
+        GRM.ResetPlayerEvent(player.name, 1, "");
+        cleanupHappened = true;
+    end
+    return cleanupHappened , count;
+end
+
+-- Method:          GRM.CheckPlayerBirthday ( playerTable , int , int , int , bool , int )
+-- What it Does:    Checks if the birthday of a player is up and coming
+-- Purpose:         Reporting to log and to event calendar.
+GRM.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappened , count )
+    if cleanupHappened == nil then
+        cleanupHappened = false;
+    end
+
+    if GRM.S().bdayAnnounce then
+
+        local birthdayInfo = GRM.GetBirthday(player);
+
+        if birthdayInfo.date[1] > 0 then   -- No need to move on and check anniversary for unverified dates.
+            if not birthdayInfo.announced then
+                local description = "";
+                local title = "";
+                local eventDay = birthdayInfo.date[1];
+                local eventMonthIndex = birthdayInfo.date[2];
+                local eventYear = year;
+
+                local daysTil = GRM.Time.GetDaysBetweenDates({day, month, year},{eventDay, eventMonthIndex, eventYear});
+                local count = 0;
+
+                -- Not reported AND there is a day recorded...
+                if eventDay ~= 0 and (not GRM.S().onlyAnnounceForMain or GRM.IsMain(player.name) ) then
+
+                    -- Now, let's check if it needs to be reported!
+                    if GRM.S().calendarAnnouncements and daysTil <= GRM.S().eventAdvanceDays then
+
+                        -- YES! It needs reporting! It is within the threshold!
+
+                        local isLeapYear = GRM.Time.IsLeapYear(eventYear);
+
+                        if (eventDay == 29 and eventMonthIndex == 2) and not isLeapYear then -- If birthday happened on leap year date, and the current year is NOT a leap year, then put it on 1 Mar.
+                            eventDay = 1;
+                            eventMonthIndex = 3;
+                        end
+
+                        title = GRM.L("{name}'s Birthday!", GRM.FormatName(player.name));
+                        description = GRM.GetBirthdayLogReport(player.name, player.class)
+                        GRM.AddEventEntry(2, player.name, player.class, eventDay, eventMonthIndex,
+                            isLeapYear, GRM.Time.GetTimestamp());
+
+                        -- Now, let's add it to the calendar!!!
+                        if description ~= "" then
+                            local finalYear = year;
+                            if month == 12 and eventMonthIndex == 1 then
+                                finalYear = finalYear + 1;
+                            end
+
+                            if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 2 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 2 , title) then
+
+
+                                GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
+                                    description, 2);
+
+                                cleanupHappened = true;
+                                count = count + 1;
+
+                            end
+                        end
+                        -- This has been reported, save it!
+                        birthdayInfo.announced = true;
+                    end
+
+                    -- Resetting the event report to false if parameters meet
+                elseif birthdayInfo.announced then -- It is still true! Event has been reported! Let's check if time has passed sufficient to wipe it to false
+
+                    if (daysTil > GRM.S().eventAdvanceDays) or (GRM.S().onlyAnnounceForMain and not GRM.IsMain(player.name)) then -- Event is behind us now
+                        birthdayInfo.announced = false;
+                        GRM.ResetPlayerEvent(player.name, 2, title);
+                        cleanupHappened = true;
+
+                    end
+                end
+            end
+        elseif birthdayInfo.announced then
+            birthdayInfo.announced = false;
+        end
+
+    elseif birthdayInfo.announced then
+        birthdayInfo.announced = false;
+        GRM.ResetPlayerEvent(player.name, 2, "");
+        cleanupHappened = true;
+    end
+
+    return cleanupHappened , count;
+end
+
 -- Method:          GRM.CheckPlayerEvents ( bool )
 -- What it Does:    Scans through all players'' "events" of the given guild and updates if any are pending
 -- Purpose:         Event Management for Anniversaries, Birthdays, and Custom Events
 GRM.CheckPlayerEvents = function( rescanning )
 
-    if not GRMsyncGlobals.currentlySyncing and not GRM_G.ReScanningEvents then
+    if not GRMsyncGlobals.currentlySyncing and ( not GRM_G.ReScanningEvents or rescanning ) then
 
         -- including anniversary, birthday , and custom
         local month, day, year = select(2, GRM.Time.GetTodaysDate());
-        local eventMonthIndex, eventDay, eventYear, isLeapYear, description;
-        local title = "";
-        local count = 0;
 
         -- Quickly cleanup the list if necessary
         GRM.CleanupEventsFromplayers();
-        local playerSlimName;
         local guildData = GRM.GetGuild();
         local cleanupHappened = false;
+        local count = 0;
 
         if guildData then
             for _, player in pairs(guildData) do
                 if type(player) == "table" then
+
+                    cleanupHappened , count = GRM.CheckPlayerAnniversary ( player , day , month, year , count );
+
+                    cleanupHappened , count = GRM.CheckPlayerBirthday ( player , day , month , year , cleanupHappened , count );
+
                     playerSlimName = GRM.SlimName(player.name);
-
-                    -- Player identified, now let's check his event info!
-                    for r = 1, #player.events do -- Loop all events to check!
-
-                        if r > 2 or (r == 1 and GRM.S().annivAnnounce) or (r == 2 and GRM.S().bdayAnnounce) then
-                            description = "";
-                            title = "";
-
-                            eventDay = player.events[r][1][1];
-                            eventMonthIndex = player.events[r][1][2];
-                            if r == 1 then
-                                eventYear = player.events[r][1][3];
-                            end
-                            if not eventYear or (r == 2 and eventYear < 2000) then
-                                eventYear = year;
-                            end
-
-                            local daysTil = GRM.Time.GetDaysBetweenDates({day, month, year},
-                                {eventDay, eventMonthIndex, eventYear});
-
-                            -- Not reported AND there is a day recorded...
-                            if not player.events[r][2] and player.events[r][1][1] ~= 0 and
-                                (r > 2 or (r < 3 and (not GRM.S().onlyAnnounceForMain or GRM.IsMain(player.name)))) then -- if it has already been reported, then we are good!
-
-                                -- Now, let's check if it needs to be reported!
-                                if GRM.S().calendarAnnouncements and daysTil <= GRM.S().eventAdvanceDays then
-
-                                    -- YES! It needs reporting! It is within the threshold!
-                                    -- Configure some of the dates
-                                    local numYears = year - eventYear;
-                                    if month == 12 and eventMonthIndex == 1 then
-                                        numYears = numYears + 1;
-                                    end
-
-                                    isLeapYear = GRM.Time.IsLeapYear(eventYear);
-
-                                    if (eventDay == 29 and eventMonthIndex == 2) and not isLeapYear then -- If anniversary happened on leap year date, and the current year is NOT a leap year, then put it on 1 Mar.
-                                        eventDay = 1;
-                                        eventMonthIndex = 3;
-                                    end
-
-                                    -- Join Date Anniversary -- Let's see if player has it set to ONLY announce anniversary event on Calendar for a player's "main"
-                                    if r == 1 and numYears ~= 0 then
-
-                                        title = GRM.L("{name}'s Anniversary!", playerSlimName);
-                                        description = GRM.GetAnniversaryLogReport(player.name, player.class, numYears)
-                                        GRM.AddEventEntry (r, player.name, player.class, eventDay, eventMonthIndex,
-                                            isLeapYear, GRM.Time.GetTimestamp(), numYears);
-
-                                    elseif r == 2 then
-
-                                        title = GRM.L("{name}'s Birthday!", playerSlimName);
-                                        description = GRM.GetBirthdayLogReport(player.name, player.class)
-                                        GRM.AddEventEntry(r, player.name, player.class, eventDay, eventMonthIndex,
-                                            isLeapYear, GRM.Time.GetTimestamp());
-
-                                    end
-
-                                    -- Now, let's add it to the calendar!!!
-                                    if description ~= "" then
-                                        local finalYear = year;
-                                        if month == 12 and eventMonthIndex == 1 then
-                                            finalYear = finalYear + 1;
-                                        end
-
-                                        if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(playerSlimName, title, eventDay, eventMonthIndex, finalYear, r ) ) ) and not GRM.IsOnAnnouncementList(player.name, r, title) then
-
-
-                                            GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
-                                                description, r);
-
-                                            cleanupHappened = true;
-                                            count = count + 1;
-                                            if count == 10 then
-                                                break;
-                                            end
-
-                                        end
-                                    end
-                                    -- This has been reported, save it!
-                                    player.events[r][2] = true;
-                                end
-
-                                -- Resetting the event report to false if parameters meet
-                            elseif player.events[r][2] then -- It is still true! Event has been reported! Let's check if time has passed sufficient to wipe it to false
-
-                                if (daysTil > GRM.S().eventAdvanceDays) or (GRM.S().onlyAnnounceForMain and not GRM.IsMain(player.name)) then -- Event is behind us now
-                                    player.events[r][2] = false;
-                                    GRM.ResetPlayerEvent(player.name, r, title);
-                                    cleanupHappened = true;
-
-                                end
-                            end
-                            -- No longer tracking, let's remove.
-                        elseif player.events[r][2] then
-                            player.events[r][2] = false;
-                            GRM.ResetPlayerEvent(player.name, r, "");
-                            cleanupHappened = true;
-                        end
+                    if count == 10 then
+                        break;
                     end
-                end
-                if count == 10 then
-                    break;
                 end
             end
 
@@ -15584,8 +15718,9 @@ GRM.CheckPlayerEvents = function( rescanning )
                 end);
             end
 
-            GRM_G.ReScanningEvents = false;
         end
+
+        GRM_G.ReScanningEvents = false;
     end
 end
 
@@ -16848,9 +16983,10 @@ GRM.SetJoinDate = function(name, dayJoined, monthJoined, yearJoined)
             -- If it was unKnown before
             player.joinDateUnknown = false;
 
-            if player.events[2][1][1] ~= 0 then
+            local birthdayInfo = GRM.GetBirthday(player);
+            if birthdayInfo.date[1] ~= 0 then
                 showBdayText = true;
-                formatBdayStamp = GRM.Time.FormatTimeStamp({ player.events[2][1][1] , player.events[2][1][2] }, false, true);
+                formatBdayStamp = GRM.Time.FormatTimeStamp({ birthdayInfo.date[1] , birthdayInfo.date[2] }, false, true);
             end
 
             -- For UI
@@ -16860,11 +16996,7 @@ GRM.SetJoinDate = function(name, dayJoined, monthJoined, yearJoined)
             -- Update timestamp to note.
             GRM.AddTimeStampToNote( name , player.GUID , finalTStamp);
 
-            -- Gotta update the event tracker date too!
-            player.events[1][1][1] = dayJoined;
-            player.events[1][1][2] = monthJoined;
-            player.events[1][1][3] = yearJoined;
-            player.events[1][2] = false; -- Gotta Reset the "reported already" boolean!
+            player.anniversaryAnnounced = false; -- Gotta Reset the "reported already" boolean!
             GRM.RemoveFromCalendarQue(name, 1, nil);
 
             GRM_UI.RefreshSelectFrames(false, true, false, false, false, true);
@@ -17160,9 +17292,11 @@ GRM.SetAllIncompleteBdayUnknown = function()
                 for _, player in pairs(GRM.GetGuild()) do
                     if type(player) == "table" then
 
+                        local birthdayInfo = GRM.GetBirthday ( player );
+
                         -- if not "unknown" already, and if it doesn't have an established bday
-                        if not player.birthdayUnknown and player.events[2][1][1] == 0 then
-                            player.birthdayUnknown = true
+                        if not birthdayInfo.unknown and birthdayInfo.date[1] == 0 then
+                            GRM.SetBirthdayInfo ( player , nil , nil , nil , nil , true );
                             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == player.name then
                                 GRM_G.pause = false;
                                 GRM.ClearAllFrames(true);
@@ -17182,7 +17316,7 @@ GRM.SetAllIncompleteBdayUnknown = function()
                 for _, player in pairs(GRM.GetGuild()) do
                     if type(player) == "table" then
 
-                        player.birthdayUnknown = false;
+                        GRM.SetBirthdayInfo ( player , nil , nil , nil , nil , false );
                         if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == player.name then
                             GRM_G.pause = false;
                             GRM.ClearAllFrames(true);
@@ -17251,12 +17385,15 @@ GRM.DateSubmitCancelResetLogic = function(isUnknown, date, isAudit, playerName)
             end
 
             if isUnknown and date == "bday" then
-                player.birthdayUnknown = true
+                GRM.SetBirthdayInfo ( player , nil , nil , nil , nil , true );
             end
-            if player.birthdayUnknown or player.events[2][1][1] ~= 0 then
+
+            local birthdayInfo = GRM.GetBirthday ( player );
+
+            if birthdayInfo.unknown or birthdayInfo.date[1] ~= 0 then
                 showBdayText = true;
-                if not player.birthdayUnknown then
-                    formatBdayStamp = GRM.Time.FormatTimeStamp({ player.events[2][1][1], player.events[2][1][2] }, false, true);
+                if not birthdayInfo.unknown then
+                    formatBdayStamp = GRM.Time.FormatTimeStamp({ birthdayInfo.date[1] , birthdayInfo.date[2] }, false, true);
                 else
                     formatBdayStamp = GRM.L("Unknown");
                 end
@@ -17439,9 +17576,12 @@ GRM.GetRecordedDate = function(buttonName)
         day = player.joinDateHist[1][1];
         month = player.joinDateHist[1][2];
         currentYear = player.joinDateHist[1][3];
-    elseif buttonName == "Birthday" and not player.birthdayUnknown and player.events[2][1][1] ~= 0 then
-        day = player.events[2][1][1];
-        month = player.events[2][1][2];
+    elseif buttonName == "Birthday" then
+        local birthdayInfo = GRM.GetBirthday( player );
+        if not birthdayInfo.unknown and birthdayInfo.date[1] ~= 0 then
+            day = birthdayInfo.date[1];
+            month = birthdayInfo.date[2];
+        end
     end
 
     return day, month, currentYear;
@@ -20362,8 +20502,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                         GRM_UI.GRM_MemberDetailMetaData.GRM_SetPromoDateButton:Hide();
                         GRM_G.rankDateSet = true;
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:SetText(GRM.DateUntrustedTag(
-                            player.rankHist[1][7]) .. GRM.L("Promoted:") .. " " ..
-                                                                                                GRM.Time.FormatTimeStamp(
+                            player.rankHist[1][7]) .. GRM.L("Promoted:") .. " " .. GRM.Time.FormatTimeStamp(
                                 {player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]}, false, false));
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:Show();
                     end
@@ -20382,9 +20521,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailJoinDateButton:Hide();
 
                         GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:SetText(GRM.DateUntrustedTag(
-                            player.joinDateHist[1][6]) ..
-                                                                                     GRM.Time.FormatTimeStamp(
-                                {player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false));
+                            player.joinDateHist[1][6]) .. GRM.Time.FormatTimeStamp( {player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false) );
                         GRM_UI.GRM_MemberDetailMetaData.GRM_JoinDateText:Show();
                     end
                 end
@@ -20393,16 +20530,18 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                 if not doubleCopy and GRM.S().showBDay then
                     -- Title should always be here
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayTitleText:Show();
-                    if player.birthdayUnknown then
+
+                    local birthdayInfo = GRM.GetBirthday( player );
+                    if birthdayInfo.unknown then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
                         GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText(GRM.L("Unknown"));
                         GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
                     else
                         -- Checking button vs text
-                        if player.events[2][1][1] ~= 0 then
+                        if birthdayInfo.date[1] ~= 0 then
                             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Hide();
                             GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:SetText(GRM.Time.FormatTimeStamp(
-                                { player.events[2][1][1] , player.events[2][1][2] }, false, true));
+                                { birthdayInfo.date[1] , birthdayInfo.date[2] }, false, true));
                             GRM_UI.GRM_MemberDetailMetaData.GRM_BirthdayText:Show();
                         else
                             GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBirthdayButton:Show();
@@ -21736,6 +21875,8 @@ GRM.PlayerNameTooltip = function(self)
         self.GRM_MemberDetailServerNameToolTip:AddLine(" ");
         self.GRM_MemberDetailServerNameToolTip:AddLine(GRM.L("{custom1} to Copy Name to Chat", nil, nil, nil,
             "|CFFE6CC7F" .. GRM.L("Shift-Click") .. "|r"));
+        self.GRM_MemberDetailServerNameToolTip:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
+             "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
         self.GRM_MemberDetailServerNameToolTip:AddLine(GRM.L("{custom1} for Additional Options", nil, nil, nil,
             "|CFFE6CC7F" .. GRM.L("Right-Click") .. "|r"));
         self.GRM_MemberDetailServerNameToolTip:Show();
@@ -21812,6 +21953,8 @@ GRM.AltNameTooltip = function(self)
                                 "|CFFE6CC7F" .. GRM.L("Right-Click") .. "|r"));
                             AltTT:AddLine(GRM.L("{custom1} to open Player Window", nil, nil, nil,
                                 "|CFFE6CC7F" .. GRM.L("Ctrl-Click") .. "|r"))
+                            AltTT:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
+                                "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
                             isOver = true;
                             break
                         end
@@ -23984,10 +24127,7 @@ GRM.EditJoinDateManually = function(name, day, month, year)
         player.joinDateUnknown = false;
 
         -- Gotta update the event tracker date too for anniversary!!!
-        player.events[1][1][1] = day;
-        player.events[1][1][2] = month;
-        player.events[1][1][3] = year;
-        player.events[1][2] = false; -- Gotta Reset the "reported already" boolean!
+        player.anniversaryAnnounced = false; -- Gotta Reset the "reported already" boolean!
         GRM.RemoveFromCalendarQue(name, 1, nil);
 
     end
@@ -25401,28 +25541,40 @@ GRM.GR_Roster_Click = function(name)
 
         if IsShiftKeyDown() and not GRM_G.RecursiveStop then
 
-            if GetCurrentKeyBoardFocus() ~= nil then
-                if GetCurrentKeyBoardFocus():GetName() ~= nil then
-                    if "GRM_AddAltEditBox" == GetCurrentKeyBoardFocus():GetName() then
-                        GetCurrentKeyBoardFocus():SetText(name);
-                    else
-                        GetCurrentKeyBoardFocus():Insert(GRM.SlimName(name)); -- Adds it at the cursor position...
-                    end
+            if IsControlKeyDown() then
+                GRM_UI.RestoreTooltipScale();
+                GameTooltip:Hide();
+                -- If Core GRM window is not open, let's open it!
+                if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+                    GRM_UI.GRM_RosterChangeLogFrame:Show();
                 end
-
-                GRM_G.RecursiveStop = true;
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( name ) );
+            else
 
                 if GetCurrentKeyBoardFocus() ~= nil then
-                    if GetCurrentKeyBoardFocus():GetName() ~= nil and GetCurrentKeyBoardFocus():GetName() ==
-                        "GRM_AddAltEditBox" then
-                        GRM.AddAltAutoComplete();
-                        GRM_G.pause = true;
+                    if GetCurrentKeyBoardFocus():GetName() ~= nil then
+                        if "GRM_AddAltEditBox" == GetCurrentKeyBoardFocus():GetName() then
+                            GetCurrentKeyBoardFocus():SetText(name);
+                        else
+                            GetCurrentKeyBoardFocus():Insert(GRM.SlimName(name)); -- Adds it at the cursor position...
+                        end
                     end
-                end
-            else
-                -- Since player doesn't have keyboard focus, let's just default it to main chat window
-                ChatFrame_OpenChat(GRM.SlimName(name));
 
+                    GRM_G.RecursiveStop = true;
+
+                    if GetCurrentKeyBoardFocus() ~= nil then
+                        if GetCurrentKeyBoardFocus():GetName() ~= nil and GetCurrentKeyBoardFocus():GetName() ==
+                            "GRM_AddAltEditBox" then
+                            GRM.AddAltAutoComplete();
+                            GRM_G.pause = true;
+                        end
+                    end
+                else
+                    -- Since player doesn't have keyboard focus, let's just default it to main chat window
+                    ChatFrame_OpenChat(GRM.SlimName(name));
+
+                end
             end
         end
         GRM_G.RosterClickTimer = time;
@@ -25961,6 +26113,7 @@ GRM.SlashCommandOptions = function()
     end
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:Click();
 end
+
 
 -- Method:          GRM.SlashCommandExport()
 -- What it Does:    Opens the export window
@@ -26874,6 +27027,9 @@ GRM.ReactivateAddon = function()
         if GRM.IsHardcoreActive() then
             GRM_UI.VerifyIfHCChannelsEnabled();
         end
+
+        -- Re-trigger the minimap
+        GRM_UI.GRM_MinimapButtonInit();
     end
 
     C_Timer.After(2, GRM.LoadAddon);
@@ -26914,6 +27070,10 @@ GRM.ManageGuildStatus = function()
                 GRM_G.DelayedAtLeastOnce = true; -- Keeping it true as there does not need to be a delay at this point.
                 GRM_G.guildRankNames = nil; -- reset guild rank names.
                 GRMsyncGlobals.DatabaseLoaded = false;
+
+                if GRM_UI.GRM_MinimapButton then
+                    GRM_UI.GRM_MinimapButton:Hide();
+                end
 
                 if GRM_G.BuildVersion >= 10000 then
                     UI_Events:UnregisterEvent("GUILD_EVENT_LOG_UPDATE"); -- This prevents it from doing an unnecessary tracking call if not in guild.

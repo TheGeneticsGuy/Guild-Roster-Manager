@@ -1,3 +1,56 @@
+## **VERSION 1.99165 RELEASE - April 13th, 2025**
+
+**COMPATIBILITY RELEASE - Retail 11.1, Cata 4.4.2, Classic Era 1.15.7
+
+***BUG FIXES***
+
+* **CLASSIC ERA SYNCING - LONG EXPLANATION OF ISSUE**
+
+  - So, after a lot of debugging, and I know this has long been delayed, but I had been hitting a bit of a wall where I traced the error all the way to sending a message across the Blizz realm server to basically do addon to addon comms with another addon user. Well, this is where the trace stopped and why sync couldn't really continue. You see, every message I send is tagged numerically with an incrementing message up. So, as I send each message, let's 1-100, the addon user on the other end will collect message 1-100. This is done for 2 reason. One, for some unknown reason, messages can be received out of order. I probably has to do with the way Blizz handles receiving/processing asynchronously on the backend, but I am not sure. So, the server process the messages, then forwards them on. They might be received slightly out of order. This is sort of problematic if I am sending a lengthy say "custom GRM note" that is broken into separate message. Well, GRM will reassemble the message in the correct order.
+
+  - Well, the other issue is on rare occasions, sometimes messages seem to disappear. Rare, but it happens, and sometimes it's as little explanation as unexpected lag spikes, quick loading windows that maybe interrupt the message being sent, etc... The nice thing about this, is I wrote fairly robust redundancy into the syncing where if let's say the message #19 was missing of the 100, then the player will send a re-request just for the missing #19. And, then it will be re-sent, and collected. This allows the sync process to be a little more reliable and fail less due to incomplete info. On retail, I have not had any issues regarding this.
+
+  - So, for some reason on Classic Era after the 1.15.5 (or 6) update, messages just started disappearing en masse. Like, I would send 100 messages, just in a test, very simple, short, clear messages to another account. I'd send 1-100, and 2 dozen of them would be missing. The request would auto go out for the missing messages, and maybe 4 or 5 of them would still be missing on the re-send. OR, even worse, the request itself would just disappear and never arrive lol. I tried variations on the messages. I thought maybe some prefix was killing it, some bad text code. But nope, nothing would change it. VERY hard to debug, and I seemed to hit a wall.
+
+  - Finall, this week, 1.15.7 drops on Classic Era, and boom, the error seems to go away and self-resolve. Remember, this error has not plagued Retail. This seemed to be isolated to Classic builds, even though they shared the same codebase. So, my only explanation that I can think of is that Blizz maybe inadvertantly introduced a bug that affected only Classic, and in this latest update they did an unpublished bug fix on the backend and it fixed it. I Hope it is really that simple. But, I just wanted to say, before people try to thank me for fixing the syncing bug, this was NOT me at all. I didn't pull any magic, or fix my broken code... it was 100% related to the 1.15.7 update which seemed to fix the issue on it's own. Thank you for your patience and I am sorry you had to go through this frustrating bug I didn't really have a solution, yet, to resolve.
+
+ ***BUG FIXES CONTINUED***
+
+* The minimap icon was not showing after joining a guild until you reloaded or relogged. This should now properly show once you join a guild.
+
+* Fixed sort of an edge case bug where if you delete a toon then create a new toon under the same name, it will get added to an alt grouping and their rules incorrectly as it teechnically is a new toon. This shouldn't cause any Lua errors after doing this now.
+
+* Fixed a bug where the right-click wouldn't work in some cases after loading in on the player names in chat.
+
+* Fixed a bug where if you tried to Export the list of names in the macro tool, the Export window would not open and you would get a Lua error. This is now fixed.
+
+* The `/grm export` slash command was not working and would cause an error on loading the window. It is now resolved.
+
+* Fixed an error where the player anniversary would incorrectly state they had been a member for 2025 years! This actually occurred for anyone who had used a specific script `GRM_API.SetAllUnknownJoinDates` as I had failed to update the year, only the day/month, and year got reset back to zero. Oops! This should no longer occur.
+
+* Fixed an issue where if the player was scanning for updated anniversary or birthday events, it would skip after finding the first 10 until the next scan. It should now find all of them.
+
+* Fixed a flaw regarding birthdays if player has set them as unknown. In some cases it would show the birthday for some players in an alt group and unknown for others. The birthday is now unified within the alt group as it can be assumed that all players in an alt group share the same RL birthday. Here is the updated data structure.
+
+    * First, the `player.events`  variable is removed. This housed both Anniversary and bday info
+
+    * Second, the variable `player.anniversaryAnnounced` has been added
+
+    * Third, all birthday info has been added to the following data variable `player.birthdayInfo`
+
+```
+- `birthdayInfo.day { 15 , 2 }`   - This would be for 15th, Feb
+- `birthdayInfo.announced`        - Boolean if the bday has been announced to the log already within that time threshold
+- `birthdayInfo.timeUpdated`      - This would be the epoch stamp of when the date was added, removed, or updated
+- `birthdayInfo.unknown`          - Variable player can set on the audit if they wish to keep it at unknown as placeholder.
+```
+
+* Fixed a slight bug on adding players to the alt group - the list generated as you type will no exclude your own name as well as alt names already in your group, and if you type the full name manually
+
+* Fixed an issue that could cause GRM to fail to scan the roster and end up having a script that "ran too long." This really only affected rather large guilds, but it was still an issue. This shouldn't happen anymore.
+
+* Fixed a bug where on the mouseover window you can now Ctrl-Shift-Click to search the player or alt name in the log. This should have been implemnted before, but in some occasions, if you tried, it would error out as it ignored searching the log and tried to copy the name to the chat box.
+
 
 ## **VERSION 1.99164 RELEASE - December 29th, 2024**
 

@@ -1880,4 +1880,7 @@ GRML.French = function()
     GRM_L["Would you like to enable the communities roster?"] = true
     GRM_L["Communities Roster is now Enabled."] = true
 
+    -- R1.99165
+    GRM_L["Player is Already in this Alt Group"] = true
+
 end

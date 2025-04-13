@@ -340,7 +340,7 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
                     end
                 end
                 if GRM.S().exportFilters.bday then -- Birthday
-                    if roster[i].birthdayUnknown then
+                    if roster[i].birthdayInfo.unknown then
                         playerDetails = playerDetails .. GRM.L("Unknown") .. delimiter;
                     else
                         -- Checking button vs text
@@ -2595,7 +2595,7 @@ Export.LoadExportUI = function( isManualUpdate )
             if button == "LeftButton" then
                 if GRM_UI.GRM_ExportLogBorderFrame.TabPosition ~= 4 then
                     GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 4;
-                    Export.SetExportTabHighlightsWW();
+                    Export.SetExportTabHighlights();
                 end
             end
         end);
@@ -2804,10 +2804,13 @@ Export.LoadExportUI = function( isManualUpdate )
         isManualUpdate = true;   -- need to set as true to ensure text gets configured first time.
         -- Need to scale it properly
         GRM_UI.SetAllWindowScales ( true , "export" );
+
+        GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
     end
 
     if isManualUpdate then
         Export.BuildExportStrings();
+        Export.SetExportTabHighlights();
     end
 end
 

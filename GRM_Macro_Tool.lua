@@ -1747,6 +1747,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM.Report ( GRM.L ( "No Current Names to Add" ) );
                 else
 
+                    if not GRM_UI.GRM_ExportLogBorderFrame then
+                        GRM.Export.LoadExportUI( false );
+                    end
+
                     if not GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
                         GRM_UI.GRM_ExportLogBorderFrame:Show();
                     end
