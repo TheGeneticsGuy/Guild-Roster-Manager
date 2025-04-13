@@ -13,9 +13,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99165";
-GRM_G.PatchDayString = "1744528984";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1744528984;            -- In Epoch Time
+GRM_G.Version = "R1.99166";
+GRM_G.PatchDayString = "1744533550";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1744533550;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110100;

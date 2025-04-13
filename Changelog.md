@@ -1,4 +1,4 @@
-## **VERSION 1.99165 RELEASE - April 13th, 2025**
+## **VERSION 1.99166 RELEASE - April 13th, 2025**
 
 **COMPATIBILITY RELEASE - Retail 11.1, Cata 4.4.2, Classic Era 1.15.7
 
