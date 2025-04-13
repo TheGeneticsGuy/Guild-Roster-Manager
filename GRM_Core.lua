@@ -3074,10 +3074,10 @@ GRM.AppendServerName = function(name, currentGuild)
     return name;
 end
 
--- Method:          GRM.AppendServerName(string,string)
+-- Method:          GRM.AppendServerNameSimple(string,string)
 -- What it Does:    Appends the realm name to a player's name if not alreayd appended
 -- Purpose:         Useful as database matchign requires full name-server.
-GRM.AppendServerName = function ( name , server )
+GRM.AppendServerNameSimple = function ( name , server )
 
     if not string.find(name,"-") then
         server = server or GRM_G.realmName;
@@ -14486,7 +14486,7 @@ GRM.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster, atLeastOne
 
             while index <= #members do
                 player = C_Club.GetMemberInfo(GRM_G.gClubID, members[index])
-                name = GRM.AppendServerName(player.name);
+                name = GRM.AppendServerNameSimple(player.name);
 
                 if name ~= "" and roster[name] and roster[name].GUID == player.guid then
                     if player.overallDungeonScore then
