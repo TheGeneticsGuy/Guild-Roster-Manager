@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 138 - 2025-04-13
+--- Total Patches: 139 - 2025-04-14
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1696,7 +1696,15 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 139
+    if numericV < 1.99168 and baseValue < 1.99168 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixMissingBday , true , true , false , nil );
 
+        GRM_AddonSettings_Save.VERSION = "R1.99168";
+        if loopCheck ( 1.99168 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -9495,4 +9503,21 @@ GRM_Patch.UpdateAnnivAndBdayFormat = function()
         end
     end
 
+end
+
+-- 1.99168
+-- Method:          GRM_Patch.FixMissingBday ( playerTable )
+-- What it Does:    Fixes some missing player data due to update failure previously
+-- Purpose:         A few people encountered failure in previous update fully and a couple of roster members had missing birthday info.
+GRM_Patch.FixMissingBday = function( player )
+
+    if not player.birthdayInfo then
+        player.birthdayInfo = {};
+        player.birthdayInfo.date = { 0 , 0 };
+        player.birthdayInfo.announced = false;
+        player.birthdayInfo.timeUpdated = 0;
+        player.birthdayInfo.unknown = false;
+    end
+
+    return player
 end

@@ -1,3 +1,18 @@
+## **VERSION 1.99168 RELEASE - April 14th, 2025**
+
+*Hey everyone - sorry about the speed releases - things should calm down now I think, at least after the 11.1.5 update!*
+
+***BUG FIXES***
+
+* Fixed a bug where the birthdayInfo was missing for some players and thus various features wouldn't work, like audit window and would spam errors. This is fixed.
+
+* Fixed an issue where on occasion, you would say, mass kick using the macro tool, a bunch of names, but a couple of them, even though the chat says they got kicked, the log says they got kicked, and the guild roster confirms they got kicked, their names would linger in the macro tool. It should now properly clear all the names.
+
+* A couple of Lua bugs that could pop when joining a new guild should no longer happen.
+
+*Thank you for the continued bug reports!!!*
+
+
 ## **VERSION 1.99167 RELEASE - April 13th, 2025**
 
 ***BUG FIXES***

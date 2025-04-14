@@ -1272,18 +1272,21 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
             self.Timer = self.Timer + elapsed;
             if self.Timer >= 0.025 then
+
+                -- Macro runs GRM.RMM() which resets macro and sets .HK true
+
                 if GRM_G.HK then
+
                     GRM_G.MacroInProgress = true;
-                    if MacroFrame:IsVisible() then          -- this needs to be hidden or the script won't update the macros.a
+                    if MacroFrame:IsVisible() then          -- this needs to be hidden or the script won't update the macros.
                         MacroFrameCloseButton:Click();
                     end
                     GRM_G.HK = false;
                     GRM.PurgeMacrodNames();
 
                     GRM.GuildRoster();
-                    if GRM_G.BuildVersion >= 10000 then
-                        QueryGuildEventLog();
-                    end
+                    QueryGuildEventLog();
+
                     -- Need to validate the names are update now...
                     if GRM.IsMacroActionComplete() then
 
@@ -1293,23 +1296,22 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     end
 
+                    GRM_G.timeDelayValue = time();
+
                     GRM.BuildQueuedScrollFrame ( true , false , false );
                     GRM.BuildMacrodScrollFrame ( true , true );
-                    GRM_G.timeDelayValue = time(); -- resetting delay
+                    GRM_G.timeDelayValue = time(); -- Prevents it from doing "IsInGuild()" too soon by resetting timer as server reaction is slow
 
-                    if not GRM_G.AuditWindowRefresh then
-                        GRM_G.AuditWindowRefresh = true;
-
-                        -- Delay action
-                        C_Timer.After ( 2 , function()
-                            GRM.RefreshAuditFrames ( true , true );
-                            GRM_G.AuditWindowRefresh = false;
-                            GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
-                        end);
-                    end
                 end
                 self.Timer = 0;
             end
+
+            -- if startCount ~= #GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
+            --     C_Timer.After ( 0.5 , function()
+            --         GRM.GetCountOfNamesBeingFiltered();
+            --         GRM_UI.RefreshSelectFrames ( true , true , true , false , true , true );
+            --     end);
+            -- end
         end);
 
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnHide" , function()
@@ -6727,21 +6729,21 @@ GRM.GetMacroEntries = function ()
     local finalCount = 0;
     local count = 0;
     local count2 = 0;
-    local i = 1;
-    local entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
+    local ind = 1;
+    local entries = GRM.DeepCopyArray(GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
     local macroSet = false;
     local type = 1;
 
     -- Create the macro
-    while i <= #entries do
-        if not GRM.IsNameBlacklisted ( entries[i].name ) then
+    while ind <= #entries do
+        if not GRM.IsNameBlacklisted ( entries[ind].name ) then
             tempText = macroTxt;
 
             -- Save room on the macro if player is on the same server as you
             if GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
-                if entries[i].action == "Promote" then
+                if entries[ind].action == "Promote" then
                     type = 2;
-                elseif entries[i].action == "Demote" then
+                elseif entries[ind].action == "Demote" then
                     type = 3;
                 end
             else
@@ -6749,22 +6751,22 @@ GRM.GetMacroEntries = function ()
             end
 
             if count == 0 then
-                tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. entries[i].name;
+                tempText = "/run GRM.RMM()\n" .. entries[ind].macro .. " " .. entries[ind].name;
                 count = 1;
             else
-                tempText = tempText .. "\n" .. entries[i].macro .. " " .. entries[i].name;
+                tempText = tempText .. "\n" .. entries[ind].macro .. " " .. entries[ind].name;
             end
 
             -- Macro still not full and we are still on the first set
             if #tempText < 256 and count2 == 0 then
                 macroTxt = tempText;
-                table.insert ( result , entries[i] );
-                i = i + 1;
+                table.insert ( result , entries[ind] );
+                ind = ind + 1;
 
             -- Macro Still not full and we are on the 2nd loop that is not being used to be built
             elseif #tempText < 256 and count2 > 0 then
                 macroTxt = tempText;
-                i = i + 1;
+                ind = ind + 1;
 
             -- Macro IS full, and we are still on the first set.
             elseif #tempText > 255 and count2 == 0 then
@@ -6784,10 +6786,10 @@ GRM.GetMacroEntries = function ()
             end
 
         else
-            i = i + 1;      -- Name was blacklisted, moving on.
+            ind = ind + 1;      -- Name was blacklisted, moving on.
         end
 
-        if i > #entries then
+        if ind > #entries then
             if not macroSet and #tempText > 0 then
                 finalCount = #macroTxt;
                 GRM.CreateMacro ( macroTxt , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey );
@@ -6922,7 +6924,6 @@ end
 -- What it Does:    Removes the names just macro'd from the list
 -- Purpose:         Rebuild the macros ASAP!
 GRM.PurgeMacrodNames = function()
-    local startCount = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
 
     for i = #GRM_UI.GRM_ToolCoreFrame.MacroEntries , 1 , -1 do
         for j = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries , 1 , -1 do
@@ -6944,14 +6945,6 @@ GRM.PurgeMacrodNames = function()
             end
         end
     end
-
-    if startCount ~= #GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
-        C_Timer.After ( 0.5 , function()
-            GRM.GetCountOfNamesBeingFiltered();
-            GRM_UI.RefreshSelectFrames ( true , true , true , false , true , true );
-        end);
-    end
-
 end
 
 -- Method:          GRM.ValidateMacroRecordingSuccess ( bool )
@@ -10134,6 +10127,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                         -- Check safe list too
 
                         if not player.safeList.kick[1] and not isHigherAlt and rule.isEnabled then      -- Ignore for scanning... but I still want a count of the ignored.
+
                             local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
 
                             if index == nil then

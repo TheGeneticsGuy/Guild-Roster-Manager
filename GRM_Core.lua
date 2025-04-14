@@ -13,9 +13,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99167";
-GRM_G.PatchDayString = "1744593829";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1744593829;            -- In Epoch Time
+GRM_G.Version = "R1.99168";
+GRM_G.PatchDayString = "1744622183";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1744622183;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110100;
@@ -3384,7 +3384,7 @@ GRM.SystemMessageHandler = function(_, _, msg)
     if not GRM_G.SystemMessagesEnabled then
 
         -- Error protection to not break chat
-        if GRM.S() then
+        if GRM.S() and GRM.GetGuild() ~= nil then
             if msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
 
                 GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or
@@ -3615,10 +3615,6 @@ end
 -- What it Does:    Returns the birthday table, be it from the player if not in an alt group, or from altGroup
 -- Purpose:         If player is NOT in an alt group, they should still have an index for birthday info.
 GRM.GetBirthday = function ( player )
-
-    if not player then
-        return;
-    end
 
     if player.altGroup ~= "" then
         local alts = GRM.GetAltGroup ( player.altGroup );
@@ -26747,7 +26743,7 @@ GRM.TrackingConfiguration = function(forced)
         end
 
         -- Auto import if it is player's own toon.
-        if GRM_G.BuildVersion > 10000 and
+        if GRM_G.BuildVersion > 10000 and GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser] and
             (#GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser] == 0 or not GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser][1]) then
             local addonUser = GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser];
             if #addonUser == 0 then
