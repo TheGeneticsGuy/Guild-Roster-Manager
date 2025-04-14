@@ -13,9 +13,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99166";
-GRM_G.PatchDayString = "1744533550";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1744533550;            -- In Epoch Time
+GRM_G.Version = "R1.99167";
+GRM_G.PatchDayString = "1744593829";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1744593829;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110100;
@@ -3156,7 +3156,7 @@ GRM.GetNumMains = function()
     return count;
 end
 
--- Method:          GetListOfGuildRanks( bool )
+-- Method:          GRM.GetListOfGuildRanks( bool , bool , bool)
 -- What it Does:    Gets a list of all rank names for dropdown menu
 -- Purpose:         For building the macro dropdown menu for destination rank
 GRM.GetListOfGuildRanks = function(includeLeader, descending, asString)
@@ -3165,6 +3165,7 @@ GRM.GetListOfGuildRanks = function(includeLeader, descending, asString)
     local resultString = "";
 
     local delimiter = "||";
+    local name = "";
 
     local c = 1;
     if not includeLeader then
@@ -3173,27 +3174,37 @@ GRM.GetListOfGuildRanks = function(includeLeader, descending, asString)
 
     if descending then
         for i = c, numRanks do
+            name = GuildControlGetRankName(i);
+            if name == "" then
+                return nil;
+            end
 
             if asString then
                 if i == numRanks then
-                    resultString = resultString .. GuildControlGetRankName(i);
+                    resultString = resultString .. name;
                 else
-                    resultString = resultString .. GuildControlGetRankName(i) .. delimiter;
+                    resultString = resultString .. name .. delimiter;
                 end
             else
-                table.insert(result, GuildControlGetRankName(i));
+                table.insert(result, name);
             end
         end
     else
         for i = numRanks, c, -1 do
+
+            name = GuildControlGetRankName(i);
+            if name == "" then
+                return nil;
+            end
+
             if asString then
                 if i == c then
-                    resultString = resultString .. GuildControlGetRankName(i);
+                    resultString = resultString .. name;
                 else
-                    resultString = resultString .. GuildControlGetRankName(i) .. delimiter;
+                    resultString = resultString .. name .. delimiter;
                 end
             else
-                table.insert(result, GuildControlGetRankName(i));
+                table.insert(result, name);
             end
         end
     end
@@ -3604,6 +3615,10 @@ end
 -- What it Does:    Returns the birthday table, be it from the player if not in an alt group, or from altGroup
 -- Purpose:         If player is NOT in an alt group, they should still have an index for birthday info.
 GRM.GetBirthday = function ( player )
+
+    if not player then
+        return;
+    end
 
     if player.altGroup ~= "" then
         local alts = GRM.GetAltGroup ( player.altGroup );
@@ -14169,21 +14184,29 @@ GRM.CheckGuildRanks = function()
     local numRanks = GuildControlGetNumRanks();
 
     if numRanks == 0 or numRanks == nil then -- To prevent an error here, as this is critical, we wil not continue forward.
-        return false;
+        return;
     end
 
     local guildData = GRM.GetGuild();
+    local ranks = GRM.GetListOfGuildRanks(true, true, true);
 
-    guildData.ranks = guildData.ranks or GRM.GetListOfGuildRanks(true, true, true);
+    if not guildData.ranks and not ranks then
+        return;
+    end
+
+    guildData.ranks = guildData.ranks or ranks;
 
     GRM_G.guildRankNames = GRM_G.guildRankNames or GRM.ParseGuildRanks();
 
-    if guildData.grmNumRanks == nil or guildData.grmNumRanks == 0 then
-        guildData.grmNumRanks = numRanks;
+    local updateRankCount = function()
+        if guildData.grmNumRanks == nil or guildData.grmNumRanks == 0 then
+            guildData.grmNumRanks = numRanks;
+        end
     end
 
     if numRanks ~= guildData.grmNumRanks then
 
+        updateRankCount();
         GRM_G.rankChangeShift = numRanks - guildData.grmNumRanks;
         GRM.AddRankRenameEntry(GRM_G.rankChangeShift, nil, nil, GRM.Time.GetTimestamp());
         guildData.grmNumRanks = numRanks;
@@ -14194,6 +14217,11 @@ GRM.CheckGuildRanks = function()
         local rankNames = GRM.GetListOfGuildRanks(true, true);
         local changeMade = false;
 
+        if not rankNames then
+            return;
+        end
+        updateRankCount();
+
         for i = 1, #rankNames do
             if rankNames[i] ~= GRM_G.guildRankNames[i] then
                 changeMade = true;
@@ -14202,12 +14230,10 @@ GRM.CheckGuildRanks = function()
         end
 
         if changeMade then
-            guildData.ranks = GRM.GetListOfGuildRanks(true, true, true);
+            guildData.ranks = numRanks;
             GRM_G.guildRankNames = GRM.ParseGuildRanks();
         end
     end
-
-    return true;
 end
 
 -- Method:          GRM.NoLivecheck()
@@ -15594,9 +15620,9 @@ GRM.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappen
         cleanupHappened = false;
     end
 
-    if GRM.S().bdayAnnounce then
+    local birthdayInfo = GRM.GetBirthday(player);
 
-        local birthdayInfo = GRM.GetBirthday(player);
+    if GRM.S().bdayAnnounce then
 
         if birthdayInfo.date[1] > 0 then   -- No need to move on and check anniversary for unverified dates.
             if not birthdayInfo.announced then

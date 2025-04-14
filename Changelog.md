@@ -1,3 +1,12 @@
+## **VERSION 1.99167 RELEASE - April 13th, 2025**
+
+***BUG FIXES***
+
+* There was a bug where you would get spammed that ranks were being removed from the guild, then added back to the guild when you zoned. This should no longer happen.
+
+* birthdayInfo player variable was throwing an error for some people. This will no longer happen.
+
+
 ## **VERSION 1.99166 RELEASE - April 13th, 2025**
 
 **COMPATIBILITY RELEASE - Retail 11.1, Cata 4.4.2, Classic Era 1.15.7
