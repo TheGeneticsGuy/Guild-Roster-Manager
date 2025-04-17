@@ -1,3 +1,11 @@
+## **VERSION 1.99169 RELEASE - April 16th, 2025**
+
+***BUG FIXES***
+
+* For real this time, the guild rank name change spam is going away. This ONLY affected people who added/removed/renamed ranks since a recent update. Sorry about that!
+
+* Possibly fixed an issue where it was reporting on lower ranked alts that your "special" tool had guild matches, but your current rank couldn't perform the macros as you were too low, but your higher ranked rank could... then, you log to your higher ranked alt and nothing. So, I *THINK* I got that resolved, but it was a little weird, edge casey, and hard to verify. The logic is sound though, so if this affected you and it's resolved or not resolved, please let me know. This is only for people who use the "Special" macro rules for syncing alts to certain ranks or same rank as main.
+
 ## **VERSION 1.99168 RELEASE - April 14th, 2025**
 
 *Hey everyone - sorry about the speed releases - things should calm down now I think, at least after the 11.1.5 update!*

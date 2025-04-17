@@ -9487,8 +9487,9 @@ GRM_UI.GetYourOwnAltHighestRank = function()
     local highest = { GRM_G.playerRankID , GRM_G.addonUser };
     local sameRank = {};
     local myAlts = GRM.GetAddOnUserGuildAlts();
-    local notMe = false;
-    local newInd;
+    local rankInd;
+    local promote, demote, kick
+    local mainFound = false;
 
     if myAlts and GRM.TableLength ( myAlts ) > 1 then
         for name in pairs ( myAlts) do
@@ -9496,42 +9497,32 @@ GRM_UI.GetYourOwnAltHighestRank = function()
                 -- Just in case, let's double check confirm they are still in the guild.
                 if GRM.GetPlayer ( name ) then
                     -- Success! Player is in the guild! Now, let's check rank
-                    newInd = GRM.GetGuildMemberRankID ( name );
-                    if newInd then
-                        -- Ok, rank successfully identified. Let's compare.
-                        if newInd < highest[1] then
-                            notMe = true;
-                            -- Alt has higher rank (lower index)
-                            highest = { newInd , name };
-                            -- We can reset the same rank now as now we only have 1 person higher rank
-                            sameRank = {};
+                    rankInd = GRM.GetGuildMemberRankID ( name );
+                    if rankInd then
+                        promote, demote, kick = GRM.GetPlayerRankPermissions ( name , rankInd );
+                        if promote and demote and kick then       -- No need to bother including them in highest unless it has the rank permissions to do it.
+                            -- Ok, rank successfully identified. Let's compare.
+                            if rankInd < highest[1] then
+                                -- Alt has higher rank (lower index)
+                                highest = { rankInd , name };
+                                -- We can reset the same rank now as now we only have 1 person higher rank
+                                sameRank = {};
 
-                        elseif newInd == highest[1] then
-                            table.insert ( sameRank , name );
+                                if GRM.IsMain ( name ) then
+                                    mainFound = true;
+                                else
+                                    mainFound = false;
+                                end
+
+                            elseif rankInd == highest[1] and not mainFound then
+                                highest[2] = name; -- Since same rank only need to change the name
+                            end
                         end
-
                     end
                 else
                     myAlts[name] = nil;     -- If not in the guild purge the alt. Old legacy bug where some alts were not removed on leaving the guild
                 end
             end
-        end
-
-        if #sameRank > 0 and notMe then     -- One of my alts is higher rank AND multiple alts
-            -- Let's determine if any of these are mains
-            -- First, see if highest is a main, if not, then we check
-            if not GRM.IsMain ( highest[2] ) then
-
-                for i = 1 , #sameRank do
-                    if GRM.IsMain ( sameRank[i] ) then
-                        highest[2] = sameRank[i];           -- Since same rank only need to change the name
-                        break;
-                    end
-
-                    -- If no main is found, just keep the toon fodun
-                end
-            end
-
         end
     end
 
@@ -10288,7 +10279,7 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
                         tempRuleCollection = {};
 
                         -- Check limits as can't move player same or higher rank
-                        if GRM_G.playerRankID < player.rankIndex then
+                        if GRM_G.playerRankID < player.rankIndex and CanGuildPromote() and CanGuildDemote() then
                             isHigherAlt = false;
                         elseif includeHigherAlt and highest[1] < player.rankIndex then
                             isHigherAlt = true;

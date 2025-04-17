@@ -13,9 +13,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99168";
-GRM_G.PatchDayString = "1744622183";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1744622183;            -- In Epoch Time
+GRM_G.Version = "R1.99169";
+GRM_G.PatchDayString = "1744854392";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1744854392;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110100;
@@ -3175,7 +3175,7 @@ GRM.GetListOfGuildRanks = function(includeLeader, descending, asString)
     if descending then
         for i = c, numRanks do
             name = GuildControlGetRankName(i);
-            if name == "" then
+            if not name or name == "" then
                 return nil;
             end
 
@@ -3193,7 +3193,7 @@ GRM.GetListOfGuildRanks = function(includeLeader, descending, asString)
         for i = numRanks, c, -1 do
 
             name = GuildControlGetRankName(i);
-            if name == "" then
+            if not name or name == "" then
                 return nil;
             end
 
@@ -14186,7 +14186,7 @@ GRM.CheckGuildRanks = function()
     local guildData = GRM.GetGuild();
     local ranks = GRM.GetListOfGuildRanks(true, true, true);
 
-    if not guildData.ranks and not ranks then
+    if not ranks or ranks == "" then
         return;
     end
 
@@ -14213,7 +14213,7 @@ GRM.CheckGuildRanks = function()
         local rankNames = GRM.GetListOfGuildRanks(true, true);
         local changeMade = false;
 
-        if not rankNames then
+        if not rankNames or rankNames == "" then
             return;
         end
         updateRankCount();
@@ -14226,7 +14226,7 @@ GRM.CheckGuildRanks = function()
         end
 
         if changeMade then
-            guildData.ranks = numRanks;
+            guildData.ranks = ranks;
             GRM_G.guildRankNames = GRM.ParseGuildRanks();
         end
     end
