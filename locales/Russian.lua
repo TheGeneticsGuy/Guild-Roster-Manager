@@ -80,7 +80,6 @@ GRML.Russian = function()
     GRM_L["Edit Promo Date"] = "Редактировать дату"
     GRM_L["Edit Join Date"] = "Редактировать дату"
     GRM_L["Set Promo Date"] = "Уст. дату"
-    GRM_L["No Invite"] = "Нет приглашения"
     GRM_L["Group Invite"] = "Пригласить в группу"
     GRM_L["Date Promoted?"] = "Дата повышения?"
     GRM_L["Last Online"] = "Посл. онлайн"
@@ -337,7 +336,6 @@ GRML.Russian = function()
     GRM_L["{name} is now OFFLINE!"] = "{name} вышел из игры!"
     GRM_L["{name} is No Longer AFK or Busy!"] = "Вернулся из АФК"
     GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = "Вернулся из АФК и вышел из сети"
-    GRM_L["Player should try to obtain group invite privileges."] = "Игрок должен получить привилегии группового приглашения."
     GRM_L["{name}'s saved data has been wiped!"] = "Данные пользователя {name} удалены!"
     GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Полная очистка всей учетной записи сохраненных данных реестра! Восстановление с нуля..."
     GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Удаление всех сохраненных данных гильдии! Восстановление с нуля..."
@@ -1884,6 +1882,8 @@ GRML.Russian = function()
     -- R1.99165
     GRM_L["Player is Already in this Alt Group"] = true
 
+    -- R1.99170
+    GRM_L["Unable to invite. You are grouped without privileges."] = true
 end
 
     -- Anazing work Максим#0406 on Discord - Incredible work, really!

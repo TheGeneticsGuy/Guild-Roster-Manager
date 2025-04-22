@@ -13,15 +13,15 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99169";
-GRM_G.PatchDayString = "1744854392";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1744854392;            -- In Epoch Time
+GRM_G.Version = "R1.99170";
+GRM_G.PatchDayString = "1745337881";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1745337881;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110100;
+GRM_G.RetailBaseBuild = 110105;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.45;
+GRM_G.GroupInfoV = 1.46;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -13434,7 +13434,7 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         player.timeEnteredZone = time(); -- Resetting the time on hitting this zone.
     end
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= 80000 and updatedPlayer.MythicScore then
         player.MythicScore = updatedPlayer.MythicScore;
     end
 
@@ -13446,8 +13446,12 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     end
 
     -- PROFESSIONS
-    player.prof1 = updatedPlayer.prof1;
-    player.prof2 = updatedPlayer.prof2;
+    if updatedPlayer.prof1 then
+        player.prof1 = updatedPlayer.prof1;
+    end
+    if updatedPlayer.prof2 then
+        player.prof2 = updatedPlayer.prof2;
+    end
 
     player.zone = updatedPlayer.zone; -- zone
     player.achievementPoints = updatedPlayer.achievementPoints; -- Achievement pts
@@ -13463,15 +13467,6 @@ GRM.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         player.isTransfer = nil;
     end
 end
-
--- GRM.TimeBetweenLastOnline = function ( oldTimeTable , newTimeTable )
---     local year , month , day , hours
-
---     year = oldTimeTable[1] - newTimeTable[1];
-
-
--- end
-
 
 -- Method:          GRM.CheckLogJoinOrLeave ( table )
 -- What it Does:    Registers if a player as joined or left the guild and builds the string after making changes
@@ -14466,11 +14461,7 @@ GRM.BuildRosterClassicMethod = function()
             roster[name].race = race;
             roster[name].sex = sex;
 
-            if GRM_G.BuildVersion >= 80000 then
-                roster[name].MythicScore = 0;
-            end
             atLeastOne = true;
-
         end
 
     end
@@ -14508,28 +14499,32 @@ GRM.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster, atLeastOne
 
             while index <= #members do
                 player = C_Club.GetMemberInfo(GRM_G.gClubID, members[index])
-                name = GRM.AppendServerNameSimple(player.name);
 
-                if name ~= "" and roster[name] and roster[name].GUID == player.guid then
-                    if player.overallDungeonScore then
-                        roster[name].MythicScore = player.overallDungeonScore;
+                if player then
+                    name = GRM.AppendServerNameSimple(player.name);
+
+                    if name ~= "" and roster[name] and roster[name].GUID == player.guid then
+
+                        if GRM_G.BuildVersion >= 80000 and player.overallDungeonScore then
+                            roster[name].MythicScore = player.overallDungeonScore;
+                        end
+
+                        if GRM_G.BuildVersion >= 100000 then
+                            roster[name].faction = player.faction;
+                        end
+
+                        roster[name].prof1 = {};
+                        roster[name].prof2 = {};
+
+                        if player.profession2ID then
+                            roster[name].prof1 = { player.profession2ID , player.profession2Rank };
+                        end
+
+                        if player.profession1ID then
+                            roster[name].prof2 = { player.profession1ID , player.profession1Rank };
+                        end
+
                     end
-
-                    if GRM_G.BuildVersion >= 100000 then
-                        roster[name].faction = player.faction;
-                    end
-
-                    roster[name].prof1 = {};
-                    roster[name].prof2 = {};
-
-                    if player.profession2ID then
-                        roster[name].prof1 = { player.profession2ID , player.profession2Rank };
-                    end
-
-                    if player.profession1ID then
-                        roster[name].prof2 = { player.profession1ID , player.profession1Rank };
-                    end
-
                 end
 
                 index = index + 1;
@@ -18965,6 +18960,24 @@ end
 -- Purpose:         Continuity on previous Blizz default frames to these
 GRM.SetGroupInviteButton = function(handle)
 
+    local SetTooltip = function( show )
+        if show then
+            GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:SetScript ( "OnEnter" , function( self )
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                GameTooltip:AddLine ( GRM.L ( "Unable to invite. You are grouped without privileges." ) );
+                GameTooltip:Show();
+            end);
+
+        else
+            GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:SetScript ( "OnEnter" , nil );
+        end
+
+        -- To keep from getting a perma tooltip, keep this not wrapped.
+        GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
+        end);
+    end
+
     local setButtonAction = function()
         -- Player is not in any group, thus inviting them will create new group.
 
@@ -18973,6 +18986,8 @@ GRM.SetGroupInviteButton = function(handle)
                 C_PartyInfo.InviteUnit(handle);
             end
         end);
+
+        SetTooltip ( false );
     end
 
     if GetNumGroupMembers() > 0 then -- If > 0 then player is in either a raid or a party. (1 will show if in an instance by oneself)
@@ -18982,12 +18997,7 @@ GRM.SetGroupInviteButton = function(handle)
         if isGroupLeader or isInRaidWithAssist then -- Player has the ability to invite to group
             setButtonAction();
         else -- Player is in a group but does not have invite privileges
-            GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton.GRM_GroupInviteButtonText:SetText(GRM.L("No Invite"));
-            GRM_UI.GRM_MemberDetailMetaData.GRM_GroupInviteButton:SetScript("OnClick", function(_, button)
-                if button == "LeftButton" then
-                    GRM.Report(GRM.L("Player should try to obtain group invite privileges."));
-                end
-            end);
+            SetTooltip ( true );
         end
     else
         setButtonAction();

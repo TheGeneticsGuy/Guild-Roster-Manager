@@ -80,7 +80,6 @@ GRML.Italian = function()
 	GRM_L["Edit Promo Date"] = "Imposta"
 	GRM_L["Edit Join Date"] = "Modifica data"
 	GRM_L["Set Promo Date"] = "Modifica data"
-	GRM_L["No Invite"] = "Nessun invito"
 	GRM_L["Group Invite"] = "Invita in gruppo"
 	GRM_L["Date Promoted?"] = "Data promozione?"
 	GRM_L["Last Online"] = "Ultimo accesso"
@@ -338,7 +337,6 @@ GRML.Italian = function()
 	GRM_L["{name} is now OFFLINE!"] = "{name} è andato OFFLINE!"
 	GRM_L["{name} is No Longer AFK or Busy!"] = "{name} è tornato Disponibile!"
 	GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = "{name} non è più AFK o Occupato, ma è andato OFFLINE!"
-	GRM_L["Player should try to obtain group invite privileges."] = "Per favore, cerca di ottenere la possibilità di invitare in gruppo"
 	GRM_L["{name}'s saved data has been wiped!"] = "I dati di {name} sono stati cancellati!"
 	GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Cancellazione di tutti i dati dell'account! Ricostruzione da zero..." --WIP
 	GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Cancellazione di tutti i dati della gilda! Ricostruzione da zero..." --WIP
@@ -1888,4 +1886,6 @@ GRML.Italian = function()
 	-- R1.99165
     GRM_L["Player is Already in this Alt Group"] = true
 
+    -- R1.99170
+    GRM_L["Unable to invite. You are grouped without privileges."] = true
 end

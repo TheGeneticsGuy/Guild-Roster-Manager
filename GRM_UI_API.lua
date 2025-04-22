@@ -560,7 +560,7 @@ GRM_UI.CreateOptionsSlider = function ( name , parentFrame , template , points ,
 
     if not parentFrame[name] then
 
-        parentFrame[name] = CreateFrame ( "Frame" , name , parentFrame , template );
+        parentFrame[name] = CreateFrame ( "Slider" , name , parentFrame , template );
         parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
         parentFrame[name].Slider:SetMinMaxValues ( min , max );
         parentFrame[name].Slider:SetObeyStepOnDrag ( true );

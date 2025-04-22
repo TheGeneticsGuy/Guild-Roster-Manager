@@ -1,3 +1,22 @@
+## **VERSION 1.99170 RELEASE - April 22nd, 2025**
+
+**COMPATIBILITY RELEASE 11.1.5**
+
+*Please note as well, the ElvUI AddOnSkins has been updated. It is not always clear with the AddOnSkins dev will accept my file for merge, so you can [download it manually here on Github](https://github.com/TheGeneticsGuy/Guild_Roster_Manager_AddonSkinsFile)*
+
+***ALSO - BUG FIXES***
+
+* Fixed a bug that could occasionally cause a Lua error if someone joined/quit the guild in the middle of checking for player changes.
+
+* Export of members data should once again work. It was not working if you had birthday info checked for export.
+
+* Fixed a bug where the "Invite" button on the player mouseover window was saying "No Invite" - This will no longer do this and behavior will funciton normally.
+
+* Fixed an issue where the "Last Online" would in some cases state something like "4 years, 12 mos, 8 days." Well that doesn't make sense. It should just be 5 years and 8 days. After investigating, I found that the actually game server provides the last online numbers and returns them as this format. So, I adapted them to properly roll those 12 months over into an additional year.
+
+* Cleaned up the punctuation on the "Last Online" report as if there were no months it was not punctuating it.
+
+
 ## **VERSION 1.99169 RELEASE - April 16th, 2025**
 
 ***BUG FIXES***

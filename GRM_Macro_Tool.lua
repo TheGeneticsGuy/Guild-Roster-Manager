@@ -113,11 +113,15 @@ GRM_UI.BuildSpcialRules = function()
                     CoreFrame.customRankCheckBoxes[i] = nil;
                 end
             end
+            local checkboxName = "GRM_ToolCustomRulesRank";
+            if ruleType == 4 then
+                checkboxName = "GRM_ToolSpecialCustomRulesRank"
+            end
 
             for i = 1 , numRanks do
                 if not CoreFrame.customRankCheckBoxes[i] then
 
-                    local button = CreateFrame ( "CheckButton" , "GRM_ToolCustomRulesRank" .. i , CoreFrame , "InterfaceOptionsCheckButtonTemplate" );
+                    local button = CreateFrame ( "CheckButton" , checkboxName .. i , CoreFrame , "InterfaceOptionsCheckButtonTemplate" );
                     local buttontext = button:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
                     CoreFrame.customRankCheckBoxes[i] = { button , buttontext };

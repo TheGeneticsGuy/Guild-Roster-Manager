@@ -344,8 +344,8 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
                         playerDetails = playerDetails .. GRM.L("Unknown") .. delimiter;
                     else
                         -- Checking button vs text
-                        if roster[i].events[2][1][1] ~= 0 then
-                            playerDetails = playerDetails .. GRM.Time.FormatTimeStamp( { roster[i].events[2][1][1] , roster[i].events[2][1][2] } , false, true) ..
+                        if roster[i].birthdayInfo.date[1] ~= 0 then
+                            playerDetails = playerDetails .. GRM.Time.FormatTimeStamp( { roster[i].birthdayInfo.date[1] , roster[i].birthdayInfo.date[2] } , false, true) ..
                                                 delimiter;
                         else
                             playerDetails = playerDetails .. delimiter;

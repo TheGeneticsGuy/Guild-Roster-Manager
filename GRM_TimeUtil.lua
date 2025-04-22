@@ -763,7 +763,7 @@ Time.ComplexHoursReport = function(hours)
         end
 
         if days >= 1 then
-            if months > 0 then
+            if months > 0 or ( years > 0 and not (months > 0) ) then
                 result = GRM.Trim(result) .. ", ";
             end
             if days > 1 then
@@ -798,6 +798,11 @@ Time.HoursReport = function( lastOnlineTime )
     local result = "";
     -- lastOnlineTime = { y , m , d , h };
 
+    if lastOnlineTime[2] == 12 then
+        lastOnlineTime[1] = lastOnlineTime[1] + 1;
+        lastOnlineTime[2] = 0;
+    end
+
     if lastOnlineTime[1] >= 1 then
         if lastOnlineTime[1] > 1 then
             result = result .. "" .. GRM.L("{num} yrs", nil, nil, lastOnlineTime[1]) .. " ";
@@ -818,7 +823,7 @@ Time.HoursReport = function( lastOnlineTime )
     end
 
     if lastOnlineTime[3] >= 1 then
-        if lastOnlineTime[2] > 0 then
+        if lastOnlineTime[2] > 0 or ( lastOnlineTime[1] > 0 and not ( lastOnlineTime[2] > 0 ) ) then
             result = GRM.Trim(result) .. ", ";
         end
         if lastOnlineTime[3] > 1 then

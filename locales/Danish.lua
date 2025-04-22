@@ -81,7 +81,6 @@ GRML.Danish = function()
     GRM_L["Edit Promo Date"] = true
     GRM_L["Edit Join Date"] = true
     GRM_L["Set Promo Date"] = true
-    GRM_L["No Invite"] = true
     GRM_L["Group Invite"] = true
     GRM_L["Date Promoted?"] = true
     GRM_L["Last Online"] = true
@@ -338,7 +337,6 @@ GRML.Danish = function()
     GRM_L["{name} is now OFFLINE!"] = true
     GRM_L["{name} is No Longer AFK or Busy!"] = true
     GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = true
-    GRM_L["Player should try to obtain group invite privileges."] = true
     GRM_L["{name}'s saved data has been wiped!"] = true
     GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = true
     GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = true
@@ -1886,5 +1884,8 @@ GRML.Danish = function()
 
     -- R1.99165
     GRM_L["Player is Already in this Alt Group"] = true
+
+    -- R1.99170
+    GRM_L["Unable to invite. You are grouped without privileges."] = true
 
 end

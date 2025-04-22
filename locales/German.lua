@@ -80,7 +80,6 @@
         GRM_L["Edit Promo Date"] = "Beförderungsdatum\nändern"
         GRM_L["Edit Join Date"] = "Beitrittsdatum\nändern"
         GRM_L["Set Promo Date"] = "Beförderungsdatum\nsetzen"
-        GRM_L["No Invite"] = "Keine Einladung"
         GRM_L["Group Invite"] = "Gruppeneinladung"
         GRM_L["Date Promoted?"] = "Beförderungsdatum?"
         GRM_L["Last Online"] = "zuletzt online"
@@ -340,7 +339,6 @@
         GRM_L["{name} is now OFFLINE!"] = "{name} ist jetzt |cffFF0000offline|r!"
         GRM_L["{name} is No Longer AFK or Busy!"] = "{name} ist nicht mehr |cffFFFF00AFK|r!"
         GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = "{name} ist nun |cffFF0000online|r und nicht mehr |cffFFFF00AFK|r!"
-        GRM_L["Player should try to obtain group invite privileges."] = "Du hast keine Berechtigung, um Spieler einzuladen."
         GRM_L["{name}'s saved data has been wiped!"] = "Die gespeicherten Daten von {name} wurden gelöscht!"
 
         GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Alle gespeicherten Daten werden gelöscht! Kompletter Neuaufbau wird durchgeführt..."
@@ -1891,6 +1889,8 @@
     -- R1.99165
     GRM_L["Player is Already in this Alt Group"] = true
 
+    -- R1.99170
+    GRM_L["Unable to invite. You are grouped without privileges."] = true
 end
 
     -- THANK YOU @Nehry for this full translation up to R1.20
