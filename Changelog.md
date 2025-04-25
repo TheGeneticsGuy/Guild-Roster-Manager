@@ -1,3 +1,8 @@
+## **VERSION 1.99171 RELEASE - April 24th, 2025**
+
+* Minor bug fix that would keep the Custom GRM Roster from loading due to a lua error. This should no longer occur.
+
+
 ## **VERSION 1.99170 RELEASE - April 22nd, 2025**
 
 **COMPATIBILITY RELEASE 11.1.5**

@@ -13,9 +13,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99170";
-GRM_G.PatchDayString = "1745337881";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1745337881;            -- In Epoch Time
+GRM_G.Version = "R1.99171";
+GRM_G.PatchDayString = "1745562900";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1745562900;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -14505,8 +14505,12 @@ GRM.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster, atLeastOne
 
                     if name ~= "" and roster[name] and roster[name].GUID == player.guid then
 
-                        if GRM_G.BuildVersion >= 80000 and player.overallDungeonScore then
-                            roster[name].MythicScore = player.overallDungeonScore;
+                        if GRM_G.BuildVersion >= 80000 then
+                            if player.overallDungeonScore then
+                                roster[name].MythicScore = player.overallDungeonScore;
+                            else
+                                roster[name].MythicScore = 0;
+                            end
                         end
 
                         if GRM_G.BuildVersion >= 100000 then
