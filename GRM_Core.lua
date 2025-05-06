@@ -14384,199 +14384,281 @@ GRM.GetNewerAccountByGUID = function ( guid1 , guid2 )
     return;
 end
 
--- Method:          GRM.BuildRosterClassicMethod()
--- What it Does:    Builds the roster for scanning using the older API
--- Purpose:         In case the old API is ever needed. This seems to work also when in a guild but on a trial account, GRM can still work.
-GRM.BuildRosterClassicMethod = function()
-    local count = 0;
-    local roster, orderedRoster, atLeastOne = {}, {}, false;
+-- Method:          GRM.BuildNewRoster()
+-- What it does:    Rebuilds the roster to check against for any changes.
+-- Purpose:         To track for guild changes of course!
+GRM.BuildNewRoster = function()
+    -- Prevent overlapping scans
+    if GRM_G.CurrentlyScanning or GRM.ScanKillSwitch() or GRM_G.MacroInProgress then
+        return;
+    end
 
-    for i = 1, GRM.GetNumGuildies() do
-        -- For guild info
+    -- Just cancel if not in a guild
+    if not IsInGuild() then
+        GRM_G.guildName = "";
+        GRM_G.gClubID = 0;
+        return;
+    end
+
+    GRM_G.CurrentlyScanning = true;
+    GRM_G.ScanControl = time();
+
+    C_Timer.After ( 0.1 , function()
+        GRM.BuildRosterClassicMethod();
+    end);
+
+end
+
+-- Method:          GRM.BuildRosterClassicMethod([int], [table], [table], [int])
+-- What it Does:    Builds the roster using GetGuildRosterInfo, throttled.
+-- Purpose:         Avoid script timeouts during the initial roster build phase, particularly for large guilds
+GRM.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, count)
+
+    -- Leave an exit if player quits guild in middle of scan
+    if not IsInGuild() then
+        GRM_G.CurrentlyScanning = false;
+        return
+    end
+
+    startIndex = startIndex or 1;
+    roster = roster or {};
+    orderedRoster = orderedRoster or {};
+    count = count or 0; -- Track duplicate GUIDs count
+
+    local chunkSize = 150; -- Can likely be higher than community API, but still worth throttling
+    local delay = 0.05;
+    local numGuildies = GRM.GetNumGuildies();
+    local processedCount = 0;
+    local startTime = debugprofilestop();
+    local atLeastOneInThisChunk = false; -- Track if any valid member was processed
+
+    for i = startIndex, math.min(startIndex + chunkSize - 1, numGuildies) do
         local name, rank, rankInd, level, _, zone, note, officerNote, online, status, class, achievementPoints, _,
             isMobile, _, rep, GUID = GetGuildRosterInfo(i);
-        table.insert(orderedRoster, name);
 
-        if name == GRM_G.addonUser and not GRM_G.playerRankID then
-            GRM_G.playerRankID = rankInd;
-        end
+        -- Basic check if name is valid before proceeding
+        if name and name ~= "" and GUID then
+            table.insert(orderedRoster, name); -- Add to ordered list regardless of duplicates for now
 
-        if GRM_G.liveAddedToons[name] then
-            GRM_G.liveAddedToons[name] = nil; -- No longer needed on this list since they are confirmed in guild.
-        end
-
-        if roster[name] then
-
-            if GRM.GetNewerAccountByGUID( roster[name].GUID , GUID ) == GUID then
-                if GRM_G.HardcoreActive then
-                    -- Add the death note indicating dead player on account
-                    GRM.SetPlayerAsDeadByGUID ( roster[name].GUID , roster[name].lastOnline , roster[name].rosterSelection , roster[name].note );
-                end
-                roster[name] = nil;
-            else
-                -- The player at index i is dead.
-                if GRM_G.HardcoreActive then
-                    -- Add the death note indicating dead player on account
-                    local years, months, days, hours = GetGuildRosterLastOnline(i);
-                    local lastOnline = GRM.Time.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
-                    GRM.SetPlayerAsDeadByGUID ( GUID , lastOnline , i , note );
-                end
-
+            if name == GRM_G.addonUser and not GRM_G.playerRankID then
+                GRM_G.playerRankID = rankInd;
             end
-            count = count + 1;
-        end
 
-        if not roster[name] then
+            if GRM_G.liveAddedToons[name] then
+                GRM_G.liveAddedToons[name] = nil; -- No longer needed on this list since they are confirmed in guild.
+            end
 
-            roster[name] = {}; -- For easy referencing.
-            roster[name].name = name
-            roster[name].rankName = rank;
-            roster[name].rankIndex = rankInd;
-            roster[name].level = level;
-            roster[name].note = note or "";
-            roster[name].officerNote = officerNote or "";
-            roster[name].class = class;
-            roster[name].isOnline = online;
-            local years, months, days, hours = GetGuildRosterLastOnline(i);
-            roster[name].lastOnline = GRM.Time.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
-            roster[name].lastOnlineTime = {years or 0, months or 0, days or 0, hours or 0};
-            roster[name].zone = zone;
-            roster[name].achievementPoints = achievementPoints;
-            roster[name].isMobile = isMobile;
-            roster[name].rep = rep;
-            roster[name].status = status;
-            roster[name].GUID = GUID;
-            roster[name].rosterSelection = i;
-            roster[name].faction = GRM_G.faction;
+            local processThisMember = true;
+            if roster[name] then
+                -- Handle potential duplicates based on GUID/Hardcore status
+                if GRM.GetNewerAccountByGUID( roster[name].GUID , GUID ) == GUID then
+                    if GRM_G.HardcoreActive then
+                        GRM.SetPlayerAsDeadByGUID ( roster[name].GUID , roster[name].lastOnline , roster[name].rosterSelection , roster[name].note );
+                    end
+                    -- We will overwrite roster[name] below
+                else
+                    -- The player at index i is the older/dead one. Mark them dead if Hardcore.
+                    if GRM_G.HardcoreActive then
+                        local years, months, days, hours = GetGuildRosterLastOnline(i);
+                        local lastOnline = GRM.Time.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
+                        GRM.SetPlayerAsDeadByGUID ( GUID , lastOnline , i , note );
+                    end
+                    processThisMember = false;
+                end
+                count = count + 1; -- Increment duplicate count (as one was discarded)
+            end
 
-            local race, sex = select(4, GetPlayerInfoByGUID(GUID));
-            if race == nil or sex == nil then
-                race, sex = select(4, GetPlayerInfoByGUID(GUID)); -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
+            if processThisMember then
+
+                -- Add or overwrite the member data
+                roster[name] = {}; -- For easy referencing.
+                roster[name].name = name
+                roster[name].rankName = rank;
+                roster[name].rankIndex = rankInd;
+                roster[name].level = level;
+                roster[name].note = note or "";
+                roster[name].officerNote = officerNote or "";
+                roster[name].class = class;
+                roster[name].isOnline = online;
+                local years, months, days, hours = GetGuildRosterLastOnline(i);
+                roster[name].lastOnline = GRM.Time.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
+                roster[name].lastOnlineTime = {years or 0, months or 0, days or 0, hours or 0};
+                roster[name].zone = zone;
+                roster[name].achievementPoints = achievementPoints;
+                roster[name].isMobile = isMobile;
+                roster[name].rep = rep;
+                roster[name].status = status;
+                roster[name].GUID = GUID;
+                roster[name].rosterSelection = i; -- Store original index if needed
+                roster[name].faction = GRM_G.faction; -- Initial faction assumption
+
+                -- Attempt to get Race/Sex (with retry logic as before)
+                local race, sex = select(4, GetPlayerInfoByGUID(GUID));
                 if race == nil or sex == nil then
-                    race = "";
-                    sex = 1;
+                    C_Timer.After(0.01, function() -- Tiny delay before retry might help sometimes? Or just call immediately.
+                        race, sex = select(4, GetPlayerInfoByGUID(GUID));
+                        if roster[name] then -- Check if entry still exists (async)
+                            roster[name].race = race or "";
+                            roster[name].sex = sex or 1; -- Assuming 1 is a default/unknown
+                        end
+                    end)
+                    -- Set temporary values
+                    roster[name].race = "";
+                    roster[name].sex = 1;
+                else
+                    roster[name].race = race;
+                    roster[name].sex = sex;
                 end
+
+                atLeastOneInThisChunk = true;
             end
-
-            roster[name].race = race;
-            roster[name].sex = sex;
-
-            atLeastOne = true;
         end
 
-    end
+        processedCount = processedCount + 1;
 
-    for memberName in pairs(GRM_G.liveKickedToons) do
-        if not roster[memberName] then
-            GRM_G.liveKickedToons[memberName] = nil; -- Player kicked is confirmed not showing up in guild.
+        -- Check if throttle needed (only check time periodically for performance)
+        if processedCount % 50 == 0 and (debugprofilestop() - startTime) > 40000 then -- Check time every 50 processed, if > 40ms
+             C_Timer.After(delay, function()
+                GRM.BuildRosterClassicMethod(i + 1, roster, orderedRoster, count);
+            end);
+            return;
         end
-    end
 
-    GRM.UpdateRosterWithCommunitiesAPI ( roster, orderedRoster, atLeastOne , count );
+    end -- End of for loop for this chunk
+
+    local nextIndex = startIndex + processedCount;
+    if nextIndex <= numGuildies then
+        -- Schedule the next chunk
+        C_Timer.After(delay, function()
+            GRM.BuildRosterClassicMethod(nextIndex, roster, orderedRoster, count);
+        end);
+    else
+        -- Finished processing all members with GetGuildRosterInfo
+        -- Now, clean up liveKickedToons based on the *final* roster
+        for memberName in pairs(GRM_G.liveKickedToons) do
+            if not roster[memberName] then
+                GRM_G.liveKickedToons[memberName] = nil; -- Confirmed kicked
+            end
+        end
+
+        -- Determine if at least one valid member was found across all chunks
+        -- We need a way to pass the 'atLeastOne' status forward. We can infer it
+        -- if the final roster table is not empty.
+        local atLeastOneOverall = (next(roster) ~= nil);
+
+        -- Proceed to the next stage: Updating with Communities API
+        GRM.UpdateRosterWithCommunitiesAPI(roster, orderedRoster, atLeastOneOverall, count);
+    end
 end
 
 -- Method:          GRM.UpdateRosterWithCommunitiesAPI ( table , table. bool, int , int , table )
 -- What it Does:    Throttles the querying of the data by the Communities C_Club API. This server call seems much slower and can overload if too fast.
 -- Purpose:         Avoid stutter.
-GRM.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster, atLeastOne , count , index , members )
+GRM.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster, atLeastOneOverall , count , index , members )
 
-    if not GRM_G.UpdatingProfessions or index then
+    -- Leave an exit if player quits guild in middle of scan
+    if not IsInGuild() then
+        GRM_G.CurrentlyScanning = false;
+        return
+    end
+
+    local chunkSize = IsInInstance() and 50 or 100;
+    local delay = 0.1 -- Smaller delay might be okay with smaller chunks, but keep it non-zero
+
+    -- Initialize only on the first call for this sequence
+    if not index then
+        if GRM_G.UpdatingProfessions then return end -- Already running
         GRM_G.UpdatingProfessions = true;
 
-        if C_Club.GetClubMembers and GRM_G.gClubID and GRM_G.gClubID ~= 0 then
-            members = members or C_Club.GetClubMembers(GRM_G.gClubID);
+        -- Ensure we have members to process
+        if GRM_G.gClubID and GRM_G.gClubID ~= 0 and C_Club.GetClubMembers then
+            members = C_Club.GetClubMembers(GRM_G.gClubID);
+            if not members or #members == 0 then
+                -- No members or API failed, proceed to next step
+                GRM_G.UpdatingProfessions = false;
+                GRM.FinalizeRosterBuild( roster, orderedRoster, atLeastOneOverall, count );
+                return
+            end
         else
+             -- Can't get members, proceed to next step
             GRM_G.UpdatingProfessions = false;
-            GRM.BuildNewRoster ( roster, orderedRoster, atLeastOne , count );
+            GRM.FinalizeRosterBuild( roster, orderedRoster, atLeastOneOverall, count );
             return
         end
+        index = 1; -- Start processing from the first member
+    end
 
-        if #members > 0 then
+    local processedCount = 0;
+    local startTime = debugprofilestop(); -- Get rough time measurement
 
-            local name = "";
-            local player = {};
-            index = index or 1;
+    while index <= #members do
+        local player = C_Club.GetMemberInfo(GRM_G.gClubID, members[index])
 
-            while index <= #members do
-                player = C_Club.GetMemberInfo(GRM_G.gClubID, members[index])
+        if player then
+            local name = GRM.AppendServerNameSimple(player.name);
 
-                if player then
-                    name = GRM.AppendServerNameSimple(player.name);
+            -- Ensure the member exists in our primary roster and GUID matches (important!)
+            if name ~= "" and roster[name] and roster[name].GUID == player.guid then
 
-                    if name ~= "" and roster[name] and roster[name].GUID == player.guid then
-
-                        if GRM_G.BuildVersion >= 80000 then
-                            if player.overallDungeonScore then
-                                roster[name].MythicScore = player.overallDungeonScore;
-                            else
-                                roster[name].MythicScore = 0;
-                            end
-                        end
-
-                        if GRM_G.BuildVersion >= 100000 then
-                            roster[name].faction = player.faction;
-                        end
-
-                        roster[name].prof1 = {};
-                        roster[name].prof2 = {};
-
-                        if player.profession2ID then
-                            roster[name].prof1 = { player.profession2ID , player.profession2Rank };
-                        end
-
-                        if player.profession1ID then
-                            roster[name].prof2 = { player.profession1ID , player.profession1Rank };
-                        end
-
-                    end
+                -- Add Mythic Score if applicable
+                if GRM_G.BuildVersion >= 80000 then
+                    roster[name].MythicScore = player.overallDungeonScore or 0;
                 end
 
-                index = index + 1;
-                if index % 250 == 0 then
-                    C_Timer.After ( 0.5 , function()
-                        GRM.UpdateRosterWithCommunitiesAPI ( roster, orderedRoster, atLeastOne , count , index , members );
-                    end);
-                    return
+                -- Add Faction if applicable (WoW since DF)
+                if GRM_G.BuildVersion >= 100000 then
+                    roster[name].faction = player.faction;
+                end
+
+                -- Add Professions
+                roster[name].prof1 = {};
+                roster[name].prof2 = {};
+                if player.profession1ID then
+                    roster[name].prof1 = { player.profession2ID , player.profession2Rank };
+                end
+                if player.profession2ID then
+                     roster[name].prof2 = { player.profession1ID , player.profession1Rank };
                 end
             end
         end
+
+        index = index + 1;
+        processedCount = processedCount + 1;
+
+        -- Check if we've processed enough for this chunk OR if time is running long
+        -- debugprofilestop() gives microseconds. 30ms = 30000 microseconds.
+        -- WoW's actual limit is variable, but I am aiming well below to be safe.
+        if processedCount >= chunkSize or (debugprofilestop() - startTime) > 30000 then
+            -- Schedule the next chunk
+            C_Timer.After ( delay , function()
+                GRM.UpdateRosterWithCommunitiesAPI ( roster, orderedRoster, atLeastOneOverall, count, index, members );
+            end);
+            return
+        end
     end
+
     GRM_G.UpdatingProfessions = false;
-    GRM.BuildNewRoster ( roster, orderedRoster, atLeastOne , count );
+    GRM.FinalizeRosterBuild( roster, orderedRoster, atLeastOneOverall, count );
 end
 
--- Method:          GRM.BuildNewRoster([table], table , bool , int)
--- What it does:    Rebuilds the roster to check against for any changes.
--- Purpose:         To track for guild changes of course!
-GRM.BuildNewRoster = function( roster, orderedRoster, atLeastOne , count )
-    if roster or ( not GRM_G.CurrentlyScanning and not GRM.ScanKillSwitch() and not GRM_G.MacroInProgress ) then -- Necessary in case you purge guild in middle of
+-- Method:          GRM.FinalizeRosterBuild( table, table, bool, int )
+-- What it Does:    Performs the final checks and processing after roster data is gathered.
+-- Purpose:         To complete the scan cycle after operations.
+GRM.FinalizeRosterBuild = function( roster, orderedRoster, atLeastOne, count )
 
-        GRM_G.CurrentlyScanning = true;
-        GRM_G.ScanControl = time();
-    else
-        return;
-    end
-    -- local roster , orderedRoster, atLeastOne = {} , {} , false;
+    -- For some reason, on occasion the entire guild DB doesn't load on the full server query...
+    -- Check if the built roster size matches expected size (minus duplicates counted)
+    local expectedSize = GRM.GetNumGuildies() - count;
+    local actualSize = GRM.TableLength(roster);
 
-    -- Checking if Guild Found or Not Found, to pre-check for Guild name tag.
-    local guildNotFound = false;
-    if not GRM.GetGuild() then
-        guildNotFound = true;
-    end
-
-    if not roster then
-        -- Building the roster needs ot be done asynchronously so we will
-        -- recall the BuildNewRoster function when it is time.
-         GRM.BuildRosterClassicMethod();
-         return;
-    end
-
-    -- For some reason, on occasion the entire guild DB doesn't load on the full server query, typically only happens shortly after loginc so to prevent issues
-    if GRM.TableLength(roster) ~= ( GRM.GetNumGuildies() - count ) then-- GRM.GetNumGuildies() then
-        C_Timer.After(3, function()
-            GRM.GuildRoster();
+    if actualSize ~= expectedSize then
+        if GRM_G.DebugEnabled then
+            print(string.format("GRM: Roster size mismatch. Expected ~%d, Got %d. Retrying scan soon.", expectedSize, actualSize));
+        end
+        C_Timer.After(5, function()
+            GRM_G.CurrentlyScanning = false;
+            GRM.BuildNewRoster();
         end);
-        GRM_G.CurrentlyScanning = false;
         return;
     end
 
@@ -14585,31 +14667,35 @@ GRM.BuildNewRoster = function( roster, orderedRoster, atLeastOne , count )
             GRM_G.liveKickedToons[memberName] = nil; -- Player kicked is confirmed not showing up in guild.
         end
     end
-    -- Build Roster for the first time if guild not found.
+
     if atLeastOne and GRM_G.guildName ~= nil and GRM_G.guildName ~= "" then
-        if guildNotFound then
-            -- See if it is a Guild NameChange first!
-            GRM.BuildNewGuildOrNameChange(roster, false);
+
+        if not GRM.GetGuild() then
+            GRM.BuildNewGuildOrNameChange(roster, false); -- Assuming this function exists and handles it
         else
-            -- This is critical to do in case the guild has added or removed ranks...
-            GRM.CheckGuildRanks();
-            GRM.ScanRecommendationsList();
-            GRM_G.ThrottleControlNum = 1;
-            -- new member and leaving members arrays to check at the end - need to reset it here.
-            GRM_G.newPlayers = {};
-            GRM_G.leavingPlayers = {};
-            -- Add in a delay for the server calls to work
+            -- Normal processing for an existing, found guild
+            GRM.CheckGuildRanks(); -- Ensure this is safe to call now
+            GRM.ScanRecommendationsList(); -- Ensure this is safe
+            GRM_G.ThrottleControlNum = 1; -- Reset throttle control if needed for CheckPlayerChanges
+            GRM_G.newPlayers = {}; -- Reset for CheckPlayerChanges
+            GRM_G.leavingPlayers = {}; -- Reset for CheckPlayerChanges
 
             GRM.GuildRoster();
-            if GRM_G.BuildVersion >= 10000 then
-                QueryGuildEventLog();
-            end
+            QueryGuildEventLog();
+
+            -- Sort the ordered roster *before* passing to CheckPlayerChanges
+            sort(orderedRoster);
 
             C_Timer.After(1.1, function()
-                sort(orderedRoster);
                 GRM.CheckPlayerChanges(roster, orderedRoster, 1);
             end);
         end
+    else
+        -- Case where no members were found or guild name is missing
+        if GRM_G.DebugEnabled then
+            print("GRM: Finalizing roster build, but no members found or guild name missing.");
+        end
+        GRM_G.CurrentlyScanning = false; -- Allow next scan attempt later
     end
 end
 
@@ -19283,7 +19369,7 @@ GRM.ResetAllSavedData = function()
 
     -- Now, let's rebuild...
     if IsInGuild() then
-        GRM.BuildNewRoster(true, true);
+        GRM.BuildNewRoster();
     end
     -- Update the logFrame if it was open at the time too
     if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
