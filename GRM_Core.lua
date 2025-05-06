@@ -7531,6 +7531,11 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
 
     member.customNote = {true, 0, "", ""}; -- 23 { syncEnabled , epochStampOfEdit , "NameOfPlayerWhoEdited" , "customNoteString" }
 
+    member.nickname = {};
+    member.nickname.private = "";
+    member.nickname.guild = { "" , "" , 0 };    -- { nickname , who_modified , epochStamp when added/removed/modified for sync }
+
+    -- Additional server Data
     member.lastOnline = memberInfo.lastOnline;
     member.lastOnlineTime = memberInfo.lastOnlineTime;
     member.recommendToKick = false; -- 27
