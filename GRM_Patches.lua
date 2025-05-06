@@ -1706,15 +1706,15 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
-    -- -- 140
-    -- if numericV < 1.992 and baseValue < 1.992 then
-    --     GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixMissingBday , true , true , false , nil );
+    -- 140
+    if numericV < 1.992 and baseValue < 1.992 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNames , true , true , false , nil );
 
-    --     GRM_AddonSettings_Save.VERSION = "R1.992";
-    --     if loopCheck ( 1.992 ) then
-    --         return;
-    --     end
-    -- end
+        GRM_AddonSettings_Save.VERSION = "R1.992";
+        if loopCheck ( 1.992 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -9540,7 +9540,10 @@ GRM_Patch.AddNickNames = function ( player )
     if not player.nickname then
         player.nickname = {};
         player.nickname.private = "";
-        player.nickname.guild = { "" , "" , 0 };
+        player.nickname.guild = {};
+        player.nickname.guild.nickname = "";
+        player.nickname.guild.editedBy = "";
+        player.nickname.guild.timeEdited = 0;
     end
     return player
 end

@@ -13,9 +13,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99171";
-GRM_G.PatchDayString = "1745562900";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1745562900;            -- In Epoch Time
+GRM_G.Version = "R1.992";
+GRM_G.PatchDayString = "1746570045";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1746570045;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -7533,7 +7533,10 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
 
     member.nickname = {};
     member.nickname.private = "";
-    member.nickname.guild = { "" , "" , 0 };    -- { nickname , who_modified , epochStamp when added/removed/modified for sync }
+    member.nickname.guild = {};
+    member.nickname.guild.nickname = "";
+    member.nickname.guild.editedBy = "";
+    member.nickname.guild.timeEdited = 0;
 
     -- Additional server Data
     member.lastOnline = memberInfo.lastOnline;
