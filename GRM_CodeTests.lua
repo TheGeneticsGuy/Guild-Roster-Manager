@@ -8,7 +8,7 @@
 --             print("Testing with: " .. player.name );
 --             player.name = "XXXXXXXXXX-Zul'jin";
 --             GRM_PlayersThatLeftHistory_Save[ GRM_G.guildName ]["NoobName-Zul'jin"] = {};
---             GRM_PlayersThatLeftHistory_Save[ GRM_G.guildName ]["NoobName-Zul'jin"] = GRM.DeepCopyArray ( player );
+--             GRM_PlayersThatLeftHistory_Save[ GRM_G.guildName ]["NoobName-Zul'jin"] = GRM.Util.DeepCopyArray ( player );
 --             GRM_GuildMemberHistory_Save[GRM_G.guildName][name] = nil;
 
 --             break;
@@ -21,7 +21,7 @@
 --         if type ( player ) == "table" then
 --             print("Testing with: " .. player.name );
 --             GRM_PlayersThatLeftHistory_Save[ GRM_G.guildName ][name] = {};
---             GRM_PlayersThatLeftHistory_Save[ GRM_G.guildName ][name] = GRM.DeepCopyArray ( player );
+--             GRM_PlayersThatLeftHistory_Save[ GRM_G.guildName ][name] = GRM.Util.DeepCopyArray ( player );
 --             GRM_GuildMemberHistory_Save[GRM_G.guildName][name] = nil;
 
 --             break;
@@ -42,7 +42,7 @@
 -- end
 
 -- GRM_T.TestRankNumChange = function()
---     local ranks = GRM.GetListOfGuildRanks ( true , true , true );
+--     local ranks = GRM.G_Util.GetListOfGuildRanks ( true , true , true );
 --     local guildData = GRM.GetGuild();
 --     guildData.ranks = string.sub ( ranks , string.find ( ranks , "|" ) + 2 )
 --     guildData.grmNumRanks = 9;

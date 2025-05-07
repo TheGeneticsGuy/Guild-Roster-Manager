@@ -1984,7 +1984,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                                 GRM.PrintLog ( { 4 , logReport } );
                             end
                             -- Also adding it to the log!
-                            GRM.AddLog ( { 4 , logReportWithTime , simpleName , player.note , newNote , GRM.Time.GetTimestamp() } );
+                            GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , player.note , newNote , GRM.Time.GetTimestamp() } );
 
                             player.note = newNote;
                             GuildRosterSetPublicNote ( i , newNote );
@@ -2859,7 +2859,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                         GRM.PrintLog ( { 4 , logReport } );
                     end
                     -- Also adding it to the log!
-                    GRM.AddLog ( { 4 , logReportWithTime , simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
+                    GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
 
                     -- Set the note
                     local theNote = "";
@@ -2965,7 +2965,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                         GRM.PrintLog ( { 5 , logReport } );
                     end
                     -- Also adding it to the log!
-                    GRM.AddLog ( { 5 , logReportWithTime , simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
+                    GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
 
                     local theNote = "";
                     if #playerDetails.newNote == 0 then
@@ -3718,7 +3718,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     alt = GRM.GetPlayer ( group[i].name );
                     if alt ~= nil then
                         -- No point in adding yourself.
-                        local safeList = GRM.DeepCopyArray ( player.safeList );
+                        local safeList = GRM.Util.DeepCopyArray ( player.safeList );
                         alt.safeList.kick = safeList.kick;
                         alt.safeList.promote = safeList.promote;
                         alt.safeList.demote = safeList.demote;
@@ -6886,7 +6886,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     -- Function
     GRM_UI.ProfessionNoteUpdate = function()
-        if GRM.S().ProfReportUpdatesToChat and GRM.GetNumGuildies() > 225 then      -- 225 is 3x multiplier
+        if GRM.S().ProfReportUpdatesToChat and GRM.G_Util.GetNumGuildies() > 225 then      -- 225 is 3x multiplier
             GRM.Report ( GRM.L ( "One moment. Processing profession data..." ) );
         end
         GRM.Prof.InitiateProfessionUpdate( GRM.S().ProfReportUpdatesToChat );
@@ -7351,7 +7351,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             else
                 GRM.S().syncSettings = false;
                 GRM_G.playerOnlySettings = true;
-                GRM_AddonSettings_Save[GRM_G.addonUser] = GRM.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.guildName] );
+                GRM_AddonSettings_Save[GRM_G.addonUser] = GRM.Util.DeepCopyArray ( GRM_AddonSettings_Save[GRM_G.guildName] );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.settingsOwner:SetText ( GRM.L ( "{name}'s Settings" , GRM.SlimName ( GRM_G.addonUser ) ) );
                 GRM.SetJoinAndRejoinTags();
                 GRM_UI.BuildLogFrames();
@@ -10071,7 +10071,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.Report ( GRM.L ( "Reactivating Data SYNC with Guildies..." ) );
             GRM_UI.EnableSyncUIChanges();
             if GRM.S().syncEnabled and not GRMsyncGlobals.currentlySyncing and GRM_G.HasAccessToGuildChat then
-                GRM_G.RegisterMessage();
+                GRM.RegisterMessage();
                 GRMsync.TriggerFullReset();
                 -- Now, let's add a brief delay, 3 seconds, to trigger sync again
                 GRMsync.Initialize();
@@ -10079,7 +10079,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
         else
             GRM.Report ( GRM.L ( "Deactivating Data SYNC with Guildies..." ) );
-            GRM_G.RegisterMessage();
+            GRM.RegisterMessage();
             GRM.S().syncEnabled = false;
             GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersSyncEnabledText:Show();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterNotifyOnChangesCheckButton:Disable();
@@ -10190,7 +10190,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         else
             GRM.S().exportAllRanks = false;
         end
-        GRM_G.RegisterMessage();
+        GRM.RegisterMessage();
     end);
 
     -- For tooltip
@@ -10599,7 +10599,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         else
             GRM.S().onlyAnnounceForMain = false;
         end
-        GRM.CheckPlayerEvents();
+        GRM.Scan.CheckPlayerEvents();
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_AnnounceBdaysOnLoginButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMainOnlyCheckButton , "BOTTOMLEFT" , 0 , -6 );
@@ -10618,7 +10618,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.S().AnnounceBdayOnLogin = false;
         end
         if not GRM_G.CurrentlyScanning then
-            GRM.CheckPlayerEvents();
+            GRM.Scan.CheckPlayerEvents();
         end
     end);
 
@@ -10640,7 +10640,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.S().addNotesToLeft = false;
         end
         if not GRM_G.CurrentlyScanning then
-            GRM.CheckPlayerEvents();
+            GRM.Scan.CheckPlayerEvents();
         end
     end);
 
@@ -14164,7 +14164,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             local syncMessage = "GRM_BAN?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. fullName .. "~|~" .. epochTimeStamp .. "~|~" .. banReason .. "~|~" .. class .. "~|~" .. guid .. "~|~" .. tostring ( banalts );
 
             -- DO NOT SEND UPDATE TO ALL PLAYERS - ONLY TO THOSE WHO ARE PROPER RANK
-            local listOfNames = GRM.GetListOfOnlinePlayers();
+            local listOfNames = GRM.G_Util.GetListOfOnlinePlayers();
             for i = index , #GRM_G.currentAddonUsers do
                 for j = index2 , #listOfNames do
                     if GRM_G.currentAddonUsers[i][1] == listOfNames[j] and GRM_G.currentAddonUsers[i][8] == 1 then -- 1 means ban data sync ok both ways
@@ -14341,7 +14341,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
             local logReportWithTime , logReport = GRM.GetBanLogUpdateAndEditString ( GRM_G.isChecked2 , isAnEdit , banningName , bannedName , banReason , GRM.Time.GetTimestamp() );
 
-            GRM.AddLog ( { 20 , logReportWithTime , GRM_G.isChecked2 , isAnEdit , banningName , bannedName , banReason , GRM.Time.GetTimestamp() } );
+            GRM.Log.AddLog ( { 20 , logReportWithTime , GRM_G.isChecked2 , isAnEdit , banningName , bannedName , banReason , GRM.Time.GetTimestamp() } );
 
             if GRM.S().toChat.banned then
                 GRM.Report ( logReport );
@@ -14491,7 +14491,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             local syncMessage = "GRM_UNBAN?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. name .. "?" .. epochTimeStamp;
 
             -- DO NOT SEND UPDATE TO ALL PLAYERS - ONLY TO THOSE WHO ARE PROPER RANK
-            local listOfNames = GRM.GetListOfOnlinePlayers();
+            local listOfNames = GRM.G_Util.GetListOfOnlinePlayers();
             for i = index , #GRM_G.currentAddonUsers do
                 for j = index2 , #listOfNames do
                     if GRM_G.currentAddonUsers[i][1] == listOfNames[j] and GRM_G.currentAddonUsers[i][8] == 1 then -- 1 means ban data sync ok both ways
@@ -14538,7 +14538,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     local name = colorCode .. GRM.SlimName ( GRM_G.TempBanTarget[1] ) .. "|r";
                     local finalMsgWithTime , finalMsg = GRM.GetUnBanString  ( name , GRM.GetClassifiedName ( GRM_G.addonUser ) , GRM.Time.GetTimestamp() );
 
-                    GRM.AddLog ( { 21 , finalMsgWithTime , name , GRM.GetClassifiedName ( GRM_G.addonUser , true ) , GRM.Time.GetTimestamp() } );
+                    GRM.Log.AddLog ( { 21 , finalMsgWithTime , name , GRM.GetClassifiedName ( GRM_G.addonUser , true ) , GRM.Time.GetTimestamp() } );
 
                     if GRM.S().toChat.banned then
                         GRM.Report ( finalMsg );
@@ -16439,8 +16439,6 @@ GRM_UI.RefreshSelectFrames = function ( log , audit , ban , macroTool , customRo
         GRM.PopulateMemberDetails ( GRM_G.currentName );
     end
 end
-
-
 
 ------------------------------------------
 ------- RESCALE WINDOWS LOGIC ------------

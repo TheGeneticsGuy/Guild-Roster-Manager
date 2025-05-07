@@ -485,7 +485,7 @@ end
 -- What it Does:    Return the count of the number of alt groups in the guild
 -- Purpose:         To determine which unique identifier to give the alt group.
 GRM.GetNumAltGroups = function( guildName )
-    return GRM.TableLength ( GRM.GetGuildAlts( guildName or GRM_G.guildName ) );
+    return GRM.Util.TableLength ( GRM.GetGuildAlts( guildName or GRM_G.guildName ) );
 end
 
 -- Method:          GRM.GetAltNamesList ( playerTable )
@@ -792,7 +792,7 @@ GRM.IsAnyAltActiveForRecommendKicks = function ( alts , ruleName )
     -- Verify the numbers have been calculated first
 
     if GRM_G.NumberOfHoursTilRecommend.kick == nil then   -- Shortly after login this might not be active if they open the window too soon.
-        GRM.RefreshNumberOfHoursTilRecommend();
+        GRM.Scan.RefreshNumberOfHoursTilRecommend();
     end
 
     if GRM_G.NumberOfHoursTilRecommend.kick ~= nil then
@@ -804,7 +804,7 @@ GRM.IsAnyAltActiveForRecommendKicks = function ( alts , ruleName )
             if player then
 
                 if GRM_G.NumberOfHoursTilRecommend.kick[ruleName] == nil then
-                    GRM.RefreshNumberOfHoursTilRecommend();
+                    GRM.Scan.RefreshNumberOfHoursTilRecommend();
                 end
 
                 if player.lastOnline < GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
@@ -1028,7 +1028,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
 
                 -- Let's set those officer/public notes as well!
                 if GRM.S().addTimestampToNote and ( GRM.CanEditOfficerNote() or GRM.CanEditPublicNote() ) then -- By default I block non officers from auto-adding notes
-                    for h = 1 , GRM.GetNumGuildies() do
+                    for h = 1 , GRM.G_Util.GetNumGuildies() do
                         local h = GRM.GetRosterSelectionID ( tempAlt.name , tempAlt.GUID );
                         if h then
                             local note , oNote = select ( 7 , GetGuildRosterInfo(h) );

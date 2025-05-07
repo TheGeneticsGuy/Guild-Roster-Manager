@@ -177,7 +177,7 @@ HC.HardCoreInitialize = function()
                             GRM.PrintLog ( { 4 , logReport } );
                         end
                         -- Also adding it to the log!
-                        GRM.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() } );
+                        GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() } );
 
                         player.note = finalNote;
                         GuildRosterSetPublicNote ( i , finalNote );
@@ -196,7 +196,7 @@ HC.HardCoreInitialize = function()
             local logReportWithTime = GRM.GetDeathString ( name , class , level , dateArray );
 
             -- No need to report to chat since the chat already notifies everyone in guild.
-            GRM.AddLog ( { 24 , logReportWithTime , name , class , level , dateArray } );
+            GRM.Log.AddLog ( { 24 , logReportWithTime , name , class , level , dateArray } );
 
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
                 GRM.BuildLogComplete( true , true );

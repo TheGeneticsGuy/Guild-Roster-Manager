@@ -1,5 +1,16 @@
 ## **VERSION 1.992 RELEASE - April 24th, 2025**
 
+***BUG FIXES***
+
+* Fixed the scanning that could result in too much scanning through at the same time, causing a potential timeout. This is now handled a little more divided to prevent any chance of stutter or timeouts.
+
+
+
+***ENHANCEMENTS***
+
+* More optimizations have been made in cleaning up the code and optimizing certain processes to sort of modernize some of my GRM development. Rather than do it all at once, as we are talking tens of thousands of lines of code, I am doing it in chunks. This update include a significant update to the scanning process when updating player info and scanning for changes.
+
+
 
 ## **VERSION 1.99171 RELEASE - April 24th, 2025**
 

@@ -3482,7 +3482,7 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
         local g1 = false;
         local g2 = false;
 
-        for i = 1 , GRM.GetNumGuildies() do
+        for i = 1 , GRM.G_Util.GetNumGuildies() do
             -- For guild info
             local rankInd , _ , _ , _ , note , officerNote = select ( 3 , GetGuildRosterInfo ( i ) );
 
@@ -5095,7 +5095,7 @@ end
 -- purpose:         Speed and easier to read settings!
 GRM_Patch.ConvertAddonSettings = function()
     if GRM_AddonSettings_Save["H"] == nil then
-        local tempUI = GRM.DeepCopyArray ( GRM_AddonSettings_Save );
+        local tempUI = GRM.Util.DeepCopyArray ( GRM_AddonSettings_Save );
         local newUI = {};
 
         newUI["H"] = {};
@@ -5281,7 +5281,7 @@ GRM_Patch.ConvertListOfAddonAlts = function()
     DBGuildNames = GRM_Patch.CollectAllGuildNames();
 
     if GRM_PlayerListOfAlts_Save["H"] == nil then
-        local tempUI = GRM.DeepCopyArray ( GRM_PlayerListOfAlts_Save );
+        local tempUI = GRM.Util.DeepCopyArray ( GRM_PlayerListOfAlts_Save );
         local newUI = {};
 
         newUI["H"] = {};
@@ -5322,7 +5322,7 @@ end
 GRM_Patch.ConvertBackupDB = function()
 
     if GRM_GuildDataBackup_Save["H"] == nil then
-        local tempUI = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save );
+        local tempUI = GRM.Util.DeepCopyArray ( GRM_GuildDataBackup_Save );
         local newUI = {};
 
         DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
@@ -5370,17 +5370,17 @@ GRM_Patch.ConvertBackupDB = function()
                             newUI[f][ gName ]["Auto"] = { 1 };
                             newUI[f][ gName ]["Auto"]["date"] = tempUI[i][j][2][1];
                             newUI[f][ gName ]["Auto"]["epochDate"] = tempUI[i][j][2][2];
-                            newUI[f][ gName ]["Auto"]["members"] = GRM.DeepCopyArray ( tempUI[i][j][2][3] );
-                            newUI[f][ gName ]["Auto"]["formerMembers"] = GRM.DeepCopyArray ( tempUI[i][j][2][4] );
-                            newUI[f][ gName ]["Auto"]["log"] = GRM.DeepCopyArray ( tempUI[i][j][2][5] );
+                            newUI[f][ gName ]["Auto"]["members"] = GRM.Util.DeepCopyArray ( tempUI[i][j][2][3] );
+                            newUI[f][ gName ]["Auto"]["formerMembers"] = GRM.Util.DeepCopyArray ( tempUI[i][j][2][4] );
+                            newUI[f][ gName ]["Auto"]["log"] = GRM.Util.DeepCopyArray ( tempUI[i][j][2][5] );
                         end
                         if tempUI[i][j][3] ~= nil and #tempUI[i][j][3] > 0 then
                             newUI[f][ gName ]["Manual"] = { 1 };
                             newUI[f][ gName ]["Manual"]["date"] = tempUI[i][j][3][1];
                             newUI[f][ gName ]["Manual"]["epochDate"] = tempUI[i][j][3][2];
-                            newUI[f][ gName ]["Manual"]["members"] = GRM.DeepCopyArray ( tempUI[i][j][3][3] );
-                            newUI[f][ gName ]["Manual"]["formerMembers"] = GRM.DeepCopyArray ( tempUI[i][j][3][4] );
-                            newUI[f][ gName ]["Manual"]["log"] = GRM.DeepCopyArray ( tempUI[i][j][3][5] );
+                            newUI[f][ gName ]["Manual"]["members"] = GRM.Util.DeepCopyArray ( tempUI[i][j][3][3] );
+                            newUI[f][ gName ]["Manual"]["formerMembers"] = GRM.Util.DeepCopyArray ( tempUI[i][j][3][4] );
+                            newUI[f][ gName ]["Manual"]["log"] = GRM.Util.DeepCopyArray ( tempUI[i][j][3][5] );
                         end
                     end
                 end
@@ -5455,7 +5455,7 @@ end
 GRM_Patch.ConvertLogDB = function()
 
     if GRM_LogReport_Save["H"] == nil then
-        local tempUI = GRM.DeepCopyArray ( GRM_LogReport_Save );
+        local tempUI = GRM.Util.DeepCopyArray ( GRM_LogReport_Save );
         local newUI = {};
         DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
 
@@ -5507,7 +5507,7 @@ end
 -- Purpose:         Overhaul of database to take advantage of Lua key hashmapping that is built-in.
 GRM_Patch.ConvertMiscToNewDB = function()
     if #GRM_Misc > 0 and #GRM_Misc[1] == 7 then
-        local tempUI = GRM.DeepCopyArray ( GRM_Misc );
+        local tempUI = GRM.Util.DeepCopyArray ( GRM_Misc );
         local newUI = {};
 
         for i = 1 , #tempUI do
@@ -5530,7 +5530,7 @@ end
 GRM_Patch.ConvertCalenderDB = function()
 
     if GRM_CalendarAddQue_Save["H"] == nil then
-        local tempUI = GRM.DeepCopyArray ( GRM_CalendarAddQue_Save );
+        local tempUI = GRM.Util.DeepCopyArray ( GRM_CalendarAddQue_Save );
         local newUI = {};
         DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
 
@@ -5580,7 +5580,7 @@ GRM_Patch.ConvertPlayerMetaDataDB = function( database , version )
     local result = nil;
 
     if database["H"] == nil then
-        local tempUI = GRM.DeepCopyArray ( database );
+        local tempUI = GRM.Util.DeepCopyArray ( database );
         local newUI = {};
         DBGuildNames = DBGuildNames or GRM_Patch.CollectAllGuildNames();
 
@@ -5744,7 +5744,7 @@ end
 -- What it does:    Takes the backup data and converts it to the new DB format
 -- Purpose:         Conversion of the DB
 GRM_Patch.ConvertBackupPlayerData = function ( playerData , guildName , creationDate , version , numRanks , clubID )
-    local tempUI = GRM.DeepCopyArray ( playerData );
+    local tempUI = GRM.Util.DeepCopyArray ( playerData );
     local result = {};
     local newDB = {};
     local member;
@@ -5838,7 +5838,7 @@ GRM_Patch.FixNameChangePreReleaseBug = function()
                 if type ( playerData ) == "table" and name ~= playerData.name then
                     GRM_GuildMemberHistory_Save[F][guildName][playerData.name] = nil;
                     GRM_GuildMemberHistory_Save[F][guildName][playerData.name] = {};
-                    GRM_GuildMemberHistory_Save[F][guildName][playerData.name] = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[F][guildName][name] );
+                    GRM_GuildMemberHistory_Save[F][guildName][playerData.name] = GRM.Util.DeepCopyArray ( GRM_GuildMemberHistory_Save[F][guildName][name] );
                     GRM_GuildMemberHistory_Save[F][guildName][name] = nil;
                 end
             end
@@ -5851,7 +5851,7 @@ GRM_Patch.FixNameChangePreReleaseBug = function()
                 if type ( playerData ) == "table" and name ~= playerData.name then
                     GRM_PlayersThatLeftHistory_Save[F][guildName][playerData.name] = nil;
                     GRM_PlayersThatLeftHistory_Save[F][guildName][playerData.name] = {};
-                    GRM_PlayersThatLeftHistory_Save[F][guildName][playerData.name] = GRM.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[F][guildName][name] );
+                    GRM_PlayersThatLeftHistory_Save[F][guildName][playerData.name] = GRM.Util.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[F][guildName][name] );
                     GRM_PlayersThatLeftHistory_Save[F][guildName][name] = nil;
                 end
             end
@@ -7335,7 +7335,7 @@ GRM_Patch.FixIfGuildChange = function()
 
                     if not isMatched then
                         -- We found the flawed candidate.
-                        GRM_Alts[guildName] = GRM.DeepCopyArray ( GRM_Alts[oldGuildName] );
+                        GRM_Alts[guildName] = GRM.Util.DeepCopyArray ( GRM_Alts[oldGuildName] );
                         GRM_Alts[oldGuildName] = nil;
                         GRM_GuildMemberHistory_Save[faction][guildName].grmName = guildName;
                         GRM_PlayersThatLeftHistory_Save[faction][guildName].grmName = guildName;
@@ -7474,7 +7474,7 @@ GRM_Patch.ConvertSaveFiles = function( index )
 
                     if not newDataTable[guildName] then
                         newDataTable[guildName] = {};
-                        newDataTable[guildName] = GRM.DeepCopyArray ( data[i][F][guildName] );
+                        newDataTable[guildName] = GRM.Util.DeepCopyArray ( data[i][F][guildName] );
 
                         -- Update player faction;
                         if i > 3 then
@@ -7535,7 +7535,7 @@ GRM_Patch.ConvertSettings = function()
         for F in pairs ( GRM_AddonSettings_Save ) do
             for name in pairs ( GRM_AddonSettings_Save[F] ) do
 
-                newDataTable[name] = GRM.DeepCopyArray ( GRM_AddonSettings_Save[F][name] );
+                newDataTable[name] = GRM.Util.DeepCopyArray ( GRM_AddonSettings_Save[F][name] );
 
             end
         end
@@ -7582,11 +7582,11 @@ GRM_Patch.ConvertDatabase = function( backups )
 
                             newBackups[guild].date = GRM_GuildDataBackup_Save[f][guild]["Manual"].date;
                             newBackups[guild].epochDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].epochDate;
-                            newBackups[guild].numGuildies = GRM.GetNumGuildiesInGuild ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
-                            newBackups[guild].members = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
-                            newBackups[guild].formerMembers = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].formerMembers );
-                            newBackups[guild].log = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].log );
-                            newBackups[guild].alts = GRM.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].alts );
+                            newBackups[guild].numGuildies = GRM.G_Util.GetNumGuildiesInGuild ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
+                            newBackups[guild].members = GRM.Util.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].members );
+                            newBackups[guild].formerMembers = GRM.Util.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].formerMembers );
+                            newBackups[guild].log = GRM.Util.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].log );
+                            newBackups[guild].alts = GRM.Util.DeepCopyArray ( GRM_GuildDataBackup_Save[f][guild]["Manual"].alts );
 
                             if GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate and GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate ~= "" then
                                 newBackups[guild].guildCreationDate = GRM_GuildDataBackup_Save[f][guild]["Manual"].members.grmCreationDate;
@@ -8081,7 +8081,7 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
                         GRM_PlayerListOfAlts_Save[name] = {}
                     end
 
-                    if GRM.TableLength(toonsInGuild) > 0 then
+                    if GRM.Util.TableLength(toonsInGuild) > 0 then
                         -- Add all the alts of that account to the guild
                         for names in pairs ( toonsInGuild ) do
 
@@ -8091,7 +8091,7 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
                                     -- Because they are global, we can keep add them, then break.
                                     newSettings[name] = {};
                                     GRM_AddonSettings_Save[names].version = nil;
-                                    newSettings[name] = GRM.DeepCopyArray ( GRM_AddonSettings_Save[names] );
+                                    newSettings[name] = GRM.Util.DeepCopyArray ( GRM_AddonSettings_Save[names] );
                                     listOfGuilds[name].done = true;
                                 end
                             end
@@ -8121,7 +8121,7 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
                                     GRM_AddonSettings_Save[playerHighestRank].syncSettings = true;
                                     GRM_AddonSettings_Save[playerHighestRank].version = nil;
                                     newSettings[name] = {};
-                                    newSettings[name] = GRM.DeepCopyArray ( GRM_AddonSettings_Save[playerHighestRank] );
+                                    newSettings[name] = GRM.Util.DeepCopyArray ( GRM_AddonSettings_Save[playerHighestRank] );
                                 end
                             end
 
@@ -8137,7 +8137,7 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
             end
         end
         GRM_AddonSettings_Save = {};
-        GRM_AddonSettings_Save = GRM.DeepCopyArray ( newSettings );
+        GRM_AddonSettings_Save = GRM.Util.DeepCopyArray ( newSettings );
 
         -- Now, add your own server if this is a player who logged in in a new server
         if IsInGuild() and not GRM_AddonSettings_Save[GRM_G.guildName] then

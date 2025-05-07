@@ -1484,8 +1484,6 @@ GRML.Italian = function()
     GRM_L["Promote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Demote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Reject"] = true
-    GRM_L["Please confirm that the guild \"{name}\" has been renamed to \"{name2}\"."] = true
-    GRM_L["Possible Guild Name Change Detected. {num}% match."] = true
     GRM_L["Player Search"] = true
     GRM_L["Search to find a player quicker"] = true
 

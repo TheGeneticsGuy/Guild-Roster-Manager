@@ -782,7 +782,7 @@ GRM_UI.BuildDropDownOptions = function( list , dropDownMenu , dropDownMenuSelect
 
         button:SetScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
-                local tempResult = GRM.DeepCopyArray ( dropDownMenu.result );   -- Making a copy incase need to restore
+                local tempResult = GRM.Util.DeepCopyArray ( dropDownMenu.result );   -- Making a copy incase need to restore
                 dropDownMenu.result = { buttonText:GetText() , i };
                 dropDownMenuSelectedText:SetText ( buttonText:GetText() );
                 dropDownMenu:Hide();

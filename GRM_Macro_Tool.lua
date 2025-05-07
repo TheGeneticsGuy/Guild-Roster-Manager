@@ -534,7 +534,7 @@ GRM_UI.BuildSpcialRules = function()
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.ruleIndex = GRM.GetRulesCount( 4 ) + 1;
             end
 
-            GRM.S()[GRM_UI.ruleTypeEnum[4]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.name] = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule );
+            GRM.S()[GRM_UI.ruleTypeEnum[4]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.name] = GRM.Util.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule );
 
             -- Configure editTime for sync purposes
             GRM.S()[GRM_UI.ruleTypeEnum[4]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.rule.name].editTime = time();
@@ -1327,7 +1327,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
-            GRM.ScanRecommendationsList();
+            GRM.Scan.ScanRecommendationsList();
         end);
 
         -- Text
@@ -2395,7 +2395,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         local status;
 
         -- 1 = allChecked , 2 = allUnchecked, 3 = someChecked , 4 = No Rules
-        local numRules = GRM.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
+        local numRules = GRM.Util.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
         if numRules == 0 then
             status = 4;
         else
@@ -2906,7 +2906,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.ruleIndex = GRM.GetRulesCount( GRM_UI.GRM_ToolCoreFrame.TabPosition ) + 1;
                     end
 
-                    GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule );
+                    GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name] = GRM.Util.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule );
 
                     -- Configure editTime for sync purposes
                     GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name].editTime = time();
@@ -5738,7 +5738,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Show();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu , 12 , 12 , "THICKOUTLINE" , GRM.GetListOfGuildRanks() ,  GRM_UI.SetDestinationSelection );
+                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu , 12 , 12 , "THICKOUTLINE" , GRM.G_Util.GetListOfGuildRanks() ,  GRM_UI.SetDestinationSelection );
                     GRM_UI.AdjustColoringOfDestinationRanks();
                 end
                 GRM.RestoreTooltip();
@@ -6493,17 +6493,17 @@ GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , b
         if not isBanAltList and not bannedInGuildList and not customGroup then
             GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries();
         elseif isBanAltList then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllAltsTable );
+            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( GRM_G.KickAllAltsTable );
             GRM_G.KickAllAltsTable = {};
         elseif bannedInGuildList then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.KickAllBannedTable );
+            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( GRM_G.KickAllBannedTable );
             GRM_G.KickAllBannedTable = {};
         elseif customGroup then
             if not customGroupTable then
-                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( GRM_G.customKickList );
+                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( GRM_G.customKickList );
                 GRM_G.customKickList = {};
             else
-                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.DeepCopyArray ( customGroupTable );
+                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( customGroupTable );
             end
         end
     end
@@ -6734,7 +6734,7 @@ GRM.GetMacroEntries = function ()
     local count = 0;
     local count2 = 0;
     local ind = 1;
-    local entries = GRM.DeepCopyArray(GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
+    local entries = GRM.Util.DeepCopyArray(GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
     local macroSet = false;
     local type = 1;
 
@@ -6815,7 +6815,7 @@ GRM.GetMacroCountForPromoteAndDemote = function()
     local count = 0;
     local count2 = 0;
     local i = 1;
-    local entries = GRM.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
+    local entries = GRM.Util.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
     local listOfNames = {};
     local type = 1;
 
@@ -6977,8 +6977,8 @@ GRM.ValidateMacroRecordingSuccess = function( isReScan )
 
             C_Timer.After ( 2 , function()
                 GRM_G.ManualScanEnabled = true;
-                GRM.BuildNewRoster();
-                C_Timer.After ( 1 , function()
+                GRM.Scan.BuildNewRoster( true );
+                C_Timer.After ( 3 , function()
                     GRM_G.MacroInProgress = false;
                 end);
             end);
@@ -8084,35 +8084,35 @@ end
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetKickRule = function ( name )
-    return GRM.DeepCopyArray ( GRM.S().kickRules[name] );
+    return GRM.Util.DeepCopyArray ( GRM.S().kickRules[name] );
 end
 
 -- Method:          GRM.GetPromoteRule()
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetPromoteRule = function ( name )
-    return GRM.DeepCopyArray ( GRM.S().promoteRules[name] );
+    return GRM.Util.DeepCopyArray ( GRM.S().promoteRules[name] );
 end
 
 -- Method:          GRM.GetDemoteRule()
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM.GetDemoteRule = function ( name )
-    return GRM.DeepCopyArray ( GRM.S().demoteRules[name] );
+    return GRM.Util.DeepCopyArray ( GRM.S().demoteRules[name] );
 end
 
 -- Method:          GRM_Macro.GetSpecialRule()
 -- What it Does:    Returns the given rule by name
 -- Purpose:         To easily be able to edit the existing rule
 GRM_Macro.GetSpecialRule = function ( name )
-    return GRM.DeepCopyArray ( GRM.S().specialRules[name] );
+    return GRM.Util.DeepCopyArray ( GRM.S().specialRules[name] );
 end
 
 -- Method:          GRM.ChangeRuleName ( string , string , string )
 -- What it Does:    Copies the old rule and sets the new one.
 -- Purpose:         Allow the editing of the rule names
 GRM.ChangeRuleName = function ( ruleType , newName , oldName )
-    GRM.S()[ruleType][newName] = GRM.DeepCopyArray ( GRM.S()[ruleType][oldName] );
+    GRM.S()[ruleType][newName] = GRM.Util.DeepCopyArray ( GRM.S()[ruleType][oldName] );
     GRM.S()[ruleType][newName].name = newName;
     GRM.S()[ruleType][oldName] = nil;
 end
@@ -8491,13 +8491,13 @@ GRM.GetRuleEntries = function ( ruleType )
     GRM.RulesIntegrityCheck ( ruleType );
 
     if ruleType == 1 then
-        tempTable = GRM.DeepCopyArray ( GRM.S().kickRules );
+        tempTable = GRM.Util.DeepCopyArray ( GRM.S().kickRules );
     elseif ruleType == 2 then
-        tempTable = GRM.DeepCopyArray ( GRM.S().promoteRules );
+        tempTable = GRM.Util.DeepCopyArray ( GRM.S().promoteRules );
     elseif ruleType == 3 then
-        tempTable = GRM.DeepCopyArray ( GRM.S().demoteRules );
+        tempTable = GRM.Util.DeepCopyArray ( GRM.S().demoteRules );
     elseif ruleType == 4 then
-        tempTable = GRM.DeepCopyArray ( GRM.S().specialRules );
+        tempTable = GRM.Util.DeepCopyArray ( GRM.S().specialRules );
     end
 
     for _ , rule in pairs ( tempTable ) do
@@ -9485,7 +9485,7 @@ end
 GRM_UI.GetYourOwnAltHighestRank = function()
 
     if not GRM_G.playerRankID then
-        GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     end
 
     local highest = { GRM_G.playerRankID , GRM_G.addonUser };
@@ -9495,13 +9495,13 @@ GRM_UI.GetYourOwnAltHighestRank = function()
     local promote, demote, kick
     local mainFound = false;
 
-    if myAlts and GRM.TableLength ( myAlts ) > 1 then
+    if myAlts and GRM.Util.TableLength ( myAlts ) > 1 then
         for name in pairs ( myAlts) do
             if name ~= GRM_G.addonUser then
                 -- Just in case, let's double check confirm they are still in the guild.
                 if GRM.GetPlayer ( name ) then
                     -- Success! Player is in the guild! Now, let's check rank
-                    rankInd = GRM.GetGuildMemberRankID ( name );
+                    rankInd = GRM.G_Util.GetGuildMemberRankID ( name );
                     if rankInd then
                         promote, demote, kick = GRM.GetPlayerRankPermissions ( name , rankInd );
                         if promote and demote and kick then       -- No need to bother including them in highest unless it has the rank permissions to do it.
@@ -9569,7 +9569,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
     local ruleCount = ruleTypeIndex or GRM_UI.GRM_ToolCoreFrame.TabPosition;
 
     if not GRM_G.playerRankID then
-        GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     end
 
     GRM_G.countAction[ruleCount] = time();
@@ -9796,13 +9796,13 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
 
                                 elseif rule.ruleType == 2 then
 
-                                    if ( not GRM.S().promoteOnlineOnly ) or ( GRM.S().promoteOnlineOnly and GRM.IsGuildieOnline ( player.name , player ) ) then
+                                    if ( not GRM.S().promoteOnlineOnly ) or ( GRM.S().promoteOnlineOnly and GRM.G_Util.IsGuildieOnline ( player.name , player ) ) then
                                         playerMatch = true;
                                     end
 
                                 elseif rule.ruleType == 3 then
 
-                                    if ( not GRM.S().demoteOnlineOnly ) or ( GRM.S().demoteOnlineOnly and GRM.IsGuildieOnline ( player.name , player ) ) then
+                                    if ( not GRM.S().demoteOnlineOnly ) or ( GRM.S().demoteOnlineOnly and GRM.G_Util.IsGuildieOnline ( player.name , player ) ) then
                                         playerMatch = true;
                                     end
 
@@ -9901,7 +9901,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
     GRM_G.countAction[1] = time();
 
     if not GRM_G.playerRankID then
-        GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     end
 
     -- No need to do all the work if there are no rules to check!
@@ -10250,7 +10250,7 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
     local ruleDisabledList = {};
 
     if not GRM_G.playerRankID then
-        GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     end
 
     -- No need to do all the work if there are no rules to check!
@@ -10410,14 +10410,14 @@ GRM.SortAltsUnderMain = function( listOfPlayers )
                 group = GRM.GetAltGroup ( player.altGroup );
 
                 if not group then
-                    table.insert ( result , { GRM.DeepCopyArray( listOfPlayers[i] ) } );
+                    table.insert ( result , { GRM.Util.DeepCopyArray( listOfPlayers[i] ) } );
                     table.remove ( listOfPlayers , i );
                 else
                     alts = GRM.GetAltNamesList ( player );
 
                     if ( group and group.main == "" ) or isMain then
                         -- Main Name found, now let's cycle through and get all the alts too.
-                        table.insert ( result , { GRM.DeepCopyArray( listOfPlayers[i] ) } );
+                        table.insert ( result , { GRM.Util.DeepCopyArray( listOfPlayers[i] ) } );
                         table.remove ( listOfPlayers , i );
 
                         if ( group and group.main ~= "" ) then
@@ -10428,11 +10428,11 @@ GRM.SortAltsUnderMain = function( listOfPlayers )
 
                                     if listOfPlayers[k].name == alts[j] then
 
-                                        local tempMain = GRM.DeepCopyArray ( result[#result][1] );
+                                        local tempMain = GRM.Util.DeepCopyArray ( result[#result][1] );
                                         listOfPlayers[k].isAlt = true;
                                         listOfPlayers[k].tab = true;
 
-                                        table.insert ( result[#result] , GRM.DeepCopyArray( listOfPlayers[k] ) );
+                                        table.insert ( result[#result] , GRM.Util.DeepCopyArray( listOfPlayers[k] ) );
                                         table.remove ( result[#result] , 1 );   -- Removing the main
                                         table.remove ( listOfPlayers , k );
 
@@ -10460,7 +10460,7 @@ GRM.SortAltsUnderMain = function( listOfPlayers )
                         if not isFound then
                             -- This means an alt is being kicked, but not a main.
                             listOfPlayers[i].isAlt = true;
-                            table.insert ( result , { GRM.DeepCopyArray( listOfPlayers[i] ) } );
+                            table.insert ( result , { GRM.Util.DeepCopyArray( listOfPlayers[i] ) } );
                             table.remove ( listOfPlayers , i );
                         end
                     end
@@ -10665,7 +10665,7 @@ GRM.GetCountOfNamesBeingFiltered = function()
     local includeHigherAlt = false;
 
     if not GRM_G.playerRankID then
-        GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     end
 
     if highest[1] ~= GRM_G.playerRankID then
@@ -10692,7 +10692,7 @@ GRM.GetCountOfNamesBeingFiltered = function()
 
         if time() - GRM_G.countAction[1] > 0.25 then
             listOfNames , higherAltCount = GRM.GetKickNamesByFilterRules( includeHigherAlt , highest );
-            k = GRM.TableLength ( listOfNames );
+            k = GRM.Util.TableLength ( listOfNames );
             k2 = higherAltCount
             GRM_G.counts[1][1] = k;
             GRM_G.counts[1][2] = k2;
@@ -10708,7 +10708,7 @@ GRM.GetCountOfNamesBeingFiltered = function()
     if canPromote then
         if time() - GRM_G.countAction[2] > 0.25 then
             listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 2 , includeHigherAlt , highest );
-            p = GRM.TableLength ( listOfNames );
+            p = GRM.Util.TableLength ( listOfNames );
             p2 = higherAltCount;
             GRM_G.counts[2][1] = p;
             GRM_G.counts[2][2] = p2;
@@ -10722,7 +10722,7 @@ GRM.GetCountOfNamesBeingFiltered = function()
     if canDemote then
         if time() - GRM_G.countAction[3] > 0.25 then
             listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 3 , includeHigherAlt , highest );
-            d = GRM.TableLength ( listOfNames );
+            d = GRM.Util.TableLength ( listOfNames );
             d2 = higherAltCount;
             GRM_G.counts[3][1] = d;
             GRM_G.counts[3][2] = d2;
@@ -10736,7 +10736,7 @@ GRM.GetCountOfNamesBeingFiltered = function()
     if canPromote and canDemote then
         if time() - GRM_G.countAction[4] > 0.25 then
             listOfNames , higherAltCount = GRM_UI.GetNamesBySpecialRules( includeHigherAlt , highest );
-            s = GRM.TableLength ( listOfNames );
+            s = GRM.Util.TableLength ( listOfNames );
             s2 = higherAltCount
             GRM_G.counts[4][1] = s;
             GRM_G.counts[4][2] = s2;
@@ -10775,7 +10775,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGro
     -- Re-check they are valid
     GRM.RuleIntegrityCheck();
 
-    GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+    GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
     GRM_UI.GRM_ToolCoreFrame.Safe = {}; -- reset this list to rebuild
     GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild , customGroup , customGroupTable );
@@ -10832,7 +10832,7 @@ end
 -- What it Does:    Triggers a full refresh of ALL frames, like if the player creates and adds a new rule it will reprocess all
 -- Purpose:         Quality of life, live updating of the UI as changes are made.
 GRM_UI.FullMacroToolRefresh = function()
-    GRM.RefreshNumberOfHoursTilRecommend();
+    GRM.Scan.RefreshNumberOfHoursTilRecommend();
     GRM_UI.RefreshManagementTool();
 end
 
@@ -11512,7 +11512,7 @@ end);
 --         GRM.Report ( GRM.L ( "Macro Rule Sync:" ) .. " " .. removeMsg[ruleType] );
 --     end
 
---     GRM.RefreshNumberOfHoursTilRecommend();
+--     GRM.Scan.RefreshNumberOfHoursTilRecommend();
 -- end
 
 -- -- GRM.RemoveMacroRule
@@ -11944,11 +11944,11 @@ end);
 
     -- end
 
---     GRM.S()[ruleType][rule.name] = GRM.DeepCopyArray ( rule );
+--     GRM.S()[ruleType][rule.name] = GRM.Util.DeepCopyArray ( rule );
 --     -- Clear it from removed rules if it is there...
 --     GRM.S().removedMacroRules[ ruleType ][rule.name] = nil;
 --     -- Don't refresh UI until sender confirms they sent last rule
---     GRM.RefreshNumberOfHoursTilRecommend();
+--     GRM.Scan.RefreshNumberOfHoursTilRecommend();
 -- end
 
 -- -- Method:          GRM.ReviewFinalResults()
