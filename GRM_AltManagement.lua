@@ -743,7 +743,9 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
             if GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                 GRM.PopulateAltFrames ( GRM_G.currentName );
             end
-            GRM_UI.RefreshSelectFrames ( true , true , false , true , true , true );
+            if not GRM_G.HK then    -- I don't want this to refresh if I am actively kicking alts with the macro tool.
+                GRM_UI.RefreshSelectFrames ( true , true , false , true , true , true );
+            end
         end
     end
 end

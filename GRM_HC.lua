@@ -82,7 +82,7 @@ HC.HardCoreInitialize = function()
         -- What it Does:        Finds a player in the roster by GUID, then updates their note and sets them to being dead.
         -- Purpose:             Handling the situation of double copies of players still in the guild because of name copies
         GRM.SetPlayerAsDeadByGUID = function ( guid , lastOnline , i , note )
-            if GRM.CanEditPublicNote() and not string.find ( note , "[D]" ) then
+            if GRM.CanEditPublicNote() and not string.find ( note , "%[" .. GRM.L("D") .. "%]" ) then
                 local  playerGUID = select ( 17 , GetGuildRosterInfo(i) );
                 if playerGUID == guid then
                     local deathNote = "[D]-" .. HC.ConvertLastOnlineHoursToTimestamp ( lastOnline );

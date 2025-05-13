@@ -63,10 +63,79 @@ Prof.GetProfessionsNote = function ( name )
     return
 end
 
+-- Method:          Prof.RemoveAllProfessionNotes()
+-- What it Does:    Removes all of the profession notes in the public, officer, or custom note location
+-- Purpose:         Cleanup if feature is no longer wanted/needed
+Prof.RemoveAllProfessionNotes = function()
+    local count = 0;
+    for i = 1, GRM.G_Util.GetNumGuildies() do
+        -- For guild info
+        local name = GetGuildRosterInfo(i);
+        count = count + Prof.RemoveProfessionNote ( GRM.GetPlayer ( name ) , i );
+    end
+
+    if count > 0 then
+        GRM_UI.RefreshSelectFrames ( false , false , false , false , true , false, true );
+    end
+    GRM.Report ( GRM.L ( "{num} notes have had profession details removed." , nil , nil , count ));
+end
+
+-- Method:          Prof.RemoveProfessionNote ( playerTable , int )
+-- What it Does:    Removes profession note from the given player
+-- Purpose:         Cleanup
+Prof.RemoveProfessionNote = function ( player , ind )
+    local count = 0;
+
+    if player then
+        local pattern = "%[[^%]]+%]%-?%d%d?%d?";                            -- 1 profession [Eng]-300
+        local pattern2 = "%[[^%]]+%]%-?%d%d?%d?/%[[^%]]+%]%-?%d%d?%d?";     -- 2 profession [Eng]-300/[Alch]-250
+        local pattern3 = "%[[^%]]+%]/%[[^%]]+%]%-?%d%d?%d?";                -- Same Level   [Eng]/[Alch]-300
+        local patterns = { pattern3 , pattern2 , pattern };
+        local updatedNote = "";
+
+        if not string.find ( player.note , "%[" .. GRM.L("D") .. "%]" ) then
+            if GRM.CanEditPublicNote() or player.name == GRM_G.addonUser then
+                for i = 1 , #patterns do
+                    if string.match ( player.note , patterns[i] ) then
+                        updatedNote = GRM.Trim(string.gsub ( player.note , patterns[i] , "" ));
+                        player.note = updatedNote;
+                        GuildRosterSetPublicNote(ind,updatedNote);
+                        count = count + 1;
+                        break;
+                    end
+                end
+            end
+
+            if GRM.CanEditOfficerNote() then
+                for i = 1 , #patterns do
+                    if string.match ( player.officerNote , patterns[i] ) then
+                        updatedNote = GRM.Trim(string.gsub ( player.officerNote , patterns[i] , "" ));
+                        player.officerNote = updatedNote;
+                        GuildRosterSetOfficerNote(ind,updatedNote);
+                        count = count + 1;
+                        break;
+                    end
+                end
+            end
+            for i = 1 , #patterns do
+                if string.match ( player.customNote[4] , patterns[i] ) then
+                    updatedNote = GRM.Trim(string.gsub ( player.customNote[4] , patterns[i] , "" ));
+                    Prof.SetCustomNoteDirectly ( player.name , updatedNote );
+                    count = count + 1;
+                    break;
+                end
+            end
+        end
+    end
+    return count;
+end
+
+
+
 -- Method:          Prof.AppendProfessionReportToNote ( string , int )
 -- What it Does:    Updates the note of the player with the profession details, and overwrites old if necessary
 -- Purpose:         Add professions to Classic usefulness
-Prof.AppendProfessionReportToNote = function ( name , destination )
+Prof.AppendProfessionReportToNote = function ( name , destination , removeNote )
 
     local player = GRM.GetPlayer ( name );
     local note, officerNote, customNote = "" , "" , "";
@@ -84,7 +153,7 @@ Prof.AppendProfessionReportToNote = function ( name , destination )
         size = size or 31;
 
         if pendingNote then
-            if not string.find ( pendingNote , "[D]" ) then     -- Need to make sure we don't override any death note here.
+            if not string.find ( pendingNote , "%[" .. GRM.L("D") .. "%]" ) then     -- Need to make sure we don't override any death note here.
                 if string.match ( pendingNote , pattern3 ) then                 -- 2 professions found - Both with same level
                     updatedNote = string.gsub ( pendingNote , pattern3 , notes );
                 elseif string.match ( pendingNote , pattern2 ) then             -- 2 professions found
@@ -250,6 +319,7 @@ Prof.ReportProfChanges = function ( showReport , playersNotUpdated , countOfChan
 
             if countOfChanges > 0 then
                 GRM.Report ( GRM.L ( "Total Notes Updated with Profession Details: {num}" , nil , nil , countOfChanges ) );
+                GRM_UI.RefreshSelectFrames ( false , false , false , false , true , false, true );
             end
 
             if #playersNotUpdated > 0 then

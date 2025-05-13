@@ -293,7 +293,7 @@ GRM_G.MacroHotKey = "";
 
 -- Configuration
 GRM_G.AddonIsFullyConfigured = false;
-GRM_G.SettingsPages = 16;
+GRM_G.SettingsPages = 17;
 GRM_G.ForceAuto = false; -- Force auto backup this session? For patching purposes
 
 -- Which frame to send AddMessage
@@ -892,21 +892,14 @@ GRM.SetDefaultAddonSettings = function(player, page)
     elseif page == 1 then
         player.viewOnLoad = true;
         player.onlyViewIfChanges = true;
-        player.showMainName = true;
         player.syncSettings = true;
         player.minimapEnabled = true;
         player.twentyFourHrScale = GRM.Use24HrBasedOnDefaultLanguage();
-        player.mainTagIndex = 2;
         player.selectedLang = GRM_G.LocalizedIndex;
         player.selectedFont = 1;
         player.fontModifier = 0;
-        player.mainTagColor = {};
-        player.mainTagColor.r = 1;
-        player.mainTagColor.g = 0;
-        player.mainTagColor.b = 0;
         player.tooltipSize = 0.9;
         player.dateFormat = 1;
-        player.useMainTag = true;
         player.reportChannel = {};
         player.defaultTabSelection = {false, 1};
         player.syncCompatibilityMsg = false;
@@ -1147,6 +1140,16 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.ProfReportUpdatesToChat = false;
         player.ProfRankAutoUpdate = false;
         player.ProfNoteDestination = 1;
+
+        -- Names Tab
+    elseif page == 17 then
+        player.showMainName = true;
+        player.mainTagIndex = 2;
+        player.mainTagColor = {};
+        player.mainTagColor.r = 1;
+        player.mainTagColor.g = 0;
+        player.mainTagColor.b = 0;
+        player.useMainTag = true;
 
     end
 
@@ -1635,7 +1638,8 @@ GRM.GetPageIndex = function()
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame] = 7,
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame] = 8,
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame] = 15,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame] = 16
+        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame] = 16,
+        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame] = 17
     };
     local result;
 
@@ -14400,25 +14404,24 @@ GRM.PopulateMainTagDropdown = function()
     local height = 0;
     local tagChoices = GRM.GetMainTags(true);
     -- Initiate the buttons holder
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons or {};
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons =
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons or {};
 
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons[i][1]:Hide();
+    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons do
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i][1]:Hide();
     end
 
     for i = 1, #tagChoices do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] then
+        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] then
             local tempButton = CreateFrame("Button", "MainTagOption" .. i, GRM_UI.GRM_RosterChangeLogFrame
-                .GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] =
+                .GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu);
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local TagButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu
+        local TagButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu
                               .Buttons[i][1];
-        local TagButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                                  .GRM_MainTagFormatMenu.Buttons[i][2];
+        local TagButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i][2];
         TagButton:SetWidth(85);
         TagButton:SetHeight(11);
         TagButton:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
@@ -14435,12 +14438,10 @@ GRM.PopulateMainTagDropdown = function()
         TagButtonText:SetJustifyH("CENTER");
 
         if i == 1 then
-            TagButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_MainTagFormatMenu, 0, -7);
+            TagButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu, 0, -7);
             height = height + TagButton:GetHeight();
         else
-            TagButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_MainTagFormatMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
+            TagButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + TagButton:GetHeight() + buffer;
         end
 
@@ -14449,12 +14450,12 @@ GRM.PopulateMainTagDropdown = function()
                 local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
 
                 GRM.S().mainTagIndex = parsedNumber;
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected
                     .GRM_TagText:SetText(TagButtonText:GetText());
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected
                     .GRM_TagText:SetTextColor(GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected:Show();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected:Show();
 
                 GRM_G.mainTag = GRM.GetCurrentMainTag();
                 GRM_G.altTag = GRM.GetCurrentAltTag();
@@ -14462,7 +14463,7 @@ GRM.PopulateMainTagDropdown = function()
         end);
         TagButton:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatMenu:SetHeight(height + 15);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:SetHeight(height + 15);
 end
 
 -- Method:          GRM.PopulateDefaultTabDropdown()
@@ -15075,18 +15076,18 @@ GRM.CreateOptionsRankDropDown = function()
 
     local TagText = GRM.GetMainTags(false, GRM.S().mainTagIndex);
     if TagText == "" then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetText(
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetText(
             GRM.L("No Tag"));
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetText(
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetText(
             TagText);
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor(
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor(
         GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected
         .GRM_LanguageSelectedText:SetText(GRM.L(GRML.Languages[GRM.S().selectedLang]));
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ColorSelectOptionsFrame
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ColorSelectOptionsFrame
         .GRM_OptionsTexture:SetColorTexture(GRM.S().mainTagColor.r, GRM.S().mainTagColor.b, GRM.S().mainTagColor.g, 1);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetFont(
         GRM_G.FontChoice, GRM_G.FontModifier + 11);
@@ -15114,7 +15115,7 @@ GRM.CreateOptionsRankDropDown = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MainTagFormatSelected:Show();
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:Show();
@@ -15777,7 +15778,6 @@ GRM.KickAction = function(kickedToon, kickerOfficer, scanNumber, isMacro , refre
         local unitName, playerKicked, timePassed, logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date,
             isFoundInEventLog, _, playerLevel, customNote = GRM.Scan.RecordKickChanges(kickedToon, true,
             GRM.Time.GetTimestamp(), kickerOfficer , refresh_macro_tool);
-
         local logReportWithTime, logReport = GRM.GetLeftOrKickString(unitName, playerKicked, timePassed,
             logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date, isFoundInEventLog, nil, nil,
             playerLevel, customNote);
@@ -16192,7 +16192,6 @@ GRM.LiveLeaveDetection = function(text, scanNumber)
         local unitName, playerKicked, timePassed, logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date,
             isFoundInEventLog, isNoLongerOnServer, isLiveDetection, playerLevel, customNote =
             GRM.RecordLeftGuildChanges(GRM.GetParsedplayerName(text), true);
-
         local logReportWithTime, logReport = GRM.GetLeftOrKickString(unitName, playerKicked, timePassed,
             logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date, isFoundInEventLog,
             isNoLongerOnServer, isLiveDetection, playerLevel, customNote);
@@ -16438,7 +16437,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                 if not note then
                     note = "";
                 end
-                GRM.DeathStatus ( nil , true , string.match ( note , "[D]-(%d+)" ) );
+                GRM.DeathStatus ( nil , true , string.match ( note , "%[D%]-(%d+)" ) );
             end
 
             -- PLAYER NAME
@@ -21473,7 +21472,8 @@ GRM.OptionTabFrameControl = function(tabNotToUnlock)
                   GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerTab,
                   GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab,
                   GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab};
+                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab,
+                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab};
     local frames = {GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame,
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame,
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame,
@@ -21482,7 +21482,8 @@ GRM.OptionTabFrameControl = function(tabNotToUnlock)
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame,
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame,
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame};
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame,
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame};
     local fadeFrame;
     local fadeInFrame;
 
@@ -21553,7 +21554,8 @@ GRM.DisableSubTabButtons = function(toDisable)
                           GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerTab:GetScript("OnClick"),
                           GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab:GetScript("OnClick"),
                           GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:GetScript("OnClick")};
+                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:GetScript("OnClick"),
+                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab:GetScript("OnClick")};
 
         -- removing the script
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralTab:SetScript("OnClick", nil);
@@ -21565,6 +21567,8 @@ GRM.DisableSubTabButtons = function(toDisable)
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab:SetScript("OnClick", nil);
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab:SetScript("OnClick", nil);
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab:SetScript("OnClick", nil);
+
     else
         -- restoring the script
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralTab:SetScript("OnClick", tempTabScript2[1]);
@@ -21576,6 +21580,7 @@ GRM.DisableSubTabButtons = function(toDisable)
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab:SetScript("OnClick", tempTabScript2[7]);
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab:SetScript("OnClick", tempTabScript2[8]);
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:SetScript("OnClick", tempTabScript2[9]);
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab:SetScript("OnClick", tempTabScript2[10]);
     end
 end
 

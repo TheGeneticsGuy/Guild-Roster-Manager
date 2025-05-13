@@ -1,15 +1,22 @@
 ## **VERSION 1.992 RELEASE - April 24th, 2025**
 
+***QOL ENHANCEMENTS***
+
+* Easily remove profession details in Classic Builds of the addon from any of your notes, be it public, officer, or custom notes. I know some people may have accidentally added them, or they have decided to no longer use the feature, and they would like to remove all of the profession notes. You now can do it with the easy click of a button.
+
+![Remove Your Profession Notes](https://i.imgur.com/hb3bbZ0.png)
+
+* More optimizations have been made in cleaning up the code and optimizing certain processes to sort of modernize some of my GRM development. Rather than do it all at once, as we are talking tens of thousands of lines of code, I am doing it in chunks. This update include a significant update to the scanning process when updating player info and scanning for changes.
+
+* When recommending someone to kick, or be promoted/demoted, GRM was not using a very precise method of calculation, but instead an average of the time. So, if you had say, 3 months to kick, GRM was kind of going the lazy way out of just taking 365 days / 12 = 30.42 average days in a month, so 3 months would be 3 x 30.42 days x 24hrs (roughly 2190 hrs). While this is ok, it's pretty reliable, you can end up at times where the Macro tool might be recommending to kick someone as they are at 3 months offline, but you look at the player mouseover window and it says they are at 2 months 29 days, or something like that. GRM has been updated to now do this strictly with day-clamping. I feel like it's just a better overall user experience. For example, if a player went offline on January 10th, then the recommendation to kick at 3 months will be April 10th. While this means that there may be slight time differences on 3 months as some months are shorter than others, it will be a far less questionable user experience when the mouseover reflects the last time offline and correlates it better.
+
 ***BUG FIXES***
 
 * Fixed the scanning that could result in too much scanning through at the same time, causing a potential timeout. This is now handled a little more divided to prevent any chance of stutter or timeouts.
 
+* Fixed a bug where upon kicking a player from the guild, particularly a player who was an "alt," they would not refresh and be removed from the macro properly until you refreshed it. This one had been eluding me as it ended up being an internal GRM issue with frames refreshing when they shouldn't have been, so it was a little difficult to track down. It is now FINALLY resolved.
 
-
-***ENHANCEMENTS***
-
-* More optimizations have been made in cleaning up the code and optimizing certain processes to sort of modernize some of my GRM development. Rather than do it all at once, as we are talking tens of thousands of lines of code, I am doing it in chunks. This update include a significant update to the scanning process when updating player info and scanning for changes.
-
+* Fixed a bug where if you were in Classic and you were using the profession feature, it was skipping adding profession notes to any player who had the letter `D` in their player public note. Why? Well, it was a carryover check from my Hardcore realms where it made zero sense to add the profession data to players that were marked "Dead" with the `[D]` tag. Well, on accident, I was matching just the letter D, not the full [D] tag, which meant that any player who had just the letter `D` in their player note it was not adding profession details to it. Oops! This has now been fixed.
 
 
 ## **VERSION 1.99171 RELEASE - April 24th, 2025**

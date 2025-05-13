@@ -1,7 +1,7 @@
 -- Useful utility functions around the guild
 
 local G_Util = {};
-local GRM.G_Util = G_Util;
+GRM.G_Util = G_Util;
 
 -- Method:          G_Util.GetNumGuildies()
 -- What it Does:    Returns the int number of total toons within the guild, including main/alts

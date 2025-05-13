@@ -3,7 +3,6 @@
 local Scan = {};
 GRM.Scan = Scan;
 
-
 -- Method:          Scan.NoLivecheck()
 -- What it Does:    It compares the live Check event table if a live scan is going, and it ignores checking roster
 -- Purpose:         To prevent overlap reporting erroneously to the log.
@@ -815,8 +814,8 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         local newNote, oldNote = "", "";
 
         if GetCVar("profanityFilter") == "1" then -- The profanity filter is on!
-            newNote = Log.NormalizeMatureWords(updatedPlayer.note);
-            oldNote = Log.NormalizeMatureWords(player.note);
+            newNote = Scan.NormalizeMatureWords(updatedPlayer.note);
+            oldNote = Scan.NormalizeMatureWords(player.note);
         else
             newNote = updatedPlayer.note;
             oldNote = player.note;
@@ -857,8 +856,8 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
             local newNote, oldNote = "", "";
 
             if GetCVar("profanityFilter") == "1" then -- The profanity filter is on!
-                newNote = Log.NormalizeMatureWords(updatedPlayer.officerNote);
-                oldNote = Log.NormalizeMatureWords(player.officerNote);
+                newNote = Scan.NormalizeMatureWords(updatedPlayer.officerNote);
+                oldNote = Scan.NormalizeMatureWords(player.officerNote);
             else
                 newNote = updatedPlayer.officerNote;
                 oldNote = player.officerNote;
@@ -1082,7 +1081,6 @@ Scan.RecordKickChanges = function(unitName, playerWasKicked, dateArray, officerT
     local customNote = "";
     local stringFound = false;
     local standardDate = "";
-
     -- Live detection
     if officerThatKicked ~= nil then
         added = true;
@@ -1239,9 +1237,6 @@ Scan.RecordKickChanges = function(unitName, playerWasKicked, dateArray, officerT
 
     end
     table.insert(tempStorage, listOfAlts); -- index 5
-
-    -- Update the live frames too!
-    GRM_UI.RefreshSelectFrames(false, false, true, false, false, false);
 
     local mainName, playerHasAlts = GRM.GetFormattedMainName(unitName, false);
     if mainName ~= "" and mainName ~= unitName and playerHasAlts then
@@ -2990,7 +2985,6 @@ end
 --- SCAN HELPERS ---
 --------------------
 
-
 -- Method:          Scan.ScanKillSwitch()
 -- What it Does:    In case you quit a guild in the middle of a scan, this will purge it.
 Scan.ScanKillSwitch = function()
@@ -3246,6 +3240,10 @@ Scan.GetRuleNameMatches = function(player)
     return result;
 end
 
+---------------------------
+--- SCAN UTILITIES --------
+---------------------------
+
 -- method:          Scan.RefreshNumberOfHoursTilRecommend()
 -- What it Does:    Rebuilds the time on the recommends for the macro tool and the log.
 -- Purpose:         Resource saving. No need to process over and over everytime it is looked at unless a change is made.
@@ -3491,12 +3489,12 @@ Scan.SilenceOfficerNoteReport = function(oldRankIndex, updatedRankIndex)
     return false, timer;
 end
 
--- Method:          Log.GetMatureFilterNormalizedString ( int )
+-- Method:          Scan.GetMatureFilterNormalizedString ( int )
 -- What it Does:    Returns a string with the number of special characters for mature language filter normalization
 -- Purpose:         Blizz seems to have a rolling string of special characters that can be inconsistent on how it censors the curse/mature words, and so string compare
 --                  can be inconsistently comparing to different variations of special characters on server calls. This resolves that by normalizing curse word representation to the
 --                  addon and all 5 letter words will be same string, and all 4 letter words will be same string and so on.
-Log.GetMatureFilterNormalizedString = function(numChars)
+Scan.GetMatureFilterNormalizedString = function(numChars)
     local matureFilterTable = {"$", "%", "^", "&", "*", "!", "@", "#"};
     local result = "";
 
@@ -3512,10 +3510,10 @@ Log.GetMatureFilterNormalizedString = function(numChars)
     return result;
 end
 
--- Method:          Log.NormalizeMatureWords ( string )
+-- Method:          Scan.NormalizeMatureWords ( string )
 -- What it Does:    Searches a string for Blizz's implementation of various curse word censoring and then overwrites it with a normalized curseword string
 -- Purpose:         For comparing strings properly as the curse word censoring with the "Mature Langue Filter" is inconsistent from the server...
-Log.NormalizeMatureWords = function(text)
+Scan.NormalizeMatureWords = function(text)
     local matureFilterTable = {"$", "%", "^", "&", "*", "!", "@", "#"};
     local index = 1;
     local count = 1; -- Count must make it to 3 or else we break
@@ -3543,7 +3541,7 @@ Log.NormalizeMatureWords = function(text)
                             restart = true;
                             if count >= 3 then
                                 -- MATCH FOUND!!! CURSE WORD IDENTIFIED!!!
-                                text = (string.sub(text, 1, i - 1) .. Log.GetMatureFilterNormalizedString(count) ..
+                                text = (string.sub(text, 1, i - 1) .. Scan.GetMatureFilterNormalizedString(count) ..
                                            string.sub(text, i + count));
                             end
                             break

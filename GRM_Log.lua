@@ -120,15 +120,6 @@ Log.AddHardcoreDeathEntry = function(fullName, class, level, date)
         {24, GRM.GetDeathString(fullName, class, level, date), fullName, class, level, date})
 end
 
-
-
-
-
-
-
-
-
-
 -- Method:          Log.AddRankRenameEntry ( int , string , string , array )
 -- What it Does     Stores a temp log entry that will later be added in the final report with the pre-processed string
 -- Purpose:         By adding all the metadata the string can be re-processed if the player changes their preferred date format or language.

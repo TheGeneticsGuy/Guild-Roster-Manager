@@ -1280,12 +1280,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 -- Macro runs GRM.RMM() which resets macro and sets .HK true
 
                 if GRM_G.HK then
-
                     GRM_G.MacroInProgress = true;
                     if MacroFrame:IsVisible() then          -- this needs to be hidden or the script won't update the macros.
                         MacroFrameCloseButton:Click();
                     end
                     GRM_G.HK = false;
+
+
                     GRM.PurgeMacrodNames();
 
                     GRM.GuildRoster();
@@ -1297,7 +1298,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         C_Timer.After ( 2 , function()
                             GRM.ValidateMacroRecordingSuccess ( false );
                         end);
-
+                        C_Timer.After (0.1 , function()
+                            GRM_UI.RefreshSelectFrames(true, true, true, false, true, true, true);
+                        end);
                     end
 
                     GRM_G.timeDelayValue = time();
@@ -6928,15 +6931,13 @@ end
 -- What it Does:    Removes the names just macro'd from the list
 -- Purpose:         Rebuild the macros ASAP!
 GRM.PurgeMacrodNames = function()
-
     for i = #GRM_UI.GRM_ToolCoreFrame.MacroEntries , 1 , -1 do
         for j = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries , 1 , -1 do
             if GRM_UI.GRM_ToolCoreFrame.MacroEntries[i].name == GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].name then
-
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
                     table.remove ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries , j );
                 else
-                    -- Don't purge from the quue yet if they need multiple jumps.
+                    -- Don't purge from the que yet if they need multiple jumps.
                     if GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].numRankJumps > 1 then
                         GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].numRankJumps = GRM_UI.GRM_ToolCoreFrame.QueuedEntries[j].numRankJumps - 1;
                     else
