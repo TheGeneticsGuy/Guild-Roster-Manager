@@ -207,6 +207,25 @@ GRM.GetClubMemberInfo = function ( playerName , clubID )
     return result;
 end
 
+-- Method:          GRM.GetGuildRosterInfo_ClassicMethod ( string , bool , [string] )
+-- What it Does:    Returns the player details using the GetGuildRosterInfo, using playerName and GUID
+-- Purpose:         To Accomodate pulling player data when the club API is not working properly
+GRM.GetGuildRosterInfo_ClassicMethod = function ( playerName , asArray , guid )
+    for i = 1, GRM.G_Util.GetNumGuildies() do
+        local player_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , player_guid = GetGuildRosterInfo(i);
+        if player_name == playerName then
+            if not guid or ( guid and player_guid == guid ) then
+                if asArray then
+                    return {GetGuildRosterInfo(i)};
+                end
+                return GetGuildRosterInfo(i);
+            end
+        end
+    end
+
+    return;
+end
+
 -- Method:          GRM.GetMemberInfoWithFullName ( int , int )
 -- What it Does:    Returns the Club member info, as well as their full name-serverName
 -- Purpose:         It is necessary to have the full player-serverName, but the Club API only returns the slim non-server name. This ensures you have their full name as well by utilizing the guid.

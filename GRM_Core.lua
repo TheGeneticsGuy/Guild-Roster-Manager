@@ -1143,13 +1143,17 @@ GRM.SetDefaultAddonSettings = function(player, page)
 
         -- Names Tab
     elseif page == 17 then
+        player.nameModEnabled = true;
         player.showMainName = true;
+        player.useMainTag = true;
+
         player.mainTagIndex = 2;
         player.mainTagColor = {};
         player.mainTagColor.r = 1;
         player.mainTagColor.g = 0;
         player.mainTagColor.b = 0;
-        player.useMainTag = true;
+
+
 
     end
 
@@ -4901,8 +4905,8 @@ end
 GRM.RefreshMainTagHexCode = function()
 
     GRM_G.MainTagHexCode = GRM.rgbToHex({GRM.ConvertRGBScale(GRM.S().mainTagColor.r, true),
-                                         GRM.ConvertRGBScale(GRM.S().mainTagColor.b, true),
-                                         GRM.ConvertRGBScale(GRM.S().mainTagColor.g, true)});
+                                         GRM.ConvertRGBScale(GRM.S().mainTagColor.g, true),
+                                         GRM.ConvertRGBScale(GRM.S().mainTagColor.b, true)});
 
     GRM_G.mainTag = GRM.GetCurrentMainTag();
     GRM_G.altTag = GRM.GetCurrentAltTag();
@@ -11402,7 +11406,7 @@ GRM.SetBirthday = function(name, day, month, timeUpdated, isSync, sender, isFull
             player.birthdayInfo.date[1] = day;
             player.birthdayInfo.date[2] = month;
             player.birthdayInfo.timeUpdated = timeUpdated;
-            player.birthdayInfo.birthdayUnknown = false;
+            player.birthdayInfo.unknown = false;
 
             GRM.RemoveFromCalendarQue(player.name, 2 , nil);
 
@@ -14459,6 +14463,7 @@ GRM.PopulateMainTagDropdown = function()
 
                 GRM_G.mainTag = GRM.GetCurrentMainTag();
                 GRM_G.altTag = GRM.GetCurrentAltTag();
+                GRM_UI.UpdateTagOptionsText();
             end
         end);
         TagButton:Show();
@@ -15087,8 +15092,9 @@ GRM.CreateOptionsRankDropDown = function()
         GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected
         .GRM_LanguageSelectedText:SetText(GRM.L(GRML.Languages[GRM.S().selectedLang]));
+
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ColorSelectOptionsFrame
-        .GRM_OptionsTexture:SetColorTexture(GRM.S().mainTagColor.r, GRM.S().mainTagColor.b, GRM.S().mainTagColor.g, 1);
+        .GRM_OptionsTexture:SetColorTexture(GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetFont(
         GRM_G.FontChoice, GRM_G.FontModifier + 11);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetText(
@@ -16632,21 +16638,33 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                 local officerNote;
                 if memberInfo then
                     officerNote = memberInfo.officerNote;
+
+                    -- Accomodating for an error in Classic era build where officer note not showing.
+                    if not officerNote and GRM_G.BuildVersion < 20000 then
+                        officerNote = select ( 8 , GRM.GetGuildRosterInfo_ClassicMethod(player.name , false , player.GUID ) );
+                    end
                 else
                     officerNote = player.officerNote;
                 end
 
                 -- Set O Note
                 if GRM.CanViewOfficerNote() == true then
+
                     if officerNote and officerNote ~= "" then
                         finalONote = officerNote;
                     end
+
                     if finalONote == GRM.L("Click here to set an Officer's Note") and not GRM.CanEditOfficerNote() then
                         finalONote = GRM.L("Unable to Edit Officer Note at Rank");
                     end
                     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText(finalONote);
                     if finalONote ~= GRM.L("Click here to set an Officer's Note") then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetText(finalONote);
+
+                        -- Accomodate the mouseover error in classic not showing officer note
+                        if GRM_UI.MemberDetailFrame:IsVisible() and finalONote ~= "" then
+                            GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText( finalONote );
+                        end
                     else
                         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetText("");
                     end
@@ -21085,7 +21103,7 @@ end
 GRM.GetRosterSelectionID = function( name , guid )
 
     for i = 1, GRM.G_Util.GetNumGuildies() do
-        local player_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , player_guid  = GetGuildRosterInfo(i);
+        local player_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , player_guid = GetGuildRosterInfo(i);
         if player_name == name and player_guid == guid then
             return i;
         end
@@ -21093,6 +21111,7 @@ GRM.GetRosterSelectionID = function( name , guid )
 
     return;
 end
+
 
 --------------------------------
 ---- END TOOLTIP CLICK PARAS ---

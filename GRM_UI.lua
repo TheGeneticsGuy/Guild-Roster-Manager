@@ -2955,11 +2955,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     end
                     self:SetText( playerDetails.newNote );
 
-                    if GRM_G.BuildVersion >= 10000 then
-                        if GRM_UI.MemberDetailFrame:IsVisible() then
-                            if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
-                                GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText( theNote );
-                            end
+                    if GRM_UI.MemberDetailFrame:IsVisible() then
+                        if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
+                            GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText( theNote );
                         end
                     end
 
@@ -6960,19 +6958,23 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end
 
     -- BUILD NAMES OPTIONS PAGE
-    GRM_UI.MainTagCheckButton = function(self)
+    GRM_UI.NameModCheckButton = function(self)
         if self:GetChecked() then
-            GRM.S().showMainName = true;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains.GRM_ShowMainTagOnMainsText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains:Enable();
+            GRM.S().nameModEnabled = true;
         else
-            GRM.S().showMainName = false;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains.GRM_ShowMainTagOnMainsText:SetTextColor ( 0.5 , 0.5 , 0.5 , 1.0 );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains:Disable();
+            GRM.S().nameModEnabled = false;
         end
     end
 
-    GRM_UI.GRM_ShowMainTagOnMainsButton = function(self)
+    GRM_UI.MainOrNicknameCheckButton = function(ind)
+        if ind == 1 then
+            GRM.S().showMainName = true;
+        else
+            GRM.S().showMainName = false;
+        end
+    end
+
+    GRM_UI.GRM_ShowMainAltTagsButtonScript = function( self )
         if self:GetChecked() then
             GRM.S().useMainTag = true;
         else
@@ -6980,13 +6982,31 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
     end
 
+    GRM_UI.UpdateTagOptionsText = function()
+        local text = GRM.L ( "Show both {name} tags and {name2} tags in Chat." , GRM.GetCurrentMainTag() , GRM.GetCurrentAltTag() );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText:SetText(text);
+    end
+
     GRM_UI.CreateCoreFrame ( "GRM_NamesOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , nil , 600 , 480 , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
 
     GRM_UI.CreateString ( "GRM_NameOptionsTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "GameFontNormal" , GRM.L ( "Name Display Formatting" ) , 20 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "TOPLEFT" , 18 , - 30 } , nil , { 0.0 , 0.8 , 1.0 } );
 
-    GRM_UI.CreateCheckBox ( "GRM_RosterShowMainTagCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameOptionsTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.MainTagCheckButton , GRM.L ( "Show 'Main' Name in Chat" ) , "GameFontNormal" , 12 );
+    GRM_UI.CreateCheckBox ( "GRM_EnableNameModCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameOptionsTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.NameModCheckButton , GRM.L ( "Enable Name Modification" ) , "GameFontNormal" , 12 );
 
-    GRM_UI.CreateCheckBox ( "GRM_ShowMainTagOnMains" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_RosterShowMainTagCheckButton , "BOTTOMRIGHT" , 0 , -6 } , GRM_UI.GRM_ShowMainTagOnMainsButton , GRM.L ( "Show 'Main' Tag on both Mains and Alts in Chat" ) , "GameFontNormal" , 12 );
+    GRM_UI.CreateRadialButtons ( "GRM_NameFormatChoice" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , { GRM.L ( "Show Main Name in Chat" ) , GRM.L ( "Show Nickname in Chat" ) } , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_EnableNameModCheckButton , "BOTTOMRIGHT" , 0 , -6 } , false , true , 12 , nil , GRM_UI.MainOrNicknameCheckButton );
+
+    GRM_UI.CreateCheckBox ( "GRM_ShowMainAltTagsButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameFormatChoiceRadial1 , "BOTTOMRIGHT" , 5 , -6 } , GRM_UI.GRM_ShowMainAltTagsButtonScript , "" , "GameFontNormal" , 12 );
+
+    -- Let's move the show nickname button:
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameFormatChoiceRadial2:ClearAllPoints();
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameFormatChoiceRadial2:SetPoint("TOPRIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainAltTagsButton , "BOTTOMLEFT" , -5 , -20)
+
+
+
+
+
+
+
 
     if not GRM_ColorSelectOptionsFrame then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ColorSelectOptionsFrame = CreateFrame ( "Frame" , "GRM_ColorSelectOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , BackdropTemplateMixin and "BackdropTemplate" );
@@ -7049,7 +7069,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end)
 
         -- Main Format settings
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_RosterShowMainTagCheckButton.GRM_RosterShowMainTagCheckButtonText , "RIGHT" , 18 , 0 );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameFormatChoiceRadial1.GRM_NameFormatChoiceRadial1Text , "RIGHT" , 18 , 0 );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatText , "RIGHT" , 1.0 , 1.5 );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected:SetSize (  90 , 18 );
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected );
@@ -7613,6 +7633,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     GRM.S().mainTagColor.g = g;
                     GRM.S().mainTagColor.b = b;
                     GRM.RefreshMainTagHexCode();
+                    GRM_UI.UpdateTagOptionsText();
                     -- Update the dropdown window color too
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );
 
@@ -15420,12 +15441,9 @@ GRM_UI.BuildLogFrames = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonChangesCheckButton:SetChecked ( true );
     end
     if GRM.S().showMainName then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_RosterShowMainTagCheckButton:SetChecked ( true );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains.GRM_ShowMainTagOnMainsText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains:Enable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameFormatChoiceRadial1:SetChecked ( true );
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains.GRM_ShowMainTagOnMainsText:SetTextColor ( 0.5 , 0.5 , 0.5 , 1.0 );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameFormatChoiceRadial2:SetChecked ( true );
     end
     if GRM.S().syncSettings then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_SyncAllSettingsCheckButton:SetChecked ( true );
@@ -15779,8 +15797,9 @@ GRM_UI.BuildLogFrames = function()
     end
 
     if GRM.S().useMainTag then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainTagOnMains:SetChecked( true );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainAltTagsButton:SetChecked( true );
     end
+    GRM_UI.UpdateTagOptionsText();
 
     if GRM.S().showBDay then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_BirthdayToggleButton:SetChecked ( true );

@@ -290,7 +290,6 @@
         GRM_L["To Chat:"] = "Im Chat"                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
         GRM_L["To Log:"] = "Im Log"                     -- Context: To show it in the guild log.
         GRM_L["Display Changes"] = "Änderungen anzeigen"
-        GRM_L["Show 'Main' Name in Chat"] = "Zeige 'Main' im Chat"
 
         -- AUDIT WINDOW
         GRM_L["AUDIT"] = "PRÜFUNG"                                               -- Audit Tab name
@@ -1889,6 +1888,10 @@
 
     -- R1.99170
     GRM_L["Unable to invite. You are grouped without privileges."] = true
+
+    -- R1.9912
+    GRM_L["Show Main Name in Chat"] = "Zeige Main im Chat"
+
 end
 
     -- THANK YOU @Nehry for this full translation up to R1.20

@@ -285,7 +285,6 @@ GRML.English = function()
     GRM_L["To Chat:"] = true                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
     GRM_L["To Log:"] = true                     -- Context: To show it in the guild log.
     GRM_L["Display Changes"] = true
-    GRM_L["Show 'Main' Name in Chat"] = true
 
     -- AUDIT WINDOW
     GRM_L["AUDIT"] = true                                               -- Audit Tab name
@@ -1889,6 +1888,15 @@ GRML.English = function()
     GRM_L["Alt, Main, and Nickname settings"] = true
     GRM_L["Names"] = true       -- Represents the Options "Names" tab
     GRM_L["Name Display Formatting"] = true
+    GRM_L["Show Nickname in Chat"] = true
+    GRM_L["Enable Name Modification"] = true
+    GRM_L["Show both {name} tags and {name2} tags in Chat."] = true
+    GRM_L["Show Main Name in Chat"] = true
+
+    GRM_L["Public Nickname"] = true
+    GRM_L["Private Nickname"] = true
+    GRM_L["What other members of your guild will see"] = true
+    GRM_L["What only you will see"] = true
 
 end
 

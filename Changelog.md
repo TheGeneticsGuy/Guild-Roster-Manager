@@ -18,6 +18,13 @@
 
 * Fixed a bug where if you were in Classic and you were using the profession feature, it was skipping adding profession notes to any player who had the letter `D` in their player public note. Why? Well, it was a carryover check from my Hardcore realms where it made zero sense to add the profession data to players that were marked "Dead" with the `[D]` tag. Well, on accident, I was matching just the letter D, not the full [D] tag, which meant that any player who had just the letter `D` in their player note it was not adding profession details to it. Oops! This has now been fixed.
 
+* Fixed an issue where setting birthday to unknown would persist even if you set the proper birthday, it would not overwrite the old birthday is uknown setting. Fixed.
+
+* Fixed a Blizzard issue in CLASSIC ETA - For some reason, even with all addons disabled, the player windows were not displaying officer notes. I was able to extract the officer notes myself from the server and force them to be displayed properly even though Blizz has introduced some kind of bug that makes the officer notes not appear.
+
+* Fixed a bug where the RGB coloring of the Main and Alt tags had the 'G' and 'B' color flipped, so it was passing RBG instead. This would flip your color scheme. It might not have been noticeable if you were using red, since that flips to red and red, but if you had changed the color to say Blue, it would display your tags as green lol. So ya, I am really surprised no one had ever reported this.
+
+
 
 ## **VERSION 1.99171 RELEASE - April 24th, 2025**
 

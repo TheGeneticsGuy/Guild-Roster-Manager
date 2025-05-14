@@ -1719,7 +1719,7 @@ GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , timeStamp 
             alts.birthdayInfo.date[2] = month;
             alts.birthdayInfo.announced = announced
             alts.birthdayInfo.timeUpdated = timeStamp;
-            alts.birthdayInfo.birthdayUnknown = unknown;
+            alts.birthdayInfo.unknown = unknown;
 
             local counted = false;
 
@@ -1743,7 +1743,7 @@ GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , timeStamp 
                     tempAlt.birthdayInfo.date[2] = month;
                     tempAlt.birthdayInfo.announced = announced
                     tempAlt.birthdayInfo.timeUpdated = timeStamp;
-                    tempAlt.birthdayInfo.birthdayUnknown = unknown;
+                    tempAlt.birthdayInfo.unknown = unknown;
 
                     -- Need to remove them from the calendar queue if in it.
                     GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
@@ -1792,7 +1792,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , timeUpdated , isUnknown , sende
         player.birthdayInfo.date[2] = 0;
         player.birthdayInfo.timeUpdated = timeUpdated;
         player.birthdayInfo.announced = false;
-        player.birthdayInfo.birthdayUnknown = false;
+        player.birthdayInfo.unknown = false;
 
         updateUI ( name );
         GRM.RemoveFromCalendarQue ( player.name , 2 , nil );
@@ -1805,7 +1805,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , timeUpdated , isUnknown , sende
             alts.birthdayInfo.date[2] = 0;
             alts.birthdayInfo.announced = false
             alts.birthdayInfo.timeUpdated = timeUpdated;
-            alts.birthdayInfo.birthdayUnknown = false;
+            alts.birthdayInfo.unknown = false;
 
             local tempAlt;
             for i = 1 , #alts do
@@ -1822,7 +1822,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , timeUpdated , isUnknown , sende
                     tempAlt.birthdayInfo.date[2] = 0;
                     tempAlt.birthdayInfo.announced = false
                     tempAlt.birthdayInfo.timeUpdated = timeUpdated;
-                    tempAlt.birthdayInfo.birthdayUnknown = false;
+                    tempAlt.birthdayInfo.unknown = false;
 
                     GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
 

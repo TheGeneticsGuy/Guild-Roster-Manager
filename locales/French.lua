@@ -288,7 +288,6 @@ GRML.French = function()
     GRM_L["To Chat:"] = "Chat"                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
     GRM_L["To Log:"] = "Journal"                     -- Context: To show it in the guild log.
     GRM_L["Display Changes"] = "Afficher modifications dans"
-    GRM_L["Show 'Main' Name in Chat"] = "Afficher 'Main' dans le Chat"
 
     -- AUDIT WINDOW
     GRM_L["AUDIT"] = "VÉRIFICATION"                                               -- Audit Tab name
@@ -1881,4 +1880,8 @@ GRML.French = function()
 
     -- R1.99170
     GRM_L["Unable to invite. You are grouped without privileges."] = true
+
+    -- R1.992
+    GRM_L["Show Main Name in Chat"] = "Afficher Main dans le Chat"
+
 end

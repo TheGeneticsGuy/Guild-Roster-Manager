@@ -1709,6 +1709,9 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     -- 140
     if numericV < 1.992 and baseValue < 1.992 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNames , true , true , false , nil );
+        GRM_Patch.FixBirthdayUnknown();
+        GRM_Patch.AddNewSetting ( "nameModEnabled" , true );
+
 
         GRM_AddonSettings_Save.VERSION = "R1.992";
         if loopCheck ( 1.992 ) then
@@ -9546,4 +9549,103 @@ GRM_Patch.AddNickNames = function ( player )
         player.nickname.guild.timeEdited = 0;
     end
     return player
+end
+
+-- 1.992
+-- Method:          Patch.FixBirthdayUnknown()
+-- What it Does:    Rebuilds and updates the birthday data structure ensuring consistent data integrity
+--                  within the current guild data, former member data, and backup data to match.
+GRM_Patch.FixBirthdayUnknown = function()
+    local data = { GRM_GuildMemberHistory_Save , GRM_GuildDataBackup_Save , GRM_PlayersThatLeftHistory_Save };
+    local altGroups = {};
+    local members = {};
+
+    for i = 1 , 2 do
+
+        for guildName , guildData in pairs ( data[i] ) do
+            if type ( guildData ) == "table" then
+                if i == 1 then
+                    altGroups = GRM.GetGuildAlts ( guildName );
+                    members = guildData;
+                else
+                    altGroups = guildData.alts;
+                    members = guildData.members;
+                end
+
+                for _ , group in pairs ( altGroups ) do
+                    if not group.birthdayInfo then
+                        group.birthdayInfo = {};
+                        group.birthdayInfo.date = { 0 , 0 };    -- day, month
+                        group.birthdayInfo.announced = false;   -- If announced for the log
+                        group.birthdayInfo.timeUpdated = 0;     -- Epoch Timestamp of update
+                        group.birthdayInfo.unknown = false;
+                    else
+                        if group.birthdayInfo.birthdayUnknown or group.birthdayInfo.unknown then
+                            group.birthdayInfo.date = { 0 , 0 };
+                            group.birthdayInfo.announced = false;
+                            group.birthdayInfo.timeUpdated = 0;
+                            group.birthdayInfo.unknown = true;
+                        end
+                        group.birthdayInfo.birthdayUnknown = nil;
+                    end
+                end
+
+                for _ , player in pairs ( members ) do
+                    if type( player ) == "table" then
+                        if not player.birthdayInfo then
+                            player.birthdayInfo = {};
+                            player.birthdayInfo.date = { 0 , 0 };
+                            player.birthdayInfo.announced = false;
+                            player.birthdayInfo.timeUpdated = 0;
+                            player.birthdayInfo.unknown = false;
+                        else
+                            if player.birthdayInfo.birthdayUnknown or player.birthdayInfo.unknown then
+                                player.birthdayInfo.date = { 0 , 0 };
+                                player.birthdayInfo.announced = false;
+                                player.birthdayInfo.timeUpdated = 0;
+                                player.birthdayInfo.unknown = true;
+                            end
+                            player.birthdayInfo.birthdayUnknown = nil;
+                        end
+                    end
+                end
+
+            end
+        end
+    end
+
+    -- Now, let's cleanup prior member data and prior member backup
+    -- Alt groups can be ignored here because alt groups are broken up when player leaves the guild
+    for i = 2 , #data do
+        for guildName , guildData in pairs ( data[i] ) do
+            if type ( guildData ) == "table" then
+                if i == 2 then
+                    members = guildData.formerMembers;
+                else
+                    members = guildData;
+                end
+
+                for _ , player in pairs ( members ) do
+                    if type( player ) == "table" then
+                        if not player.birthdayInfo then
+                            player.birthdayInfo = {};
+                            player.birthdayInfo.date = { 0 , 0 };
+                            player.birthdayInfo.announced = false;
+                            player.birthdayInfo.timeUpdated = 0;
+                            player.birthdayInfo.unknown = false;
+                        else
+                            if player.birthdayInfo.birthdayUnknown or player.birthdayInfo.unknown then
+                                player.birthdayInfo.date = { 0 , 0 };
+                                player.birthdayInfo.announced = false;
+                                player.birthdayInfo.timeUpdated = 0;
+                                player.birthdayInfo.unknown = true;
+                            end
+                            player.birthdayInfo.birthdayUnknown = nil;
+                        end
+                    end
+                end
+
+            end
+        end
+    end
 end

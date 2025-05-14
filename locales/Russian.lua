@@ -287,7 +287,6 @@ GRML.Russian = function()
     GRM_L["To Chat:"] = "В Чате"                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
     GRM_L["To Log:"] = "В журнале"                    -- Context: To show it in the guild log.
     GRM_L["Display Changes"] = "Отображение изменений"
-    GRM_L["Show 'Main' Name in Chat"] = "Писать имя 'Мейна' в чате"
 
         -- AUDIT WINDOW
     GRM_L["AUDIT"] = "Аудит"                            -- Audit Tab name
@@ -1882,6 +1881,10 @@ GRML.Russian = function()
 
     -- R1.99170
     GRM_L["Unable to invite. You are grouped without privileges."] = true
+
+    -- R1.992
+    GRM_L["Show Main Name in Chat"] = "Писать имя Мейна в чате"
+
 end
 
     -- Anazing work Максим#0406 on Discord - Incredible work, really!
