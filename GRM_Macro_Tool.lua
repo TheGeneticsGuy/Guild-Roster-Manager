@@ -9613,6 +9613,1001 @@ GRM_UI.PlayerCanBeMoved = function ( playerRankIndex , destinationRank , ruleTyp
     return result , numRankPlacesToMove;
 end
 
+-- Method:          GRM.GetKickNamesByFilterRulesChunk (table, number, number, boolean|nil, table|nil)
+-- What it Does:    Gets the names that adhere to the given rules for a specific chunk of players,
+--                  optionally considering what a higher-ranked alt could do.
+-- Purpose:         To populate kick recommendations for ScanRecommendationsList and provide counts for tools.
+GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
+    local recommendationsForThisChunk = {}; -- For current char's actions
+    local ruleDisabledListForThisChunk = {};
+    local higherAltRuleMatchesCount = 0;  -- Counts rule-player matches for higher alts
+
+    includeHigherAlt = includeHigherAlt or false;
+
+    if not GRM_G.playerRankID then
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID(GRM_G.addonUser);
+    end
+    GRM_G.countAction[1] = time();
+
+    if GRM.GetRulesCount(1) == 0 or not GRM_G.guildName or GRM_G.guildName == "" then
+        return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
+    end
+
+    local function GetOrAddPlayerRecEntry(list, playerName, playerClass)
+        for _, pEntry in ipairs(list) do
+            if pEntry.name == playerName then
+                return pEntry;
+            end
+        end
+        local newEntry = {
+            name = playerName,
+            class = GRM.GetClassColorRGB(playerClass),
+            action = GRM_UI.ruleTypeEnum3[1], -- "Kick"
+            macro = "/gremove",
+        };
+        table.insert(list, newEntry);
+        return newEntry;
+    end
+
+    local tempRuleCollection;
+    local ruleConfirmedCheck;
+
+    local endIndex = math.min(startIndex + chunkSize - 1, #allPlayerNamesSorted);
+
+    for i = startIndex, endIndex do
+        local playerName = allPlayerNamesSorted[i];
+        local player = GRM.GetPlayer(playerName);
+        local processThisPlayer = true; -- Flag to control if we process rules for this player
+
+        if not player or type(player) ~= "table" then
+            processThisPlayer = false;
+        end
+
+        if processThisPlayer and player.name == GRM_G.addonUser then
+            if not (includeHigherAlt and highest and highest[2] and highest[2] ~= player.name) then
+                processThisPlayer = false;
+            end
+        end
+
+        if processThisPlayer then
+            local playerRecommendationEntry = nil;
+
+            for ruleName, rule in pairs(GRM.S().kickRules) do
+                local processThisRuleForPlayer = true; -- Flag to control if we process this specific rule
+                ruleConfirmedCheck = true;
+                tempRuleCollection = {};
+                local isActionForHigherAltOnly = false;
+
+                local canCurrentCharKick = (GRM_G.playerRankID < player.rankIndex and CanGuildRemove());
+                local canHigherAltKick = (includeHigherAlt and highest and highest[1] and GRM_G.playerRankID ~= highest[1] and highest[1] < player.rankIndex);
+
+                if canCurrentCharKick then
+                    isActionForHigherAltOnly = false;
+                elseif canHigherAltKick then
+                    isActionForHigherAltOnly = true;
+                else
+                    if not rule.isEnabled then
+                        ruleDisabledListForThisChunk[player.name] = true;
+                    end
+                    processThisRuleForPlayer = false; -- Skip this rule for this player
+                end
+
+                if processThisRuleForPlayer then
+                    -- === Start of existing rule filter logic ===
+                    if ruleConfirmedCheck and rule.applyRulesTo > 1 then
+                        ruleConfirmedCheck = false;
+                        if rule.applyRulesTo == 2 and not GRM.IsMain(player.name) and GRM.PlayerIsAnAlt(player) then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Main/Alt", GRM.L("Player is an Alt") });
+                        elseif rule.applyRulesTo == 3 and GRM.IsMain(player.name) then
+                            ruleConfirmedCheck = true;
+                            table.insert(tempRuleCollection, { "Main/Alt", GRM.L("Player is a Main") });
+                        end
+                    end
+                    -- Inactivity
+                    if ruleConfirmedCheck and rule.activityFilter and not (rule.rankFilter and rule.applyEvenIfActiive) then
+                        ruleConfirmedCheck = false;
+                        if not rule.allAltsApplyToKick or (rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks(GRM.GetAltNamesList(player), ruleName)) then
+                            if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
+                                ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Inactive", player.lastOnline });
+                            end
+                        end
+                    end
+                    -- Rank Filters (when not applying if active)
+                    if ruleConfirmedCheck and rule.rankFilter and not rule.applyEvenIfActiive then
+                        ruleConfirmedCheck = false;
+                        if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Rank", player.rankName });
+                        end
+                    end
+                    -- Extra activity filter based on rank (when applying even if active)
+                    if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
+                        ruleConfirmedCheck = false;
+                        player = GRM.Time.ValidateHist(player);
+                        if player.rankHist and player.rankHist[1] then
+                            local epochDate = GRM.Time.ConvertToEpoch(player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]);
+                            if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] and player.rankHist[1][7] and GRM.Time.GetHoursSinceTimestamp(epochDate) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
+                                ruleConfirmedCheck = true;
+                                table.insert(tempRuleCollection, { "Rank", player.rankName });
+                                table.insert(tempRuleCollection, { "RankTime", GRM.Time.GetTimePassedUsingTableOrString({ player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4] })[4] });
+                            end
+                        end
+                    end
+                    -- Level Filters
+                    if ruleConfirmedCheck and rule.levelFilter then
+                        ruleConfirmedCheck = false;
+                        local topLevel = (rule.levelRange[2] == 999) and GRM_G.LvlCap or rule.levelRange[2];
+                        if player.level >= rule.levelRange[1] and player.level <= topLevel then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Level", rule.levelRange[1], topLevel });
+                        end
+                    end
+                    -- Reputation Filter
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                        ruleConfirmedCheck = false; local msg = "";
+                        if rule.repOperator == 1 and player.guildRep < rule.rep then
+                            msg = GRM.L("Guild Rep lower than {name}", GRM.GetReputationTextLevel(rule.rep, true));
+                        elseif rule.repOperator == 2 and player.guildRep == rule.rep then
+                            msg = GRM.L("Guild Rep equal to {name}", GRM.GetReputationTextLevel(rule.rep, true));
+                        elseif rule.repOperator == 3 and player.guildRep > rule.rep then
+                            msg = GRM.L("Guild Rep higher than {name}", GRM.GetReputationTextLevel(rule.rep, true));
+                        end
+                        if #msg > 0 then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Rep", GRM.L("Rep: {name} - {name2}", GRM.GetReputationTextLevel(player.guildRep, true), msg) });
+                        end
+                    end
+                    -- Mythic+ filter
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                        ruleConfirmedCheck = false; local msg = "";
+                        if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
+                            msg = GRM.L("Mythic+ Rating greater or equal to {num}", nil, nil, rule.mythicRating);
+                        elseif rule.mythicPlusOperator == 2 and player.MythicScore == rule.mythicRating then
+                            msg = GRM.L("Mythic+ Rating equal to {num}", nil, nil, rule.mythicRating);
+                        elseif rule.mythicPlusOperator == 3 and player.MythicScore < rule.mythicRating then
+                            msg = GRM.L("Mythic+ Rating less than {num}", nil, nil, rule.mythicRating);
+                        end
+                        if #msg > 0 then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Mythic", GRM.L("Mythic+ Rating: {num}", nil, nil, rule.mythicRating) });
+                        end
+                    end
+                    -- Note match filter
+                    if ruleConfirmedCheck and rule.noteMatch and not rule.noteMatchEmpty then
+                        if #rule.matchingString > 0 then
+                            ruleConfirmedCheck = false;
+                            if rule.notesToCheck[1] and string.find(string.lower(player.note or ""), string.lower(rule.matchingString), 1, true) then
+                                ruleConfirmedCheck = true;
+                            end
+                            if not ruleConfirmedCheck and rule.notesToCheck[2] and string.find(string.lower(player.officerNote or ""), string.lower(rule.matchingString), 1, true) then
+                                ruleConfirmedCheck = true;
+                            end
+                            if not ruleConfirmedCheck and rule.notesToCheck[3] and player.customNote and string.find(string.lower(player.customNote[4] or ""), string.lower(rule.matchingString), 1, true) then
+                                ruleConfirmedCheck = true;
+                            end
+                            if ruleConfirmedCheck then
+                                table.insert(tempRuleCollection, { "Note Match", rule.matchingString });
+                            end
+                        end
+                    end
+                    -- Empty note
+                    if ruleConfirmedCheck and rule.noteMatch and rule.noteMatchEmpty then
+                        ruleConfirmedCheck = false; local notes = "";
+                        if rule.notesToCheck[1] and (player.note or "") == "" then
+                            notes = GRM.L("Public");
+                        end
+                        if rule.notesToCheck[2] and (player.officerNote or "") == "" then
+                            notes = notes .. (#notes > 0 and " , " or "") .. GRM.L("Officer");
+                        end
+                        if rule.notesToCheck[3] and player.customNote and (player.customNote[4] or "") == "" then
+                            notes = notes .. (#notes > 0 and " , " or "") .. GRM.L("Custom");
+                        end
+                        if #notes > 0 then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Empty Note Match", notes });
+                        end
+                    end
+                    -- Safe Note
+                    if ruleConfirmedCheck and rule.safeMatch then
+                        local safeTextFound = false;
+                        if player.officerNote and player.officerNote ~= "" and string.find(player.officerNote, rule.safeText, 1, true) then
+                            safeTextFound = true;
+                        end
+                        if not safeTextFound and rule.safeMatchAllNotes then
+                            if player.note and player.note ~= "" and string.find(player.note, rule.safeText, 1, true) then
+                                safeTextFound = true;
+                            end
+                            if not safeTextFound and player.customNote and player.customNote[4] and player.customNote[4] ~= "" and string.find(player.customNote[4], rule.safeText, 1, true) then
+                                safeTextFound = true;
+                            end
+                        end
+                        if safeTextFound then
+                            ruleConfirmedCheck = false;
+                        else
+                            table.insert(tempRuleCollection, { "Safe Tag", rule.safeText });
+                        end
+                    end
+                    -- === End of existing rule filter logic ===
+
+                    if ruleConfirmedCheck then
+                        if rule.isEnabled then
+                            if not player.safeList or not player.safeList.kick or not player.safeList.kick[1] then
+                                if not isActionForHigherAltOnly then
+                                    if not playerRecommendationEntry then
+                                        playerRecommendationEntry = GetOrAddPlayerRecEntry(recommendationsForThisChunk, player.name, player.class);
+                                        if player.lastOnline and not playerRecommendationEntry.lastOnline then
+                                             playerRecommendationEntry.lastOnline = player.lastOnline;
+                                        end
+                                    end
+                                    table.insert(playerRecommendationEntry, { rule.name, tempRuleCollection });
+                                else
+                                    higherAltRuleMatchesCount = higherAltRuleMatchesCount + 1;
+                                end
+                            end
+                        else -- rule.isEnabled is false
+                            ruleDisabledListForThisChunk[player.name] = true;
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
+end
+
+-- Method:          GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(ruleTypeIndex, allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
+-- What it Does:    Collects promote/demote recommendations for a chunk, optionally considering higher alts.
+-- Purpose:         For ScanRecommendationsList and tool counts.
+GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
+    local recommendationsForThisChunk = {};
+    local ruleDisabledListForThisChunk = {};
+    local higherAltRuleMatchesCount = 0;
+
+    includeHigherAlt = includeHigherAlt or false;
+
+    if not GRM_G.playerRankID then
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID(GRM_G.addonUser);
+    end
+
+    GRM_G.countAction[ruleTypeIndex] = time();
+
+    if GRM.GetRulesCount(ruleTypeIndex) == 0 or not GRM_G.guildName or GRM_G.guildName == "" then
+        return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
+    end
+
+    local function GetOrAddPlayerRecEntry(list, playerName, playerClass, playerLastOnline, actionType, macroCmd, destRankIndex, mainName)
+        for _, pEntry in ipairs(list) do
+            if pEntry.name == playerName then
+                return pEntry;
+            end
+        end
+        local newEntry = {
+            name = playerName,
+            class = GRM.GetClassColorRGB(playerClass),
+            lastOnline = playerLastOnline,
+            action = actionType, -- "Promote" or "Demote"
+            macro = macroCmd,
+            rankIndex = destRankIndex, -- Destination rank index for the macro
+            mainName = mainName,
+        };
+        table.insert(list, newEntry);
+        return newEntry;
+    end
+
+    local tempRuleCollection;
+    local ruleConfirmedCheck;
+    local macroAction = { [2] = "/gpromote", [3] = "/gdemote" };
+    local rankDestinationText = { [2] = GRM.L("Promote to Rank:"), [3] = GRM.L("Demote to Rank:") }; -- Using descriptive names
+
+    local endIndex = math.min(startIndex + chunkSize - 1, #allPlayerNamesSorted);
+
+    for i = startIndex, endIndex do
+        local playerName = allPlayerNamesSorted[i];
+        local player = GRM.GetPlayer(playerName);
+        local processThisPlayer = true;
+
+        if not player or type(player) ~= "table" then
+            processThisPlayer = false;
+        end
+
+        if processThisPlayer and player.name == GRM_G.addonUser then
+            if not (includeHigherAlt and highest and highest[2] and highest[2] ~= player.name) then
+                processThisPlayer = false;
+            end
+        end
+
+        if processThisPlayer then
+            local playerRecommendationEntry = nil; -- For the current player, if they match any rule
+
+            for ruleName, rule in pairs(GRM.S()[GRM_UI.ruleTypeEnum[ruleTypeIndex]]) do
+                local processThisRuleForPlayer = true;
+                ruleConfirmedCheck = true;
+                tempRuleCollection = {};
+                local isActionForHigherAltOnly = false;
+
+                -- Permission and Rank Checks
+                local canCurrentCharacterAct = false;
+                if ruleTypeIndex == 2 and CanGuildPromote() and GRM_G.playerRankID < player.rankIndex then
+                    canCurrentCharacterAct = true;
+                elseif ruleTypeIndex == 3 and CanGuildDemote() and GRM_G.playerRankID < player.rankIndex then
+                    canCurrentCharacterAct = true;
+                end
+
+                local canHigherAltAct = false;
+                if includeHigherAlt and highest and highest[1] and GRM_G.playerRankID ~= highest[1] and highest[1] < player.rankIndex then
+                    -- Check if higher alt has specific perm for this ruleType
+                    local higherAltCanPromote, higherAltCanDemote = GRM.GetPlayerRankPermissions(nil, highest[1]);
+                    if ruleTypeIndex == 2 and higherAltCanPromote then
+                        canHigherAltAct = true;
+                    elseif ruleTypeIndex == 3 and higherAltCanDemote then
+                        canHigherAltAct = true;
+                    end
+                end
+
+                if canCurrentCharacterAct then
+                    isActionForHigherAltOnly = false;
+                elseif canHigherAltAct then
+                    isActionForHigherAltOnly = true;
+                else
+                    if not rule.isEnabled then
+                        ruleDisabledListForThisChunk[player.name] = true;
+                    end
+                    processThisRuleForPlayer = false; -- Skip this rule
+                end
+
+                if processThisRuleForPlayer then
+                    local canMove, numRankMoves = GRM_UI.PlayerCanBeMoved(player.rankIndex, (rule.destinationRank - 1), rule.ruleType, isActionForHigherAltOnly, highest);
+
+                    if not canMove then
+                        processThisRuleForPlayer = false; -- If player cannot be moved to destination rank
+                    else
+                        -- Initial rule entry for destination rank
+                        table.insert(tempRuleCollection, { rankDestinationText[rule.ruleType], GuildControlGetRankName(rule.destinationRank), numRankMoves });
+                    end
+                end
+
+
+                if processThisRuleForPlayer then
+                    -- === Start of existing rule filter logic (largely unchanged) ===
+                    -- MAIN/ALT
+                    if ruleConfirmedCheck and rule.applyRulesTo > 1 then
+                        ruleConfirmedCheck = false;
+                        if rule.applyRulesTo == 2 and not GRM.IsMain(player.name) and GRM.PlayerIsAnAlt(player) then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Main/Alt", GRM.L("Player is an Alt") });
+                        elseif rule.applyRulesTo == 3 and GRM.IsMain(player.name) then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Main/Alt", GRM.L("Player is a Main") });
+                        end
+                    end
+
+                    -- ACTIVITY (DemoteFilterMatch / PromoteFilterMatch)
+                    if ruleConfirmedCheck and rule.activityFilter then
+                        if rule.ruleType == 3 then -- Demotion
+                            ruleConfirmedCheck, tempRuleCollection = DemoteFilterMatch(player, ruleName, rule, tempRuleCollection);
+                        elseif rule.ruleType == 2 then -- Promotion
+                            ruleConfirmedCheck, tempRuleCollection = PromoteFilterMatch(player, ruleName, rule, tempRuleCollection);
+                        end
+                    end
+
+                    -- RANK FILTER (not activity based on rank, but general rank filter)
+                    if ruleConfirmedCheck and rule.rankFilter then
+                        ruleConfirmedCheck = false;
+                        if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Rank", player.rankName });
+                        end
+                    end
+                    -- Level Filters
+                    if ruleConfirmedCheck and rule.levelFilter then
+                        ruleConfirmedCheck = false;
+                        local topLevel = (rule.levelRange[2] == 999) and GRM_G.LvlCap or rule.levelRange[2];
+                        if player.level >= rule.levelRange[1] and player.level <= topLevel then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Level", rule.levelRange[1], topLevel });
+                        end
+                    end
+                    -- Reputation Filter
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                        ruleConfirmedCheck = false; local msg = "";
+                        if rule.repOperator == 1 and player.guildRep < rule.rep then
+                            msg = GRM.L("Guild Rep lower than {name}", GRM.GetReputationTextLevel(rule.rep, true));
+                        elseif rule.repOperator == 2 and player.guildRep == rule.rep then
+                            msg = GRM.L("Guild Rep equal to {name}", GRM.GetReputationTextLevel(rule.rep, true));
+                        elseif rule.repOperator == 3 and player.guildRep > rule.rep then
+                            msg = GRM.L("Guild Rep higher than {name}", GRM.GetReputationTextLevel(rule.rep, true));
+                        end
+                        if #msg > 0 then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Rep", GRM.L("Rep: {name} - {name2}", GRM.GetReputationTextLevel(player.guildRep, true), msg) });
+                        end
+                    end
+                    -- Mythic+ filter
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                        ruleConfirmedCheck = false; local msg = "";
+                        if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
+                            msg = GRM.L("Mythic+ Rating greater or equal to {num}", nil, nil, rule.mythicRating);
+                        elseif rule.mythicPlusOperator == 2 and player.MythicScore == rule.mythicRating then
+                            msg = GRM.L("Mythic+ Rating equal to {num}", nil, nil, rule.mythicRating);
+                        elseif rule.mythicPlusOperator == 3 and player.MythicScore < rule.mythicRating then
+                            msg = GRM.L("Mythic+ Rating less than {num}", nil, nil, rule.mythicRating);
+                        end
+                        if #msg > 0 then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Mythic", GRM.L("Mythic+ Rating: {num}", nil, nil, rule.mythicRating) });
+                        end
+                    end
+                    -- Note match filter
+                    if ruleConfirmedCheck and rule.noteMatch and not rule.noteMatchEmpty then
+                        if #rule.matchingString > 0 then
+                            ruleConfirmedCheck = false;
+                            if rule.notesToCheck[1] and string.find(string.lower(player.note or ""), string.lower(rule.matchingString), 1, true) then
+                                ruleConfirmedCheck = true;
+                            end
+                            if not ruleConfirmedCheck and rule.notesToCheck[2] and string.find(string.lower(player.officerNote or ""), string.lower(rule.matchingString), 1, true) then
+                                ruleConfirmedCheck = true;
+                            end
+                            if not ruleConfirmedCheck and rule.notesToCheck[3] and player.customNote and string.find(string.lower(player.customNote[4] or ""), string.lower(rule.matchingString), 1, true) then
+                                ruleConfirmedCheck = true;
+                            end
+                            if ruleConfirmedCheck then
+                                table.insert(tempRuleCollection, { "Note Match", rule.matchingString });
+                            end
+                        end
+                    end
+                    -- Empty note
+                    if ruleConfirmedCheck and rule.noteMatch and rule.noteMatchEmpty then
+                        ruleConfirmedCheck = false; local notes = "";
+                        if rule.notesToCheck[1] and (player.note or "") == "" then
+                            notes = GRM.L("Public");
+                        end
+                        if rule.notesToCheck[2] and (player.officerNote or "") == "" then
+                            notes = notes .. (#notes > 0 and " , " or "") .. GRM.L("Officer");
+                        end
+                        if rule.notesToCheck[3] and player.customNote and (player.customNote[4] or "") == "" then
+                            notes = notes .. (#notes > 0 and " , " or "") .. GRM.L("Custom");
+                        end
+                        if #notes > 0 then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Empty Note Match", notes });
+                        end
+                    end
+                    -- Safe Note
+                    if ruleConfirmedCheck and rule.safeMatch then
+                        local safeTextFound = false;
+                        if player.officerNote and player.officerNote ~= "" and string.find(player.officerNote, rule.safeText, 1, true) then
+                            safeTextFound = true;
+                        end
+                        if not safeTextFound and rule.safeMatchAllNotes then
+                            if player.note and player.note ~= "" and string.find(player.note, rule.safeText, 1, true) then
+                                safeTextFound = true;
+                            end
+                            if not safeTextFound and player.customNote and player.customNote[4] and player.customNote[4] ~= "" and string.find(player.customNote[4], rule.safeText, 1, true) then
+                                safeTextFound = true;
+                            end
+                        end
+                        if safeTextFound then
+                            ruleConfirmedCheck = false;
+                        else
+                            table.insert(tempRuleCollection, { "Safe Tag", rule.safeText });
+                        end
+                    end
+                    -- === End of existing rule filter logic ===
+
+                    if ruleConfirmedCheck then
+                        if rule.isEnabled then
+                            local safeListKey = GRM_UI.ruleTypeEnum2[rule.ruleType]; -- "promote" or "demote"
+                            if not player.safeList or not player.safeList[safeListKey] or not player.safeList[safeListKey][1] then
+                                local playerMatchesOnlineStatus = false;
+                                if rule.ruleType == 2 then -- Promote
+                                    if (not GRM.S().promoteOnlineOnly) or (GRM.S().promoteOnlineOnly and GRM.G_Util.IsGuildieOnline(player.name, player)) then
+                                        playerMatchesOnlineStatus = true;
+                                    end
+                                elseif rule.ruleType == 3 then -- Demote
+                                     if (not GRM.S().demoteOnlineOnly) or (GRM.S().demoteOnlineOnly and GRM.G_Util.IsGuildieOnline(player.name, player)) then
+                                        playerMatchesOnlineStatus = true;
+                                    end
+                                end
+                                -- Note: Kick (rule.ruleType == 1) is not handled by this function.
+
+                                if playerMatchesOnlineStatus then
+                                    if not isActionForHigherAltOnly then
+                                        if not playerRecommendationEntry then
+                                            playerRecommendationEntry = GetOrAddPlayerRecEntry(
+                                                recommendationsForThisChunk, player.name, player.class, player.lastOnline,
+                                                GRM_UI.ruleTypeEnum3[rule.ruleType], macroAction[rule.ruleType],
+                                                rule.destinationRank - 1, GRM.GetFormattedMainName(player, true)
+                                            );
+
+                                            if not playerRecommendationEntry.numRankJumps or playerRecommendationEntry.numRankJumps < numRankMoves then
+                                                playerRecommendationEntry.numRankJumps = numRankMoves;
+                                            end
+                                        end
+                                        table.insert(playerRecommendationEntry, { rule.name, tempRuleCollection });
+                                    else
+                                        higherAltRuleMatchesCount = higherAltRuleMatchesCount + 1;
+                                    end
+                                end
+                            end
+                        else -- rule.isEnabled is false
+                            ruleDisabledListForThisChunk[player.name] = true;
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
+end
+
+-- Method:          GRM_UI.GetNamesBySpecialRulesChunk(allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
+-- What it Does:    Returns special rule matches for a chunk, optionally considering higher alts.
+-- Purpose:         For ScanRecommendationsList and tool counts.
+GRM_UI.GetNamesBySpecialRulesChunk = function(allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
+    local recommendationsForThisChunk = {};
+    local ruleDisabledListForThisChunk = {};
+    local higherAltRuleMatchesCount = 0;
+
+    includeHigherAlt = includeHigherAlt or false;
+
+    GRM_G.countAction[4] = time();
+
+    if not GRM_G.playerRankID then
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID(GRM_G.addonUser);
+    end
+
+    if GRM.GetRulesCount(4) == 0 or not GRM_G.guildName or GRM_G.guildName == "" then
+        return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
+    end
+
+    local function CreateRecommendationEntry(playerObj, rule, tempRuleCollectionDetails, actionType, destRank, numJumpsVal)
+        local entry = {
+            name = playerObj.name,
+            class = GRM.GetClassColorRGB(playerObj.class),
+            lastOnline = playerObj.lastOnline,
+            action = GRM_UI.ruleTypeEnum3[actionType],
+            macro = (actionType == 2 and "/gpromote" or "/gdemote"),
+            rankIndex = destRank,
+            mainName = GRM.GetFormattedMainName(playerObj, true),
+            numRankJumps = numJumpsVal,
+        };
+        table.insert(entry, { rule.name, tempRuleCollectionDetails });
+        return entry;
+    end
+
+    local tempRuleCollection;
+    local ruleConfirmedCheck; -- This flag seems to be used per-rule to chain conditions
+    local altGroups = GRM_Macro.GetFullDatabaseAltsWithMain();
+
+    local function GetPlayerAltGroupInfo(playerName)
+        for _, group in pairs(altGroups) do
+            if group[playerName] then
+                return group, group.rankIndex;
+            end
+        end
+        return nil, nil;
+    end
+
+    local endIndex = math.min(startIndex + chunkSize - 1, #allPlayerNamesSorted);
+
+    for i = startIndex, endIndex do
+        local currentIterationPlayerName = allPlayerNamesSorted[i];
+        local player = GRM.GetPlayer(currentIterationPlayerName);
+        local processThisPlayerOuter = true;
+        local playerHasMatchedSpecialRule = false;
+
+        if not player or type(player) ~= "table" then
+            processThisPlayerOuter = false;
+        end
+
+        if processThisPlayerOuter then
+            local playerAltGroup, mainRankInd = GetPlayerAltGroupInfo(player.name);
+            if not playerAltGroup then
+                processThisPlayerOuter = false;
+            end
+
+            if processThisPlayerOuter and player.name == GRM_G.addonUser then
+                 if not (includeHigherAlt and highest and highest[2] and highest[2] ~= player.name) then
+                    processThisPlayerOuter = false;
+                end
+            end
+
+            if processThisPlayerOuter then
+                for ruleName, rule in pairs(GRM.S().specialRules) do
+                    if playerHasMatchedSpecialRule then -- If a rule already matched for this player, skip other rules
+                        break;
+                    end
+
+                    local processThisRuleForPlayer = true; -- Flag for current rule processing
+                    ruleConfirmedCheck = true; -- Reset for each rule
+                    tempRuleCollection = {};
+                    local isActionForHigherAltOnly = false;
+                    local destinationRank = 0;
+                    local actionType = 0;
+                    local numJumps = 0;
+
+                    if not ((not rule.syncToMain or (rule.syncToMain and mainRankInd ~= 0)) and (rule.allRanks or (not rule.allRanks and rule.ranks[(GuildControlGetNumRanks() - mainRankInd)]))) then
+                        processThisRuleForPlayer = false;
+                    end
+
+                    if processThisRuleForPlayer then
+                        local canCurrentCharAct = (GRM_G.playerRankID < player.rankIndex and CanGuildPromote() and CanGuildDemote());
+                        local canHigherAltAct = false;
+                        if includeHigherAlt and highest and highest[1] and GRM_G.playerRankID ~= highest[1] and highest[1] < player.rankIndex then
+                             local higherAltCanPromote, higherAltCanDemote = GRM.GetPlayerRankPermissions(nil, highest[1]);
+                             if higherAltCanPromote and higherAltCanDemote then
+                                canHigherAltAct = true;
+                             end
+                        end
+
+                        if canCurrentCharAct then isActionForHigherAltOnly = false;
+                        elseif canHigherAltAct then isActionForHigherAltOnly = true;
+                        else
+                            if not rule.isEnabled then ruleDisabledListForThisChunk[player.name] = true; end
+                            processThisRuleForPlayer = false;
+                        end
+                    end
+
+                    if processThisRuleForPlayer then
+                        if rule.syncToMain then destinationRank = mainRankInd;
+                        else destinationRank = rule.destinationRank - 1; end
+
+                        local effectiveUserRankForComparison = GRM_G.playerRankID;
+                        if isActionForHigherAltOnly and highest and highest[1] then
+                            effectiveUserRankForComparison = highest[1];
+                        end
+
+                        if not (destinationRank ~= player.rankIndex and
+                                destinationRank > effectiveUserRankForComparison and
+                                (not rule.disableDemote or (rule.disableDemote and destinationRank < player.rankIndex))) then
+                            processThisRuleForPlayer = false;
+                        end
+
+                        if processThisRuleForPlayer then
+                            if destinationRank < player.rankIndex then actionType = 2; else actionType = 3; end
+
+                            local canBeMoved, numJumpsCalc = GRM_UI.PlayerCanBeMoved(player.rankIndex, destinationRank, actionType, isActionForHigherAltOnly, highest);
+                            if not canBeMoved then processThisRuleForPlayer = false;
+                            else
+                                numJumps = numJumpsCalc;
+                                if rule.syncToMain then
+                                    table.insert(tempRuleCollection, { "Same", GRM.L("Main's Rank: {name}", GuildControlGetRankName(mainRankInd + 1)) });
+                                    table.insert(tempRuleCollection, { "Same", GRM.L("Alt's Rank: {name}", GuildControlGetRankName(player.rankIndex + 1)) });
+                                else
+                                     table.insert(tempRuleCollection, { "Same", GRM.L("Alt's Rank: {name}", GuildControlGetRankName(player.rankIndex + 1)) });
+                                end
+                                table.insert(tempRuleCollection, { "Destination", GRM.L("Destination Rank: {name}", GuildControlGetRankName(destinationRank + 1)) .. " " .. GRM_Macro.GetJumpsMsg(numJumps, actionType) });
+                            end
+                        end
+                    end
+
+                    if processThisRuleForPlayer then
+                        if rule.activityFilter then
+                            if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend.special[ruleName].hours then
+                                ruleConfirmedCheck = false;
+                            end
+                        end
+                        if not ruleConfirmedCheck then -- ruleConfirmedCheck is used as a chain, if any sub-filter sets it to false.
+                             processThisRuleForPlayer = false;
+                        end
+                    end
+
+                    if processThisRuleForPlayer then
+                        if rule.isEnabled then
+                            if not isActionForHigherAltOnly then
+                                local recEntry = CreateRecommendationEntry(player, rule, tempRuleCollection, actionType, destinationRank, numJumps);
+                                table.insert(recommendationsForThisChunk, recEntry);
+                                playerHasMatchedSpecialRule = true; -- Set flag to break from rule loop for THIS player
+                            else
+                                higherAltRuleMatchesCount = higherAltRuleMatchesCount + 1;
+                            end
+                        else
+                            ruleDisabledListForThisChunk[player.name] = true;
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
+end
+
+-- Method:          GRM.GetKickNamesByFilterRules ( bool , table )
+-- What it Does:    Gets the names that adhere to the given rules
+-- Purpose:         To populate the macro tool
+GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
+    local listOfPlayers = {};
+    local ruleDisabledList = {};
+    local higherAltCount = 0;
+    local isHigherAlt = false;
+    GRM_G.countAction[1] = time();
+    if not GRM_G.playerRankID then
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
+    end
+
+    -- No need to do all the work if there are no rules to check!
+    if GRM.GetRulesCount ( 1 ) == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
+        return listOfPlayers , higherAltCount , ruleDisabledList;
+    end
+
+    -- The name formatting is purely to be used for the macro to be added.
+    local tempRuleCollection = {};
+    local ruleConfirmedCheck = true
+    local guildData = GRM.GetGuild();
+
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" and ( player.name ~= GRM_G.addonUser or ( includeHigherAlt and highest[2] ~= player.name ) ) then
+
+            for ruleName , rule in pairs ( GRM.S().kickRules ) do
+
+                ruleConfirmedCheck = true;
+                tempRuleCollection = {};
+                -- Check filter
+
+                -- if my rank is lower is only way to work- cannot kick someone a higher or equal rank
+                if GRM_G.playerRankID < player.rankIndex and CanGuildRemove() then
+                    isHigherAlt = false;
+                elseif includeHigherAlt and highest[1] < player.rankIndex then
+                    isHigherAlt = true;
+                end
+
+                -- if my rank is lower is only way to work- cannot kick someone a higher or equal rank
+                if ( GRM_G.playerRankID < player.rankIndex and CanGuildRemove() ) or ( includeHigherAlt and highest[1] < player.rankIndex ) then
+
+                    -- main
+                    if ruleConfirmedCheck and rule.applyRulesTo > 1 then
+                        ruleConfirmedCheck = false;
+
+                        if rule.applyRulesTo == 2 and not GRM.IsMain ( player.name ) and GRM.PlayerIsAnAlt ( player ) then
+                            ruleConfirmedCheck = true;
+                            table.insert ( tempRuleCollection , { "Main/Alt" , GRM.L ( "Player is an Alt" ) } );
+
+                        elseif rule.applyRulesTo == 3 and GRM.IsMain ( player.name ) then
+                            -- Player is not a main!
+                            ruleConfirmedCheck = true
+                            table.insert ( tempRuleCollection , { "Main/Alt" , GRM.L ( "Player is a Main" ) } );
+                        end
+                    end
+
+                    -- Inactivity
+                    if ruleConfirmedCheck and rule.activityFilter and not ( rule.rankFilter and rule.applyEvenIfActiive ) then
+                        ruleConfirmedCheck = false;
+
+                        if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( GRM.GetAltNamesList ( player ) , ruleName  ) ) then
+                            -- Is actually considered inactive
+                            if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
+                            -- Cannot remove players same rank or higher, so they have to be a higher index than you to remove them.
+                                ruleConfirmedCheck = true;
+                                table.insert ( tempRuleCollection , { "Inactive" , player.lastOnline } );
+                            end
+                        end
+                    end
+
+                    -- Rank Filters
+                    if ruleConfirmedCheck and rule.rankFilter and not rule.applyEvenIfActiive then
+                        ruleConfirmedCheck = false;
+
+                        if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] then
+                            ruleConfirmedCheck = true;
+                            table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
+                        end
+
+                    end
+
+                    -- Extra activity filter based on rank
+                    if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
+                        -- We know that the rank is valid at this point as it has been made true
+                        ruleConfirmedCheck = false;
+
+                        player = GRM.Time.ValidateHist ( player );
+
+                        local epochDate = GRM.Time.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] );
+
+                        if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.Time.GetHoursSinceTimestamp ( epochDate ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
+                            ruleConfirmedCheck = true;
+                            table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
+                            table.insert ( tempRuleCollection , { "RankTime" , GRM.Time.GetTimePassedUsingTableOrString ( { player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] } )[4] } );
+                        end
+                    end
+
+                    -- Level Filters
+                    if ruleConfirmedCheck and rule.levelFilter then
+                        ruleConfirmedCheck = false;
+
+                        local topLevel;
+                        if rule.levelRange[2] == 999 then
+                            topLevel = GRM_G.LvlCap;
+                        else
+                            topLevel = rule.levelRange[2];
+                        end
+                        if player.level >= rule.levelRange[1] and player.level <= topLevel then
+                            ruleConfirmedCheck = true;
+                            table.insert ( tempRuleCollection , { "Level" , rule.levelRange[1] , topLevel } );
+                        end
+                    end
+
+                    -- Reputation Filter
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                        ruleConfirmedCheck = false;
+                        local msg = "";
+                        -- Less than Operator
+                        if rule.repOperator == 1 and player.guildRep < rule.rep then
+                            msg = GRM.L ( "Guild Rep lower than {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
+                        elseif rule.repOperator == 2 and player.guildRep == rule.rep then
+                            msg = GRM.L ( "Guild Rep equal to {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
+                        elseif rule.repOperator == 3 and player.guildRep > rule.rep then
+                            msg = GRM.L ( "Guild Rep higher than {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
+                        end
+
+                        if #msg > 0 then
+                            ruleConfirmedCheck = true;
+                            table.insert ( tempRuleCollection , { "Rep" , GRM.L ( "Rep: {name} - {name2}" , GRM.GetReputationTextLevel ( player.guildRep , true ) , msg ) } );
+                        end
+                    end
+
+                    -- Mythic+ filter
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                        ruleConfirmedCheck = false;
+                        local msg = "";
+
+                        -- Less than Operator
+                        if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
+                            msg = GRM.L ( "Mythic+ Rating greater or equal to {num}" , nil , nil , rule.mythicRating );
+                        elseif rule.mythicPlusOperator == 2 and player.MythicScore == rule.mythicRating then
+                            msg = GRM.L ( "Mythic+ Rating equal to {num}" , nil , nil , rule.mythicRating );
+                        elseif rule.mythicPlusOperator == 3 and player.MythicScore < rule.mythicRating then
+                            msg = GRM.L ( "Mythic+ Rating less than {num}" , nil , nil , rule.mythicRating );
+                        end
+
+                        if #msg > 0 then
+                            ruleConfirmedCheck = true;
+                            table.insert ( tempRuleCollection , { "Mythic" , GRM.L ( "Mythic+ Rating: {num}" , nil , nil , rule.mythicRating ) } );
+                        end
+                    end
+
+                    -- Note match filter
+                    if ruleConfirmedCheck and rule.noteMatch and not rule.noteMatchEmpty then
+
+                        if #rule.matchingString > 0 then
+                            ruleConfirmedCheck = false;
+
+                            -- public note
+                            if rule.notesToCheck[1] and string.find ( string.lower ( player.note ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
+                                ruleConfirmedCheck = true;
+                            end
+                            -- Officer Note
+                            if player.officerNote == nil then   -- Legacy bug resolve
+                                player.officerNote = "";
+                            end
+
+                            if not ruleConfirmedCheck and rule.notesToCheck[2] and string.find ( string.lower ( player.officerNote ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
+                                ruleConfirmedCheck = true;
+                            end
+                            -- Custom Note
+                            if not ruleConfirmedCheck and rule.notesToCheck[3] and string.find ( string.lower ( player.customNote[4] ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
+                                ruleConfirmedCheck = true;
+                            end
+
+                            if ruleConfirmedCheck then
+                                table.insert ( tempRuleCollection , { "Note Match" , rule.matchingString } );
+                            end
+                        end
+
+                    end
+
+                    -- Empty note
+                    if ruleConfirmedCheck and rule.noteMatch and rule.noteMatchEmpty then
+                        ruleConfirmedCheck = false;
+                        local notes = "";
+
+                        if ( rule.notesToCheck[1] and player.note == "" ) then
+                            notes = GRM.L ( "Public" );
+                        end
+                        if ( rule.notesToCheck[2] and player.officerNote == "" ) then
+                            if #notes > 0 then
+                                notes = notes .. " , " .. GRM.L ( "Officer" );
+                            else
+                                notes = notes .. GRM.L ( "Officer" );
+                            end
+                        end
+                        if ( rule.notesToCheck[3] and player.customNote[4] == "" ) then
+                            if #notes > 0 then
+                                notes = notes .. " , " .. GRM.L ( "Custom" );
+                            else
+                                notes = notes .. GRM.L ( "Custom" );
+                            end
+                        end
+
+                        if #notes > 0 then
+                            ruleConfirmedCheck = true;
+                            table.insert ( tempRuleCollection , { "Empty Note Match" , notes } );
+                        end
+                    end
+
+                    -- Safe Note
+                    if ruleConfirmedCheck and rule.safeMatch then
+                        if player.officerNote and player.officerNote ~= "" then
+
+                            if string.find ( player.officerNote , rule.safeText , 1 , true ) then
+                                ruleConfirmedCheck = false;
+                            end
+                        end
+
+                        if ruleConfirmedCheck and rule.safeMatchAllNotes then
+                            if player.note and player.note ~= "" then
+
+                                if string.find ( player.note , rule.safeText , 1 , true ) then
+                                    ruleConfirmedCheck = false;
+                                end
+                            end
+
+                            if ruleConfirmedCheck and player.customNote[4] and player.customNote[4] ~= "" then
+
+                                if string.find ( player.customNote[4] , rule.safeText , 1 , true ) then
+                                    ruleConfirmedCheck = false;
+                                end
+                            end
+                        end
+
+                        if ruleConfirmedCheck then
+                            table.insert ( tempRuleCollection , { "Safe Tag" , rule.safeText } );
+                        end
+                    end
+
+                    if ruleConfirmedCheck then
+                        -- RULE IS GOOD - ADD PLAYER
+                        -- Check safe list too
+
+                        if not player.safeList.kick[1] and not isHigherAlt and rule.isEnabled then      -- Ignore for scanning... but I still want a count of the ignored.
+
+                            local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
+
+                            if index == nil then
+                                table.insert ( listOfPlayers , {} );
+                                index = #listOfPlayers;
+                                listOfPlayers[index].name = player.name;
+                                listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
+                                listOfPlayers[index].lastOnline = player.lastOnline;
+                                listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[1];
+                                listOfPlayers[index].macro = "/gremove";
+                                listOfPlayers[index].isHighlighted = false;
+                                listOfPlayers[index].customMsg = "";
+                                listOfPlayers[index].isMain = false;
+                                listOfPlayers[index].isAlt = false;
+                                listOfPlayers[index].tab = false;
+                            end
+
+                            table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
+                            sort ( listOfPlayers , function ( a , b ) return a.name < b.name end );
+
+                        elseif rule.isEnabled and not isHigherAlt then
+                            local index = GRM.GetIndexOfPlayerOnList ( GRM_UI.GRM_ToolCoreFrame.Safe , player.name );
+
+                            if index == nil and player.name ~= GRM_G.addonUser then
+                                table.insert ( GRM_UI.GRM_ToolCoreFrame.Safe , {} );
+                                index = #GRM_UI.GRM_ToolCoreFrame.Safe;
+                                GRM_UI.GRM_ToolCoreFrame.Safe[index].name = player.name
+                                GRM_UI.GRM_ToolCoreFrame.Safe[index].rankIndex = player.rankIndex;
+                                GRM_UI.GRM_ToolCoreFrame.Safe[index].class = GRM.GetClassColorRGB ( player.class );
+                                GRM_UI.GRM_ToolCoreFrame.Safe[index].reason = GRM.L ( "Kick" );
+                                GRM_UI.GRM_ToolCoreFrame.Safe[index].lastOnline = player.lastOnline;
+                                GRM_UI.GRM_ToolCoreFrame.Safe[index].isHighlighted = false;
+                            end
+
+                        elseif not rule.isEnabled then
+                            ruleDisabledList[player.name] = true;
+
+                        elseif not player.safeList.kick[1] and isHigherAlt and rule.isEnabled then
+                            higherAltCount = higherAltCount + 1;
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    listOfPlayers = GRM.SortAltsUnderMain ( listOfPlayers );
+
+    if #GRM_UI.GRM_ToolCoreFrame.Safe then
+        sort ( GRM_UI.GRM_ToolCoreFrame.Safe , function ( a , b ) return a.name < b.name end );
+    end
+
+    -- Get count
+    GRM_G.counts[1][1] = #listOfPlayers;
+    GRM_G.counts[1][2] = higherAltCount;
+    return listOfPlayers , higherAltCount , ruleDisabledList;
+end
+
 -- Method:          GRM.GetPromoteAndDemoteNamesByFilterRules( ind , bool , table )
 -- What it Does:    Collects the names of all the players who match the given rule
 -- Purpose:         Macro Tool use
@@ -9959,372 +10954,6 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
     return listOfPlayers , higherAltCount , ruleDisabledList;
 end
 
--- Method:          GRM.GetKickNamesByFilterRules ( bool , table )
--- What it Does:    Gets the names that adhere to the given rules
--- Purpose:         To populate the macro tool
-GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
-    local listOfPlayers = {};
-    local ruleDisabledList = {};
-    local higherAltCount = 0;
-    local isHigherAlt = false;
-    GRM_G.countAction[1] = time();
-
-    if not GRM_G.playerRankID then
-        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
-    end
-
-    -- No need to do all the work if there are no rules to check!
-    if GRM.GetRulesCount ( 1 ) == 0 or GRM_G.guildName == "" or GRM_G.guildName == nil then -- the guildName thing is a redundancy that can occur due to lag, just protection against error.
-        return listOfPlayers , higherAltCount , ruleDisabledList;
-    end
-
-    -- The name formatting is purely to be used for the macro to be added.
-    local tempRuleCollection = {};
-    local ruleConfirmedCheck = true
-    local guildData = GRM.GetGuild();
-
-    for _ , player in pairs ( guildData ) do
-        if type ( player ) == "table" and ( player.name ~= GRM_G.addonUser or ( includeHigherAlt and highest[2] ~= player.name ) ) then
-
-            for ruleName , rule in pairs ( GRM.S().kickRules ) do
-
-                ruleConfirmedCheck = true;
-                tempRuleCollection = {};
-                -- Check filter
-
-                -- if my rank is lower is only way to work- cannot kick someone a higher or equal rank
-                if GRM_G.playerRankID < player.rankIndex and CanGuildRemove() then
-                    isHigherAlt = false;
-                elseif includeHigherAlt and highest[1] < player.rankIndex then
-                    isHigherAlt = true;
-                end
-
-                -- if my rank is lower is only way to work- cannot kick someone a higher or equal rank
-                if ( GRM_G.playerRankID < player.rankIndex and CanGuildRemove() ) or ( includeHigherAlt and highest[1] < player.rankIndex ) then
-
-                    -- main
-                    if ruleConfirmedCheck and rule.applyRulesTo > 1 then
-                        ruleConfirmedCheck = false;
-
-                        if rule.applyRulesTo == 2 and not GRM.IsMain ( player.name ) and GRM.PlayerIsAnAlt ( player ) then
-                            ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Main/Alt" , GRM.L ( "Player is an Alt" ) } );
-
-                        elseif rule.applyRulesTo == 3 and GRM.IsMain ( player.name ) then
-                            -- Player is not a main!
-                            ruleConfirmedCheck = true
-                            table.insert ( tempRuleCollection , { "Main/Alt" , GRM.L ( "Player is a Main" ) } );
-                        end
-                    end
-
-                    -- Inactivity
-                    if ruleConfirmedCheck and rule.activityFilter and not ( rule.rankFilter and rule.applyEvenIfActiive ) then
-                        ruleConfirmedCheck = false;
-
-                        if not rule.allAltsApplyToKick or ( rule.allAltsApplyToKick and not GRM.IsAnyAltActiveForRecommendKicks ( GRM.GetAltNamesList ( player ) , ruleName  ) ) then
-                            -- Is actually considered inactive
-                            if player.lastOnline >= GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
-                            -- Cannot remove players same rank or higher, so they have to be a higher index than you to remove them.
-                                ruleConfirmedCheck = true;
-                                table.insert ( tempRuleCollection , { "Inactive" , player.lastOnline } );
-                            end
-                        end
-                    end
-
-                    -- Rank Filters
-                    if ruleConfirmedCheck and rule.rankFilter and not rule.applyEvenIfActiive then
-                        ruleConfirmedCheck = false;
-
-                        if rule.ranks[(GuildControlGetNumRanks() - player.rankIndex)] then
-                            ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
-                        end
-
-                    end
-
-                    -- Extra activity filter based on rank
-                    if ruleConfirmedCheck and not rule.activityFilter and rule.rankFilter and rule.applyEvenIfActiive then
-                        -- We know that the rank is valid at this point as it has been made true
-                        ruleConfirmedCheck = false;
-
-                        player = GRM.Time.ValidateHist ( player );
-
-                        local epochDate = GRM.Time.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] );
-
-                        if rule.ranks[ (GuildControlGetNumRanks() - player.rankIndex) ] and player.rankHist[1][7] and GRM.Time.GetHoursSinceTimestamp ( epochDate ) >= GRM_G.NumberOfHoursTilRecommend.kickActive[ruleName] then
-                            ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Rank" , player.rankName } );
-                            table.insert ( tempRuleCollection , { "RankTime" , GRM.Time.GetTimePassedUsingTableOrString ( { player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] } )[4] } );
-                        end
-                    end
-
-                    -- Level Filters
-                    if ruleConfirmedCheck and rule.levelFilter then
-                        ruleConfirmedCheck = false;
-
-                        local topLevel;
-                        if rule.levelRange[2] == 999 then
-                            topLevel = GRM_G.LvlCap;
-                        else
-                            topLevel = rule.levelRange[2];
-                        end
-                        if player.level >= rule.levelRange[1] and player.level <= topLevel then
-                            ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Level" , rule.levelRange[1] , topLevel } );
-                        end
-                    end
-
-                    -- Reputation Filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
-                        ruleConfirmedCheck = false;
-                        local msg = "";
-                        -- Less than Operator
-                        if rule.repOperator == 1 and player.guildRep < rule.rep then
-                            msg = GRM.L ( "Guild Rep lower than {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
-                        elseif rule.repOperator == 2 and player.guildRep == rule.rep then
-                            msg = GRM.L ( "Guild Rep equal to {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
-                        elseif rule.repOperator == 3 and player.guildRep > rule.rep then
-                            msg = GRM.L ( "Guild Rep higher than {name}" , GRM.GetReputationTextLevel ( rule.rep , true ) );
-                        end
-
-                        if #msg > 0 then
-                            ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Rep" , GRM.L ( "Rep: {name} - {name2}" , GRM.GetReputationTextLevel ( player.guildRep , true ) , msg ) } );
-                        end
-                    end
-
-                    -- Mythic+ filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
-                        ruleConfirmedCheck = false;
-                        local msg = "";
-
-                        -- Less than Operator
-                        if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
-                            msg = GRM.L ( "Mythic+ Rating greater or equal to {num}" , nil , nil , rule.mythicRating );
-                        elseif rule.mythicPlusOperator == 2 and player.MythicScore == rule.mythicRating then
-                            msg = GRM.L ( "Mythic+ Rating equal to {num}" , nil , nil , rule.mythicRating );
-                        elseif rule.mythicPlusOperator == 3 and player.MythicScore < rule.mythicRating then
-                            msg = GRM.L ( "Mythic+ Rating less than {num}" , nil , nil , rule.mythicRating );
-                        end
-
-                        if #msg > 0 then
-                            ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Mythic" , GRM.L ( "Mythic+ Rating: {num}" , nil , nil , rule.mythicRating ) } );
-                        end
-                    end
-
-                    -- Note match filter
-                    if ruleConfirmedCheck and rule.noteMatch and not rule.noteMatchEmpty then
-
-                        if #rule.matchingString > 0 then
-                            ruleConfirmedCheck = false;
-
-                            -- public note
-                            if rule.notesToCheck[1] and string.find ( string.lower ( player.note ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
-                                ruleConfirmedCheck = true;
-                            end
-                            -- Officer Note
-                            if player.officerNote == nil then   -- Legacy bug resolve
-                                player.officerNote = "";
-                            end
-
-                            if not ruleConfirmedCheck and rule.notesToCheck[2] and string.find ( string.lower ( player.officerNote ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
-                                ruleConfirmedCheck = true;
-                            end
-                            -- Custom Note
-                            if not ruleConfirmedCheck and rule.notesToCheck[3] and string.find ( string.lower ( player.customNote[4] ) , string.lower ( rule.matchingString ) , 1 , true ) ~= nil then
-                                ruleConfirmedCheck = true;
-                            end
-
-                            if ruleConfirmedCheck then
-                                table.insert ( tempRuleCollection , { "Note Match" , rule.matchingString } );
-                            end
-                        end
-
-                    end
-
-                    -- Empty note
-                    if ruleConfirmedCheck and rule.noteMatch and rule.noteMatchEmpty then
-                        ruleConfirmedCheck = false;
-                        local notes = "";
-
-                        if ( rule.notesToCheck[1] and player.note == "" ) then
-                            notes = GRM.L ( "Public" );
-                        end
-                        if ( rule.notesToCheck[2] and player.officerNote == "" ) then
-                            if #notes > 0 then
-                                notes = notes .. " , " .. GRM.L ( "Officer" );
-                            else
-                                notes = notes .. GRM.L ( "Officer" );
-                            end
-                        end
-                        if ( rule.notesToCheck[3] and player.customNote[4] == "" ) then
-                            if #notes > 0 then
-                                notes = notes .. " , " .. GRM.L ( "Custom" );
-                            else
-                                notes = notes .. GRM.L ( "Custom" );
-                            end
-                        end
-
-                        if #notes > 0 then
-                            ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Empty Note Match" , notes } );
-                        end
-                    end
-
-                    -- Safe Note
-                    if ruleConfirmedCheck and rule.safeMatch then
-                        if player.officerNote and player.officerNote ~= "" then
-
-                            if string.find ( player.officerNote , rule.safeText , 1 , true ) then
-                                ruleConfirmedCheck = false;
-                            end
-                        end
-
-                        if ruleConfirmedCheck and rule.safeMatchAllNotes then
-                            if player.note and player.note ~= "" then
-
-                                if string.find ( player.note , rule.safeText , 1 , true ) then
-                                    ruleConfirmedCheck = false;
-                                end
-                            end
-
-                            if ruleConfirmedCheck and player.customNote[4] and player.customNote[4] ~= "" then
-
-                                if string.find ( player.customNote[4] , rule.safeText , 1 , true ) then
-                                    ruleConfirmedCheck = false;
-                                end
-                            end
-                        end
-
-                        if ruleConfirmedCheck then
-                            table.insert ( tempRuleCollection , { "Safe Tag" , rule.safeText } );
-                        end
-                    end
-
-                    if ruleConfirmedCheck then
-                        -- RULE IS GOOD - ADD PLAYER
-                        -- Check safe list too
-
-                        if not player.safeList.kick[1] and not isHigherAlt and rule.isEnabled then      -- Ignore for scanning... but I still want a count of the ignored.
-
-                            local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
-
-                            if index == nil then
-                                table.insert ( listOfPlayers , {} );
-                                index = #listOfPlayers;
-                                listOfPlayers[index].name = player.name;
-                                listOfPlayers[index].class = GRM.GetClassColorRGB ( player.class );
-                                listOfPlayers[index].lastOnline = player.lastOnline;
-                                listOfPlayers[index].action = GRM_UI.ruleTypeEnum3[1];
-                                listOfPlayers[index].macro = "/gremove";
-                                listOfPlayers[index].isHighlighted = false;
-                                listOfPlayers[index].customMsg = "";
-                                listOfPlayers[index].isMain = false;
-                                listOfPlayers[index].isAlt = false;
-                                listOfPlayers[index].tab = false;
-                            end
-
-                            table.insert ( listOfPlayers[index] , { rule.name , tempRuleCollection } );
-                            sort ( listOfPlayers , function ( a , b ) return a.name < b.name end );
-
-                        elseif rule.isEnabled and not isHigherAlt then
-                            local index = GRM.GetIndexOfPlayerOnList ( GRM_UI.GRM_ToolCoreFrame.Safe , player.name );
-
-                            if index == nil and player.name ~= GRM_G.addonUser then
-                                table.insert ( GRM_UI.GRM_ToolCoreFrame.Safe , {} );
-                                index = #GRM_UI.GRM_ToolCoreFrame.Safe;
-                                GRM_UI.GRM_ToolCoreFrame.Safe[index].name = player.name
-                                GRM_UI.GRM_ToolCoreFrame.Safe[index].rankIndex = player.rankIndex;
-                                GRM_UI.GRM_ToolCoreFrame.Safe[index].class = GRM.GetClassColorRGB ( player.class );
-                                GRM_UI.GRM_ToolCoreFrame.Safe[index].reason = GRM.L ( "Kick" );
-                                GRM_UI.GRM_ToolCoreFrame.Safe[index].lastOnline = player.lastOnline;
-                                GRM_UI.GRM_ToolCoreFrame.Safe[index].isHighlighted = false;
-                            end
-
-                        elseif not rule.isEnabled then
-                            ruleDisabledList[player.name] = true;
-
-                        elseif not player.safeList.kick[1] and isHigherAlt and rule.isEnabled then
-                            higherAltCount = higherAltCount + 1;
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    listOfPlayers = GRM.SortAltsUnderMain ( listOfPlayers );
-
-    if #GRM_UI.GRM_ToolCoreFrame.Safe then
-        sort ( GRM_UI.GRM_ToolCoreFrame.Safe , function ( a , b ) return a.name < b.name end );
-    end
-
-    -- Get count
-    GRM_G.counts[1][1] = #listOfPlayers;
-    GRM_G.counts[1][2] = higherAltCount;
-
-    return listOfPlayers , higherAltCount , ruleDisabledList;
-end
-
--- Method:          GRM_Macro.GetJumpsMsg ( int , int )
--- What it Does:    Returns the string message based on number of ranks to move up or down
--- Purpose:         Special macro tool - clear messaging on tooltip
-GRM_Macro.GetJumpsMsg = function ( numJumps , type )
-
-    if type == 2 then       -- promote
-
-        if numJumps < 2 then
-            return "(" .. GRM.L ( "Up 1 Rank" ) .. ")";
-        else
-            return "(" .. GRM.L ( "Up {num} Ranks" , nil , nil , numJumps ) .. ")";
-        end
-
-    elseif type == 3 then   -- demote
-        if numJumps < 2 then
-            return "(" .. GRM.L ( "Down 1 Rank" ) .. ")";
-        else
-            return "(" .. GRM.L ( "Down {num} Ranks" , nil , nil , numJumps ) .. ")";
-        end
-    end
-
-end
-
--- Method:          GRM_Macro.GetFullDatabaseAltsWithMain()
--- What it Does:    Returns a table with the names of all mains, with all their alts underneath
--- Purpose:         Useful when checking special rules for syncing alt to main rank or designated.
-GRM_Macro.GetFullDatabaseAltsWithMain = function()
-    local altGroups = GRM.GetGuildAlts();
-    local result = {};
-    local player = {};
-
-    for id in pairs ( altGroups ) do
-        local group = altGroups[id];
-        if #group > 1 and group.main ~= "" then     -- Group size of 1 is just a main with no alts.
-            player = GRM.GetPlayer ( group.main );
-
-            if player then
-                result[player.name] = {};
-                result[group.main].rankIndex = player.rankIndex;
-
-                for i = 1 , #group do
-                    player = GRM.GetPlayer ( group[i].name );
-                    if player and player.name ~= group.main then
-                        result[group.main][group[i].name] = {};
-                        result[group.main][group[i].name].name = player.name;
-                        result[group.main][group[i].name].class = player.class;
-                        result[group.main][group[i].name].rankIndex = player.rankIndex;
-                        result[group.main][group[i].name].lastOnline = player.lastOnline;
-                        result[group.main][group[i].name].level = player.level;
-                    end
-                end
-            end
-        end
-    end
-
-    return result;
-end
-
 -- Method:          GRM_UI.GetNamesBySpecialRules( bool , table )
 -- What it Does:    Returns the list of players that match the "special" rules
 -- Purpose:         Allow the creation of rather unique rules.
@@ -10471,6 +11100,64 @@ GRM_UI.GetNamesBySpecialRules = function( includeHigherAlt , highest )
     GRM_G.counts[4][2] = higherAltCount
 
     return listOfPlayers , higherAltCount , ruleDisabledList;
+end
+
+-- Method:          GRM_Macro.GetJumpsMsg ( int , int )
+-- What it Does:    Returns the string message based on number of ranks to move up or down
+-- Purpose:         Special macro tool - clear messaging on tooltip
+GRM_Macro.GetJumpsMsg = function ( numJumps , type )
+
+    if type == 2 then       -- promote
+
+        if numJumps < 2 then
+            return "(" .. GRM.L ( "Up 1 Rank" ) .. ")";
+        else
+            return "(" .. GRM.L ( "Up {num} Ranks" , nil , nil , numJumps ) .. ")";
+        end
+
+    elseif type == 3 then   -- demote
+        if numJumps < 2 then
+            return "(" .. GRM.L ( "Down 1 Rank" ) .. ")";
+        else
+            return "(" .. GRM.L ( "Down {num} Ranks" , nil , nil , numJumps ) .. ")";
+        end
+    end
+
+end
+
+-- Method:          GRM_Macro.GetFullDatabaseAltsWithMain()
+-- What it Does:    Returns a table with the names of all mains, with all their alts underneath
+-- Purpose:         Useful when checking special rules for syncing alt to main rank or designated.
+GRM_Macro.GetFullDatabaseAltsWithMain = function()
+    local altGroups = GRM.GetGuildAlts();
+    local result = {};
+    local player = {};
+
+    for id in pairs ( altGroups ) do
+        local group = altGroups[id];
+        if #group > 1 and group.main ~= "" then     -- Group size of 1 is just a main with no alts.
+            player = GRM.GetPlayer ( group.main );
+
+            if player then
+                result[player.name] = {};
+                result[group.main].rankIndex = player.rankIndex;
+
+                for i = 1 , #group do
+                    player = GRM.GetPlayer ( group[i].name );
+                    if player and player.name ~= group.main then
+                        result[group.main][group[i].name] = {};
+                        result[group.main][group[i].name].name = player.name;
+                        result[group.main][group[i].name].class = player.class;
+                        result[group.main][group[i].name].rankIndex = player.rankIndex;
+                        result[group.main][group[i].name].lastOnline = player.lastOnline;
+                        result[group.main][group[i].name].level = player.level;
+                    end
+                end
+            end
+        end
+    end
+
+    return result;
 end
 
 -- Method:          GRM.SortAltsUnderMain ( table )
@@ -10834,6 +11521,300 @@ GRM.GetCountOfNamesBeingFiltered = function()
     GRM.RefreshMacroToolRuleCount();
 
     return k , p , d , s , listOfNames , k2 , p2 , d2 , s2;
+end
+
+-- State for the counting scan
+GRM.countingScanState = nil;
+
+-- Method:          GRM.GetCountOfNamesBeingFilteredScan(callbackOnComplete)
+-- What it Does:    Initiates an asynchronous scan to count rule matches.
+--                  Calls callbackOnComplete(k, p, d, s, k2, p2, d2, s2) when done.
+-- Purpose:         To get counts for UI elements without blocking.
+GRM.GetCountOfNamesBeingFilteredScan = function(callbackOnComplete)
+    if GRM.countingScanState and GRM.countingScanState.isRunning then
+        return;
+    end
+
+    print("GRM Counting Scan: Initiating...");
+
+    local highest = GRM_UI.GetYourOwnAltHighestRank();
+    local currentCanPromote = CanGuildPromote(); -- Current character's direct perms
+    local currentCanDemote = CanGuildDemote();
+    local currentCanRemove = CanGuildRemove();
+    local effectiveCanPromote = currentCanPromote; -- Permissions considering higher alt
+    local effectiveCanDemote = currentCanDemote;
+    local effectiveCanRemove = currentCanRemove;
+    local includeHigherAlt = false;
+
+    if not GRM_G.playerRankID then
+        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID(GRM_G.addonUser);
+    end
+
+    if highest and highest[1] and highest[1] ~= GRM_G.playerRankID then -- Check if highest exists and is different
+        local altPermsPromote, altPermsDemote, altPermsRemove = GRM.GetPlayerRankPermissions(nil, highest[1]);
+        if altPermsPromote and not effectiveCanPromote then
+            effectiveCanPromote = true;
+        end
+        if altPermsDemote and not effectiveCanDemote then
+            effectiveCanDemote = true;
+        end
+        if altPermsRemove and not effectiveCanRemove then
+            effectiveCanRemove = true;
+        end
+        includeHigherAlt = true;
+    end
+
+    local allGuildPlayerNamesSorted = GRM.G_Util.GetSortedPlayerNames();
+    if #allGuildPlayerNamesSorted <= 1 then
+        print("GRM Counting Scan: No guild members to process. Scan finished.");
+        if type(callbackOnComplete) == "function" then
+            callbackOnComplete(0, 0, 0, 0, 0, 0, 0, 0); -- Call with zero counts
+        end
+        return;
+    end
+
+    GRM.countingScanState = {
+        isRunning = true,
+        callback = callbackOnComplete,
+        allNames = allGuildPlayerNamesSorted,
+        chunkSize = 100, -- larger for counting since not processing all players
+        currentIndex = 1,
+
+        highest = highest,
+        includeHigherAlt = includeHigherAlt,
+        effectiveCanPromote = effectiveCanPromote,
+        effectiveCanDemote = effectiveCanDemote,
+        effectiveCanRemove = effectiveCanRemove,
+
+        -- Accumulated counts
+        k = 0, p = 0, d = 0, s = 0, -- Current character counts
+        k2 = 0, p2 = 0, d2 = 0, s2 = 0, -- Higher alt counts
+
+        currentCategory = "KICK", -- KICK, PROMOTION, DEMOTION, SPECIAL, DONE
+    };
+
+    -- Start the first processing cycle for counts
+    C_Timer.After(0, GRM.ProcessNextCountingChunk);
+end
+
+-- Helper function to process chunks for counting
+GRM.ProcessNextCountingChunk = function()
+    local state = GRM.countingScanState;
+    if not state or not state.isRunning then return; end
+
+    local recommendationsInChunk, higherAltCountForChunk;
+
+    local function advanceCategory(nextCategory)
+        print("GRM Counting Scan: Finished " .. state.currentCategory .. ". Advancing to " .. nextCategory);
+        state.currentCategory = nextCategory;
+        state.currentIndex = 1; -- Reset for the new category
+        C_Timer.After(0, GRM.ProcessNextCountingChunk);
+    end
+
+    -- Determine if we need to process this category based on effective permissions
+    local shouldProcessCategory = false;
+    if state.currentCategory == "KICK" and state.effectiveCanRemove then
+        shouldProcessCategory = true;
+    end
+    if state.currentCategory == "PROMOTION" and state.effectiveCanPromote then
+        shouldProcessCategory = true;
+    end
+    if state.currentCategory == "DEMOTION" and state.effectiveCanDemote then
+        shouldProcessCategory = true;
+    end
+    if state.currentCategory == "SPECIAL" and state.effectiveCanPromote and state.effectiveCanDemote then
+        shouldProcessCategory = true;
+    end
+
+    if not shouldProcessCategory then
+        -- Skip this category and move to the next one
+        if state.currentCategory == "KICK" then
+            advanceCategory("PROMOTION");
+            return;
+        elseif state.currentCategory == "PROMOTION" then
+            advanceCategory("DEMOTION");
+            return;
+        elseif state.currentCategory == "DEMOTION" then
+            advanceCategory("SPECIAL");
+            return;
+        elseif state.currentCategory == "SPECIAL" then
+            advanceCategory("DONE");
+            return;
+        end
+    end
+
+    if state.currentIndex > #state.allNames and state.currentCategory ~= "DONE" then
+        -- Finished processing all names for the current category, move to next
+        if state.currentCategory == "KICK" then
+            advanceCategory("PROMOTION");
+            return;
+        elseif state.currentCategory == "PROMOTION" then
+            advanceCategory("DEMOTION");
+            return;
+        elseif state.currentCategory == "DEMOTION" then
+            advanceCategory("SPECIAL");
+            return;
+        elseif state.currentCategory == "SPECIAL" then
+            advanceCategory("DONE");
+            return;
+        end
+    end
+
+    if state.currentCategory == "KICK" then
+        recommendationsInChunk, higherAltCountForChunk = GRM.GetKickNamesByFilterRulesChunk(
+            state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+        );
+        if recommendationsInChunk then
+            state.k = state.k + #recommendationsInChunk;
+        end
+        if higherAltCountForChunk then
+            state.k2 = state.k2 + higherAltCountForChunk;
+        end
+        GRM_G.counts[1][1] = state.k; -- Update global cache as we go
+        GRM_G.counts[1][2] = state.k2;
+
+    elseif state.currentCategory == "PROMOTION" then
+        recommendationsInChunk, higherAltCountForChunk = GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(
+            2, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+        );
+        if recommendationsInChunk then
+            state.p = state.p + #recommendationsInChunk;
+        end
+        if higherAltCountForChunk then
+            state.p2 = state.p2 + higherAltCountForChunk;
+        end
+        GRM_G.counts[2][1] = state.p;
+        GRM_G.counts[2][2] = state.p2;
+
+    elseif state.currentCategory == "DEMOTION" then
+        recommendationsInChunk, higherAltCountForChunk = GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(
+            3, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+        );
+        if recommendationsInChunk then
+            state.d = state.d + #recommendationsInChunk;
+        end
+        if higherAltCountForChunk then
+            state.d2 = state.d2 + higherAltCountForChunk;
+        end
+        GRM_G.counts[3][1] = state.d;
+        GRM_G.counts[3][2] = state.d2;
+
+    elseif state.currentCategory == "SPECIAL" then
+        recommendationsInChunk, higherAltCountForChunk = GRM_UI.GetNamesBySpecialRulesChunk(
+            state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+        );
+        if recommendationsInChunk then
+            state.s = state.s + #recommendationsInChunk;
+        end
+        if higherAltCountForChunk then
+            state.s2 = state.s2 + higherAltCountForChunk;
+        end
+        GRM_G.counts[4][1] = state.s;
+        GRM_G.counts[4][2] = state.s2;
+
+    elseif state.currentCategory == "DONE" then
+        print("GRM Counting Scan: All categories processed. Scan complete.");
+        state.isRunning = false;
+        if type(state.callback) == "function" then
+            state.callback(state.k, state.p, state.d, state.s, state.k2, state.p2, state.d2, state.s2);
+        end
+        GRM.RefreshMacroToolRuleCount();
+        GRM.countingScanState = nil; -- Clear state
+        return;
+    end
+
+    state.currentIndex = state.currentIndex + state.chunkSize;
+    if state.isRunning then
+        C_Timer.After(0, GRM.ProcessNextCountingChunk);
+    end
+end
+
+-- Method:          GRM.GetCachedRuleCounts()
+-- What it Does:    Returns the most recently calculated/cached counts.
+-- Purpose:         For immediate UI needs if async update is too slow or not required.
+GRM.GetCachedRuleCounts = function()
+    -- Ensure GRM_G.counts is initialized if it hasn't been
+    GRM_G.counts = GRM_G.counts or { [1]={}, [2]={}, [3]={}, [4]={} }
+    GRM_G.counts[1] = GRM_G.counts[1] or {0,0}
+    GRM_G.counts[2] = GRM_G.counts[2] or {0,0}
+    GRM_G.counts[3] = GRM_G.counts[3] or {0,0}
+    GRM_G.counts[4] = GRM_G.counts[4] or {0,0}
+
+    local k = GRM_G.counts[1][1] or 0;
+    local k2 = GRM_G.counts[1][2] or 0;
+    local p = GRM_G.counts[2][1] or 0;
+    local p2 = GRM_G.counts[2][2] or 0;
+    local d = GRM_G.counts[3][1] or 0;
+    local d2 = GRM_G.counts[3][2] or 0;
+    local s = GRM_G.counts[4][1] or 0;
+    local s2 = GRM_G.counts[4][2] or 0;
+
+    -- as this function returns cached counts, not a list from a specific category.
+    return k, p, d, s, nil, k2, p2, d2, s2;
+end
+
+GRM_UI.GRM_LoadToolButton.lastTotalCount = -1; -- Initialize to a value that will trigger first update
+
+-- Method:          GRM_UI.UpdateToolButtonText(k, p, d, s, k2, p2, d2, s2)
+-- What it Does:    This is the callback that updates the button text once counts are available.
+-- Purpose:         To be called by GRM.GetCountOfNamesBeingFilteredScan upon completion.
+GRM_UI.UpdateToolButtonText = function(k_val, p_val, d_val, s_val, k2_val, p2_val, d2_val, s2_val)
+    -- Store these counts if other UI parts need them directly from GRM_UI context
+    GRM_UI.GRM_LoadToolButton.count = {k_val, p_val, d_val, s_val, nil, k2_val, p2_val, d2_val, s2_val};
+
+    local total = (k_val or 0) + (p_val or 0) + (d_val or 0) + (s_val or 0) +
+                  (k2_val or 0) + (p2_val or 0) + (d2_val or 0) + (s2_val or 0);
+
+    GRM_UI.GRM_LoadToolButton.total = total;
+
+    -- Only update text if the button is visible and the total has changed
+    if GRM_UI.GRM_LoadToolButton:IsVisible() and GRM_UI.GRM_LoadToolButton.lastTotalCount ~= total then
+        if total > 0 then
+            GRM_UI.GRM_LoadToolButtonText:SetText(GRM.L("Macro Tool: {num}", nil, nil, total));
+        else
+            GRM_UI.GRM_LoadToolButtonText:SetText(GRM.L("Macro Tool"));
+        end
+        GRM_UI.GRM_LoadToolButton.lastTotalCount = total; -- Update last known total
+        print("GRM UI: Tool Button text updated to total: " .. total);
+    end
+end
+
+GRM_UI.isRefreshingToolButtonCount = false;
+GRM_UI.timeOfLastToolButtonRefreshRequest = 0;
+local MIN_REFRESH_INTERVAL_TOOL_BUTTON = 5;
+
+-- Method:          GRM_UI.RefreshToolButtonsOnUpdate_Async( forced )
+-- What it Does:    For the "OnUpdate" script handler or triggered manually.
+-- Purpose:         To initiate count refresh for the tool button.
+GRM_UI.RefreshToolButtonsOnUpdate_Async = function(forced)
+    if GRM_G.guildName and GRM_G.guildName ~= "" then
+        -- If a refresh is already running, or if it was requested very recently, don't start another
+        if GRM.countingScanState and GRM.countingScanState.isRunning then
+            -- print("GRM UI: Tool button count refresh already in progress.");
+            return;
+        end
+
+        local currentTime = time();
+        if not forced and (currentTime - GRM_UI.timeOfLastToolButtonRefreshRequest < MIN_REFRESH_INTERVAL_TOOL_BUTTON) then
+            -- print("GRM UI: Tool button count refresh requested too soon. Throttling.");
+            return;
+        end
+
+        GRM_UI.timeOfLastToolButtonRefreshRequest = currentTime;
+        print("GRM UI: Requesting tool button count refresh...");
+        -- Initiate the asynchronous scan, providing GRM_UI.UpdateToolButtonText as the callback
+        GRM.GetCountOfNamesBeingFilteredScan(GRM_UI.UpdateToolButtonText);
+
+    elseif not forced then
+        -- Guild name not yet available, set default text and retry
+        if GRM_UI.GRM_LoadToolButton:IsVisible() and GRM_UI.GRM_LoadToolButton.lastTotalCount ~= 0 then
+             GRM_UI.GRM_LoadToolButtonText:SetText(GRM.L("Macro Tool"));
+             GRM_UI.GRM_LoadToolButton.lastTotalCount = 0;
+        end
+        C_Timer.After(30, function()
+            GRM_UI.RefreshToolButtonsOnUpdate_Async(false); -- Pass false to respect throttling
+        end);
+    end
 end
 
 ------------------------

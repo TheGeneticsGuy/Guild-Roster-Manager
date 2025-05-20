@@ -204,3 +204,17 @@ G_Util.IsGuildieOnline = function(name , player )
     end
     return false;
 end
+
+-- Method:          G_Util.GetSortedPlayerNames()
+-- What it Does:    Gets the full list of guild members full sorted in order
+-- Purpose:         Necessary for asynchronous scan through the guild since you can't use the pairs dictionary scan
+G_Util.GetSortedPlayerNames = function()
+    local names = {}
+    for name, player in pairs(GRM.GetGuild()) do
+        if type(player) == "table" then
+            table.insert(names, name)
+        end
+    end
+    table.sort(names)
+    return names
+end
