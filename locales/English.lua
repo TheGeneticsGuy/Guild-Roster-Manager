@@ -1885,18 +1885,41 @@ GRML.English = function()
     GRM_L["Do you wish to continue?"] = true
     GRM_L["Click to Remove All Profession Notes"] = true
     GRM_L["{num} notes have had profession details removed."] = true
+    -- Main/Alt Display Settings
     GRM_L["Alt, Main, and Nickname settings"] = true
     GRM_L["Names"] = true       -- Represents the Options "Names" tab
-    GRM_L["Name Display Formatting"] = true
-    GRM_L["Show Nickname in Chat"] = true
-    GRM_L["Enable Name Modification"] = true
-    GRM_L["Show both {name} tags and {name2} tags in Chat."] = true
+    GRM_L["Main and Alt Formatting"] = true
+    GRM_L["Show both {name} and {name2} tags in Chat"] = true
     GRM_L["Show Main Name in Chat"] = true
+    -- Nickname Settings
+    GRM_L["Nicknames"] = true
+    GRM_L["Show Nickname in Chat"] = true
+    GRM_L["Note - If showing main name is enabled, the nickname will show instead"] = true
+    GRM_L["Share Nickname Across All Grouped Alts"] = true
+
 
     GRM_L["Public Nickname"] = true
     GRM_L["Private Nickname"] = true
-    GRM_L["What other members of your guild will see"] = true
-    GRM_L["What only you will see"] = true
+    GRM_L["Public Nickname will be shared and sync'd with others."] = true
+    GRM_L["Private Nickname only you will see"] = true
+    GRM_L["Shows player's nickname instead."] = true
+    GRM_L["Note - If no nickname is set, it will default back to showing the main name."] = true
+
+    GRM_L["Would you like to recreate this chat window for messages unique to the GRM addon?"] = true
+    GRM_L["\"{name}\" Custom Chat Window for GRM appears to be missing."] = true
+    GRM_L["The following Custom Chat Windows for GRM appear to be missing:"] = true
+    GRM_L["Would you like to recreate these chat windows for messages unique to the GRM addon?"] = true
+    GRM_L["Add Channel"] = true
+    GRM_L["Add Channels"] = true
+    GRM_L["Set to {name}"] = true   -- Referencing the default chat channel "Set to General"
+    GRM_L["Keep Only {name}"] = true
+    GRM_L["GRM will now send all messages to the default \"{name}\" channel"] = true
+    GRM_L["The missing GRM channel has been recreated."] = true
+    GRM_L["The {num} missing GRM channels have been recreated"] = true
+    GRM_L["GRM will now only send messages to the following channels:"] = true
+    GRM_L["Ignore Missing"] = true
+    GRM_L["Search Public, Officer, and Custom Notes for Safe tag"] = true
+
 
 end
 

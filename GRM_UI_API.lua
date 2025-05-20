@@ -88,9 +88,7 @@ GRM_UI.CreateCoreFrame = function ( name , parentFrame , globalParent , width , 
             finalFrame[closeButtonName] = CreateFrame( "Button" , closeButtonName , finalFrame , "UIPanelCloseButton" );
             finalFrame[closeButtonName]:SetPoint( "TOPRIGHT" , finalFrame , -1 , -1 );
         end
-
     end
-
 end
 
 -- Method:          GRM_UI.CreateString ( string , frame , string , string , int , { R,G,B} , text , int , bool )
@@ -1189,4 +1187,17 @@ GRM_UI.BuildSliderTextures = function ( slider )
 
         end
     end)
+end
+
+-- Method:          GRM_UI.ScaleButtonToFontStringSize ( buttonObject , fontstringObject , int)
+-- What it Does:    Determines the width of the string, the increases the width of the button so it doesn't overlap, with buffer
+-- Purpose:         UI Quality of Life
+GRM_UI.ScaleButtonToFontStringSize = function ( button, fontstring , spacingOnEachSide )
+    local finalSize = fontstring:GetWidth() + (spacingOnEachSide * 4);
+    local buttonWidth = button:GetWidth();
+
+    if buttonWidth < finalSize then
+        button:SetWidth ( finalSize );
+    end
+    return finalSize;
 end

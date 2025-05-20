@@ -1150,11 +1150,10 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     --patch 100
     patchNum = patchNum + 1;
     if numericV < 1.944 and baseValue < 1.944 then
-
         GRM_Patch.ModifyMemberData ( GRM_Patch.PlayerNameFixFormerMembers , false , true , false );
         GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "sinceAtRank" , true );
-        GRM_Patch.ModifyOrAddMacroRuleSetting ( "kickRules" , "safeText" , "" );
-        GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "safeText" , "" );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "kickRules" , "safeMatchAllNotes" , "" );
+        GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "safeMatchAllNotes" , "" );
         GRM_Patch.ModifyOrAddMacroRuleSetting ( "demoteRules" , "safeText" , "" );
         GRM_Patch.ModifyOrAddMacroRuleSetting ( "kickRules" , "safeMatch" , false );
         GRM_Patch.ModifyOrAddMacroRuleSetting ( "promoteRules" , "safeMatch" , false );
@@ -1710,8 +1709,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.992 and baseValue < 1.992 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNames , true , true , false , nil );
         GRM_Patch.FixBirthdayUnknown();
-        GRM_Patch.AddNewSetting ( "nameModEnabled" , true );
-
+        GRM_Patch.AddNewSetting ( "showNickname" , false );
+        GRM_Patch.AddNewSetting ( "shareNickToAlts" , true );
+        GRM_Patch.EditSetting ( "kickRules" , false , "safeMatchAllNotes" );
+        GRM_Patch.EditSetting ( "promoteRules" , false , "safeMatchAllNotes" );
+        GRM_Patch.EditSetting ( "demoteRules" , false , "safeMatchAllNotes" );
 
         GRM_AddonSettings_Save.VERSION = "R1.992";
         if loopCheck ( 1.992 ) then
@@ -1913,6 +1915,29 @@ GRM_Patch.EditSetting = function ( setting , valueOrLogic , additionalSetting )
     end
 end
 
+-- 1.943
+-- Method:          GRM_Patch.ModifyOrAddMacroRuleSetting ( string , string , function or type )
+-- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
+-- Purpose:         To be able to retroactively adapt and make changes to the database of macro rules
+GRM_Patch.ModifyOrAddMacroRuleSetting = function ( ruleType , setting , valueOrFunction )
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+            if not GRM_AddonSettings_Save[F][p][ruleType] then
+                GRM_AddonSettings_Save[F][p][ruleType] = {};
+            end
+            for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
+
+                if type ( valueOrFunction ) == "function" then
+                    rule = valueOrFunction ( rule , setting );
+                else
+                    rule[setting] = valueOrFunction;
+                end
+
+            end
+        end
+    end
+end
+
 ---------------------
 -- old db settings work --
 ---------------------
@@ -2031,6 +2056,73 @@ GRM_Patch.ManageOldSettingsDB = function()
     end
 
     return playerV;
+end
+
+-- 1.87
+-- Method:          GRM_Patch.ModifyPlayerSetting ( string , function )
+-- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
+-- Purpose:         To be able to retroactively adapt and make changes to the database.
+GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic , additionalSetting )
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+            if type ( valueOrLogic ) == "function" then
+                if additionalSetting then
+                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
+                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+                    end
+                else
+                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+                end
+            else
+                if additionalSetting then
+                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
+                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic;
+                    end
+                else
+                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
+                end
+            end
+        end
+    end
+end
+
+-- 1.943
+-- Method:          GRM_Patch.ModifyOrAddMacroRuleSetting ( string , string , function or type )
+-- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
+-- Purpose:         To be able to retroactively adapt and make changes to the database of macro rules
+GRM_Patch.ModifyOrAddMacroRuleSetting = function ( ruleType , setting , valueOrFunction )
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+            if not GRM_AddonSettings_Save[F][p][ruleType] then
+                GRM_AddonSettings_Save[F][p][ruleType] = {};
+            end
+            for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
+
+                if type ( valueOrFunction ) == "function" then
+                    rule = valueOrFunction ( rule , setting );
+                else
+                    rule[setting] = valueOrFunction;
+                end
+
+            end
+        end
+    end
+end
+
+-- 1.87
+-- Method:          GRM_Patch.AddPlayerSetting ( string , object , function )
+-- What it Does:    Allows the player to add a new setting to all settings profiles
+-- Purpose:         To be able to retroactively adapt and make changes to the database.
+GRM_Patch.AddPlayerSetting = function ( nameOfNewSetting , value , additionalLogic )
+    for F in pairs ( GRM_AddonSettings_Save ) do
+        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+            if not additionalLogic then
+                GRM_AddonSettings_Save[F][p][nameOfNewSetting] = value;
+            else
+                GRM_AddonSettings_Save[F][p] = additionalLogic ( GRM_AddonSettings_Save[F][p] );
+            end
+        end
+    end
 end
 
 -- Only applies to updating much older databases so mostly deprecated, but if someone has a significantly old version they will need to run it through this on their update.
@@ -6049,73 +6141,6 @@ GRM_Patch.AddMemberMetaData = function ( settingName , value )
                     end
 
                 end
-            end
-        end
-    end
-end
-
--- 1.87
--- Method:          GRM_Patch.ModifyPlayerSetting ( string , function )
--- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
--- Purpose:         To be able to retroactively adapt and make changes to the database.
-GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic , additionalSetting )
-    for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
-            if type ( valueOrLogic ) == "function" then
-                if additionalSetting then
-                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
-                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
-                    end
-                else
-                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
-                end
-            else
-                if additionalSetting then
-                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
-                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic;
-                    end
-                else
-                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
-                end
-            end
-        end
-    end
-end
-
--- 1.943
--- Method:          GRM_Patch.ModifyOrAddMacroRuleSetting ( string , string , function or type )
--- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
--- Purpose:         To be able to retroactively adapt and make changes to the database of macro rules
-GRM_Patch.ModifyOrAddMacroRuleSetting = function ( ruleType , setting , valueOrFunction )
-    for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
-            if not GRM_AddonSettings_Save[F][p][ruleType] then
-                GRM_AddonSettings_Save[F][p][ruleType] = {};
-            end
-            for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
-
-                if type ( valueOrFunction ) == "function" then
-                    rule = valueOrFunction ( rule , setting );
-                else
-                    rule[setting] = valueOrFunction;
-                end
-
-            end
-        end
-    end
-end
-
--- 1.87
--- Method:          GRM_Patch.AddPlayerSetting ( string , object , function )
--- What it Does:    Allows the player to add a new setting to all settings profiles
--- Purpose:         To be able to retroactively adapt and make changes to the database.
-GRM_Patch.AddPlayerSetting = function ( nameOfNewSetting , value , additionalLogic )
-    for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
-            if not additionalLogic then
-                GRM_AddonSettings_Save[F][p][nameOfNewSetting] = value;
-            else
-                GRM_AddonSettings_Save[F][p] = additionalLogic ( GRM_AddonSettings_Save[F][p] );
             end
         end
     end

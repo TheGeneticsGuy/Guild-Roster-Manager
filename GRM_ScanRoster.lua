@@ -78,7 +78,6 @@ Scan.BuildNewRoster = function( forceScan )
     C_Timer.After ( 0.1 , function()
         Scan.BuildRosterClassicMethod();
     end);
-
 end
 
 -- Method:          Scan.BuildRosterClassicMethod([int], [table], [table], [int])
@@ -204,6 +203,7 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
         C_Timer.After(delay, function()
             Scan.BuildRosterClassicMethod(nextIndex, roster, orderedRoster, count);
         end);
+        return;
     else
         -- Finished processing all members with GetGuildRosterInfo
         -- Now, clean up liveKickedToons based on the *final* roster
@@ -217,7 +217,6 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
         -- We need a way to pass the 'atLeastOne' status forward. We can infer it
         -- if the final roster table is not empty.
         local atLeastOneOverall = (next(roster) ~= nil);
-
         -- Proceed to the next stage: Updating with Communities API
         Scan.UpdateRosterWithCommunitiesAPI(roster, orderedRoster, atLeastOneOverall, count);
     end
@@ -227,7 +226,6 @@ end
 -- What it Does:    Throttles the querying of the data by the Communities C_Club API. This server call seems much slower and can overload if too fast.
 -- Purpose:         Avoid stutter.
 Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster, atLeastOneOverall , count , index , members )
-
     -- Leave an exit if player quits guild in middle of scan
     if not IsInGuild() then
         GRM_G.CurrentlyScanning = false;
@@ -3086,7 +3084,7 @@ end
 -- What it Does:    Builds recommend log messages and also reports them as needed
 -- Purpose:         So player knows that it is time to kick a player.
 Scan.ScanRecommendationsList = function()
-
+    print("Scanning Recommendations")
     -- Before we run this, let's validate the rules
     GRM.RuleIntegrityCheck();
 

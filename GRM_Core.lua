@@ -1143,18 +1143,15 @@ GRM.SetDefaultAddonSettings = function(player, page)
 
         -- Names Tab
     elseif page == 17 then
-        player.nameModEnabled = true;
         player.showMainName = true;
         player.useMainTag = true;
-
         player.mainTagIndex = 2;
         player.mainTagColor = {};
         player.mainTagColor.r = 1;
         player.mainTagColor.g = 0;
         player.mainTagColor.b = 0;
-
-
-
+        player.showNickname = false;
+        player.shareNickToAlts = true;
     end
 
 end
@@ -1839,6 +1836,7 @@ GRM.SetReportWindow = function(count)
     local isEstablished = false;
     local chatFrame;
     count = count or 1;
+    local removedChannels = {};
 
     if not IsInGuild() then
         GRM_G.Chat = {DEFAULT_CHAT_FRAME};
@@ -1872,9 +1870,15 @@ GRM.SetReportWindow = function(count)
                     return;
                 end);
             else
-                table.remove(GRM.S().reportChannel, i);
+                -- After 10 seconds of trying...
+                table.insert(removedChannels , GRM.S().reportChannel[i])
             end
         end
+    end
+
+    if #removedChannels > 0 then
+        GRM.MissingChatTabs(removedChannels);
+        return;
     end
 
     if #GRM.S().reportChannel == 0 then
@@ -1939,7 +1943,7 @@ end
 GRM.CreateChatTabs = function()
     local customName = GRM_G.UnconfirmedChatTabs[1];
     -- Core Blizzard logic to create a new window
-    local frame = FCF_OpenNewWindow(customName);
+    local frame = FCF_OpenNewWindow(customName , true);     -- True is necessary to keep Blizz from default SAY,YELL, GUILD, etc to channel
 
     -- Now we configure them
     FCF_CopyChatSettings(frame, DEFAULT_CHAT_FRAME);
@@ -1972,6 +1976,120 @@ GRM.CreateChatTabs = function()
         GRM.InitiateConfirmFrame(
             GRM.L("\"{name}\" Chat Window\nDo you wish to create it?", GRM_G.UnconfirmedChatTabs[1]),
             GRM.CreateChatTabs, nil, nil, GRM.CancelChatTabCreation, true);
+    end
+end
+
+-- Method:          GRM.MissingChatTabs ( table )
+-- What it Does:    Informs the player of the missing custom chat channels and asks for permission to rebuild
+-- Purpose:         There is an occasional issue of custom chat channels disappearing, not sure why. This adapts to it.
+--                  The channels disappearing on occasion can even happen with all addons disabled.
+GRM.MissingChatTabs = function( channels )
+    if #channels > 0 then
+
+        local createChatWindows = function()
+            for i = 1 , #channels do
+                local frame = FCF_OpenNewWindow(channels[i] , true);
+                FCF_CopyChatSettings(frame, DEFAULT_CHAT_FRAME);
+                table.insert ( GRM_G.Chat , frame );
+            end
+            FCF_DockUpdate();
+
+            local updateText = ""
+            if #channels == 1 then
+                updateText = GRM.L ("The missing GRM channel has been recreated.")
+            else
+                updateText = GRM.L ( "The {num} missing GRM channels have been recreated" , nil,nil,#channels);
+            end
+            GRM.Report ( updateText );
+        end
+
+        local resetChatToDefault = function()
+            local reportMsg = "";
+            if #channels < #GRM.S().reportChannel then
+                -- This means only some channels missing
+                for i = 1 , #channels do
+                    for j = #GRM.S().reportChannel , 1 , -1 do
+                        if GRM.S().reportChannel[j] == channels[i] then
+                            table.remove ( GRM.S().reportChannel , j );
+                            break;
+                        end
+                    end
+                end
+
+                -- Let's re-establish the used channels
+                GRM.SetReportWindow();
+                local channels = GRM.S().reportChannel[1];
+                for i = 1 , #GRM.S().reportChannel do
+                    channels = channels .. ", " .. GRM.S().reportChannel[i];
+                end
+                reportMsg = GRM.L ( "GRM will now only send messages to the following channels:" ) .. " " .. channels;
+            else
+                GRM.S().reportChannel = {};
+                GRM_G.Chat = {DEFAULT_CHAT_FRAME};
+                reportMsg = GRM.L ( "GRM will now send all messages to the default \"{name}\" channel" , DEFAULT_CHAT_FRAME.name);
+            end
+
+            GRM.Report( reportMsg );
+        end
+
+        local text = "";
+        local buttonText = "";
+        if #channels == 1 then
+            text = GRM.L ( "\"{name}\" Custom Chat Window for GRM appears to be missing." , channels[1] ) .. "\n\n" .. GRM.L ( "Would you like to recreate this chat window for messages unique to the GRM addon?" );
+            buttonText = GRM.L ( "Add Channel" );
+        else
+            local missingChannels = channels[1];
+            for i = 2 ,#channels do
+                missingChannels = missingChannels .. ", " .. channels[i];
+            end
+            text = GRM.L ( "The following Custom Chat Windows for GRM appear to be missing:" ) .. "\n" .. missingChannels .. "\n\n" .. GRM.L ("Would you like to recreate these chat windows for messages unique to the GRM addon?" );
+            buttonText = GRM.L ("Add Channels" );
+        end
+
+        local cancelButtonText = "";
+
+        -- Quality of life, let's get that cancel button to say clear messaging
+        if #channels == 1 then
+            if #GRM.S().reportChannel == 1 then
+                cancelButtonText = GRM.L ( "Set to {name}" , DEFAULT_CHAT_FRAME.name );
+            elseif #GRM.S().reportChannel == 2 then
+                local channelDef = "";
+                if GRM.S().reportChannel[1] == channels[1] then
+                    channelDef = GRM.S().reportChannel[2];
+                else
+                    channelDef = GRM.S().reportChannel[1];
+                end
+                cancelButtonText = GRM.L ( "Keep Only {name}" , channelDef )
+            else
+                -- Multiple tabs still found
+                cancelButtonText = GRM.L ("Ignore Missing");
+            end
+        else
+            if #channels == #GRM.S().reportChannel then
+                cancelButtonText = GRM.L ( "Set to {name}" , DEFAULT_CHAT_FRAME.name );
+            elseif #GRM.S().reportChannel == 3 then
+                -- This means 2 missing and 1 is not.
+                -- The one not found in the channels will be what's not missing
+                local found = false;
+                for i = 1, #GRM.S().reportChannel do
+                    found = false;
+                    for j = 1 , #channels do
+                        if channels[j] == GRM.S().reportChannel[i] then
+                            found = true;
+                            break;
+                        end
+                    end
+                    if not found then
+                        cancelButtonText = GRM.L ( "Keep Only {name}" , GRM.S().reportChannel[i] );
+                        break;
+                    end
+                end
+            else
+                -- Multiple tabs still found
+                cancelButtonText = GRM.L ("Ignore Missing");
+            end
+        end
+        GRM.InitiateConfirmFrame( text, createChatWindows , buttonText, cancelButtonText , resetChatToDefault, true , 350 , 175 , true);
     end
 end
 
@@ -22286,13 +22404,16 @@ end
 -- What it Does:    Configures the generic popup window for confirmation of an action
 -- Purpose:         Repeat use of the popup window without needing to keep copying and pasting the configuration window.
 GRM.InitiateConfirmFrame = function(InfoText, buttonFunction, button1Text, button2Text, cancelButtonFunction,
-    disableCloseFunctionOnHide, width, height)
+    disableCloseFunctionOnHide, width, height , scaleButton )
 
     local w = width or 275;
     local h = height or 120;
+    local buttonWidthDefault = 70
+    local b1Width = 0;
+    local b2Width = 0;
 
     GRM_UI.GRM_RosterConfirmFrame:SetSize(w, h);
-    GRM_UI.GRM_RosterConfirmFrameText:SetWidth(GRM_UI.GRM_RosterConfirmFrame:GetWidth() - 10);
+    GRM_UI.GRM_RosterConfirmFrameText:SetWidth(GRM_UI.GRM_RosterConfirmFrame:GetWidth() - 20);
 
     -- Configure info text
     if InfoText ~= nil and InfoText ~= "" then
@@ -22303,15 +22424,33 @@ GRM.InitiateConfirmFrame = function(InfoText, buttonFunction, button1Text, butto
     -- Yes Button
     if button1Text ~= nil and button1Text ~= "" then
         GRM_UI.GRM_RosterConfirmYesButtonText:SetText(button1Text);
+        if scaleButton then
+            b1Width = GRM_UI.ScaleButtonToFontStringSize ( GRM_UI.GRM_RosterConfirmYesButton , GRM_UI.GRM_RosterConfirmYesButtonText , 4 );
+        end
     else
         GRM_UI.GRM_RosterConfirmYesButtonText:SetText(GRM.L("Yes!"));
+        GRM_RosterConfirmYesButton:SetWidth ( buttonWidthDefault );
     end
     -- Cancel Button
     if button2Text ~= nil and button2Text ~= "" then
         GRM_UI.GRM_RosterConfirmCancelButtonText:SetText(button2Text);
+        if scaleButton then
+            b2Width = GRM_UI.ScaleButtonToFontStringSize ( GRM_UI.GRM_RosterConfirmCancelButton , GRM_UI.GRM_RosterConfirmCancelButtonText , 4 );
+        end
     else
         GRM_UI.GRM_RosterConfirmCancelButtonText:SetText(GRM.L("Cancel"));
+        GRM_RosterConfirmCancelButton:SetWidth ( buttonWidthDefault );
     end
+
+    -- Normalize button widths to be biggest
+    if b1Width ~= b2Width then
+        if b1Width > b2Width then
+            GRM_UI.GRM_RosterConfirmCancelButton:SetWidth ( b1Width );
+        else
+            GRM_UI.GRM_RosterConfirmYesButton:SetWidth ( b2Width );
+        end
+    end
+
     GRM_UI.GRM_RosterConfirmYesButton:SetScript("OnClick", function(_, button)
         if button == "LeftButton" then
             if buttonFunction ~= nil then

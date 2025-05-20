@@ -1062,6 +1062,10 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButtonText = 
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox = CreateFrame( "EditBox" , "GRM_SafeTextSearchEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InputBoxTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:ClearFocus();
 
+-- Safe Text - Apply to all notes, not just officer
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton = CreateFrame ( "CheckButton" , "GRM_SafeTextMatchAllNotesButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InterfaceOptionsCheckButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+
 -- Guild Reputation RULES
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton = CreateFrame ( "CheckButton" , "GRM_GuildRepRuleCheckButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InterfaceOptionsCheckButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
@@ -3446,6 +3450,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetText ( safeString2 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox.stringPattern = safeString2;
+
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor(1,.82,0);
                 else
                     GRM_UI.DisableSafeNoteMatch();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton:SetChecked ( false );
@@ -3453,6 +3460,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:Disable();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetText ( safeString2 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox.stringPattern = safeString2;
+
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor(0.5,0.5,0.5);
                 end
 
                 -- Ok let's reset
@@ -3584,6 +3594,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:Disable();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetText ( safeString2 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox.stringPattern = safeString2;
+
+                -- Safe Text Match - Search ALL notes
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Disable();
 
                 -- Custom Log Entry
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( false );
@@ -3968,6 +3983,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetText ( safeString2 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox.stringPattern = safeString2;
 
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Enable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor(1,.82,0);
+
                 else
                     GRM_UI.DisableSafeNoteMatch();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton:SetChecked ( false );
@@ -3975,6 +3993,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:Disable();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetText ( safeString2 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox.stringPattern = safeString2;
+
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Disable();
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor( 0.5 , 0.5 , 0.5 );
                 end
 
                 -- Ok let's reset
@@ -4140,6 +4161,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:Disable();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetText ( safeString2 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox.stringPattern = safeString2;
+
+                -- Safe Text Match - Search ALL notes
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Disable();
 
                 -- Custom Log Entry
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetChecked ( false );
@@ -5429,19 +5455,27 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.EnableSafeNoteMatch = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:Enable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetTextColor ( 1 , 1 , 1 );
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor ( 1 , 0.82 , 0 );
         end
 
         GRM_UI.DisableSafeNoteMatch = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:Disable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetTextColor ( 0.5 , 0.5 , 0.5  );
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
         end
 
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton:SetScript ( "OnEnter" , function( self )
-            GRM_UI.SetTooltipScale();
-            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            GameTooltip:AddLine ( GRM.L ( "This only searches the officer note for the safe tag" ) );
-            GameTooltip:Show();
+            if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.safeMatchAllNotes then
+                GRM_UI.SetTooltipScale();
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                GameTooltip:AddLine ( GRM.L ( "This only searches the officer note for the safe tag" ) );
+                GameTooltip:Show();
+            end
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton:SetScript ( "OnLeave" , function()
@@ -5508,8 +5542,20 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.RestoreTooltip();
         end);
 
+        -- Safe Note - Search ALL notes
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:SetPoint( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton , "BOTTOMRIGHT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton , "RIGHT" , 2 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor ( 1 , 0.82 , 0 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:SetScript ( "OnClick" , function( self )
+            if self:GetChecked() then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.safeMatchAllNotes = true;
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.safeMatchAllNotes = false;
+            end
+        end);
+
         -- CUSTOM REP
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton , "BOTTOMLEFT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton , "BOTTOMLEFT" , 0 , -5 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetScript ( "OnClick" , function( self )
             if self:GetChecked() then
@@ -5989,6 +6035,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButtonText:SetText ( GRM.L ( "Ignore Rule With Text Match" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton, GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButtonText );
+
+    -- Safe Text search ALL Notes
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetText ( GRM.L ( "Search Public, Officer, and Custom Notes for Safe tag" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton, GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText );
 
     -- Custom Log msg
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -8186,6 +8237,7 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
     result.sync = true;
     result.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
     result.safeText = "";
+    result.safeMatchAllNotes = false;
     result.safeMatch = false;
     result.GUID = "";
     result.mythicPlusFilter = false;
@@ -8261,6 +8313,7 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
     result.sync = true;
     result.createdBy = { GRM_G.addonUser , select ( 2 , UnitClass ("PLAYER") ) };
     result.safeText = "";
+    result.safeMatchAllNotes = false;
     result.safeMatch = false;
     result.GUID = "";
     result.mythicPlusFilter = false;
@@ -9772,10 +9825,26 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
 
                         -- Safe Note
                         if ruleConfirmedCheck and rule.safeMatch then
-                            if player.officerNote ~= nil and #player.officerNote > 0 then
+                            if player.officerNote and player.officerNote ~= "" then
 
                                 if string.find ( player.officerNote , rule.safeText , 1 , true ) then
                                     ruleConfirmedCheck = false;
+                                end
+                            end
+
+                            if ruleConfirmedCheck and rule.safeMatchAllNotes then
+                                if player.note and player.note ~= "" then
+
+                                    if string.find ( player.note , rule.safeText , 1 , true ) then
+                                        ruleConfirmedCheck = false;
+                                    end
+                                end
+
+                                if ruleConfirmedCheck and player.customNote[4] and player.customNote[4] ~= "" then
+
+                                    if string.find ( player.customNote[4] , rule.safeText , 1 , true ) then
+                                        ruleConfirmedCheck = false;
+                                    end
                                 end
                             end
 
@@ -9783,7 +9852,6 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
                                 table.insert ( tempRuleCollection , { "Safe Tag" , rule.safeText } );
                             end
                         end
-
 
                         if ruleConfirmedCheck then
 
@@ -10106,10 +10174,26 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
 
                     -- Safe Note
                     if ruleConfirmedCheck and rule.safeMatch then
-                        if player.officerNote ~= nil and #player.officerNote > 0 then
+                        if player.officerNote and player.officerNote ~= "" then
 
                             if string.find ( player.officerNote , rule.safeText , 1 , true ) then
                                 ruleConfirmedCheck = false;
+                            end
+                        end
+
+                        if ruleConfirmedCheck and rule.safeMatchAllNotes then
+                            if player.note and player.note ~= "" then
+
+                                if string.find ( player.note , rule.safeText , 1 , true ) then
+                                    ruleConfirmedCheck = false;
+                                end
+                            end
+
+                            if ruleConfirmedCheck and player.customNote[4] and player.customNote[4] ~= "" then
+
+                                if string.find ( player.customNote[4] , rule.safeText , 1 , true ) then
+                                    ruleConfirmedCheck = false;
+                                end
                             end
                         end
 
@@ -11326,7 +11410,8 @@ end);
 --     rule.GUID .. "?" ..                                         -- 31
 --     GRM.B2Num ( rule.mythicPlusFilter , false ) .. "?" ..       -- 32
 --     tostring ( rule.mythicRating ) .. "?" ..                    -- 33
---     tostring ( rule.mythicPlusOperator );                       -- 34
+--     tostring ( rule.mythicPlusOperator ) .. "?" ..              -- 34
+--     tostring ( rule.safeMatchAllNotes );                        -- 35
 
 --     return result;
 -- end
@@ -11373,7 +11458,8 @@ end);
 --     rule.GUID .. "?" ..                                         -- 33
 --     GRM.B2Num ( rule.mythicPlusFilter , false ) .. "?" ..       -- 34
 --     tostring ( rule.mythicRating ) .. "?" ..                    -- 35
---     tostring ( rule.mythicPlusOperator );                       -- 36
+--     tostring ( rule.mythicPlusOperator ) .. "?" ..              -- 36
+--     tostring ( rule.safeMatchAllNotes );                        -- 37
 
 --     return result;
 -- end
@@ -11416,7 +11502,8 @@ end);
 --     rule.GUID .. "?" ..                                         -- 29
 --     GRM.B2Num ( rule.mythicPlusFilter , false ) .. "?" ..       -- 30
 --     tostring ( rule.mythicRating ) .. "?" ..                    -- 31
---     tostring ( rule.mythicPlusOperator );                       -- 32
+--     tostring ( rule.mythicPlusOperator ) .. "?" ..              -- 32
+--     tostring ( rule.safeMatchAllNotes );                        -- 33
 
 
 --     return result;
@@ -11860,6 +11947,7 @@ end);
 --         rule.mythicPlusFilter = newRule[32];
 --         rule.mythicRating = newRule[33];
 --         rule.mythicPlusOperator = newRule[34];
+--         rule.safeMatchAllNotes = newRule[35];
 
 --     elseif ruleType == "promoteRules" then
 --         rule = GRM.BuildNewPromoteOrDemoteRuleTemplate ( nil , nil , 2 );
@@ -11895,6 +11983,7 @@ end);
 --         rule.mythicPlusFilter = newRule[34];
 --         rule.mythicRating = newRule[35];
 --         rule.mythicPlusOperator = newRule[36];
+--         rule.safeMatchAllNotes = newRule[37];
 
 --     elseif ruleType == "demoteRules" then
 --         rule = GRM.BuildNewPromoteOrDemoteRuleTemplate( nil , nil , 3 );
@@ -11926,6 +12015,7 @@ end);
 --         rule.mythicPlusFilter = newRule[30];
 --         rule.mythicRating = newRule[31];
 --         rule.mythicPlusOperator = newRule[32];
+--         rule.safeMatchAllNotes = newRule[33];
     -- elseif ruleType == "specialRules" then
     --     rule = GRM_Macro.BuildNewSpecialRuleTemplate( 4 , nil , nil );
     --     rule.ranks = newRule[1];
