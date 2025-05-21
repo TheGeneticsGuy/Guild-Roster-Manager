@@ -345,8 +345,10 @@ Scan.FinalizeRosterBuild = function( roster, orderedRoster, atLeastOne, count )
         else
             -- Normal processing for an existing, found guild
             GRM.G_Util.CheckGuildRanks(); -- Ensure this is safe to call now
-            Scan.ScanRecommendationsList(); -- Ensure this is safe
-            Scan.BaseScanningComplete_MoveToChanges( roster , orderedRoster );
+            Scan.ScanRecommendationsList_Async(); -- Ensure this is safe
+            C_Timer.After ( 0.1 , function()
+                Scan.BaseScanningComplete_MoveToChanges( roster , orderedRoster );
+            end);
         end
     else
         -- Case where no members were found or guild name is missing
@@ -361,7 +363,16 @@ end
 -- What it Does:    Allows the scanning for recommendations to be completely asynchronously and thne only to move on to here when done
 -- Purpose:         Prevent overload and stuttering in game when processing large guilds with many macro rules.
 Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
+
+    if Scan.currentScanState and Scan.currentScanState.isRunning then
+        C_Timer.After(0.1 , function()
+            Scan.BaseScanningComplete_MoveToChanges(roster , orderedRoster);
+        end);
+        return;
+    end
+
     print("Moving on to scan for changes")
+
     GRM_G.ThrottleControlNum = 1;   -- Reset throttle control if needed for CheckPlayerChanges
     GRM_G.newPlayers = {};          -- Reset for CheckPlayerChanges
     GRM_G.leavingPlayers = {};
@@ -372,7 +383,7 @@ Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
     -- Sort the ordered roster *before* passing to CheckPlayerChanges
     sort(orderedRoster);
 
-    C_Timer.After(0.2, function()
+    C_Timer.After(0.1, function()
         Scan.CheckPlayerChanges(roster, orderedRoster, 1);
     end);
 
@@ -3089,151 +3100,6 @@ Scan.GetNewerAccountByGUID = function ( guid1 , guid2 )
     return;
 end
 
--- Method           Scan.ScanRecommendationsList()
--- What it Does:    Builds recommend log messages and also reports them as needed
--- Purpose:         So player knows that it is time to kick a player.
-Scan.ScanRecommendationsList = function()
-    print("Scanning Recommendations")
-    -- Before we run this, let's validate the rules
-    GRM.RuleIntegrityCheck();
-
-    local playerRecommendation = {};
-    local ruleDisabledList = {};
-    local tempListOfNames = {};
-    local tempListOfNames2 = {};
-    local tempListOfNames3 = {};
-    local ruleNames = "";
-    local player;
-
-    if (time() - GRM_G.HoursTilRecommendRefresh) > 3599 then -- Only need to do once per hour, no more than that as it will not change often.
-        GRM_G.HoursTilRecommendRefresh = time();
-        Scan.RefreshNumberOfHoursTilRecommend();
-    end
-
-    -- Kick Recommendations
-    if CanGuildRemove() then -- No need to do the work and report if you cannot remove players
-        playerRecommendation , _ , ruleDisabledList = GRM.GetKickNamesByFilterRules();
-        tempListOfNames = {};
-        ruleNames = "";
-
-        for i = 1, #playerRecommendation do
-            tempListOfNames[playerRecommendation[i].name] = {}; -- Going to be used for validating in list or not.
-            ruleNames = Scan.GetRuleNameMatches(playerRecommendation[i]);
-
-            player = GRM.GetPlayer(playerRecommendation[i].name);
-            if not player.recommendToKick then
-                player.recommendToKick = true; -- This acts to prevent the repeat announcement to the log.\
-
-                GRM.Log.AddEventRecommendKickTempLogEntry(GRM.GetClassifiedName(playerRecommendation[i].name, true),
-                    #playerRecommendation[i], GRM.Time.GetTimestamp(), ruleNames);
-            end
-
-        end
-
-        -- Clear all names NOT on this list.
-        for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendToKick and tempListOfNames[p.name] == nil and not ruleDisabledList[p.name] then
-                p.recommendToKick = false;
-            end
-        end
-    end
-
-    -- Promotion Recommendations
-    if CanGuildPromote() then -- No need to do the work and report if you cannot remove players
-        playerRecommendation , _ , ruleDisabledList = GRM.GetPromoteAndDemoteNamesByFilterRules(2);
-        tempListOfNames = {};
-        ruleNames = "";
-
-        for i = 1, #playerRecommendation do
-            tempListOfNames[playerRecommendation[i].name] = {}; -- Going to be used for validating in list or not.
-            ruleNames = Scan.GetRuleNameMatches(playerRecommendation[i]);
-
-            player = GRM.GetPlayer(playerRecommendation[i].name);
-            if not player.recommendToPromote then
-                player.recommendToPromote = true; -- This acts to prevent the repeat announcement to the log.
-                GRM.Log.AddEventRecommendPromotionLogEntry(GRM.GetClassifiedName(playerRecommendation[i].name, true),
-                    #playerRecommendation[i], GRM.Time.GetTimestamp(), ruleNames);
-            end
-
-        end
-
-        -- Clear all names NOT on this list.
-        for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendToPromote and tempListOfNames[p.name] == nil and not ruleDisabledList[p.name] then
-                p.recommendToPromote = false;
-            end
-        end
-    end
-
-    -- Demotion Recommendations
-    if CanGuildDemote() then -- No need to do the work and report if you cannot remove players
-        playerRecommendation , _ , ruleDisabledList = GRM.GetPromoteAndDemoteNamesByFilterRules(3);
-        ruleNames = "";
-
-        for i = 1, #playerRecommendation do
-            tempListOfNames2[playerRecommendation[i].name] = {}; -- Going to be used for validating in list or not.
-            ruleNames = Scan.GetRuleNameMatches(playerRecommendation[i]);
-
-            player = GRM.GetPlayer(playerRecommendation[i].name);
-            if not player.recommendToDemote then
-                player.recommendToDemote = true; -- This acts to prevent the repeat announcement to the log.
-                GRM.Log.AddEventRecommendDemotionLogEntry(GRM.GetClassifiedName(playerRecommendation[i].name, true),
-                    #playerRecommendation[i], GRM.Time.GetTimestamp(), ruleNames);
-            end
-
-        end
-
-        -- Clear all names NOT on this list.
-        for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendToDemote and tempListOfNames2[p.name] == nil and not ruleDisabledList[p.name] then
-                p.recommendToDemote = false;
-            end
-        end
-    end
-
-    if CanGuildDemote() and CanGuildPromote() then
-        playerRecommendation , _ , ruleDisabledList = GRM_UI.GetNamesBySpecialRules();
-        local c = 0;
-        local c2 = 0;
-        local f1 = 0; -- f1 are the actually TOTAL numbers needing special. C represents unannounced so far to log.
-        local f2 = 0;
-
-        for i = 1, #playerRecommendation do
-            tempListOfNames3[playerRecommendation[i].name] = {}; -- Going to be used for validating in list or not.
-            player = GRM.GetPlayer(playerRecommendation[i].name);
-
-            if playerRecommendation[i].action == "Promote" then
-
-                if not player.recommendSpecial then
-                    player.recommendSpecial = true; -- This acts to prevent the repeat announcement to the log.
-                    c = c + 1;
-                end
-                f1 = f1 + 1;
-
-            elseif playerRecommendation[i].action == "Demote" then
-
-                if not player.recommendSpecial then
-                    player.recommendSpecial = true; -- This acts to prevent the repeat announcement to the log.
-                    c2 = c2 + 1;
-                end
-                f2 = f2 + 1;
-
-            end
-        end
-
-        if c > 0 or c2 > 0 then
-            GRM.Log.AddEventRecommendSpecialLogEntry(f1, f2, GRM.Time.GetTimestamp());
-        end
-
-        -- Clear all names NOT on this list.
-        for _, p in pairs(GRM.GetGuild()) do
-            if type(p) == "table" and p.recommendSpecial and tempListOfNames3[p.name] == nil and not ruleDisabledList[p.name] then
-                p.recommendSpecial = false;
-            end
-        end
-    end
-end
-
 -- Method:          Scan.GetRuleNameMatches ( table )
 -- What it Does:    Returns an array of strings of the given player's matching ruels
 -- Purpose:         Log reporting
@@ -3251,6 +3117,10 @@ end
 Scan.currentScanState = nil
 
 -- === Main entry point for scanning recommendations ===
+-- Method:          Scan.ScanRecommendationsList_Async()
+-- What it Does:    Scans through all of the macro rules for matches against the guild players
+-- Purpose:         Efficient, Async similated behavior to break the process into chunks to ensure
+--                  no stutter on the main thread.
 Scan.ScanRecommendationsList_Async = function()
     if Scan.currentScanState and Scan.currentScanState.isRunning then
         print("GRM Scan: Scan already in progress.")
@@ -3315,6 +3185,11 @@ Scan.ScanRecommendationsList_Async = function()
 end
 
 -- === Core chunk processing function ===
+-- Method:          Scan.ProcessNextMacroRuleChunk()
+-- What it Does:    Used to handle the asynchronous scanning of all of the macro rule matches
+-- Purpose:         Since Lua is all run in the "main thread" and is not multi-threaded, this could cause
+--                  stutter when processing a large amount of data, so instead it is better to process it
+--                  all in smaller "chunks." This functions helps control the flow of that processing.
 Scan.ProcessNextMacroRuleChunk = function()
     local state = Scan.currentScanState
     -- Exit if no active scan or state is lost
@@ -3325,7 +3200,7 @@ Scan.ProcessNextMacroRuleChunk = function()
 
     -- Helper to safely get player object
     local function getPlayerSafe(name)
-        return GRM.GetPlayer(name) -- Assumes GRM.GetPlayer handles unknown names gracefully (e.g., returns nil)
+        return GRM.GetPlayer(name)
     end
 
     -- Helper to advance to the next major category (Kick -> Promote -> Demote -> Special -> Finish)
@@ -3421,15 +3296,13 @@ Scan.ProcessNextMacroRuleChunk = function()
     end
 
     if state.stage == "KICK_CLEAR_FLAGS_CHUNK" then
-        -- Iterate through all guild members to clear flags
+        -- Iterate through all guild members to clear flags if rule disabled or removed
         local processedInChunk = 0
         for i = state.processingIndex, math.min(state.processingIndex + state.chunkSize - 1, #state.allGuildPlayerNames) do
             local playerName = state.allGuildPlayerNames[i]
             player = getPlayerSafe(playerName)
 
-            if player and type(player) == "table" and player.recommendToKick and
-               not state.tempNamesForMarking[player.name] and -- Not on the fresh kick list
-               not (state.currentRuleDisabledList and state.currentRuleDisabledList[player.name]) then -- And not rule-disabled
+            if player and player.recommendToKick and not state.tempNamesForMarking[player.name] then
                 player.recommendToKick = false
             end
             processedInChunk = processedInChunk + 1
@@ -3502,9 +3375,7 @@ Scan.ProcessNextMacroRuleChunk = function()
         for i = state.processingIndex, math.min(state.processingIndex + state.chunkSize - 1, #state.allGuildPlayerNames) do
             local playerName = state.allGuildPlayerNames[i]
             player = getPlayerSafe(playerName)
-            if player and type(player) == "table" and player.recommendToPromote and
-               not state.tempNamesForMarking[player.name] and
-               not (state.currentRuleDisabledList and state.currentRuleDisabledList[player.name]) then
+            if player and player.recommendToPromote and not state.tempNamesForMarking[player.name] then
                 player.recommendToPromote = false
             end
             processedInChunk = processedInChunk + 1
@@ -3575,9 +3446,7 @@ Scan.ProcessNextMacroRuleChunk = function()
         for i = state.processingIndex, math.min(state.processingIndex + state.chunkSize - 1, #state.allGuildPlayerNames) do
             local playerName = state.allGuildPlayerNames[i]
             player = getPlayerSafe(playerName)
-            if player and type(player) == "table" and player.recommendToDemote and
-               not state.tempNamesForMarking[player.name] and
-               not (state.currentRuleDisabledList and state.currentRuleDisabledList[player.name]) then
+            if player and player.recommendToDemote and not state.tempNamesForMarking[player.name] then
                 player.recommendToDemote = false
             end
             processedInChunk = processedInChunk + 1
@@ -3668,9 +3537,7 @@ Scan.ProcessNextMacroRuleChunk = function()
         for i = state.processingIndex, math.min(state.processingIndex + state.chunkSize - 1, #state.allGuildPlayerNames) do
             local playerName = state.allGuildPlayerNames[i]
             player = getPlayerSafe(playerName)
-            if player and type(player) == "table" and player.recommendSpecial and
-               not state.tempNamesForMarking[player.name] and
-               not (state.currentRuleDisabledList and state.currentRuleDisabledList[player.name]) then
+            if player and player.recommendSpecial and not state.tempNamesForMarking[player.name] then
                 player.recommendSpecial = false
             end
             processedInChunk = processedInChunk + 1
@@ -3689,12 +3556,17 @@ Scan.ProcessNextMacroRuleChunk = function()
     if state.stage == "FINISH" then
         print("GRM Scan: All Recommendations Processed. Scan Complete.")
         state.isRunning = false
-        Scan.currentScanState = nil; -- Clearing for garbage collection
+        Scan.currentScanState = nil; -- Clearing for garbage collection as it's a LOT of data
+        if GRM_G.FullMacroToolRefresh then
+            GRM_G.FullMacroToolRefresh = false;
+            GRM_UI.FullMacroToolRefresh();
+        end
         return
     end
-
-    -- Fallback: Should not be reached if all stages correctly transition..0
+    -- Fallback: Should not be reached if all stages correctly transition..
+    GRM_G.FullMacroToolRefresh = false;
     state.isRunning = false -- Halt to prevent infinite loops on unknown state
+    Scan.currentScanState = nil;
 end
 
 Scan.GetRuleNameMatchesChunk = function(playerRec)
@@ -3707,7 +3579,9 @@ Scan.GetRuleNameMatchesChunk = function(playerRec)
                 table.insert(result, playerRec[i][1]);
             else
                 -- ERROR!!!
-                -- print("GRM Scan.GetRuleNameMatchesChunk: Warning - rule format unexpected for playerRec index " .. i)
+                if GRM_G.DebugEnabled then
+                    print("GRM Scan.GetRuleNameMatchesChunk: Warning - rule format unexpected for playerRec index " .. i)
+                end
             end
         end
     end

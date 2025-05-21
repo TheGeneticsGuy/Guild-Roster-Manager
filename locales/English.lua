@@ -1919,6 +1919,7 @@ GRML.English = function()
     GRM_L["GRM will now only send messages to the following channels:"] = true
     GRM_L["Ignore Missing"] = true
     GRM_L["Search Public, Officer, and Custom Notes for Safe tag"] = true
+    GRM_L["Re-scanning roster for rule match."] = true
 
 
 end

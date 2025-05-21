@@ -7,6 +7,7 @@ GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();  -- Need to load this at star
 -- Useful globals for async function status control
 GRM_G.RefreshMacroToolText = false;                 -- Indication after async action to refresh certain frames
 GRM_G.countingScanState = nil;
+GRM_G.fullMacroToolRefresh = false;
 
 GRM_UI.BuildSpcialRules = function()
 
@@ -1127,12 +1128,15 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_U
 -- What it Does:    Activates and Deactivates all the rules in that category
 -- Purpose:         Quality of life convenience to enable or disable all rules.
 GRM_R.SelectAllRuleLogic = function( self )
+    GRM.ClearQuedAndMacroFrames();
+
     if self:GetChecked() then
         -- Enable all
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Disable All" ) );
         for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
             rule.isEnabled = true;
         end
+        GRM.Report(GRM.L("Re-scanning roster for rule match."));    -- Only need to state this if at least 1 rule enabled
     else
         -- Disable all
         GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
@@ -1140,7 +1144,10 @@ GRM_R.SelectAllRuleLogic = function( self )
             rule.isEnabled = false;
         end
     end
-    GRM_UI.RefreshManagementTool();
+    GRM_UI.LoadRulesUI();
+    GRM_G.FullMacroToolRefresh = true;
+    GRM.Scan.ScanRecommendationsList_Async();
+
 end
 
 GRM_UI.CreateCheckBox ( "GRM_MacroRuleSelectAllCheckBox" , GRM_UI.GRM_ToolCoreFrame , nil , {26,26} , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "BOTTOMLEFT" , 15 , 5 } , GRM_R.SelectAllRuleLogic , GRM.L ( "Enable All" ) , "GameFontNormal" , 11 );
@@ -1338,7 +1345,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
-            GRM.Scan.ScanRecommendationsList();
+            GRM.Scan.ScanRecommendationsList_Async();
         end);
 
         -- Text
@@ -6275,6 +6282,122 @@ GRM.GetQueuedEntries = function ()
     return result;
 end
 
+GRM.queuedEntriesScanState = nil;
+
+-- Method:          GRM.StartQueuedEntriesScan()
+-- What it Does:    Initiates an async scan for the currently selected rule tab.
+--                  Calls callbackOnComplete(resultList) when done.
+-- Purpose:         To populate GRM_UI.GRM_ToolCoreFrame.QueuedEntries asynchronously.
+GRM.StartQueuedEntriesScan = function()
+    if GRM.queuedEntriesScanState and GRM.queuedEntriesScanState.isRunning then
+        print("GRM Queued Entries Scan: Scan already in progress.");
+        return;
+    end
+
+    print("GRM Queued Entries Scan: Initiating...");
+
+    local tabPosition = GRM_UI.GRM_ToolCoreFrame.TabPosition;
+    local categoryToScan = nil; -- 1:Kick, 2:Promote, 3:Demote, 4:Special
+    local ruleFunctionName = ""; -- Initialized
+
+    if tabPosition == 1 and CanGuildRemove() then
+        categoryToScan = 1;
+        ruleFunctionName = "GetKickNamesByFilterRules";
+    elseif tabPosition == 2 and CanGuildPromote() then
+        categoryToScan = 2;
+        ruleFunctionName = "GetPromoteAndDemoteNamesByFilterRules (Promote)";
+    elseif tabPosition == 3 and CanGuildDemote() then
+        categoryToScan = 3;
+        ruleFunctionName = "GetPromoteAndDemoteNamesByFilterRules (Demote)";
+    elseif tabPosition == 4 and CanGuildPromote() and CanGuildDemote() then -- Both needed for special
+        categoryToScan = 4;
+        ruleFunctionName = "GetNamesBySpecialRules";
+    end
+
+    if not categoryToScan then
+        print("GRM Queued Entries Scan: No valid category to scan or permissions lacking for tab " .. tabPosition);
+        GRM.DoBuildScrollFrameWithEntries({}); -- Return empty list
+        return;
+    end
+
+    print("GRM Queued Entries Scan: Category determined - " .. ruleFunctionName);
+
+    local allGuildPlayerNamesSorted = GRM.G_Util.GetSortedPlayerNames(); -- Ensure this is accessible
+    if #allGuildPlayerNamesSorted <= 1 then
+        print("GRM Queued Entries Scan: No guild members to process.");
+        GRM.DoBuildScrollFrameWithEntries({});
+        return;
+    end
+
+    local includeHigherAlt = false;
+    local highest = nil; -- Not relevant if includeHigherAlt is false
+
+    GRM.queuedEntriesScanState = {
+        isRunning = true,
+        allNames = allGuildPlayerNamesSorted,
+        chunkSize = 75,
+        currentIndex = 1,
+        category = categoryToScan,
+        ruleFunctionName = ruleFunctionName,
+
+        includeHigherAlt = includeHigherAlt,
+        highest = highest,
+
+        accumulatedResults = {},
+    };
+
+    C_Timer.After(0, GRM.ProcessNextQueuedEntriesChunk);
+end
+
+-- Helper to process chunks for a single category for QueuedEntries
+GRM.ProcessNextQueuedEntriesChunk = function()
+    local state = GRM.queuedEntriesScanState;
+    if not state or not state.isRunning then return; end
+
+    local recommendationsInChunk; -- For this scan, we only care about the primary list, not higherAltCount or disabledList.
+
+    if state.currentIndex <= #state.allNames then
+        print("GRM Queued Entries Scan: Processing chunk for " .. state.ruleFunctionName .. ", index " .. state.currentIndex);
+        if state.category == 1 then
+            recommendationsInChunk, _, _ = GRM.GetKickNamesByFilterRulesChunk(
+                state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+            );
+        elseif state.category == 2 then
+            recommendationsInChunk, _, _ = GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(
+                2, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+            );
+        elseif state.category == 3 then
+            recommendationsInChunk, _, _ = GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(
+                3, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+            );
+        elseif state.category == 4 then
+            recommendationsInChunk, _, _ = GRM_UI.GetNamesBySpecialRulesChunk(
+                state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
+            );
+        end
+
+        if recommendationsInChunk and #recommendationsInChunk > 0 then
+            for _, item in ipairs(recommendationsInChunk) do
+                table.insert(state.accumulatedResults, item);
+            end
+        end
+        state.currentIndex = state.currentIndex + state.chunkSize;
+        C_Timer.After(0, GRM.ProcessNextQueuedEntriesChunk);
+    else
+        -- All chunks for this category processed
+        print("GRM Queued Entries Scan: Finished processing for " .. state.ruleFunctionName .. ". Total items: " .. #state.accumulatedResults);
+        state.isRunning = false;
+        print("Sending my results " .. #state.accumulatedResults)
+        state.accumulatedResults = GRM.SortAltsUnderMain(state.accumulatedResults);
+        GRM.DoBuildScrollFrameWithEntries(GRM.Util.DeepCopyArray(state.accumulatedResults));
+        -- GRM.queuedEntriesScanState = nil; -- Clear state
+    end
+end
+-- /run GRM.ClearQuedAndMacroFrames();
+-- /run GRM.InitializeQuedScrollFrame(true,true)
+-- /dump GRM.queuedEntriesScanState.accumulatedResults
+-- /run for x in pairs(GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1]) do print(x) end for x in pairs(GRM.queuedEntriesScanState.accumulatedResults[1]) do print(x) end
+
 -- Method:          GRM.GetListOfQueuedNames()
 -- What it Does:    Returns the list of names in the qued list.
 -- Purpose:         So the player can easily export the names as needed.
@@ -6542,7 +6665,163 @@ GRM.TriggerKickQueuedWindowRefresh = function()
     GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 end
 
--- Method:          GRM.BuildQueuedScrollFrame( bool , bool , bool )
+-- Method:          GRM.ClearQuedAndMacroFrames()
+-- What it Does:    Quickly clears the existing frames so that they can be reloaded
+-- Purpose:         Useful for async calls so people don't press any buttons whilst brief async function runs
+GRM.ClearQuedAndMacroFrames = function()
+    GRM_UI.GRM_ToolCoreFrame.QueuedEntries = {};
+    GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
+    GRM.BuildQueuedScrollFrame ( false , false );
+    GRM.BuildMacrodScrollFrame ( true , false );
+end
+
+GRM.DoBuildScrollFrameWithEntries = function(queuedEntriesList)
+    local hybridScrollFrameButtonCount = 13;
+    local buttonHeight = 25;
+    local scrollHeight = 0;
+    local buttonWidth = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame:GetWidth() - 5;
+
+    print("Queued Entries: " .. #queuedEntriesList)
+    -- Ensure the list is not nil, default to empty table if it is
+    GRM_UI.GRM_ToolCoreFrame.QueuedEntries = queuedEntriesList or {};
+
+    -- Initialize these UI elements if they haven't been
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons or {};
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset or hybridScrollFrameButtonCount;
+
+    -- Adjust offset bounds
+    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset < hybridScrollFrameButtonCount then
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = math.max(hybridScrollFrameButtonCount, #GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
+        if #GRM_UI.GRM_ToolCoreFrame.QueuedEntries == 0 then -- if no entries, offset should allow showing 0
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = hybridScrollFrameButtonCount;
+        elseif #GRM_UI.GRM_ToolCoreFrame.QueuedEntries < hybridScrollFrameButtonCount then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = hybridScrollFrameButtonCount;
+        end
+    elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset > #GRM_UI.GRM_ToolCoreFrame.QueuedEntries and #GRM_UI.GRM_ToolCoreFrame.QueuedEntries >= hybridScrollFrameButtonCount then
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
+    elseif #GRM_UI.GRM_ToolCoreFrame.QueuedEntries < hybridScrollFrameButtonCount then -- if less entries than buttons can show
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = hybridScrollFrameButtonCount;
+    end
+
+    scrollHeight = 0; -- Reset scrollHeight for this build
+
+    for i = 1, math.max(#GRM_UI.GRM_ToolCoreFrame.QueuedEntries, hybridScrollFrameButtonCount) do
+        -- Build HybridScrollFrame Buttons
+        if i <= hybridScrollFrameButtonCount then
+            if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i] then
+                local buttonFrame = CreateFrame ( "Button", "GRM_ToolQueuedScrollFrameButton" .. i, GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame);
+
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i] = {
+                    buttonFrame,
+                    buttonFrame:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"), -- Name
+                    buttonFrame:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")  -- Reason/Details
+                };
+
+                -- Setup FontString positions
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i][2]:SetPoint("LEFT", buttonFrame, "LEFT", 5, 0);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i][3]:SetPoint("RIGHT", buttonFrame, "RIGHT", -5, 0);
+
+
+                if i == 1 then
+                    buttonFrame:SetPoint("TOPLEFT", GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame, "TOPLEFT", 7, 0);
+                else
+                    buttonFrame:SetPoint("TOPLEFT", GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i - 1][1], "BOTTOMLEFT", 0, 0);
+                end
+
+                buttonFrame:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
+                buttonFrame:SetSize(buttonWidth, buttonHeight);
+                GRM.BuildKickQueuedScrollButtons(i, false);
+            end
+        end
+
+        -- This part populates visible buttons
+        local displayButtonIndex = i; -- This is the actual button index
+        local dataEntryIndex = (GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset - hybridScrollFrameButtonCount) + displayButtonIndex;
+
+        if displayButtonIndex <= hybridScrollFrameButtonCount then -- Only try to access existing buttons
+            local buttonElements = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[displayButtonIndex];
+            if buttonElements then
+                if dataEntryIndex >= 1 and dataEntryIndex <= #GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
+                    GRM.SetKickQueuedValues(displayButtonIndex, dataEntryIndex);
+                    buttonElements[1]:Show();
+                else
+                    buttonElements[1]:Hide();
+                end
+            end
+        end
+    end
+
+    -- Calculate scrollHeight based on actual entries
+    scrollHeight = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries * buttonHeight;
+
+    GRM.SetHybridScrollFrameSliderParameters(
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame, GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame, GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder,
+        buttonWidth, buttonHeight, scrollHeight, #GRM_UI.GRM_ToolCoreFrame.QueuedEntries, GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons,
+        GRM.KickQueuedHybridShiftDown, GRM.KickQueuedHybridShiftUp, hybridScrollFrameButtonCount
+    );
+
+    if #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > hybridScrollFrameButtonCount then
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:Show();
+    else
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:Hide();
+    end
+
+    if #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > 0 then
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetText(GRM.L("Click to Build Macro"));
+    else
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetText(GRM.L("No Current Names to Add"));
+    end
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2:SetText(#GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetText(#GRM_UI.GRM_ToolCoreFrame.Safe);
+
+    print("GRM UI: QueuedScrollFrame built/updated with " .. #GRM_UI.GRM_ToolCoreFrame.QueuedEntries .. " entries.");
+end
+
+-- Method:          GRM.InitializeQuedScrollFrame( bool , bool , bool , bool , bool , table )
+-- What it Does:    Updates the Queued scrollframe as needed. Handles async data fetching.
+-- Purpose:         UX of the GRM mass kick tool
+GRM.InitializeQuedScrollFrame = function(showAll, fullRefresh, isBanAltList, bannedInGuildList, customGroup, customGroupTable)
+
+    -- Main logic starts here
+    if showAll and fullRefresh then
+        GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {}; -- Reset validated names
+
+        if not isBanAltList and not bannedInGuildList and not customGroup then
+            -- Asynchronous fetching for default rules
+            print("GRM.BuildQueuedScrollFrame: Fetching default queued entries asynchronously...");
+            -- GRM_UI.ShowLoadingSpinner();
+
+            GRM.StartQueuedEntriesScan();
+        else
+            -- Synchronous cases for ban lists or custom groups
+            local syncList = {};
+            if isBanAltList then
+                syncList = GRM.Util.DeepCopyArray(GRM_G.KickAllAltsTable or {});
+                GRM_G.KickAllAltsTable = {};
+            elseif bannedInGuildList then
+                syncList = GRM.Util.DeepCopyArray(GRM_G.KickAllBannedTable or {});
+                GRM_G.KickAllBannedTable = {};
+            elseif customGroup then
+                if not customGroupTable then
+                    syncList = GRM.Util.DeepCopyArray(GRM_G.customKickList or {});
+                    GRM_G.customKickList = {};
+                else
+                    syncList = GRM.Util.DeepCopyArray(customGroupTable or {});
+                end
+            end
+            GRM.DoBuildScrollFrameWithEntries(syncList);
+        end
+    else
+        if GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
+             GRM.DoBuildScrollFrameWithEntries(GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
+        else
+            GRM.DoBuildScrollFrameWithEntries({}); -- Build with empty to be safe
+        end
+    end
+end
+
+-- Method:          GRM.BuildQueuedScrollFrame( bool , bool , bool , bool , bool , table )
 -- What it Does:    Updates the Queued scrollframe as needed
 -- Purpose:         UX of the GRM mass kick tool
 GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , bannedInGuildList , customGroup , customGroupTable )
@@ -8883,7 +9162,10 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                     GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]][ruleName].isEnabled = false;
                     refreshTooltip( self );
                 end
-                GRM_UI.FullMacroToolRefresh();
+                GRM.Report(GRM.L("Re-scanning roster for rule match."))
+                GRM_G.FullMacroToolRefresh = true;
+                GRM.ClearQuedAndMacroFrames();
+                GRM.Scan.ScanRecommendationsList_Async();
             end
         end);
 
@@ -9624,7 +9906,7 @@ end
 -- Method:          GRM.GetKickNamesByFilterRulesChunk (table, number, number, boolean|nil, table|nil)
 -- What it Does:    Gets the names that adhere to the given rules for a specific chunk of players,
 --                  optionally considering what a higher-ranked alt could do.
--- Purpose:         To populate kick recommendations for ScanRecommendationsList and provide counts for tools.
+-- Purpose:         To populate kick recommendations for ScanRecommendationsList_Async and provide counts for tools.
 GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
     local recommendationsForThisChunk = {}; -- For current char's actions
     local ruleDisabledListForThisChunk = {};
@@ -9830,6 +10112,7 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                             table.insert(tempRuleCollection, { "Safe Tag", rule.safeText });
                         end
                     end
+
                     -- === End of existing rule filter logic ===
 
                     if ruleConfirmedCheck then
@@ -9837,10 +10120,17 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                             if not player.safeList or not player.safeList.kick or not player.safeList.kick[1] then
                                 if not isActionForHigherAltOnly then
                                     if not playerRecommendationEntry then
+
                                         playerRecommendationEntry = GetOrAddPlayerRecEntry(recommendationsForThisChunk, player.name, player.class);
+
                                         if player.lastOnline and not playerRecommendationEntry.lastOnline then
                                              playerRecommendationEntry.lastOnline = player.lastOnline;
                                         end
+
+                                        playerRecommendationEntry.customMsg = rule.customLogMsg;
+                                        playerRecommendationEntry.isHighlighted = false;
+                                        playerRecommendationEntry.tab = false;
+
                                     end
                                     table.insert(playerRecommendationEntry, { rule.name, tempRuleCollection });
                                 else
@@ -9861,7 +10151,7 @@ end
 
 -- Method:          GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(ruleTypeIndex, allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
 -- What it Does:    Collects promote/demote recommendations for a chunk, optionally considering higher alts.
--- Purpose:         For ScanRecommendationsList and tool counts.
+-- Purpose:         For ScanRecommendationsList_Async and tool counts.
 GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
     local recommendationsForThisChunk = {};
     local ruleDisabledListForThisChunk = {};
@@ -9879,7 +10169,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
         return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
     end
 
-    local function GetOrAddPlayerRecEntry(list, playerName, playerClass, playerLastOnline, actionType, macroCmd, destRankIndex, mainName)
+    local function GetOrAddPlayerRecEntry(list, playerName, playerClass, playerLastOnline, actionType, macroCmd, destRankIndex, mainName , customMsg )
         for _, pEntry in ipairs(list) do
             if pEntry.name == playerName then
                 return pEntry;
@@ -9893,6 +10183,8 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
             macro = macroCmd,
             rankIndex = destRankIndex, -- Destination rank index for the macro
             mainName = mainName,
+            customMsg = customMsg,
+            isHighlighted = false
         };
         table.insert(list, newEntry);
         return newEntry;
@@ -9901,7 +10193,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
     local tempRuleCollection;
     local ruleConfirmedCheck;
     local macroAction = { [2] = "/gpromote", [3] = "/gdemote" };
-    local rankDestinationText = { [2] = GRM.L("Promote to Rank:"), [3] = GRM.L("Demote to Rank:") }; -- Using descriptive names
+    local rankDestinationText = { [2] = GRM.L("Promote to Rank:"), [3] = GRM.L("Demote to Rank:") };
 
     local endIndex = math.min(startIndex + chunkSize - 1, #allPlayerNamesSorted);
 
@@ -9928,6 +10220,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                 ruleConfirmedCheck = true;
                 tempRuleCollection = {};
                 local isActionForHigherAltOnly = false;
+                local canMove, numRankMoves = false , 0;
 
                 -- Permission and Rank Checks
                 local canCurrentCharacterAct = false;
@@ -9960,7 +10253,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                 end
 
                 if processThisRuleForPlayer then
-                    local canMove, numRankMoves = GRM_UI.PlayerCanBeMoved(player.rankIndex, (rule.destinationRank - 1), rule.ruleType, isActionForHigherAltOnly, highest);
+                    canMove, numRankMoves = GRM_UI.PlayerCanBeMoved(player.rankIndex, (rule.destinationRank - 1), rule.ruleType, isActionForHigherAltOnly, highest);
 
                     if not canMove then
                         processThisRuleForPlayer = false; -- If player cannot be moved to destination rank
@@ -10113,7 +10406,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                                             playerRecommendationEntry = GetOrAddPlayerRecEntry(
                                                 recommendationsForThisChunk, player.name, player.class, player.lastOnline,
                                                 GRM_UI.ruleTypeEnum3[rule.ruleType], macroAction[rule.ruleType],
-                                                rule.destinationRank - 1, GRM.GetFormattedMainName(player, true)
+                                                rule.destinationRank - 1, GRM.GetFormattedMainName(player, true) , rule.customLogMsg
                                             );
 
                                             if not playerRecommendationEntry.numRankJumps or playerRecommendationEntry.numRankJumps < numRankMoves then
@@ -10139,7 +10432,7 @@ end
 
 -- Method:          GRM_UI.GetNamesBySpecialRulesChunk(allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
 -- What it Does:    Returns special rule matches for a chunk, optionally considering higher alts.
--- Purpose:         For ScanRecommendationsList and tool counts.
+-- Purpose:         For ScanRecommendationsList_Async and tool counts.
 GRM_UI.GetNamesBySpecialRulesChunk = function(allPlayerNamesSorted, startIndex, chunkSize, includeHigherAlt, highest)
     local recommendationsForThisChunk = {};
     local ruleDisabledListForThisChunk = {};
@@ -11429,108 +11722,6 @@ GRM.RefreshMacroToolRuleCount = function()
     end
 end
 
--- -- RULES!!!
--- -- Method:          GRM.GetCountOfNamesBeingFiltered()
--- -- What it Does:    Returns the number of names rules apply to
--- -- Purpose:         Refreshes the names
--- GRM.GetCountOfNamesBeingFiltered = function()
---     local listOfNames = {};
---     local higherAltCount = 0;
---     local k , p , d , s = 0 , 0 , 0 , 0;    -- Kick , Promote , Demote , Special
---     local k2 , p2, d2 , s2 = 0 , 0 , 0 , 0; -- Higher alt's kick, promote, demote, special count on top
---     local highest = GRM_UI.GetYourOwnAltHighestRank();
---     local canPromote = CanGuildPromote();
---     local canDemote = CanGuildDemote();
---     local canRemove = CanGuildRemove();
---     local includeHigherAlt = false;
-
---     if not GRM_G.playerRankID then
---         GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
---     end
-
---     if highest[1] ~= GRM_G.playerRankID then
---         local Promote, Demote, Remove = GRM.GetPlayerRankPermissions( nil , highest[1] );
-
---         if Promote and not canPromote then
---             canPromote = Promote;
---         end
-
---         if Demote and not canDemote then
---             canDemote = Demote;
---         end
-
---         if Remove and not canRemove then
---             canRemove = Remove;
---         end
-
---         includeHigherAlt = true;
---     end
-
-
---     -- Add Remove Names
---     if canRemove then
-
---         if time() - GRM_G.countAction[1] > 0.25 then
---             listOfNames , higherAltCount = GRM.GetKickNamesByFilterRules( includeHigherAlt , highest );
---             k = GRM.Util.TableLength ( listOfNames );
---             k2 = higherAltCount
---             GRM_G.counts[1][1] = k;
---             GRM_G.counts[1][2] = k2;
-
---         else
---             k = GRM_G.counts[1][1];
---             k2 = GRM_G.counts[1][2];
---         end
-
---     end
-
---     -- Add Promotion Names
---     if canPromote then
---         if time() - GRM_G.countAction[2] > 0.25 then
---             listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 2 , includeHigherAlt , highest );
---             p = GRM.Util.TableLength ( listOfNames );
---             p2 = higherAltCount;
---             GRM_G.counts[2][1] = p;
---             GRM_G.counts[2][2] = p2;
---         else
---             p = GRM_G.counts[2][1];
---             p2 = GRM_G.counts[2][2];
---         end
---     end
-
---     -- Add Demotion Names
---     if canDemote then
---         if time() - GRM_G.countAction[3] > 0.25 then
---             listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 3 , includeHigherAlt , highest );
---             d = GRM.Util.TableLength ( listOfNames );
---             d2 = higherAltCount;
---             GRM_G.counts[3][1] = d;
---             GRM_G.counts[3][2] = d2;
---         else
---             d = GRM_G.counts[3][1];
---             d2 = GRM_G.counts[3][2];
---         end
---     end
-
---     -- Add Special Names
---     if canPromote and canDemote then
---         if time() - GRM_G.countAction[4] > 0.25 then
---             listOfNames , higherAltCount = GRM_UI.GetNamesBySpecialRules( includeHigherAlt , highest );
---             s = GRM.Util.TableLength ( listOfNames );
---             s2 = higherAltCount
---             GRM_G.counts[4][1] = s;
---             GRM_G.counts[4][2] = s2;
---         else
---             s = GRM_G.counts[4][1];
---             s2 = GRM_G.counts[4][2];
---         end
---     end
-
---     GRM.RefreshMacroToolRuleCount();
-
---     return k , p , d , s , listOfNames , k2 , p2 , d2 , s2;
--- end
-
 -- Method:          GRM.GetCountOfNamesBeingFilteredScan(function)
 -- What it Does:    Initiates an asynchronous scan to count rule matches.
 --                  Calls callbackOnComplete(k, p, d, s, k2, p2, d2, s2) when done.
@@ -11799,8 +11990,7 @@ GRM_UI.UpdateToolButtonText = function(k_val, p_val, d_val, s_val, k2_val, p2_va
     end
 end
 
-GRM_UI.isRefreshingToolButtonCount = false;
-GRM_UI.timeOfLastToolButtonRefreshRequest = 0;
+GRM_G.timeOfLastToolButtonRefreshRequest = 0;
 local MIN_REFRESH_INTERVAL_TOOL_BUTTON = 5;
 
 -- Method:          GRM_UI.RefreshToolButtonsOnUpdate_Async( bool , bool )
@@ -11820,12 +12010,12 @@ GRM_UI.RefreshToolButtonsOnUpdate_Async = function(forced , refreshMacroToolText
         end
 
         local currentTime = time();
-        if not forced and (currentTime - GRM_UI.timeOfLastToolButtonRefreshRequest < MIN_REFRESH_INTERVAL_TOOL_BUTTON) then
+        if not forced and (currentTime - GRM_G.timeOfLastToolButtonRefreshRequest < MIN_REFRESH_INTERVAL_TOOL_BUTTON) then
             -- print("GRM UI: Tool button count refresh requested too soon. Throttling.");
             return;
         end
 
-        GRM_UI.timeOfLastToolButtonRefreshRequest = currentTime;
+        GRM_G.timeOfLastToolButtonRefreshRequest = currentTime;
         print("GRM UI: Requesting tool button count refresh...");
         -- Initiate the asynchronous scan, providing GRM_UI.UpdateToolButtonText as the callback
         GRM.GetCountOfNamesBeingFilteredScan(GRM_UI.UpdateToolButtonText);
@@ -11885,30 +12075,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGro
 
 end
 
--- -- Method:          GRM_UI.RefreshToolButtonsOnUpdate( bool )
--- -- What it Does:    For the "OnUpdate" script handler of the button to update the text as needed
--- -- Purpose:         Quality of life information so as not needed to open button, it is just visual.
--- GRM_UI.RefreshToolButtonsOnUpdate = function( forced )
---     if GRM_G.guildName ~= "" then
 
---         GRM_UI.GRM_LoadToolButton.count = {GRM.GetCountOfNamesBeingFiltered()};
---         GRM_UI.GRM_LoadToolButton.total = GRM_UI.GRM_LoadToolButton.count[1] + GRM_UI.GRM_LoadToolButton.count[2] + GRM_UI.GRM_LoadToolButton.count[3] + GRM_UI.GRM_LoadToolButton.count[4] + GRM_UI.GRM_LoadToolButton.count[6] + GRM_UI.GRM_LoadToolButton.count[7] + GRM_UI.GRM_LoadToolButton.count[8] + GRM_UI.GRM_LoadToolButton.count[9];
-
---         if GRM_UI.GRM_LoadToolButton:IsVisible() then
---             if GRM_UI.GRM_LoadToolButton.total > 0 then
---                 GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool: {num}" , nil , nil , GRM_UI.GRM_LoadToolButton.total ) );
---             else
---                 GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
---             end
---         end
-
---     elseif not forced then
---         GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
---         C_Timer.After ( 30 , function()
---             GRM_UI.RefreshToolButtonsOnUpdate();
---         end);
---     end
--- end
 
 -- Method:          GRM_UI.LoadRulesUI()
 -- What it Does:    Rebuilds the options settings... for kick rules
