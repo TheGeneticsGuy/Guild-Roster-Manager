@@ -8147,7 +8147,7 @@ GRMsync.ReportSyncCompletion = function ( currentSyncer , finalAnnounce )
         GRM_UI.RefreshSelectFrames ( true , true , true , false , true , true );
 
         if GRM_UI.GRM_LoadToolButton:IsVisible() then
-            GRM_UI.RefreshToolButtonsOnUpdate();
+            GRM_UI.RefreshToolButtonsOnUpdate_Async();
         end
 
         GRMsyncGlobals.errorCheckEnabled = false;

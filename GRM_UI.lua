@@ -4773,7 +4773,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
                     GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame:Hide();
 
                     if GRM_UI.GRM_LoadToolButton:IsVisible() then
-                        GRM_UI.RefreshToolButtonsOnUpdate();
+                        GRM_UI.RefreshToolButtonsOnUpdate_Async( false , false );
                     end
                     GRM.Report ( GRM.L ( "{name} added to {name2}'s list of Alts." , GRM.GetClassifiedName ( nameToAdd , true ) , GRM.GetClassifiedName ( GRM_G.currentName , true ) ) );
                 end
@@ -4903,7 +4903,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
                 end
 
                 if GRM_UI.GRM_LoadToolButton:IsVisible() then
-                    GRM_UI.RefreshToolButtonsOnUpdate();
+                    GRM_UI.RefreshToolButtonsOnUpdate_Async( false , false );
                 end
 
                 if GRM.S().syncEnabled then
@@ -5045,16 +5045,19 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_LoadToolButton:SetScript ( "OnShow" , function()
-        GRM_UI.RefreshToolButtonsOnUpdate();
+        GRM_UI.RefreshToolButtonsOnUpdate_Async();
     end);
 
-    GRM_UI.GRM_LoadToolButton:SetScript ( "OnUpdate" , function ( self , elapsed )
-        self.Timer = self.Timer + elapsed;
-        if self.Timer > 60 then       -- Only update once per minute
-            GRM_UI.RefreshToolButtonsOnUpdate();
-            self.Timer = 0;
-        end
-    end);
+    if not isManualUpdate then
+
+        GRM_UI.GRM_LoadToolButton:SetScript ( "OnUpdate" , function ( self , elapsed )
+            self.Timer = self.Timer + elapsed;
+            if self.Timer > 60 then       -- Only update once per minute
+                GRM_UI.RefreshToolButtonsOnUpdate_Async();
+                self.Timer = 0;
+            end
+        end);
+    end
 
     GRM_UI.GetMacroCountMessage = function ( firstNum, highestNum )
 
@@ -16452,12 +16455,80 @@ end
 --------------------------------------
 ------ LIVE FRAME REFRESH LOGIC ------
 --------------------------------------
+GRM_G.AsyncControlRefresh = {};
+
+-- Method:          GRM_UI.EstablishAsyncFrameRefreshFlag ( string [, table] )
+-- What it Does:    Set a frame refresh state for a specific category (tagName) and begins await
+-- Purpose:         To simulate an await asynchronous process since Lua 5.1 cannot, to only load frames when tagged
+--                  ready to be refreshed.
+GRM_UI.EstablishAsyncFrameRefreshFlag = function( tagName , customFlags )
+    local flags = {};
+    local numFrames = 7;
+
+    if not customFlags then
+        flags = { true,true,true,true,true,true,true}   -- Should match the same number of arguments below
+    else
+        flags = customFlags;
+        -- Error protection - set any missing to false
+        if #flags ~= numFrames then
+            for i = #flags+1 , numFrames do
+                flags[i] = false;
+            end
+        end
+    end
+    GRM_G.AsyncControlRefresh[tagName] = flags;
+    GRM_G.AsyncControlRefresh[tagName].complete = false;    -- Once this is flagged true, the tag will be purged.
+    GRM_UI.ActivateRefreshFlagSearch(); -- Will only activate if not already active
+end
+-- /run GRM_UI.EstablishAsyncFrameRefreshFlag("test");
+-- /dump GRM_G.AsyncControlRefresh;
+-- /run GRM_G.AsyncControlRefresh["test"].complete = true
+
+local frameRefreshActive = false;
+
+-- Method:          GRM_UI.ActivateRefreshFlagSearch ( bool )
+-- What it Does:    Loops through all of the states of frames to see if the async functions have been completed
+--                  If they have (the complete is not set to true), then they will refresh the frames
+-- Purpose:         Support for async controls to only refresh frames upon completion
+GRM_UI.ActivateRefreshFlagSearch = function( loopback )
+    if not frameRefreshActive or loopback then
+        print("Checking for Frames Complettion")
+        frameRefreshActive = true;
+
+        if GRM.Util.TableLength (GRM_G.AsyncControlRefresh) > 0 then
+            for tagName in pairs(GRM_G.AsyncControlRefresh) do
+                if GRM_G.AsyncControlRefresh[tagName].complete then
+                    GRM_UI.RefreshSelectFrames(GRM_G.AsyncControlRefresh[tagName][1],GRM_G.AsyncControlRefresh[tagName][2],GRM_G.AsyncControlRefresh[tagName][3],GRM_G.AsyncControlRefresh[tagName][4],GRM_G.AsyncControlRefresh[tagName][5],GRM_G.AsyncControlRefresh[tagName][6],GRM_G.AsyncControlRefresh[tagName][7] );
+
+                    -- Now, let's remove it
+                    print("Frames to reload for tag: ".. tagName)
+                    GRM_G.AsyncControlRefresh[tagName] = nil;
+                end
+            end
+            C_Timer.After ( 2 , function()
+                GRM_UI.ActivateRefreshFlagSearch(true);
+            end);
+        else
+            frameRefreshActive = false;
+        end
+    end
+end
+
+-- Method:          GRM_UI.FrameRefreshFlagReady ( string )
+-- What it Does:    Sets the Frame refresh flag to true so that it can exit the recursive loop
+-- Purpose:         Easily set flags ready to complete
+GRM_UI.FrameRefreshFlagReady = function( tagName )
+    if GRM_G.AsyncControlRefresh[tagName] then
+        GRM_G.AsyncControlRefresh[tagName].complete = true;
+    end
+end
 
 -- Method:          GRM_UI.RefreshSelectFrames ( bool , bool , bool , bool , bool , bool , bool )
 -- What it Does:    Checks if these frames are visible and if so, refreshes their details
 -- Purpose:         If a value changes in the roster, like a player leaves or joins the guild, or even is promoted, demoted, you want these values to be instantly visible and reset
 --                  Be warned, calling this can be extremely computationally expensive. Never place it in a loop to update on each value changed. Only place it at the end of the
 --                  sequence of actions to update everything all at once.
+-- NOTE             ASYNC function on the macro tool - please use to establish refr
 GRM_UI.RefreshSelectFrames = function ( log , audit , ban , macroTool , customRoster , events , mouseover )
     if log and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
         GRM.BuildLogComplete( true , true );

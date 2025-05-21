@@ -4,6 +4,10 @@ GRM_Macro = {};
 
 GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();  -- Need to load this at start.
 
+-- Useful globals for async function status control
+GRM_G.RefreshMacroToolText = false;                 -- Indication after async action to refresh certain frames
+GRM_G.countingScanState = nil;
+
 GRM_UI.BuildSpcialRules = function()
 
     GRM_Macro.SpecialRule1Button = function()
@@ -1319,8 +1323,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             -- if startCount ~= #GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
             --     C_Timer.After ( 0.5 , function()
-            --         GRM.GetCountOfNamesBeingFiltered();
-            --         GRM_UI.RefreshSelectFrames ( true , true , true , false , true , true );
+            --         GRM.GetCountOfNamesBeingFilteredScan();
+            --         GRM_UI.EstablishAsyncFrameRefreshFlag ( "quedMacro" ,{true,true,true,false,true,true,true})
             --     end);
             -- end
         end);
@@ -2399,41 +2403,44 @@ GRM_UI.LoadToolFrames = function ( isManual )
     -- What it Does:    Returns a numeric indication of the rule status for checkbox quality logic
     -- Purpose:         I need to know how to set the Enable all or Disable all checkbox
     GRM_R.SetRuleCheckedStatus = function()
-        local status;
 
-        -- 1 = allChecked , 2 = allUnchecked, 3 = someChecked , 4 = No Rules
-        local numRules = GRM.Util.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
-        if numRules == 0 then
-            status = 4;
-        else
-            local count = 0;
-            for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
-                if rule.isEnabled then
-                    count = count + 1;
+        if GRM_UI.GRM_ToolCoreFrame:IsVisible() then
+            local status;
+
+            -- 1 = allChecked , 2 = allUnchecked, 3 = someChecked , 4 = No Rules
+            local numRules = GRM.Util.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
+            if numRules == 0 then
+                status = 4;
+            else
+                local count = 0;
+                for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
+                    if rule.isEnabled then
+                        count = count + 1;
+                    end
+                end
+
+                if count == numRules then
+                    status = 1;
+                elseif count == 0 then
+                    status = 2;
+                else
+                    status = 3;
                 end
             end
 
-            if count == numRules then
-                status = 1;
-            elseif count == 0 then
-                status = 2;
+            if status == 4 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Disable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 0.5 , 0.5 , 0.5 );
             else
-                status = 3;
-            end
-        end
-
-        if status == 4 then
-            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Disable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 0.5 , 0.5 , 0.5 );
-        else
-            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Enable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 1 , 0.82 , 0 );
-            if status == 1 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( true );
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Disable All" ) );
-            else
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( false );
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Enable();
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 1 , 0.82 , 0 );
+                if status == 1 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Disable All" ) );
+                else
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
+                end
             end
         end
     end
@@ -6252,6 +6259,7 @@ end
 -- Purpose:         Proper sorting of players in the guild to be added to the mass kick tool
 GRM.GetQueuedEntries = function ()
     local result = {};
+    print("Getting Queued Entries")
 
     if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
         if CanGuildRemove() then
@@ -6531,7 +6539,7 @@ GRM.TriggerKickQueuedWindowRefresh = function()
     GRM_UI.RestoreTooltipScale();
     GameTooltip:Hide();
     GRM.BuildQueuedScrollFrame ( true , true , false );
-    GRM_UI.RefreshToolButtonsOnUpdate();
+    GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 end
 
 -- Method:          GRM.BuildQueuedScrollFrame( bool , bool , bool )
@@ -7198,7 +7206,7 @@ GRM.TriggerKickMacrodWindowRefresh = function()
     GRM_UI.RestoreTooltipScale();
     GameTooltip:Hide();
     GRM.BuildMacrodScrollFrame ( true , true );
-    GRM_UI.RefreshToolButtonsOnUpdate();
+    GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 end
 
 -- Method:          GRM.RemoveNamesFromMacroEntries()
@@ -7912,7 +7920,7 @@ GRM.TriggerIgnoredQueuedWindowRefresh = function()
 
     GRM.BuildIgnoredScrollFrame ( true , true );
     GRM.SetIgnoredButtonText();
-    GRM_UI.RefreshToolButtonsOnUpdate();
+    GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 end
 
 -- Method:          GRM.BuildIgnoredScrollFrame( bool , bool )
@@ -8773,7 +8781,7 @@ GRM.BuildRuleButtons = function ( ind , isResizeAction , buttonWidth )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu.GRM_ContextButton2:SetScript ( "OnClick" , function()
                         GRM.RemoveRuleButtonLogic ( GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition] , ruleName );
                         C_Timer.After ( 0.5 , function()
-                            GRM_UI.RefreshToolButtonsOnUpdate ( true );
+                            GRM_UI.RefreshToolButtonsOnUpdate_Async ( true , true );
                         end);
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
                         if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.name == ruleName then
@@ -11421,117 +11429,114 @@ GRM.RefreshMacroToolRuleCount = function()
     end
 end
 
--- RULES!!!
--- Method:          GRM.GetCountOfNamesBeingFiltered()
--- What it Does:    Returns the number of names rules apply to
--- Purpose:         Refreshes the names
-GRM.GetCountOfNamesBeingFiltered = function()
-    local listOfNames = {};
-    local higherAltCount = 0;
-    local k , p , d , s = 0 , 0 , 0 , 0;    -- Kick , Promote , Demote , Special
-    local k2 , p2, d2 , s2 = 0 , 0 , 0 , 0; -- Higher alt's kick, promote, demote, special count on top
-    local highest = GRM_UI.GetYourOwnAltHighestRank();
-    local canPromote = CanGuildPromote();
-    local canDemote = CanGuildDemote();
-    local canRemove = CanGuildRemove();
-    local includeHigherAlt = false;
+-- -- RULES!!!
+-- -- Method:          GRM.GetCountOfNamesBeingFiltered()
+-- -- What it Does:    Returns the number of names rules apply to
+-- -- Purpose:         Refreshes the names
+-- GRM.GetCountOfNamesBeingFiltered = function()
+--     local listOfNames = {};
+--     local higherAltCount = 0;
+--     local k , p , d , s = 0 , 0 , 0 , 0;    -- Kick , Promote , Demote , Special
+--     local k2 , p2, d2 , s2 = 0 , 0 , 0 , 0; -- Higher alt's kick, promote, demote, special count on top
+--     local highest = GRM_UI.GetYourOwnAltHighestRank();
+--     local canPromote = CanGuildPromote();
+--     local canDemote = CanGuildDemote();
+--     local canRemove = CanGuildRemove();
+--     local includeHigherAlt = false;
 
-    if not GRM_G.playerRankID then
-        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
-    end
+--     if not GRM_G.playerRankID then
+--         GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
+--     end
 
-    if highest[1] ~= GRM_G.playerRankID then
-        local Promote, Demote, Remove = GRM.GetPlayerRankPermissions( nil , highest[1] );
+--     if highest[1] ~= GRM_G.playerRankID then
+--         local Promote, Demote, Remove = GRM.GetPlayerRankPermissions( nil , highest[1] );
 
-        if Promote and not canPromote then
-            canPromote = Promote;
-        end
+--         if Promote and not canPromote then
+--             canPromote = Promote;
+--         end
 
-        if Demote and not canDemote then
-            canDemote = Demote;
-        end
+--         if Demote and not canDemote then
+--             canDemote = Demote;
+--         end
 
-        if Remove and not canRemove then
-            canRemove = Remove;
-        end
+--         if Remove and not canRemove then
+--             canRemove = Remove;
+--         end
 
-        includeHigherAlt = true;
-    end
+--         includeHigherAlt = true;
+--     end
 
 
-    -- Add Remove Names
-    if canRemove then
+--     -- Add Remove Names
+--     if canRemove then
 
-        if time() - GRM_G.countAction[1] > 0.25 then
-            listOfNames , higherAltCount = GRM.GetKickNamesByFilterRules( includeHigherAlt , highest );
-            k = GRM.Util.TableLength ( listOfNames );
-            k2 = higherAltCount
-            GRM_G.counts[1][1] = k;
-            GRM_G.counts[1][2] = k2;
+--         if time() - GRM_G.countAction[1] > 0.25 then
+--             listOfNames , higherAltCount = GRM.GetKickNamesByFilterRules( includeHigherAlt , highest );
+--             k = GRM.Util.TableLength ( listOfNames );
+--             k2 = higherAltCount
+--             GRM_G.counts[1][1] = k;
+--             GRM_G.counts[1][2] = k2;
 
-        else
-            k = GRM_G.counts[1][1];
-            k2 = GRM_G.counts[1][2];
-        end
+--         else
+--             k = GRM_G.counts[1][1];
+--             k2 = GRM_G.counts[1][2];
+--         end
 
-    end
+--     end
 
-    -- Add Promotion Names
-    if canPromote then
-        if time() - GRM_G.countAction[2] > 0.25 then
-            listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 2 , includeHigherAlt , highest );
-            p = GRM.Util.TableLength ( listOfNames );
-            p2 = higherAltCount;
-            GRM_G.counts[2][1] = p;
-            GRM_G.counts[2][2] = p2;
-        else
-            p = GRM_G.counts[2][1];
-            p2 = GRM_G.counts[2][2];
-        end
-    end
+--     -- Add Promotion Names
+--     if canPromote then
+--         if time() - GRM_G.countAction[2] > 0.25 then
+--             listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 2 , includeHigherAlt , highest );
+--             p = GRM.Util.TableLength ( listOfNames );
+--             p2 = higherAltCount;
+--             GRM_G.counts[2][1] = p;
+--             GRM_G.counts[2][2] = p2;
+--         else
+--             p = GRM_G.counts[2][1];
+--             p2 = GRM_G.counts[2][2];
+--         end
+--     end
 
-    -- Add Demotion Names
-    if canDemote then
-        if time() - GRM_G.countAction[3] > 0.25 then
-            listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 3 , includeHigherAlt , highest );
-            d = GRM.Util.TableLength ( listOfNames );
-            d2 = higherAltCount;
-            GRM_G.counts[3][1] = d;
-            GRM_G.counts[3][2] = d2;
-        else
-            d = GRM_G.counts[3][1];
-            d2 = GRM_G.counts[3][2];
-        end
-    end
+--     -- Add Demotion Names
+--     if canDemote then
+--         if time() - GRM_G.countAction[3] > 0.25 then
+--             listOfNames , higherAltCount = GRM.GetPromoteAndDemoteNamesByFilterRules( 3 , includeHigherAlt , highest );
+--             d = GRM.Util.TableLength ( listOfNames );
+--             d2 = higherAltCount;
+--             GRM_G.counts[3][1] = d;
+--             GRM_G.counts[3][2] = d2;
+--         else
+--             d = GRM_G.counts[3][1];
+--             d2 = GRM_G.counts[3][2];
+--         end
+--     end
 
-    -- Add Special Names
-    if canPromote and canDemote then
-        if time() - GRM_G.countAction[4] > 0.25 then
-            listOfNames , higherAltCount = GRM_UI.GetNamesBySpecialRules( includeHigherAlt , highest );
-            s = GRM.Util.TableLength ( listOfNames );
-            s2 = higherAltCount
-            GRM_G.counts[4][1] = s;
-            GRM_G.counts[4][2] = s2;
-        else
-            s = GRM_G.counts[4][1];
-            s2 = GRM_G.counts[4][2];
-        end
-    end
+--     -- Add Special Names
+--     if canPromote and canDemote then
+--         if time() - GRM_G.countAction[4] > 0.25 then
+--             listOfNames , higherAltCount = GRM_UI.GetNamesBySpecialRules( includeHigherAlt , highest );
+--             s = GRM.Util.TableLength ( listOfNames );
+--             s2 = higherAltCount
+--             GRM_G.counts[4][1] = s;
+--             GRM_G.counts[4][2] = s2;
+--         else
+--             s = GRM_G.counts[4][1];
+--             s2 = GRM_G.counts[4][2];
+--         end
+--     end
 
-    GRM.RefreshMacroToolRuleCount();
+--     GRM.RefreshMacroToolRuleCount();
 
-    return k , p , d , s , listOfNames , k2 , p2 , d2 , s2;
-end
+--     return k , p , d , s , listOfNames , k2 , p2 , d2 , s2;
+-- end
 
--- State for the counting scan
-GRM.countingScanState = nil;
-
--- Method:          GRM.GetCountOfNamesBeingFilteredScan(callbackOnComplete)
+-- Method:          GRM.GetCountOfNamesBeingFilteredScan(function)
 -- What it Does:    Initiates an asynchronous scan to count rule matches.
 --                  Calls callbackOnComplete(k, p, d, s, k2, p2, d2, s2) when done.
 -- Purpose:         To get counts for UI elements without blocking.
 GRM.GetCountOfNamesBeingFilteredScan = function(callbackOnComplete)
-    if GRM.countingScanState and GRM.countingScanState.isRunning then
+    if GRM_G.countingScanState and GRM_G.countingScanState.isRunning then
         return;
     end
 
@@ -11573,7 +11578,7 @@ GRM.GetCountOfNamesBeingFilteredScan = function(callbackOnComplete)
         return;
     end
 
-    GRM.countingScanState = {
+    GRM_G.countingScanState = {
         isRunning = true,
         callback = callbackOnComplete,
         allNames = allGuildPlayerNamesSorted,
@@ -11599,7 +11604,7 @@ end
 
 -- Helper function to process chunks for counting
 GRM.ProcessNextCountingChunk = function()
-    local state = GRM.countingScanState;
+    local state = GRM_G.countingScanState;
     if not state or not state.isRunning then return; end
 
     local recommendationsInChunk, higherAltCountForChunk;
@@ -11719,7 +11724,9 @@ GRM.ProcessNextCountingChunk = function()
             state.callback(state.k, state.p, state.d, state.s, state.k2, state.p2, state.d2, state.s2);
         end
         GRM.RefreshMacroToolRuleCount();
-        GRM.countingScanState = nil; -- Clear state
+        GRM.RuleCountsFrameHandler();
+
+        GRM_G.countingScanState = nil; -- Clear state
         return;
     end
 
@@ -11727,6 +11734,19 @@ GRM.ProcessNextCountingChunk = function()
     if state.isRunning then
         C_Timer.After(0, GRM.ProcessNextCountingChunk);
     end
+end
+
+GRM.RuleCountsFrameHandler = function()
+
+    if GRM_G.RefreshMacroToolText then
+        GRM_G.RefreshMacroToolText = false;
+        GRM_R.SetRuleCheckedStatus();
+    end
+
+    GRM_UI.FrameRefreshFlagReady("quedMacro");
+
+
+
 end
 
 -- Method:          GRM.GetCachedRuleCounts()
@@ -11755,7 +11775,7 @@ end
 
 GRM_UI.GRM_LoadToolButton.lastTotalCount = -1; -- Initialize to a value that will trigger first update
 
--- Method:          GRM_UI.UpdateToolButtonText(k, p, d, s, k2, p2, d2, s2)
+-- Method:          GRM_UI.UpdateToolButtonText(int,int,int,int,int,int,int,int)
 -- What it Does:    This is the callback that updates the button text once counts are available.
 -- Purpose:         To be called by GRM.GetCountOfNamesBeingFilteredScan upon completion.
 GRM_UI.UpdateToolButtonText = function(k_val, p_val, d_val, s_val, k2_val, p2_val, d2_val, s2_val)
@@ -11783,13 +11803,18 @@ GRM_UI.isRefreshingToolButtonCount = false;
 GRM_UI.timeOfLastToolButtonRefreshRequest = 0;
 local MIN_REFRESH_INTERVAL_TOOL_BUTTON = 5;
 
--- Method:          GRM_UI.RefreshToolButtonsOnUpdate_Async( forced )
+-- Method:          GRM_UI.RefreshToolButtonsOnUpdate_Async( bool , bool )
 -- What it Does:    For the "OnUpdate" script handler or triggered manually.
 -- Purpose:         To initiate count refresh for the tool button.
-GRM_UI.RefreshToolButtonsOnUpdate_Async = function(forced)
+GRM_UI.RefreshToolButtonsOnUpdate_Async = function(forced , refreshMacroToolText )
     if GRM_G.guildName and GRM_G.guildName ~= "" then
+
+        if refreshMacroToolText then
+            GRM_G.RefreshMacroToolText = true;
+        end
+
         -- If a refresh is already running, or if it was requested very recently, don't start another
-        if GRM.countingScanState and GRM.countingScanState.isRunning then
+        if GRM_G.countingScanState and GRM_G.countingScanState.isRunning then
             -- print("GRM UI: Tool button count refresh already in progress.");
             return;
         end
@@ -11851,8 +11876,7 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGro
 
     -- Load the options properly
     GRM_UI.LoadRulesUI();
-    GRM_UI.RefreshToolButtonsOnUpdate();
-    GRM_R.SetRuleCheckedStatus();
+    GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 
     -- Populate the macro
     if isBanAltList or isBanInGuild or customGroup then
@@ -11861,30 +11885,30 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGro
 
 end
 
--- Method:          GRM_UI.RefreshToolButtonsOnUpdate( bool )
--- What it Does:    For the "OnUpdate" script handler of the button to update the text as needed
--- Purpose:         Quality of life information so as not needed to open button, it is just visual.
-GRM_UI.RefreshToolButtonsOnUpdate = function( forced )
-    if GRM_G.guildName ~= "" then
+-- -- Method:          GRM_UI.RefreshToolButtonsOnUpdate( bool )
+-- -- What it Does:    For the "OnUpdate" script handler of the button to update the text as needed
+-- -- Purpose:         Quality of life information so as not needed to open button, it is just visual.
+-- GRM_UI.RefreshToolButtonsOnUpdate = function( forced )
+--     if GRM_G.guildName ~= "" then
 
-        GRM_UI.GRM_LoadToolButton.count = {GRM.GetCountOfNamesBeingFiltered()};
-        GRM_UI.GRM_LoadToolButton.total = GRM_UI.GRM_LoadToolButton.count[1] + GRM_UI.GRM_LoadToolButton.count[2] + GRM_UI.GRM_LoadToolButton.count[3] + GRM_UI.GRM_LoadToolButton.count[4] + GRM_UI.GRM_LoadToolButton.count[6] + GRM_UI.GRM_LoadToolButton.count[7] + GRM_UI.GRM_LoadToolButton.count[8] + GRM_UI.GRM_LoadToolButton.count[9];
+--         GRM_UI.GRM_LoadToolButton.count = {GRM.GetCountOfNamesBeingFiltered()};
+--         GRM_UI.GRM_LoadToolButton.total = GRM_UI.GRM_LoadToolButton.count[1] + GRM_UI.GRM_LoadToolButton.count[2] + GRM_UI.GRM_LoadToolButton.count[3] + GRM_UI.GRM_LoadToolButton.count[4] + GRM_UI.GRM_LoadToolButton.count[6] + GRM_UI.GRM_LoadToolButton.count[7] + GRM_UI.GRM_LoadToolButton.count[8] + GRM_UI.GRM_LoadToolButton.count[9];
 
-        if GRM_UI.GRM_LoadToolButton:IsVisible() then
-            if GRM_UI.GRM_LoadToolButton.total > 0 then
-                GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool: {num}" , nil , nil , GRM_UI.GRM_LoadToolButton.total ) );
-            else
-                GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
-            end
-        end
+--         if GRM_UI.GRM_LoadToolButton:IsVisible() then
+--             if GRM_UI.GRM_LoadToolButton.total > 0 then
+--                 GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool: {num}" , nil , nil , GRM_UI.GRM_LoadToolButton.total ) );
+--             else
+--                 GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
+--             end
+--         end
 
-    elseif not forced then
-        GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
-        C_Timer.After ( 30 , function()
-            GRM_UI.RefreshToolButtonsOnUpdate();
-        end);
-    end
-end
+--     elseif not forced then
+--         GRM_UI.GRM_LoadToolButtonText:SetText ( GRM.L ( "Macro Tool" ) );
+--         C_Timer.After ( 30 , function()
+--             GRM_UI.RefreshToolButtonsOnUpdate();
+--         end);
+--     end
+-- end
 
 -- Method:          GRM_UI.LoadRulesUI()
 -- What it Does:    Rebuilds the options settings... for kick rules
