@@ -485,7 +485,7 @@ end
 -- What it Does:    Return the count of the number of alt groups in the guild
 -- Purpose:         To determine which unique identifier to give the alt group.
 GRM.GetNumAltGroups = function( guildName )
-    return GRM.TableLength ( GRM.GetGuildAlts( guildName or GRM_G.guildName ) );
+    return GRM.Util.TableLength ( GRM.GetGuildAlts( guildName or GRM_G.guildName ) );
 end
 
 -- Method:          GRM.GetAltNamesList ( playerTable )
@@ -743,7 +743,9 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
             if GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                 GRM.PopulateAltFrames ( GRM_G.currentName );
             end
-            GRM_UI.RefreshSelectFrames ( true , true , false , true , true , true );
+            if not GRM_G.HK then    -- I don't want this to refresh if I am actively kicking alts with the macro tool.
+                GRM_UI.RefreshSelectFrames ( true , true , false , true , true , true );
+            end
         end
     end
 end
@@ -792,7 +794,7 @@ GRM.IsAnyAltActiveForRecommendKicks = function ( alts , ruleName )
     -- Verify the numbers have been calculated first
 
     if GRM_G.NumberOfHoursTilRecommend.kick == nil then   -- Shortly after login this might not be active if they open the window too soon.
-        GRM.RefreshNumberOfHoursTilRecommend();
+        GRM.Scan.RefreshNumberOfHoursTilRecommend();
     end
 
     if GRM_G.NumberOfHoursTilRecommend.kick ~= nil then
@@ -804,7 +806,7 @@ GRM.IsAnyAltActiveForRecommendKicks = function ( alts , ruleName )
             if player then
 
                 if GRM_G.NumberOfHoursTilRecommend.kick[ruleName] == nil then
-                    GRM.RefreshNumberOfHoursTilRecommend();
+                    GRM.Scan.RefreshNumberOfHoursTilRecommend();
                 end
 
                 if player.lastOnline < GRM_G.NumberOfHoursTilRecommend.kick[ruleName] then
@@ -1028,7 +1030,7 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
 
                 -- Let's set those officer/public notes as well!
                 if GRM.S().addTimestampToNote and ( GRM.CanEditOfficerNote() or GRM.CanEditPublicNote() ) then -- By default I block non officers from auto-adding notes
-                    for h = 1 , GRM.GetNumGuildies() do
+                    for h = 1 , GRM.G_Util.GetNumGuildies() do
                         local h = GRM.GetRosterSelectionID ( tempAlt.name , tempAlt.GUID );
                         if h then
                             local note , oNote = select ( 7 , GetGuildRosterInfo(h) );
@@ -1717,7 +1719,7 @@ GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , timeStamp 
             alts.birthdayInfo.date[2] = month;
             alts.birthdayInfo.announced = announced
             alts.birthdayInfo.timeUpdated = timeStamp;
-            alts.birthdayInfo.birthdayUnknown = unknown;
+            alts.birthdayInfo.unknown = unknown;
 
             local counted = false;
 
@@ -1741,7 +1743,7 @@ GRM.SetBirthdayForAltGrouping = function ( playerName , day , month , timeStamp 
                     tempAlt.birthdayInfo.date[2] = month;
                     tempAlt.birthdayInfo.announced = announced
                     tempAlt.birthdayInfo.timeUpdated = timeStamp;
-                    tempAlt.birthdayInfo.birthdayUnknown = unknown;
+                    tempAlt.birthdayInfo.unknown = unknown;
 
                     -- Need to remove them from the calendar queue if in it.
                     GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
@@ -1790,7 +1792,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , timeUpdated , isUnknown , sende
         player.birthdayInfo.date[2] = 0;
         player.birthdayInfo.timeUpdated = timeUpdated;
         player.birthdayInfo.announced = false;
-        player.birthdayInfo.birthdayUnknown = false;
+        player.birthdayInfo.unknown = false;
 
         updateUI ( name );
         GRM.RemoveFromCalendarQue ( player.name , 2 , nil );
@@ -1803,7 +1805,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , timeUpdated , isUnknown , sende
             alts.birthdayInfo.date[2] = 0;
             alts.birthdayInfo.announced = false
             alts.birthdayInfo.timeUpdated = timeUpdated;
-            alts.birthdayInfo.birthdayUnknown = false;
+            alts.birthdayInfo.unknown = false;
 
             local tempAlt;
             for i = 1 , #alts do
@@ -1820,7 +1822,7 @@ GRM.ResetBirthdayForAltGroup = function ( name , timeUpdated , isUnknown , sende
                     tempAlt.birthdayInfo.date[2] = 0;
                     tempAlt.birthdayInfo.announced = false
                     tempAlt.birthdayInfo.timeUpdated = timeUpdated;
-                    tempAlt.birthdayInfo.birthdayUnknown = false;
+                    tempAlt.birthdayInfo.unknown = false;
 
                     GRM.RemoveFromCalendarQue ( tempAlt.name , 2 , nil );
 

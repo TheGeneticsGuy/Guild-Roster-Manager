@@ -518,7 +518,7 @@ GRM_R.RefreshOnlineStatus = function( guildData )
                 end
             end
         end
-        GRM_UI.GRM_RosterFrame.GRM_RosterMemberCount:SetText ( GRM.L ( "{num}/{custom1} Online" , nil , nil , count , GRM.GetNumGuildies() ) );
+        GRM_UI.GRM_RosterFrame.GRM_RosterMemberCount:SetText ( GRM.L ( "{num}/{custom1} Online" , nil , nil , count , GRM.G_Util.GetNumGuildies() ) );
     end
 
 end
@@ -636,7 +636,7 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
 
         end
 
-        return toAdd , GRM.DeepCopyArray ( tempPlayer );
+        return toAdd , GRM.Util.DeepCopyArray ( tempPlayer );
     end
 
     local toAdd , playerDetails;
@@ -1172,7 +1172,7 @@ GRM_R.SortAlphabeticallyWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return a.name > b.name end );
             end
             for j = 1 , #rankGrouping do
-                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+                table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
             end
 
             currentRank = members[i].rankIndex;
@@ -1206,7 +1206,7 @@ GRM_R.SortLastOnlineWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return a.lastOnline > b.lastOnline end );
             end
             for j = 1 , #rankGrouping do
-                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+                table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
             end
 
             currentRank = members[i].rankIndex;
@@ -1240,7 +1240,7 @@ GRM_R.SortByLevelWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return a.level < b.level end );
             end
             for j = 1 , #rankGrouping do
-                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+                table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
             end
 
             currentRank = members[i].rankIndex;
@@ -1274,7 +1274,7 @@ GRM_R.SortByMythicWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return a.MythicScore < b.MythicScore end );
             end
             for j = 1 , #rankGrouping do
-                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+                table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
             end
 
             currentRank = members[i].rankIndex;
@@ -1308,7 +1308,7 @@ GRM_R.SortByNoteWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.note ) ) > string.lower ( GRM.Trim( b.note ) ) end );
             end
             for j = 1 , #rankGrouping do
-                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+                table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
             end
 
             currentRank = members[i].rankIndex;
@@ -1342,7 +1342,7 @@ GRM_R.SortByOfficerNoteWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.officerNote ) ) > string.lower ( GRM.Trim( b.officerNote ) ) end );
             end
             for j = 1 , #rankGrouping do
-                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+                table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
             end
 
             currentRank = members[i].rankIndex;
@@ -1376,7 +1376,7 @@ GRM_R.SortByCustomNoteWithinRank = function ( members , sortType )
                 sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.customNote ) ) > string.lower ( GRM.Trim( b.customNote ) ) end );
             end
             for j = 1 , #rankGrouping do
-                table.insert ( result , GRM.DeepCopyArray ( rankGrouping[j] ) );
+                table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
             end
 
             currentRank = members[i].rankIndex;
@@ -1772,7 +1772,7 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
                 GameTooltip:Hide();
 
                 local player = GRM.GetPlayer ( playerName );
-                GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+                GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
 
                 if player then
 

@@ -43,7 +43,7 @@ GRM_API.GetMember = function ( name , guild )
     isValid , name , guild = GRM_API.GetCheck ( name , guild );
 
     if isValid then
-        result = GRM.DeepCopyArray ( GRM_GuildMemberHistory_Save[name] );
+        result = GRM.Util.DeepCopyArray ( GRM_GuildMemberHistory_Save[name] );
     end
 
     return result;
@@ -57,7 +57,7 @@ GRM_API.GetFormerMember = function ( name , guild )
     isValid , name , guild = GRM_API.GetCheck ( name , guild , true );
 
     if isValid then
-        result = GRM.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[guild][name] );
+        result = GRM.Util.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[guild][name] );
     end
 
     return result;
@@ -199,7 +199,7 @@ GRM_API.RestoreAllPublicNotesFromSave = function()
     local guildData = GRM_GuildDataBackup_Save[GRM_G.guildName].members;
 
     if GRM.CanEditPublicNote() then
-        for i = 1 , GRM.GetNumGuildies() do
+        for i = 1 , GRM.G_Util.GetNumGuildies() do
             local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
             for name , player in pairs ( guildData ) do
@@ -218,7 +218,7 @@ GRM_API.RestoreAllOfficerNotesFromSave = function()
     local guildData = GRM_GuildDataBackup_Save[GRM_G.guildName].members;
 
     if GRM.CanEditOfficerNote() then
-        for i = 1 , GRM.GetNumGuildies() do
+        for i = 1 , GRM.G_Util.GetNumGuildies() do
             local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
             for name , player in pairs ( guildData ) do
@@ -258,7 +258,7 @@ GRM_API.RestoreAllPublicNotes = function( name )
             if guildData then
                 local memberName = "";
 
-                for i = 1 , GRM.GetNumGuildies() do
+                for i = 1 , GRM.G_Util.GetNumGuildies() do
                     local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
                     for n , player in pairs ( guildData ) do
                         if type ( player ) == "table" and guildie_name == n and guid == player.GUID then
@@ -440,7 +440,7 @@ end
 
 -- GRM_API.AddCustomLogEntry = function ( type_of_entry , text , name , name2 , refresh_log )
 
---     GRM.AddLog
+--     GRM.Log.AddLog
 
 --     -- Only refresh log if directed to do so, and it is visible
 --     if refresh_log and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
@@ -454,7 +454,7 @@ GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoine
 
     local rejoinText = GRM.GetJoinOrRejoinString( true , player_who_invited, player_who_rejoined , date_rejoined_table, true , player_level, optional_previous_name, times_in_guild, false, "", date_left_table , how_long_ago, first_ever_join_table, orig_rank, "", false);
 
-    GRM.AddLog ( { 7 , rejoinText , true , player_who_invited, player_who_rejoined, date_rejoined_table, true, player_level, optional_previous_name, times_in_guild, false, "", date_left_table , how_long_ago, first_ever_join_table, orig_rank, "", false })
+    GRM.Log.AddLog ( { 7 , rejoinText , true , player_who_invited, player_who_rejoined, date_rejoined_table, true, player_level, optional_previous_name, times_in_guild, false, "", date_left_table , how_long_ago, first_ever_join_table, orig_rank, "", false })
 
     if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
         GRM.BuildLogComplete( true , true );

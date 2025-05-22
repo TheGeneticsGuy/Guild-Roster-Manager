@@ -290,7 +290,6 @@
         GRM_L["To Chat:"] = "Im Chat"                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
         GRM_L["To Log:"] = "Im Log"                     -- Context: To show it in the guild log.
         GRM_L["Display Changes"] = "Änderungen anzeigen"
-        GRM_L["Show 'Main' Name in Chat"] = "Zeige 'Main' im Chat"
 
         -- AUDIT WINDOW
         GRM_L["AUDIT"] = "PRÜFUNG"                                               -- Audit Tab name
@@ -1487,8 +1486,6 @@
     GRM_L["Promote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Demote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Reject"] = true
-    GRM_L["Please confirm that the guild \"{name}\" has been renamed to \"{name2}\"."] = true
-    GRM_L["Possible Guild Name Change Detected. {num}% match."] = true
     GRM_L["Player Search"] = true
     GRM_L["Search to find a player quicker"] = true
 
@@ -1891,6 +1888,10 @@
 
     -- R1.99170
     GRM_L["Unable to invite. You are grouped without privileges."] = true
+
+    -- R1.9912
+    GRM_L["Show Main Name in Chat"] = "Zeige Main im Chat"
+
 end
 
     -- THANK YOU @Nehry for this full translation up to R1.20

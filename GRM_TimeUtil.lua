@@ -851,61 +851,90 @@ Time.HoursReport = function( lastOnlineTime )
     return result;
 end
 
--- Method:          Time.GetNumHoursTilRecommend( int , int )
--- What it Does:    Returns the number of hours need to match the given numMonths time passed
--- Purpose:         Useful for checking if the player has been, for example, offline X number of months, if the time has passed, since the server gives time in hours since last online.
-Time.GetNumHoursTilRecommend = function(numMonths, specialYear)
-    local month, day, year = select(2, Time.GetTodaysDate());
-
-    if numMonths == 0 then
-        return 0;
-    end
-
-    if specialYear then
-        year = specialYear;
-    end
+-- Helper Function to help calculate the number of days since we are doing date clamping
+local GetNumDaysForNMonthsRule = function(numMonths)
+    local _, currentMonth, currentDay, currentYear = Time.GetTodaysDate()
 
     -- Error protection
-    if month == 0 or day == 0 then
+    if currentMonth == 0 or currentDay == 0 then
         return nil;
     end
-    local totalDays = 0;
-    local numYears = math.floor(numMonths / 12);
-    numMonths = numMonths % 12;
-    local monthReference = month - numMonths;
 
-    -- ok let's calculate the month index
-    if monthReference < 1 then
-        monthReference = 12 + month - numMonths;
+    -- Calculate the target start date: current date minus numMonths
+    local targetEffMonth = currentMonth
+    local targetEffYear = currentYear
+
+    -- Subtract full years first
+    local numYearsToSubtract = math.floor((numMonths -1) / 12) -- Subtract full years encompassed by the months
+    targetEffYear = targetEffYear - numYearsToSubtract
+    targetEffMonth = targetEffMonth - (numMonths % 12) -- Subtract remaining months
+
+    -- Normalize month and year if month subtraction went to zero or below
+    while targetEffMonth <= 0 do
+        targetEffMonth = targetEffMonth + 12
+        targetEffYear = targetEffYear - 1
     end
 
-    -- Add up the total days...
-    if numMonths > 0 then
-        totalDays = day; -- This sets the initial number, which is this month.
-        if numMonths >= month then
-            totalDays = totalDays + Time.Enums.days_before_month[month]; -- Counts all the days of this year
-            totalDays = totalDays + (365 - Time.Enums.days_before_month[monthReference]) - day; -- Counts all of the days from the reference month X months ago til end of the year
+    -- The target day is the same day of the month as currentDay, clamped
+    local targetEffDay = currentDay
+    local daysInActualTargetMonth = Time.DaysInMonth(targetEffMonth, targetEffYear)
+    if targetEffDay > daysInActualTargetMonth then
+        targetEffDay = daysInActualTargetMonth
+    end
 
-            -- Check Leap Year
-            if (month > 2 or (month == 2 and day == 29)) and Time.IsLeapYear(year) and numYears == 0 then -- Adding 1 for the leap year   -- If the year > 1 then the end of this function will tally it auto for each year, if not it is calculated here.
-                totalDays = totalDays + 1;
-            end
+    -- This check is a safeguard.
+    if targetEffYear > currentYear or
+       (targetEffYear == currentYear and targetEffMonth > currentMonth) or
+       (targetEffYear == currentYear and targetEffMonth == currentMonth and targetEffDay >= currentDay) then
+        return 0
+    end
 
-        else -- Ex: if today is May, 11 months ago, reference month is June last year
-            totalDays = totalDays +
-                            (Time.Enums.days_before_month[month] - Time.Enums.days_before_month[monthReference]) - day;
-            if monthReference <= 2 and (month > 2 or (month == 2 and day == 29)) and Time.IsLeapYear(year) and numYears ==
-                0 then
-                totalDays = totalDays + 1;
-            end
+    local totalDays = 0
+
+    -- If current date and target date are in the same month and year
+    if targetEffYear == currentYear and targetEffMonth == currentMonth then
+        totalDays = currentDay - targetEffDay
+        return totalDays
+    end
+
+    totalDays = Time.DaysInMonth(targetEffMonth, targetEffYear) - targetEffDay
+
+    -- iter for iterator
+    local iterMonth = targetEffMonth + 1
+    local iterYear = targetEffYear
+    if iterMonth > 12 then
+        iterMonth = 1
+        iterYear = iterYear + 1
+    end
+
+    while iterYear < currentYear or (iterYear == currentYear and iterMonth < currentMonth) do
+        totalDays = totalDays + Time.DaysInMonth(iterMonth, iterYear)
+        iterMonth = iterMonth + 1
+        if iterMonth > 12 then
+            iterMonth = 1
+            iterYear = iterYear + 1
         end
     end
-    for i = 0, numYears - 1 do
-        if Time.IsLeapYear(year - i) then
-            totalDays = totalDays + 1;
-        end
+
+    totalDays = totalDays + currentDay
+
+    return totalDays
+end
+
+-- Method:          Time.GetNumHoursTilRecommend( int )
+-- What it Does:    Returns the number of hours need to match the given numMonths time passed
+-- Purpose:         Useful for checking if the player has been, for example, offline X number of months, if the time has passed, since the server gives time in hours since last online.
+Time.GetNumHoursTilRecommend = function(numMonths)
+    if not numMonths or numMonths <= 0 then
+        return nil
     end
-    return (totalDays + (365 * numYears)) * 24
+
+    local days = GetNumDaysForNMonthsRule(numMonths)
+    if not days then
+        return nil
+    end
+
+    return days * 24
 end
 
 -- Method:          Time.GetTimestampBasedOnTimePassed ( array )

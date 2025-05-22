@@ -1,4 +1,50 @@
-## **VERSION 1.992 RELEASE - April 24th, 2025**
+## **VERSION 1.992 RELEASE - May 22nd, 2025**
+
+***PENDING NEW FEATURE - AlMOST COMPLETE***
+
+**NICKNAMES**
+
+I am almost done with implementing the long-awaited Nicknames feature. However, this patch has become quite large so I wanted to do a sort of pre-release with a lot of Quality of Life(QOL) enhancements and Bug Fixes first rather than take another week or two to finalize the nicknames feature, depending on how much free time I have. However, just be aware, the feature is being currently built, is my number 1 priority right now to be complete, and you will see it soon. Look for some details in the new Options > Names tab. Please note, this is a very vague representation of what the nickname feature will show, and I have a little surprise to drop when I get this out as well that I think people will be pleasantly surprised with. Keep an eye out for the pending new nicknames feature soon!
+
+![Pending Nicknames Feature](https://i.imgur.com/Bw5FH3v.jpeg)
+
+***QOL ENHANCEMENTS***
+
+* Easily remove profession details in Classic Builds of the addon from any of your notes, be it public, officer, or custom notes. I know some people may have accidentally added them, or they have decided to no longer use the feature, and they would like to remove all of the profession notes. You now can do it with the easy click of a button.
+
+![Remove Your Profession Notes](https://i.imgur.com/hb3bbZ0.png)
+
+* More optimizations have been made in cleaning up the code and optimizing certain processes to sort of modernize some of my GRM development. Rather than do it all at once, as we are talking tens of thousands of lines of code, I am doing it in chunks. This update include a significant update to the scanning process when updating player info and scanning for changes.
+
+* When recommending someone to kick, or be promoted/demoted, GRM was not using a very precise method of calculation, but instead an average of the time. So, if you had say, 3 months to kick, GRM was kind of going the lazy way out of just taking 365 days / 12 = 30.42 average days in a month, so 3 months would be 3 x 30.42 days x 24hrs (roughly 2190 hrs). While this is ok, it's pretty reliable, you can end up at times where the Macro tool might be recommending to kick someone as they are at 3 months offline, but you look at the player mouseover window and it says they are at 2 months 29 days, or something like that. GRM has been updated to now do this strictly with day-clamping. I feel like it's just a better overall user experience. For example, if a player went offline on January 10th, then the recommendation to kick at 3 months will be April 10th. While this means that there may be slight time differences on 3 months as some months are shorter than others, it will be a far less questionable user experience when the mouseover reflects the last time offline and correlates it better.
+
+* In an attempt to resolve the issue where custom channels will occasionally disappear in a session for some reason, if you had created a custom GRM messaging channel, and the game removed or loses your channel (sort of a weird anomaly that can happen), a popup box will appear asking if you would like to restore the missing custom channel, or if you would like to ignore it. This can happen as well if you right-click and remove the channel without adjusting the GRM settings, GRM will ask you to confirm to change the settings. Please let me know if you are consistently losing the channel over and over again as maybe there is something more I can do to try to debug the issue. I disabled all addons and I was able to inconsistently recreate the issue where I'd make a new chat window, log off, login and it was gone, but reloading it never went away.
+
+![Example Channel Restoration](https://i.imgur.com/yTBWOtE.png)
+
+* Macro Tool Scanning for macro rule matches of guild members has been completely overhauled and rewritten and is far leaner. Before, if you were in say a 800-900+ member guild, and you had a dozen unique rules, then in some cases some stutter could happen when scanning for rule matches, especially if you had a lot of matches, like you need to shift a few hundred guild members to other ranks. The stutter was BAD. I now rewrote the entire process to simulate asynchronous functionality and it is far far leaner and faster. Just in my own internal testing, I know no guild would ever hit this, but I simulated a 2000 member guild (in case Blizz ever gives us that), and I setup 40 macro rules to scan the whole roster through, matched over 5000 names for rules across kick/promote/demote/special, and I got ZERO stutter or any noticeable processing signs on the front end. It worked extremely effectively. This should be a significantly better experience overall for large guilds, even though small guilds might not notice any difference at all.
+
+* The Promote, Demote, and Special rules in the macro rule will now also sort the names of the players in the last to be in their main/alt groupings, just like it works on the Kick rule.
+
+* The Custom Log Entry message option at the bottom of the macro rule filter options will now save the text that you add there without you being required to hit the ENTER key. Whatever you type will be auto-saved on Confirming at the bottom. You can still cancel what you typed by pressing the ESC key to lose focus and reset it back to what it was, but now you can just type and confirm. Before, if you didn't hit ENTER it would wipe whatever you typed and not save it, and I found that kind of annoying.
+
+* The Macro rules now have an additional option on the safe text match where you can set it to match not just the default officer note, but you can search for the "safe" tag you have designated in any notes. This was implemented as someone indicated a scenario in their guild where people can put certain tags like "Vacation" or something like that in a public note which will protect them from being kicked. Previously, only tags placed in officer notes were considered.
+
+![Safe Text match all notes](https://i.imgur.com/DHLksMH.jpeg)
+
+***BUG FIXES***
+
+* Fixed the scanning that could result in too much scanning through at the same time, causing a potential timeout. This is now handled a little more divided to prevent any chance of stutter or timeouts.
+
+* Fixed a bug where upon kicking a player from the guild, particularly a player who was an "alt," they would not refresh and be removed from the macro properly until you refreshed it. This one had been eluding me as it ended up being an internal GRM issue with frames refreshing when they shouldn't have been, so it was a little difficult to track down. It is now FINALLY resolved.
+
+* Fixed a bug where if you were in Classic and you were using the profession feature, it was skipping adding profession notes to any player who had the letter `D` in their player public note. Why? Well, it was a carryover check from my Hardcore realms where it made zero sense to add the profession data to players that were marked "Dead" with the `[D]` tag. Well, on accident, I was matching just the letter D, not the full [D] tag, which meant that any player who had just the letter `D` in their player note it was not adding profession details to it. Oops! This has now been fixed.
+
+* Fixed an issue where setting birthday to unknown would persist even if you set the proper birthday, it would not overwrite the old birthday is uknown setting. Fixed.
+
+* Fixed a Blizzard issue in CLASSIC ETA - For some reason, even with all addons disabled, the player windows were not displaying officer notes. I was able to extract the officer notes myself from the server and force them to be displayed properly even though Blizz has introduced some kind of bug that makes the officer notes not appear.
+
+* Fixed a bug where the RGB coloring of the Main and Alt tags had the 'G' and 'B' color flipped, so it was passing RBG instead. This would flip your color scheme. It might not have been noticeable if you were using red, since that flips to red and red, but if you had changed the color to say Blue, it would display your tags as green lol. So ya, I am really surprised no one had ever reported this.
 
 
 ## **VERSION 1.99171 RELEASE - April 24th, 2025**

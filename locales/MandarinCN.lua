@@ -285,7 +285,6 @@ GRML.MandarinCN = function()
     GRM_L["To Chat:"] = true                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
     GRM_L["To Log:"] = true                     -- Context: To show it in the guild log.
     GRM_L["Display Changes"] = true
-    GRM_L["Show 'Main' Name in Chat"] = true
 
     -- AUDIT WINDOW
     GRM_L["AUDIT"] = true                                               -- Audit Tab name
@@ -1481,8 +1480,6 @@ GRML.MandarinCN = function()
     GRM_L["Promote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Demote Rule \"{name}\" Removed by {name2}"] = true
     GRM_L["Reject"] = true
-    GRM_L["Please confirm that the guild \"{name}\" has been renamed to \"{name2}\"."] = true
-    GRM_L["Possible Guild Name Change Detected. {num}% match."] = true
     GRM_L["Player Search"] = true
     GRM_L["Search to find a player quicker"] = true
 
@@ -1885,4 +1882,8 @@ GRML.MandarinCN = function()
 
     -- R1.99170
     GRM_L["Unable to invite. You are grouped without privileges."] = true
+
+    -- R1.992
+    GRM_L["Show Main Name in Chat"] = true
+
 end

@@ -1104,7 +1104,7 @@ GRMsync.ReviewElectResponses = function()
     local syncMaxRestriction = 0;
     local customRankRestriction = 0;
 
-    if GRM.TableLength ( GRMsyncGlobals.ElectTimeOnlineTable ) > 0 then
+    if GRM.Util.TableLength ( GRMsyncGlobals.ElectTimeOnlineTable ) > 0 then
         local c = 1;
 
         for name , data in pairs ( GRMsyncGlobals.ElectTimeOnlineTable ) do
@@ -2314,7 +2314,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
     local playerWhoBanned = GRM.GetClassifiedName ( sender , true );
 
     local logEntryWithTime , logEntry = GRM.GetBanLogUpdateAndEditString ( banAlts , isAnEdit , playerWhoBanned , bannedName , reason , timeArray );
-    GRM.AddLog ( { 20 , logEntryWithTime , banAlts , isAnEdit , playerWhoBanned , bannedName , reason , timeArray } );
+    GRM.Log.AddLog ( { 20 , logEntryWithTime , banAlts , isAnEdit , playerWhoBanned , bannedName , reason , timeArray } );
 
     -- Report the change to chat window...
     if GRM.S().syncChatEnabled and GRM.S().toChat.banned then
@@ -2344,7 +2344,7 @@ GRMsync.CheckUnbanListChangeLive = function ( msg , sender )
 
         local logReportWithTime , logReport = GRM.GetUnBanString ( GRM.GetClassifiedName ( sender , true ) , name , GRM.Time.GetTimestamp() );
 
-        GRM.AddLog ( { 21 , logReportWithTime , GRM.GetClassifiedName ( sender , true ) , name , GRM.Time.GetTimestamp() } );
+        GRM.Log.AddLog ( { 21 , logReportWithTime , GRM.GetClassifiedName ( sender , true ) , name , GRM.Time.GetTimestamp() } );
 
         if GRM.S().syncChatEnabled and GRM.S().toChat.banned then
             GRM.Report ( logReport );
@@ -2565,11 +2565,11 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
                     -- unban = 21 , ban = 20
                     if banType == "1" then
 
-                        GRM.AddLog ( { 20 , banEditMsgWithTime , false , isAnEdit , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , GRM.Time.GetTimestamp() } );
+                        GRM.Log.AddLog ( { 20 , banEditMsgWithTime , false , isAnEdit , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , GRM.Time.GetTimestamp() } );
 
                     elseif banType == "2" then
 
-                        GRM.AddLog ( { 21 , banEditMsgWithTime , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , GRM.Time.GetTimestamp() } );
+                        GRM.Log.AddLog ( { 21 , banEditMsgWithTime , tempName , GRM.GetClassifiedName ( playerWhoBanned , false ) , reason , GRM.Time.GetTimestamp() } );
                     end
                 end
             end
@@ -2837,10 +2837,10 @@ end
 GRMsync.RefreshPlayerRankIDs = function()
     if not GRMsyncGlobals.IsElectedLeader then
         GRMsyncGlobals.CurrentSyncPlayer = GRMsyncGlobals.DesignatedLeader;
-        GRMsyncGlobals.CurrentSyncPlayerRankID = GRM.GetGuildMemberRankID ( GRMsyncGlobals.DesignatedLeader );
+        GRMsyncGlobals.CurrentSyncPlayerRankID = GRM.G_Util.GetGuildMemberRankID ( GRMsyncGlobals.DesignatedLeader );
     else
         GRMsyncGlobals.CurrentSyncPlayer = GRMsyncGlobals.SyncQue[1];
-        GRMsyncGlobals.CurrentSyncPlayerRankID = GRM.GetGuildMemberRankID ( GRMsyncGlobals.SyncQue[1] );
+        GRMsyncGlobals.CurrentSyncPlayerRankID = GRM.G_Util.GetGuildMemberRankID ( GRMsyncGlobals.SyncQue[1] );
     end
 end
 
@@ -5182,7 +5182,7 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
             GRMsyncGlobals.TimeSinceLastSyncAction = time();
 
             -- We already tried to sync, now aboard to 2nd.
-            if GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and GRM.IsGuildieOnline ( GRMsyncGlobals.CurrentSyncPlayer ) then
+            if GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and GRM.G_Util.IsGuildieOnline ( GRMsyncGlobals.CurrentSyncPlayer ) then
 
                 table.remove ( GRMsyncGlobals.SyncQue , 1 );
                 GRMsyncGlobals.currentlySyncing = false;
@@ -5260,7 +5260,7 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
 
         if forceStop or ( GRMsyncGlobals.currentlySyncing and ( time() - GRMsyncGlobals.TimeSinceLastSyncAction ) >= GRMsyncGlobals.ErrorCD ) then
 
-            local playerIsOnline = GRM.IsGuildieOnline ( GRMsyncGlobals.DesignatedLeader );
+            local playerIsOnline = GRM.G_Util.IsGuildieOnline ( GRMsyncGlobals.DesignatedLeader );
 
             GRMsyncGlobals.firstSync = true;
             GRMsyncGlobals.currentlySyncing = false;
@@ -5299,7 +5299,7 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
         -- This offers an escape
         local tempTime = ( time() - GRMsyncGlobals.TimeSinceLastSyncAction );
         if tempTime >= GRMsyncGlobals.ErrorCD and tempTime > GRMsyncGlobals.ErrorCD * 2 then
-            local playerIsOnline = GRM.IsGuildieOnline ( GRMsyncGlobals.DesignatedLeader );
+            local playerIsOnline = GRM.G_Util.IsGuildieOnline ( GRMsyncGlobals.DesignatedLeader );
             if not playerIsOnline then
                 if GRM.S().syncChatEnabled then
                     GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync Failed with {name}..." , GRM.GetClassifiedName ( GRMsyncGlobals.DesignatedLeader ) ) .. "\n" .. GRM.L ( "The Player Appears to Be Offline." ) );
@@ -5380,7 +5380,7 @@ end
 GRMsync.ReportAuditMessage = function()
     local numIncomplete = GRM.GetIncompleteGuildDataCounts()[5];
     local message = "";
-    local val = ( numIncomplete / GRM.GetNumGuildies() ) * 100;
+    local val = ( numIncomplete / GRM.G_Util.GetNumGuildies() ) * 100;
     if val < 1 and val > 0 then
         val = 1;
     end
@@ -5422,11 +5422,11 @@ GRMsync.InitiateDataSync = function ()
         -- First step, let's check Join Date Changes! Kickstart the fun!
         if #GRMsyncGlobals.SyncQue > 0 then
             -- Let's make sure the currentSyncPlayer is still online, as some time may have passed since we last checked.
-            if GRM.IsGuildieOnline ( GRMsyncGlobals.SyncQue[1] ) then
+            if GRM.G_Util.IsGuildieOnline ( GRMsyncGlobals.SyncQue[1] ) then
                 GRMsyncGlobals.currentlySyncing = true;
                 GRMsyncGlobals.CurrentSyncPlayer = GRMsyncGlobals.SyncQue[1];
-                GRMsyncGlobals.CurrentSyncPlayerRankID = GRM.GetGuildMemberRankID ( GRMsyncGlobals.SyncQue[1] );
-                GRMsyncGlobals.CurrentLeaderRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+                GRMsyncGlobals.CurrentSyncPlayerRankID = GRM.G_Util.GetGuildMemberRankID ( GRMsyncGlobals.SyncQue[1] );
+                GRMsyncGlobals.CurrentLeaderRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
                 if GRMsyncGlobals.SyncOK then
                     GRMsync.ResetReportTables();
                     GRMsync.ResetTempTables();
@@ -5936,7 +5936,7 @@ GRMsync.ProcessFinalAltChanges = function( sendCompletedMsg )
         end
     end
 
-    if GRM.TableLength ( GRMsyncGlobals.FinalAltListReceived ) > 0 then
+    if GRM.Util.TableLength ( GRMsyncGlobals.FinalAltListReceived ) > 0 then
         GRMsync.UnifyBirthdaysAmongAltGroups();
     end
     if sendCompletedMsg then
@@ -8147,7 +8147,7 @@ GRMsync.ReportSyncCompletion = function ( currentSyncer , finalAnnounce )
         GRM_UI.RefreshSelectFrames ( true , true , true , false , true , true );
 
         if GRM_UI.GRM_LoadToolButton:IsVisible() then
-            GRM_UI.RefreshToolButtonsOnUpdate();
+            GRM_UI.RefreshToolButtonsOnUpdate_Async();
         end
 
         GRMsyncGlobals.errorCheckEnabled = false;
@@ -8282,9 +8282,9 @@ GRMsync.RegisterCommunicationProtocols = function()
                         return;
                     end
 
-                    comms.senderRankID = GRM.GetGuildMemberRankID ( sender );
+                    comms.senderRankID = GRM.G_Util.GetGuildMemberRankID ( sender );
                     if not GRM_G.playerRankID then    -- Configure only first time
-                        GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+                        GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
                     end
 
                     -- Rank controls
@@ -8758,7 +8758,7 @@ GRMsync.Initialize = function()
                 GRMsyncGlobals.LeadSyncProcessing = false;
                 GRMsyncGlobals.errorCheckEnabled = false;
                 GRMsync.MessageTracking = GRMsync.MessageTracking or CreateFrame ( "Frame" , "GRMsyncMessageTracking" );
-                GRM_G.playerRankID = GRM.GetGuildMemberRankID ( GRM_G.addonUser );
+                GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
                 GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
 
                 if GRM_G.playerRankID then
