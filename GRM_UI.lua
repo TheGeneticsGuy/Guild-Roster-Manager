@@ -6947,6 +6947,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton:Disable();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton.GRM_SetProfessionsToNoteButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
 
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_RemoveProfNotesButton:Disable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_RemoveProfNotesButton.GRM_RemoveProfNotesButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+
             GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , true );
         end
     end
