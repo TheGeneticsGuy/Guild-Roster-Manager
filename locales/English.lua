@@ -1894,17 +1894,11 @@ GRML.English = function()
     -- Nickname Settings
     GRM_L["Nicknames"] = true
     GRM_L["Show Nickname in Chat"] = true
-    GRM_L["Note - If showing main name is enabled, the nickname will show instead"] = true
     GRM_L["Share Nickname Across All Grouped Alts"] = true
-
-
-    GRM_L["Public Nickname"] = true
-    GRM_L["Private Nickname"] = true
-    GRM_L["Public Nickname will be shared and sync'd with others."] = true
-    GRM_L["Private Nickname only you will see"] = true
-    GRM_L["Shows player's nickname instead."] = true
-    GRM_L["Note - If no nickname is set, it will default back to showing the main name."] = true
-
+    GRM_L["Append My Public Nickname to My Guild Messages"] = true
+    GRM_L["Show Nickname instead of Main name"] = true
+    GRM_L["Main name will still show if no nickname has been set"] = true
+    -- Custom Chat Window Settings
     GRM_L["Would you like to recreate this chat window for messages unique to the GRM addon?"] = true
     GRM_L["\"{name}\" Custom Chat Window for GRM appears to be missing."] = true
     GRM_L["The following Custom Chat Windows for GRM appear to be missing:"] = true
@@ -1918,8 +1912,11 @@ GRML.English = function()
     GRM_L["The {num} missing GRM channels have been recreated"] = true
     GRM_L["GRM will now only send messages to the following channels:"] = true
     GRM_L["Ignore Missing"] = true
+    -- Macro Rule Settings
     GRM_L["Search Public, Officer, and Custom Notes for Safe tag"] = true
     GRM_L["Re-scanning roster for rule match."] = true
+    -- MISC
+    GRM_L["Pending Feature"] = true
 
 
 end

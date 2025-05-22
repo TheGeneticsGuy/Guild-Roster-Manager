@@ -14,8 +14,8 @@ SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
 GRM_G.Version = "R1.992";
-GRM_G.PatchDayString = "1746570045";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1746570045;            -- In Epoch Time
+GRM_G.PatchDayString = "1747901802";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1747901802;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -1151,7 +1151,10 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.mainTagColor.g = 0;
         player.mainTagColor.b = 0;
         player.showNickname = false;
+        player.showNicknameNotMain = true;
+        player.ShowNicknameToAll = true;
         player.shareNickToAlts = true;
+
     end
 
 end

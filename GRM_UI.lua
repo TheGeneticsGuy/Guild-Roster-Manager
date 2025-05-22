@@ -6973,8 +6973,33 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.GRM_ShowNicknameButtonScript = function( self )
             if self:GetChecked() then
                 GRM.S().showNickname = true;
+                GRM_UI.EnableNicknameOptions(true);
             else
                 GRM.S().showNickname = false;
+                GRM_UI.EnableNicknameOptions(false);
+            end
+        end
+
+        GRM_UI.GRM_ShowNicknameInsteadButtonScript = function( self )
+            if self:GetChecked() then
+                GRM.S().showNicknameNotMain = true;
+            else
+                GRM.S().showNicknameNotMain = false;
+            end
+        end
+
+        GRM_UI.NicknameInsteadTT = function(self)
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine ( GRM.L ( "Main name will still show if no nickname has been set" ) );
+            GameTooltip:Show();
+        end
+
+        GRM_UI.GRM_AppendNicknameScript = function( self )
+            if self:GetChecked() then
+                GRM.S().ShowNicknameToAll = true;
+            else
+                GRM.S().ShowNicknameToAll = false;
             end
         end
 
@@ -6992,6 +7017,19 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.NormalizeHitRects(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainAltTagsButton,GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText);
         end
 
+        GRM_UI.EnableNicknameOptions = function( enable )
+            if enable then
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameInsteadButton:Enable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameInsteadButton.GRM_ShowNicknameInsteadButtonText:SetTextColor(1,0.82,0);
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameToAll:Enable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameToAll.GRM_ShowNicknameToAllText:SetTextColor(1,0.82,0);
+            else
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameInsteadButton:Disable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameInsteadButton.GRM_ShowNicknameInsteadButtonText:SetTextColor(0.5,0.5,0.5);
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameToAll:Disable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameToAll.GRM_ShowNicknameToAllText:SetTextColor(0.5,0.5,0.5);
+            end
+        end
     end
 
     GRM_UI.CreateCoreFrame ( "GRM_NamesOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , nil , 600 , 480 , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
@@ -7000,29 +7038,19 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     GRM_UI.CreateCheckBox ( "GRM_ShowMainAltTagsButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameOptionsTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.GRM_ShowMainAltTagsButtonScript , "" , "GameFontNormal" , 12 );
 
-    GRM_UI.CreateCheckBox ( "GRM_ShowMainNameCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainAltTagsButton , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.MainOrNicknameCheckButton , "Show Main Name in Chat" , "GameFontNormal" , 12 );
+    GRM_UI.CreateCheckBox ( "GRM_ShowMainNameCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainAltTagsButton , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.MainOrNicknameCheckButton , GRM.L ("Show Main Name in Chat") , "GameFontNormal" , 12 );
 
-    GRM_UI.CreateString ( "GRM_NicknameOptionsTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "GameFontNormal" , GRM.L ( "Nicknames" ) .. ":" , 20 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainNameCheckButton , "BOTTOMLEFT" , 4 , - 4 } , nil , { 0.0 , 0.8 , 1.0 } );
+    GRM_UI.CreateString ( "GRM_NicknameOptionsTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "GameFontNormal" , GRM.L ( "Nicknames" ) .. ":" , 20 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowMainNameCheckButton , "BOTTOMLEFT" , 4 , - 10 } , nil , { 0.0 , 0.8 , 1.0 } );
+
+    GRM_UI.CreateString ( "GRM_NicknameOptionsPending" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "GameFontNormal" , "(" .. string.upper(GRM.L ( "Pending Feature" )).. ")" , 14 , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NicknameOptionsTitle , "RIGHT" , 15 , 0 } , nil , { 1 , 0 , 0 } );
 
     GRM_UI.CreateCheckBox ( "GRM_ShowNicknameButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NicknameOptionsTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.GRM_ShowNicknameButtonScript , GRM.L ( "Show Nickname in Chat") , "GameFontNormal" , 12 );
 
-    GRM_UI.CreateString ( "GRM_NicknameInfoText" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "GameFontNormal" , "*" .. GRM.L ( "Note - If showing main name is enabled, the nickname will show instead" ), 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameButton , "BOTTOMLEFT" , 22 , - 4 } , nil , { 1,0,0 } );
+    GRM_UI.CreateCheckBox ( "GRM_ShowNicknameInsteadButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameButton , "BOTTOMRIGHT" , 0 , -6 } , GRM_UI.GRM_ShowNicknameInsteadButtonScript , GRM.L ( "Show Nickname instead of Main name") , "GameFontNormal" , 12 , GRM_UI.NicknameInsteadTT , GRM.RestoreTooltip );
 
-    GRM_UI.CreateCheckBox ( "GRM_ShareNicknamesButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameButton , "BOTTOMLEFT" , 0 , -20 } , GRM_UI.GRM_ShareNicknameButtonScript , GRM.L ( "Share Nickname Across All Grouped Alts" ) , "GameFontNormal" , 12 );
+    GRM_UI.CreateCheckBox ( "GRM_ShowNicknameToAll" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameInsteadButton , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.GRM_AppendNicknameScript , GRM.L ("Append My Public Nickname to My Guild Messages" ) , "GameFontNormal" , 12 );
 
-
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NicknameInfoText:SetTextColor ( 1,0,0 );
-
-
-    -- GRM_UI.CreateString ( "GRM_PrivateNicknameText" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "GameFontNormal" , GRM.L( "Private Nickname" ) .. ":" , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_NameFormatChoiceRadial2 , "BOTTOMRIGHT" , 5 , -10 } , nil , nil , "LEFT" , false );
-
-    -- GRM_UI.CreateEditBox ( "GRM_PrivateNicknameEditBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "InputBoxTemplate" , 165 , 30 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnName , "RIGHT" , 10 , 0 } , "CENTER" , nil , 30 , false , GRM_UI.NicknameTooltip , GRM.RestoreTooltip , nil , true , true , GRM_UI.NicknameEditBoxOnEnter );
-
-    -- GRM_UI.CreateString ( "GRM_PublicNicknameText" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , "GameFontNormal" , GRM.L( "Public Nickname" ) .. ":" , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_PrivateNicknameText , "BOTTOMLEFT" , 0 , -10 } , nil , nil , "LEFT" , false );
-
-
-
-
+    GRM_UI.CreateCheckBox ( "GRM_ShareNicknamesButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , nil , nil , { "TOPRIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameToAll , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.GRM_ShareNicknameButtonScript , GRM.L ( "Share Nickname Across All Grouped Alts" ) , "GameFontNormal" , 12 );
 
     if not GRM_ColorSelectOptionsFrame then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ColorSelectOptionsFrame = CreateFrame ( "Frame" , "GRM_ColorSelectOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame , BackdropTemplateMixin and "BackdropTemplate" );
@@ -15818,7 +15846,18 @@ GRM_UI.BuildLogFrames = function()
     end
 
     if GRM.S().showNickname then
+        GRM_UI.EnableNicknameOptions(true);
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameButton:SetChecked( true );
+    else
+        GRM_UI.EnableNicknameOptions(false);
+    end
+
+    if GRM.S().showNicknameNotMain then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameInsteadButton:SetChecked( true );
+    end
+
+    if GRM.S().ShowNicknameToAll then
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ShowNicknameToAll:SetChecked( true );
     end
 
     if GRM.S().shareNickToAlts then
@@ -16492,7 +16531,6 @@ local frameRefreshActive = false;
 -- Purpose:         Support for async controls to only refresh frames upon completion
 GRM_UI.ActivateRefreshFlagSearch = function( loopback )
     if not frameRefreshActive or loopback then
-        print("Checking for Frames Complettion")
         frameRefreshActive = true;
 
         if GRM.Util.TableLength (GRM_G.AsyncControlRefresh) > 0 then
@@ -16501,7 +16539,6 @@ GRM_UI.ActivateRefreshFlagSearch = function( loopback )
                     GRM_UI.RefreshSelectFrames(GRM_G.AsyncControlRefresh[tagName][1],GRM_G.AsyncControlRefresh[tagName][2],GRM_G.AsyncControlRefresh[tagName][3],GRM_G.AsyncControlRefresh[tagName][4],GRM_G.AsyncControlRefresh[tagName][5],GRM_G.AsyncControlRefresh[tagName][6],GRM_G.AsyncControlRefresh[tagName][7] );
 
                     -- Now, let's remove it
-                    print("Frames to reload for tag: ".. tagName)
                     GRM_G.AsyncControlRefresh[tagName] = nil;
                 end
             end

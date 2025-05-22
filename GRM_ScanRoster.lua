@@ -371,8 +371,6 @@ Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
         return;
     end
 
-    print("Moving on to scan for changes")
-
     GRM_G.ThrottleControlNum = 1;   -- Reset throttle control if needed for CheckPlayerChanges
     GRM_G.newPlayers = {};          -- Reset for CheckPlayerChanges
     GRM_G.leavingPlayers = {};
@@ -3123,11 +3121,9 @@ Scan.currentScanState = nil
 --                  no stutter on the main thread.
 Scan.ScanRecommendationsList_Async = function()
     if Scan.currentScanState and Scan.currentScanState.isRunning then
-        print("GRM Scan: Scan already in progress.")
         return
     end
 
-    print("GRM Scan: Initiating Recommendations Scan...")
     GRM.RuleIntegrityCheck(); -- Validate rules before starting
 
     -- Hourly refresh check (original logic)
@@ -3175,7 +3171,6 @@ Scan.ScanRecommendationsList_Async = function()
     -- Get all player names once at the beginning
     Scan.currentScanState.allGuildPlayerNames = GRM.G_Util.GetSortedPlayerNames()
     if #Scan.currentScanState.allGuildPlayerNames <= 1 then
-        print("GRM Scan: No guild members to process (other than yourself)")
         Scan.currentScanState.isRunning = false
         return
     end
@@ -3205,7 +3200,6 @@ Scan.ProcessNextMacroRuleChunk = function()
 
     -- Helper to advance to the next major category (Kick -> Promote -> Demote -> Special -> Finish)
     local function advanceToNextMajorStage(nextMajorStage)
-        print("GRM Scan: Finished category. Advancing to " .. nextMajorStage)
         state.guildPlayerIndex = 1          -- Reset for fetching candidates for the new category
         state.processingIndex = 1           -- Reset for processing the new list or clearing flags
         state.tempNamesForMarking = {}      -- Clear for the new category
@@ -3237,7 +3231,6 @@ Scan.ProcessNextMacroRuleChunk = function()
     ------------------------------------
     if state.stage == "INIT_KICK" then
         if CanGuildRemove() and #state.allGuildPlayerNames > 0 then
-            print("GRM Scan: KICK - Fetching Candidates...")
             state.kickRecommendationList = {}
             state.kickRuleDisabledList = {}
             state.guildPlayerIndex = 1 -- Start fetching from the beginning of the guild list
@@ -3245,7 +3238,6 @@ Scan.ProcessNextMacroRuleChunk = function()
             -- Fall through to KICK_FETCH_CANDIDATES_CHUNK in the same cycle if desired, or schedule:
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: Skipping Kick Recommendations (cannot remove or no players).")
             advanceToNextMajorStage("INIT_PROMOTION"); return
         end
     end
@@ -3265,7 +3257,6 @@ Scan.ProcessNextMacroRuleChunk = function()
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return -- More guild members to process for rules
         else
             -- All guild members processed for kick rules
-            print("GRM Scan: KICK - Fetched " .. #state.kickRecommendationList .. " candidates.")
             transitionToProcessingCandidates(state.kickRecommendationList, state.kickRuleDisabledList, "KICK_PROCESS_CANDIDATES_CHUNK", "KICK_CLEAR_FLAGS_CHUNK"); return
         end
     end
@@ -3290,7 +3281,6 @@ Scan.ProcessNextMacroRuleChunk = function()
         if state.processingIndex <= #state.processingList then
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return -- More recommendations to process
         else
-            print("GRM Scan: KICK - Processed candidates. Now Clearing Flags...")
             transitionToClearingFlags(); return
         end
     end
@@ -3322,14 +3312,12 @@ Scan.ProcessNextMacroRuleChunk = function()
     ------------------------------------
     if state.stage == "INIT_PROMOTION" then
         if CanGuildPromote() and #state.allGuildPlayerNames > 0 then
-            print("GRM Scan: PROMOTION - Fetching Candidates...")
             state.promotionRecommendationList = {}
             state.promotionRuleDisabledList = {}
             state.guildPlayerIndex = 1
             state.stage = "PROMOTION_FETCH_CANDIDATES_CHUNK"
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: Skipping Promotion Recommendations (cannot promote or no players).")
             advanceToNextMajorStage("INIT_DEMOTION"); return
         end
     end
@@ -3343,7 +3331,6 @@ Scan.ProcessNextMacroRuleChunk = function()
         if state.guildPlayerIndex <= #state.allGuildPlayerNames then
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: PROMOTION - Fetched " .. #state.promotionRecommendationList .. " candidates.")
             transitionToProcessingCandidates(state.promotionRecommendationList, state.promotionRuleDisabledList, "PROMOTION_PROCESS_CANDIDATES_CHUNK", "PROMOTION_CLEAR_FLAGS_CHUNK"); return
         end
     end
@@ -3365,7 +3352,6 @@ Scan.ProcessNextMacroRuleChunk = function()
         if state.processingIndex <= #state.processingList then
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: PROMOTION - Processed candidates. Now Clearing Flags...")
             transitionToClearingFlags(); return
         end
     end
@@ -3393,14 +3379,12 @@ Scan.ProcessNextMacroRuleChunk = function()
     ------------------------------------
     if state.stage == "INIT_DEMOTION" then
         if CanGuildDemote() and #state.allGuildPlayerNames > 0 then
-            print("GRM Scan: DEMOTION - Fetching Candidates...")
             state.demotionRecommendationList = {}
             state.demotionRuleDisabledList = {}
             state.guildPlayerIndex = 1
             state.stage = "DEMOTION_FETCH_CANDIDATES_CHUNK"
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: Skipping Demotion Recommendations (cannot demote or no players).")
             advanceToNextMajorStage("INIT_SPECIAL"); return
         end
     end
@@ -3414,7 +3398,6 @@ Scan.ProcessNextMacroRuleChunk = function()
         if state.guildPlayerIndex <= #state.allGuildPlayerNames then
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: DEMOTION - Fetched " .. #state.demotionRecommendationList .. " candidates.")
             transitionToProcessingCandidates(state.demotionRecommendationList, state.demotionRuleDisabledList, "DEMOTION_PROCESS_CANDIDATES_CHUNK", "DEMOTION_CLEAR_FLAGS_CHUNK"); return
         end
     end
@@ -3436,7 +3419,6 @@ Scan.ProcessNextMacroRuleChunk = function()
         if state.processingIndex <= #state.processingList then
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: DEMOTION - Processed candidates. Now Clearing Flags...")
             transitionToClearingFlags(); return
         end
     end
@@ -3464,7 +3446,6 @@ Scan.ProcessNextMacroRuleChunk = function()
     ------------------------------------
     if state.stage == "INIT_SPECIAL" then
         if CanGuildDemote() and CanGuildPromote() and #state.allGuildPlayerNames > 0 then
-            print("GRM Scan: SPECIAL - Fetching Candidates...")
             state.specialRecommendationList = {}
             state.specialRuleDisabledList = {} -- If GRM_UI.GetNamesBySpecialRulesChunk returns it
             state.guildPlayerIndex = 1
@@ -3476,7 +3457,6 @@ Scan.ProcessNextMacroRuleChunk = function()
             state.stage = "SPECIAL_FETCH_CANDIDATES_CHUNK"
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: Skipping Special Recommendations (cannot promote/demote or no players).")
             advanceToNextMajorStage("FINISH"); return
         end
     end
@@ -3490,7 +3470,6 @@ Scan.ProcessNextMacroRuleChunk = function()
         if state.guildPlayerIndex <= #state.allGuildPlayerNames then
             C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
         else
-            print("GRM Scan: SPECIAL - Fetched " .. #state.specialRecommendationList .. " candidates.")
             transitionToProcessingCandidates(state.specialRecommendationList, state.specialRuleDisabledList, "SPECIAL_PROCESS_CANDIDATES_CHUNK", "SPECIAL_CLEAR_FLAGS_CHUNK"); return
         end
     end
@@ -3527,7 +3506,6 @@ Scan.ProcessNextMacroRuleChunk = function()
             if state.specialUnannouncedPromote > 0 or state.specialUnannouncedDemote > 0 then
                 GRM.Log.AddEventRecommendSpecialLogEntry(state.specialPromoteCountTotal, state.specialDemoteCountTotal, GRM.Time.GetTimestamp())
             end
-            print("GRM Scan: SPECIAL - Processed candidates. Now Clearing Flags...")
             transitionToClearingFlags(); return
         end
     end
@@ -3554,7 +3532,6 @@ Scan.ProcessNextMacroRuleChunk = function()
     -- FINISH STAGE
     ------------------------------------
     if state.stage == "FINISH" then
-        print("GRM Scan: All Recommendations Processed. Scan Complete.")
         state.isRunning = false
         Scan.currentScanState = nil; -- Clearing for garbage collection as it's a LOT of data
         if GRM_G.FullMacroToolRefresh then
@@ -3577,11 +3554,6 @@ Scan.GetRuleNameMatchesChunk = function(playerRec)
         for i = 1, #playerRec do
             if playerRec[i] and type(playerRec[i]) == "table" and type(playerRec[i][1]) == "string" then
                 table.insert(result, playerRec[i][1]);
-            else
-                -- ERROR!!!
-                if GRM_G.DebugEnabled then
-                    print("GRM Scan.GetRuleNameMatchesChunk: Warning - rule format unexpected for playerRec index " .. i)
-                end
             end
         end
     end

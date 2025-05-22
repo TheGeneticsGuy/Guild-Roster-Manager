@@ -4,10 +4,13 @@ GRM_Macro = {};
 
 GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();  -- Need to load this at start.
 
--- Useful globals for async function status control
-GRM_G.RefreshMacroToolText = false;                 -- Indication after async action to refresh certain frames
+-- Useful globals for async function status control (simulated async since it's not built in)
+GRM_G.RefreshMacroToolText = false;
 GRM_G.countingScanState = nil;
+GRM_G.queuedEntriesScanState = nil;
 GRM_G.fullMacroToolRefresh = false;
+GRM_G.RefreshManagementDelay = false;
+GRM_G.RefreshKickDelay = false;
 
 GRM_UI.BuildSpcialRules = function()
 
@@ -1320,9 +1323,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_G.timeDelayValue = time();
 
-                    GRM.BuildQueuedScrollFrame ( true , false , false );
+                    GRM.InitializeQuedScrollFrame ( true , false );
                     GRM.BuildMacrodScrollFrame ( true , true );
-                    GRM_G.timeDelayValue = time(); -- Prevents it from doing "IsInGuild()" too soon by resetting timer as server reaction is slow
+                    GRM_G.timeDelayValue = time();
 
                 end
                 self.Timer = 0;
@@ -2266,7 +2269,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:SetScript ( "OnValueChanged" , function ( self , value )
             GRM.HybridScrollOnValueChangedConfig (
                 self , value , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame ,
-                13 , 25 , GRM.BuildQueuedScrollFrame , GRM_UI.GRM_ToolCoreFrame.QueuedEntries
+                13 , 25 , GRM.InitializeQuedScrollFrame , GRM_UI.GRM_ToolCoreFrame.QueuedEntries
             );
         end);
 
@@ -2578,7 +2581,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Core Frame
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:ClearAllPoints();
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetPoint ( "CENTER" , UIParent );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 770 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:EnableMouse ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetMovable ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetToplevel ( true );
@@ -3634,6 +3637,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
 
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 775 );
+
         end
 
         -- Method:          GRM_UI.ConfigureCustomRulePromoteAndDemoteFrame ( bool , string , bool )
@@ -4188,6 +4193,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetText ( matchString );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern = matchString;
 
+            end
+
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 805 );
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 755 );
             end
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
@@ -5668,11 +5679,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            self:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern );
+            self:SetText ( GRM.Trim ( self:GetText() ) );
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxCount:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame:EnableMouse ( true );
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern = self:GetText();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLogMsg = self:GetText();
         end)
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetScript ( "OnEditFocusGained" , function ( self )
@@ -6261,40 +6275,14 @@ GRM.BuildCustomDemoteEntries = function ( playerList , forceRefresh , button )
     return result;
 end
 
--- Method:          GRM.GetQueuedEntries ( bool )
--- What it Does:    Determines which grouping to import
--- Purpose:         Proper sorting of players in the guild to be added to the mass kick tool
-GRM.GetQueuedEntries = function ()
-    local result = {};
-    print("Getting Queued Entries")
-
-    if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
-        if CanGuildRemove() then
-            result = GRM.GetKickNamesByFilterRules();
-        end
-    elseif ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() ) or ( GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() ) then
-        result = GRM.GetPromoteAndDemoteNamesByFilterRules ( GRM_UI.GRM_ToolCoreFrame.TabPosition );
-
-    elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 and CanGuildDemote() and CanGuildDemote() then
-        result = GRM_UI.GetNamesBySpecialRules();
-    end
-
-    return result;
-end
-
-GRM.queuedEntriesScanState = nil;
-
 -- Method:          GRM.StartQueuedEntriesScan()
 -- What it Does:    Initiates an async scan for the currently selected rule tab.
 --                  Calls callbackOnComplete(resultList) when done.
 -- Purpose:         To populate GRM_UI.GRM_ToolCoreFrame.QueuedEntries asynchronously.
 GRM.StartQueuedEntriesScan = function()
-    if GRM.queuedEntriesScanState and GRM.queuedEntriesScanState.isRunning then
-        print("GRM Queued Entries Scan: Scan already in progress.");
+    if GRM_G.queuedEntriesScanState and GRM_G.queuedEntriesScanState.isRunning then
         return;
     end
-
-    print("GRM Queued Entries Scan: Initiating...");
 
     local tabPosition = GRM_UI.GRM_ToolCoreFrame.TabPosition;
     local categoryToScan = nil; -- 1:Kick, 2:Promote, 3:Demote, 4:Special
@@ -6315,16 +6303,12 @@ GRM.StartQueuedEntriesScan = function()
     end
 
     if not categoryToScan then
-        print("GRM Queued Entries Scan: No valid category to scan or permissions lacking for tab " .. tabPosition);
         GRM.DoBuildScrollFrameWithEntries({}); -- Return empty list
         return;
     end
 
-    print("GRM Queued Entries Scan: Category determined - " .. ruleFunctionName);
-
     local allGuildPlayerNamesSorted = GRM.G_Util.GetSortedPlayerNames(); -- Ensure this is accessible
     if #allGuildPlayerNamesSorted <= 1 then
-        print("GRM Queued Entries Scan: No guild members to process.");
         GRM.DoBuildScrollFrameWithEntries({});
         return;
     end
@@ -6332,7 +6316,7 @@ GRM.StartQueuedEntriesScan = function()
     local includeHigherAlt = false;
     local highest = nil; -- Not relevant if includeHigherAlt is false
 
-    GRM.queuedEntriesScanState = {
+    GRM_G.queuedEntriesScanState = {
         isRunning = true,
         allNames = allGuildPlayerNamesSorted,
         chunkSize = 75,
@@ -6351,13 +6335,12 @@ end
 
 -- Helper to process chunks for a single category for QueuedEntries
 GRM.ProcessNextQueuedEntriesChunk = function()
-    local state = GRM.queuedEntriesScanState;
+    local state = GRM_G.queuedEntriesScanState;
     if not state or not state.isRunning then return; end
 
     local recommendationsInChunk; -- For this scan, we only care about the primary list, not higherAltCount or disabledList.
 
     if state.currentIndex <= #state.allNames then
-        print("GRM Queued Entries Scan: Processing chunk for " .. state.ruleFunctionName .. ", index " .. state.currentIndex);
         if state.category == 1 then
             recommendationsInChunk, _, _ = GRM.GetKickNamesByFilterRulesChunk(
                 state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
@@ -6385,18 +6368,15 @@ GRM.ProcessNextQueuedEntriesChunk = function()
         C_Timer.After(0, GRM.ProcessNextQueuedEntriesChunk);
     else
         -- All chunks for this category processed
-        print("GRM Queued Entries Scan: Finished processing for " .. state.ruleFunctionName .. ". Total items: " .. #state.accumulatedResults);
         state.isRunning = false;
-        print("Sending my results " .. #state.accumulatedResults)
         state.accumulatedResults = GRM.SortAltsUnderMain(state.accumulatedResults);
         GRM.DoBuildScrollFrameWithEntries(GRM.Util.DeepCopyArray(state.accumulatedResults));
-        -- GRM.queuedEntriesScanState = nil; -- Clear state
+        GRM_UI.RefreshManagementToolDelay();
+
+
+        GRM_G.queuedEntriesScanState = nil; -- Clear state
     end
 end
--- /run GRM.ClearQuedAndMacroFrames();
--- /run GRM.InitializeQuedScrollFrame(true,true)
--- /dump GRM.queuedEntriesScanState.accumulatedResults
--- /run for x in pairs(GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1]) do print(x) end for x in pairs(GRM.queuedEntriesScanState.accumulatedResults[1]) do print(x) end
 
 -- Method:          GRM.GetListOfQueuedNames()
 -- What it Does:    Returns the list of names in the qued list.
@@ -6661,7 +6641,9 @@ end
 GRM.TriggerKickQueuedWindowRefresh = function()
     GRM_UI.RestoreTooltipScale();
     GameTooltip:Hide();
-    GRM.BuildQueuedScrollFrame ( true , true , false );
+
+    GRM_G.RefreshKickDelay = true;
+    GRM.InitializeQuedScrollFrame ( true , true , false );
     GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 end
 
@@ -6671,7 +6653,7 @@ end
 GRM.ClearQuedAndMacroFrames = function()
     GRM_UI.GRM_ToolCoreFrame.QueuedEntries = {};
     GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
-    GRM.BuildQueuedScrollFrame ( false , false );
+    GRM.InitializeQuedScrollFrame ( false , false );
     GRM.BuildMacrodScrollFrame ( true , false );
 end
 
@@ -6681,7 +6663,6 @@ GRM.DoBuildScrollFrameWithEntries = function(queuedEntriesList)
     local scrollHeight = 0;
     local buttonWidth = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame:GetWidth() - 5;
 
-    print("Queued Entries: " .. #queuedEntriesList)
     -- Ensure the list is not nil, default to empty table if it is
     GRM_UI.GRM_ToolCoreFrame.QueuedEntries = queuedEntriesList or {};
 
@@ -6774,8 +6755,6 @@ GRM.DoBuildScrollFrameWithEntries = function(queuedEntriesList)
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2:SetText(#GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetText(#GRM_UI.GRM_ToolCoreFrame.Safe);
-
-    print("GRM UI: QueuedScrollFrame built/updated with " .. #GRM_UI.GRM_ToolCoreFrame.QueuedEntries .. " entries.");
 end
 
 -- Method:          GRM.InitializeQuedScrollFrame( bool , bool , bool , bool , bool , table )
@@ -6788,10 +6767,6 @@ GRM.InitializeQuedScrollFrame = function(showAll, fullRefresh, isBanAltList, ban
         GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {}; -- Reset validated names
 
         if not isBanAltList and not bannedInGuildList and not customGroup then
-            -- Asynchronous fetching for default rules
-            print("GRM.BuildQueuedScrollFrame: Fetching default queued entries asynchronously...");
-            -- GRM_UI.ShowLoadingSpinner();
-
             GRM.StartQueuedEntriesScan();
         else
             -- Synchronous cases for ban lists or custom groups
@@ -6819,106 +6794,6 @@ GRM.InitializeQuedScrollFrame = function(showAll, fullRefresh, isBanAltList, ban
             GRM.DoBuildScrollFrameWithEntries({}); -- Build with empty to be safe
         end
     end
-end
-
--- Method:          GRM.BuildQueuedScrollFrame( bool , bool , bool , bool , bool , table )
--- What it Does:    Updates the Queued scrollframe as needed
--- Purpose:         UX of the GRM mass kick tool
-GRM.BuildQueuedScrollFrame = function ( showAll , fullRefresh , isBanAltList , bannedInGuildList , customGroup , customGroupTable )
-    local hybridScrollFrameButtonCount = 13;
-    local buttonHeight = 25;
-    local scrollHeight = 0;
-    local buttonWidth = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame:GetWidth() - 5;
-    if showAll and fullRefresh then
-        GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
-        if not isBanAltList and not bannedInGuildList and not customGroup then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.GetQueuedEntries();
-        elseif isBanAltList then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( GRM_G.KickAllAltsTable );
-            GRM_G.KickAllAltsTable = {};
-        elseif bannedInGuildList then
-            GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( GRM_G.KickAllBannedTable );
-            GRM_G.KickAllBannedTable = {};
-        elseif customGroup then
-            if not customGroupTable then
-                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( GRM_G.customKickList );
-                GRM_G.customKickList = {};
-            else
-                GRM_UI.GRM_ToolCoreFrame.QueuedEntries = GRM.Util.DeepCopyArray ( customGroupTable );
-            end
-        end
-    end
-
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons or {};
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset or ( hybridScrollFrameButtonCount );
-
-    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset < hybridScrollFrameButtonCount then
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = hybridScrollFrameButtonCount;
-    elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset > hybridScrollFrameButtonCount and GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset > #GRM_UI.GRM_ToolCoreFrame.QueuedEntries then
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
-    end
-
-    for i = 1 , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries do
-        -- Build HybridScrollFrame Buttons
-        if i <= hybridScrollFrameButtonCount then
-            if not GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i] then
-
-                local button = CreateFrame ( "Button" , "QueuedButton1_" .. i , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i] = {
-                    button ,
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )
-                };
-
-                button = GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i][1];
-                if i == 1 then
-                    button:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame , "TOP" , 7 , 0 );
-                else
-                    button:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i-1][1] , "BOTTOMLEFT" , 0 , 0 );
-                end
-
-                button:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
-                button:SetSize ( buttonWidth , buttonHeight );
-                GRM.BuildKickQueuedScrollButtons ( i  , false );
-
-            end
-        end
-
-        if i >= ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset - hybridScrollFrameButtonCount + 1 ) and i <= GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset then
-            GRM.SetKickQueuedValues ( i - ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset - hybridScrollFrameButtonCount ) , i );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i - ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.Offset - hybridScrollFrameButtonCount )][1]:Show();
-        end
-
-        -- Slider Height is controlled by tallying how many of these are necessary
-        scrollHeight = scrollHeight + buttonHeight;
-    end
-
-    -- Hide unused buttons...
-    for i = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries + 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons do
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[i][1]:Hide();
-    end
-
-    GRM.SetHybridScrollFrameSliderParameters (
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder,
-        buttonWidth , buttonHeight , scrollHeight , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons ,
-        GRM.KickQueuedHybridShiftDown , GRM.KickQueuedHybridShiftUp , hybridScrollFrameButtonCount
-    );
-
-    if #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > 13 then
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:Show();
-    else
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:Hide();
-    end
-
-    if #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > 0 then
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetText( GRM.L ( "Click to Build Macro" ) );
-    else
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton.GRM_ToolBuildMacroButtonText:SetText( GRM.L ( "No Current Names to Add" ) );
-    end
-
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalQueText2:SetText ( #GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetText ( #GRM_UI.GRM_ToolCoreFrame.Safe );
-
 end
 
 -- Method:          GRM.BuildKickQueuedScrollButtons ( int , boolean )
@@ -7476,16 +7351,6 @@ GRM.UpdateMacrodTooltip = function ( ind )
     GameTooltip:AddLine ( GRM.L ( "{custom1} to open Player Window" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Click" ) .. "|r" ) );
     GameTooltip:AddLine( GRM.L ( "{custom1} to Search the Log for Player" , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Shift-Click" ) .. "|r" ) );
     GameTooltip:Show();
-end
-
--- Method:          GRM.TriggerKickMacrodWindowRefresh()
--- What it Does:    Refreshes the GRM Kick Tool's Macrod window after hiding the tooltip
--- Purpose:         Prevent code bloat for something with repeated use.
-GRM.TriggerKickMacrodWindowRefresh = function()
-    GRM_UI.RestoreTooltipScale();
-    GameTooltip:Hide();
-    GRM.BuildMacrodScrollFrame ( true , true );
-    GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 end
 
 -- Method:          GRM.RemoveNamesFromMacroEntries()
@@ -8700,7 +8565,6 @@ GRM.ValidateRule = function ( rule , ruleType )
     for settingName in pairs ( tempRule ) do
         if rule[settingName] == nil then
             rule[settingName] = tempRule[settingName];
-            -- print ("ERROR: " .. settingName .. " rule was missing for " .. rule.name );
         end
     end
 
@@ -9912,6 +9776,10 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
     local ruleDisabledListForThisChunk = {};
     local higherAltRuleMatchesCount = 0;  -- Counts rule-player matches for higher alts
 
+    -- Defaults
+    allPlayerNamesSorted = allPlayerNamesSorted or GRM.G_Util.GetSortedPlayerNames();
+    startIndex = startIndex or 1;
+    chunkSize = chunkSize or 1;
     includeHigherAlt = includeHigherAlt or false;
 
     if not GRM_G.playerRankID then
@@ -11731,8 +11599,6 @@ GRM.GetCountOfNamesBeingFilteredScan = function(callbackOnComplete)
         return;
     end
 
-    print("GRM Counting Scan: Initiating...");
-
     local highest = GRM_UI.GetYourOwnAltHighestRank();
     local currentCanPromote = CanGuildPromote(); -- Current character's direct perms
     local currentCanDemote = CanGuildDemote();
@@ -11762,7 +11628,6 @@ GRM.GetCountOfNamesBeingFilteredScan = function(callbackOnComplete)
 
     local allGuildPlayerNamesSorted = GRM.G_Util.GetSortedPlayerNames();
     if #allGuildPlayerNamesSorted <= 1 then
-        print("GRM Counting Scan: No guild members to process. Scan finished.");
         if type(callbackOnComplete) == "function" then
             callbackOnComplete(0, 0, 0, 0, 0, 0, 0, 0); -- Call with zero counts
         end
@@ -11801,7 +11666,6 @@ GRM.ProcessNextCountingChunk = function()
     local recommendationsInChunk, higherAltCountForChunk;
 
     local function advanceCategory(nextCategory)
-        print("GRM Counting Scan: Finished " .. state.currentCategory .. ". Advancing to " .. nextCategory);
         state.currentCategory = nextCategory;
         state.currentIndex = 1; -- Reset for the new category
         C_Timer.After(0, GRM.ProcessNextCountingChunk);
@@ -11909,7 +11773,6 @@ GRM.ProcessNextCountingChunk = function()
         GRM_G.counts[4][2] = state.s2;
 
     elseif state.currentCategory == "DONE" then
-        print("GRM Counting Scan: All categories processed. Scan complete.");
         state.isRunning = false;
         if type(state.callback) == "function" then
             state.callback(state.k, state.p, state.d, state.s, state.k2, state.p2, state.d2, state.s2);
@@ -11927,6 +11790,9 @@ GRM.ProcessNextCountingChunk = function()
     end
 end
 
+-- Method:          GRM.RuleCountsFrameHandler()
+-- What it Does:    Flag control handler for text refresh if using this function with the macro tool
+-- Purpose:         Only refresh the frames IF using macro tool.
 GRM.RuleCountsFrameHandler = function()
 
     if GRM_G.RefreshMacroToolText then
@@ -11935,9 +11801,6 @@ GRM.RuleCountsFrameHandler = function()
     end
 
     GRM_UI.FrameRefreshFlagReady("quedMacro");
-
-
-
 end
 
 -- Method:          GRM.GetCachedRuleCounts()
@@ -11986,7 +11849,6 @@ GRM_UI.UpdateToolButtonText = function(k_val, p_val, d_val, s_val, k2_val, p2_va
             GRM_UI.GRM_LoadToolButtonText:SetText(GRM.L("Macro Tool"));
         end
         GRM_UI.GRM_LoadToolButton.lastTotalCount = total; -- Update last known total
-        print("GRM UI: Tool Button text updated to total: " .. total);
     end
 end
 
@@ -12005,18 +11867,15 @@ GRM_UI.RefreshToolButtonsOnUpdate_Async = function(forced , refreshMacroToolText
 
         -- If a refresh is already running, or if it was requested very recently, don't start another
         if GRM_G.countingScanState and GRM_G.countingScanState.isRunning then
-            -- print("GRM UI: Tool button count refresh already in progress.");
             return;
         end
 
         local currentTime = time();
         if not forced and (currentTime - GRM_G.timeOfLastToolButtonRefreshRequest < MIN_REFRESH_INTERVAL_TOOL_BUTTON) then
-            -- print("GRM UI: Tool button count refresh requested too soon. Throttling.");
             return;
         end
 
         GRM_G.timeOfLastToolButtonRefreshRequest = currentTime;
-        print("GRM UI: Requesting tool button count refresh...");
         -- Initiate the asynchronous scan, providing GRM_UI.UpdateToolButtonText as the callback
         GRM.GetCountOfNamesBeingFilteredScan(GRM_UI.UpdateToolButtonText);
 
@@ -12059,22 +11918,49 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGro
     GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
     GRM_UI.GRM_ToolCoreFrame.Safe = {}; -- reset this list to rebuild
-    GRM.BuildQueuedScrollFrame ( true , true , isBanAltList , isBanInGuild , customGroup , customGroupTable );
+    GRM.InitializeQuedScrollFrame ( true , true , isBanAltList , isBanInGuild , customGroup , customGroupTable );
     -- On reshow, always reset the macro
+    if isBanAltList or isBanInGuild or customGroup then
+        GRM_UI.NonAsyncRefresh();
+    else
+        GRM_G.RefreshManagementDelay = true
+    end
+end
+
+-- Method:          GRM_UI.RefreshManagementToolDelay()
+-- What it Does:    Holds functions to load AFTER async actions
+-- Purpose:         Control load of frames efficiently.
+GRM_UI.RefreshManagementToolDelay = function()
+
+    if GRM_G.RefreshManagementDelay then
+        GRM_G.RefreshManagementDelay = false;
+        GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
+        GRM.BuildMacrodScrollFrame ( true , false );
+
+        -- Load the options properly
+        GRM_UI.LoadRulesUI();
+        GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
+    end
+
+    if GRM_G.RefreshKickDelay then
+        GRM_G.RefreshKickDelay = false;
+        GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
+        GRM.TriggerIgnoredQueuedWindowRefresh();
+        GRM.SetIgnoredButtonText();
+    end
+
+end
+
+GRM_UI.NonAsyncRefresh = function()
     GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
     GRM.BuildMacrodScrollFrame ( true , false );
 
     -- Load the options properly
     GRM_UI.LoadRulesUI();
     GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
-
     -- Populate the macro
-    if isBanAltList or isBanInGuild or customGroup then
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:Click();
-    end
-
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolBuildMacroButton:Click();
 end
-
 
 
 -- Method:          GRM_UI.LoadRulesUI()

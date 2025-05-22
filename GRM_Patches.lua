@@ -1710,6 +1710,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNames , true , true , false , nil );
         GRM_Patch.FixBirthdayUnknown();
         GRM_Patch.AddNewSetting ( "showNickname" , false );
+        GRM_Patch.AddNewSetting ( "showNicknameNotMain" , true );
+        GRM_Patch.AddNewSetting ( "ShowNicknameToAll" , true );
         GRM_Patch.AddNewSetting ( "shareNickToAlts" , true );
         GRM_Patch.EditSetting ( "kickRules" , false , "safeMatchAllNotes" );
         GRM_Patch.EditSetting ( "promoteRules" , false , "safeMatchAllNotes" );
