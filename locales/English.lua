@@ -1880,7 +1880,7 @@ GRML.English = function()
     -- R1.99170
     GRM_L["Unable to invite. You are grouped without privileges."] = true
 
-    -- R1.92
+    -- R1.992
     GRM_L["This will remove the profession details from all player notes: public, officer, and custom."] = true
     GRM_L["Do you wish to continue?"] = true
     GRM_L["Click to Remove All Profession Notes"] = true

@@ -1884,6 +1884,41 @@ GRML.MandarinCN = function()
     GRM_L["Unable to invite. You are grouped without privileges."] = true
 
     -- R1.992
+    GRM_L["This will remove the profession details from all player notes: public, officer, and custom."] = true
+    GRM_L["Do you wish to continue?"] = true
+    GRM_L["Click to Remove All Profession Notes"] = true
+    GRM_L["{num} notes have had profession details removed."] = true
+    -- Main/Alt Display Settings
+    GRM_L["Alt, Main, and Nickname settings"] = true
+    GRM_L["Names"] = true       -- Represents the Options "Names" tab
+    GRM_L["Main and Alt Formatting"] = true
+    GRM_L["Show both {name} and {name2} tags in Chat"] = true
     GRM_L["Show Main Name in Chat"] = true
+    -- Nickname Settings
+    GRM_L["Nicknames"] = true
+    GRM_L["Show Nickname in Chat"] = true
+    GRM_L["Share Nickname Across All Grouped Alts"] = true
+    GRM_L["Append My Public Nickname to My Guild Messages"] = true
+    GRM_L["Show Nickname instead of Main name"] = true
+    GRM_L["Main name will still show if no nickname has been set"] = true
+    -- Custom Chat Window Settings
+    GRM_L["Would you like to recreate this chat window for messages unique to the GRM addon?"] = true
+    GRM_L["\"{name}\" Custom Chat Window for GRM appears to be missing."] = true
+    GRM_L["The following Custom Chat Windows for GRM appear to be missing:"] = true
+    GRM_L["Would you like to recreate these chat windows for messages unique to the GRM addon?"] = true
+    GRM_L["Add Channel"] = true
+    GRM_L["Add Channels"] = true
+    GRM_L["Set to {name}"] = true   -- Referencing the default chat channel "Set to General"
+    GRM_L["Keep Only {name}"] = true
+    GRM_L["GRM will now send all messages to the default \"{name}\" channel"] = true
+    GRM_L["The missing GRM channel has been recreated."] = true
+    GRM_L["The {num} missing GRM channels have been recreated"] = true
+    GRM_L["GRM will now only send messages to the following channels:"] = true
+    GRM_L["Ignore Missing"] = true
+    -- Macro Rule Settings
+    GRM_L["Search Public, Officer, and Custom Notes for Safe tag"] = true
+    GRM_L["Re-scanning roster for rule match."] = true
+    -- MISC
+    GRM_L["Pending Feature"] = true
 
 end
