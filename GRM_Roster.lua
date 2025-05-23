@@ -448,6 +448,18 @@ GRM_R.RankSelection = function( button )
     end
 end
 
+-- Method:          GRM_R.ConfigureMacroForRightClick ( int , table )
+-- What it Does:    Due to Async loading of various features in the macro tool, this will
+--                  control load of information to populate the macro tool
+-- Purpose:         Fix the issue with right-clicking a name on the roster to kick or demote
+GRM_R.ConfigureMacroForRightClick = function ( tabNum , entries )
+    GRM_UI.GRM_ToolCoreFrame.TabPosition = tabNum;
+    C_Timer.After ( 0.1 , function()
+        GRM_UI.ConfigureToolTab();
+        GRM_UI.RefreshManagementTool( entries );
+    end)
+end
+
 -- Method:          GRM_R.PromotePlayer ( button )
 -- What it Does:    Takes the player to be promoted and builds macr otool
 -- Purpose:         Quality of life feature for the custom guild roster
@@ -455,11 +467,11 @@ GRM_R.PromotePlayer = function ( button )
     local promoEntries = GRM.BuildCustomPromoteEntries ( { GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName } , false , button );
 
     if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+        GRM_G.RosterRightClickControl = true;
         GRM_UI.GRM_ToolCoreFrame:Show();
     end
 
-    GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:Click();
-    GRM_UI.RefreshManagementTool( false , false , true , promoEntries );
+    GRM_R.ConfigureMacroForRightClick( 2 , promoEntries);
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
 end
 
@@ -470,11 +482,11 @@ GRM_R.DemotePlayer = function( button )
     local demoteEntries = GRM.BuildCustomDemoteEntries ( { GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName } , false , button );
 
     if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+        GRM_G.RosterRightClickControl = true;
         GRM_UI.GRM_ToolCoreFrame:Show();
     end
-    GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:Click();
 
-    GRM_UI.RefreshManagementTool( false , false , true , demoteEntries );
+    GRM_R.ConfigureMacroForRightClick ( 3 , demoteEntries );
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
 end
 
@@ -487,11 +499,11 @@ GRM_R.KickPlayer = function()
         local kickEntries = GRM.BuildCustomKickEntries ( { GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName } , false );
 
         if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+            GRM_G.RosterRightClickControl = true;
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
-        GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:Click();
 
-        GRM_UI.RefreshManagementTool( false , false , true , kickEntries );
+        GRM_R.ConfigureMacroForRightClick( 1 , kickEntries );
         GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
     end
 end

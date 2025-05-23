@@ -7752,6 +7752,13 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:Hide();
             end
+
+            if GRM_UI.ColorPickerFrame:GetHeight() < 275 then
+                C_Timer.After ( 0.05 , function()
+                    GRM_UI.ColorPickerFrame:SetHeight(275);
+                end)
+            end
+
         end
 
         if not GRM_UI.ColorPickerFrame then
@@ -7789,12 +7796,12 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     -- New Colorpickerframebuttons
     local w,h = GRM.GetColorPickerFrame(1):GetSize();
     local left,pinFrame,right,x,y = GRM.GetColorPickerFrame(1):GetPoint();
-    GRM_UI.CreateButton ( "GRM_ColorPickerButtonConfirm" , GRM_UI.ColorPickerFrame , "UIPanelButtonTemplate" , GRM.L ( "Confirm" ) , w , h , { left , pinFrame , right , x , y } , GRM_UI.ColorPickScript , "GameFontNormal" , 13 , "CENTER" );
+    GRM_UI.CreateButton ( "GRM_ColorPickerButtonConfirm" , GRM_UI.ColorPickerFrame , "UIPanelButtonTemplate" , GRM.L ( "Confirm" ) , w-15 , h , { left , pinFrame , right , x , y } , GRM_UI.ColorPickScript , "GameFontNormal" , 13 , "CENTER" );
     GRM_UI.ColorPickerFrame.GRM_ColorPickerButtonConfirm:SetFrameStrata("FULLSCREEN");
 
     w,h = GRM.GetColorPickerFrame(4):GetSize();
     left,pinFrame,right,x,y = GRM.GetColorPickerFrame(4):GetPoint();
-    GRM_UI.CreateButton ( "GRM_ColorPickerButtonCancel" , GRM_UI.ColorPickerFrame , "UIPanelButtonTemplate" , GRM.L ( "Cancel" ) , w , h , { left , pinFrame , right , x , y } , GRM_UI.ColorPickerHide , "GameFontNormal" , 13 , "CENTER" );
+    GRM_UI.CreateButton ( "GRM_ColorPickerButtonCancel" , GRM_UI.ColorPickerFrame , "UIPanelButtonTemplate" , GRM.L ( "Cancel" ) , w-15 , h , { left , pinFrame , right , x , y } , GRM_UI.ColorPickerHide , "GameFontNormal" , 13 , "CENTER" );
     GRM_UI.ColorPickerFrame.GRM_ColorPickerButtonCancel:SetFrameStrata("FULLSCREEN");
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:SetScript ( "OnHide" , function()

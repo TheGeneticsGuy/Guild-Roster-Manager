@@ -1608,7 +1608,7 @@ end
 -- What it Does:        Bans all listed alts of the player as well and adds them to the ban list. Of note, addons cannot kick players anymore, so this only adds to ban list.
 -- Purpose:             QoL. Option to ban players' alts as well if they are getting banned.
 GRM.KickAllAlts = function ( playerName , alts , banReason , epochTimeStamp )
-    GRM_G.KickAllAltsTable = {};
+    local kickAllAltsTable = {};
     epochTimeStamp = epochTimeStamp or time();
 
     if #alts > 0 then
@@ -1650,38 +1650,33 @@ GRM.KickAllAlts = function ( playerName , alts , banReason , epochTimeStamp )
                     -- The kicking...
                     if GRM_G.isChecked2 then
 
-                        table.insert ( GRM_G.KickAllAltsTable , {} );
-                        local index = #GRM_G.KickAllAltsTable;
-                        GRM_G.KickAllAltsTable[index].name = tempAlt.name;
-                        GRM_G.KickAllAltsTable[index].class = GRM.GetClassColorRGB ( tempAlt.class );
-                        GRM_G.KickAllAltsTable[index].lastOnline = tempAlt.lastOnline;
-                        GRM_G.KickAllAltsTable[index].action = GRM.L ( "Kick" );
-                        GRM_G.KickAllAltsTable[index].macro = "/gremove";
-                        GRM_G.KickAllAltsTable[index].isHighlighted = false;
-                        GRM_G.KickAllAltsTable[index].mainName = GRM.GetFormattedMainName ( tempAlt , true );
-                        GRM_G.KickAllAltsTable[index].customMsg = GRM.L ( "Kicking {name}'s alts" , GRM.SlimName ( playerName ) );
-                        GRM_G.KickAllAltsTable[index].isMain = false;
-                        GRM_G.KickAllAltsTable[index].isAlt = false;
-                        GRM_G.KickAllAltsTable[index].tab = false;
+                        table.insert ( kickAllAltsTable , {} );
+                        local index = #kickAllAltsTable;
+                        kickAllAltsTable[index].name = tempAlt.name;
+                        kickAllAltsTable[index].class = GRM.GetClassColorRGB ( tempAlt.class );
+                        kickAllAltsTable[index].lastOnline = tempAlt.lastOnline;
+                        kickAllAltsTable[index].action = GRM.L ( "Kick" );
+                        kickAllAltsTable[index].macro = "/gremove";
+                        kickAllAltsTable[index].isHighlighted = false;
+                        kickAllAltsTable[index].mainName = GRM.GetFormattedMainName ( tempAlt , true );
+                        kickAllAltsTable[index].customMsg = GRM.L ( "Kicking {name}'s alts" , GRM.SlimName ( playerName ) );
+                        kickAllAltsTable[index].isMain = false;
+                        kickAllAltsTable[index].isAlt = false;
+                        kickAllAltsTable[index].tab = false;
 
                     end
 
                 end
             end
-            if #GRM_G.KickAllAltsTable > 0 then
+            if #kickAllAltsTable > 0 then
                 -- Bring popup reminder to select it...
                 GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Kick macro created. Press \"CTRL-SHIFT-K\" to kick all of {name}'s alts" , GRM.FormatName ( playerName ) ) );
-                GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:Click();
-                GRM_G.KickAltControl = true;
-                GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;
-                if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+                if not GRM_UI.GRM_ToolCoreFrame or (GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible()) then
+                    GRM_G.RosterRightClickControl = true;
                     GRM_UI.GRM_ToolCoreFrame:Show();
-
-                elseif GRM_UI.GRM_ToolCoreFrame:IsVisible() then
-                    GRM_UI.RefreshManagementTool( GRM_G.KickAltControl );
-                    GRM_G.KickAltControl = false;
-
                 end
+
+                GRM_R.ConfigureMacroForRightClick ( 1 , kickAllAltsTable );
             end
         end
 

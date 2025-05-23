@@ -75,7 +75,7 @@ Scan.BuildNewRoster = function( forceScan )
     GRM_G.CurrentlyScanning = true;
     GRM_G.ScanControl = time();
 
-    C_Timer.After ( 0.1 , function()
+    C_Timer.After ( 0.05 , function()
         Scan.BuildRosterClassicMethod();
     end);
 end
@@ -96,7 +96,7 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
     orderedRoster = orderedRoster or {};
     count = count or 0; -- Track duplicate GUIDs count
 
-    local chunkSize = 150; -- Can likely be higher than community API, but still worth throttling
+    local chunkSize = 100; -- Can likely be higher than community API, but still worth throttling
     local delay = 0.05;
     local numGuildies = GRM.G_Util.GetNumGuildies();
     local processedCount = 0;
@@ -363,7 +363,7 @@ end
 -- What it Does:    Allows the scanning for recommendations to be completely asynchronously and thne only to move on to here when done
 -- Purpose:         Prevent overload and stuttering in game when processing large guilds with many macro rules.
 Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
-
+    -- Only moves forward once Async Recommendations scan process is finished.
     if Scan.currentScanState and Scan.currentScanState.isRunning then
         C_Timer.After(0.1 , function()
             Scan.BaseScanningComplete_MoveToChanges(roster , orderedRoster);
@@ -381,7 +381,7 @@ Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
     -- Sort the ordered roster *before* passing to CheckPlayerChanges
     sort(orderedRoster);
 
-    C_Timer.After(0.1, function()
+    C_Timer.After(0.05, function()
         Scan.CheckPlayerChanges(roster, orderedRoster, 1);
     end);
 
@@ -600,7 +600,7 @@ Scan.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
 
             c = c + 1;
             if c == max and i ~= #orderedRoster then
-                C_Timer.After(0.2, function()
+                C_Timer.After(0.05, function()
                     Scan.CheckPlayerChanges(roster, orderedRoster, i + 1, guildData);
                 end);
                 return;
@@ -2328,7 +2328,6 @@ end
 -- What it Does:    Organizes flow of final report and send it to chat frame and to the logReport.
 -- Purpose:         Clean organization for presentation.
 Scan.FinalReport = function()
-    local needToReport = false;
     if Scan.ScanKillSwitch() then -- Necessary in case you purge guild in middle of scan
         return;
     end
@@ -2347,19 +2346,17 @@ Scan.FinalReport = function()
 
     Scan.FullReportCheck();
 
-    local wait = 0;
     -- Let's go through the Left Players.
     if #GRM_G.TempLeftGuild > 0 then
-        needToReport = true;
-        C_Timer.After(1.5, function()
+        C_Timer.After(0.5, function()
             Scan.FinalLeftPlayersReport();
         end);
-        wait = 2;
+    else
+        C_Timer.After(0, function()
+            Scan.FinalReportInformation(false);
+        end);
     end
 
-    C_Timer.After(wait, function()
-        Scan.FinalReportInformation(needToReport);
-    end);
 end
 
 -- Method:          Scan.FinalLeftPlayersReport()
@@ -2462,6 +2459,9 @@ Scan.FinalLeftPlayersReport = function()
         GRM.Log.AddLog(GRM_G.TempLeftGuild[i]);
     end
 
+    C_Timer.After(0, function()
+        Scan.FinalReportInformation(true);
+    end);
 end
 
 -- Method:          Scan.FinalReportInformation( bool )
@@ -2564,7 +2564,7 @@ Scan.CheckForDeadAccounts = function(isManual)
         return;
     end
 
-    GRM_G.customKickList = {};
+    local customKickList = {};
     local hours = 4320; -- Equals 180 days - presumably someone with account deleted. This is just a buffer because sometimes names get flagged for rename for TOS violation but are still active.
     local ind = 0;
 
@@ -2573,48 +2573,44 @@ Scan.CheckForDeadAccounts = function(isManual)
             if (not player.deadNameIgnore or isManual) and player.lastOnline >= hours and
                 string.match(GRM.SlimName(player.name), "%d") ~= nil then -- Needs to just be first name because servers may have numbers in them, like Area52, but the player name cannot.
 
-                table.insert(GRM_G.customKickList, {player.name});
-                ind = #GRM_G.customKickList;
-                GRM_G.customKickList[ind].name = player.name;
-                GRM_G.customKickList[ind].class = GRM.GetClassColorRGB(player.class);
-                GRM_G.customKickList[ind].lastOnline = player.lastOnline;
-                GRM_G.customKickList[ind].action = GRM.L("Kick");
-                GRM_G.customKickList[ind].macro = "/gremove";
-                GRM_G.customKickList[ind].isHighlighted = false;
-                GRM_G.customKickList[ind].mainName = GRM.GetFormattedMainName(player, true);
-                GRM_G.customKickList[ind].customMsg = GRM.L("Dead Account");
-                GRM_G.customKickList[ind].isMain = false;
-                GRM_G.customKickList[ind].isAlt = false;
-                GRM_G.customKickList[ind].tab = false;
+                table.insert(customKickList, {player.name});
+                ind = #customKickList;
+                customKickList[ind].name = player.name;
+                customKickList[ind].class = GRM.GetClassColorRGB(player.class);
+                customKickList[ind].lastOnline = player.lastOnline;
+                customKickList[ind].action = GRM.L("Kick");
+                customKickList[ind].macro = "/gremove";
+                customKickList[ind].isHighlighted = false;
+                customKickList[ind].mainName = GRM.GetFormattedMainName(player, true);
+                customKickList[ind].customMsg = GRM.L("Dead Account");
+                customKickList[ind].isMain = false;
+                customKickList[ind].isAlt = false;
+                customKickList[ind].tab = false;
 
             end
         end
     end
 
-    if #GRM_G.customKickList > 0 then
+    if #customKickList > 0 then
 
-        sort(GRM_G.customKickList, function(a, b)
+        sort(customKickList, function(a, b)
             return a[1] < b[1]
         end);
 
         local kickDeadNames = function()
-            GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:Click();
-            GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;
-            GRM_G.customKickGroup = true;
             if not GRM_UI.GRM_ToolCoreFrame or (GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible()) then
+                GRM_G.RosterRightClickControl = true;
                 GRM_UI.GRM_ToolCoreFrame:Show();
-
-            elseif GRM_UI.GRM_ToolCoreFrame:IsVisible() then
-                GRM_UI.RefreshManagementTool(false, false, true);
-
             end
+
+            GRM_R.ConfigureMacroForRightClick( 1 , customKickList);
         end
 
         local ignoreDeadNames = function()
 
             local player;
-            for i = 1, #GRM_G.customKickList do
-                player = GRM.GetPlayer(GRM_G.customKickList[i].name);
+            for i = 1, #customKickList do
+                player = GRM.GetPlayer(customKickList[i].name);
                 if player then
                     player.deadNameIgnore = true;
                 end
@@ -2624,9 +2620,9 @@ Scan.CheckForDeadAccounts = function(isManual)
         end
 
         local numDeadMsg = "";
-        if #GRM_G.customKickList > 1 then
+        if #customKickList > 1 then
             numDeadMsg = GRM.L("There are {num} players in your guild on dead accounts.", nil, nil,
-                #GRM_G.customKickList) .. " " .. GRM.L("Would you like to remove them?");
+                #customKickList) .. " " .. GRM.L("Would you like to remove them?");
         else
             numDeadMsg = GRM.L("There is 1 player in your guild on a dead account.") .. " " ..
                              GRM.L("Would you like to remove them?");
@@ -2635,9 +2631,8 @@ Scan.CheckForDeadAccounts = function(isManual)
         GRM.SetConfirmationWindow( kickDeadNames, numDeadMsg .. "\n\n" .. GRM.L(
             "Click CONFIRM to review the names, IGNORE to remove this pop-up permanently, or CANCEL to be reminded next session."),
             ignoreDeadNames, {320, 200})
-
     end
-
+    return customKickList;
 end
 
 -- Method:          Scan.FullReportCheck()

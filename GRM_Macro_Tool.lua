@@ -11,6 +11,7 @@ GRM_G.queuedEntriesScanState = nil;
 GRM_G.fullMacroToolRefresh = false;
 GRM_G.RefreshManagementDelay = false;
 GRM_G.RefreshKickDelay = false;
+GRM_G.RosterRightClickControl = false;
 
 GRM_UI.BuildSpcialRules = function()
 
@@ -2390,7 +2391,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 self:Hide();
             end
         end);
-
 
     end
 
@@ -6162,9 +6162,11 @@ GRM.BuildCustomKickEntries = function( playerList , forceRefresh )
     if forceRefresh then
         GRM_UI.GRM_ToolCoreFrame.GRM_KickTab:Click();
         if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+            GRM_G.RosterRightClickControl = true;
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
-        GRM_UI.RefreshManagementTool( false , false , true , result );
+
+        GRM_R.ConfigureMacroForRightClick ( 1 , result );
     end
 
     return result;
@@ -6215,9 +6217,11 @@ GRM.BuildCustomPromoteEntries = function ( playerList , forceRefresh , button )
     if forceRefresh then
         GRM_UI.GRM_ToolCoreFrame.GRM_PromoTab:Click();
         if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+            GRM_G.RosterRightClickControl = true;
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
-        GRM_UI.RefreshManagementTool( false , false , true , result );
+
+        GRM_R.ConfigureMacroForRightClick ( 2 , result );
     end
 
     return result;
@@ -6267,9 +6271,11 @@ GRM.BuildCustomDemoteEntries = function ( playerList , forceRefresh , button )
     if forceRefresh then
         GRM_UI.GRM_ToolCoreFrame.GRM_DemoteTab:Click();
         if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
+            GRM_G.RosterRightClickControl = true;
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
-        GRM_UI.RefreshManagementTool( false , false , true , result );
+
+        GRM_R.ConfigureMacroForRightClick ( 3 , result );
     end
 
     return result;
@@ -6643,7 +6649,7 @@ GRM.TriggerKickQueuedWindowRefresh = function()
     GameTooltip:Hide();
 
     GRM_G.RefreshKickDelay = true;
-    GRM.InitializeQuedScrollFrame ( true , true , false );
+    GRM.InitializeQuedScrollFrame ( true , true );
     GRM_UI.RefreshToolButtonsOnUpdate_Async( true , true );
 end
 
@@ -6757,34 +6763,21 @@ GRM.DoBuildScrollFrameWithEntries = function(queuedEntriesList)
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameTotalIgnoredText2:SetText(#GRM_UI.GRM_ToolCoreFrame.Safe);
 end
 
--- Method:          GRM.InitializeQuedScrollFrame( bool , bool , bool , bool , bool , table )
+-- Method:          GRM.InitializeQuedScrollFrame( bool , bool , table )
 -- What it Does:    Updates the Queued scrollframe as needed. Handles async data fetching.
 -- Purpose:         UX of the GRM mass kick tool
-GRM.InitializeQuedScrollFrame = function(showAll, fullRefresh, isBanAltList, bannedInGuildList, customGroup, customGroupTable)
+GRM.InitializeQuedScrollFrame = function(showAll, fullRefresh, customGroupTable)
 
     -- Main logic starts here
     if showAll and fullRefresh then
         GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {}; -- Reset validated names
 
-        if not isBanAltList and not bannedInGuildList and not customGroup then
+        if not customGroupTable then
             GRM.StartQueuedEntriesScan();
         else
             -- Synchronous cases for ban lists or custom groups
             local syncList = {};
-            if isBanAltList then
-                syncList = GRM.Util.DeepCopyArray(GRM_G.KickAllAltsTable or {});
-                GRM_G.KickAllAltsTable = {};
-            elseif bannedInGuildList then
-                syncList = GRM.Util.DeepCopyArray(GRM_G.KickAllBannedTable or {});
-                GRM_G.KickAllBannedTable = {};
-            elseif customGroup then
-                if not customGroupTable then
-                    syncList = GRM.Util.DeepCopyArray(GRM_G.customKickList or {});
-                    GRM_G.customKickList = {};
-                else
-                    syncList = GRM.Util.DeepCopyArray(customGroupTable or {});
-                end
-            end
+            syncList = GRM.Util.DeepCopyArray(customGroupTable or {});
             GRM.DoBuildScrollFrameWithEntries(syncList);
         end
     else
@@ -11895,10 +11888,10 @@ end
 --- CUSTOM RULES -------
 ------------------------
 
--- Method:          GRM_UI.RefreshManagementTool( bool , bool , bool , table )
--- What it Does:    Refreshes the management tool
--- Purpose:         Compartmentalize the refresh details.
-GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGroup , customGroupTable )
+-- Method:          GRM_UI.InitializeToolsUI()
+-- What it Does:    Controls flow of initializing the frames so they can be used on demand
+-- Purpose:         Keep UI on-demand.
+GRM_UI.InitializeToolsUI = function()
     if not GRM_UI.GRM_ToolCoreFrame.IsInitialized then
 
         -- Check permissions - set tab as default one
@@ -11912,15 +11905,21 @@ GRM_UI.RefreshManagementTool = function( isBanAltList , isBanInGuild , customGro
 
         GRM_UI.LoadToolFrames ( false );
     end
-    -- Re-check they are valid
+end
+
+-- Method:          GRM_UI.RefreshManagementTool( table )
+-- What it Does:    Refreshes the management tool
+-- Purpose:         Compartmentalize the refresh details.
+GRM_UI.RefreshManagementTool = function( customGroupTable )
+    GRM_UI.InitializeToolsUI();
     GRM.RuleIntegrityCheck();
 
     GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.BlacklistedNames = {};  -- reset the blacklist.
     GRM_UI.GRM_ToolCoreFrame.Safe = {}; -- reset this list to rebuild
-    GRM.InitializeQuedScrollFrame ( true , true , isBanAltList , isBanInGuild , customGroup , customGroupTable );
+    GRM.InitializeQuedScrollFrame ( true , true , customGroupTable );
     -- On reshow, always reset the macro
-    if isBanAltList or isBanInGuild or customGroup then
+    if customGroupTable then
         GRM_UI.NonAsyncRefresh();
     else
         GRM_G.RefreshManagementDelay = true
@@ -11951,6 +11950,9 @@ GRM_UI.RefreshManagementToolDelay = function()
 
 end
 
+-- Method:          GRM_UI.NonAsyncRefresh()
+-- What it Does:    Builds the macro automatically for custom group so it is ready to go
+-- Purpose:         Quality of life for quick right-click actions on the roster
 GRM_UI.NonAsyncRefresh = function()
     GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
     GRM.BuildMacrodScrollFrame ( true , false );
@@ -11982,19 +11984,13 @@ end
 -- Method:          GRM_UI.GRM_ToolCoreFrame()
 -- What it Does:    Handles some on load property controls, if it is a rules load, or you are loading to use the tool for kicking alts or currently banned but still in guild players
 -- Purpose:         UX ease of controls.
-GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function ()
+GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnShow" , function()
+    GRM_UI.InitializeToolsUI();
 
-    if GRM_G.KickAltControl then
-        GRM_UI.RefreshManagementTool( GRM_G.KickAltControl );
-        GRM_G.KickAltControl = false;
-    elseif GRM_G.kickBannedControl then
-        GRM_UI.RefreshManagementTool( false , GRM_G.kickBannedControl );
-        GRM_G.kickBannedControl = false;
-    elseif GRM_G.customKickGroup then
-        GRM_UI.RefreshManagementTool( false , false , GRM_G.customKickGroup );
-        GRM_G.customKickGroup = false;
+    if not GRM_G.RosterRightClickControl then
+        GRM_UI.RefreshManagementTool();
     else
-        GRM_UI.RefreshManagementTool( false , false );
+        GRM_G.RosterRightClickControl = false;
     end
 
     if GRM.S().disableMacroToolLogSpam then

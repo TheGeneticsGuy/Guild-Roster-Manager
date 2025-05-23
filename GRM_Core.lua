@@ -13,9 +13,9 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.992";
-GRM_G.PatchDayString = "1747901802";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1747901802;            -- In Epoch Time
+GRM_G.Version = "R1.9921";
+GRM_G.PatchDayString = "1747984134";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1747984134;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -251,12 +251,6 @@ GRM_G.slashCommandSyncTimer = 0;
 GRM_G.TempBanTarget = {};
 GRM_G.numberInGuildBans = 0;
 GRM_G.CurrentBanSelectedName = {};
-GRM_G.KickAllAltsTable = {};
-GRM_G.KickAltControl = false;
-GRM_G.kickBannedControl = false;
-GRM_G.KickAllBannedTable = {};
-GRM_G.customKickList = {};
-GRM_G.customKickGroup = false;
 
 -- FOR LOCALIZATION
 GRM_G.Region = GetLocale();
@@ -1716,7 +1710,7 @@ GRM.ResetDefaultSettings = function(pageIndex)
         end
 
         if (resetAll or ((page > 9 and page < 13)) or page == 14) and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
-            GRM_UI.RefreshManagementTool(GRM_G.KickAltControl);
+            GRM_UI.RefreshManagementTool();
         end
 
         if resetAll then
@@ -6993,7 +6987,7 @@ end
 -- What it Does:    Triggers the frames to load in the macro tool to ban ALL the players currently still in the guild but are banned
 -- Purpose:         Easy cleanup of removal of a player by manual banning, and all their alts.
 GRM.KickAllBanned = function()
-    GRM_G.KickAllBannedTable = {};
+    local kickBannedEntries = {};
 
     local names = select(2, GRM.GetNumberOfPlayerSBannedCurrentlyInGuild());
     local c = 1;
@@ -7001,33 +6995,31 @@ GRM.KickAllBanned = function()
     if names ~= nil then
         for i = 1, #names do
             if names[i][1] ~= GRM_G.addonUser then
-                GRM_G.KickAllBannedTable[c] = {};
-                GRM_G.KickAllBannedTable[c].name = names[i][1];
-                GRM_G.KickAllBannedTable[c].class = names[i][2];
-                GRM_G.KickAllBannedTable[c].lastOnline = names[i][3];
-                GRM_G.KickAllBannedTable[c].action = GRM.L("Kick");
-                GRM_G.KickAllBannedTable[c].macro = "/gremove";
-                GRM_G.KickAllBannedTable[c].isHighlighted = false;
-                GRM_G.KickAllBannedTable[c].mainName = GRM.GetFormattedMainName(names[i][1], true);
-                GRM_G.KickAllBannedTable[c].customMsg = GRM.L("Kicking Banned Player");
+                kickBannedEntries[c] = {};
+                kickBannedEntries[c].name = names[i][1];
+                kickBannedEntries[c].class = names[i][2];
+                kickBannedEntries[c].lastOnline = names[i][3];
+                kickBannedEntries[c].action = GRM.L("Kick");
+                kickBannedEntries[c].macro = "/gremove";
+                kickBannedEntries[c].isHighlighted = false;
+                kickBannedEntries[c].mainName = GRM.GetFormattedMainName(names[i][1], true);
+                kickBannedEntries[c].customMsg = GRM.L("Kicking Banned Player");
                 c = c + 1;
             end
         end
     end
 
-    if #GRM_G.KickAllBannedTable > 0 then
+    if #kickBannedEntries > 0 then
         -- Bring popup reminder to select it...
         GRM.Report(GRM.L("GRM:") .. " " ..
                        GRM.L("Kick macro created. Press Hotkey to Remove Banned Players Still in Guild"));
-        GRM_G.kickBannedControl = true;
-        GRM_UI.GRM_ToolCoreFrame.TabPosition = 1; -- Since we are removing players it will now function by setting it to default kick tab
+
         if not GRM_UI.GRM_ToolCoreFrame or (GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible()) then
+            GRM_G.RosterRightClickControl = true;
             GRM_UI.GRM_ToolCoreFrame:Show();
-        elseif GRM_UI.GRM_ToolCoreFrame:IsVisible() then
-            GRM_UI.RefreshManagementTool(false, GRM_G.kickBannedControl);
-            GRM_G.kickBannedControl = false;
         end
 
+        GRM_R.ConfigureMacroForRightClick ( 1 , kickBannedEntries );
     end
 
     -- Refresh the frames!
@@ -22652,8 +22644,8 @@ SlashCmdList["GRM"] = function(input)
 
     elseif command == "dead" or command == string.lower(GRM.L("dead")) or command == "deadnames" or command ==
         string.lower(GRM.L("deadnames")) then
-        GRM.Scan.CheckForDeadAccounts(true);
-        GRM.Report(GRM.L("Dead player accounts found: {num}", nil, nil, #GRM_G.customKickList));
+        local customKickList = GRM.Scan.CheckForDeadAccounts(true);
+        GRM.Report(GRM.L("Dead player accounts found: {num}", nil, nil, #customKickList));
 
         -- FOR FUN!!!
     elseif command == "hello" or command == "sexy" then

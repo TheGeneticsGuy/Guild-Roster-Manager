@@ -1,3 +1,18 @@
+## **VERSION 1.9921 RELEASE - May 23th, 2025**
+
+***BUG FIXES***
+
+* The Custom GRM Roster's right click functions to promote/demote/kick should be working again when sending them to the macro tool. With the last update the Macro Tool would show the name for about 1 second and then refresh back to it's normal state. It now should keep the custom names added to it.
+
+***QOL Enhancements***
+
+* A small message now indicates in chat after logging in if GRM has been updated, even if there was no patch applied, just an updated version. Previously, it only mentioned if pathces applied.
+
+* Scanning process was slightly optimized even further, as well as the macro tool leaned out even more on the backend underlying code.
+
+* Color picker frame spacing cleaned up. Not sure why Blizz default frames button (even with all addons off), overlay the rgb. This is now spaced better.
+
+
 ## **VERSION 1.992 RELEASE - May 22nd, 2025**
 
 ***PENDING NEW FEATURE - AlMOST COMPLETE***

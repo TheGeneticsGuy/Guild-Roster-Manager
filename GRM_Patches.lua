@@ -1729,10 +1729,10 @@ end
 -- Final report is good to go!
 -- Note, these are purposefully "PRINTED" as they are not necessary to be stored in the chat logs which other addons might save.
 GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
+    local versionReport = "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. GRM_G.Version:match ( "R(.+)" );
     if patchNeeded then
-
         -- Ok, let's update the version!
-        print ( "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. GRM_G.Version:match ( "R(.+)" ) );
+        print ( versionReport );
 
         if numActions > 1 then
             print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... {num} patches applied." , nil , nil , numActions ) );
@@ -1741,6 +1741,8 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         end
         print ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.Time.GetTimePassedInZone ( startTime ) );
 
+    elseif GRM_AddonSettings_Save.VERSION ~= GRM_G.Version then
+        print ( versionReport );
     end
 
     GRM_G.currentlyPatching = false;
