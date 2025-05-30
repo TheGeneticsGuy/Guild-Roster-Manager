@@ -13,9 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.9921";
-GRM_G.PatchDayString = "1747984134";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1747984134;            -- In Epoch Time
+GRM_G.Version = "R1.9924";
+GRM_G.Beta = false;
+GRM_G.PatchDayString = "1748595326";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1748595326;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -22129,7 +22130,7 @@ GRM.SlashCommandHelp = function()
         slash2 = GRM_L["/YYYY"];
     end
 
-    GRM.Report("\n" .. GRM.L("Guild Roster Manager") .. " " .. GRM.L("(Ver:") .. " " .. GRM_G.Version .. ")\n\n" ..
+    GRM.Report("\n" .. GRM.L("Guild Roster Manager") .. " " .. GRM.L("(Ver:") .. " " .. GRM_G.Version .. ( GRM_G.Beta and " - Beta" or "" ) .. ")\n\n" ..
                    slash .. "                     - " .. GRM.L("Opens Guild Log Window") .. "\n" .. slash2 ..
                    "                   - " .. GRM.L("Opens Custom Guild Roster Window") .. "\n" .. slash .. " " ..
                    GRM.L("clearall") .. "         - " .. GRM.L("Resets ALL saved data") .. "\n" .. slash .. " " ..
@@ -22215,7 +22216,7 @@ end
 -- What it Does:    Displays the version of the addon (all viewable with /roster help)
 -- Purpose:         General info if wanted.
 GRM.SlashCommandVersion = function()
-    GRM.Report("\n" .. GRM.L("Guild Roster Manager") .. "\nVer: " .. GRM_G.Version .. "\n");
+    GRM.Report("\n" .. GRM.L("Guild Roster Manager") .. "\n" .. GRM.L("(Ver:") .. " " .. GRM_G.Version .. ( GRM_G.Beta and " - Beta" or "" ) .. ")\n");
 end
 
 -- Method:          GRM.SlashCommandMinimapReset()

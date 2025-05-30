@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 139 - 2025-04-14
+--- Total Patches: 141 - 2025-05-30
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1719,6 +1719,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.992";
         if loopCheck ( 1.992 ) then
+            return;
+        end
+    end
+
+    -- 141
+    if numericV < 1.9924 and baseValue < 1.9924 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixLeaveRejoinDateError , true , true , false );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9924";
+        if loopCheck ( 1.9924 ) then
             return;
         end
     end
@@ -9677,4 +9687,30 @@ GRM_Patch.FixBirthdayUnknown = function()
             end
         end
     end
+end
+
+-- R1.9924
+-- Method:          GRM_Patch.FixLeaveRejoinDateError ( playerTable )
+-- What it Does:    Cleans up some erroneous dates since it errored in reporting a player left then rejoined
+-- Purpose:         So players can see their dates again.
+GRM_Patch.FixLeaveRejoinDateError = function ( player )
+
+    if player then
+
+        if #player.joinDateHist > 2 and player.joinDateHist[2][7] == 2 then
+
+            if player.joinDateHist[1][4] == player.joinDateHist[2][4] and GRM.Time.CalculateTotalHours({player.joinDateHist[1][3] , player.joinDateHist[1][2] , player.joinDateHist[1][1] , 0 } ) > player.lastOnline then
+
+                for i = 1 , 2 do
+                    table.remove( player.joinDateHist , 1 );
+                    if #player.rankHist > 1 then
+                        table.remove ( player.rankHist , 1 );
+                    end
+                end
+
+            end
+        end
+    end
+
+    return player;
 end

@@ -1,3 +1,15 @@
+## **VERSION 1.9924 - May 30th, 2025**
+
+***BUG FIXES***
+
+* Erroneous leaves and rejoin reporting to the log should stop. In addition, I added a patch that will attempt to identify and cleanup the erroneous leave and rejoins, and if found, it will remove those from the history tree of your join dates and rank promotions and restore your original date as the top level "current" date. Please note, if you never had a date configured, you will see a placeholder date marked with "!!" there as an indication that you do not yet have a verified join or promotion date configured for that guild member.
+
+* Erroneous Death logging in Classic Era HC mode should stop
+
+* A bug that could occur when scanning the log that didn't really break anything, but did throw a lua error is no longer an issue.
+
+* Players that had a kick rule set to inactivity check at 12/24/36/etc... year marks was reporting for ALL members of the guild to be kicked in error due to a coding error will no longer do so. This was self-resolved if you had any other months set, like 11 or 13, for inactivity, but the 12 month one would recommend for all. This is now fixed!
+
 ## **VERSION 1.9921 RELEASE - May 23th, 2025**
 
 ***BUG FIXES***

@@ -852,7 +852,7 @@ Time.HoursReport = function( lastOnlineTime )
 end
 
 -- Helper Function to help calculate the number of days since we are doing date clamping
-local GetNumDaysForNMonthsRule = function(numMonths)
+Time.GetNumDaysForNMonthsRule = function(numMonths)
     local _, currentMonth, currentDay, currentYear = Time.GetTodaysDate()
 
     -- Error protection
@@ -865,7 +865,7 @@ local GetNumDaysForNMonthsRule = function(numMonths)
     local targetEffYear = currentYear
 
     -- Subtract full years first
-    local numYearsToSubtract = math.floor((numMonths -1) / 12) -- Subtract full years encompassed by the months
+    local numYearsToSubtract = math.floor(numMonths / 12) -- Subtract full years encompassed by the months
     targetEffYear = targetEffYear - numYearsToSubtract
     targetEffMonth = targetEffMonth - (numMonths % 12) -- Subtract remaining months
 
@@ -929,7 +929,7 @@ Time.GetNumHoursTilRecommend = function(numMonths)
         return nil
     end
 
-    local days = GetNumDaysForNMonthsRule(numMonths)
+    local days = Time.GetNumDaysForNMonthsRule(numMonths)
     if not days then
         return nil
     end
