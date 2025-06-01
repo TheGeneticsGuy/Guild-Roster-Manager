@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.9924";
+GRM_G.Version = "R1.9925";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1748595326";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1748595326;            -- In Epoch Time
+GRM_G.PatchDayString = "1748767639";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1748767639;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -167,7 +167,6 @@ GRM_G.changeHappenedExitScan = false;
 GRM_G.silenceOfficerNoteReporting = false;
 GRM_G.silenceOfficerTimer = 0;
 GRM_G.ReScanningEvents = false;
-GRM_G.UpdatingProfessions = false;
 
 -- Live Detection Controls
 GRM_G.RejoinControlCheck = 0;
@@ -2893,19 +2892,20 @@ GRM.ConvertToRealEpochNumber = function(scientificNotedNumber)
     return math.floor((tonumber(string.format("%.0f", scientificNotedNumber)) / 1000000) + 0.5);
 end
 
--- Method:          GRM.GetFullNameClubMember ( guid(as string) )
+-- Method:          GRM.GetFullNameClubMember ( guid(as string) , tries )
 -- What it Does:    Appends the server to the end of the player name properly...
 -- Purpose:         To append the full player name properly since it is not given by default
 GRM.GetFullNameClubMember = function( memberGUID )
     local fullName = "";
     local sex;
+    tries = tries or 10;
 
     if memberGUID and memberGUID ~= "" then
         local s, name, realm = select(5, GetPlayerInfoByGUID(memberGUID));
         sex = s;
         -- For some reason the server sometimes fails to give info on the first ask that session.
         if not name or name == "" then
-            for i = 1, 10 do
+            for i = 1, tries do
                 sex, name, realm = select(5, GetPlayerInfoByGUID(memberGUID));
 
                 if name and name ~= "" then
@@ -7258,12 +7258,23 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     member.safeList.kick = {false, false, 0, 0}; -- Macro Tool monitoring protection
     member.safeList.promote = {false, false, 0, 0};
     member.safeList.demote = {false, false, 0, 0};
-    member.race = memberInfo.race; -- 46
-    member.sex = memberInfo.sex; -- 47
+
+    if type (memberInfo.race) == "number" then
+        local race = select ( 2 , C_CreatureInfo.GetRaceInfo ( memberInfo.race ) );
+        if race then
+            member.race = race;
+        else
+            member.race = "Human";  -- Temporary Placeholder - probably won't happen unless server is laggy
+        end
+    else
+        member.race = memberInfo.race;
+    end
+
+    member.sex = memberInfo.sex;
     member.faction = memberInfo.faction;
 
     if GRM_G.BuildVersion >= 80000 then
-        member.MythicScore = memberInfo.MythicScore;
+        member.MythicScore = 0;
     end
 
     -- HARDCORE MODE
@@ -22906,9 +22917,8 @@ GRM.TrackingConfiguration = function(forced)
         end
 
         -- Auto import if it is player's own toon.
-        if GRM_G.BuildVersion > 10000 and GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser] and
-            (#GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser] == 0 or not GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser][1]) then
-            local addonUser = GRM.GetAddOnUserGuildAlts()[GRM_G.addonUser];
+        if userGuildAltsTable and userGuildAltsTable[GRM_G.addonUser] and (#userGuildAltsTable[GRM_G.addonUser] == 0 or not userGuildAltsTable[GRM_G.addonUser][1]) then
+            local addonUser = userGuildAltsTable[GRM_G.addonUser];
             if #addonUser == 0 then
                 addonUser[1] = false;
             end

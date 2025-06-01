@@ -1,3 +1,12 @@
+## **VERSION 1.9925 - June 1st, 2025**
+
+***BUG FIXES***
+
+* GRM should no longer cause any lag or stutter. This was my fault. In my rush to quickly get out the last update, I had left in some code where I was stress testing the scanning a bit using the Communities API instead of the older Guild Roster API. I meant to remove it, but I left it in for release. Furthermore, this was actually part of a small project where I was restructuring some of the scanning to make it a bit more lean on the back end and I made some signficant improvements in efficiency. Regardless of that, the lagginess was fixed.
+
+* Fixed a Lua error that could occur if the user does a hard reset `/grm hardreset` which wipes the entire save file of the addon and starts as if GRM was never installed before. This is mostly for internal testing so I don't recommend using this yourself.
+
+
 ## **VERSION 1.9924 - May 30th, 2025**
 
 ***BUG FIXES***
