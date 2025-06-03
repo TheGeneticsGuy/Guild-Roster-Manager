@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 141 - 2025-05-30
+--- Total Patches: 142 - 2025-06-03
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1713,9 +1713,9 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddNewSetting ( "showNicknameNotMain" , true );
         GRM_Patch.AddNewSetting ( "ShowNicknameToAll" , true );
         GRM_Patch.AddNewSetting ( "shareNickToAlts" , true );
-        GRM_Patch.EditSetting ( "kickRules" , false , "safeMatchAllNotes" );
-        GRM_Patch.EditSetting ( "promoteRules" , false , "safeMatchAllNotes" );
-        GRM_Patch.EditSetting ( "demoteRules" , false , "safeMatchAllNotes" );
+        GRM_Patch.AddOrEditNewMacroSetting ( "kickRules" , "safeMatchAllNotes" , false );
+        GRM_Patch.AddOrEditNewMacroSetting ( "promoteRules" , "safeMatchAllNotes" , false );
+        GRM_Patch.AddOrEditNewMacroSetting ( "demoteRules" , "safeMatchAllNotes" , false );
 
         GRM_AddonSettings_Save.VERSION = "R1.992";
         if loopCheck ( 1.992 ) then
@@ -1729,6 +1729,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.9924";
         if loopCheck ( 1.9924 ) then
+            return;
+        end
+    end
+
+    -- 142
+    if numericV < 1.9926 and baseValue < 1.9926 then
+        GRM_Patch.AddOrEditNewMacroSetting ( "demoteRules" , "AddNoteOnDemotion" , {false , "" , 2 , false } );
+        -- GRM_Patch.AddOrEditNewMacroSetting ( "demoteRules" , "AddNoteOnDemotion" , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9926";
+        if loopCheck ( 1.9926 ) then
             return;
         end
     end
@@ -1877,6 +1888,20 @@ GRM_Patch.ModifyMemberSpecificData = function ( databaseChangeFunction , editCur
                         end
                     end
                 end
+            end
+        end
+    end
+end
+
+-- 1.9926
+-- Method:          GRM_Patch.AddOrEditNewMacroSetting( string , string , Any )
+-- What it Does:    Updates a setting as part of a macro rule category
+-- Purpose:         Expanded filters need a rule set!
+GRM_Patch.AddOrEditNewMacroSetting = function ( ruleCategory , newRule , value )
+    for g in pairs ( GRM_AddonSettings_Save ) do
+        if type(GRM_AddonSettings_Save[g]) == "table" then
+            for _,rule in pairs ( GRM_AddonSettings_Save[g][ruleCategory] ) do
+                rule[newRule] = value;
             end
         end
     end

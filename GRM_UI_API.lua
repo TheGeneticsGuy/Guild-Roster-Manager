@@ -5,7 +5,7 @@
 -- GRM_UI.CreateCoreFrame
 -- GRM_UI.CreateButton
 -- GRM_UI.CreateEditBox
--- CRM_UI.CreateString
+-- GRM_UI.CreateString
 -- GRM_UI.CreateCheckBox
 -- GRM_UI.CreateOptionsSlider
 -- GRM_UI.CreateHybridScrollFrame

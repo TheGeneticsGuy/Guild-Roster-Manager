@@ -41,15 +41,15 @@ Prof.GetProfessionsNote = function ( name )
     if player and player.prof1 and player.prof2 then
 
         -- Same number so let's format it differently.
-        if #player.prof1 > 0 and #player.prof2 > 0 and player.prof1[2] == player.prof2[2] then
+        if player.prof1[1] > 0 and player.prof2[1] > 0 and player.prof1[2] == player.prof2[2] then
             return ( "[" .. Prof.GetProfessionTag ( player.prof1[1] ) .. "]/[" .. Prof.GetProfessionTag ( player.prof2[1] ) .. "]" .. player.prof1[2] ); -- [Alch]/[Eng]-300
 
         else
-            if #player.prof1 > 0 then
+            if player.prof1[1] > 0 then
                 table.insert ( notes , GRM.L ( GRM_G.professionNoteFormat , Prof.GetProfessionTag ( player.prof1[1] ) , nil , player.prof1[2] ) );
             end
 
-            if #player.prof2 > 0 then
+            if player.prof2[1] > 0 then
                 table.insert ( notes , GRM.L ( GRM_G.professionNoteFormat , Prof.GetProfessionTag ( player.prof2[1] ) , nil , player.prof2[2] ) );
             end
         end

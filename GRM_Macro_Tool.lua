@@ -12,6 +12,7 @@ GRM_G.fullMacroToolRefresh = false;
 GRM_G.RefreshManagementDelay = false;
 GRM_G.RefreshKickDelay = false;
 GRM_G.RosterRightClickControl = false;
+GRM_G.PlayersWithNotesToAdd = {};
 
 GRM_UI.BuildSpcialRules = function()
 
@@ -257,8 +258,6 @@ GRM_UI.BuildSpcialRules = function()
 
     -- Promote and Demote
     GRM_UI.CreateCheckBox ( "GRM_SpecialPromoteOnlyCheckBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , nil , { "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialButtonRadial1 , "BOTTOM" , 0 , -35 } , GRM_UI.PromoteOnlycheckBoxLogic , GRM.L ( "Disable Demote Option. Only Promote Players" ) , "GameFontNormal" , 11 );
-
-
 
     GRM_UI.SpecialRankDropdownTT = function( self )
         GRM_UI.SetTooltipScale();
@@ -1292,6 +1291,90 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM.TriggerIgnoredQueuedWindowRefresh();
         end);
 
+        -- Method:          GRM_Macro.CustomMessageToPlayerNote()
+        -- What it Does:    Checks if any custom messages need to be add to player notes
+        -- Purpose:         Demote rule fulfillment
+        GRM_Macro.CustomMessageToPlayerNote = function()
+
+            if next(GRM_G.PlayersWithNotesToAdd) then
+                local roster = GRM.Scan.GetGuildMemberIndexTable();
+
+                for name, details in pairs(GRM_G.PlayersWithNotesToAdd) do
+                    local player = GRM.GetPlayer ( name );
+
+                    if player and roster[player.GUID] then
+                        local tempNote = "";
+
+                        if details.destination == 1 and GRM.CanEditPublicNote() and not string.find ( player.note , details.note , 1 , true ) then
+                            tempNote = GRM.Trim ( player.note .. " " .. details.note );
+
+                            if GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize or details.forceOverwrite then
+
+                                if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxPublicNoteSize then
+                                    tempNote = details.note;
+                                end
+
+                                local oldNote = tostring ( player.note );
+                                GuildRosterSetPublicNote( roster[player.GUID] , tempNote);
+
+                                player.note = tempNote;
+
+                                local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
+                                local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , oldNote , player.note , GRM.Time.GetTimestamp() );
+
+                                -- Adding it to the log!
+                                GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , oldNote , player.note , GRM.Time.GetTimestamp() } );
+                            end
+
+                        elseif details.destination == 2 and GRM.CanEditOfficerNote() and not string.find ( player.officerNote , details.note , 1 , true ) then
+                            tempNote = GRM.Trim ( player.officerNote .. " " .. details.note );
+
+                            if GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize or details.forceOverwrite then
+
+                                if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxOfficerNoteSize then
+                                    tempNote = details.note;
+                                end
+
+                                local oldNote = tostring ( player.officerNote );
+                                GuildRosterSetOfficerNote( roster[player.GUID] , tempNote);
+                                player.officerNote = tempNote;
+
+                                local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
+                                local logReportWithTime , logReport = GRM.GetOfficerNoteChangeString ( simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() );
+
+                                -- Adding it to the log!
+                                GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() } );
+                            end
+
+                        elseif details.destination == 3 and not string.find ( player.customNote[4] , details.note , 1 , true ) then    -- Custom note no server permission needed
+                            tempNote = GRM.Trim ( player.officerNote .. " " .. details.note );
+
+                            if GRM.GetNumLetters(tempNote) <= GRM_G.MaxCustomNoteSize or details.forceOverwrite then
+
+                                if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxCustomNoteSize then
+                                    tempNote = details.note;
+                                end
+
+                                local oldNote = tostring ( player.customNote[4] );
+                                local timestamp = time();
+                                player.customNote[2] = timestamp;
+                                player.customNote[3] = GRM_G.addonUser;
+                                player.customNote[4] = tempNote;
+
+                                if GRM_G.currentName == name then
+                                    GRM_G.OriginalEditBoxValue = player.customNote[4];
+                                end
+
+                                GRM.RecordCustomNoteChanges(player.customNote[4], oldNote, GRM_G.addonUser, player.name, false)
+                            end
+                        end
+                    end
+
+                end
+            end
+            GRM_G.PlayersWithNotesToAdd = {};
+        end
+
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
             self.Timer = self.Timer + elapsed;
             if self.Timer >= 0.025 then
@@ -1305,7 +1388,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     end
                     GRM_G.HK = false;
 
-
                     GRM.PurgeMacrodNames();
 
                     GRM.GuildRoster();
@@ -1314,12 +1396,18 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     -- Need to validate the names are update now...
                     if GRM.IsMacroActionComplete() then
 
+                        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then   -- Adding a custom message
+                            GRM_Macro.CustomMessageToPlayerNote();
+                        end
+
                         C_Timer.After ( 2 , function()
                             GRM.ValidateMacroRecordingSuccess ( false );
                         end);
                         C_Timer.After (0.1 , function()
                             GRM_UI.RefreshSelectFrames(true, true, true, false, true, true, true);
                         end);
+
+                        GRM_G.PlayersWithNotesToAdd = {}; -- Ensure this is reset
                     end
 
                     GRM_G.timeDelayValue = time();
@@ -2918,6 +3006,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:HasFocus() then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:ClearFocus();
                 end
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:HasFocus() then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:ClearFocus();
+                end
 
                 -- This should be auto-disabled if it's an empty string
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.safeText == "" then
@@ -3633,6 +3724,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:ClearAllPoints();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText , "RIGHT" , 5 , 0 );
 
+            -- These frames are Demote frame only
+            GRM_UI.HideAllAddMessageToNote();
+
             GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText );
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
@@ -3678,6 +3772,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetHitRectInsets ( 0 , 0 , 0 , 0 );
 
+                    GRM_UI.HideAllAddMessageToNote();
 
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Hide();
@@ -3686,6 +3781,26 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText , "RIGHT" , 5 , 0 );
 
                     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText );
+
+                    GRM_UI.ShowAllAddMessageToNote();
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[1] then
+                        GRM_UI.GRM_AddMessageToNoteCheckbox_Enable();
+                    else
+                        GRM_UI.GRM_AddMessageToNoteCheckbox_Disable();
+                    end
+
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(true);
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(false);
+                    end
+
+                    local text = GRM.L ( "Click to Set" );
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] > 0 then
+                        text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2];
+                    end
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetText ( text );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = text;
 
                 end
 
@@ -3816,6 +3931,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
                         end
                     end
+                else
+                    -- DEMOTE TAB
+                    GRM_UI.SetMessageToNoteRadialConfig();
                 end
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox.value = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths;
@@ -4055,6 +4173,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetHitRectInsets ( 0 , 0 , 0 , 0 );
 
+                    GRM_UI.HideAllAddMessageToNote();
+
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Hide();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:Show();
@@ -4062,6 +4182,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText , "RIGHT" , 5 , 0 );
 
                     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText );
+
+                    GRM_UI.ShowAllAddMessageToNote();
+                    GRM_UI.GRM_AddMessageToNoteCheckbox_Disable();
                 end
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.BuildNewPromoteOrDemoteRuleTemplate();
@@ -4154,7 +4277,22 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[1] );
                 else
+                    -- Demote
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[3] );
+
+                    GRM_UI.SetMessageToNoteRadialConfig();
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(true);
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(false);
+                    end
+
+                    local text = GRM.L ( "Click to Set" );
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] > 0 then
+                        text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2];
+                    end
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetText ( text );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = text;
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
@@ -4198,7 +4336,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 805 );
             else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 755 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 840 );
             end
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
@@ -5632,7 +5770,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame , "TOPRIGHT" , 0 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetMaxLetters ( 20 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:EnableMouse ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetAutoFocus( false );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetSize ( 332 , 45 );
@@ -5698,6 +5835,187 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxCount:Show();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip:Show();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxFrame:EnableMouse ( false );
+        end);
+
+        -- Add Message to Player Note
+        GRM_UI.AddMessageToNoteAfterRankChange = function( self )
+            if self:GetChecked() then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[1] = true
+                GRM_UI.GRM_AddMessageToNoteCheckbox_Enable();
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[1] = false;
+                GRM_UI.GRM_AddMessageToNoteCheckbox_Disable()
+
+                local text = GRM.L ( "Click to Set" );
+                if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] > 0 then
+                    text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2];
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetText ( text );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = text;
+            end
+        end
+
+        --  Force Overwrite
+        GRM_UI.AddMessageToNoteOverwriteLogic = function( self )
+            if self:GetChecked() then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] = true
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] = false;
+            end
+        end
+
+        -- Choose note destination
+        GRM_UI.AddMessageToNoteDestinationChoice = function( self )
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:GetChecked() then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 1
+            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:GetChecked() then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 2
+            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:GetChecked() then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 3
+            end
+        end
+
+        GRM_UI.SetMessageToNoteRadialConfig = function()
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 1 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(true);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:SetChecked(false);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:SetChecked(false);
+            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 2 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(false);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:SetChecked(true);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:SetChecked(false);
+            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 3 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(false);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:SetChecked(false);
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:SetChecked(true);
+            end
+        end
+
+        GRM_UI.MessageToNoteOverwriteTT = function( self )
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine( GRM.L ( "GRM will append the message to existing note if room." ) );
+            GameTooltip:AddLine( GRM.L ( "However, if there is not enough room, the message will not be added.") );
+            GameTooltip:AddLine( GRM.L ( "Enable to forcibly overwrite existing note when not enough room for both.") );
+            GameTooltip:Show();
+        end
+
+        GRM_UI.AddMessageToNoteEditBoxTT = function ( self )
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine( GRM.L ( "Add the bracket \'{rank}\' anywhere in message to insert former rank." ) );
+            GameTooltip:AddLine( GRM.L ( "Ex: - Rank: {rank}" ) );
+            GameTooltip:AddLine( " " );
+            GameTooltip:AddLine( GRM.L ( "Max Length: {num} letters, including rank name" , nil , nil , GRM_G.MaxPublicNoteSize ) , 1 , 0 , 0 );
+            GameTooltip:Show();
+        end
+
+        GRM_UI.GRM_AddMessageToNoteCheckbox_Enable = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:SetChecked( true );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetTextColor ( 1 , 0.82, 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetTextColor ( 1 , 0.82, 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetTextColor ( 1 , 0.82, 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetTextColor ( 1 , 0.82, 0 );
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetTextColor ( 1 , 1 , 1 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:Enable();
+        end
+
+        GRM_UI.GRM_AddMessageToNoteCheckbox_Disable = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:SetChecked ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetTextColor ( 0.5,0.5,0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetTextColor ( 0.5,0.5,0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetTextColor ( 0.5,0.5,0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetTextColor ( 0.5,0.5,0.5 );
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:Disable();
+        end
+
+        GRM_UI.HideAllAddMessageToNote = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:Hide();
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton , "BOTTOMLEFT" , 0 , -5 );
+        end
+
+        GRM_UI.ShowAllAddMessageToNote = function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Show();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:Show();
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:ClearAllPoints();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox , "BOTTOMLEFT" , 0 , -7 );
+        end
+
+        GRM_UI.CreateCheckBox ( "GRM_AddMessageToNoteCheckbox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , nil , { "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.AddMessageToNoteAfterRankChange , "" , "GameFontNormal" , 12 );
+
+        GRM_UI.CreateRadialButtons ( "GRM_AddMessageToNoteDestination" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , { GRM.L ( "Public" ) , GRM.L ( "Officer" ) , GRM.L ( "Custom" )  } , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox , "BOTTOMRIGHT" , 0 , -6 } , true , true , 12 , nil , GRM_UI.AddMessageToNoteDestinationChoice );
+
+        GRM_UI.CreateCheckBox ( "GRM_AddMessageToNoteOverwriteCheckbox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , nil , { "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text , "RIGHT" , 8 , 0 } , GRM_UI.AddMessageToNoteOverwriteLogic , "" , "GameFontNormal" , 12 , GRM_UI.MessageToNoteOverwriteTT , GRM.RestoreTooltip );
+
+        GRM_UI.CreateEditBox ( "GRM_AddMessageToNoteEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InputBoxTemplate" , 332 , 25 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1 , "BOTTOMLEFT" , 3 , -12 } , "CENTER" , nil , GRM_G.MaxPublicNoteSize , false , GRM_UI.AddMessageToNoteEditBoxTT , GRM.RestoreTooltip , nil , false , true , nil )
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetMultiLine ( false );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:ClearFocus();
+
+        GRM_UI.CreateString ( "GRM_AddMessageToNoteEditBoxCount" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox , "GameFontNormal" , "" , 11 , { "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox , "TOPRIGHT" } , nil , { 1 , 1 , 1 } );
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox , "TOPRIGHT" );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:Hide();
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetScript ( "OnEnterPressed" , function ( self )
+            self:SetText ( GRM.Trim ( self:GetText() ) );
+
+            local textResult = self:GetText();
+            if textResult == "" then
+                textResult = GRM.L ( "Click to Set" );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = "";
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = textResult;
+            end
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = textResult;
+            self:SetText ( textResult );
+            self:ClearFocus();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetScript ( "OnEditFocusLost" , function ( self )
+            self:HighlightText ( 0 , 0 );
+            self:SetText ( GRM.Trim ( self:GetText() ) );
+
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:Hide();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = self:GetText();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = self:GetText();
+        end)
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetScript ( "OnEditFocusGained" , function ( self )
+            if self:GetText() == GRM.L ( "Click to Set" ) then
+                self:SetText ( "" );
+            end
+            self:SetCursorPosition ( self:GetUTF8CursorPosition() );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:SetText ( self:GetNumLetters() .. "/" .. GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:GetMaxLetters() );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:Show();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetScript ( "OnTextChanged" , function ( self )
+            if self:HasFocus() then
+                self.GRM_AddMessageToNoteEditBoxCount:SetText ( self:GetNumLetters() .. "/" .. self:GetMaxLetters() );
+            end
         end);
 
         -----------------------
@@ -6083,6 +6401,27 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected.GRM_DestinationRankSelectedText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+
+    -- Add Message to Player Note
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox.GRM_AddMessageToNoteCheckboxText:SetText( GRM.L ( "Add Message to Note After Demotion" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox.GRM_AddMessageToNoteCheckboxText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox.GRM_AddMessageToNoteCheckboxText );
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetText( GRM.L ( "Public" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text );
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetText( GRM.L ( "Officer" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text );
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetText( GRM.L ( "Custom" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text );
+
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetText( GRM.L ( "Force Overwrite" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText );
 
     -- Sync
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -7178,9 +7517,7 @@ GRM.ValidateMacroRecordingSuccess = function( isReScan )
             GRM_UI.GRM_ToolCoreFrame.MacroSuccess = false
 
             GRM.GuildRoster();
-            if GRM_G.BuildVersion >= 10000 then
-                QueryGuildEventLog();
-            end
+            QueryGuildEventLog();
 
             C_Timer.After ( 2 , function()
                 GRM_G.ManualScanEnabled = true;
@@ -8465,8 +8802,10 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
     result.mythicRating = 1000;
     result.mythicPlusOperator = 1;
 
+
     if position == 3 then
         result.mythicPlusOperator = 3;
+        result.AddNoteOnDemotion = { false , "" , 2 , false };
     end
 
     -- Unique rules to demote and promote
@@ -10269,6 +10608,22 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                                                 GRM_UI.ruleTypeEnum3[rule.ruleType], macroAction[rule.ruleType],
                                                 rule.destinationRank - 1, GRM.GetFormattedMainName(player, true) , rule.customLogMsg
                                             );
+
+                                            if ruleTypeIndex == 3 and GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and rule.AddNoteOnDemotion[1] and rule.AddNoteOnDemotion[2] ~= "" then
+                                                GRM_G.PlayersWithNotesToAdd[player.name] = {};
+                                                GRM_G.PlayersWithNotesToAdd[player.name].destination = rule.AddNoteOnDemotion[3];
+                                                GRM_G.PlayersWithNotesToAdd[player.name].note = rule.AddNoteOnDemotion[2];
+                                                GRM_G.PlayersWithNotesToAdd[player.name].forceOverwrite = rule.AddNoteOnDemotion[4];
+
+                                                -- Insert Rank
+                                                if string.find ( GRM_G.PlayersWithNotesToAdd[player.name].note , GRM.L ("{rank}" ) , 1 , true ) then
+                                                    local text = string.gsub ( GRM_G.PlayersWithNotesToAdd[player.name].note , GRM.L("{rank}") , player.rankName );
+                                                    if GRM.GetNumLetters(text) <= GRM_G.MaxPublicNoteSize then
+                                                        GRM_G.PlayersWithNotesToAdd[player.name].note = text;
+                                                    end
+                                                end
+
+                                            end
 
                                             if not playerRecommendationEntry.numRankJumps or playerRecommendationEntry.numRankJumps < numRankMoves then
                                                 playerRecommendationEntry.numRankJumps = numRankMoves;
@@ -12557,7 +12912,11 @@ end);
 --     GRM.B2Num ( rule.mythicPlusFilter , false ) .. "?" ..       -- 30
 --     tostring ( rule.mythicRating ) .. "?" ..                    -- 31
 --     tostring ( rule.mythicPlusOperator ) .. "?" ..              -- 32
---     tostring ( rule.safeMatchAllNotes );                        -- 33
+--     tostring ( rule.safeMatchAllNotes ) .. "?" ..               -- 33
+--     GRM.B2Num ( rule.AddNoteOnDemotion[1] ) .. "?" ..           -- 34
+--     rule.AddNoteOnDemotion[2] .. "?" ..                         -- 35
+--     tostring ( rule.AddNoteOnDemotion[3] ) .. "?" ..            -- 36
+--     GRM.B2Num ( rule.AddNoteOnDemotion[4] );                    -- 37
 
 
 --     return result;
@@ -13070,6 +13429,13 @@ end);
 --         rule.mythicRating = newRule[31];
 --         rule.mythicPlusOperator = newRule[32];
 --         rule.safeMatchAllNotes = newRule[33];
+--         rule.AddNoteOnDemotion[1] = newRule[34];
+--         rule.AddNoteOnDemotion[2] = newRule[35];
+--         rule.AddNoteOnDemotion[3] = newRule[36];
+--         rule.AddNoteOnDemotion[4] = newRule[37];
+
+
+
     -- elseif ruleType == "specialRules" then
     --     rule = GRM_Macro.BuildNewSpecialRuleTemplate( 4 , nil , nil );
     --     rule.ranks = newRule[1];

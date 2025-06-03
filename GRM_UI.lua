@@ -12722,7 +12722,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     GRM_UI.CreateString ( "GRM_VerifyFrameText2" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "GameFontNormal" , GRM.L ( "Verify Only if Within Number of Days:" ) , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameText1 , "BOTTOMLEFT" , 0 , -15 } , nil , nil , "LEFT" , false );
 
-    GRM_UI.CreateEditBox ( "GRM_VerifyFrameEditBox1" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "InputBoxTemplate" , 50 , 15 , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameText2 , "RIGHT" , 10 , 0 } , "CENTER" , nil , 3 , true , nil , nil , GRM_UI.VerifyDateTextChanged )
+    GRM_UI.CreateEditBox ( "GRM_VerifyFrameEditBox1" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "InputBoxTemplate" , 50 , 15 , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame.GRM_VerifyFrameText2 , "RIGHT" , 10 , 0 } , "CENTER" , nil , 3 , true , nil , nil , GRM_UI.VerifyDateTextChanged );
 
     GRM_UI.CreateButton ( "GRM_VerifyAllConfirmButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "UIPanelButtonTemplate" , "" , 300 , 35 , { "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame , "BOTTOM" , 0 , 12 } , GRM_UI.ConfirmVerifyOfDates , "GameFontWhite" , 12 , "CENTER" , 0 , 0  );
 

@@ -1,3 +1,22 @@
+## **VERSION 1.9926 - June 3rd, 2025**
+
+***NEW MACRO RULE FILTER - DEMOTIONS***
+
+When a player is demoted, you now have an option to leave a custom message automatically in either the public, officer, or custom note location (default is officer).
+
+![Add Message Filter](https://i.imgur.com/g6Gz1Qw.jpeg)
+
+* Add the brackets `{rank}` anywhere in your custom message to include the previous rank name automatically. Please be aware, you are limited to 31 characters max when adding to say, your officer note (Blizz server restricted limit), so the message and rank name need to fall within that limit otherwise it will ignore it. It also will NOT overwrite a pre-existing note, like say, a join date, unless you allow it to overwrite it. It will only overwrite if allowed and there is not enough room for both the original note details and this new message. Otherwise, it will just be appended to the end.
+
+> Example for 'Officer' Rank: `Prev: {rank}` would appear as `Prev: Officer` when added to note.
+
+***BUG FIXES***
+
+* A lua error could occur in the scanning process in some circumstances, notably after say, promoting/demoting a player, it would error out and then not validate the changes made until you /reload. This did not affect all people. But, it could happen. It is now resolved.
+
+* Fixed in era in Classic builds where the professions were not updating properly and were ending up as empty values. The professions should now properly re-update correctly.
+
+
 ## **VERSION 1.9925 - June 1st, 2025**
 
 ***BUG FIXES***

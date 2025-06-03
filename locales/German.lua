@@ -1927,6 +1927,17 @@
     -- MISC
     GRM_L["Pending Feature"] = true
 
+    -- 1.9926
+    GRM_L["Add Message to Note After Demotion"] = true
+    GRM_L["GRM will append the message to existing note if room."] = true
+    GRM_L["However, if there is not enough room, the message will not be added."] = true
+    GRM_L["Enable to forcibly overwrite existing note when not enough room for both."] = true
+    GRM_L["Force Overwrite"] = true
+    GRM_L["{rank}"] = true
+    GRM_L["Add the bracket \'{rank}\' anywhere in message to insert former rank."] = true
+    GRM_L["Ex: - Rank: {rank}"] = true
+    GRM_L["Max Length: {num} letters, including rank name"] = true
+
 end
 
     -- THANK YOU @Nehry for this full translation up to R1.20

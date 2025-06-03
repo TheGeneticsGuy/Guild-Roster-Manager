@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.9925";
+GRM_G.Version = "R1.9926";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1748767639";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1748767639;            -- In Epoch Time
+GRM_G.PatchDayString = "1748852972";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1748852972;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -15527,7 +15527,7 @@ GRM.CheckForNewPlayer = function( name )
                 race, sex = select(4, GetPlayerInfoByGUID(guid)); -- Call a second time... sometimes the server is weird and the first call produces nil, but the immediate 2nd does respond.
                 if race == nil or sex == nil then
                     race = "";
-                    sex = 1;
+                    sex = 2;
                 end
             end
 

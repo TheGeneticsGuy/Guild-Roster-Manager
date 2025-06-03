@@ -238,6 +238,20 @@ Scan.GetClubMemberTable = function()
     return clubMemberTable;
 end
 
+-- Method:          Scan.GetGuildMemberIndexTable()
+-- What it Does:    Quickly builds a member reference table by GUID of the roster index location
+-- Purpose:         Avoid big O n^2 notation by building the table in one loop for reference rather than looping check each player.
+Scan.GetGuildMemberIndexTable = function()
+    local roster = {};
+    for i = 1, GRM.G_Util.GetNumGuildies() do
+        local player_guid = select ( 17 , GetGuildRosterInfo(i) );
+        if player_guid then
+            roster[player_guid] = i;
+        end
+    end
+    return roster;
+end
+
 -- Method:          Scan.UpdateRosterWithCommunitiesAPI ( table , table, int , table , int )
 -- What it Does:    Throttles the querying of the data by the Communities C_Club API. This server call seems much slower and can overload if too fast.
 -- Purpose:         Avoid stutter.
@@ -284,7 +298,6 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
                     -- Player last online status
                     player.lastOnline = GRM.Time.CalculateTotalHours( {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, player.lastOnlineHour or 0}, memberInfo.isOnline);
                     player.lastOnlineTime = {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, memberInfo.lastOnlineHour or 0};
-
 
                     -- PROFESSIONS
                     if memberInfo.profession2ID and memberInfo.profession2Rank then
@@ -962,21 +975,27 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     end
 
     -- Add Faction if applicable (WoW since DF)
-    if player.faction ~= updatedPlayer.faction then
+    if updatedPlayer.faction and player.faction ~= updatedPlayer.faction then
         player.faction = updatedPlayer.faction;
+    elseif not player.faction then
+        player.faction = GRM_G.faction
     end
 
-    if GRM_G.raceIDEnum[player.race] ~= updatedPlayer.race then
+    if updatedPlayer.race and GRM_G.raceIDEnum[player.race] ~= updatedPlayer.race then
         local race = C_CreatureInfo.GetRaceInfo ( updatedPlayer.race );
         if race and race.clientFileString then
             player.race = race.clientFileString;
         else
             player.race = "Human";  -- Temporary Placeholder - probably won't happen unless server is laggy
         end
+    elseif not player.race then
+        player.race = "Human";  -- placeholder til next scan
     end
 
-    if player.sex ~= updatedPlayer.sex then
+    if updatedPlayer.sex and player.sex ~= updatedPlayer.sex then
         player.sex = updatedPlayer.sex;
+    elseif not player.sex then
+        player.sex = 2; -- Default = male, just temp placeholder
     end
 
     -- Add Professions
@@ -987,23 +1006,23 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         player.prof2 = { 0 , 0 };
     end
 
-    if updatedPlayer.profession2ID and updatedPlayer.profession2Rank then
-        if player.prof1[1] ~= updatedPlayer.profession2ID then
-            player.prof1[1] = updatedPlayer.profession2ID;
+    if updatedPlayer.prof1 then
+        if player.prof1[1] ~= updatedPlayer.prof1[1] then
+            player.prof1[1] = updatedPlayer.prof1[1];
         end
-        if player.prof1[2] ~= updatedPlayer.profession2Rank then
-            player.prof1[2] = updatedPlayer.profession2Rank;
+        if player.prof1[2] ~= updatedPlayer.prof1[2] then
+            player.prof1[2] = updatedPlayer.prof1[2];
         end
     elseif player.prof1[1] ~= 0 then
         player.prof1 = { 0 , 0 };   -- Resetting the profession
     end
 
-    if updatedPlayer.profession1ID and updatedPlayer.profession1Rank then
-        if player.prof2[1] ~= updatedPlayer.profession1ID then
-            player.prof2[1] = updatedPlayer.profession1ID;
+    if updatedPlayer.prof2 then
+        if player.prof2[1] ~= updatedPlayer.prof2[1] then
+            player.prof2[1] = updatedPlayer.prof2[1];
         end
-        if player.prof2[2] ~= updatedPlayer.profession1Rank then
-            player.prof2[2] = updatedPlayer.profession1Rank;
+        if player.prof2[2] ~= updatedPlayer.prof2[2] then
+            player.prof2[2] = updatedPlayer.prof2[2];
         end
     elseif player.prof2[1] ~= 0 then
         player.prof2 = { 0 , 0 };   -- Resetting the profession
