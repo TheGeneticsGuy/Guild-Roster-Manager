@@ -5901,12 +5901,16 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end
 
         GRM_UI.AddMessageToNoteEditBoxTT = function ( self )
+            -- Letter max varies depending on destination
+            local maxLettersTable = { [1] = GRM_G.MaxPublicNoteSize, [2] = GRM_G.MaxOfficerNoteSize , [3] = GRM_G.MaxCustomNoteSize };
+            local maxLetters = maxLettersTable[GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3]];
+
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine( GRM.L ( "Add the bracket \'{rank}\' anywhere in message to insert former rank." ) );
             GameTooltip:AddLine( GRM.L ( "Ex: - Rank: {rank}" ) );
             GameTooltip:AddLine( " " );
-            GameTooltip:AddLine( GRM.L ( "Max Length: {num} letters, including rank name" , nil , nil , GRM_G.MaxPublicNoteSize ) , 1 , 0 , 0 );
+            GameTooltip:AddLine( GRM.L ( "Max Length: {num} letters, including rank name" , nil , nil , maxLetters ) , 1 , 0 , 0 );
             GameTooltip:Show();
         end
 
@@ -10617,8 +10621,11 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
 
                                                 -- Insert Rank
                                                 if string.find ( GRM_G.PlayersWithNotesToAdd[player.name].note , GRM.L ("{rank}" ) , 1 , true ) then
+                                                    local maxLettersTable = { [1] = GRM_G.MaxPublicNoteSize, [2] = GRM_G.MaxOfficerNoteSize , [3] = GRM_G.MaxCustomNoteSize };
+                                                    local maxLetters = maxLettersTable[rule.AddNoteOnDemotion[3]];
+
                                                     local text = string.gsub ( GRM_G.PlayersWithNotesToAdd[player.name].note , GRM.L("{rank}") , player.rankName );
-                                                    if GRM.GetNumLetters(text) <= GRM_G.MaxPublicNoteSize then
+                                                    if GRM.GetNumLetters(text) <= maxLetters then
                                                         GRM_G.PlayersWithNotesToAdd[player.name].note = text;
                                                     end
                                                 end

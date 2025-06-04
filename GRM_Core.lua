@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.9926";
+GRM_G.Version = "R1.9927";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1748852972";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1748852972;            -- In Epoch Time
+GRM_G.PatchDayString = "1749023201";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1749023201;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -2948,6 +2948,28 @@ GRM.GetPlayerNameByGUID = function(guid)
     end
 
     return name;
+end
+
+-- Method:          GRM.GetPlayerSex ( string )
+-- What it Does:    Returns the player sex based on the player GUID
+-- Purpose:         This is the only way to determine a player's sex...
+GRM.GetPlayerSex = function( guid )
+    local sex;
+
+    if guid and guid ~= "" then
+        sex = select(5, GetPlayerInfoByGUID(guid));
+        -- For some reason the server sometimes fails to give info on the first ask that session.
+        if not sex then
+            for i = 1, 2 do
+                sex = select(5, GetPlayerInfoByGUID(guid));
+
+                if sex then
+                    break;
+                end
+            end
+        end
+    end
+    return sex;
 end
 
 -- Method:          GRM.AppendServerName ( string , bool )

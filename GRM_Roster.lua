@@ -534,7 +534,7 @@ GRM_R.RefreshOnlineStatus = function( guildData )
     end
 
 end
-
+-- /run local g=GRM_R.GetAllMembersAsArray();for i=1,#g do if not g[i].MythicScore then print(g[i].name .. " : " .. i);end;end
 -- Method:          GRM_R.GetAllMembersAsArray( string , string )
 -- What it Does:    Returns an unsorted list of all guild members as an array, as well as some accompanying details.
 -- Purpose:         A sorted list is useful for columns

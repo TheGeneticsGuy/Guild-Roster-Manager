@@ -275,44 +275,47 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
     while index <= #members do
         memberInfo = members[index];
 
-        if memberInfo and memberInfo.guid then
-            local name , sex = GRM.GetFullNameClubMember(memberInfo.guid);
-            if name and sex then
-                player = roster[name];
-                if player and player.GUID == memberInfo.guid then
+        if memberInfo and memberInfo.guid and memberInfo.name then
+            -- local name , sex = GRM.GetFullNameClubMember(memberInfo.guid);
+            local name = GRM.AppendServerNameSimple(memberInfo.name);   -- Appends server name if it matters
+            player = roster[name];
+            if player and player.GUID == memberInfo.guid then
 
-                    -- Add Mythic Score if applicable
-                    if GRM_G.BuildVersion >= 80000 then
-                        player.MythicScore = memberInfo.overallDungeonScore or 0;
-                    end
-
-                    -- faction
-                    player.faction = memberInfo.faction;
-
-                    -- race
-                    player.race = memberInfo.race
-
-                    -- sex
-                    player.sex = sex;
-
-                    -- Player last online status
-                    player.lastOnline = GRM.Time.CalculateTotalHours( {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, player.lastOnlineHour or 0}, memberInfo.isOnline);
-                    player.lastOnlineTime = {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, memberInfo.lastOnlineHour or 0};
-
-                    -- PROFESSIONS
-                    if memberInfo.profession2ID and memberInfo.profession2Rank then
-                        player.prof1 = { memberInfo.profession2ID , memberInfo.profession2Rank };
+                -- Add Mythic Score if applicable
+                if GRM_G.BuildVersion >= 80000 then
+                    if memberInfo.overallDungeonScore then
+                        player.MythicScore = memberInfo.overallDungeonScore;
                     else
-                        player.prof1 = { 0 , 0 };   -- Resetting the profession
+                        player.MythicScore = 0;
                     end
-
-                    if memberInfo.profession2ID and memberInfo.profession2Rank then
-                        player.prof2 = { memberInfo.profession1ID , memberInfo.profession1Rank };
-                    else
-                        player.prof2 = { 0 , 0 };   -- Resetting the profession
-                    end
-
                 end
+
+                -- faction
+                player.faction = memberInfo.faction;
+
+                -- race
+                player.race = memberInfo.race
+
+                -- sex
+                player.sex = GRM.GetPlayerSex(memberInfo.guid); -- This will return nil if unable to determine
+
+                -- Player last online status
+                player.lastOnline = GRM.Time.CalculateTotalHours( {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, player.lastOnlineHour or 0}, memberInfo.isOnline);
+                player.lastOnlineTime = {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, memberInfo.lastOnlineHour or 0};
+
+                -- PROFESSIONS
+                if memberInfo.profession2ID and memberInfo.profession2Rank then
+                    player.prof1 = { memberInfo.profession2ID , memberInfo.profession2Rank };
+                else
+                    player.prof1 = { 0 , 0 };   -- Resetting the profession
+                end
+
+                if memberInfo.profession2ID and memberInfo.profession2Rank then
+                    player.prof2 = { memberInfo.profession1ID , memberInfo.profession1Rank };
+                else
+                    player.prof2 = { 0 , 0 };   -- Resetting the profession
+                end
+
             end
         end
 
@@ -958,10 +961,14 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         end
 
         player.lastOnline = updatedPlayer.lastOnline; -- Set new hours since last login.
+    elseif not player.lastOnline then
+        player.lastOnline = 1;
     end
 
     if updatedPlayer.lastOnlineTime and player.lastOnlineTime ~= updatedPlayer.lastOnlineTime then
         player.lastOnlineTime = updatedPlayer.lastOnlineTime;
+    elseif not player.lastOnlineTime then
+        player.lastOnlineTime = {0,0,0,1};  -- 1 hr placeholder
     end
 
     -- Just straight update these everytime... No need for change check
@@ -970,8 +977,10 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     end
 
     -- Add Mythic Score if applicable
-    if GRM_G.BuildVersion >= 80000 and player.MythicScore ~= updatedPlayer.MythicScore then
-        player.MythicScore = updatedPlayer.overallDungeonScore;
+    if GRM_G.BuildVersion >= 80000 and updatedPlayer.MythicScore and player.MythicScore ~= updatedPlayer.MythicScore then
+        player.MythicScore = updatedPlayer.MythicScore;
+    elseif not player.MythicScore then
+        player.MythicScore = 0;
     end
 
     -- Add Faction if applicable (WoW since DF)

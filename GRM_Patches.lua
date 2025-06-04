@@ -1736,7 +1736,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     -- 142
     if numericV < 1.9926 and baseValue < 1.9926 then
         GRM_Patch.AddOrEditNewMacroSetting ( "demoteRules" , "AddNoteOnDemotion" , {false , "" , 2 , false } );
-        -- GRM_Patch.AddOrEditNewMacroSetting ( "demoteRules" , "AddNoteOnDemotion" , nil );
 
         GRM_AddonSettings_Save.VERSION = "R1.9926";
         if loopCheck ( 1.9926 ) then
