@@ -1,3 +1,10 @@
+## **VERSION 1.9928 - June 5th, 2025**
+
+***BUG FIXES***
+
+* Fixed an error that could prevent GRM from loading entirely due to the lastOnline variable being missing. This is now resolved.
+
+
 ## **VERSION 1.9927 - June 4th, 2025**
 
 ***BUG FIXES***

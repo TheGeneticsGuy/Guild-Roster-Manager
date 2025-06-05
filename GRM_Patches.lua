@@ -1743,6 +1743,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 143
+    if numericV < 1.9928 and baseValue < 1.9928 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixLastOnline , true , true , false , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9928";
+        if loopCheck ( 1.9928 ) then
+            return;
+        end
+    end
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -9734,6 +9744,22 @@ GRM_Patch.FixLeaveRejoinDateError = function ( player )
 
             end
         end
+    end
+
+    return player;
+end
+
+-- 1.9928
+-- Method:          GRM_Patch.FixLastOnline ( playerTable )
+-- What it Does:    Fixes the missing lastOnline data
+-- Purpose:         Critical as an error set it to nil.
+GRM_Patch.FixLastOnline = function ( player )
+
+    if not player.lastOnline then
+        player.lastOnline = 1;
+        player.lastOnlineTime = { 0 , 0 , 0 , 1 };
+    elseif not player.lastOnlineTime then
+        player.lastOnlineTime = { 0 , 0 , 0 , 1 };
     end
 
     return player;

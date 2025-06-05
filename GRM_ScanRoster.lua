@@ -101,6 +101,8 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
         liveRosterSnapshot = {};
         for i = 1 , GRM.G_Util.GetNumGuildies() do
             liveRosterSnapshot[i] = {GetGuildRosterInfo(i)};
+            local years, months, days, hours = GetGuildRosterLastOnline(i);
+            liveRosterSnapshot[i][18] = { years or 0, months or 0, days or 0, hours or 0 };
         end
 
         C_Timer.After (delay, function()
@@ -128,6 +130,9 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
         local isMobile = liveRosterSnapshot[i][14];
         local rep = liveRosterSnapshot[i][16];
         local GUID = liveRosterSnapshot[i][17];
+        local lastOnline = GRM.Time.CalculateTotalHours( { liveRosterSnapshot[i][18][1] , liveRosterSnapshot[i][18][2] , liveRosterSnapshot[i][18][3] , liveRosterSnapshot[i][18][4] } );
+        local lastOnlineTime = { liveRosterSnapshot[i][18][1] , liveRosterSnapshot[i][18][2] , liveRosterSnapshot[i][18][3] , liveRosterSnapshot[i][18][4] };
+
 
         -- Basic check if name is valid before proceeding
         if name and name ~= "" and GUID then
@@ -146,23 +151,18 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
             if roster[name] then
                 -- Handle potential duplicates based on GUID/Hardcore status
                 if GUID ~= roster[name].GUID then
-                    local selectionIndex;
+
                     if  Scan.GetNewerAccountByGUID( roster[name].GUID , GUID ) == GUID then
                         if GRM_G.HardcoreActive then
 
-                            selectionIndex = GRM.GetRosterSelectionID ( name , roster[name].GUID );
-
-                            GRM.HC.SetPlayerAsDeadByGUID ( roster[name].GUID , roster[name].lastOnline , selectionIndex , roster[name].note );
+                            GRM.HC.SetPlayerAsDeadByGUID ( roster[name].GUID , roster[name].lastOnline , name , roster[name].note );
                         end
                         -- We will overwrite roster[name] below
                     else
                         -- The player at index i is the older/dead one. Mark them dead if Hardcore.
                         if GRM_G.HardcoreActive then
-                            selectionIndex = GRM.GetRosterSelectionID ( name , GUID );
-                            local years, months, days, hours = GetGuildRosterLastOnline(selectionIndex);
-                            local lastOnline = GRM.Time.CalculateTotalHours({years or 0, months or 0, days or 0, hours or 0, online});
 
-                            GRM.HC.SetPlayerAsDeadByGUID ( GUID , lastOnline , selectionIndex , note );
+                            GRM.HC.SetPlayerAsDeadByGUID ( GUID , lastOnline , name , note );
                         end
                         processThisMember = false;
                     end
@@ -188,6 +188,8 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
                 roster[name].rep = rep;
                 roster[name].status = status;
                 roster[name].GUID = GUID;
+                roster[name].lastOnline = lastOnline;
+                roster[name].lastOnlineTime = lastOnlineTime;
                 roster[name].rosterSelection = i; -- Store original index if needed
             end
         end
@@ -300,8 +302,10 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
                 player.sex = GRM.GetPlayerSex(memberInfo.guid); -- This will return nil if unable to determine
 
                 -- Player last online status
-                player.lastOnline = GRM.Time.CalculateTotalHours( {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, player.lastOnlineHour or 0}, memberInfo.isOnline);
-                player.lastOnlineTime = {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, memberInfo.lastOnlineHour or 0};
+                if not player.lastOnline then
+                    player.lastOnline = GRM.Time.CalculateTotalHours( {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, player.lastOnlineHour or 0}, memberInfo.isOnline);
+                    player.lastOnlineTime = {memberInfo.lastOnlineYear or 0, memberInfo.lastOnlineMonth or 0, memberInfo.lastOnlineDay or 0, memberInfo.lastOnlineHour or 0};
+                end
 
                 -- PROFESSIONS
                 if memberInfo.profession2ID and memberInfo.profession2Rank then
