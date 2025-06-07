@@ -1753,6 +1753,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 144
+    if numericV < 1.9929 and baseValue < 1.9929 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixMissingMythicRating , true , true , false , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9929";
+        if loopCheck ( 1.9929 ) then
+            return;
+        end
+    end
+
+
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -9760,6 +9772,19 @@ GRM_Patch.FixLastOnline = function ( player )
         player.lastOnlineTime = { 0 , 0 , 0 , 1 };
     elseif not player.lastOnlineTime then
         player.lastOnlineTime = { 0 , 0 , 0 , 1 };
+    end
+
+    return player;
+end
+
+-- 1.9929
+-- Method:          GRM_Patch.FixMissingMythicRating ( playerTable )
+-- What it Does:    Fixes Mythic Rating missing variable
+-- Purpose:         Critical as an error set it to nil.
+GRM_Patch.FixMissingMythicRating = function ( player )
+
+    if not player.MythicScore then
+        player.MythicScore = 0;
     end
 
     return player;

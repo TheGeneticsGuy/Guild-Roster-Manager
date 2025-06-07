@@ -191,6 +191,8 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
                 roster[name].lastOnline = lastOnline;
                 roster[name].lastOnlineTime = lastOnlineTime;
                 roster[name].rosterSelection = i; -- Store original index if needed
+                roster[name].MythicScore = 0;   -- Placeholder
+
             end
         end
         processedCount = processedCount + 1;
@@ -284,12 +286,8 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
             if player and player.GUID == memberInfo.guid then
 
                 -- Add Mythic Score if applicable
-                if GRM_G.BuildVersion >= 80000 then
-                    if memberInfo.overallDungeonScore then
-                        player.MythicScore = memberInfo.overallDungeonScore;
-                    else
-                        player.MythicScore = 0;
-                    end
+                if GRM_G.BuildVersion >= 80000 and memberInfo.overallDungeonScore then
+                    player.MythicScore = memberInfo.overallDungeonScore;
                 end
 
                 -- faction
@@ -372,7 +370,6 @@ Scan.FinalizeRosterBuild = function( roster, orderedRoster, count )
         else
             -- Normal processing for an existing, found guild
             GRM.G_Util.CheckGuildRanks(); -- Ensure this is safe to call now
-            Scan.ScanRecommendationsList_Async(); -- Ensure this is safe
             C_Timer.After ( 0.1 , function()
                 Scan.BaseScanningComplete_MoveToChanges( roster , orderedRoster );
             end);
@@ -641,27 +638,31 @@ Scan.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
         -- OK, let's close this out!!!!!
         -- Seeing if any upcoming notable events, like anniversaries/birthdays
         Scan.CheckPlayerEvents();
-
-        -- Printing Report, and sending report to log.
-        Scan.FinalReport();
-
-        -- Disable manual scan if activated.
-        if GRM_G.ManualScanEnabled and GRM_UI.GRM_ToolCoreFrame.MacroSuccess then
-            GRM_G.ManualScanEnabled = false;
-            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Manual Scan Complete"), 1.0, 0.84, 0);
-        end
-
-        if GRM_G.ManualScanEnabled and not GRM_UI.GRM_ToolCoreFrame.MacroSuccess then
-            GRM_G.ManualScanEnabled = false;
-            GRM.ValidateMacroRecordingSuccess(true);
-        end
+        Scan.ScanRecommendationsList_Async( true ); -- Ensure this is safe
 
     else
         -- Seeing if any upcoming notable events, like anniversaries/birthdays
         Scan.CheckPlayerEvents();
+        Scan.ScanRecommendationsList_Async( true ); -- Ensure this is safe
 
-        -- Printing Report, and sending report to log.
-        Scan.FinalReport();
+    end
+end
+
+-- Method:          Scan.FinishedScan()
+-- What it Does:    Wraps up the scan of the roster
+-- Purpose:         Communication
+Scan.FinishedScan = function()
+    Scan.FinalReport();
+
+    -- Disable manual scan if activated.
+    if GRM_G.ManualScanEnabled and GRM_UI.GRM_ToolCoreFrame.MacroSuccess then
+        GRM_G.ManualScanEnabled = false;
+        GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Manual Scan Complete"), 1.0, 0.84, 0);
+    end
+
+    if GRM_G.ManualScanEnabled and not GRM_UI.GRM_ToolCoreFrame.MacroSuccess then
+        GRM_G.ManualScanEnabled = false;
+        GRM.ValidateMacroRecordingSuccess(true);
     end
 end
 
@@ -3193,11 +3194,11 @@ end
 Scan.currentScanState = nil
 
 -- === Main entry point for scanning recommendations ===
--- Method:          Scan.ScanRecommendationsList_Async()
+-- Method:          Scan.ScanRecommendationsList_Async( bool )
 -- What it Does:    Scans through all of the macro rules for matches against the guild players
 -- Purpose:         Efficient, Async similated behavior to break the process into chunks to ensure
 --                  no stutter on the main thread.
-Scan.ScanRecommendationsList_Async = function()
+Scan.ScanRecommendationsList_Async = function( scanCheck )
     if Scan.currentScanState and Scan.currentScanState.isRunning then
         return
     end
@@ -3254,16 +3255,16 @@ Scan.ScanRecommendationsList_Async = function()
     end
 
     -- Start the first processing cycle
-    C_Timer.After(0, function() Scan.ProcessNextMacroRuleChunk() end)
+    C_Timer.After(0, function() Scan.ProcessNextMacroRuleChunk( scanCheck ) end)
 end
 
 -- === Core chunk processing function ===
--- Method:          Scan.ProcessNextMacroRuleChunk()
+-- Method:          Scan.ProcessNextMacroRuleChunk( bool )
 -- What it Does:    Used to handle the asynchronous scanning of all of the macro rule matches
 -- Purpose:         Since Lua is all run in the "main thread" and is not multi-threaded, this could cause
 --                  stutter when processing a large amount of data, so instead it is better to process it
 --                  all in smaller "chunks." This functions helps control the flow of that processing.
-Scan.ProcessNextMacroRuleChunk = function()
+Scan.ProcessNextMacroRuleChunk = function( scanCheck )
     local state = Scan.currentScanState
     -- Exit if no active scan or state is lost
     if not state or not state.isRunning then return end
@@ -3283,7 +3284,9 @@ Scan.ProcessNextMacroRuleChunk = function()
         state.tempNamesForMarking = {}      -- Clear for the new category
         state.currentRuleDisabledList = nil -- Clear disabled list from previous category
         state.stage = nextMajorStage
-        C_Timer.After(0, Scan.ProcessNextMacroRuleChunk) -- Schedule next step
+        C_Timer.After(0, function()
+            Scan.ProcessNextMacroRuleChunk ( scanCheck );
+        end); -- Schedule next step
     end
 
     -- Helper to transition from fetching candidates to processing the accumulated list
@@ -3294,14 +3297,18 @@ Scan.ProcessNextMacroRuleChunk = function()
         state.tempNamesForMarking = {} -- Prepare for marking players in this category
         state.nextStageAfterProcessingCandidates = nextClearingStageAfterProcessing -- Remember where to go after this
         state.stage = nextProcessingStage
-        C_Timer.After(0, Scan.ProcessNextMacroRuleChunk)
+        C_Timer.After(0, function()
+            Scan.ProcessNextMacroRuleChunk ( scanCheck );
+        end);
     end
 
     -- Helper to transition from processing recommendations to clearing flags for that category
     local function transitionToClearingFlags()
         state.processingIndex = 1 -- Reset for iterating allGuildPlayerNames
         state.stage = state.nextStageAfterProcessingCandidates -- Move to the designated clearing stage
-        C_Timer.After(0, Scan.ProcessNextMacroRuleChunk)
+        C_Timer.After(0, function()
+            Scan.ProcessNextMacroRuleChunk ( scanCheck );
+        end);
     end
 
     ------------------------------------
@@ -3314,7 +3321,10 @@ Scan.ProcessNextMacroRuleChunk = function()
             state.guildPlayerIndex = 1 -- Start fetching from the beginning of the guild list
             state.stage = "KICK_FETCH_CANDIDATES_CHUNK"
             -- Fall through to KICK_FETCH_CANDIDATES_CHUNK in the same cycle if desired, or schedule:
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             advanceToNextMajorStage("INIT_PROMOTION"); return
         end
@@ -3332,7 +3342,10 @@ Scan.ProcessNextMacroRuleChunk = function()
 
         state.guildPlayerIndex = state.guildPlayerIndex + state.chunkSize -- Move to next chunk of guild members
         if state.guildPlayerIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return -- More guild members to process for rules
+            C_Timer.After(0, function()
+            Scan.ProcessNextMacroRuleChunk ( scanCheck );
+                end);
+            return -- More guild members to process for rules
         else
             -- All guild members processed for kick rules
             transitionToProcessingCandidates(state.kickRecommendationList, state.kickRuleDisabledList, "KICK_PROCESS_CANDIDATES_CHUNK", "KICK_CLEAR_FLAGS_CHUNK"); return
@@ -3357,7 +3370,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         state.processingIndex = state.processingIndex + processedInChunk
 
         if state.processingIndex <= #state.processingList then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return -- More recommendations to process
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return -- More recommendations to process
         else
             transitionToClearingFlags(); return
         end
@@ -3378,7 +3394,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         state.processingIndex = state.processingIndex + processedInChunk
 
         if state.processingIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return -- More guild members to check for flag clearing
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return -- More guild members to check for flag clearing
         else
             -- Finished clearing kick flags, move to next major category
             advanceToNextMajorStage("INIT_PROMOTION"); return
@@ -3394,7 +3413,10 @@ Scan.ProcessNextMacroRuleChunk = function()
             state.promotionRuleDisabledList = {}
             state.guildPlayerIndex = 1
             state.stage = "PROMOTION_FETCH_CANDIDATES_CHUNK"
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             advanceToNextMajorStage("INIT_DEMOTION"); return
         end
@@ -3407,7 +3429,10 @@ Scan.ProcessNextMacroRuleChunk = function()
 
         state.guildPlayerIndex = state.guildPlayerIndex + state.chunkSize
         if state.guildPlayerIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             transitionToProcessingCandidates(state.promotionRecommendationList, state.promotionRuleDisabledList, "PROMOTION_PROCESS_CANDIDATES_CHUNK", "PROMOTION_CLEAR_FLAGS_CHUNK"); return
         end
@@ -3428,7 +3453,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         end
         state.processingIndex = state.processingIndex + processedInChunk
         if state.processingIndex <= #state.processingList then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             transitionToClearingFlags(); return
         end
@@ -3446,7 +3474,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         end
         state.processingIndex = state.processingIndex + processedInChunk
         if state.processingIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             advanceToNextMajorStage("INIT_DEMOTION"); return
         end
@@ -3461,7 +3492,10 @@ Scan.ProcessNextMacroRuleChunk = function()
             state.demotionRuleDisabledList = {}
             state.guildPlayerIndex = 1
             state.stage = "DEMOTION_FETCH_CANDIDATES_CHUNK"
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             advanceToNextMajorStage("INIT_SPECIAL"); return
         end
@@ -3474,7 +3508,10 @@ Scan.ProcessNextMacroRuleChunk = function()
 
         state.guildPlayerIndex = state.guildPlayerIndex + state.chunkSize
         if state.guildPlayerIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             transitionToProcessingCandidates(state.demotionRecommendationList, state.demotionRuleDisabledList, "DEMOTION_PROCESS_CANDIDATES_CHUNK", "DEMOTION_CLEAR_FLAGS_CHUNK"); return
         end
@@ -3495,7 +3532,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         end
         state.processingIndex = state.processingIndex + processedInChunk
         if state.processingIndex <= #state.processingList then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             transitionToClearingFlags(); return
         end
@@ -3513,7 +3553,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         end
         state.processingIndex = state.processingIndex + processedInChunk
         if state.processingIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             advanceToNextMajorStage("INIT_SPECIAL"); return
         end
@@ -3533,7 +3576,10 @@ Scan.ProcessNextMacroRuleChunk = function()
             state.specialUnannouncedPromote = 0
             state.specialUnannouncedDemote = 0
             state.stage = "SPECIAL_FETCH_CANDIDATES_CHUNK"
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             advanceToNextMajorStage("FINISH"); return
         end
@@ -3546,7 +3592,10 @@ Scan.ProcessNextMacroRuleChunk = function()
 
         state.guildPlayerIndex = state.guildPlayerIndex + state.chunkSize
         if state.guildPlayerIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             transitionToProcessingCandidates(state.specialRecommendationList, state.specialRuleDisabledList, "SPECIAL_PROCESS_CANDIDATES_CHUNK", "SPECIAL_CLEAR_FLAGS_CHUNK"); return
         end
@@ -3578,7 +3627,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         state.processingIndex = state.processingIndex + processedInChunk
 
         if state.processingIndex <= #state.processingList then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             -- Log summary after all special candidates are processed (original logic)
             if state.specialUnannouncedPromote > 0 or state.specialUnannouncedDemote > 0 then
@@ -3600,7 +3652,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         end
         state.processingIndex = state.processingIndex + processedInChunk
         if state.processingIndex <= #state.allGuildPlayerNames then
-            C_Timer.After(0, Scan.ProcessNextMacroRuleChunk); return
+            C_Timer.After(0, function()
+                Scan.ProcessNextMacroRuleChunk ( scanCheck );
+            end);
+            return
         else
             advanceToNextMajorStage("FINISH"); return
         end
@@ -3615,6 +3670,10 @@ Scan.ProcessNextMacroRuleChunk = function()
         if GRM_G.FullMacroToolRefresh then
             GRM_G.FullMacroToolRefresh = false;
             GRM_UI.FullMacroToolRefresh();
+        end
+
+        if scanCheck then
+            Scan.FinishedScan();
         end
         return
     end

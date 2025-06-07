@@ -1,3 +1,11 @@
+## **VERSION 1.9929 - June 6th, 2025**
+
+***BUG FIXES***
+
+* Fixed a bug that would prevent the addon from fully loading.
+
+* Fixed an issue where it was not fully updating the last online status of a player immediately  after logging in, before checking the macro rule matches. So, you might get false positives on inactivity immediately after logging in, though it would self-correct within a minute or so, but it could give a confusing announcement to see a name reported as being a match, then you open the tool and they aren'ty there anymore. This likely would not be noticeable to most, but it can happen.
+
 ## **VERSION 1.9928 - June 5th, 2025**
 
 ***BUG FIXES***
