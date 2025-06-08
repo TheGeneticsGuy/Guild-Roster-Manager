@@ -8806,7 +8806,6 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
     result.mythicRating = 1000;
     result.mythicPlusOperator = 1;
 
-
     if position == 3 then
         result.mythicPlusOperator = 3;
         result.AddNoteOnDemotion = { false , "" , 2 , false };
@@ -9998,8 +9997,21 @@ local PromoteFilterMatch = function( player , ruleName , rule , tempRuleCollecti
 
     player = GRM.Time.ValidateHist ( player );
 
+    local valid = false;
     -- Initial activity
-    if ( rule.sinceAtRank and player.rankHist[1][7] and GRM.HasTimeExceededDate ( GRM.Time.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) or ( not rule.sinceAtRank and player.joinDateHist[1][6] and GRM.HasTimeExceededDate ( GRM.Time.ConvertToEpoch ( player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) ) then
+    if ( rule.sinceAtRank and player.rankHist[1][7] ) then
+
+        if GRM.HasTimeExceededDate ( GRM.Time.ConvertToEpoch ( player.rankHist[1][2] , player.rankHist[1][3] , player.rankHist[1][4] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) then
+            valid = true;
+        end
+    elseif ( not rule.sinceAtRank and player.joinDateHist[1][6] ) then
+
+        if GRM.HasTimeExceededDate ( GRM.Time.ConvertToEpoch ( player.joinDateHist[1][1] , player.joinDateHist[1][2] , player.joinDateHist[1][3] ) , GRM_G.NumberOfHoursTilRecommend[GRM_UI.ruleTypeEnum2[rule.ruleType]][ruleName].hours ) then
+            valid = true;
+        end
+    end
+
+    if valid then
 
         -- It appears the player HAS been at the rank for that given amount of time - now, do we promote no matter what, or do we check for inactivity?
         if rule.regardlessOfActivity then

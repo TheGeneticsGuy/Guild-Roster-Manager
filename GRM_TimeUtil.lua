@@ -925,7 +925,7 @@ end
 -- What it Does:    Returns the number of hours need to match the given numMonths time passed
 -- Purpose:         Useful for checking if the player has been, for example, offline X number of months, if the time has passed, since the server gives time in hours since last online.
 Time.GetNumHoursTilRecommend = function(numMonths)
-    if not numMonths or numMonths <= 0 then
+    if not numMonths or numMonths < 0 then
         return nil
     end
 

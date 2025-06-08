@@ -3206,7 +3206,7 @@ Scan.ScanRecommendationsList_Async = function( scanCheck )
     GRM.RuleIntegrityCheck(); -- Validate rules before starting
 
     -- Hourly refresh check (original logic)
-    if (time() - (GRM_G.HoursTilRecommendRefresh or 0)) > 3599 then
+    if GRM_G.OnFirstLoad or ( (time() - GRM_G.HoursTilRecommendRefresh) > 3599 ) then
         GRM_G.HoursTilRecommendRefresh = time();
         Scan.RefreshNumberOfHoursTilRecommend();
     end

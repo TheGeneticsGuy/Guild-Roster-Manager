@@ -1,3 +1,9 @@
+## **VERSION 1.9930 - June 8th, 2025**
+
+***BUG FIXES***
+
+* Fixed a bug where the macro tool would no longer load promote, demote, or special rules if you had previously configured an activity check to promote at 0 months. This is now fixed and your macro tool should load properly again.
+
 ## **VERSION 1.9929 - June 6th, 2025**
 
 ***BUG FIXES***
