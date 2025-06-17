@@ -87,7 +87,7 @@ Scan.BuildNewRoster = function( forceScan )
 
     -- Just cancel if not in a guild
     if not IsInGuild() then
-        GRM_G.guildName = "";000000000
+        GRM_G.guildName = "";
         GRM_G.gClubID = 0;
         return;
     end
