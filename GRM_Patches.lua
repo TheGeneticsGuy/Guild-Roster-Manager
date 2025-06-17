@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 142 - 2025-06-03
+--- Total Patches: 145 - 2025-06-16
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1759,6 +1759,18 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.9929";
         if loopCheck ( 1.9929 ) then
+            return;
+        end
+    end
+
+    -- 145
+    if numericV < 1.9931 and baseValue < 1.9931 then
+        GRM_Patch.RestructureBackupDB();
+        GRM_Patch.AddNewSetting ( "LogSizeWarning" , { false , false , false , false } );
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixMissingRankName , true , true , false , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9931";
+        if loopCheck ( 1.9931 ) then
             return;
         end
     end
@@ -9787,5 +9799,40 @@ GRM_Patch.FixMissingMythicRating = function ( player )
         player.MythicScore = 0;
     end
 
+    return player;
+end
+
+-- 1.9931
+-- Method:          GRM_Patch.RestructureBackupDB()
+-- What it Does:    Updates the backup system to be more robust by dividing the save variable tables
+-- Purpose:         Prevent stack overflow situations
+GRM_Patch.RestructureBackupDB = function ()
+    if GRM_GuildDataBackup_Save then
+        for guild_name , guild in pairs ( GRM_GuildDataBackup_Save ) do
+            if not GRM_Restore_Members[guild_name] then
+                GRM_Restore_Members[guild_name] = guild.members;
+                guild.members = nil;
+
+                GRM_Restore_FormerMembers[guild_name] = guild.formerMembers;
+                guild.formerMembers = nil;
+
+                GRM_Restore_Log[guild_name] = guild.log;
+                guild.log = nil;
+
+                -- Need to remove the mains as it is deprecated
+                guild.mains = nil;
+            end
+        end
+    end
+end
+
+-- 1.9931
+-- Method:          GRM_Patch.FixMissingRankName ( playerTable )
+-- What it Does:    Checks player tables for missing rankName and re-adds htem
+-- Purpose:         A flaw purged the rankName for some players. This restores it.
+GRM_Patch.FixMissingRankName = function ( player )
+    if player.rankName == nil and player.rankHist and #player.rankHist > 0 and player.rankHist[1][1] ~= "" then
+        player.rankName = player.rankHist[1][1];
+    end
     return player;
 end

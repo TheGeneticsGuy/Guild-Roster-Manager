@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.9930";
+GRM_G.Version = "R1.9931";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1749370846";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1749370846;            -- In Epoch Time
+GRM_G.PatchDayString = "1750109733";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1750109733;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110105;
@@ -162,6 +162,7 @@ GRM_G.CheckLog = false;
 GRM_G.CheckGuild = false;
 GRM_G.CurrentlyScanning = false;
 GRM_G.ScanControl = 0;
+GRM_G.ScanTimer = 0;
 GRM_G.DefaultMinScanTime = 5;
 GRM_G.changeHappenedExitScan = false;
 GRM_G.silenceOfficerNoteReporting = false;
@@ -794,6 +795,15 @@ GRM.ClearPermData = function()
     GRM_GuildDataBackup_Save = nil;
     GRM_GuildDataBackup_Save = {};
 
+    GRM_Restore_Members = nil;
+    GRM_Restore_Members = {};
+
+    GRM_Restore_FormerMembers = nil;
+    GRM_Restore_FormerMembers = {};
+
+    GRM_Restore_Log = nil;
+    GRM_Restore_Log = {};
+
     GRM_PlayerListOfAlts_Save = nil;
     GRM_PlayerListOfAlts_Save = {};
 
@@ -804,8 +814,7 @@ GRM.ClearPermData = function()
     GRM_Misc = {};
     GRM.ConfigureAnnounceOnLogin(true);
 
-    return GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save,
-        GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_PlayerListOfAlts_Save;
+    return GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_Restore_Members, GRM_Restore_FormerMembers, GRM_Restore_Log, GRM_PlayerListOfAlts_Save;
 end
 
 -- Method:          GRM.ConfigureMiscForPlayer( string );
@@ -881,6 +890,9 @@ GRM.SetDefaultAddonSettings = function(player, page)
                             {rosterFrameDefault, 525, 1.0}};
 
         player.classicUIInformed = false;
+
+        -- Messaging for save data being too much
+        player.LogSizeWarning = { false , false , false , false };
 
         -- General Options Tab
     elseif page == 1 then
@@ -1171,8 +1183,7 @@ end
 -- What it Does:    Resets the whole addon due to missing save settings data.
 -- Purpose:         Adapt the new DB.
 GRM.RefreshAllSettings = function()
-    GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_PlayerListOfAlts_Save =
-        GRM.ClearPermData();
+    GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_Restore_Members, GRM_Restore_FormerMembers, GRM_Restore_Log, GRM_PlayerListOfAlts_Save = GRM.ClearPermData();
     GRM_AddonSettings_Save.VERSION = GRM_G.Version;
 end
 
@@ -2516,13 +2527,12 @@ GRM.AddGuildBackup = function(guildName, creationDate)
             local dates = GRM.Time.GetTimestamp()
             GRM_GuildDataBackup_Save[guildName].date = { dates[1] , dates[2] , dates[3] };
             GRM_GuildDataBackup_Save[guildName].epochDate = time();
-            GRM_GuildDataBackup_Save[guildName].numGuildies = GRM.G_Util.GetNumGuildiesInGuild(
-                GRM_GuildMemberHistory_Save[guildName]);
-            GRM_GuildDataBackup_Save[guildName].members = GRM.Util.DeepCopyArray(GRM_GuildMemberHistory_Save[guildName]);
-            GRM_GuildDataBackup_Save[guildName].formerMembers = GRM.Util.DeepCopyArray(
-                GRM_PlayersThatLeftHistory_Save[guildName]);
-            GRM_GuildDataBackup_Save[guildName].log = GRM.Util.DeepCopyArray(GRM.GetLog(guildName));
+            GRM_GuildDataBackup_Save[guildName].numGuildies = GRM.G_Util.GetNumGuildiesInGuild(GRM_GuildMemberHistory_Save[guildName]);
             GRM_GuildDataBackup_Save[guildName].alts = GRM.Util.DeepCopyArray(GRM_Alts[guildName]);
+
+            GRM_Restore_Members[guildName] = GRM.Util.DeepCopyArray(GRM_GuildMemberHistory_Save[guildName]);
+            GRM_Restore_FormerMembers[guildName] = GRM.Util.DeepCopyArray(GRM_PlayersThatLeftHistory_Save[guildName]);
+            GRM_Restore_Log[guildName] = GRM.Util.DeepCopyArray(GRM.GetLog(guildName));
 
             GRM.Report(GRM.L("Backup Point Set for Guild \"{name}\"", guildName));
 
@@ -2548,11 +2558,11 @@ GRM.RemoveGuildBackup = function(guildName, isTransfer)
         GRM_GuildDataBackup_Save[guildName].date = {0,0,0};
         GRM_GuildDataBackup_Save[guildName].epochDate = 0;
         GRM_GuildDataBackup_Save[guildName].numGuildies = 0;
-        GRM_GuildDataBackup_Save[guildName].members = {};
-        GRM_GuildDataBackup_Save[guildName].formerMembers = {};
-        GRM_GuildDataBackup_Save[guildName].log = {};
         GRM_GuildDataBackup_Save[guildName].alts = {};
-        GRM_GuildDataBackup_Save[guildName].mains = {};
+
+        GRM_Restore_Members[guildName] = {};
+        GRM_Restore_FormerMembers[guildName] = {};
+        GRM_Restore_Log[guildName] = {};
 
         if not isTransfer then
             GRM.Report(GRM.L("Backup Point Removed for Guild \"{name}\"", guildName));
@@ -2575,14 +2585,14 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
             local newServerName = string.match(guild, "-(.+)");
 
             GRM_GuildMemberHistory_Save[guildName] = GRM.ChangeServerNameOfAll(GRM.Util.DeepCopyArray(
-                GRM_GuildDataBackup_Save[oldName].members), newServerName, false, true, false, false);
+                GRM_Restore_Members[oldName]), newServerName, false, true, false, false);
             GRM_GuildMemberHistory_Save[guildName].grmName = guildName; -- Need to update the saved name too.
 
             GRM_GuildMemberHistory_Save[guildName].grmClubID = C_Club.GetGuildClubId();
 
             GRM_PlayersThatLeftHistory_Save[guildName] = GRM.ChangeServerNameOfAll(GRM.Util.DeepCopyArray(
-                GRM_GuildDataBackup_Save[oldName].formerMembers), newServerName, false, true, true, false);
-            GRM_LogReport_Save[guildName] = GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[oldName].log);
+                GRM_Restore_FormerMembers[oldName]), newServerName, false, true, true, false);
+            GRM_LogReport_Save[guildName] = GRM.Util.DeepCopyArray(GRM_Restore_Log[oldName]);
             GRM_Alts[guildName] = GRM.ChangeServerNameOfAll(GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[oldName].alts),
                 newServerName, true, false, false, false);
             GRM_CalendarAddQue_Save[guildName] = {};
@@ -2593,11 +2603,11 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
             GRM_GuildDataBackup_Save[guildName].date = {0,0,0};
             GRM_GuildDataBackup_Save[guildName].epochDate = 0;
             GRM_GuildDataBackup_Save[guildName].numGuildies = 0;
-            GRM_GuildDataBackup_Save[guildName].members = {};
-            GRM_GuildDataBackup_Save[guildName].formerMembers = {};
-            GRM_GuildDataBackup_Save[guildName].log = {};
             GRM_GuildDataBackup_Save[guildName].alts = {};
-            GRM_GuildDataBackup_Save[guildName].mains = {};
+
+            GRM_Restore_Members[guildName] = {};
+            GRM_Restore_FormerMembers[guildName] = {};
+            GRM_Restore_Log[guildName] = {};
 
             -- need to purge the old backup
             GRM.RemoveGuildBackup(guildName, true);
@@ -2615,10 +2625,10 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
 
         else
 
-            GRM_GuildMemberHistory_Save[guildName] = GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[guildName].members);
+            GRM_GuildMemberHistory_Save[guildName] = GRM.Util.DeepCopyArray(GRM_Restore_Members[guildName]);
             GRM_PlayersThatLeftHistory_Save[guildName] = GRM.Util.DeepCopyArray(
-                GRM_GuildDataBackup_Save[guildName].formerMembers);
-            GRM_LogReport_Save[guildName] = GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[guildName].log);
+                GRM_Restore_FormerMembers[guildName]);
+            GRM_LogReport_Save[guildName] = GRM.Util.DeepCopyArray(GRM_Restore_Log[guildName]);
             GRM_Alts[guildName] = GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[guildName].alts);
             GRM.Report(GRM.L("Backup Point Restored for Guild \"{name}\"", guildName));
             GRM_CalendarAddQue_Save[guildName] = {};
@@ -2762,16 +2772,6 @@ GRM.ChangeServerNameOfAll = function(guildData, newServerName, isAlts, addFlag, 
     return newGuildData;
 end
 
--- Method:          GRM.ResetAllBackups()
--- What it Does:    Wipes all backup data, but then reinitializes an index for each guild
--- Purpose:         For managing the database of guild backups
-GRM.ResetAllBackups = function()
-    -- Reset the backup data in case any player was messing around with it...
-    for guild in pairs(GRM_GuildDataBackup_Save) do
-        GRM_GuildDataBackup_Save[guild] = {};
-    end
-end
-
 -- Method:          GRM.PurgeGuildFromDatabase( string )
 -- What it Does:    Completely purges a guild from the player database... that it is not currently logged into
 -- Purpose:         Cleanup old guild data from a guild the player is no longer a part of.
@@ -2793,6 +2793,9 @@ GRM.PurgeGuildFromDatabase = function(guildName)
         GRM_CalendarAddQue_Save[guildName] = nil;
         GRM_LogReport_Save[guildName] = nil;
         GRM_GuildDataBackup_Save[guildName] = nil;
+        GRM_Restore_Members[guildName] = nil;
+        GRM_Restore_FormerMembers[guildName] = nil;
+        GRM_Restore_Log[guildName] = nil;
         GRM_PlayerListOfAlts_Save[guildName] = nil;
         GRM_Alts[guildName] = nil;
         GRM_AddonSettings_Save[guildName] = nil;
@@ -15429,7 +15432,13 @@ GRM.ResetAllSavedData = function()
     GRM_PlayerListOfAlts_Save = {};
 
     GRM_GuildDataBackup_Save = nil;
+    GRM_Restore_Members = nil;
+    GRM_Restore_FormerMembers = nil;
+    GRM_Restore_Log = nil;
     GRM_GuildDataBackup_Save = {};
+    GRM_Restore_Members = {};
+    GRM_Restore_FormerMembers = {};
+    GRM_Restore_Log = {};
 
     GRM_CalendarAddQue_Save = nil;
     GRM_CalendarAddQue_Save = {};
@@ -15487,6 +15496,9 @@ GRM.ResetGuildSavedData = function(guildName)
 
     -- Clear the backups... they gotta go too!
     GRM_GuildDataBackup_Save[guildName] = nil;
+    GRM_Restore_Members[guildName] = nil;
+    GRM_Restore_FormerMembers[guildName] = nil;
+    GRM_Restore_Log[guildName] = nil;
 
     GRM_Alts[guildName] = nil;
 
@@ -22807,10 +22819,11 @@ GRM.FixBackups = function()
     GRM_GuildDataBackup_Save[GRM_G.guildName]["date"] = "";
     GRM_GuildDataBackup_Save[GRM_G.guildName]["epochDate"] = 0;
     GRM_GuildDataBackup_Save[GRM_G.guildName]["numGuildies"] = 0;
-    GRM_GuildDataBackup_Save[GRM_G.guildName]["members"] = {};
-    GRM_GuildDataBackup_Save[GRM_G.guildName]["formerMembers"] = {};
-    GRM_GuildDataBackup_Save[GRM_G.guildName]["log"] = {};
     GRM_GuildDataBackup_Save[GRM_G.guildName]["alts"] = {};
+
+    GRM_Restore_Members[GRM_G.guildName] = {};
+    GRM_Restore_FormerMembers[GRM_G.guildName] = {};
+    GRM_Restore_Log[GRM_G.guildName] = {};
 
 end
 

@@ -1099,63 +1099,65 @@ GRM_R.SortRank = function ( _ , keepType , reSizeButtons )
         sort ( members , function ( a , b ) return a.rankIndex > b.rankIndex end );
     end
 
-    -- Sort names alphabetically, within each rank
-    if GRM_UI.GRM_RosterFrame.FormerSortType == 1 then
-        members = GRM_R.SortAlphabeticallyWithinRank ( members , 1 );
-    -- Sort names alphabetically, within each rank
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 2 then
-        members = GRM_R.SortAlphabeticallyWithinRank ( members , 2 );
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 3 then
-        members = GRM_R.SortLastOnlineWithinRank ( members , 3 );
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 4 then
-        members = GRM_R.SortLastOnlineWithinRank ( members , 4 );
-    -- Sort names by max level decending, within each rank
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 7 then
-        members = GRM_R.SortByLevelWithinRank ( members , 7 );
-        -- Sort names by max level ascending, within each rank
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 8 then
-        members = GRM_R.SortByLevelWithinRank ( members , 8 );
-           -- Sort names by max level ascending, within each rank
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 9 then
-        members = GRM_R.SortByMythicWithinRank ( members , 9 );
-           -- Sort names by max level ascending, within each rank
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 10 then
-        members = GRM_R.SortByMythicWithinRank ( members , 10 );
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 11 then
-        members = GRM_R.SortByNoteWithinRank ( members , 11 );
-           -- Sort names by max level ascending, within each rank
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 12 then
-        members = GRM_R.SortByNoteWithinRank ( members , 12 );
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 13 then
-        members = GRM_R.SortByOfficerNoteWithinRank ( members , 13 );
-           -- Sort names by max level ascending, within each rank
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 14 then
-        members = GRM_R.SortByOfficerNoteWithinRank ( members , 14 );
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 15 then
-        members = GRM_R.SortByCustomNoteWithinRank ( members , 15 );
-    elseif GRM_UI.GRM_RosterFrame.FormerSortType == 16 then
-        members = GRM_R.SortByCustomNoteWithinRank ( members , 16 );
-    end
+    if #members > 0 then
+        -- Sort names alphabetically, within each rank
+        if GRM_UI.GRM_RosterFrame.FormerSortType == 1 then
+            members = GRM_R.SortAlphabeticallyWithinRank ( members , 1 );
+        -- Sort names alphabetically, within each rank
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 2 then
+            members = GRM_R.SortAlphabeticallyWithinRank ( members , 2 );
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 3 then
+            members = GRM_R.SortLastOnlineWithinRank ( members , 3 );
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 4 then
+            members = GRM_R.SortLastOnlineWithinRank ( members , 4 );
+        -- Sort names by max level decending, within each rank
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 7 then
+            members = GRM_R.SortByLevelWithinRank ( members , 7 );
+            -- Sort names by max level ascending, within each rank
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 8 then
+            members = GRM_R.SortByLevelWithinRank ( members , 8 );
+            -- Sort names by max level ascending, within each rank
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 9 then
+            members = GRM_R.SortByMythicWithinRank ( members , 9 );
+            -- Sort names by max level ascending, within each rank
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 10 then
+            members = GRM_R.SortByMythicWithinRank ( members , 10 );
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 11 then
+            members = GRM_R.SortByNoteWithinRank ( members , 11 );
+            -- Sort names by max level ascending, within each rank
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 12 then
+            members = GRM_R.SortByNoteWithinRank ( members , 12 );
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 13 then
+            members = GRM_R.SortByOfficerNoteWithinRank ( members , 13 );
+            -- Sort names by max level ascending, within each rank
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 14 then
+            members = GRM_R.SortByOfficerNoteWithinRank ( members , 14 );
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 15 then
+            members = GRM_R.SortByCustomNoteWithinRank ( members , 15 );
+        elseif GRM_UI.GRM_RosterFrame.FormerSortType == 16 then
+            members = GRM_R.SortByCustomNoteWithinRank ( members , 16 );
+        end
 
-    if GRM.S().groupByMain then
-        local i = 1;
-        while i <= #members do
-            if members[i].alts and #members[i].alts > 0 then
-                if GRM_UI.GRM_RosterFrame.SortType == 5 then
-                    sort ( members[i].alts , function ( a , b ) return a.rankIndex < b.rankIndex end );
-                else
-                    sort ( members[i].alts , function ( a , b ) return a.rankIndex > b.rankIndex end );
+        if GRM.S().groupByMain then
+            local i = 1;
+            while i <= #members do
+                if members[i].alts and #members[i].alts > 0 then
+                    if GRM_UI.GRM_RosterFrame.SortType == 5 then
+                        sort ( members[i].alts , function ( a , b ) return a.rankIndex < b.rankIndex end );
+                    else
+                        sort ( members[i].alts , function ( a , b ) return a.rankIndex > b.rankIndex end );
+                    end
+                    -- Now, need need to insert into main entries table by merging
+
+                    for j = 1 , #members[i].alts do
+                        table.insert ( members , i + j , members[i].alts[j] );
+                    end
+                    i = i + #members[i].alts
+
+                    members[i].alts = nil;
                 end
-                -- Now, need need to insert into main entries table by merging
-
-                for j = 1 , #members[i].alts do
-                    table.insert ( members , i + j , members[i].alts[j] );
-                end
-                i = i + #members[i].alts
-
-                members[i].alts = nil;
+                i = i + 1;
             end
-            i = i + 1;
         end
     end
 

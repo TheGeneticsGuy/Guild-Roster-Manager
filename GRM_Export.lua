@@ -193,7 +193,7 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
 
                     playerDetails = playerDetails .. name .. delimiter; -- name
                 end
-                if GRM.S().exportFilters.rank then
+                if GRM.S().exportFilters.rank and roster[i].rankName then
                     playerDetails = playerDetails .. roster[i].rankName .. delimiter; -- rank
                 end
                 if GRM.S().exportFilters.level then

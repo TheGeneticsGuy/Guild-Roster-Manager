@@ -13,6 +13,9 @@ GRM_Misc = GRM_Misc or {};                                                      
 GRM_DailyAnnounce = GRM_DailyAnnounce or {};
 -- Backups...
 GRM_GuildDataBackup_Save = GRM_GuildDataBackup_Save or {};                      -- For guild transferring to a new server
+GRM_Restore_Members = GRM_Restore_Members or {};
+GRM_Restore_FormerMembers = GRM_Restore_FormerMembers or {};
+GRM_Restore_Log = GRM_Restore_Log or {};
 -- Minimap position for databroker
 GRM_MinimapPosition = GRM_MinimapPosition or {};                                -- Saving this due to changes in frame positions need to now be saved
 

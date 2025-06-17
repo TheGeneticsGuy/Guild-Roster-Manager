@@ -1207,6 +1207,7 @@ GRM_UI.GRM_ToolCoreFrame.QueuedEntries = {};
 GRM_UI.GRM_ToolCoreFrame.ValidatedNames = {};
 GRM_UI.GRM_ToolCoreFrame.TabPosition = 1;           -- 1 = kick , 2 = promote , 3 = demote
 GRM_UI.GRM_ToolCoreFrame.Timer = 0;
+GRM_UI.GRM_ToolCoreFrame.HKProcessed = 0;
 GRM_UI.GRM_ToolCoreFrame.Safe = {};                 -- List of safe people for whatever the reason.
 GRM_UI.GRM_ToolCoreFrame.MacroSuccess = true;       -- For manually scanning roster when validating macro success
 
@@ -1387,6 +1388,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         MacroFrameCloseButton:Click();
                     end
                     GRM_G.HK = false;
+                    GRM_UI.GRM_ToolCoreFrame.HKProcessed = time();
 
                     GRM.PurgeMacrodNames();
 
@@ -9667,6 +9669,11 @@ GRM.UpdateRulesTooltip = function ( ind )
     elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
         rule = GRM_Macro.GetSpecialRule ( ruleName );
     end
+
+    if not rule then
+        return;
+    end
+
     local c = {};
     local time = "";
     c.E = { 0 , 0.77 , 0.063 }; -- enabled

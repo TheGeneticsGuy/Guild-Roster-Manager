@@ -1,3 +1,23 @@
+## **VERSION 1.9931 - June 17th, 2025**
+
+***BUG FIXES***
+
+> Fixed an issue where if your log and player database got insanely large you could end up causing a stack overflow, bypassing the 32-bit max nature of a Lua save table which can only have a max of so many indexes, which would corrupt your save file when Warcraft writes to file on logout or reload. It would fail writing to file. This is because of the restore point that could be added essentially doubling the data. Example, the person this happened to had about 130,000 lines in their guild log, and the database had data for over 4000 former members in it (this is far less an issue than 130k log lines lol). This is a lot of info lol. Anyway, not a huge deal, I just broke up the restore point into separate tables rather than having it be stacked with all guilds in the same restore table for all players, so logs have their own restore point, former members, and so on.
+
+> Furthermore, I have added a warning, with info, when you reach certain data limits. This is just a helper and most of you will never see it. I set an internal estimate of a max cap of roughly 100k log lines stored, to prevent issue, yes, it can go much higher, but just for clarity. And, now, if a player reaches account-wide 50k, 75k, 90k, and 100k+ log lines stored, at each of these milestones they will be notified of reaching this data cap with a recommendation to cleanup the log table.
+
+Example of the Message for someone > 100% storage capacity.
+
+![Example Message](https://i.imgur.com/mng8eTq.jpeg)
+
+Again, you CAN have more, but I give GRM a nice cushion to warn you will in advance of the true internal cap.
+
+* Fixed a bug where the GRM log was not updating properly until you closed and reopened it in some cases. It should now properly update on the fly.
+
+* Fixed a bug where if you were in the GRM custom roster, sorting by rank, and you search had zero matches it would throw a lua error. This will no longer happen.
+
+* Fixed an issue where you would be unable to export the player or former member data as the rankName was missing, causing a Lua error crash. This is now fixed.
+
 ## **VERSION 1.9930 - June 8th, 2025**
 
 ***BUG FIXES***

@@ -196,13 +196,13 @@ end
 -- What it Does:    Looks at the GRM save database and restores all the public notes
 -- Purpose:         In case someone nefariously overwrites all public notes
 GRM_API.RestoreAllPublicNotesFromSave = function()
-    local guildData = GRM_GuildDataBackup_Save[GRM_G.guildName].members;
+    local members = GRM_Restore_Members[GRM_G.guildName];
 
     if GRM.CanEditPublicNote() then
         for i = 1 , GRM.G_Util.GetNumGuildies() do
             local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
-            for name , player in pairs ( guildData ) do
+            for name , player in pairs ( members ) do
                 if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
                     GuildRosterSetPublicNote ( i , player.note);
                 end
@@ -215,13 +215,13 @@ end
 -- What it Does:    Looks at the GRM save database and restores all the officer notes
 -- Purpose:         In case someone nefariously overwrites all officer notes
 GRM_API.RestoreAllOfficerNotesFromSave = function()
-    local guildData = GRM_GuildDataBackup_Save[GRM_G.guildName].members;
+    local members = GRM_Restore_Members[GRM_G.guildName];
 
     if GRM.CanEditOfficerNote() then
         for i = 1 , GRM.G_Util.GetNumGuildies() do
             local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
-            for name , player in pairs ( guildData ) do
+            for name , player in pairs ( members ) do
                 if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
                     GuildRosterSetOfficerNote ( i , player.officerNote );
                 end

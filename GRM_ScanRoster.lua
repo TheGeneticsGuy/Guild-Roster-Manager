@@ -54,6 +54,26 @@ Scan.RosterPreCheck = function()
     end
 end
 
+-- Method:          Scan.StartScanProtect()
+-- What it Does:    Adds a scan protection to clear the scan process if it hangs
+-- Purpose:         Prevent odd anomalies or lag from killing scan that session by refreshing it.
+Scan.StartScanProtect = function()
+    if GRM_G.CurrentlyScanning and not GRM_G.ScanProcessing then
+        GRM_G.ScanProcessing = true;
+
+        if (time() - GRM_G.ScanTimer) > 15 then
+            -- Scan broke some how - Let's kill switch it
+            GRM_G.changeHappenedExitScan = true
+            if Scan.ScanKillSwitch() then
+                return
+            end
+        end
+
+    elseif not GRM_G.CurrentlyScanning then
+        GRM_G.ScanProcessing = false;
+    end
+end
+
 -- Method:          Scan.BuildNewRoster( bool )
 -- What it does:    Rebuilds the roster to check against for any changes.
 -- Purpose:         To track for guild changes of course!
@@ -67,13 +87,15 @@ Scan.BuildNewRoster = function( forceScan )
 
     -- Just cancel if not in a guild
     if not IsInGuild() then
-        GRM_G.guildName = "";
+        GRM_G.guildName = "";000000000
         GRM_G.gClubID = 0;
         return;
     end
 
     GRM_G.CurrentlyScanning = true;
+    GRM_G.ScanTimer = time();
     GRM_G.ScanControl = time();
+    Scan.StartScanProtect();
 
     C_Timer.After ( 0.1 , function()
         Scan.BuildRosterClassicMethod();
@@ -444,11 +466,12 @@ Scan.BuildNewGuildOrNameChange = function(roster )
             GRM_GuildDataBackup_Save[GRM_G.guildName].numGuildies = 0;
             GRM_GuildDataBackup_Save[GRM_G.guildName].date = {0,0,0};
             GRM_GuildDataBackup_Save[GRM_G.guildName].epochDate = 0;
-            GRM_GuildDataBackup_Save[GRM_G.guildName].members = {};
-            GRM_GuildDataBackup_Save[GRM_G.guildName].formerMembers = {};
-            GRM_GuildDataBackup_Save[GRM_G.guildName].log = {};
             GRM_GuildDataBackup_Save[GRM_G.guildName].alts = {};
-            GRM_GuildDataBackup_Save[GRM_G.guildName].mains = {};
+
+            GRM_Restore_Members[GRM_G.guildName] = {};
+            GRM_Restore_FormerMembers[GRM_G.guildName] = {};
+            GRM_Restore_Log[GRM_G.guildName] = {};
+
 
             -- Make sure guild is not already added.
             if not GRM_PlayerListOfAlts_Save[GRM_G.guildName] then
@@ -532,12 +555,21 @@ Scan.ProcessGuildNameChange = function(currentGuildName, oldGuildName)
 
     -- Also need to change the guild's name in the saved database...
     if GRM_GuildDataBackup_Save[oldGuildName].date[1] ~= 0 then
-        GRM_GuildDataBackup_Save[oldGuildName].members.grmName = currentGuildName;
+        GRM_Restore_Members[oldGuildName].grmName = currentGuildName;
     end
 
     GRM_GuildDataBackup_Save[currentGuildName] = {};
     GRM_GuildDataBackup_Save[currentGuildName] = GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[oldGuildName]);
     GRM_GuildDataBackup_Save[oldGuildName] = nil;
+
+    GRM_Restore_Members[currentGuildName] = GRM.Util.DeepCopyArray(GRM_Restore_Members[oldGuildName]);
+    GRM_Restore_Members[oldGuildName] = nil;
+
+    GRM_Restore_FormerMembers[currentGuildName] = GRM.Util.DeepCopyArray(GRM_Restore_FormerMembers[oldGuildName]);
+    GRM_Restore_FormerMembers[oldGuildName] = nil;
+
+    GRM_Restore_Log[currentGuildName] = GRM.Util.DeepCopyArray(GRM_Restore_Log[oldGuildName]);
+    GRM_Restore_Log[oldGuildName] = nil;
 
     local tempName = GRM.GetStringClassColorByName(GRM_G.addonUser) .. GRM.SlimName(GRM_G.addonUser) .. "|r";
     local logEntryWithTime, logEntry = GRM.GetGuildNameChangeString(tempName, GRM.SlimName(currentGuildName),
@@ -2437,7 +2469,8 @@ Scan.FinalReport = function()
         end);
     else
         C_Timer.After(0.1, function()
-            Scan.FinalReportInformation(false);
+            local needToReport = ( time() - GRM_UI.GRM_ToolCoreFrame.HKProcessed ) > 5;
+            Scan.FinalReportInformation(needToReport);
         end);
     end
 
@@ -2566,8 +2599,8 @@ Scan.FinalReportInformation = function(needToReport)
         -- Let's do an announcement
         Scan.AnnounceIfBirthday();
         Scan.CheckForDeadAccounts(false);
+        GRM.Util.WarnTableSize();
         GRM.Prof.AutoStartProfessionUpdate();
-
     end
 
     GRM_UI.RefreshSelectFrames(needToReport, true, false, false, true, (#GRM_G.TempEventReport > 0));
