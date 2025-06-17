@@ -10,7 +10,7 @@
 
 Example of the Message for someone > 100% storage capacity.
 
-![Example Message](https://i.imgur.com/mng8eTq.jpeg)
+![Example Message](https://i.imgur.com/Mxt2Dj5.jpeg)
 
 Again, you CAN have more, but I give GRM a nice cushion to warn you will in advance of the true internal cap.
 
