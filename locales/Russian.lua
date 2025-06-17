@@ -1931,6 +1931,17 @@ GRML.Russian = function()
     GRM_L["Ex: - Rank: {rank}"] = true
     GRM_L["Max Length: {num} letters, including rank name"] = true
 
+    -- 1.9931
+    GRM_L["Warning!"] = true
+    GRM_L["Your guild Log has {num} entries. Warcraft addons are limited in how much data can be stored. GRM provides this warning as a cushion to help ensure this is never broken as it would result in a catastrophic overflow error that will potentially destroy the GRM save file."] = true
+    GRM_L["You are currently storing {num} log entries across {custom1} guilds, taking up approximately {custom2}% of the addon's storage capacity."] = true
+    GRM_L["You are currently storing {num} log entries in your guild, taking up approximately {custom1}% of the addon's storage capacity."] = true
+    GRM_L["To Cleanup the log, if you wish to keep the data, please go to the export window by typing `/grm export` and copying the log to an external document. Then, on the log page, click on the \'Open Log Tools\' button on the right side."] = true
+    GRM_L["You are at risk for GRM data loss. It is CRITICAL this is handled imediately. Click OK to acknowledge. You will not be warned again."] = true
+    GRM_L["You are nearing max GRM storage limit. It is CRITICAL this is handled soon. Click OK to acknowledge."] = true
+    GRM_L["Press OK to acknowledge and you will not be reminded again until you are at {num}% capacity."] = true
+
+
 end
 
     -- Anazing work Максим#0406 on Discord - Incredible work, really!

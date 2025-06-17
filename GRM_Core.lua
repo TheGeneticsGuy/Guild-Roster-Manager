@@ -19,10 +19,10 @@ GRM_G.PatchDayString = "1750109733";    -- 2 Versions saves on conversion comput
 GRM_G.PatchDay = 1750109733;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110105;
+GRM_G.RetailBaseBuild = 110107;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.46;
+GRM_G.GroupInfoV = 1.47;
 
 -- Initialization Useful Globals
 -- ADDON
