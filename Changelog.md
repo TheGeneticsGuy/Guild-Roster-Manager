@@ -1,5 +1,7 @@
 ## **VERSION 1.9931 - June 17th, 2025**
 
+*Compatibility Release for 11.1.7*
+
 ***BUG FIXES***
 
 > Fixed an issue where if your log and player database got insanely large you could end up causing a stack overflow, bypassing the 32-bit max nature of a Lua save table which can only have a max of so many indexes, which would corrupt your save file when Warcraft writes to file on logout or reload. It would fail writing to file. This is because of the restore point that could be added essentially doubling the data. Example, the person this happened to had about 130,000 lines in their guild log, and the database had data for over 4000 former members in it (this is far less an issue than 130k log lines lol). This is a lot of info lol. Anyway, not a huge deal, I just broke up the restore point into separate tables rather than having it be stacked with all guilds in the same restore table for all players, so logs have their own restore point, former members, and so on.
