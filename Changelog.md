@@ -1,3 +1,7 @@
+## **VERSION 1.99321 - July 21st, 2025**
+
+* Quick hot fix due to log search not working. It is once again working! Oops!
+
 ## **VERSION 1.9932 - July 21st, 2025**
 
 *Compatibility Release for 5.5.0 MOP*

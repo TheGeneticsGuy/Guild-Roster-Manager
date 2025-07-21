@@ -5906,6 +5906,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.LogEditBoxTimingControl = function()
         if GetTime() - GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.ChangeTime >= 0.5 then
             GRM_G.logSearch = false;
+            GRM_G.logBypass = true;
             GRM.BuildLogComplete( true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         else

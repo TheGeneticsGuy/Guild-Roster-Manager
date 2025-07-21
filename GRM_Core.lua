@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.9932";
+GRM_G.Version = "R1.99321";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1750109733";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1750109733;            -- In Epoch Time
+GRM_G.PatchDayString = "1753137911";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1753137911;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110107;
@@ -238,6 +238,7 @@ GRM_G.fullLogMatch = {};
 GRM_G.CurrentTotalCount = 0;
 GRM_G.logSearch = false;
 GRM_G.logUpdatedCount = 0;
+GRM_G.logBypass = false;
 
 -- Version Control
 GRM_G.VersionChecked = false;
@@ -12475,8 +12476,9 @@ end
 -- What it Does:    Checks the editbox and sees whether to build the log normal, or to auto-rebuild the log based on the custom text filter.
 -- Purpose:         The Call to rebuild the log is done about 50 times. This cleans up the code bloat.
 GRM.BuildLogComplete = function(UIControl, fullRefresh)
-    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and GRM_G.logUpdatedCount ~= #GRM.GetLog() then
+    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and ( GRM_G.logBypass or GRM_G.logUpdatedCount ~= #GRM.GetLog() ) then
         GRM_G.logUpdatedCount = #GRM.GetLog();  -- No need to refresh if log hasn't changed...
+        GRM_G.logBypass = false;
 
         if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:GetText() ~= "" and
             GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:GetText() ~= GRM.L("Search Filter") then
