@@ -1,3 +1,14 @@
+## **VERSION 1.9932 - July 21st, 2025**
+
+*Compatibility Release for 5.5.0 MOP*
+
+***BUG FIXES***
+
+*Please note, more bug fixes are coming soon, this is mainly just to rush an update out for MOP release*
+
+* The GRM guild log would cause stuttering if you had a significantly large log and you were utilizing the search parameters. If the search parameters were clear it wouldn't, but if they were there, it was refershing the log needlessly even if no log changes. This now is fixed to be efficient and not cause that.
+
+
 ## **VERSION 1.9931 - June 17th, 2025**
 
 *Compatibility Release for 11.1.7*
