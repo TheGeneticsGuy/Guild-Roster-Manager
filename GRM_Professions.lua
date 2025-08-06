@@ -40,6 +40,14 @@ Prof.GetProfessionsNote = function ( name )
 
     if player and player.prof1 and player.prof2 then
 
+        -- Error protection in case the profession info didn't load... sometimes on server load it isn't configured first scan
+        if #player.prof1 == 0 then
+            player.prof1 = { 0 , 0 };
+        end
+        if #player.prof2 == 0 then
+            player.prof2 = { 0 , 0 };
+        end
+
         -- Same number so let's format it differently.
         if player.prof1[1] > 0 and player.prof2[1] > 0 and player.prof1[2] == player.prof2[2] then
             return ( "[" .. Prof.GetProfessionTag ( player.prof1[1] ) .. "]/[" .. Prof.GetProfessionTag ( player.prof2[1] ) .. "]" .. player.prof1[2] ); -- [Alch]/[Eng]-300
@@ -361,7 +369,7 @@ end
 -- What it Does:    Acts as the gate for auto-starting the note update
 -- Purpose:         To only run this when designated to do so.
 Prof.AutoStartProfessionUpdate = function()
-    if GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < 50000 and C_GuildInfo.IsGuildOfficer() then
+    if GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
         Prof.InitiateProfessionUpdate( GRM.S().ProfReportUpdatesToChat );
     end
 end

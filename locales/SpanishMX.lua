@@ -1941,5 +1941,7 @@ GRML.SpanishMX = function()
     GRM_L["You are nearing max GRM storage limit. It is CRITICAL this is handled soon. Click OK to acknowledge."] = true
     GRM_L["Press OK to acknowledge and you will not be reminded again until you are at {num}% capacity."] = true
 
-
+    -- 1.9933
+    GRM_L["Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to Kick will remove {num} player(s) you currently have queued up for rank changes."] = true
+    GRM_L["Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to {custom1} will remove {num} player(s) you currently have qued up to kick."] = true
 end

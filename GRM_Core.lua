@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:qw
-GRM_G.Version = "R1.99321";
+GRM_G.Version = "R1.9933";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1753137911";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1753137911;            -- In Epoch Time
+GRM_G.PatchDayString = "1754473625";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1754473625;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110107;
+GRM_G.RetailBaseBuild = 110200;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.48;
+GRM_G.GroupInfoV = 1.49;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -1715,7 +1715,7 @@ GRM.ResetDefaultSettings = function(pageIndex)
             GRM_UI.RefreshLogExtraOptions();
             GRM_UI.RefreshLogColorOptions();
             GRM.ResetLogStringPoints(true);
-            GRM.BuildLogComplete(true, false);
+            GRM.BuildLogComplete(true, false, true);
         end
 
         if (resetAll or page == 9) and GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
@@ -10905,7 +10905,7 @@ GRM.ReprocessAllLogEntriesToCurrentLanguage = function()
         GRM.GetLog()[i][2] = GRM.ReProcessLogString(GRM.GetLog()[i]);
     end
 
-    GRM.BuildLogComplete(true, true);
+    GRM.BuildLogComplete(true, true, true);
 end
 
 ---------------------------------------
@@ -12424,7 +12424,8 @@ GRM.GetSearchLog = function(isSearch, searchString, currentPosition, finalResult
             if trueString then
                 if (isSearch and needsToAddSearchString) or (not isSearch) then
                     totalCount = totalCount + 1;
-                    result = addLogEntry( result , logTxt , logTxt , index , i , totalCount );
+                    local logTxt2 = logTxt;
+                    result = addLogEntry( result , logTxt , logTxt2 , index , i , totalCount );
                 end
             end
             i = i - 1;
@@ -12475,8 +12476,8 @@ end
 -- Method:          GRM.BuildLogComplete()
 -- What it Does:    Checks the editbox and sees whether to build the log normal, or to auto-rebuild the log based on the custom text filter.
 -- Purpose:         The Call to rebuild the log is done about 50 times. This cleans up the code bloat.
-GRM.BuildLogComplete = function(UIControl, fullRefresh)
-    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and ( GRM_G.logBypass or GRM_G.logUpdatedCount ~= #GRM.GetLog() ) then
+GRM.BuildLogComplete = function(UIControl, fullRefresh , logByPass )
+    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and ( ( GRM_G.logBypass or logByPass ) or GRM_G.logUpdatedCount ~= #GRM.GetLog() ) then
         GRM_G.logUpdatedCount = #GRM.GetLog();  -- No need to refresh if log hasn't changed...
         GRM_G.logBypass = false;
 
@@ -12729,8 +12730,7 @@ GRM.RefreshLogTooltip = function(button)
             else
                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1] ==
                     button then
-                    local text = GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
-                                     .GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][6];
+                    local text = GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][6];
 
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetText(text);
                     local width =
@@ -22400,7 +22400,7 @@ end
 -- What it Does:    Triggers the profession note update to run with a slash command
 -- Purpose:         Allow the quick updating of professions.
 GRM.SlashCommandProf = function()
-    if GRM_G.BuildVersion < 50000 and C_GuildInfo.IsGuildOfficer() then
+    if GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
         GRM_UI.ExportProfessionConfirm();
     else
         if GRM_G.BuildVersion >= 50000 then

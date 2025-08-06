@@ -456,6 +456,36 @@ GRM_R.ConfigureMacroForRightClick = function ( tabNum , entries )
     GRM_UI.GRM_ToolCoreFrame.TabPosition = tabNum;
     C_Timer.After ( 0.1 , function()
         GRM_UI.ConfigureToolTab();
+        if GRM_UI.GRM_ToolCoreFrame.rightClickMode and #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > 0 then
+
+            -- if it is a KICK action, the other entries must also be kick actions
+            if ( entries[1].action == "Kick" and GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Kick" ) or (
+                ( entries[1].action == "Promote" or entries[1].action == "Demote" ) and ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Promote" or GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Demote" ) ) then
+
+                -- Combine the tables
+                for i = 1, #entries do
+                    table.insert(GRM_UI.GRM_ToolCoreFrame.QueuedEntries , entries[i] );
+                end
+                entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
+            else
+                local msg = "";
+
+                if entries[1].action == "Kick" then
+                    msg = GRM.L ( "Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to Kick will remove {num} player(s) you currently have queued up for rank changes." , nil , nil , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries ) .. "\n\n" .. GRM.L ( "Do you wish to continue?" );
+                elseif entries[1].action == "Promote" or entries[1].action == "Demote" then
+                    msg = GRM.L ( "Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to {custom1} will remove {num} player(s) you currently have qued up to kick.", nil , nil , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries , entries[1].action ) .. "\n\n" .. GRM.L ( "Do you wish to continue?" );
+                end
+                -- Uh oh, you are going to overwrite...
+                local confirmLogic = function()
+                    GRM_UI.GRM_ToolCoreFrame.rightClickMode = true;
+                    GRM_UI.RefreshManagementTool( entries );
+                end
+
+                GRM.SetConfirmationWindow(confirmLogic, msg, nil, { 400 , 175 });
+                return;
+            end
+        end
+        GRM_UI.GRM_ToolCoreFrame.rightClickMode = true;
         GRM_UI.RefreshManagementTool( entries );
     end)
 end

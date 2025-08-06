@@ -5847,10 +5847,12 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrameSlider:SetScript ( "OnValueChanged" , function ( self , value )
 
         if GRM_G.fullLogMatch then
+            GRM_G.logBypass = true;
             GRM.HybridScrollOnValueChangedConfig (
                 self , value , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame ,
                 25 , 17.08 , GRM.BuildLogComplete , GRM_G.fullLogMatch
             );
+            GRM_G.logBypass = false;
         end
     end);
 
@@ -5874,7 +5876,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnEscapePressed" , function( self )
         self:ClearFocus();
         self:SetText ( GRM.L ( "Search Filter" ) );
-        GRM.BuildLogComplete( true , false );
+        GRM.BuildLogComplete( true , false , true );
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnEditFocusGained" , function( self )
@@ -6134,7 +6136,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM.S().showLineNumbers = false;
                 GRM.ResetLogStringPoints ( false );
             end
-            GRM.BuildLogComplete( true , false );
+            GRM.BuildLogComplete( true , false, true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -6312,7 +6314,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     GRM.Report ( GRM.L ( "Enabling Line Numbers... Please choose within the given range" ) );
                     GRM.S().showLineNumbers = true;
                     GRM.ResetLogStringPoints ( true )
-                    GRM.BuildLogComplete( true , false );
+                    GRM.BuildLogComplete( true , false, true );
                 end
 
             else
@@ -6365,7 +6367,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
         GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetFocus();
         GRM.SetColoredLines();
-        GRM.BuildLogComplete( true , false );
+        GRM.BuildLogComplete( true , false , true );
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetScript ( "OnEnterPressed" , function( self )
         self:ClearFocus();
@@ -6373,7 +6375,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             self:SetText ( "0" );
         end
         GRM.SetColoredLines();
-        GRM.BuildLogComplete( true , false );
+        GRM.BuildLogComplete( true , false , true );
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetScript ( "OnEscapePressed" , function( self )
         if self:GetText() == "" then
@@ -6393,7 +6395,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             self:SetText ( "0" );
         end
         GRM.SetColoredLines();
-        GRM.BuildLogComplete( true , false );
+        GRM.BuildLogComplete( true , false , true );
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetScript ( "OnTabPressed" , function ( self )
         if self:GetText() == "" then
@@ -6925,7 +6927,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
 
 
-        if GRM_G.BuildVersion < 50000 and C_GuildInfo.IsGuildOfficer() then
+        if GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
             GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination );
         else
             GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , true );
@@ -7697,7 +7699,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     GRM_UI.UpdateLogFilterTextColor ( r , g , b , GRM_G.CurrentTagColorBox );
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
 
-                    GRM.BuildLogComplete ( true , true );
+                    GRM.BuildLogComplete ( true , true , true );
                 end
             end
             GRM_UI.ColorPickerFrame:Hide();
@@ -9668,7 +9670,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             end
             self:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNote:Show();
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
         else
             GRM.Report ( GRM.L ( "Please enter a valid level between 1 and {num}" , nil , nil , GRM_G.LvlCap  ) );
         end
@@ -11166,7 +11168,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.joined = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11206,7 +11208,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.leveled = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11247,7 +11249,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.inactiveReturn = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11287,7 +11289,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.promotion = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11327,7 +11329,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.demotion = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11367,7 +11369,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.note = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11407,7 +11409,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.officerNote = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11447,7 +11449,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.customNote = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11487,7 +11489,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.nameChange = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11527,7 +11529,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.rankRename = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11567,7 +11569,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.eventAnnounce = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11607,7 +11609,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.left = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11647,7 +11649,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.recommend = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11687,7 +11689,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.banned = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -11712,7 +11714,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.death = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
         end
 
         GRM_UI.DeathsToChatButton = function ( button )
@@ -11722,7 +11724,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toChat.death = false;
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
         end
 
         GRM_UI.CreateCheckBox ( "GRM_HardcoreToLogCheckbox" , GRM_UI.GRM_RosterCheckBoxSideFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterBannedPlayersButton , "BOTTOMLEFT" , 0 , 2} , GRM_UI.DeathsToLogButton , GRM.L ( "Hardcore Deaths" ) , "GameFontNormal" , 12 );
@@ -11798,7 +11800,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             end
 
         end
-        GRM.BuildLogComplete( true , true );
+        GRM.BuildLogComplete( true , true , true );
         GRM.Export.ResetExportLogSettingsOnChange();
     end);
 
@@ -14433,7 +14435,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             if GRM.S().toChat.banned then
                 GRM.Report ( logReport );
             end
-            GRM.BuildLogComplete( true , true );
+            GRM.BuildLogComplete( true , true , true );
 
             if not needsDelayedRefresh then
                 GRM_UI.SendBannedSyncMessage( fullName , epochTimeStamp , banReason , GRM_G.CurrentBanSelectedName[2] , guid , GRM_G.isChecked2 )

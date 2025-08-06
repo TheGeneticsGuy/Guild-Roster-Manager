@@ -5914,7 +5914,10 @@ GRMsync.ProcessFinalAltChanges = function( sendCompletedMsg )
                     player = GRM.GetPlayer ( finalAltGroup.alts[i] )
 
                     GRM.RemovePlayerFromAltGroup ( finalAltGroup.alts[i] , 0 , false , false , true );
-                    GRM.AddPlayerToAltGroup ( player , groupID , finalAltGroup.timeModified , ( finalAltGroup.main == finalAltGroup.alts[i] ) );
+                    -- In case a player leaves the guild in middle of sync this might occur... and then be nil
+                    if player then
+                        GRM.AddPlayerToAltGroup ( player , groupID , finalAltGroup.timeModified , ( finalAltGroup.main == finalAltGroup.alts[i] ) );
+                    end
                     GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
                     GRMsyncGlobals.updatesEach[3] = GRMsyncGlobals.updatesEach[3] + 1;
                 end

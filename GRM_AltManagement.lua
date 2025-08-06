@@ -624,43 +624,45 @@ end
 -- Purpose:         Sub-level function for the main AddAlt function
 GRM.AddPlayerToAltGroup = function ( player , groupID , timestamp , setAsMain , syncChange )
 
-    local group = GRM.GetAltGroup ( groupID );
+    if player then
+        local group = GRM.GetAltGroup ( groupID );
 
-    if group then
-            -- Only in this case do we remove the player from the alt group
-        if syncChange and player.altGroup ~= "" then
-            GRM.RemovePlayerFromAltGroup ( player.name , timestamp , false , false , syncChange , false );
-        end
-
-        if player.altGroup == "" then      -- This will ONLY add to a group if they are not already in one.
-
-            if player.birthdayInfo.date[1] ~= 0 and player.birthdayInfo.timeUpdated > group.birthdayInfo.timeUpdated then
-                GRM.SetBirthdayForAltGrouping ( group[1].name , player.birthdayInfo.date[1] , player.birthdayInfo.date[2] , player.birthdayInfo.timeUpdated , syncChange , player.birthdayInfo.announced , player.birthdayInfo.unknown );
-            elseif group.birthdayInfo.timeUpdated > player.birthdayInfo.timeUpdated then
-                player.birthdayInfo.date[1] = group.birthdayInfo.date[1];
-                player.birthdayInfo.date[2] = group.birthdayInfo.date[2];
-                player.birthdayInfo.announced = group.birthdayInfo.announced;
-                player.birthdayInfo.timeUpdated = group.birthdayInfo.timeUpdated;
-                player.birthdayInfo.unknown = group.birthdayInfo.unknown;
+        if group then
+                -- Only in this case do we remove the player from the alt group
+            if syncChange and player.altGroup ~= "" then
+                GRM.RemovePlayerFromAltGroup ( player.name , timestamp , false , false , syncChange , false );
             end
 
-            timestamp = timestamp or time();
+            if player.altGroup == "" then      -- This will ONLY add to a group if they are not already in one.
 
-            -- adding name/class to group
-            table.insert ( group , {} );
-            group[#group].name = player.name;
-            group[#group].class = player.class;
+                if player.birthdayInfo.date[1] ~= 0 and player.birthdayInfo.timeUpdated > group.birthdayInfo.timeUpdated then
+                    GRM.SetBirthdayForAltGrouping ( group[1].name , player.birthdayInfo.date[1] , player.birthdayInfo.date[2] , player.birthdayInfo.timeUpdated , syncChange , player.birthdayInfo.announced , player.birthdayInfo.unknown );
+                elseif group.birthdayInfo.timeUpdated > player.birthdayInfo.timeUpdated then
+                    player.birthdayInfo.date[1] = group.birthdayInfo.date[1];
+                    player.birthdayInfo.date[2] = group.birthdayInfo.date[2];
+                    player.birthdayInfo.announced = group.birthdayInfo.announced;
+                    player.birthdayInfo.timeUpdated = group.birthdayInfo.timeUpdated;
+                    player.birthdayInfo.unknown = group.birthdayInfo.unknown;
+                end
 
-            if setAsMain then
-                group.main = player.name;
+                timestamp = timestamp or time();
+
+                -- adding name/class to group
+                table.insert ( group , {} );
+                group[#group].name = player.name;
+                group[#group].class = player.class;
+
+                if setAsMain then
+                    group.main = player.name;
+                end
+
+                group.timeModified = timestamp;
+                -- Adding alt GroupID to new alt
+                player.altGroup = groupID;
+                player.altGroupLeft = 0;
+
+                sort ( GRM_Alts[GRM_G.guildName][player.altGroup] , function ( a , b ) return a.name < b.name end );
             end
-
-            group.timeModified = timestamp;
-            -- Adding alt GroupID to new alt
-            player.altGroup = groupID;
-            player.altGroupLeft = 0;
-
-            sort ( GRM_Alts[GRM_G.guildName][player.altGroup] , function ( a , b ) return a.name < b.name end );
         end
     end
 end

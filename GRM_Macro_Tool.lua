@@ -820,6 +820,7 @@ end
 -- Core Frame
 GRM_UI.GRM_ToolCoreFrame = CreateFrame( "Frame" , "GRM_ToolCoreFrame" , UIParent , "TranslucentFrameTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame = CreateFrame( "Frame" , "GRM_ToolIgnoreListFrame" , UIParent , "TranslucentFrameTemplate" );
+GRM_UI.GRM_ToolCoreFrame.rightClickMode = false;
 
 -- Core Frame Close Buttons
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCoreFrameCloseButton = CreateFrame( "Button" , "GRM_ToolCoreFrameCloseButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelCloseButton" );
@@ -1131,6 +1132,7 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_U
 -- What it Does:    Activates and Deactivates all the rules in that category
 -- Purpose:         Quality of life convenience to enable or disable all rules.
 GRM_R.SelectAllRuleLogic = function( self )
+
     GRM.ClearQuedAndMacroFrames();
 
     if self:GetChecked() then
@@ -1410,6 +1412,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         end);
 
                         GRM_G.PlayersWithNotesToAdd = {}; -- Ensure this is reset
+                        GRM_UI.GRM_ToolCoreFrame.rightClickMode = false;
                     end
 
                     GRM_G.timeDelayValue = time();
@@ -1439,6 +1442,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolContextMenu:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
+            GRM_UI.GRM_ToolCoreFrame.rightClickMode = false;
             GRM.Scan.ScanRecommendationsList_Async();
         end);
 
@@ -2482,6 +2486,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
 
+        -- Configure the buttons
     end
 
     -- End of one-time load only, now need to be reloaded on any change of font, size, or language.
@@ -2508,7 +2513,15 @@ GRM_UI.LoadToolFrames = function ( isManual )
             local status;
 
             -- 1 = allChecked , 2 = allUnchecked, 3 = someChecked , 4 = No Rules
-            local numRules = GRM.Util.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
+            local numRules = 0;
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and CanGuildRemove() or
+                 GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() or
+                 GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() or
+                 GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 and CanGuildDemote() and CanGuildPromote() then
+
+                numRules = GRM.Util.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
+            end
+
             if numRules == 0 then
                 status = 4;
             else
@@ -6435,6 +6448,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
     -- UI modications as needed for localization purposes as well as different pinning and additional options depening on macro type.
     GRM_UI.LocalizationMModifications();
     GRM_UI.ModifyRuleUI();
+    GRM_R.SetRuleCheckedStatus();
 
 end
 
@@ -6655,6 +6669,7 @@ GRM.StartQueuedEntriesScan = function()
 
     if not categoryToScan then
         GRM.DoBuildScrollFrameWithEntries({}); -- Return empty list
+        GRM_UI.LoadRulesUI();
         return;
     end
 
@@ -8573,6 +8588,10 @@ end
 GRM.GetRulesCount = function ( RulesType )
     local count = 0;
 
+    if not GRM_UI.ruleTypeEnum or not GRM_UI.ruleTypeEnum[RulesType] or not GRM.S()[GRM_UI.ruleTypeEnum[RulesType]] then
+        return count;
+    end
+
     for _ in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[RulesType]] ) do
         count = count + 1;
     end
@@ -9033,13 +9052,21 @@ GRM.GetRuleEntries = function ( ruleType )
     GRM.RulesIntegrityCheck ( ruleType );
 
     if ruleType == 1 then
-        tempTable = GRM.Util.DeepCopyArray ( GRM.S().kickRules );
+        if CanGuildRemove() then
+            tempTable = GRM.Util.DeepCopyArray ( GRM.S().kickRules );
+        end
     elseif ruleType == 2 then
-        tempTable = GRM.Util.DeepCopyArray ( GRM.S().promoteRules );
+        if CanGuildPromote() then
+            tempTable = GRM.Util.DeepCopyArray ( GRM.S().promoteRules );
+        end
     elseif ruleType == 3 then
-        tempTable = GRM.Util.DeepCopyArray ( GRM.S().demoteRules );
+        if CanGuildDemote() then
+            tempTable = GRM.Util.DeepCopyArray ( GRM.S().demoteRules );
+        end
     elseif ruleType == 4 then
-        tempTable = GRM.Util.DeepCopyArray ( GRM.S().specialRules );
+        if CanGuildPromote() and CanGuildDemote() then
+            tempTable = GRM.Util.DeepCopyArray ( GRM.S().specialRules );
+        end
     end
 
     for _ , rule in pairs ( tempTable ) do
@@ -9081,12 +9108,13 @@ end
 GRM.IsRuleHighlighted = function()
     local result = false;
     local ruleName = "";
-
-    for i = 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons do
-        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][3] then
-            ruleName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][2]:GetText();
-            result = true;
-            break;
+    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons then
+        for i = 1 , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons do
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][3] then
+                ruleName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][2]:GetText();
+                result = true;
+                break;
+            end
         end
     end
 

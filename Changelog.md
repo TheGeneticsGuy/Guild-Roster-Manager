@@ -1,3 +1,30 @@
+## **VERSION 1.9933 - August 6th, 2025**
+
+*Compatibility Release for 11.2*
+
+**QUALITY OF LIFE**
+
+* You can now right-click the GRM custom roster `(/roster)` and select multiple names to be added to the macro tool at a time. There is no limit, you can just keep right-clicking and adding actions to be qued up for various players manually before you finally use the macro. Be aware, that you can only add multiple of the same type of macro action however, so you can right click and add a bunch of names to be kicked, but if you right click and decide to add a player to be promoted whilst you are adding a bunch of players to be kicked, it will wipe all the names you have qued. You can combine the promote/demote actions, just not the kick. I did add a little confirmation window to confirm that you wish to do that as it would kind of be a pain to accidentally overwrite names you've queued up.
+
+* Professions are now able to be loaded to your player notes again. This was restricted to Cata Classic and below previously. This has been updated.
+
+***BUG FIXES***
+
+* Players should no longer be spammed that a guild member has name-changed. This is actually not a GRM error, it appears to be a bug related to the 11.2 update and an error on Blizz's end. Shortly after logging in, where querying the names of the players in your guild, the server is returning incorrect names by having them return with repeated copies of the realm name. This only seems to be affecting some, not all, x-realm guild members. So for example, my name would instead of `Arkaan-Zul'jin`, I query the server and I get `Arkaan-Zul'jin-Zul'jin-Zul'jin` and so on. I've seen it copy as much as 10 times the realm name. So, GRM was saying "Looks like a new member, but then when it scans the roster it goes, "Wait, this player has the same GUID as an existing, it must be a name-change... All I did was bandaid Blizz's error here by parsing out the repeated copies of the names. So, you will no longer be spammed after logging in with the name changes.
+
+* The Guild log should now be filtering properly again with the checkboxes. In addition, your numbered lines if you enable or disable should work. The scrollbar should work again, and so on. Sorry about that, this was a slight oversight of a stealth fix I did for something else I didn't consider all the downstream consequences, of which there were many. Just note, the log should now be functioning normally again, as well as it's filtering.
+
+* If you do not have permissions to use the macro tool, the rules should no longer show for you and there will no longer be any lua errors trying to enable/disable rules if you don't have guild rank permission to kick/promote/demote.
+
+*  Fixed an issue where a Lua error could occur causing syncing to fail if someone in an alt group leaves a guild in the middle of a sync, and you still try to sync their name. They are now removed from the guild, but it was still trying to sync their alt name. This will no longer occur.
+
+* The disabling of the log chat spam while using the macro tool should now properly block the spam of the "recommendations" when you check or uncheck rules to be on and off. This retriggers a scan on the recommendations report, but it will go to your log and if you have it checked to block the spam it now should.
+
+* Fixed a bug where the script could run for too long on checking for dead accounts. This was sort of overlapping of another bug so is self-fixed by fixing the other.
+
+* Fixed a bug that seemed to happen if you were scanning the roster for updates whilst zoning, you could throw an error regarding the macro rule matches. This will no longer happen.
+
+
 ## **VERSION 1.99321 - July 21st, 2025**
 
 * Quick hot fix due to log search not working. It is once again working! Oops!
@@ -11,7 +38,6 @@
 *Please note, more bug fixes are coming soon, this is mainly just to rush an update out for MOP release*
 
 * The GRM guild log would cause stuttering if you had a significantly large log and you were utilizing the search parameters. If the search parameters were clear it wouldn't, but if they were there, it was refershing the log needlessly even if no log changes. This now is fixed to be efficient and not cause that.
-
 
 ## **VERSION 1.9931 - June 17th, 2025**
 

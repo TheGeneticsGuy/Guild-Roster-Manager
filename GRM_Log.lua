@@ -178,7 +178,7 @@ end
 -- Purpose:         For ease in adding to the core log.
 Log.AddLog = function(logEntry, name)
     local guildName = name or GRM_G.guildName;
-    if logEntry ~= nil then
+    if logEntry ~= nil and GRM_LogReport_Save[guildName] then
         table.insert(GRM_LogReport_Save[guildName], logEntry);
     end
 end

@@ -102,6 +102,21 @@ Scan.BuildNewRoster = function( forceScan )
     end);
 end
 
+-- Method:          Scan.CleanUpNameRepeatedServer ( string )
+-- What it Does:    Detects if the server has given it the name-server error bug by repeating the server name and returns
+--                  a cleaned up version of the name
+-- Purpose:         Bandaid Blizz's bug til they fix it.
+Scan.CleanUpNameRepeatedServer = function( name )
+
+    local _ , count = name:gsub("-","-"); -- Not actually replacing, just getting count so replacing with itself.
+    if count > 1 then
+        local fixedName = name:match("^([^%-]+%-[^%-]+)");
+        return fixedName;
+    end
+
+    return name;
+end
+
 -- Method:          Scan.BuildRosterClassicMethod([int], [table], [table], [int] , table)
 -- What it Does:    Builds the roster using GetGuildRosterInfo, throttled.
 -- Purpose:         Avoid script timeouts during the initial roster build phase, particularly for large guilds
@@ -138,7 +153,7 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
     local startTime = debugprofilestop();
 
     for i = startIndex, math.min(startIndex + chunkSize - 1, #liveRosterSnapshot) do
-        local name = liveRosterSnapshot[i][1];
+        local name = Scan.CleanUpNameRepeatedServer(liveRosterSnapshot[i][1]);
         local rank = liveRosterSnapshot[i][2];
         local rankInd = liveRosterSnapshot[i][3];
         local level = liveRosterSnapshot[i][4];
@@ -154,7 +169,6 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
         local GUID = liveRosterSnapshot[i][17];
         local lastOnline = GRM.Time.CalculateTotalHours( { liveRosterSnapshot[i][18][1] , liveRosterSnapshot[i][18][2] , liveRosterSnapshot[i][18][3] , liveRosterSnapshot[i][18][4] } );
         local lastOnlineTime = { liveRosterSnapshot[i][18][1] , liveRosterSnapshot[i][18][2] , liveRosterSnapshot[i][18][3] , liveRosterSnapshot[i][18][4] };
-
 
         -- Basic check if name is valid before proceeding
         if name and name ~= "" and GUID then
@@ -2677,9 +2691,9 @@ end
 -- Purpose:         Quality of life feature for maintenance reasons of a roster.
 Scan.CheckForDeadAccounts = function(isManual)
 
-    if not CanGuildRemove() then
-        return;
-    end
+    -- if not CanGuildRemove() then
+    --     return;
+    -- end
 
     local customKickList = {};
     local hours = 4320; -- Equals 180 days - presumably someone with account deleted. This is just a buffer because sometimes names get flagged for rename for TOS violation but are still active.
@@ -2855,28 +2869,28 @@ Scan.FullReportCheck = function()
             end
         end
 
-        if #GRM_G.TempEventRecommendKickReport > 0 and GRM.S().toChat.recommend then
+        if #GRM_G.TempEventRecommendKickReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
 
             for i = 1, #GRM_G.TempEventRecommendKickReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendKickReport[i]);
             end
         end
 
-        if #GRM_G.TempEventRecommendPromotionReport > 0 and GRM.S().toChat.recommend then
+        if #GRM_G.TempEventRecommendPromotionReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
 
             for i = 1, #GRM_G.TempEventRecommendPromotionReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendPromotionReport[i]);
             end
         end
 
-        if #GRM_G.TempEventRecommendDemotionReport > 0 and GRM.S().toChat.recommend then
+        if #GRM_G.TempEventRecommendDemotionReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
 
             for i = 1, #GRM_G.TempEventRecommendDemotionReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendDemotionReport[i]);
             end
         end
 
-        if #GRM_G.TempEventRecommendSpecialReport > 0 and GRM.S().toChat.recommend then
+        if #GRM_G.TempEventRecommendSpecialReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
 
             for i = 1, #GRM_G.TempEventRecommendSpecialReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendSpecialReport[i]);
