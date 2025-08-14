@@ -12,17 +12,17 @@ GRML = {};
 SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
--- Addon Details:qw
-GRM_G.Version = "R1.9933";
+-- Addon Details:
+GRM_G.Version = "R1.9934";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1754473625";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1754473625;            -- In Epoch Time
+GRM_G.PatchDayString = "1755153953";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1755153953;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110200;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.49;
+GRM_G.GroupInfoV = 1.50;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -570,7 +570,9 @@ GRM_G.StatusChecking:SetScript("OnEvent", function(_, event)
 
         elseif event == "PLAYER_REGEN_DISABLED" then
             GRM_G.inCombat = true;
-            GRM.FrameCombatHide();
+            if not UnitOnTaxi("player") then
+                GRM.FrameCombatHide();
+            end
 
         elseif eventList[event] then
 
@@ -3179,7 +3181,7 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
                 -- Normal System message... Let's add the main tags...
             elseif not GRM_G.MainNameSystemMsgControl then -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
                 if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() and
-                    ((GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName) or GRM.S().colorizeNames) then
+                    ((GRM_G.MainTagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
                     if string.find(msg, GRM.L("has come online.")) ~= nil then
                         GRM.GuildRoster();
                         msg = GRM.AddMainTagToComeOnlineSystemMessage(msg);
@@ -3303,7 +3305,7 @@ GRM.SystemMessageHandler = function(_, _, msg)
                     -- Normal System message... Let's add the main tags...
                 elseif not GRM_G.MainNameSystemMsgControl then -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
                     if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() and
-                        ((GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName) or GRM.S().colorizeNames) then
+                        ((GRM_G.MainTagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
                         if string.find(msg, GRM.L("has come online.")) ~= nil then
                             GRM.GuildRoster();
                             msg = GRM.AddMainTagToComeOnlineSystemMessage(msg);
@@ -3560,60 +3562,63 @@ end
 GRM.AddMainTagToComeOnlineSystemMessage = function(msg)
     local name = select(3, msg:find("|Hplayer:([^:]*)(.-)|h%[.-%]|h"));
     local fullName = GRM.AppendServerName(name);
-    local includeMainTag = (GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName);
-    local result = "";
+    local result = msg;
 
-    if GRM_G.guildName ~= "" then
-        -- Is Player in the guild?
-        if IsInGuild() and GRM.GetPlayer(fullName) then
-            local mainName = "";
-            local hexCode = "";
-            local mainColoring = "";
-            local systemMsgHex = "|CFFFFFF00"; -- For display controls further...
-            local mainDisplay = "";
-            local necessaryGap = "";
-            local hasAlts = false;
+    if GRM_G.guildName ~= "" and IsInGuild() then
 
-            if GRM.S().useMainTag then
-                -- Just add main tag...
-                msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
-            end
-            if includeMainTag then
-                mainName = GRM.GetFormattedMainName(fullName, false);
-                mainColoring, hasAlts = GRM.GetStringClassColorByName(mainName);
-                mainDisplay = GRM.GetMainTags(false, GRM.S().mainTagIndex);
+        local player = GRM.GetPlayer(fullName);
+        if IsInGuild() and player then
 
-                if GRM.S().useMainTag or hasAlts then
-                    necessaryGap = " ";
-                else
-                    mainDisplay = "";
-                end
-            end
-
-            -- Only color it if needed.
+            local systemMsgHex = "|CFFFFFF00";
+            local mainTag = GRM.GetMainTags(false, GRM.S().mainTagIndex);
+            local altTag = GRM.GetAltTags(false, GRM.S().mainTagIndex);
+            local tempName = "";
+            local classColor = "";
             if GRM.S().colorizeNames then
-                hexCode, hasAlts = GRM.GetStringClassColorByName(fullName);
+                classColor = GRM.GetStringClassColorByName(fullName);
             end
 
-            if mainName ~= "" and mainName ~= fullName then
-                mainName = systemMsgHex .. "(|r" .. mainColoring .. GRM.SlimName(mainName) .. "|r" .. systemMsgHex ..
-                               ")|r " .. GRM_G.MainTagHexCode .. mainDisplay .. "|r";
-            elseif mainName == fullName then
-                if (GRM.S().useMainTag or hasAlts) then
-                    mainName = GRM_G.MainTagHexCode .. mainDisplay .. "|r";
-                else
-                    mainName = "";
+            if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+
+                if GRM.IsMain ( fullName ) then
+
+                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.MainTagHexCode .. mainTag .. "|r " .. GRM.L("has come online.");
+
+                elseif GRM.PlayerIsAnAlt(player) and not GRM.S().showMainName then -- Only show tag if NOT showing main
+                    -- Has alts, but is not the main.
+
+                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.MainTagHexCode .. altTag .. "|r " .. GRM.L("has come online.");
+
                 end
             end
 
-            result = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", hexCode, name, name) .. necessaryGap ..
-                         mainName .. systemMsgHex .. " " .. GRM.L("has come online.");
-        else
-            -- Send it back regular format...
-            result = msg;
+            if GRM.S().showMainName and GRM.PlayerIsAnAlt(player) then
+                local mainName = GRM.GetFormattedMainName(fullName, false);
+
+                if mainName ~= "" then
+                    local mainColoring = GRM.GetStringClassColorByName(mainName);
+                    mainName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
+
+                    if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+                        mainName = mainName .. " " .. GRM_G.MainTagHexCode .. mainTag .. "|r";
+                    end
+
+                    if tempName ~= "" then
+                        tempName = tempName .. " " .. mainName;
+                    else
+                        tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. mainName .. " " .. GRM.L("has come online.");
+                    end
+                end
+            end
+
+            if tempName == "" then
+                tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. GRM.L("has come online.");
+            end
+
+            if tempName ~= "" then
+                result = tempName;
+            end
         end
-    else
-        result = msg;
     end
 
     return result;
@@ -3632,37 +3637,45 @@ GRM.AddMainTagToGoneOfflineSystemMessage = function(msg)
     end
 
     local fullName = GRM.AppendServerName(string.sub(msg, 1, breakIndex - 1));
-    local includeMainTag = (GRM_G.MainTagHexCode ~= "" and GRM.S().showMainName);
-    local nameWithTag = "";
+    local tempName = "";
     local finalNameFormat = "";
-    local hexCode = "";
-    local necessaryTag = "";
-    local hasAlts = false;
 
-    if includeMainTag then
-        nameWithTag, hasAlts = GRM.GetNameWithMainTags(fullName, true, true, false, true);
-
-        if GRM.S().useMainTag or hasAlts then
-            necessaryTag = "|r";
+    if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+        local mainName = GRM.GetFormattedMainName(fullName, false);
+        if mainName ~= "" then
+            local mainColoring = GRM.GetStringClassColorByName(mainName);
+            tempName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
         end
+
+    elseif ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+        local showAltTag = false;
+        local player = GRM.GetPlayer(fullName);
+
+        if player and not GRM.PlayerHasAlts(player) or not GRM.S().showMainName then
+            showAltTag = true;
+        end
+
+        finalNameFormat = GRM.GetNameWithMainTags(fullName, true, GRM.S().showMainName, showAltTag, true);
     end
 
     if GRM.S().colorizeNames then
-        hexCode = GRM.GetStringClassColorByName(fullName);
-        necessaryTag = "|r";
-    end
-
-    if includeMainTag then
-        if (GRM.S().useMainTag or hasAlts) then
-            finalNameFormat = nameWithTag;
-        else
-            finalNameFormat = GRM.SlimName(fullName);
+        if finalNameFormat == "" then
+            local hexCode = GRM.GetStringClassColorByName(fullName);
+            fullName = hexCode .. GRM.FormatName(fullName) .. "|r";
         end
     else
-        finalNameFormat = GRM.SlimName(fullName);
+        fullName = GRM.FormatName(fullName);
     end
 
-    return hexCode .. finalNameFormat .. necessaryTag .. string.sub(msg, breakIndex);
+    if finalNameFormat == "" then
+        if tempName ~= "" then
+            finalNameFormat = fullName .. " " .. tempName;
+        else
+            finalNameFormat = fullName;
+        end
+    end
+
+    return finalNameFormat .. string.sub(msg, breakIndex);
 end
 
 -- Method:          GRM.SetGuildInfoDetails()
@@ -4933,54 +4946,49 @@ GRM.GetNameWithMainTags = function(name, slimName, includeMainOnAlts, includeAlt
     local hasAlts = false;
     local player = GRM.GetPlayer(name);
 
-    if GRM_G.MainTagHexCode ~= "" and player then
-        local hexCode = GRM_G.MainTagHexCode;
-        local mainDisplay = GRM.GetMainTags(false, GRM.S().mainTagIndex);
-        local altDisplay = GRM.GetAltTags(false, GRM.S().mainTagIndex);
+    if player then
+        name = GRM.GetClassifiedName(name , slimName)
+        if GRM_G.MainTagHexCode ~= "" then
+            local hexCode = GRM_G.MainTagHexCode;
+            local mainDisplay = GRM.GetMainTags(false, GRM.S().mainTagIndex);
+            local altDisplay = GRM.GetAltTags(false, GRM.S().mainTagIndex);
 
-        local par1, par2 = "", "";
-        if includeParentheses then
-            par1 = "|r(";
-            par2 = "|r)";
-        end
-
-        local needsSlimming = true;
-
-        if GRM.IsMain(player.name) then
-            needsSlimming = false;
-            if slimName then
-                name = (GRM.SlimName(name) .. " " .. hexCode .. mainDisplay .. "|r"); -- This player is the main
-            else
-                name = (name .. " " .. hexCode .. mainDisplay .. "|r");
+            local par1, par2 = "", "";
+            if includeParentheses then
+                par1 = "|r(";
+                par2 = "|r)";
             end
-            if GRM.PlayerHasAlts(player) then
+
+            local needsSlimming = true;
+
+            if GRM.IsMain(player.name) then
+                needsSlimming = false;
+                name = (name .. " " .. hexCode .. mainDisplay .. "|r");
+                if GRM.PlayerHasAlts(player) then
+                    hasAlts = true;
+                    GRM_G.IsAltGrouping = true;
+                end
+            elseif GRM.PlayerHasAlts(player) then
                 hasAlts = true;
                 GRM_G.IsAltGrouping = true;
-            end
-        elseif GRM.PlayerHasAlts(player) then
-            hasAlts = true;
-            GRM_G.IsAltGrouping = true;
-            local altGroup = GRM.GetAltGroup(player.altGroup);
+                local altGroup = GRM.GetAltGroup(player.altGroup);
 
-            if altGroup and altGroup.main ~= "" then
-                needsSlimming = false;
-                -- Formatting...
-                if slimName then
-                    name = GRM.SlimName(name); -- This player is not the main, but is part of a grouping with a player who is main
-                end
-                -- for alt tag to be added
-                if includeAltTagIfMain then
-                    name = name .. " " .. hexCode .. altDisplay .. "|r";
-                end
-                if includeMainOnAlts then
-                    name = name .. " " .. par1 .. GRM.GetClassifiedName(altGroup.main, slimName) .. par2 .. " " ..
-                               hexCode .. mainDisplay .. "|r";
+                if altGroup and altGroup.main ~= "" then
+                    needsSlimming = false;
+                    -- for alt tag to be added
+                    if includeAltTagIfMain then
+                        name = name .. " " .. hexCode .. altDisplay .. "|r";
+                    end
+                    if includeMainOnAlts then
+                        name = name .. " " .. par1 .. GRM.GetClassifiedName(altGroup.main, slimName) .. par2 .. " " ..
+                                hexCode .. mainDisplay .. "|r";
+                    end
                 end
             end
-        end
 
-        if needsSlimming and slimName then
-            name = GRM.SlimName(name);
+            if needsSlimming and slimName then
+                name = GRM.SlimName(name);
+            end
         end
 
     end
@@ -4991,43 +4999,64 @@ end
 -- What it Does:    It adds either a Main tag to the player, or if they are on an alt, includes the name of the main.
 -- Purpose:         Easy to see player name in guild chat, for achievments and so on...
 GRM.AddMainToChat = function(_, event, msg, sender, ...)
-
-    if IsInGuild() and GRM.S() ~= nil then
+    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" then
         local placeHolderMsg = msg;
 
         if sender ~= GRM_G.addonUser then
-            if GRM.S().showMainName then
-                local guildData = GRM.GetGuild();
+            local player = GRM.GetPlayer(sender);
+
+            if player then
+                local mainTag = GRM.GetMainTags(false, GRM.S().mainTagIndex);
+                local altTag = GRM.GetAltTags(false, GRM.S().mainTagIndex);
                 local channelName = channelEnum[event];
-                local mainDisplay = GRM.GetMainTags(false, GRM.S().mainTagIndex);
-                -- Find the player in the guild!
+                local tempName = "";
 
-                if guildData and
-                    (mainDisplay == "" or (mainDisplay ~= "" and not string.find(msg, mainDisplay, 1, true))) then
-                    local player = guildData[sender];
+                if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
 
-                    if player then
-                        -- Let's see if they are the main. If they are, no need to do anything...
-                        if GRM.IsMain(player.name) then
-                            if GRM.S().useMainTag then
-                                -- Just add main tag...
-                                msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
-                            end
-                        elseif GRM.PlayerHasAlts(player) then
-                            local main = GRM.GetAltGroupMain(player.altGroup);
-                            if main ~= "" then
-                                if channelName ~= "Achievement" then
-                                    msg = GRM_G.MainTagHexCode .. mainDisplay .. "|r(" ..
-                                              GRM.GetStringClassColorByName(main) .. GRM.FormatName(main) .. "|r): " ..
-                                              msg;
-                                else
-                                    msg = GRM.GetStringClassColorByName(main) .. GRM.FormatName(main) .. "|r" ..
-                                              GRM_G.MainTagHexCode .. mainDisplay .. "|r " .. msg;
-                                end
-                            end
+                    if GRM.IsMain ( sender ) then
+
+                        tempName = GRM_G.MainTagHexCode .. mainTag .. "|r " .. msg;
+
+                    elseif GRM.PlayerIsAnAlt(player) and not GRM.S().showMainName then -- Only show tag if NOT showing main
+                        -- Has alts, but is not the main.
+                        tempName = GRM_G.MainTagHexCode .. altTag .. "|r " .. msg;
+
+                    end
+                end
+
+                if GRM.S().showMainName and GRM.PlayerIsAnAlt(player) then
+                    local mainName = GRM.GetFormattedMainName(sender, false);
+
+                    if mainName ~= "" then
+                        local mainColoring = GRM.GetStringClassColorByName(mainName);
+                        mainName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
+
+                        if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+                            mainName = mainName .. " " .. GRM_G.MainTagHexCode .. mainTag .. "|r";
+                        end
+
+                        if tempName ~= "" then
+                            tempName = tempName .. " " .. mainName;
+                        else
+                            tempName = mainName;
+                        end
+
+                        if channelName ~= "Achievement" then
+                            tempName = tempName .. ": " .. msg;
+                        else
+                            tempName = tempName .. " " .. msg;
                         end
                     end
                 end
+
+                if tempName == "" then
+                    tempName = msg;
+                end
+
+                if tempName ~= "" then
+                    msg = tempName;
+                end
+
             end
         end
 
@@ -5038,7 +5067,6 @@ GRM.AddMainToChat = function(_, event, msg, sender, ...)
 
         GRM.MessageHookControl();
     end
-
     return false, msg, sender, ...
 end
 
@@ -17000,6 +17028,18 @@ end
 -- What it Does:    Returns the Horde and Alliance faction colors
 -- Purpose:         In 10.1 cross faction guilds became a thing, so this allows players to tag with a faction symbol.
 GRM.FactionIcon = function(index)
+
+    -- If server isn't returning the faction...
+    if not index then
+        if GRM_G.BuildVersion >= 10000 then -- DragonFlight allowed x-faction guilds in 10.1
+            GRM_UI.GRM_MemberDetailMetaData.GRM_AllianceIconTexture:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_HordeIconTexture:Hide();
+            return;
+        else
+            index = GRM_G.faction;  -- Default to base faction for texture
+        end
+    end
+
     if GRM.S().showFaction and not (index == -1) then
         if index == 0 then
             GRM_UI.GRM_MemberDetailMetaData.GRM_HordeIconTexture:Show();

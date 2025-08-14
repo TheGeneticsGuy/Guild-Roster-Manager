@@ -8588,7 +8588,7 @@ end
 GRM.GetRulesCount = function ( RulesType )
     local count = 0;
 
-    if not GRM_UI.ruleTypeEnum or not GRM_UI.ruleTypeEnum[RulesType] or not GRM.S()[GRM_UI.ruleTypeEnum[RulesType]] then
+    if not GRM_UI.ruleTypeEnum or not GRM_UI.ruleTypeEnum[RulesType] or not GRM.S() or not GRM.S()[GRM_UI.ruleTypeEnum[RulesType]] then
         return count;
     end
 
