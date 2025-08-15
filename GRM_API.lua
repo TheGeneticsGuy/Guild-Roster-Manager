@@ -10,7 +10,7 @@
 GRM_API = {};
 
 -- Error Protection
-GRM_API.GetCheck = function ( name , guild , formerMemberDB )
+local GetCheck = function ( name , guild , formerMemberDB )
     local isValid = false;
     local guildData;
     if not formerMemberDB then
@@ -40,10 +40,10 @@ end
 GRM_API.GetMember = function ( name , guild )
     local result;
     local isValid;
-    isValid , name , guild = GRM_API.GetCheck ( name , guild );
+    isValid , name , guild = GetCheck ( name , guild );
 
     if isValid then
-        result = GRM.Util.DeepCopyArray ( GRM_GuildMemberHistory_Save[name] );
+        result = GRM.Util.DeepCopyArray ( GRM_GuildMemberHistory_Save[guild][name] );
     end
 
     return result;
@@ -54,7 +54,7 @@ end
 GRM_API.GetFormerMember = function ( name , guild )
     local result;
     local isValid;
-    isValid , name , guild = GRM_API.GetCheck ( name , guild , true );
+    isValid , name , guild = GetCheck ( name , guild , true );
 
     if isValid then
         result = GRM.Util.DeepCopyArray ( GRM_PlayersThatLeftHistory_Save[guild][name] );
@@ -63,12 +63,24 @@ GRM_API.GetFormerMember = function ( name , guild )
     return result;
 end
 
+-- Method:          GRM_API.IsGuildMember ( string [,string] )
+-- What it Does:    Returns true if the named player is a current guild member
+GRM_API.IsGuildMember = function ( name , guild )
+    local isValid;
+    isValid , name , guild = GetCheck ( name , guild );
+
+    if isValid and GRM.GetPlayer(name) then
+        return true;
+    end
+    return false;
+end
+
 -- Method:          GRM_API.GetMemberAlts ( string [,string] )
 -- What it Does:    Returns an alphabetically sorted list of alts in a string array
 GRM_API.GetMemberAlts = function ( name , guild )
     local result;
     local isValid;
-    isValid , name , guild = GRM_API.GetCheck ( name , guild );
+    isValid , name , guild = GetCheck ( name , guild );
 
     if isValid then
         result = GRM.GetAltNamesList ( GRM.GetPlayer ( name , false , guild ) , GRM.GetGuildAlts ( guild ) );
@@ -201,7 +213,7 @@ GRM_API.RestoreAllPublicNotesFromSave = function()
     if GRM.CanEditPublicNote() then
         for i = 1 , GRM.G_Util.GetNumGuildies() do
             local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
-
+            -- Big O^2 - kind of inefficient
             for name , player in pairs ( members ) do
                 if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
                     GuildRosterSetPublicNote ( i , player.note);

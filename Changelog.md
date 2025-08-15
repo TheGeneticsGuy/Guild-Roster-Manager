@@ -1,8 +1,14 @@
+## **VERSION 1.99341 - August 14th, 2025**
+
+**BUG FIX**
+
+* Fixed the `GRM_API.GetMember` function. In addition, I added a new function `GRM_API.IsGuildMember` for public use, like in weak auras.
+
 ## **VERSION 1.9934 - August 13th, 2025**
 
 ***BUG FIXES***
 
-* The faction icon will no longer default to Alliance when the server returns nil on the player mouseover. For some reason, in patch 11.2, the guild member API to get the faction is no longer returning the info of guild members' faction from the server for the x-realm guilds in retail. So, when the faction is not deteremined, I just hide the icon now. This probably is only affecting retail builds since classic hasnt't had any updates, but either way, in classic I am not basing the faction just on your own faction, which can be determined, since there aren't actually x-realm guilds. I have submitted the bug report to Blizz to hopefully fix the API.
+* The faction icon will no longer default to Alliance when the server returns nil on the player mouseover. For some reason, in patch 11.2, the guild member API to get the faction is no longer returning the info of guild members' faction from the server for the x-realm guilds in retail. So, when the faction is not determined, I just hide the icon now. This probably is only affecting retail builds since classic hasnt't had any updates, but either way, in classic I am not basing the faction just on your own faction, which can be determined, since there aren't actually x-realm guilds. I have submitted the bug report to Blizz to hopefully fix the API.
 
 * It was reported that some might see the GRM windows close whilst they are flying from zone to zone. This is because GRM will auto-close the addon windows if you enter combat to prevent GRM frames from "eating" your keystrokes. It's not an issue with most of the frames, but ones I have added logic like where you can press ESC key to close it, out of convenience, this can happen in combat due to some API restrictions blizz put in in recent years. Now, I have enhanced this so this logic doesn't hide the frames IF you happen to be on a flightpath. Reality is you can actually enter into combat by flying near mobs on a FP, even if for just a short moment, even if it doesn't affect your gameplay at all, but because GRM was listening for the in-combat flag to flip to hide the frames, it would do it. Now, this will no longer happen whilst flying.
 
