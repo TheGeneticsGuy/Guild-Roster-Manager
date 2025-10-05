@@ -1686,7 +1686,7 @@ GRMsync.CheckAddAltChange = function ( msg , sender )
     local numAlts = 0;
     local index = 0;
 
-    if headerTag == "S" then
+    if headerTag == "S" and GRM.GetPlayer(altData[6]) then
         if altData[3] ~= "#" then
             main = altData[3];
         end
@@ -1694,7 +1694,11 @@ GRMsync.CheckAddAltChange = function ( msg , sender )
         timestamp = tonumber ( altData[4] );
         GRMsyncGlobals.AltSyncReceived[leadName] = nil; -- Wipe the old from memory
         GRMsyncGlobals.AltSyncReceived[leadName] = {};
-        GRMsyncGlobals.AltSyncReceived[leadName].main = main;
+        if GRM.GetPlayer ( main ) then  -- Verify not receiving bad data.
+            GRMsyncGlobals.AltSyncReceived[leadName].main = main;
+        else
+            GRMsyncGlobals.AltSyncReceived[leadName].main = ""; -- If the main is not in the guild, then just set the lead name as the main.
+        end
         GRMsyncGlobals.AltSyncReceived[leadName].timeModified = tonumber ( altData[4] );
         GRMsyncGlobals.AltSyncReceived[leadName].numAlts = tonumber ( altData[5] );
         GRMsyncGlobals.AltSyncReceived[leadName].nameToAdd = altData[6];

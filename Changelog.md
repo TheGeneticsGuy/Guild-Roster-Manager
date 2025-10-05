@@ -1,3 +1,12 @@
+## **VERSION 1.99342 - September 24th, 2025**
+
+***BUG FIXES***
+
+* On occasion GRM was failing to properly query the server for roster data on specific players, for whatever reason, it would just return nil on first query. This should no longer occur and no longer cause the scan for changes to fail in the middle of a scan. This seemed to happen more right after logging in.
+
+* The export log would occasionally throw a Lua error in some cases. It didn't actually break anything, but the Lua error is now eliminated and won't spam your bug collection.
+
+
 ## **VERSION 1.99341 - August 14th, 2025**
 
 **BUG FIX**

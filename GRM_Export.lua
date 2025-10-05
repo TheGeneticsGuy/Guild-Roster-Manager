@@ -529,69 +529,71 @@ Export.BuildExportLogFrame = function()
         local additionalNotes = false;
         local entry = "";
 
-        while i <= limit do
-            newCount = true;
-            additionalNotes = false;
-            while j <= #log and (log[j][5] == i or log[j][5] == 0) do
+        if j then
+            while i <= limit do
+                newCount = true;
+                additionalNotes = false;
+                while j <= #log and (log[j][5] == i or log[j][5] == 0) do
 
-                if newCount and j <= #log and log[j][5] ~= 0 then
-                    newCount = false;
-                    entry = Export.DelimiterFix(log[j][2], isComma);
-
-                    if i == 1 then --
-                        if GRM.S().showLineNumbers then
-
-                            if additionalNotes or
-                                (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then -- Don't want to delimit breakup the custom note
-                                additionalNotes = true;
-                                completeString = completeString .. i .. ") " .. GRM.RemoveStringColoring(entry);
-                            else
-                                completeString = completeString .. i .. ") " .. GRM.RemoveStringColoring(entry) ..
-                                                     delimiter;
-                            end
-                        else
-                            completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
-                        end
-                    else
-                        if GRM.S().showLineNumbers then
-
-                            if additionalNotes or
-                                (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then -- Don't want to delimit breakup the custom note
-                                additionalNotes = true;
-                                completeString = completeString .. "\n" .. i .. ") " .. GRM.RemoveStringColoring(entry);
-                            else
-                                completeString =
-                                    completeString .. "\n" .. i .. ") " .. GRM.RemoveStringColoring(entry) .. delimiter;
-                            end
-                        else
-                            completeString = completeString .. "\n" .. GRM.RemoveStringColoring(entry) .. delimiter;
-                        end
-                    end
-                else
-                    if log[j][5] ~= 0 then
+                    if newCount and j <= #log and log[j][5] ~= 0 then
+                        newCount = false;
                         entry = Export.DelimiterFix(log[j][2], isComma);
 
-                        if additionalNotes or
-                            (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then
-                            additionalNotes = true;
-                            if string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil then
-                                completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
+                        if i == 1 then --
+                            if GRM.S().showLineNumbers then
+
+                                if additionalNotes or
+                                    (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then -- Don't want to delimit breakup the custom note
+                                    additionalNotes = true;
+                                    completeString = completeString .. i .. ") " .. GRM.RemoveStringColoring(entry);
+                                else
+                                    completeString = completeString .. i .. ") " .. GRM.RemoveStringColoring(entry) ..
+                                                        delimiter;
+                                end
                             else
-                                completeString = completeString .. GRM.RemoveStringColoring(entry);
+                                completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
                             end
                         else
-                            completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
+                            if GRM.S().showLineNumbers then
+
+                                if additionalNotes or
+                                    (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then -- Don't want to delimit breakup the custom note
+                                    additionalNotes = true;
+                                    completeString = completeString .. "\n" .. i .. ") " .. GRM.RemoveStringColoring(entry);
+                                else
+                                    completeString =
+                                        completeString .. "\n" .. i .. ") " .. GRM.RemoveStringColoring(entry) .. delimiter;
+                                end
+                            else
+                                completeString = completeString .. "\n" .. GRM.RemoveStringColoring(entry) .. delimiter;
+                            end
+                        end
+                    else
+                        if log[j][5] ~= 0 then
+                            entry = Export.DelimiterFix(log[j][2], isComma);
+
+                            if additionalNotes or
+                                (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then
+                                additionalNotes = true;
+                                if string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil then
+                                    completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
+                                else
+                                    completeString = completeString .. GRM.RemoveStringColoring(entry);
+                                end
+                            else
+                                completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
+                            end
                         end
                     end
+                    -- if j == #log or ( log[j+1] ~= nil and log[j+1][5] ~= i ) then
+                    --     completeString = string.sub ( completeString , 1 , #completeString - 1 );    -- Remove delimiter???
+                    -- end
+                    j = j + 1;
+
                 end
-                -- if j == #log or ( log[j+1] ~= nil and log[j+1][5] ~= i ) then
-                --     completeString = string.sub ( completeString , 1 , #completeString - 1 );    -- Remove delimiter???
-                -- end
-                j = j + 1;
 
+                i = i + 1;
             end
-
-            i = i + 1;
         end
     end
 

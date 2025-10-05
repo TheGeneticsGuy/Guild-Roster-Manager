@@ -1604,7 +1604,18 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
 
         if added and GRM.S().addTimestampToNote and GRM.S().joinDateDestination < 3 then
             -- In case of index shift, let's re-get roster selection
-            local rosterSelection = GRM.GetRosterSelectionID ( member.name , member.GUID );
+            local verifyName = GetGuildRosterInfo(member.rosterSelection);
+            local rosterSelection = 0;
+            if verifyName == member.name then
+                rosterSelection = member.rosterSelection;
+            else
+                rosterSelection = GRM.GetRosterSelectionID ( member.name , member.GUID );
+            end
+
+            if not rosterSelection then
+                return; -- Sort of an edge case, but it can happen. Let's skip it. It will catch it on the next scan.
+            end
+
             local name , _ , _ , _ , _ , _ , note , oNote = GetGuildRosterInfo(rosterSelection);
 
             if name == member.name then

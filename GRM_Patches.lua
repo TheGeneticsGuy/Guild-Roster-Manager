@@ -9836,3 +9836,5 @@ GRM_Patch.FixMissingRankName = function ( player )
     end
     return player;
 end
+
+-- GRM_Patch.FixMains
