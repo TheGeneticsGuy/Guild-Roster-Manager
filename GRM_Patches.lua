@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 145 - 2025-06-16
+--- Total Patches: 146 - 2025-10-09
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1774,6 +1774,17 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    -- 146
+    if numericV < 1.9932 and baseValue < 1.9932 then
+        GRM_Patch.FixEventLog();
+
+        GRM_AddonSettings_Save.VERSION = "R1.9932";
+        if loopCheck ( 1.9932 ) then
+            return;
+        end
+    end
+
 
 
 
@@ -9838,3 +9849,32 @@ GRM_Patch.FixMissingRankName = function ( player )
 end
 
 -- GRM_Patch.FixMains
+
+-- Method:          GRM_Patch.FixEventLog()
+-- What it Does:    There was an old log entry error where the monthIndex didn't save properly, This removes
+--                  broken event (bday or anniversary) entries
+-- Purpose:         Fix the DB
+GRM_Patch.FixEventLog = function()
+
+    for _,log in pairs(GRM_LogReport_Save) do
+        for i = #log, 1 , -1 do
+            if #log[i] > 2 and log[i][1] == 15 then -- Events
+                if log[i][7] == nil then
+                    table.remove ( log , i );
+                end
+            end
+        end
+    end
+
+    -- Backup data
+    for _,log in pairs(GRM_Restore_Log) do
+        for i = #log, 1 , -1 do
+            if #log[i] > 2 and log[i][1] == 15 then -- Events
+                if log[i][7] == nil then
+                    table.remove ( log , i );
+                end
+            end
+        end
+    end
+
+end

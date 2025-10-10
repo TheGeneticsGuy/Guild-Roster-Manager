@@ -2321,36 +2321,38 @@ Scan.CheckPlayerAnniversary = function( player , day , month , year , count )
                             eventMonthIndex = 3;
                         end
 
-                        -- Join Date Anniversary -- Let's see if player has it set to ONLY announce anniversary event on Calendar for a player's "main"
-                        if numYears ~= 0 then
+                        if eventMonthIndex then
+                            -- Join Date Anniversary -- Let's see if player has it set to ONLY announce anniversary event on Calendar for a player's "main"
+                            if numYears ~= 0 then
 
-                            title = GRM.L("{name}'s Anniversary!", GRM.FormatName(player.name));
-                            description = GRM.GetAnniversaryLogReport(player.name, player.class, numYears)
-                            GRM.Log.AddEventEntry (1, player.name, player.class, eventDay, eventMonthIndex,
-                                isLeapYear, GRM.Time.GetTimestamp(), numYears);
-
-                        end
-
-                        -- Now, let's add it to the calendar!!!
-                        if description ~= "" then
-                            local finalYear = year;
-                            if month == 12 and eventMonthIndex == 1 then
-                                finalYear = finalYear + 1;
-                            end
-
-                            if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, r ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
-
-
-                                GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
-                                    description, 1);
-
-                                cleanupHappened = true;
-                                count = count + 1;
+                                title = GRM.L("{name}'s Anniversary!", GRM.FormatName(player.name));
+                                description = GRM.GetAnniversaryLogReport(player.name, player.class, numYears)
+                                GRM.Log.AddEventEntry (1, player.name, player.class, eventDay, eventMonthIndex,
+                                    isLeapYear, GRM.Time.GetTimestamp(), numYears);
 
                             end
+
+                            -- Now, let's add it to the calendar!!!
+                            if description ~= "" then
+                                local finalYear = year;
+                                if month == 12 and eventMonthIndex == 1 then
+                                    finalYear = finalYear + 1;
+                                end
+
+                                if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, r ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
+
+
+                                    GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
+                                        description, 1);
+
+                                    cleanupHappened = true;
+                                    count = count + 1;
+
+                                end
+                            end
+                            -- This has been reported, save it!
+                            player.anniversaryAnnounced = true;
                         end
-                        -- This has been reported, save it!
-                        player.anniversaryAnnounced = true;
                     end
 
                     -- Resetting the event report to false if parameters meet
@@ -2397,7 +2399,7 @@ Scan.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappe
                 local eventYear = year;
 
                 local daysTil = GRM.Time.GetDaysBetweenDates({day, month, year},{eventDay, eventMonthIndex, eventYear});
-                local count = 0;
+                local count2 = 0;
 
                 -- Not reported AND there is a day recorded...
                 if eventDay ~= 0 and (not GRM.S().onlyAnnounceForMain or GRM.IsMain(player.name) ) then
@@ -2414,31 +2416,33 @@ Scan.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappe
                             eventMonthIndex = 3;
                         end
 
-                        title = GRM.L("{name}'s Birthday!", GRM.FormatName(player.name));
-                        description = GRM.GetBirthdayLogReport(player.name, player.class)
-                        GRM.Log.AddEventEntry(2, player.name, player.class, eventDay, eventMonthIndex,
-                            isLeapYear, GRM.Time.GetTimestamp());
+                        if eventMonthIndex then
+                            title = GRM.L("{name}'s Birthday!", GRM.FormatName(player.name));
+                            description = GRM.GetBirthdayLogReport(player.name, player.class)
+                            GRM.Log.AddEventEntry(2, player.name, player.class, eventDay, eventMonthIndex,
+                                isLeapYear, GRM.Time.GetTimestamp());
 
-                        -- Now, let's add it to the calendar!!!
-                        if description ~= "" then
-                            local finalYear = year;
-                            if month == 12 and eventMonthIndex == 1 then
-                                finalYear = finalYear + 1;
+                            -- Now, let's add it to the calendar!!!
+                            if description ~= "" then
+                                local finalYear = year;
+                                if month == 12 and eventMonthIndex == 1 then
+                                    finalYear = finalYear + 1;
+                                end
+
+                                if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 2 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 2 , title) then
+
+
+                                    GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
+                                        description, 2);
+
+                                    cleanupHappened = true;
+                                    count2 = count2 + 1;
+
+                                end
                             end
-
-                            if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 2 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 2 , title) then
-
-
-                                GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
-                                    description, 2);
-
-                                cleanupHappened = true;
-                                count = count + 1;
-
-                            end
+                            -- This has been reported, save it!
+                            birthdayInfo.announced = true;
                         end
-                        -- This has been reported, save it!
-                        birthdayInfo.announced = true;
                     end
 
                     -- Resetting the event report to false if parameters meet
@@ -2473,6 +2477,8 @@ Scan.FinalReport = function()
         return;
     end
 
+    local delay = 0;
+
     -- For extra tracking info to display if the left player is on the server anymore...
     if #GRM_G.TempLeftGuild > 0 then
         -- need to build the names of those leaving for insert...
@@ -2483,21 +2489,24 @@ Scan.FinalReport = function()
         end
         -- Establishing the players that left but are still on the server
         GRM.SetPlayersGUIDStillValid(names);
+        delay = 1.1
     end
 
-    Scan.FullReportCheck();
+    C_Timer.After ( delay , function()
+        Scan.FullReportCheck();
 
-    -- Let's go through the Left Players.
-    if #GRM_G.TempLeftGuild > 0 then
-        C_Timer.After(0.5, function()
-            Scan.FinalLeftPlayersReport();
-        end);
-    else
-        C_Timer.After(0.1, function()
-            local needToReport = ( time() - GRM_UI.GRM_ToolCoreFrame.HKProcessed ) > 5;
-            Scan.FinalReportInformation(needToReport);
-        end);
-    end
+        -- Let's go through the Left Players.
+        if #GRM_G.TempLeftGuild > 0 then
+            C_Timer.After(0.5, function()
+                Scan.FinalLeftPlayersReport();
+            end);
+        else
+            C_Timer.After(0.1, function()
+                local needToReport = ( time() - GRM_UI.GRM_ToolCoreFrame.HKProcessed ) > 5;
+                Scan.FinalReportInformation(needToReport);
+            end);
+        end
+    end);
 
 end
 
@@ -2517,12 +2526,8 @@ Scan.FinalLeftPlayersReport = function()
     local isMatched = false;
     for i = 1, #GRM_G.leavingPlayers do
         isMatched = false;
-        for j = 1, #GRM_G.playersStillOnServer do
-            if GRM_G.leavingPlayers[i].name == GRM_G.playersStillOnServer[j] then
-                isMatched = true;
-                -- now let's match it to propper tempLeft table
-                break
-            end
+        if GRM_G.playersStillOnServer[GRM_G.leavingPlayers[i].name] then
+            isMatched = true;
         end
 
         local timePassed = GRM.Time.GetTimePlayerHasBeenMember(GRM_G.leavingPlayers[i].name);

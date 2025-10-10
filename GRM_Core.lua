@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99341";
+GRM_G.Version = "R1.99342";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1755233248";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1755233248;            -- In Epoch Time
+GRM_G.PatchDayString = "1760068385";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1760068385;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110200;
+GRM_G.RetailBaseBuild = 110205;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.50;
+GRM_G.GroupInfoV = 1.51;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -41,7 +41,7 @@ end
 -- NoteSizes to allow dynamic flexibility if Blizz ever changes them.
 GRM_G.MaxPublicNoteSize = StaticPopupDialogs["SET_GUILDPLAYERNOTE"].maxLetters;
 GRM_G.MaxOfficerNoteSize = StaticPopupDialogs["SET_GUILDOFFICERNOTE"].maxLetters;
-GRM_G.MaxCustomNoteSize = 150;
+GRM_G.MaxCustomNoteSize = 150; -- Please note, adjusting this could potentially break sync as I have not adapted the sync for the 255/per message limit to allow multi-message sync of the custom notes. One day
 
 -- To ensure frame initialization occurse just once... what a waste in resources otherwise.
 GRM_G.timeDelayValue = 0;
@@ -828,7 +828,6 @@ GRM.ConfigureMiscForPlayer = function(playerFullName)
     GRM_Misc[playerFullName] =
         {{false, {}} -- 1) To hold the details on Added Friends that might need to be removed from logging off
         };
-
 end
 
 -- Method:          GRM.GetRankRestrictedDefaultRankIndex();
@@ -4459,7 +4458,7 @@ GRM.SetPlayersGUIDStillValid = function(playerNames, isBanCheck)
         GRM.IsPlayerStillOnServerByGUID(playerNames[i][1], playerNames[i][2], isBanCheck, true)
     end
 
-    C_Timer.After(1, function()
+    C_Timer.After(0.5, function()
         for i = 1, #playerNames do
             GRM.IsPlayerStillOnServerByGUID(playerNames[i][1], playerNames[i][2], isBanCheck, false)
         end
@@ -4483,9 +4482,9 @@ GRM.IsPlayerStillOnServerByGUID = function(name, guid, isBanCheck, firstCheck)
         if not firstCheck then
             if needToCallOnceToTrigger then
                 if not isBanCheck then
-                    table.insert(GRM_G.playersStillOnServer, name);
+                    GRM_G.playersStillOnServer[name] = {};
                 else
-                    table.insert(GRM_G.LeftBanPlayersStillOnServer, name);
+                    GRM_G.LeftBanPlayersStillOnServer[name] = {};
                 end
 
             end
@@ -4505,12 +4504,9 @@ GRM.ValidateBanGUIDs = function(textSearch)
     for i = 1, #currentBanList do
         if currentBanList[i][9] ~= "" then
             isFound = false;
-            for j = 1, #GRM_G.LeftBanPlayersStillOnServer do
-                if GRM_G.LeftBanPlayersStillOnServer[j] == currentBanList[i][1] then
-                    isFound = true;
-                    table.remove(GRM_G.LeftBanPlayersStillOnServer, j); -- Pure efficiency. Shrink the list
-                    break
-                end
+            if GRM_G.LeftBanPlayersStillOnServer[currentBanList[i][1]] then
+                isFound = true;
+                GRM_G.LeftBanPlayersStillOnServer[currentBanList[i][1]] = nil;
             end
 
             if not isFound then
@@ -4519,7 +4515,7 @@ GRM.ValidateBanGUIDs = function(textSearch)
         end
 
         -- Exist if the list is now empty
-        if #GRM_G.LeftBanPlayersStillOnServer == 0 then
+        if GRM.Util.TableLength(GRM_G.LeftBanPlayersStillOnServer) == 0 then
             break
         end
     end
@@ -22043,7 +22039,7 @@ GRM.SlashCommandSync = function(count)
     -- else
     if GRM.S().syncEnabled and GRM_G.HasAccessToGuildChat and not GRM_G.InGroup then
 
-        if (time() - GRMsyncGlobals.timeAtLogin) >= GRM.S().syncDelay then
+        if ((time() - GRMsyncGlobals.timeAtLogin) >= GRM.S().syncDelay) and not GRM_G.OnFirstLoad then
 
             if GRMsyncGlobals.currentlySyncing or
                 (not GRMsyncGlobals.currentlySyncing and (time() - GRM_G.slashCommandSyncTimer > 10) and

@@ -14323,6 +14323,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
             local listOfAlts = {};
             local guid = "";
+
             if isFoundInLeft then
                 player = oldMemberData[ fullName ];
                 if player.bannedInfo[1] then
@@ -14405,6 +14406,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 end
 
             end
+
             -- Let's cleanup the alts now..
             if GRM_G.isChecked2 then
                 for i = 1 , #listOfAlts do

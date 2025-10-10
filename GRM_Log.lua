@@ -107,9 +107,11 @@ end
 -- What it Does     Stores a temp log entry that will later be added in the final report with the pre-processed string
 -- Purpose:         By adding all the metadata the string can be re-processed if the player changes their preferred date format or language.
 Log.AddEventEntry = function(eventIndex, fullName, class, eventDay, eventMonthIndex, isLeapYear, date, numYears)
-    table.insert(GRM_G.TempEventReport,
-        {15, GRM.GetEventString(eventIndex, fullName, class, eventDay, eventMonthIndex, isLeapYear, date, numYears),
-         eventIndex, fullName, class, eventDay, eventMonthIndex, isLeapYear, date, numYears});
+    if eventMonthIndex then
+        table.insert(GRM_G.TempEventReport,
+            {15, GRM.GetEventString(eventIndex, fullName, class, eventDay, eventMonthIndex, isLeapYear, date, numYears),
+            eventIndex, fullName, class, eventDay, eventMonthIndex, isLeapYear, date, numYears});
+    end
 end
 
 -- Method:          Log.AddHardcoreDeathEntry ( int , string , string , int , int , int , int )

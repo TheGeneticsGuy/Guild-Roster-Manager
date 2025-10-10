@@ -1947,4 +1947,8 @@ GRML.Danish = function()
         -- 1.9933
     GRM_L["Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to Kick will remove {num} player(s) you currently have queued up for rank changes."] = true
     GRM_L["Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to {custom1} will remove {num} player(s) you currently have qued up to kick."] = true
+
+    -- 1.99342
+    GRM_L["Sync is temporarily disabled until the first scan of the guild roster has completed. It has been {num} seconds since logging in."] = true
+    GRM_L["Given the unusually long time of {num} seconds and sync is still not availble, GRM may not be loading properly. If you are experiencing any Lua errors, please report then to the official GRM Discord channel."] = true
 end

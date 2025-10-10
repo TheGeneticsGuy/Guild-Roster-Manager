@@ -1,10 +1,18 @@
-## **VERSION 1.99342 - September 24th, 2025**
+## **VERSION 1.99342 - October 10th, 2025**
+
+*Compatibility Updated for 11.2.5*
 
 ***BUG FIXES***
 
 * On occasion GRM was failing to properly query the server for roster data on specific players, for whatever reason, it would just return nil on first query. This should no longer occur and no longer cause the scan for changes to fail in the middle of a scan. This seemed to happen more right after logging in.
 
 * The export log would occasionally throw a Lua error in some cases. It didn't actually break anything, but the Lua error is now eliminated and won't spam your bug collection.
+
+* Fixed a bug where when changing the timestamp format, language, or 24hr/12hr formatting, in the Options, it could error when it re-processed the log to make those settings changes. This should no longer occur.
+
+* Fixed a bug where a Lua error could occur on the alt group sync data and end up causing the sync to fail.
+
+* You should no longer get a bunch of "No longer On Server" reports erroneously, but this is a little tough to test live so if you can please report back any issues still that would be great. Thanks!
 
 
 ## **VERSION 1.99341 - August 14th, 2025**

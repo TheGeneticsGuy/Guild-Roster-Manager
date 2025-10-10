@@ -7079,14 +7079,16 @@ GRMsync.CheckingALTChanges = function()
 
     -- STEP 4: Add details of any remaining groups
     for i = 1 , #altData[3] do
-        for j = #altData[3][i] , 1 , -1 do
-            if namesAdded[altData[3][i][j]] then
-                table.remove ( altData[3][i] , j );
+        if altData[3][i] ~= nil then
+            for j = #altData[3][i] , 1 , -1 do
+                if namesAdded[altData[3][i][j]] then
+                    table.remove ( altData[3][i] , j );
+                end
             end
-        end
 
-        if #altData[3][i] > 1 then
-            table.insert ( GRMsyncGlobals.AltChangesFullGroup , { altData[3][i] , true } );
+            if #altData[3][i] > 1 then
+                table.insert ( GRMsyncGlobals.AltChangesFullGroup , { altData[3][i] , true } );
+            end
         end
     end
 
@@ -8752,7 +8754,7 @@ end
 -- what it Does:    Houses the initial configuration of the sync process
 -- Purpose:         Act as gatekeeper for sync
 GRMsync.Initialize = function()
-    if GRMsyncGlobals.SyncOK then
+    if GRMsyncGlobals.SyncOK and not GRM_G.OnFirstLoad then
         if GRM.S().syncEnabled and IsInGuild() and GRM_G.HasAccessToGuildChat then
 
             if not GRMsyncGlobals.UILoaded then
@@ -8777,6 +8779,12 @@ GRMsync.Initialize = function()
                 GRM.Report ( GRM.L ( "Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer." , nil , nil , GRM.S().syncDelay , ( GRM.S().syncDelay - ( time() - GRMsyncGlobals.timeAtLogin ) ) ) );
 
             end
+        end
+    elseif GRM_G.OnFirstLoad then
+        local timeSinceLogin = time() - GRMsyncGlobals.timeAtLogin;
+        GRM.Report( GRM.L ("Sync is temporarily disabled until the first scan of the guild roster has completed. It has been {num} seconds since logging in." , nil , nil , timeSinceLogin ) );
+        if timeSinceLogin >= 10 then
+            GRM.Report( "Given the unusually long time of {num} seconds and sync is still not availble, GRM may not be loading properly. If you are experiencing any Lua errors, please report then to the official GRM Discord channel." , nil , nil , timeSinceLogin );
         end
     end
 end
