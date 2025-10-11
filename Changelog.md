@@ -1,3 +1,16 @@
+## **VERSION 1.99343 - October 11th, 2025**
+
+***Quality of Life***
+
+* Added an improved translation file for Mandarin Chinese localization work. Ty @Blendomino for that contribution!
+
+* The Minimap button, on hover, now includes the number in your guild that are online. Ex: `12/350 Online`
+
+***BUG FIXES***
+
+* GRM was not auto-adding your own alts to your alt grouping. GRM should have been auto-tagging your own alts to your own alt grouping. It should now be doing that properly. Yes, this will work retroactively if you go and log in each alt now. It is a one off though. If you remove the alt from the group, the next time you login it will not auto-add back to the group as the addon will assume that move was intentional and not be forcibly overridden.
+
+
 ## **VERSION 1.99342 - October 10th, 2025**
 
 *Compatibility Updated for 11.2.5*

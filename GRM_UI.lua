@@ -5550,6 +5550,8 @@ GRM_UI.PreAddonLoadUI = function()
             tooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
             tooltip:AddLine ( MOTD );
         end
+        tooltip:AddLine ( " " );
+        tooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
     end
 
     GRM_UI.GRM_MinimapButtonInit  = function()
@@ -5694,7 +5696,10 @@ GRM_UI.PreAddonLoadUI = function()
                             GameTooltip:AddLine ( " " );
                             GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
                             GameTooltip:AddLine ( MOTD );
+                            GameTooltip:AddLine ( " " );
                         end
+                        GameTooltip:AddLine ( " " );
+                        GameTooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
                         GameTooltip:Show();
                     end)
 

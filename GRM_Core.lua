@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99342";
+GRM_G.Version = "R1.99343";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1760068385";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1760068385;            -- In Epoch Time
+GRM_G.PatchDayString = "1760167917";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1760167917;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110205;
@@ -50,6 +50,7 @@ GRM_G.CommunityInitialized = false;
 GRM_G.ClassicRosterInitialized = false;
 GRM_G.BlizzFramePinsInitialized = false;
 GRM_G.OnFirstLoad = true;
+GRM.SelfAddCheck = false;
 GRM_G.currentlyTracking = false;
 GRM_G.trackingTriggered = false;
 GRM_G.InitializePreCheck = false;
@@ -22935,10 +22936,6 @@ GRM.TrackingConfiguration = function(forced)
                 GRM_PlayerListOfAlts_Save[GRM_G.guildName] = {};
             end
 
-            if not GRM_PlayerListOfAlts_Save[GRM_G.guildName][GRM_G.addonUser] then
-                GRM_PlayerListOfAlts_Save[GRM_G.guildName][GRM_G.addonUser] = {};
-            end
-
         end
 
         -- DB protections
@@ -22987,8 +22984,11 @@ GRM.TrackingConfiguration = function(forced)
         GRM.Util.RegisterGuildChatPermission();
 
         -- Determine if player is already listed as alt...
-        if GRM.CheckIfNeedToAddAlt() then
-            GRM.AddPlayerToOwnAltList();
+        if not GRM.SelfAddCheck then
+            GRM.SelfAddCheck = true;
+            if GRM.CheckIfNeedToAddAlt() then
+                GRM.AddPlayerToOwnAltList();
+            end
         end
 
         -- Auto import if it is player's own toon.
@@ -23251,10 +23251,7 @@ GRM.finalLoadSteps = function()
     -- Activate the GRM frames!
     GRM.InitiateMemberDetailFrame();
     GRM.GuildRoster();
-
-    if GRM_G.BuildVersion >= 10000 then
-        QueryGuildEventLog();
-    end
+    QueryGuildEventLog();
 
     C_Timer.After(1, function()
         GRM.TrackingConfiguration(false);
@@ -23426,9 +23423,7 @@ GRM.SettingsLoadedFinishDataLoad = function()
         end
 
         GRM.GuildRoster(); -- Initial queries...
-        if GRM_G.BuildVersion >= 10000 then
-            QueryGuildEventLog();
-        end
+        QueryGuildEventLog();
 
         -- MISC Quality of Life Settings...
         -- Addon Compatibility Detection

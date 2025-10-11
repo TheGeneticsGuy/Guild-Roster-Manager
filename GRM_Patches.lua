@@ -1776,11 +1776,12 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- 146
-    if numericV < 1.9932 and baseValue < 1.9932 then
+    if numericV < 1.99343 and baseValue < 1.99343 then
         GRM_Patch.FixEventLog();
+        GRM_PlayerListOfAlts_Save = {}; -- Resetting for auto-tagging alts again
 
-        GRM_AddonSettings_Save.VERSION = "R1.9932";
-        if loopCheck ( 1.9932 ) then
+        GRM_AddonSettings_Save.VERSION = "R1.99343";
+        if loopCheck ( 1.99343 ) then
             return;
         end
     end
