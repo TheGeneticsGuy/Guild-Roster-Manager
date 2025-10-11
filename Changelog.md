@@ -10,6 +10,8 @@
 
 * GRM was not auto-adding your own alts to your alt grouping. GRM should have been auto-tagging your own alts to your own alt grouping. It should now be doing that properly. Yes, this will work retroactively if you go and log in each alt now. It is a one off though. If you remove the alt from the group, the next time you login it will not auto-add back to the group as the addon will assume that move was intentional and not be forcibly overridden.
 
+* Merged a bug fix PR sent by Github user "Earthenmist" that could cause an error on load if settings had not fully configured at the start.
+
 
 ## **VERSION 1.99342 - October 10th, 2025**
 
