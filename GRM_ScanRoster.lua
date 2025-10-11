@@ -2303,7 +2303,6 @@ Scan.CheckPlayerAnniversary = function( player , day , month , year , count )
                 -- Not reported AND there is a day recorded...
                 if eventDay ~= 0 and (not GRM.S().onlyAnnounceForMain or GRM.IsMain(player.name) ) then
 
-
                     -- Now, let's check if it needs to be reported!
                     if GRM.S().calendarAnnouncements and daysTil <= GRM.S().eventAdvanceDays then
 
@@ -2629,12 +2628,11 @@ Scan.FinalReportInformation = function(needToReport)
             end
         end
 
-    Scan.AnnounceIfBirthday()
-    Scan.CheckForDeadAccounts(false)
-    GRM.Util.WarnTableSize()
-    GRM.Prof.AutoStartProfessionUpdate()
-end
-
+        Scan.AnnounceIfBirthday()
+        Scan.CheckForDeadAccounts(false)
+        GRM.Util.WarnTableSize()
+        GRM.Prof.AutoStartProfessionUpdate()
+    end
 
     GRM_UI.RefreshSelectFrames(needToReport, true, false, false, true, (#GRM_G.TempEventReport > 0));
 
