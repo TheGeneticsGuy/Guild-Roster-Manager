@@ -2620,18 +2620,21 @@ Scan.FinalReportInformation = function(needToReport)
     Scan.ResetTempLogs();
 
     if GRM_G.OnFirstLoad then
-        if GRM.S().viewOnLoad then
-            if GRM.S().onlyViewIfChanges and GRM_G.ChangesFoundOnLoad then
-                GRM_UI.GRM_RosterChangeLogFrame:Show();
+        local S = (type(GRM.S) == "function") and GRM.S() or GRM.S
+        if S and S.viewOnLoad then
+            if (not S.onlyViewIfChanges) or GRM_G.ChangesFoundOnLoad then
+                if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame then
+                    GRM_UI.GRM_RosterChangeLogFrame:Show()
+                end
             end
         end
 
-        -- Let's do an announcement
-        Scan.AnnounceIfBirthday();
-        Scan.CheckForDeadAccounts(false);
-        GRM.Util.WarnTableSize();
-        GRM.Prof.AutoStartProfessionUpdate();
-    end
+    Scan.AnnounceIfBirthday()
+    Scan.CheckForDeadAccounts(false)
+    GRM.Util.WarnTableSize()
+    GRM.Prof.AutoStartProfessionUpdate()
+end
+
 
     GRM_UI.RefreshSelectFrames(needToReport, true, false, false, true, (#GRM_G.TempEventReport > 0));
 
