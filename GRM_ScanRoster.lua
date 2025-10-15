@@ -43,6 +43,14 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.RosterPreCheck = function()
+    -- Minimap Databroker update for number of online
+    C_Timer.After(0.5 , function()
+        if GRM_UI.UpdateMinimapLabel then
+            GRM_UI.UpdateMinimapLabel()
+        end
+    end)
+
+    -- Flow control to prevent double or spammy scanning...
     if (((time() - GRM_G.ScanControl) >= GRM_G.DefaultMinScanTime) and Scan.NoLivecheck()) or GRM_G.OnFirstLoad then
         C_Timer.After(0.1, function()
             if (((time() - GRM_G.ScanControl) >= GRM_G.DefaultMinScanTime) and Scan.NoLivecheck()) or GRM_G.OnFirstLoad then

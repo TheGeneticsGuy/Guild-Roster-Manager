@@ -5532,26 +5532,30 @@ GRM_UI.PreAddonLoadUI = function()
 
     local MinimapOnEnter = function ( tooltip )
 
-        local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
+        if IsInGuild() then
+            local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
 
-        if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
-            versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
-        end
+            if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
+                versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
+            end
 
-        tooltip:AddLine( versionLine );
-        tooltip:AddLine( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
-        tooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
-        tooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
+            tooltip:AddLine( versionLine );
+            tooltip:AddLine( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
+            tooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
+            tooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
 
-        local MOTD = GetGuildRosterMOTD();
-        if MOTD ~= "" and MOTD ~= nil then
-            MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
+            local MOTD = GetGuildRosterMOTD();
+            if MOTD ~= "" and MOTD ~= nil then
+                MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
+                tooltip:AddLine ( " " );
+                tooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
+                tooltip:AddLine ( MOTD );
+            end
             tooltip:AddLine ( " " );
-            tooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
-            tooltip:AddLine ( MOTD );
+            tooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
+        else
+            tooltip:AddLine ( GRM.L ( "Not in Guild" ) );
         end
-        tooltip:AddLine ( " " );
-        tooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
     end
 
     GRM_UI.GRM_MinimapButtonInit  = function()
@@ -5559,23 +5563,40 @@ GRM_UI.PreAddonLoadUI = function()
         if IsInGuild() then
 
             if not GRM_UI.GRM_MinimapButton then
+                GRM_UI.LDB = nil;
                 if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
 
                     -- Broker Compatibility
                     if LibStub then
                         local MinimapDataBroker = LibStub("LibDataBroker-1.1", true)
                         GRM_UI.GRM_MinimapButton = MinimapDataBroker and LibStub("LibDBIcon-1.0", true)
+
                         if MinimapDataBroker then
-                            local GRM_Initialize = MinimapDataBroker:NewDataObject ( "Guild_Roster_Manager", {
+                            GRM_UI.LDB = MinimapDataBroker:NewDataObject ( "Guild_Roster_Manager", {
                                 type = "launcher",
                                 icon = "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp",
+                                label = "...",
                                 OnClick = MinimapButtonClick,
                                 OnTooltipShow = MinimapOnEnter,
                             } );
 
                             if GRM_UI.GRM_MinimapButton then
-                                GRM_UI.GRM_MinimapButton:Register("Guild_Roster_Manager", GRM_Initialize, GRM_MinimapPosition )
+                                GRM_UI.GRM_MinimapButton:Register("Guild_Roster_Manager", GRM_UI.LDB, GRM_MinimapPosition )
 
+                                GRM_UI.UpdateMinimapLabel = function()
+                                    if IsInGuild() then
+                                        local numOnline = GRM.G_Util.GetNumGuildiesOnline()
+                                        local numTotal = GRM.G_Util.GetNumGuildies()
+
+                                        if numTotal and numTotal > 0 then
+                                            GRM_UI.LDB.label = string.format("|CFF00CCFF%d/%d|r ", numOnline, numTotal) .. GRM.L("Online");
+                                        end
+                                    else
+                                        GRM_UI.LDB.label = GRM.L ( "Not in Guild" );
+                                    end
+                                end
+                                -- Initialize
+                                GRM_UI.UpdateMinimapLabel();
                             end
                         end
                     end
@@ -5679,27 +5700,31 @@ GRM_UI.PreAddonLoadUI = function()
                     GRM_UI.GRM_MinimapButton:SetScript ( "OnEnter" , function ( self )
                         GRM_UI.SetTooltipScale();
                         GameTooltip:SetOwner ( self , "ANCHOR_LEFT" );
-                        local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
-                        if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
-                            versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
-                        end
-                        GameTooltip:AddLine ( versionLine );
-                        GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
-                        GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
-                        GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
-                        GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
+                        if IsInGuild() then
+                            local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
+                            if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
+                                versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
+                            end
+                            GameTooltip:AddLine ( versionLine );
+                            GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
+                            GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
+                            GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
+                            GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
 
 
-                        local MOTD = GetGuildRosterMOTD();
-                        if MOTD ~= "" and MOTD ~= nil then
-                            MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
+                            local MOTD = GetGuildRosterMOTD();
+                            if MOTD ~= "" and MOTD ~= nil then
+                                MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
+                                GameTooltip:AddLine ( " " );
+                                GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
+                                GameTooltip:AddLine ( MOTD );
+                                GameTooltip:AddLine ( " " );
+                            end
                             GameTooltip:AddLine ( " " );
-                            GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
-                            GameTooltip:AddLine ( MOTD );
-                            GameTooltip:AddLine ( " " );
+                            GameTooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
+                        else
+                            tooltip:AddLine ( GRM.L ( "Not in Guild" ) );
                         end
-                        GameTooltip:AddLine ( " " );
-                        GameTooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
                         GameTooltip:Show();
                     end)
 
@@ -6598,6 +6623,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab:SetSize ( 76 , 25 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab:SetHighlightTexture ( "Interface\\Buttons\\ButtonHilight-Square" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab.Text:SetText ( GRM.L ( "Restore" ) );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab.Text:SetWidth ( 71 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab:SetScript ( "OnClick" , function ( self , button )
         if button == "LeftButton" then
             if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
@@ -12402,7 +12428,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton3 , "RIGHT" , 0 , 0 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4:SetSize ( 105 , 15 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4Text:SetPoint ( "CENTER" , GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4 );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4Text:SetWidth ( 105 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4Text:SetWidth ( 95 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4Text:SetJustifyH ( "CENTER" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameButton4Text:SetText ( string.upper ( GRM.L ( "Birthday" ) ) );
     if GRM_G.LocalizedIndex == 5 then -- Russian

@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99343";
+GRM_G.Version = "R1.99344";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1760167917";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1760167917;            -- In Epoch Time
+GRM_G.PatchDayString = "1760498830";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1760498830;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110205;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.51;
+GRM_G.GroupInfoV = 1.52;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -12939,31 +12939,6 @@ end
 ---- General Framebuild Methods ----
 ------------------------------------
 
--- Method:          GRM.OnDropMenuClickDay()
--- What it Does:    Upon clicking any item in a drop down menu, this sets the ID of that item as defaulted choice
--- Purpose:         General use clicking logic for month based drop down menu.
-GRM.OnDropMenuClickDay = function()
-    GRM_G.dayIndex = tonumber(GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected.GRM_DayText:GetText());
-    GRM.InitializeDropDownDay();
-end
-
--- Method:          GRM.OnDropMenuClickMonth()
--- What it Does:    Recalculates the logic of number days to show.
--- Purpose:         General use clicking logic for month based drop down menu.
-GRM.OnDropMenuClickMonth = function()
-    GRM_G.monthIndex = GRM.Time.Enums.months_full_name[GRM.OrigL(GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected
-                                                        .GRM_MonthText:GetText())];
-    GRM.InitializeDropDownDay();
-end
-
--- Method:          GRM.OnDropMenuClickYear()
--- What it Does:    Upon clicking any item in a drop down menu, this sets the ID of that item as defaulted choice
--- Purpose:         General use clicking logic for year based drop down menu.
-GRM.OnDropMenuClickYear = function()
-    GRM_G.yearIndex = tonumber(GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected.GRM_YearText:GetText());
-    GRM.InitializeDropDownDay();
-end
-
 -- Method:          GRM.InitializeDropDownDay ()
 -- What it Does:    Initializes the Drop Down "Day" select window with values based on selected month
 -- Purpose:         UI feature for easy date select.
@@ -13032,10 +13007,10 @@ GRM.InitializeDropDownDay = function()
 
         DayButtons:SetScript("OnClick", function(_, button)
             if button == "LeftButton" then
+                GRM_G.dayIndex = i;
                 GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected.GRM_DayText:SetText(DayButtonsText:GetText());
                 GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected:Show();
-                GRM.OnDropMenuClickDay();
             end
         end);
 
@@ -13096,11 +13071,12 @@ GRM.InitializeDropDownYear = function()
 
         YearButtons:SetScript("OnClick", function(_, button)
             if button == "LeftButton" then
+                local yearSelected = GRM.Time.GetCurrentCalendarTime().year + 1 - i;
+                GRM_G.yearIndex = yearSelected;
                 GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected.GRM_YearText:SetText(
                     YearButtonsText:GetText());
                 GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected:Show();
-                GRM.OnDropMenuClickYear();
             end
         end);
         yearStamp = yearStamp - 1 -- Descending the year by 1
@@ -13161,11 +13137,11 @@ GRM.InitializeDropDownMonth = function()
 
         MonthButtons:SetScript("OnClick", function(_, button)
             if button == "LeftButton" then
+                GRM_G.monthIndex = i;
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected.GRM_MonthText:SetText(
                     MonthButtonsText:GetText());
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:Show();
-                GRM.OnDropMenuClickMonth();
             end
         end);
 

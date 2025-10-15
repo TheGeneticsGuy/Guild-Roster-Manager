@@ -1951,4 +1951,9 @@ GRML.Danish = function()
     -- 1.99342
     GRM_L["Sync is temporarily disabled until the first scan of the guild roster has completed. It has been {num} seconds since logging in."] = true
     GRM_L["Given the unusually long time of {num} seconds and sync is still not availble, GRM may not be loading properly. If you are experiencing any Lua errors, please report then to the official GRM Discord channel."] = true
+
+    -- 1.99344
+    GRM_L["Not in Guild"] = true
+
+
 end

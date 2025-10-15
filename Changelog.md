@@ -1,3 +1,18 @@
+## **VERSION 1.99344 - October 14th, 2025**
+
+**QUALITY OF LIFE**
+
+* TITAN PANEL SUPPORT - If you add the GRM minimap icon to Titan Panel, the supporting text next to the icon will show guild members online.
+
+![Titan Panel](https://i.imgur.com/i77hIJD.png)
+
+* German Translation has been completed for the entire addon. This is an experiment in using AI to assist in localization. I gave the AI my German localization file and asked it to update the file with all remaining translation work. It would be really helpful if anyone with German fluency could check the AI's work. For fun, I then passed the file to a separate AI and asked it to assess the quality of the trasnlation and it approved it with minimal suggestions. I then opened every UI element in the game and made hand-crafted adjustments to ensure that the suggested translations fit within the existing Interface, and some changes had to be made (German often has extremely verbose and lengthy words). Overall, I think it went well, but I'd be really happy to hear from an actual native speaker.
+
+**BUG FIXES**
+
+* Fixed an issue where certain languages, when setting join/promotion/birth dates it could cause an error as it was not indexing the selected month properly. This will no longer happen. This will also fix any bugs that were created by storing bad data from doing this.
+
+
 ## **VERSION 1.99343 - October 11th, 2025**
 
 ***Quality of Life***

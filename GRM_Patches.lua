@@ -1786,6 +1786,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 147
+    if numericV < 1.99344 and baseValue < 1.99344 then
+        GRM_Patch.FixLocalizationTimestampBug();
+
+        GRM_AddonSettings_Save.VERSION = "R1.99344";
+        if loopCheck ( 1.99344 ) then
+            return;
+        end
+    end
+
 
 
 
@@ -9878,4 +9888,70 @@ GRM_Patch.FixEventLog = function()
         end
     end
 
+end
+
+-- R1.99344
+-- Method:          GRM_Patch.FixLocalizationTimestampBug()
+-- What it Does:    Eliminates the broken birthdate
+-- Purpose:         Localization error that filled to index the month properly and erroneously saved date
+GRM_Patch.FixLocalizationTimestampBug = function()
+    local data = { GRM_GuildMemberHistory_Save , GRM_GuildDataBackup_Save };
+    local altGroups = {};
+    local members = {};
+
+    for i = 1 , 2 do
+
+        for guildName , guildData in pairs ( data[i] ) do
+            if type ( guildData ) == "table" then
+                if i == 1 then
+                    altGroups = GRM.GetGuildAlts ( guildName );
+                    members = guildData;
+                else
+                    altGroups = guildData.alts;
+                    members = guildData.members;
+                end
+
+                -- Fix the alt Group bday first
+                for _ , group in pairs ( altGroups ) do
+                    if group.birthdayInfo.date[2] == nil then
+                        group.birthdayInfo = {};
+                        group.birthdayInfo.date = { 0 , 0 };
+                        group.birthdayInfo.announced = false;
+                        group.birthdayInfo.timeUpdated = 0;
+                        group.birthdayInfo.unknown = false;
+                    end
+                end
+
+                -- Then the player
+                for _ , player in pairs ( members ) do
+                    if type( player ) == "table" then
+                        if player.birthdayInfo.date[2] == nil then
+                            player.birthdayInfo = {};
+                            player.birthdayInfo.date = { 0 , 0 };
+                            player.birthdayInfo.announced = false;
+                            player.birthdayInfo.timeUpdated = 0;
+                            player.birthdayInfo.unknown = false;
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Now fix left members
+    for _ , guildData in pairs ( GRM_PlayersThatLeftHistory_Save ) do
+        if type ( guildData ) == "table" then
+            for _ , player in pairs ( guildData ) do
+                if type( player ) == "table" then
+                    if player.birthdayInfo.date[2] == nil then
+                        player.birthdayInfo = {};
+                        player.birthdayInfo.date = { 0 , 0 };
+                        player.birthdayInfo.announced = false;
+                        player.birthdayInfo.timeUpdated = 0;
+                        player.birthdayInfo.unknown = false;
+                    end
+                end
+            end
+        end
+    end
 end

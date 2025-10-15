@@ -627,7 +627,7 @@ GRM_UI.BuildMacroToolFrame = function()
     end
 
     -- core Frame
-    GRM_UI.CreateButton ( "GRM_ToolHotKeyEditButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" , GRM.L ( "Edit Hot Key" ) , 100 , 22 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6, "BOTTOMLEFT" , 0 , -5 } , GRM_Macro.EditHotKey , "GameFontNormal" , 12 , "CENTER" );
+    GRM_UI.CreateButton ( "GRM_ToolHotKeyEditButton" , GRM_UI.GRM_ToolCoreFrame , "UIPanelButtonTemplate" , GRM.L ( "Edit Hot Key" ) , 110 , 22 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText6, "BOTTOMLEFT" , 0 , -5 } , GRM_Macro.EditHotKey , "GameFontNormal" , 12 , "CENTER" );
 
 end
 
@@ -1155,13 +1155,18 @@ GRM_R.SelectAllRuleLogic = function( self )
 
 end
 
-GRM_UI.CreateCheckBox ( "GRM_MacroRuleSelectAllCheckBox" , GRM_UI.GRM_ToolCoreFrame , nil , {26,26} , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "BOTTOMLEFT" , 15 , 5 } , GRM_R.SelectAllRuleLogic , GRM.L ( "Enable All" ) , "GameFontNormal" , 11 );
+GRM_UI.LoadAdditionalMacroToolFrames = function()
 
-GRM_UI.BuildMacroToolFrame(); -- To be expanded
+    GRM_UI.CreateCheckBox ( "GRM_MacroRuleSelectAllCheckBox" , GRM_UI.GRM_ToolCoreFrame , nil , {26,26} , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "BOTTOMLEFT" , 15 , 5 } , GRM_R.SelectAllRuleLogic , GRM.L ( "Enable All" ) , "GameFontNormal" , 11 );
 
-GRM_UI.BuildSpcialRules();
+    GRM_UI.BuildMacroToolFrame(); -- To be expanded
 
-GRM_UI.BuildHotKeyEditWindow();
+    GRM_UI.BuildSpcialRules();
+
+    GRM_UI.BuildHotKeyEditWindow();
+
+    GRM_UI.ruleTypeEnum3 = { [1] = GRM.L ( "Kick" ) , [2] = GRM.L ( "Promote" ) , [3] = GRM.L ( "Demote" ) , [4] = GRM.L ( "Special" ) };
+end
 
 -----------------------------
 --- END OF FRAME CREATION ---
@@ -1218,7 +1223,6 @@ GRM_UI.ruleTypeEnum = { [1] = "kickRules" , [2] = "promoteRules" , [3] = "demote
 GRM_UI.ruleTypeEnum2 = { [1] = "kick" , [2] = "promote" , [3] = "demote" , [4] = "special" };
 GRM_UI.ruleTypeEnum3 = { [1] = GRM.L ( "Kick" ) , [2] = GRM.L ( "Promote" ) , [3] = GRM.L ( "Demote" ) , [4] = GRM.L ( "Special" ) };
 
-
 GRM_UI.GRM_ToolCoreFrame:Hide();                    -- Default load position is hidden
 
 -- Method:          GRM_UI.LoadToolFrames ( boolean )
@@ -1227,6 +1231,8 @@ GRM_UI.GRM_ToolCoreFrame:Hide();                    -- Default load position is 
 GRM_UI.LoadToolFrames = function ( isManual )
 
     GRM_UI.GRM_ToolCoreFrame.IsInitialized = true;
+
+    GRM_UI.LoadAdditionalMacroToolFrames();
 
     -- Only load this once...
     if not isManual then
@@ -6303,14 +6309,21 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.LocalizationMModifications = function()
                     -- Localization adjustments
-            if GRM.S().selectedLang == 5 then -- Russian
+            if GRM.S().selectedLang == 2 or GRM.S().selectedLang == 5 then -- Russian
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "BOTTOMLEFT" , 0 , -6 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton:ClearAllPoints();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton , "BOTTOMLEFT" , 0 , -5 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:ClearAllPoints();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -55 );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 65 );
+
+                if GRM.S().selectedLang == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 35 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSettingsButton:SetSize ( 130 , 35 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -65 );
+                elseif GRM.S().selectedLang == 5 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolResetSelectedMacroNamesButton , "BOTTOM" , 0 , -55 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolViewSafeListButton:SetSize ( 110 , 65 );
+                end
             else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:ClearAllPoints();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomCheckButton:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolOfficerCheckButtonText , "RIGHT" , 8 , 0 );
