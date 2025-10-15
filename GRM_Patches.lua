@@ -9908,7 +9908,7 @@ GRM_Patch.FixLocalizationTimestampBug = function()
                     members = guildData;
                 else
                     altGroups = guildData.alts;
-                    members = guildData.members;
+                    members = GRM_Restore_Members[guildName];
                 end
 
                 -- Fix the alt Group bday first
@@ -9923,14 +9923,16 @@ GRM_Patch.FixLocalizationTimestampBug = function()
                 end
 
                 -- Then the player
-                for _ , player in pairs ( members ) do
-                    if type( player ) == "table" then
-                        if player.birthdayInfo.date[2] == nil then
-                            player.birthdayInfo = {};
-                            player.birthdayInfo.date = { 0 , 0 };
-                            player.birthdayInfo.announced = false;
-                            player.birthdayInfo.timeUpdated = 0;
-                            player.birthdayInfo.unknown = false;
+                if members then
+                    for _ , player in pairs ( members ) do
+                        if type( player ) == "table" then
+                            if player.birthdayInfo.date[2] == nil then
+                                player.birthdayInfo = {};
+                                player.birthdayInfo.date = { 0 , 0 };
+                                player.birthdayInfo.announced = false;
+                                player.birthdayInfo.timeUpdated = 0;
+                                player.birthdayInfo.unknown = false;
+                            end
                         end
                     end
                 end

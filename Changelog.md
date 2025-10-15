@@ -1,4 +1,4 @@
-## **VERSION 1.99344 - October 14th, 2025**
+## **VERSION 1.99345 - October 14th, 2025**
 
 **QUALITY OF LIFE**
 
@@ -11,7 +11,6 @@
 **BUG FIXES**
 
 * Fixed an issue where certain languages, when setting join/promotion/birth dates it could cause an error as it was not indexing the selected month properly. This will no longer happen. This will also fix any bugs that were created by storing bad data from doing this.
-
 
 ## **VERSION 1.99343 - October 11th, 2025**
 
