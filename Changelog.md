@@ -1,3 +1,42 @@
+## **VERSION 1.99346 - October 20th, 2025**
+
+*MoP Classic 5.5.1 Compatibility added - Sorry, I didn't realize this had been updated*
+
+**NEW TOOL - GRM Log Extractor**
+
+As some of you maybe have experienced, you can sort of reach the upper limits of storage size that Blizzard allows guild addons. There isn't an exact disclosed limit by Blizzard, but it is there, and eventually, it will nuke your Save Variables file. This is not due to any kind of stack overflow errors, it just seems to hit an upper limit and torpedos the file. The vast majority of memory used by GRM is in your log data. GRM does not just store your log entries as simple strings. Each log is the processed string of text, including all of the metadata used to build that string. The reason I store all the metadata of the log entry is so if you change timestamp formatting, or if you change your language selection, the strings can be reprocessed into the new localized language, or the timestamp formatting updated. Also, it allows me to more easily enhance the log with some mouseover features, including the ability to CTRL-CLICK certain entries to bring up the player's mouseover window from that entry. Without the metadata, it would be far more complicated to attempt to parse each string for names.
+
+Blizzard does not allow Warcraft addons to write to file, so you cannot actually export your log to a text, CSV, or any other format from within the game. To attempt to deal with this, right now, I have the GRM EXPORT window (`/grm export`). This allows you to copy about 500 lines of the log at a time. This is limited in size because it is technically just creating a giant input box and adding text, but I found once you are past about 500 lines, it can get really laggy and buggy, so I keep the limit there. Well, imagine being a guild with 20,000+ log entries. This is going to take a while to export.
+
+As such, I created a new web app, the GRM Log Extractor
+
+![Upload Window](https://i.imgur.com/9p2yWUb.jpeg)
+
+As you can see, it can handle massive GRM save files. This guild had over 100,000 log entries.
+
+![Parsed Successfully](https://i.imgur.com/mUhYeGp.jpeg)
+
+[Click Here to Try it Yourself](https://grm-parser-webapp.onrender.com/)
+
+***QOL***
+
+* Since not everyone reads the changelog, or Discord, I have also include a link to the Log Extractor from within the addon:
+
+![Log Extractor](https://i.imgur.com/0qoseL0.jpeg)
+
+* New Slash Command - `/grm altlimit X`
+  - Note, the X can be any number. If you are in a mega guild, some times it can be useful to set a limit to the amount of alts a member can have. This audit will allow you to see if there are any alt groups over your alt limit. If you say `/grm altlimit 8` then the report will give you the alt groups that have 9 or more total players in the group (including the main).
+
+![Alt Limit](https://i.imgur.com/omkNdOy.jpeg)
+
+
+* The Simplified Chinese translation has been massively expanded. Thank you 阿拉贝比-回音山 for making that happen!
+
+***BUG FIXES***
+
+* Fixed a bug that couple possibly stop sync from happening after logging in. This is sort of a hard one to diagnose so it might not be the fix, but it COULD be. Please let me know if you are still getting a statement that says something along the lines of this "Given the unusually long time of {num} seconds and sync is still not availble..." - If that is still happening, and you are showing NO LUA errors, then there is a logic flow error somewhere I think. Otherwise, it is fixed!
+
+
 ## **VERSION 1.99345 - October 14th, 2025**
 
 **QUALITY OF LIFE**

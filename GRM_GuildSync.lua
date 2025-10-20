@@ -8783,8 +8783,9 @@ GRMsync.Initialize = function()
     elseif GRM_G.OnFirstLoad then
         local timeSinceLogin = time() - GRMsyncGlobals.timeAtLogin;
         GRM.Report( GRM.L ("Sync is temporarily disabled until the first scan of the guild roster has completed. It has been {num} seconds since logging in." , nil , nil , timeSinceLogin ) );
+
         if timeSinceLogin >= 10 then
-            GRM.Report( "Given the unusually long time of {num} seconds and sync is still not availble, GRM may not be loading properly. If you are experiencing any Lua errors, please report then to the official GRM Discord channel." , nil , nil , timeSinceLogin );
+            GRM.Report( GRM.L ("Given the unusually long time of {num} seconds and sync is still not availble, GRM may not be loading properly. If you are experiencing any Lua errors, please report then to the official GRM Discord channel." , nil , nil , timeSinceLogin ) );
         end
     end
 end

@@ -1201,3 +1201,16 @@ GRM_UI.ScaleButtonToFontStringSize = function ( button, fontstring , spacingOnEa
     end
     return finalSize;
 end
+
+-------------------------------------
+-- CUSTOM POPUP FRAMES AND DIALOGS --
+-------------------------------------
+
+-- Method:          GRM.InitiateEditBoxPopup ( string , string )
+-- What it Does:    Opens the custom popup edit box with the given text and title
+-- Purpose:         Reusable popup edit box for various inputs for player to copy
+GRM.InitiateEditBoxPopup = function( editBoxText , TitleText )
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetText ( editBoxText );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetText ( TitleText );
+    GRM_UI.GRM_CustomPopupFrame:Show();
+end

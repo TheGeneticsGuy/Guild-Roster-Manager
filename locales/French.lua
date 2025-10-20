@@ -1950,4 +1950,18 @@ GRML.French = function()
 
     -- 1.99344
     GRM_L["Not in Guild"] = true
+
+    -- 1.99346
+    GRM_L["Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file"] = true
+    GRM_L["Use Web App"] = true
+    GRM_L["Total Alts"] = true
+    GRM_L["No Main Set"] = true
+    GRM_L["Alts in Group"] = true
+    GRM_L["Total Alt Groups Over Limit of {num}: {custom1}"] = true
+    GRM_L["Limit must be at least 1 or greater."] = true
+    GRM_L["The web app can extract your GRM logs to Text, CSV, or JSON"] = true
+    GRM_L["Alt Group Limit Audit"] = true
+    GRM_L["None Found"] = true
+    GRM_L["altlimit"] = true        -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
+
 end

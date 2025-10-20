@@ -1716,6 +1716,11 @@ Export.LoadExportUI = function( isManualUpdate )
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton = CreateFrame ( "Button" , "GRM_ExportResetOptionsButton" , GRM_UI.GRM_ExportLogBorderFrame , "UIPanelButtonTemplate" );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 
+        -- Export Reset Defaults Button
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton = CreateFrame ( "Button" , "GRM_ExportWebURLButton" , GRM_UI.GRM_ExportLogBorderFrame , "UIPanelButtonTemplate" );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton.GRM_ExportWebURLButtonText = GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
+
+
         --------------------------
         -- FRAME CONFIGURATIONS --
         --------------------------
@@ -1729,7 +1734,7 @@ Export.LoadExportUI = function( isManualUpdate )
         GRM_UI.GRM_ExportLogBorderFrame:RegisterForDrag ( "LeftButton" );
         GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnDragStart" , GRM_UI.GRM_ExportLogBorderFrame.StartMoving );
         GRM_UI.GRM_ExportLogBorderFrame:SetScript ( "OnDragStop" , GRM_UI.GRM_ExportLogBorderFrame.StopMovingOrSizing );
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPRIGHT" , 2, 1 );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPRIGHT" , 0 , 0 );
         GRM_UI.GRM_ExportLogBorderFrame.TabPosition = 1;
 
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "BOTTOMRIGHT" , -35 , 15 );
@@ -1754,10 +1759,34 @@ Export.LoadExportUI = function( isManualUpdate )
             GRM.RestoreTooltip()
         end);
 
+        -- Log Export Web URL Button to get website link
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton:SetPoint ( "BOTTOM" , GRM_UI.GRM_ExportLogBorderFrame ,  "BOTTOM" , 0 , 15 );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton:SetSize ( 130 , 30 );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton.GRM_ExportWebURLButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton.GRM_ExportWebURLButtonText:SetWordWrap ( true );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton.GRM_ExportWebURLButtonText:SetWidth ( 125 );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton.GRM_ExportWebURLButtonText:SetText ( GRM.L ( "Use Web App" ) );
+
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton:SetScript ( "OnClick" , function( _ , button )
+            if button == "LeftButton" then
+                GRM.InitiateEditBoxPopup( GRM.WebApps.GetWebAppURL("log") , GRM.L("Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file") );
+            end
+        end);
+
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton:SetScript ( "OnEnter" , function ( self )
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine ( GRM.L ( "The web app can extract your GRM logs to Text, CSV, or JSON" ) );
+            GameTooltip:Show();
+        end);
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton:SetScript ( "OnLeave" , function ()
+            GRM.RestoreTooltip()
+        end);
+
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame:SetSize ( 550 , 350 );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ExportLogBorderFrame , "TOPRIGHT" , -35 , -50 );
 
-        GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetWidth ( 30 );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_BorderFrameCloseButton:SetSize ( 30 , 30 );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogTab.GRM_ExportLogText:SetPoint ( "TOP" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLogScrollBorderFrame , 0 , 15 );
 
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportLoadingText:Hide();

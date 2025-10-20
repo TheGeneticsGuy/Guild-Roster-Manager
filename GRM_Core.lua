@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99345";
+GRM_G.Version = "R1.99346";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1760503038";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1760503038;            -- In Epoch Time
+GRM_G.PatchDayString = "1760598515";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1760598515;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110205;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.52;
+GRM_G.GroupInfoV = 1.53;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -410,6 +410,8 @@ GRM.GameVersion = function()
         return "WOTLK";
     elseif WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
         return "CATA";
+    elseif WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
+        return "MOP";
     else
         return "RETAIL" -- Just default return retail if you can't find
     end
@@ -22209,7 +22211,8 @@ GRM.SlashCommandHelp = function()
                    "             - " .. GRM.L("Does a one-time check for dead accounts") .. "\n" .. slash .. " " ..
                    GRM.L("version") .. "         - " .. GRM.L("Displays current Addon version") .. "\n" .. slash .. " " ..
                    "guid" .. "              - " .. GRM.L("Add unique player GUID to chat window to copy") .. "\n" .. slash .. " " ..
-                   "prof" .. "              - " .. GRM.L("Update profession ranks (Classic Era Only)") .. "\n" .. slash ..
+                   "prof" .. "              - " .. GRM.L("Update profession ranks (Classic Era Only)") .. "\n" .. slash .. " " ..
+                   "altlimit X" .. "      - " .. GRM.L("X = any number. Receive report on alt group sizes over limit") .. "\n" .. slash ..
                    " " .. GRM.L("hardreset") .. "      - " ..
                    GRM.L("WARNING! Complete hard wipe, including settings, as if addon was just installed."));
 end
@@ -22455,6 +22458,19 @@ GRM.SlashCommandSearch = function(text)
         end
     else
         GRM.Report(GRM.L("One moment, GRM is still being configured."));
+    end
+end
+
+-- Method:          GRM.SlashCommandAltLimitAudit ( int )
+-- What it Does:    Triggers an audit of all alt groups to see which exceed the
+--                  specified limit passed in the command
+-- Purpose:         To help guild leaders of mega guilds manage alt groups better by
+GRM.SlashCommandAltLimitAudit = function( input )
+    local limit = string.match ( input , "altlimit (%d+)" ) or string.match ( input , GRM.L("altlimit" ) .. " (%d+)" );
+    if limit then
+        GRM_API.ReportAltGroupsOverLimit ( tonumber ( limit ) );
+    else
+        print("Not Parsed")
     end
 end
 
@@ -22720,6 +22736,9 @@ SlashCmdList["GRM"] = function(input)
 
     elseif command == "prof" or command == string.lower ( GRM.L ( "Prof" ) ) then
         GRM.SlashCommandProf();
+
+    elseif input:find( "altlimit" ) or input:find ( string.lower ( GRM.L ( "altlimit" ) ) ) then
+        GRM.SlashCommandAltLimitAudit(input);
 
         -- /grm search
     elseif string.match(command, "(" .. string.lower(GRM.L("Search")) .. ").+") ~= nil or

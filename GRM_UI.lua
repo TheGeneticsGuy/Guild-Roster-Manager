@@ -801,6 +801,12 @@ GRM_UI.GRM_RosterConfirmYesButtonText = GRM_UI.GRM_RosterConfirmYesButton:Create
 GRM_UI.GRM_RosterConfirmCancelButton = CreateFrame ( "Button" , "GRM_RosterConfirmCancelButton" , GRM_UI.GRM_RosterConfirmFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_RosterConfirmCancelButtonText = GRM_UI.GRM_RosterConfirmCancelButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny");
 
+GRM_UI.GRM_CustomPopupFrame = CreateFrame ( "Frame" , "GRM_CustomPopupFrame" , UIParent , "BasicFrameTemplate" );
+GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox = CreateFrame ( "EditBox" , "GRM_PopupEditBox" , GRM_UI.GRM_CustomPopupFrame , "InputBoxTemplate" );
+GRM_UI.GRM_CustomPopupFrame:Hide();
+GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetAutoFocus(false);
+GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText = GRM_UI.GRM_CustomPopupFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny");
+
 -- ADDON USERS FRAME
 GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameText = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameTitleText = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
@@ -5828,6 +5834,22 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.GRM_RosterChangeLogFrame:EnableMouse ( true );
         GRM_UI.GRM_RosterChangeLogFrame:SetMovable ( true );
     end);
+
+    GRM_UI.GRM_CustomPopupFrame:SetPoint ( "CENTER" , UIParent , 0 , -25 );
+    GRM_UI.GRM_CustomPopupFrame:SetSize ( 400 , 120 );
+    GRM_UI.GRM_CustomPopupFrame:SetFrameStrata ( "FULLSCREEN_DIALOG" );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetPoint ( "TOP" , GRM_UI.GRM_CustomPopupFrame , "TOP" , 0 , -25 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetWidth ( 380 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetSpacing (1);
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetWordWrap ( true );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetJustifyH ( "CENTER" );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetPoint ( "BOTTOM" , GRM_UI.GRM_CustomPopupFrame , "BOTTOM" , 0 , 5 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetSize ( 350 , 50 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetTextInsets ( 8 , 9 , 9 , 8 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetSpacing ( 1 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetMultiLine ( true );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetMaxLetters ( 100 );
 
     -- MAIN GUILD LOG FRAME!!!
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogFrameTitleText:SetPoint ( "TOP" , GRM_UI.GRM_RosterChangeLogFrame , 0 , - 3.5 );
