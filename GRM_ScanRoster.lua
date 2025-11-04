@@ -2628,6 +2628,9 @@ Scan.FinalReportInformation = function(needToReport)
 
     if GRM_G.OnFirstLoad then
         local S = (type(GRM.S) == "function") and GRM.S() or GRM.S
+        if not S then
+            GRM.LoadSettings( true );
+        end
         if S and S.viewOnLoad then
             if (not S.onlyViewIfChanges) or GRM_G.ChangesFoundOnLoad then
                 if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame then

@@ -9886,6 +9886,11 @@ end
 GRM.UpdateSpecialRulesTooltip = function ( ind )
     local ruleName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[ind][2]:GetText();
     local rule = GRM_Macro.GetSpecialRule ( ruleName );
+
+    if not rule then
+        return;
+    end
+
     local c = {};
     local time = "";
     c.E = { 0 , 0.77 , 0.063 }; -- enabled

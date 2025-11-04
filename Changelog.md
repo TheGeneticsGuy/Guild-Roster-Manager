@@ -1,3 +1,14 @@
+## **VERSION 1.99347 - Nov 3rd, 2025**
+
+*MoP Classic 5.5.2 Compatibility added and 1.15.8 Classic Era Compatibility Updated*
+
+***BUG FIXES***
+
+* Minor bug could occur on the tooltip in the macros when switching between tabs a lua error could pop.
+
+* Fixed an issue where settings wasn't loading properly at login and could cause error.
+
+
 ## **VERSION 1.99346 - October 20th, 2025**
 
 *MoP Classic 5.5.1 Compatibility added - Sorry, I didn't realize this had been updated*

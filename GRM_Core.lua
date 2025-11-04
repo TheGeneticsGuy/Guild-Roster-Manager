@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99346";
+GRM_G.Version = "R1.99347";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1760598515";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1760598515;            -- In Epoch Time
+GRM_G.PatchDayString = "1762237393";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1762237393;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110205;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.53;
+GRM_G.GroupInfoV = 1.54;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -50,7 +50,7 @@ GRM_G.CommunityInitialized = false;
 GRM_G.ClassicRosterInitialized = false;
 GRM_G.BlizzFramePinsInitialized = false;
 GRM_G.OnFirstLoad = true;
-GRM.SelfAddCheck = false;
+GRM_G.SelfAddCheck = false;
 GRM_G.currentlyTracking = false;
 GRM_G.trackingTriggered = false;
 GRM_G.InitializePreCheck = false;
@@ -1286,12 +1286,12 @@ GRM.UpdateOldSettingsFormat = function()
     return playerV;
 end
 
--- Method:          GRM.LoadSettings()
+-- Method:          GRM.LoadSettings( isManual )
 -- What it Does:    On first time loading addon, it builds default addon settings. It checks for addon version change
 --                  And, if there are any changes, they will be added into that logic block.
 --                  And new setting can be tagged on.
 -- Purpose:         Saving settings between gaming sessions. Also, this is built to provide backwards compatibility for future flexibility on feature adding, if necessary.
-GRM.LoadSettings = function()
+GRM.LoadSettings = function( isManual )
     local playerV = "";
 
     if not GRM.IsSettingsConfigured() then
@@ -1344,7 +1344,7 @@ GRM.LoadSettings = function()
 
     else
         -- No need to delay
-        GRM.FinalSettingsConfigurations();
+        GRM.FinalSettingsConfigurations( isManual );
         GRM_G.currentlyPatching = false;
     end
 
@@ -1369,10 +1369,10 @@ GRM.GuildSpecificConfigurations = function()
     end
 end
 
--- Method:          GRM.FinalSettingsConfigurations()
+-- Method:          GRM.FinalSettingsConfigurations( bool )
 -- What it Does:    Calculates the final settings configurations
 -- Purpose:         Compartmentalizes this so it can only be on call as needed.
-GRM.FinalSettingsConfigurations = function()
+GRM.FinalSettingsConfigurations = function( isManual )
     -- Verify Settings DB is good
     GRM.VerifyAddonSettings();
 
@@ -1413,7 +1413,7 @@ GRM.FinalSettingsConfigurations = function()
     GRM_G.AddonIsFullyConfigured = true;
     GRM_API.Initialized = true;
     -- Settings loaded... carry on.
-    GRM.SettingsLoadedFinishDataLoad();
+    GRM.SettingsLoadedFinishDataLoad( isManual );
 
 end
 
@@ -22979,8 +22979,8 @@ GRM.TrackingConfiguration = function(forced)
         GRM.Util.RegisterGuildChatPermission();
 
         -- Determine if player is already listed as alt...
-        if not GRM.SelfAddCheck then
-            GRM.SelfAddCheck = true;
+        if not GRM_G.SelfAddCheck then
+            GRM_G.SelfAddCheck = true;
             if GRM.CheckIfNeedToAddAlt() then
                 GRM.AddPlayerToOwnAltList();
             end
@@ -23387,10 +23387,10 @@ GRM.DataLoadDelayProtection = function()
     end
 end;
 
--- Method:          GRM.SettingsLoadedFinishDataLoad()
+-- Method:          GRM.SettingsLoadedFinishDataLoad( bool )
 -- What it Does:    Compartmentalizes the OnLoad process of the addon so some things can be verified and pre-checked before continuing, like loading addon settings.
 -- Purpose:         Prevent errors of course!
-GRM.SettingsLoadedFinishDataLoad = function()
+GRM.SettingsLoadedFinishDataLoad = function( isManual )
     -- Rerun this for the language changes...
     -- this will also build initial frames...
     local langIndex = GRM_G.LocalizedIndex;
@@ -23426,7 +23426,10 @@ GRM.SettingsLoadedFinishDataLoad = function()
         if GRM.IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
             GRM.S().joinDateDestination = 2;
         end
-        C_Timer.After(2, GRM.LoadAddon); -- Queries do not return info immediately, gives server a 2 second delay.
+
+        if not isManual then
+            C_Timer.After(2, GRM.LoadAddon); -- Queries do not return info immediately, gives server a 2 second delay.
+        end
     else
         GRM.ManageGuildStatus();
     end
