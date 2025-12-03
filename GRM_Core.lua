@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99347";
+GRM_G.Version = "R1.9935";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1762237393";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1762237393;            -- In Epoch Time
+GRM_G.PatchDayString = "1764746469";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1764746469;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110205;
+GRM_G.RetailBaseBuild = 110207;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.54;
+GRM_G.GroupInfoV = 1.55;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -219,6 +219,13 @@ GRM_G.leavingPlayers = {};
 GRM_G.CheckingGUIDThroughFriendsList = false;
 GRM_G.AutoCompleteThrottle = 0; -- important so it doesn't scan through entire database onTextTyping - on use only, mostly ok
 
+-- Chat Message Controls
+GRM_G.Chat = {};
+GRM_G.UnconfirmedChatTabs = {};
+GRM_G.MainHookConfigured = false;
+GRM_G.ChatFilterHooked = false
+GRM_G.ReaddingFilter = false
+
 -- ColorPicker Controls
 GRM_G.MainTagColor = false;
 GRM_G.MainTagHexCode = "";
@@ -293,11 +300,6 @@ GRM_G.MacroHotKey = "";
 GRM_G.AddonIsFullyConfigured = false;
 GRM_G.SettingsPages = 17;
 GRM_G.ForceAuto = false; -- Force auto backup this session? For patching purposes
-
--- Which frame to send AddMessage
-GRM_G.Chat = {};
-GRM_G.UnconfirmedChatTabs = {};
-GRM_G.MainHookConfigured = false;
 
 -- Unique Classic frame loads
 GRM_G.rankShiftLoaded = false;
@@ -3219,9 +3221,6 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
         end
     end
 
-    -- Re-evaluate message controls
-    GRM.SystemMessageHookControl();
-
     return result, msg, ...;
 end
 
@@ -3340,9 +3339,6 @@ GRM.SystemMessageHandler = function(_, _, msg)
                 end
             end
         end
-
-        -- Re-evaluate message controls
-        GRM.SystemMessageHookControl();
     end
 end
 
@@ -5064,7 +5060,6 @@ GRM.AddMainToChat = function(_, event, msg, sender, ...)
             GRM.TriggerPlayerNote(sender, placeHolderMsg);
         end
 
-        GRM.MessageHookControl();
     end
     return false, msg, sender, ...
 end
@@ -7503,6 +7498,8 @@ GRM.ImportJoinDate = function(gName)
                 player.joinDateHist[#player.joinDateHist] = {timeS[1], timeS[2], timeS[3],
                                                              GRM.Time.ConvertToStandardFormatDate(timeS[1], timeS[2],
                     timeS[3]), time(), true, 1};
+
+                GRM.AddTimeStampToNote( player.name , player.GUID , GRM.Time.FormatTimeStamp({timeS[1], timeS[2], timeS[3]}, false, false, false) );
             end
         end
     end
@@ -23091,50 +23088,66 @@ GRM.DelayForGuildInfoCallback = function()
     end
 end
 
--- Method:          GRM.MessageHookControl()
+GRM_G.mainTagEvents = {
+    CHAT_MSG_GUILD                 = true,
+    CHAT_MSG_WHISPER               = true,
+    CHAT_MSG_GUILD_ACHIEVEMENT     = true,
+    CHAT_MSG_PARTY                 = true,
+    CHAT_MSG_PARTY_LEADER          = true,
+    CHAT_MSG_RAID                  = true,
+    CHAT_MSG_RAID_LEADER           = true,
+    CHAT_MSG_INSTANCE_CHAT         = true,
+    CHAT_MSG_INSTANCE_CHAT_LEADER  = true,
+    CHAT_MSG_OFFICER               = true,
+}
+-- Method:          GRM.EnsureChatFilterOrderingHook()
 -- What it Does:    checks to ensure script modification is post all other addons to ensure compatibility
 -- Purpose:         Simple solution than writing a whole new Raw Hook control and updating the AddMessage text which can be spammy.
-GRM.MessageHookControl = function()
-    local chatEvents = {"CHAT_MSG_GUILD", "CHAT_MSG_WHISPER", "CHAT_MSG_GUILD_ACHIEVEMENT", "CHAT_MSG_PARTY",
-                        "CHAT_MSG_PARTY_LEADER", "CHAT_MSG_RAID", "CHAT_MSG_RAID_LEADER", "CHAT_MSG_INSTANCE_CHAT",
-                        "CHAT_MSG_INSTANCE_CHAT_LEADER", "CHAT_MSG_OFFICER"}
-
-    if GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
-        for i = 1, #chatEvents do
-            local events = ChatFrame_GetMessageEventFilters(chatEvents[i]);
-
-            if #events > 1 then
-                if events[#events] ~= GRM.AddMainToChat then
-                    -- Let's unregister, then re-register!
-                    ChatFrame_RemoveMessageEventFilter(chatEvents[i], GRM.AddMainToChat);
-                    -- Now Re-Add it!
-                    ChatFrame_AddMessageEventFilter(chatEvents[i], GRM.AddMainToChat);
-                end
-            end
-        end
-    else
-        GRM_G.MainHookConfigured = true;
-        for i = 1, #chatEvents do
-            ChatFrame_AddMessageEventFilter(chatEvents[i], GRM.AddMainToChat);
-        end
+function GRM.EnsureChatFilterOrderingHook()
+    if GRM_G.ChatFilterHooked or not ChatFrame_AddMessageEventFilter then -- Only need to secure hook one time.
+        return
     end
+    GRM_G.ChatFilterHooked = true
+
+    -- Only hook one time!
+    hooksecurefunc("ChatFrame_AddMessageEventFilter", function(event, filterFunc)
+        if GRM_G.ReaddingFilter then
+            return
+        end
+
+        -- Make sure our main/alt tag filter stays last
+        if GRM_G.mainTagEvents[event] and filterFunc ~= GRM.AddMainToChat then
+            GRM_G.ReaddingFilter = true
+            ChatFrame_RemoveMessageEventFilter(event, GRM.AddMainToChat)
+            ChatFrame_AddMessageEventFilter(event, GRM.AddMainToChat)
+            GRM_G.ReaddingFilter = false
+
+        -- And the system message filter for GuildInfo etc.
+        elseif event == "CHAT_MSG_SYSTEM" and filterFunc ~= GRM.SetSystemMessageFilter then
+            GRM_G.ReaddingFilter = true
+            ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter)
+            ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter)
+            GRM_G.ReaddingFilter = false
+        end
+    end)
 end
 
--- Method:          GRM.SystemMessageHookControl()
--- What it Does:    Checks to ensure script modification happens at the end of the sequential table to ensure all addon compatibility
--- Purpose:         Quality of life - prevent frustration for other addon devs
-GRM.SystemMessageHookControl = function()
+-- Method:          GRM.MessageHookControl()
+-- What it Does:    Handles some communications issues with the chat so that the main tags can be hooked into and edited
+-- Purpose:         Message editing of GRM tags
+GRM.MessageHookControl = function()
+    -- Legacy / Classic path – ChatFrame_GetMessageEventFilters still exists
+    local hasGetFilters = (type(ChatFrame_GetMessageEventFilters) == "function")
 
-    local events = ChatFrame_GetMessageEventFilters("CHAT_MSG_SYSTEM");
-
-    if #events > 1 then
-        if events[#events] ~= GRM.SetSystemMessageFilter then
-            -- Let's unregister, then re-register!
-            ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
-            -- Now Re-Add it! We want GRM to be FINAL one added to ensure no overlapping compatibility or prioritization of other devs. By unregistering and registering, it adds it to tail end last position.
-            ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
+    if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
+        for chat_event in pairs(GRM_G.mainTagEvents) do
+            ChatFrame_AddMessageEventFilter(chat_event, GRM.AddMainToChat);
         end
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
+        GRM_G.MainHookConfigured = true;
     end
+
+    GRM.EnsureChatFilterOrderingHook();
 end
 
 -- Method:          GRM.LoadAddon()

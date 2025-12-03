@@ -1,3 +1,13 @@
+## **VERSION 1.9935 - December 3rd, 2025**
+
+*Retail 11.2.7 Compatibility Update*
+
+***BUG FIXES***
+
+* All bugs related to the 11.2.7 API changes have been resolved and fixed. Thank @lenni on Discord for assisting in this process as he was very proactive on the beta/PTR regarding this
+
+* Fixed an issue where the join date was not properly getting added to the player designated note for when you had your own alt join the guild. GRM has a neat little feature where if you are on an alt and join the guild, it will auto-set their join date imported directly from the server (you can only do this for your own toons), but I had forgotten to make sure you also updated the player note for your own toons when doing so. This is part of the feature where your own alts automatically get added to your own alt list.
+
 ## **VERSION 1.99347 - Nov 3rd, 2025**
 
 *MoP Classic 5.5.2 Compatibility added and 1.15.8 Classic Era Compatibility Updated*
