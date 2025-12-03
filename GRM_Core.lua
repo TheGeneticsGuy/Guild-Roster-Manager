@@ -3221,9 +3221,6 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
         end
     end
 
-    -- Re-evaluate message controls
-    GRM.SystemMessageHookControl();
-
     return result, msg, ...;
 end
 
@@ -3342,9 +3339,6 @@ GRM.SystemMessageHandler = function(_, _, msg)
                 end
             end
         end
-
-        -- Re-evaluate message controls
-        GRM.SystemMessageHookControl();
     end
 end
 
