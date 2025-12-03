@@ -23094,6 +23094,33 @@ end
 -- Method:          GRM.MessageHookControl()
 -- What it Does:    checks to ensure script modification is post all other addons to ensure compatibility
 -- Purpose:         Simple solution than writing a whole new Raw Hook control and updating the AddMessage text which can be spammy.
+-- GRM.MessageHookControl = function()
+--     local chatEvents = {"CHAT_MSG_GUILD", "CHAT_MSG_WHISPER", "CHAT_MSG_GUILD_ACHIEVEMENT", "CHAT_MSG_PARTY",
+--                         "CHAT_MSG_PARTY_LEADER", "CHAT_MSG_RAID", "CHAT_MSG_RAID_LEADER", "CHAT_MSG_INSTANCE_CHAT",
+--                         "CHAT_MSG_INSTANCE_CHAT_LEADER", "CHAT_MSG_OFFICER"}
+
+--     -- 11.x / Midnight: safeguard if ChatFrame_GetMessageEventFilters is no longer global
+--     local canInspectFilters = type(ChatFrame_GetMessageEventFilters) == "function"
+
+--     if GRM_G.MainHookConfigured and IsInGuild() and GRM.S() and canInspectFilters then
+--         for i = 1, #chatEvents do
+--             local events = ChatFrame_GetMessageEventFilters(chatEvents[i]) or {}
+
+--             if type(events) == "table" and #events > 1 then
+--                 if events[#events] ~= GRM.AddMainToChat then
+--                     ChatFrame_RemoveMessageEventFilter(chatEvents[i], GRM.AddMainToChat);
+--                     ChatFrame_AddMessageEventFilter(chatEvents[i], GRM.AddMainToChat);
+--                 end
+--             end
+--         end
+--     else
+--         GRM_G.MainHookConfigured = true;
+--         for i = 1, #chatEvents do
+--             ChatFrame_AddMessageEventFilter(chatEvents[i], GRM.AddMainToChat);
+--         end
+--     end
+-- end
+
 GRM.MessageHookControl = function()
     local chatEvents = {"CHAT_MSG_GUILD", "CHAT_MSG_WHISPER", "CHAT_MSG_GUILD_ACHIEVEMENT", "CHAT_MSG_PARTY",
                         "CHAT_MSG_PARTY_LEADER", "CHAT_MSG_RAID", "CHAT_MSG_RAID_LEADER", "CHAT_MSG_INSTANCE_CHAT",
@@ -23120,10 +23147,27 @@ GRM.MessageHookControl = function()
     end
 end
 
+
 -- Method:          GRM.SystemMessageHookControl()
 -- What it Does:    Checks to ensure script modification happens at the end of the sequential table to ensure all addon compatibility
 -- Purpose:         Quality of life - prevent frustration for other addon devs
 GRM.SystemMessageHookControl = function()
+
+    -- 11.x / Midnight: ChatFrame_GetMessageEventFilters is no longer a global
+    if not ChatFrame_GetMessageEventFilters then
+        -- We already register our filter with ChatFrame_AddMessageEventFilter elsewhere.
+        -- If we can’t introspect the filter list, just skip the “make us last” logic.
+        return
+    end
+
+    -- local events = ChatFrame_GetMessageEventFilters("CHAT_MSG_SYSTEM") or {}
+
+    -- if type(events) == "table" and #events > 1 then
+    --     if events[#events] ~= GRM.SetSystemMessageFilter then
+    --         ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
+    --         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
+    --     end
+    -- end
 
     local events = ChatFrame_GetMessageEventFilters("CHAT_MSG_SYSTEM");
 
@@ -23136,6 +23180,7 @@ GRM.SystemMessageHookControl = function()
         end
     end
 end
+
 
 -- Method:          GRM.LoadAddon()
 -- What it Does:    Enables tracking of when a player joins the guild or leaves the guild. Also fires upon login.
