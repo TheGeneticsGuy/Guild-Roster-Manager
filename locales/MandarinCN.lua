@@ -1957,7 +1957,7 @@ GRML.MandarinCN = function()
     -- 1.99344
     GRM_L["Not in Guild"] = true
 
-    -- 1.99346
+    -- 1.99345
     GRM_L["Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file"] = true
     GRM_L["Use Web App"] = true
     GRM_L["Total Alts"] = true
@@ -1970,6 +1970,10 @@ GRML.MandarinCN = function()
     GRM_L["None Found"] = true
     GRM_L["altlimit"] = true        -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
 
+    -- 1.99346
+    GRM_L["View Official GRM Website"] = true
+    GRM_L["Want to learn more about GRM, check out the FAQ, changelog, and receive general tips and tricks? Check out the website!"] = true
+    GRM_L["Check out the new GRM website"] = true
 
 end
 

@@ -6,7 +6,7 @@ GRM.WebApps = WebApps
 -- Method:          WebApps.GetWebAppURL( appName: string )
 -- What it Does:    Returns the URL for the requested web app by name
 -- Purpose:         To provide users with quick access to web apps associated with GRM
-WebApps.GetWebAppURL = function( appName )
+WebApps.GetWebAppURL = function( appName , removeHttp )
 
     local appURLs = {
         ["www"] = "www." .. grm_official_site,
@@ -18,7 +18,11 @@ WebApps.GetWebAppURL = function( appName )
     local address = appURLs[appName];
 
     if address then
-        return "https://" .. address;
+        if not removeHttp then
+            return "https://" .. address;
+        else
+            return address;
+        end
     end
     return
 end
