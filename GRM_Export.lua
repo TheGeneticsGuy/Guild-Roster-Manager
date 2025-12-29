@@ -1769,7 +1769,7 @@ Export.LoadExportUI = function( isManualUpdate )
 
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton:SetScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
-                GRM.InitiateEditBoxPopup( GRM.WebApps.GetWebAppURL("log") , GRM.L("Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file") );
+                GRM.InitiateEditBoxPopup( GRM.WebApps.GetWebAppURL("extract") , GRM.L("Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file") );
             end
         end);
 
@@ -2946,6 +2946,7 @@ Export.BuildExportStrings = function()
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText:SetText ( "> " .. GRM.L ( "Check All" ) );
         GRM.NormalizeHitRects ( GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectAllButton.GRM_ExportSelectAllButtonText );
+        GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportWebURLButton.GRM_ExportWebURLButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
 
         if GRM_G.LocalizedIndex == 5 then -- Russian
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportSelectedRangeButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10.5 );

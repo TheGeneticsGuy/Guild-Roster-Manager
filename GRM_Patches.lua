@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 146 - 2025-10-09
+--- Total Patches: 148 - 2025-12-29
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1796,7 +1796,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 148
+    if numericV < 1.9936 and baseValue < 1.9936 then
+        GRM.Report(GRM.L( "Check out the new GRM website" ) .. "\n" .. GRM.WebApps.GetWebAppURL("www" , true) );
+        GRM.Report(" ");
 
+        GRM_AddonSettings_Save.VERSION = "R1.99346";
+        if loopCheck ( 1.9936 ) then
+            return;
+        end
+    end
 
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );

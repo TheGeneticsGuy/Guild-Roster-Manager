@@ -746,8 +746,8 @@ GRML.MandarinCN = function()
     GRM_L["Remove Date"] = "移除生日"            -- Clear Birthday shorthand
     GRM_L["Birthday"] = "生日"
     GRM_L["Only Announce Birthdays and Anniversaries if Listed as 'Main'"] = "只公告'主号'的生日及周年日"
-    GRM_L["{name} will be celebrating {num} year in the Guild!"] = "今天是 {name} 加入公会 {num} 年纪念日!"           -- {custom1} will reference the DATE. Ex: "Arkaan will be celebrating 1 year in the Guild! ( 1 May )" - SINGULAR
-    GRM_L["{name} will be celebrating {num} years in the Guild!"] = "今天是 {name} 加入公会 {num} 年纪念日!"          -- Same thing but PLURAL - "years" in stead of "year"
+    GRM_L["{name} will be celebrating {num} year in the Guild!"] = "这天是 {name} 加入公会 {num} 周年纪念日!"           -- {custom1} will reference the DATE. Ex: "Arkaan will be celebrating 1 year in the Guild! ( 1 May )" - SINGULAR
+    GRM_L["{name} will be celebrating {num} years in the Guild!"] = "这天是 {name} 加入公会 {num} 周年纪念日!"          -- Same thing but PLURAL - "years" in stead of "year"
     GRM_L["No player's currently available to sync {name}'s Guild Data..."] = "无法与任何玩家同步 {name} 的公会信息..."
     GRM_L["{name} has set {name2}'s Birthday: {custom1}"] = "{name} 已将 {name2} 的生日设为: {custom1}"                  -- custom note is the date like "12 Dec"
     GRM_L["{name}'s Birthday has been set: {custom1}"] = "{name} 的生日已被设为: {custom1}"
@@ -1113,7 +1113,7 @@ GRML.MandarinCN = function()
 
     -- 1.78
     GRM_L["Hurray!"] = "好耶!"                                                             -- A short cheer! Like "Yay!" except "Hurray!"
-    GRM_L["{name} has Reached the {num} Level Cap! {custom1}"] = "{name}以达到满级{num}级! {custom1}"                 -- Arkaan has Reached the 120 Level Cap! Hurray!
+    GRM_L["{name} has Reached the {num} Level Cap! {custom1}"] = "{name}已达到满级{num}级! {custom1}"                 -- Arkaan has Reached the 120 Level Cap! Hurray!
 
     -- 1.80
     GRM_L["Core Window:"] = "核心窗口:"
@@ -1152,21 +1152,21 @@ GRML.MandarinCN = function()
     GRM_L["Send to Join Date"] = "发送至加入日期"
     GRM_L["(Press Tab to Cycle)"] = "(按TAB切换)"
     GRM_L["(Press Enter to Select)"] = "(按回车选择)"
-    GRM_L["Setting join date to destination index {num} is not valid. Value must be between 0 and 3. Setting to default of Officer Note."] = true
-    GRM_L["Join Dates Globally Changed to no longer be added to the note when a player joins the guild"] = true
-    GRM_L["Your Guild Leader has disabled adding join dates to player notes"] = true
-    GRM_L["Unable to Modify. Global setting DISABLES adding the join date automatically. "] = true
-    GRM_L["General Sync"] = true
-    GRM_L["Ban Sync"] = true
-    GRM_L["Custom Sync"] = true
-    GRM_L["Auto Join date"] = true
-    GRM_L["Include Headers"] = true;
-    GRM_L["Join Header"] = true;
-    GRM_L["ReJoin Header"] = true;
-    GRM_L["!note Control"] = true
-    GRM_L["You need to clear {num} characters to fit the control tags"] = true
-    GRM_L["A new format exists for global settings controls."] = true
-    GRM_L["Go to GRM window > Options > Officer Tab > \"Set Global Controls\""] = true
+    GRM_L["Setting join date to destination index {num} is not valid. Value must be between 0 and 3. Setting to default of Officer Note."] = "设定的加入日期目标索引{num}不可用，数值须为0到3之间。已设定为默认官员备注"
+    GRM_L["Join Dates Globally Changed to no longer be added to the note when a player joins the guild"] = "已全局设置为不为新加入的成员添加加入日期"
+    GRM_L["Your Guild Leader has disabled adding join dates to player notes"] = "添加加入日期至玩家备注已被公会领袖禁用"
+    GRM_L["Unable to Modify. Global setting DISABLES adding the join date automatically. "] = "修改失败，自动添加加入日期已在全局设置禁用"
+    GRM_L["General Sync"] = "综合同步"
+    GRM_L["Ban Sync"] = "黑名单同步"
+    GRM_L["Custom Sync"] = "自定义同步"
+    GRM_L["Auto Join date"] = "自动加入日期"
+    GRM_L["Include Headers"] = "包含标头"
+    GRM_L["Join Header"] = "加入公会标头"
+    GRM_L["ReJoin Header"] = "重新加入标头"
+    GRM_L["!note Control"] = "!note控制"
+    GRM_L["You need to clear {num} characters to fit the control tags"] = "控制标签过长，请删除至少{num}个字符"
+    GRM_L["A new format exists for global settings controls."] = "全局设置控制已存在新格式"
+    GRM_L["Go to GRM window > Options > Officer Tab > \"Set Global Controls\""] = "前往GRM窗口 > 设置 > 官员 > \"设定全局设置\""
     GRM_L["Remove the old format when all guildies have updated properly. You may wish to leave it in Guild Info until then."] = true
     GRM_L["It may take up to 60 seconds for other guild members to detect the changes and update."] = true
     GRM_L["Resets only the settings on this page"] = true
@@ -1957,7 +1957,7 @@ GRML.MandarinCN = function()
     -- 1.99344
     GRM_L["Not in Guild"] = true
 
-    -- 1.99346
+    -- 1.99345
     GRM_L["Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file"] = true
     GRM_L["Use Web App"] = true
     GRM_L["Total Alts"] = true
@@ -1970,8 +1970,13 @@ GRML.MandarinCN = function()
     GRM_L["None Found"] = true
     GRM_L["altlimit"] = true        -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
 
+    -- 1.99346
+    GRM_L["View Official GRM Website"] = true
+    GRM_L["Want to learn more about GRM, check out the FAQ, changelog, and receive general tips and tricks? Check out the website!"] = true
+    GRM_L["Check out the new GRM website"] = true
 
 end
 
 -- Thank you 阿拉贝比-回音山 for you amazing work!
 -- 谢谢你，阿拉贝比-回音山，你的工作太棒了！
+-- TY @Blendomino for the updated translation work!

@@ -1,3 +1,27 @@
+## **VERSION 1.9936 - December 29th, 2025**
+
+**GRM Now has an official website** - [www.guildrostermanager.com](https://www.guildrostermanager.com)
+
+* As of now, the main feature is a tool to extract your log from the GRM save file, but more will eventually be added...
+
+*Compatibility update for MoP Classic 5.5.3*
+
+
+***BUG FIXES***
+
+* The main name and the alt/main tags were not properly getting added to the chat for addons like Prat since the 11.2.7 release and various API changes. I thought I had a solution to resolve that, but it ultimately was not quite sufficient. So, I built something else and I can say that this is a universal compatibility solution so no conflicts with Prat or hopefully other addons like ElvUI Chat (though I have only tested Prat and can at least confirm the issue is resolved there).
+
+* Fixed a bug where the join date was not getting imported properly for your own alts and the addon was also not importing your own guild join date properly. GRM has the ability to query the server and import the join date to your current guild (as long as you joined it AFTER the communities implementation in 2018, or when Blizz added that update in Classic). Only you can query your own data, so unfortunately you can't get other guild members' join dates this way, but GRM will now properly import your join date and also add your join date note to your assigned note location.
+
+* Fixed an issue where if anyone was using the '!note' tool with multiple officers online it could potentially be spamming in updating the player note. It now should properly report a single note update.
+
+***QOL***
+
+* There was an issue where GRM was only reporting inactivtity of toons in an alt group if ALL of the alts were inactive. This is actually a configurable setting but it added some confusion as what if an alt was active, a main wasn't, and the main returned, it wouldn't inform you they were returning from inactivity. Now, that option is disabled by default, and it will ALWAYS report an inactive "main" returning, so this setting only specifically applies to alts.
+
+* Mandarin (CN) localization work has been updated. Thank you 阿拉贝比-回音山 for your continued amazing work!
+
+
 ## **VERSION 1.9935 - December 3rd, 2025**
 
 *Retail 11.2.7 Compatibility Update*
