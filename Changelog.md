@@ -17,9 +17,11 @@
 
 ***QOL***
 
-* There was an issue where GRM was only reporting inactivtity of toons in an alt group if ALL of the alts were inactive. This is actually a configurable setting but it added some confusion as what if an alt was active, a main wasn't, and the main returned, it wouldn't inform you they were returning from inactivity. Now, that option is disabled by default, and it will ALWAYS report an inactive "main" returning, so this setting only specifically applies to alts.
+* There was an issue where GRM was only reporting inactivity of toons in an alt group if ALL of the alts were inactive. This is actually a configurable setting but it added some confusion as what if an alt was active, a main wasn't, and the main returned, it wouldn't inform you they were returning from inactivity. Now, that option is disabled by default, and it will ALWAYS report an inactive "main" returning, so this setting only specifically applies to alts.
 
 * Mandarin (CN) localization work has been updated. Thank you 阿拉贝比-回音山 for your continued amazing work!
+
+Please view [the full changelog here](https://www.guildrostermanager.com/changelog)
 
 
 ## **VERSION 1.9935 - December 3rd, 2025**
