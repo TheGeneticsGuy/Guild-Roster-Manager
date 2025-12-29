@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9935";
+GRM_G.Version = "R1.9936";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1764746469";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1764746469;            -- In Epoch Time
+GRM_G.PatchDayString = "1766998337";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1766998337;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110207;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.55;
+GRM_G.GroupInfoV = 1.56;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -225,6 +225,7 @@ GRM_G.UnconfirmedChatTabs = {};
 GRM_G.MainHookConfigured = false;
 GRM_G.ChatFilterHooked = false
 GRM_G.ReaddingFilter = false
+GRM_G.ReaddingFilter2 = false
 
 -- ColorPicker Controls
 GRM_G.MainTagColor = false;
@@ -303,6 +304,9 @@ GRM_G.ForceAuto = false; -- Force auto backup this session? For patching purpose
 
 -- Unique Classic frame loads
 GRM_G.rankShiftLoaded = false;
+
+-- !note feature against spamming
+GRM_G.noteUpdateSpamProtection = false;
 
 -- Misc Offset
 GRM_G.OStimeOffset = 0;
@@ -929,7 +933,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.scanEnabled = true;
         player.levelReportMin = 10;
         player.levelFilters = {true, true, true, true, true, true, true, true, true};
-        player.allAltRequirement = true;
+        player.allAltRequirement = false; -- I want it off by default.
         player.recordLevelUp = true;
         player.AnnounceBdayOnLogin = true;
         player.bdayAnnounce = true;
@@ -1336,12 +1340,11 @@ GRM.LoadSettings = function( isManual )
         end
 
     end
-    if playerV ~= nil and playerV ~= "" then
+    if not isManual and playerV ~= nil and playerV ~= "" then
         -- PATCH FIXES
         if string.find(playerV, "R") == nil then
             playerV = "R" .. playerV;
         end
-
         GRM_Patch.SettingsCheck(tonumber(string.match(playerV, "R(.+)")));
 
     else
@@ -1416,7 +1419,6 @@ GRM.FinalSettingsConfigurations = function( isManual )
     GRM_API.Initialized = true;
     -- Settings loaded... carry on.
     GRM.SettingsLoadedFinishDataLoad( isManual );
-
 end
 
 -- Method:          GRM.VerifyAddonSettings()
@@ -3221,6 +3223,8 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
         end
     end
 
+    GRM.SystemMessageHookControl();
+
     return result, msg, ...;
 end
 
@@ -3339,6 +3343,9 @@ GRM.SystemMessageHandler = function(_, _, msg)
                 end
             end
         end
+
+        -- Re-evaluate message controls
+        GRM.SystemMessageHookControl();
     end
 end
 
@@ -7127,24 +7134,6 @@ GRM.CreateMacro = function(macroText, name, icon, keyBind, isLogOff)
     end
 end
 
--- Method:          GRM.CleanupMacros ( int )
--- What it Does:    Clears out known existing macros and keybinds used by this addon for temp abilities, like invite all to guild, or gkick all alts.
--- Purpose:         Prevent macro mess.
-GRM.CleanupMacros = function(delay)
-    local macros = {"GRM_Inv", "GRM_Kick"};
-
-    if not delay then
-        delay = 0;
-    else
-        GRM.Report(GRM.L("Macro will auto-remove after {num} seconds.", nil, nil, delay));
-    end
-    C_Timer.After(delay, function()
-        for i = 1, #macros do
-            DeleteMacro(macros[i]);
-        end
-    end);
-end
-
 -- Method:          GRM.BuildMacroInviteAll ( string , array )
 -- What it Does:    Creates a string to be used to set a macro for inviting all players.
 -- Purpose:         Added functionality for the player of the addon
@@ -7469,42 +7458,43 @@ end
 -- What it Does:    Sets the join date that is pulled from the server for the CURRENT player
 -- Purpose:         With 8.0 changes the join date for the current player can be imported automatically.
 GRM.ImportJoinDate = function(gName)
-
     local name = gName or "";
 
-    if GRM_G.BuildVersion >= 10000 and IsInGuild() then
-
-        if name == "" then
-            local guildName, _, _, server = GetGuildInfo("PLAYER");
-
-            if server ~= nil then
-                name = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
-            else
-                name = guildName .. "-" .. GRM_G.realmName;
-            end
-        end
-
+    if IsInGuild() then
         local clubID = C_Club.GetGuildClubId();
-        local player = GRM.GetPlayer(GRM_G.addonUser, false, name);
+        if clubID then
 
-        if player and clubID and player.joinDateHist[#player.joinDateHist][1] == 0 then
+            if name == "" then
+                local guildName, _, _, server = GetGuildInfo("PLAYER");
 
-            local epochTime = math.floor(C_Club.GetClubInfo(clubID).joinTime) / 1000000;
-            local _, timeS = GRM.Time.EpochToDateFormat(epochTime);
+                if server ~= nil then
+                    name = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
+                else
+                    name = guildName .. "-" .. GRM_G.realmName;
+                end
+            end
 
-            GRM_PlayerListOfAlts_Save[name][GRM_G.addonUser][1] = true;
+            local player = GRM.GetPlayer(GRM_G.addonUser, false, name);
 
-            if not (timeS[3] == 2018 and timeS[2] == 7 and timeS[1] > 15 and timeS[1] < 19) then -- Same date as patch 8.0 communities
-                player.joinDateHist[#player.joinDateHist] = {timeS[1], timeS[2], timeS[3],
-                                                             GRM.Time.ConvertToStandardFormatDate(timeS[1], timeS[2],
-                    timeS[3]), time(), true, 1};
+            if player and player.joinDateHist[#player.joinDateHist][1] == 0 then
 
-                GRM.AddTimeStampToNote( player.name , player.GUID , GRM.Time.FormatTimeStamp({timeS[1], timeS[2], timeS[3]}, false, false, false) );
+                local epochTime = math.floor(C_Club.GetClubInfo(clubID).joinTime) / 1000000;
+                local _, timeS = GRM.Time.EpochToDateFormat(epochTime);
+
+                GRM_PlayerListOfAlts_Save[name][GRM_G.addonUser][1] = true;
+
+                if not (timeS[3] == 2018 and timeS[2] == 7 and timeS[1] > 15 and timeS[1] < 19) then -- Same date as patch 8.0 communities
+                    player.joinDateHist[#player.joinDateHist] = {timeS[1], timeS[2], timeS[3],
+                                                                GRM.Time.ConvertToStandardFormatDate(timeS[1], timeS[2],
+                        timeS[3]), time(), true, 1};
+
+                    GRM.AddTimeStampToNote( player.name , player.GUID , GRM.Time.FormatTimeStamp({timeS[1], timeS[2], timeS[3]}, false, false, false) );
+                end
             end
         end
     end
 end
-
+-- /run GRM_PlayerListOfAlts_Save[GRM_G.guildName]["Dezmonnd-Zul'jin"] = nil
 ----------------------------------
 ------ LOG FUNCTIONS -------------
 ----------------------------------
@@ -21432,7 +21422,14 @@ GRM.TriggerPlayerNote = function(player, msg)
                             elseif officerFoundOnlineWithAddon then
                                 C_Timer.After(1, function()
                                     GRM_G.ReportedNoOfficerOnly = false;
-                                    GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(player)));
+                                    if not GRM_G.noteUpdateSpamProtection then
+                                        GRM_G.noteUpdateSpamProtection = true;
+                                        GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(player)));
+
+                                        C_Timer.After(2,function()
+                                            GRM_G.noteUpdateSpamProtection = false;
+                                        end);
+                                    end
                                 end);
                             end
                         end);
@@ -21465,10 +21462,16 @@ GRM.UpdateNoteFromChat = function( playerName , note)
             if GRM.S().toChat.note then
                 C_Timer.After(1, function()
                     GRM_G.ReportedNoOfficerOnly = false;
-                    GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(playerName)));
+                    if not GRM_G.noteUpdateSpamProtection then
+                        GRM_G.noteUpdateSpamProtection = true
+                        GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(playerName)));
+
+                        C_Timer.After(2,function()
+                            GRM_G.noteUpdateSpamProtection = false;
+                        end);
+                    end
                 end);
             end
-
         end
     end
 end
@@ -22984,12 +22987,17 @@ GRM.TrackingConfiguration = function(forced)
         end
 
         -- Auto import if it is player's own toon.
-        if userGuildAltsTable and userGuildAltsTable[GRM_G.addonUser] and (#userGuildAltsTable[GRM_G.addonUser] == 0 or not userGuildAltsTable[GRM_G.addonUser][1]) then
-            local addonUser = userGuildAltsTable[GRM_G.addonUser];
-            if #addonUser == 0 then
-                addonUser[1] = false;
+        local userGuildAltsTable = GRM.GetAddOnUserGuildAlts();
+
+        if userGuildAltsTable[GRM_G.addonUser] then
+
+            if #userGuildAltsTable[GRM_G.addonUser] == 0 then
+                userGuildAltsTable[GRM_G.addonUser][1] = false;
             end
-            GRM.ImportJoinDate(GRM_G.guildName);
+
+            if not userGuildAltsTable[GRM_G.addonUser][1] then
+                GRM.ImportJoinDate(GRM_G.guildName);
+            end
         end
 
         C_Timer.After(5, function()
@@ -23100,37 +23108,6 @@ GRM_G.mainTagEvents = {
     CHAT_MSG_INSTANCE_CHAT_LEADER  = true,
     CHAT_MSG_OFFICER               = true,
 }
--- Method:          GRM.EnsureChatFilterOrderingHook()
--- What it Does:    checks to ensure script modification is post all other addons to ensure compatibility
--- Purpose:         Simple solution than writing a whole new Raw Hook control and updating the AddMessage text which can be spammy.
-function GRM.EnsureChatFilterOrderingHook()
-    if GRM_G.ChatFilterHooked or not ChatFrame_AddMessageEventFilter then -- Only need to secure hook one time.
-        return
-    end
-    GRM_G.ChatFilterHooked = true
-
-    -- Only hook one time!
-    hooksecurefunc("ChatFrame_AddMessageEventFilter", function(event, filterFunc)
-        if GRM_G.ReaddingFilter then
-            return
-        end
-
-        -- Make sure our main/alt tag filter stays last
-        if GRM_G.mainTagEvents[event] and filterFunc ~= GRM.AddMainToChat then
-            GRM_G.ReaddingFilter = true
-            ChatFrame_RemoveMessageEventFilter(event, GRM.AddMainToChat)
-            ChatFrame_AddMessageEventFilter(event, GRM.AddMainToChat)
-            GRM_G.ReaddingFilter = false
-
-        -- And the system message filter for GuildInfo etc.
-        elseif event == "CHAT_MSG_SYSTEM" and filterFunc ~= GRM.SetSystemMessageFilter then
-            GRM_G.ReaddingFilter = true
-            ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter)
-            ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter)
-            GRM_G.ReaddingFilter = false
-        end
-    end)
-end
 
 -- Method:          GRM.MessageHookControl()
 -- What it Does:    Handles some communications issues with the chat so that the main tags can be hooked into and edited
@@ -23147,7 +23124,16 @@ GRM.MessageHookControl = function()
         GRM_G.MainHookConfigured = true;
     end
 
-    GRM.EnsureChatFilterOrderingHook();
+end
+
+-- Method:          GRM.SystemMessageHookControl()
+-- What it Does:    Checks to ensure script modification happens at the end of the sequential table to ensure all addon compatibility
+-- Purpose:         Quality of life - prevent frustration for other addon devs
+GRM.SystemMessageHookControl = function()
+    if (time() - GRMsyncGlobals.timeAtLogin) < 30 then
+        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
+    end
 end
 
 -- Method:          GRM.LoadAddon()

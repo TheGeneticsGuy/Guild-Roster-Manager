@@ -1004,12 +1004,14 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
             GRM.S().inactiveHours and player.lastOnline > updatedPlayer.lastOnline then -- Player has logged in after having been inactive for greater than given time
 
             local needsToReport = true;
+            if not GRM.IsMain(player.name) then -- Always report if main
 
-            local alts = GRM.GetAltNamesList(player);
-            -- No need to report if any player's alts are active still...
-            if #alts > 0 and GRM.S().allAltRequirement then
-                if GRM.IsAnyAltActive(alts) then
-                    needsToReport = false;
+                local alts = GRM.GetAltNamesList(player);
+                -- No need to report if any player's alts are active still...
+                if #alts > 0 and GRM.S().allAltRequirement then
+                    if GRM.IsAnyAltActive(alts) then
+                        needsToReport = false;
+                    end
                 end
             end
 
@@ -2627,12 +2629,13 @@ Scan.FinalReportInformation = function(needToReport)
     Scan.ResetTempLogs();
 
     if GRM_G.OnFirstLoad then
-        local S = (type(GRM.S) == "function") and GRM.S() or GRM.S
-        if not S then
+
+        if GRM.S() then
             GRM.LoadSettings( true );
         end
-        if S and S.viewOnLoad then
-            if (not S.onlyViewIfChanges) or GRM_G.ChangesFoundOnLoad then
+
+        if GRM.S() and GRM.S().viewOnLoad then
+            if (not GRM.S().onlyViewIfChanges) or GRM_G.ChangesFoundOnLoad then
                 if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame then
                     GRM_UI.GRM_RosterChangeLogFrame:Show()
                 end

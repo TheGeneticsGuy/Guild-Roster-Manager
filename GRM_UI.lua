@@ -778,6 +778,11 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_ClearG
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_VersionOptionsButton = CreateFrame ( "Button" , "GRM_VersionOptionsButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_HardResetButton = CreateFrame ( "Button" , "GRM_HardResetButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame , "UIPanelButtonTemplate" );
 
+-- GRM Official Site link in the help
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton = CreateFrame ( "Button" , "GRM_OfficialWebURLButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame , "UIPanelButtonTemplate" );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton.GRM_OfficialWebURLButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhite");
+
+
 -- Reset Defaults Button
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton = CreateFrame ( "Button" , "GRM_ResetDefaultOptionsButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny");
@@ -9843,6 +9848,20 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_HardResetButton:SetScript ( "OnClick" , function( _ , button )
         if button == "LeftButton" then
             GRM.HardReset();
+        end
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton:SetPoint ( "BOTTOM" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame ,  "BOTTOM" , 0 , 50 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton:SetSize ( 230 , 30 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton.GRM_OfficialWebURLButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton.GRM_OfficialWebURLButtonText:SetWordWrap ( false );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton.GRM_OfficialWebURLButtonText:SetWidth ( 225 );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton.GRM_OfficialWebURLButtonText:SetText ( GRM.L ( "View Official GRM Website" ) );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton.GRM_OfficialWebURLButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame.GRM_OfficialWebURLButton:SetScript ( "OnClick" , function( _ , button )
+        if button == "LeftButton" then
+            GRM.InitiateEditBoxPopup( GRM.WebApps.GetWebAppURL("www") , GRM.L("Want to learn more about GRM, check out the FAQ, changelog, and receive general tips and tricks? Check out the website!") );
         end
     end);
 

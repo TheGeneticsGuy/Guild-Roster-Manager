@@ -1,4 +1,6 @@
 local WebApps = {}
+local grm_official_site = "guildrostermanager.com";
+
 GRM.WebApps = WebApps
 
 -- Method:          WebApps.GetWebAppURL( appName: string )
@@ -7,8 +9,16 @@ GRM.WebApps = WebApps
 WebApps.GetWebAppURL = function( appName )
 
     local appURLs = {
-        ["log"] = "https://grm-parser-webapp.onrender.com/",
+        ["www"] = "www." .. grm_official_site,
+        ["root"] = grm_official_site,
+        ["extract"] = "extract." .. grm_official_site,
+        ["changelog"] = "www." .. grm_official_site .. "/changelog"
     }
 
-    return appURLs[appName] or nil
+    local address = appURLs[appName];
+
+    if address then
+        return "https://" .. address;
+    end
+    return
 end

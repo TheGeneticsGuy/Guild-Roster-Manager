@@ -1962,5 +1962,10 @@ GRML.English = function()
     GRM_L["Alt Group Limit Audit"] = true
     GRM_L["None Found"] = true
     GRM_L["altlimit"] = true        -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
+
+    -- 1.99347
+    GRM_L["View Official GRM Website"] = true
+    GRM_L["Want to learn more about GRM, check out the FAQ, changelog, and receive general tips and tricks? Check out the website!"] = true
+
 end
 
