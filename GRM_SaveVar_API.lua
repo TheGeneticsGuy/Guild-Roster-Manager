@@ -22,6 +22,9 @@ GRM_MinimapPosition = GRM_MinimapPosition or {};                                
 -- Functions table
 GRM = {};
 
+
+-- Compatibility guards (Classic Era does not have Communities / C_Club)
+local HAS_CLUB = (C_Club and C_Club.GetGuildClubId and C_Club.GetClubMembers and C_Club.GetMemberInfo)
 -- local ghostSettings;    -- In case a player leaves the guild abruptly.
 
 --------------------------
@@ -79,11 +82,43 @@ end
 GRM.GetPlayer = function ( name , appendServer , gName )
     local guildName = gName or GRM_G.guildName;
 
+    -- Classic 1.15.8:
+    -- CHAT_MSG_ADDON 'sender' is frequently returned as "Name-Realm" even for same-realm guildmates,
+    -- while GRM's SavedVariables store keys as just "Name" (or the GRM.AppendServerName() result).
+    -- If we don't normalize, sync comms can't resolve players in the DB and will silently abort.
+    local function NormalizeName(n)
+        if not n or n == "" then
+            return n
+        end
+        -- Ambiguate is the game API helper; fall back to simple split for safety.
+        if Ambiguate then
+            local short = Ambiguate(n, "short")
+            if short and short ~= "" then
+                return short
+            end
+        end
+        local base = string.match(n, "^([^%-]+)%-")
+        return base or n
+    end
+
     if guildName ~= "" and GRM_GuildMemberHistory_Save[ guildName ] then
+        local key = name;
         if not appendServer then
-            return GRM_GuildMemberHistory_Save[ guildName ][ name ];
+            local player = GRM_GuildMemberHistory_Save[ guildName ][ key ];
+            if player == nil then
+                key = NormalizeName(key);
+                player = GRM_GuildMemberHistory_Save[ guildName ][ key ];
+            end
+            return player;
         else
-            return GRM_GuildMemberHistory_Save[ guildName ][ GRM.AppendServerName ( name , true ) ];
+            local appended = GRM.AppendServerName ( key , true );
+            local player = GRM_GuildMemberHistory_Save[ guildName ][ appended ];
+            if player == nil then
+                key = NormalizeName(key);
+                appended = GRM.AppendServerName ( key , true );
+                player = GRM_GuildMemberHistory_Save[ guildName ][ appended ];
+            end
+            return player;
         end
     else
         return nil;
@@ -94,6 +129,7 @@ end
 -- What it Does:    Returns the playerTable
 -- Purpose:         Easier to pull player data.j
 GRM.GetFormerPlayer = function ( name , appendServer , gName )
+    if not HAS_CLUB then return nil end
     local guildName = gName or GRM_G.guildName;
 
     if guildName ~= "" and GRM_GuildMemberHistory_Save[ guildName ] then
@@ -111,6 +147,7 @@ end
 -- What it Does:    Returns the guild database of all players with the selected, or default current guild.
 -- Purpose:         Compartmentalize the data queries.
 GRM.GetGuild = function ( name )
+    if not HAS_CLUB then return nil end
 
     if name then
         return GRM_GuildMemberHistory_Save[ name ];
@@ -124,6 +161,7 @@ end
 -- What it Does:    Returns the guild database of all players with the selected, or default current guild.
 -- Purpose:         Compartmentalize the data queries.
 GRM.GetFormerMembers = function ( name )
+    if not HAS_CLUB then return nil end
 
     if name then
         return GRM_PlayersThatLeftHistory_Save[ name ];
@@ -137,6 +175,7 @@ end
 -- What it Does:    Returns the log report of the given guild, or the default guild you are in
 -- Purpose:         Call the data easily.
 GRM.GetLog = function( name )
+    if not HAS_CLUB then return nil end
 
     if name then
         return GRM_LogReport_Save[name];
@@ -150,6 +189,7 @@ end
 -- What it Does:    Returns items in queue to be added to the calendar.
 -- Purpose:         Call the data easily.
 GRM.GetEvents = function( name )
+    if not HAS_CLUB then return nil end
 
     if name then
         return GRM_CalendarAddQue_Save[name];
@@ -163,12 +203,19 @@ end
 -- What it Does:    Returns list of addon users' alts that have been auto-found and registered for given guild.
 -- Purpose:         Call the data easily.
 GRM.GetAddOnUserGuildAlts = function ( name )
+    if not HAS_CLUB then return nil end
 
-    if name then
-        return GRM_PlayerListOfAlts_Save[name];
-    else
-        return GRM_PlayerListOfAlts_Save[GRM_G.guildName];
+    -- Classic safety: SavedVariables may not be initialized yet for this guild.
+    GRM_PlayerListOfAlts_Save = GRM_PlayerListOfAlts_Save or {};
+
+    local key = name or GRM_G.guildName;
+    if key == nil then
+        -- Should never happen, but avoid nil indexing if guild name is not yet available.
+        return {};
     end
+
+    GRM_PlayerListOfAlts_Save[key] = GRM_PlayerListOfAlts_Save[key] or {};
+    return GRM_PlayerListOfAlts_Save[key];
 
 end
 
@@ -176,6 +223,7 @@ end
 -- What it Does:    Returns the database of alts for the given guild or current guild
 -- Purpose:         Call the data easily.
 GRM.GetGuildAlts = function ( name )
+    if not HAS_CLUB then return nil end
     if name then
         return GRM_Alts[name];
     else
@@ -187,6 +235,7 @@ end
 -- What it Does:    Returns the info provided by the Club API on a member
 -- Purpose:         The GetGuildRosterInfo provides some info that Club API does not, and the club API provides some info the guild API does not. This is an easy lookup by name.
 GRM.GetClubMemberInfo = function ( playerName , clubID )
+    if not HAS_CLUB then return nil end
     local result;
     clubID = clubID or C_Club.GetGuildClubId();
 
@@ -214,6 +263,7 @@ end
 -- What it Does:    Returns the player details using the GetGuildRosterInfo, using playerName and GUID
 -- Purpose:         To Accomodate pulling player data when the club API is not working properly
 GRM.GetGuildRosterInfo_ClassicMethod = function ( playerName , asArray , guid )
+    if not HAS_CLUB then return nil end
     for i = 1, GRM.G_Util.GetNumGuildies() do
         local player_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , player_guid = GetGuildRosterInfo(i);
         if player_name == playerName then
@@ -233,6 +283,7 @@ end
 -- What it Does:    Returns the Club member info, as well as their full name-serverName
 -- Purpose:         It is necessary to have the full player-serverName, but the Club API only returns the slim non-server name. This ensures you have their full name as well by utilizing the guid.
 GRM.GetMemberInfoWithFullName = function ( memberID , clubID )
+    if not HAS_CLUB then return nil end
     clubID = clubID or C_Club.GetGuildClubId();
 
     local memberInfo = C_Club.GetMemberInfo ( clubID , memberID );
@@ -249,6 +300,7 @@ end
 -- What it Does:    Returns a list of all current members of the guild in alphabetical order
 -- Purpose:         Occasionally you want a list of guild members.
 GRM.GetListOfGuildies = function( slimName )
+    if not HAS_CLUB then return nil end
     local list = {};
     local members = C_Club.GetClubMembers ( GRM_G.gClubID );
     local fullName = "";

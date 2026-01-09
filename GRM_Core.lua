@@ -343,6 +343,12 @@ GRM_G.raceIDEnum = {};
 GRM_G.classFileIDEnum = {};
 
 
+
+-- Compatibility guards
+
+-- Compatibility guards
+local HAS_CALENDAR = (C_Calendar and C_Calendar.GetMonthInfo and C_Calendar.GetNumDayEvents and C_Calendar.GetDayEvent)
+local HAS_CLUB = (C_Club and C_Club.GetGuildClubId and C_Club.GetClubMembers and C_Club.GetMemberInfo)
 local AllClasses = {"Deathknight", "Demonhunter", "Druid", "Evoker", "Hunter", "Mage", "Monk", "Paladin", "Priest",
                     "Rogue", "Shaman", "Warlock", "Warrior"}; -- This is only here as an alphabetized list
 
@@ -1622,6 +1628,7 @@ end
 -- What it Does:    Initializes the chat coloring of names
 -- Purpose:         To give the ability to colorize the names in chat and the roster on control - as the default interface in Classic did not have that.
 GRM.SetChatColoring = function()
+    if not HAS_CLUB then return nil end
     if GRM.S() and GRM.S().colorizeClassicRosterNames then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetChecked(
             true);
@@ -1649,6 +1656,7 @@ end
 -- What it Does:    Returns the index number to the corresponding frame
 -- Purpose:         To coordinate in resetting default settings based on the specific frame the player is on.
 GRM.GetPageIndex = function()
+    if not HAS_CLUB then return nil end
     local allFrames = {
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame] = 1,
         [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame] = 2,
@@ -1674,6 +1682,7 @@ end
 -- What it Does:    Resets the OPTIONS to the default one for only the currently logged in player
 -- Purpose:         Easy, quality of life for user in the options, for simple reset.
 GRM.ResetDefaultSettings = function(pageIndex)
+    if not HAS_CLUB then return nil end
     local page = pageIndex or GRM.GetPageIndex();
     local needsRefresh = false;
     local resetAll = false;
@@ -1760,6 +1769,7 @@ end
 -- What it Does:    Returns a string pattern to match for addon to addon comm parsing
 -- Purpose:         to easily build and create patterns as needed for comms.
 GRM.BuildComPattern = function(numItems, delimiter, delimiterIsOnEnd)
+    if not HAS_CLUB then return nil end
     local result = "";
 
     for i = 1, numItems do
@@ -1787,6 +1797,7 @@ end
 -- What it Does:    Returns the count of the number of keyed entries in a table
 -- Purpose:         Generic use iterator to return count since '#' only works on string length and arrays length
 GRM.GetNumKeyedEntries = function(t)
+    if not HAS_CLUB then return nil end
     local c = 0;
 
     for x in pairs(t) do
@@ -1802,6 +1813,7 @@ end
 -- What it Does:    Reports back if player has the cursor over a given guild window
 -- Purpose:         Since there is no right-click trigger, this detects the popup window use, and it will only pin the window properly *IF* it is the appropriate time due to the reusability of this window by Warcraft
 GRM.IsMouseOverAnyChatWindowIncludingCommunities = function()
+    if not HAS_CLUB then return nil end
     local result = false;
     local name = "";
     local server = "";
@@ -2424,6 +2436,7 @@ end
 -- Purpose:         Some of the code needs to be localized only on the front end, but the backend code is based on some English variables
 --                  This allows the localized data to be presented to the user, but on the backend to cycle back to the hash key for parse analysis.
 GRM.OrigL = function(localizedString)
+    if not HAS_CLUB then return nil end
     local result = localizedString;
     -- if it is not nil, then we know we already have the OrigL
     if GRM_L[localizedString] == nil then
@@ -2441,6 +2454,7 @@ end
 -- What it Does:    It ensures that no matter what the localization/translation, the hitRects mnatch up to the text length perfectly
 -- Purpose:         Quality of life
 GRM.NormalizeHitRects = function(checkButton, checkButtonFontstring, modifier, reverse)
+    if not HAS_CLUB then return nil end
     local n = modifier or 0;
 
     if not reverse then
@@ -2454,6 +2468,7 @@ end
 -- What it Does:    Returns a given number with the given number of requested decimals places.
 -- Purpose:         Clean reporting and aesthetics...
 GRM.Round = function(num, numDecimals)
+    if not HAS_CLUB then return nil end
     local modifier = 10 ^ (numDecimals or 0);
     return math.floor(num * modifier + 0.5) / modifier;
 end
@@ -2462,10 +2477,12 @@ end
 -- What it Does:    Returns a random number with millisecond precision
 -- Purpose:         Default built-in random number generator not precise enough.
 GRM.Random = function(lower, upper)
+    if not HAS_CLUB then return nil end
     return GRM.Round(lower + (upper * math.random()), 2);
 end
 
 GRM.DeepCopySelfRefProtection = function(original, copies)
+    if not HAS_CLUB then return nil end
     copies = copies or {}; -- Table to keep track of visited tables
 
     local copy;
@@ -2491,6 +2508,7 @@ end
 -- What it Does:    Takes a Lua table and converts it to a standard array, with option to sort
 -- Purpose:         Useful when needing to cycle through a table alphabetically.
 GRM.ConvertTableToArray = function(data, needToSort)
+    if not HAS_CLUB then return nil end
     local result = {};
 
     for a in pairs(data) do
@@ -2508,6 +2526,7 @@ end
 -- What it Does:    Takes a dictionary table and converts it to a 2D array, then allows you to sort it alphabetically.
 -- Purpose:         Useful when taking apart tables, like in sync - easier to go through in an ordered list.
 GRM.ConvertTableTo2DArray = function(dataToConvert, needToSort)
+    if not HAS_CLUB then return nil end
     local result = {};
     for a, b in pairs(dataToConvert) do
         table.insert(result, {a, b});
@@ -2530,6 +2549,7 @@ end
 -- What it Does:    Adds a backup point of the given selected guild.
 -- Purpose:         Save your database as needed.
 GRM.AddGuildBackup = function(guildName, creationDate)
+    if not HAS_CLUB then return nil end
 
     if creationDate ~= GRM.L("Unknown") then
 
@@ -2560,6 +2580,7 @@ end
 -- What it Does:    Removes a Backup Point for the guild...
 -- Purpose:         Database Backup Management
 GRM.RemoveGuildBackup = function(guildName, isTransfer)
+    if not HAS_CLUB then return nil end
 
     if GRM_GuildDataBackup_Save[guildName] ~= nil then
         local creationDate = GRM_GuildDataBackup_Save[guildName].guildCreationDate;
@@ -2585,6 +2606,7 @@ end
 -- What it Does:    Restores backup point of a guild
 -- Purpose:         Database Backup Management
 GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
+    if not HAS_CLUB then return nil end
 
     local guildName = guild or GRM_G.guildName;
 
@@ -2697,6 +2719,7 @@ end
 -- What it Does:    Converts all of the server names of the players on the saved guild DB to the new server, in case of a guild transfer
 -- Purpose:         Restore all guild data easily when transferring servers.
 GRM.ChangeServerNameOfAll = function(guildData, newServerName, isAlts, addFlag, oldRoster, isMains)
+    if not HAS_CLUB then return nil end
 
     local newGuildData = {};
 
@@ -2786,6 +2809,7 @@ end
 -- What it Does:    Completely purges a guild from the player database... that it is not currently logged into
 -- Purpose:         Cleanup old guild data from a guild the player is no longer a part of.
 GRM.PurgeGuildFromDatabase = function(guildName)
+    if not HAS_CLUB then return nil end
     local finalMsg = true;
 
     if guildName == GRM_G.guildName then
@@ -2828,6 +2852,7 @@ end
 -- What it Does:    Prints out the Debug Log the last X number of items that occurred before logging off or disconnecting.
 -- Purpose:         Occasionally disconnects happen. This will let me know what happened!
 GRM.DebugLog = function(numToShow)
+    if not HAS_CLUB then return nil end
     local index;
     if numToShow < 0 or #GRM_G.DebugLog - numToShow < 0 then
         index = 0;
@@ -2846,6 +2871,7 @@ end
 -- What it Does:    Addes messages of recent events to debug log...
 -- Purpose:         Debugging tracking
 GRM.AddDebugMessage = function(msg)
+    if not HAS_CLUB then return nil end
     -- To prevent too large of a debug log...
     if msg == "" then
         msg = "Empty Msg";
@@ -2866,6 +2892,7 @@ end
 -- What it Does:    Enables debugging messages
 -- Purpose:         Get rid of need of 2 sets of programs... just enable and disable.
 GRM.DebugMessages = function()
+    if not HAS_CLUB then return nil end
     if GRM_G.DebugMsgEnabled then
         GRM_G.DebugMsgEnabled = false;
         GRM.Report(GRM.L("Debugging Enabled"));
@@ -2883,6 +2910,7 @@ end
 -- What it Does:    Returns the epoch stamp of when a player joined a guild or community
 -- Prupose:         Useful to know exact date...
 GRM.GetClubEpochJoinTime = function(clubID)
+    if not HAS_CLUB then return nil end
     local info = C_Club.GetClubInfo(clubID);
     local result = -1;
     if info then
@@ -7366,8 +7394,8 @@ end
 -- What it does:    First, it adds a new player to the saved list. This basically builds a metadata profile. Then, we add that player to players that left, then remove it from current guildies list.
 -- Purpose:         If a player installs the addon AFTER people have left the guild, for example, you need to know their details to have them on the ban list. This builds a profile if another sync'd player has them banned
 --                  as you cannot just add the name as banned, you literally have to build a full metadata file for them for it to work properly in the case that they return to the guild.
-GRM.AddMemberToLeftPlayers = function(memberInfo, timeArray, standardTime, epohcTimeStampJoined, personWhoBanned,
-    checkFriendsList)
+GRM.AddMemberToLeftPlayers = function(memberInfo, timeArray, standardTime, epohcTimeStampJoined, personWhoBanned, checkFriendsList)
+    if not HAS_CLUB then return nil end
     -- First things first, add them!
     GRM.AddMemberRecord(memberInfo, false, nil);
 
@@ -7433,6 +7461,7 @@ end
 -- What it Does:    Cleans up a possible extra empty add bug due to some old legacy code errors.
 -- Purpose:         Prevent downstream errors.
 GRM.JoinAndRankDataCleanup = function(player)
+    if not HAS_CLUB then return nil end
 
     if #player.joinDateHist > 1 then
         for i = #player.joinDateHist, 2, -1 do
@@ -7458,6 +7487,7 @@ end
 -- What it Does:    Sets the join date that is pulled from the server for the CURRENT player
 -- Purpose:         With 8.0 changes the join date for the current player can be imported automatically.
 GRM.ImportJoinDate = function(gName)
+    if not HAS_CLUB then return nil end
     local name = gName or "";
 
     if IsInGuild() then
@@ -7803,44 +7833,66 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
             end
         end);
 
-        EventButtons:SetScript("OnUpdate", function(self, elapsed)
-            self.timer = self.timer + elapsed;
-            if self.timer > 0.1 then
-                if self:IsMouseOver() and calendarQ[i] ~= nil then
+        -- Tooltip updates were previously handled by an always-on OnUpdate.
+        -- That pattern can be very CPU heavy, so we now run a lightweight ticker ONLY while hovered.
+        local function GRM_UpdateEventTooltip(self)
+    if self:IsMouseOver() and calendarQ[i] ~= nil then
 
-                    if EventButtonsText3:IsMouseOver(9, -9, -9, 9) then -- Since the button is large, the text needs to compensate.
+                        if EventButtonsText3:IsMouseOver(9, -9, -9, 9) then -- Since the button is large, the text needs to compensate.
 
-                        GRM.RestoreTooltip();
-                        GRM_UI.SetTooltipScale();
-                        GameTooltip:SetOwner(self, "ANCHOR_CURSOR");
-                        GameTooltip:AddLine("|cFFFFFFFF" .. string.upper(GRM.L("Full Description:")));
-                        GameTooltip:AddLine(calendarQ[i][6], 1.0, 0.84, 0, true);
-                        GameTooltip:Show();
-
-                    elseif GameTooltip:IsVisible() then
-                        local player = GRM.GetPlayer(calendarQ[i][1]);
-
-                        if player then
                             GRM.RestoreTooltip();
                             GRM_UI.SetTooltipScale();
-                            GameTooltip:SetOwner(EventButtons, "ANCHOR_CURSOR");
-                            GameTooltip:AddLine(GRM.GetClassifiedName(calendarQ[i][1], false));
-                            GameTooltip:AddDoubleLine(GRM.L("Last Online"), GRM.Time.HoursReport(player.lastOnlineTime), 1, 0, 0, 1, 0.84, 0);
-                            GameTooltip:AddDoubleLine(" ", " ");
-
-                            GameTooltip:AddLine(GRM.L("|CFFE6CC7FClick|r to select player event"));
-                            GameTooltip:AddLine(GRM.L("{custom1} to open Player Window", nil, nil, nil,
-                                "|CFFE6CC7F" .. GRM.L("Ctrl-Click") .. "|r"));
-                            GameTooltip:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
-                                "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
+                            GameTooltip:SetOwner(self, "ANCHOR_CURSOR");
+                            GameTooltip:AddLine("|cFFFFFFFF" .. string.upper(GRM.L("Full Description:")));
+                            GameTooltip:AddLine(calendarQ[i][6], 1.0, 0.84, 0, true);
                             GameTooltip:Show();
-                        end
-                    end
 
-                end
-                self.timer = 0;
+                        elseif GameTooltip:IsVisible() then
+                            local player = GRM.GetPlayer(calendarQ[i][1]);
+
+                            if player then
+                                GRM.RestoreTooltip();
+                                GRM_UI.SetTooltipScale();
+                                GameTooltip:SetOwner(EventButtons, "ANCHOR_CURSOR");
+                                GameTooltip:AddLine(GRM.GetClassifiedName(calendarQ[i][1], false));
+                                GameTooltip:AddDoubleLine(GRM.L("Last Online"), GRM.Time.HoursReport(player.lastOnlineTime), 1, 0, 0, 1, 0.84, 0);
+                                GameTooltip:AddDoubleLine(" ", " ");
+
+                                GameTooltip:AddLine(GRM.L("|CFFE6CC7FClick|r to select player event"));
+                                GameTooltip:AddLine(GRM.L("{custom1} to open Player Window", nil, nil, nil,
+                                    "|CFFE6CC7F" .. GRM.L("Ctrl-Click") .. "|r"));
+                                GameTooltip:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
+                                    "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
+                                GameTooltip:Show();
+                            end
+                        end
+
+                    end
+                
+        end
+
+        EventButtons:SetScript("OnEnter", function(self)
+            if self.GRM_TooltipTicker then
+                self.GRM_TooltipTicker:Cancel();
+                self.GRM_TooltipTicker = nil;
+            end
+            -- Update immediately, then every 0.1s while hovered.
+            GRM_UpdateEventTooltip(self);
+            self.GRM_TooltipTicker = C_Timer.NewTicker(0.1, function()
+                GRM_UpdateEventTooltip(self);
+            end);
+        end);
+
+        EventButtons:SetScript("OnLeave", function(self)
+            if self.GRM_TooltipTicker then
+                self.GRM_TooltipTicker:Cancel();
+                self.GRM_TooltipTicker = nil;
+            end
+            if GameTooltip and GameTooltip:IsVisible() then
+                GameTooltip:Hide();
             end
         end);
+
 
         -- Logic
         EventButtons:SetScript("OnClick", function(self, button)
@@ -11644,6 +11696,7 @@ end
 -- What it Does:    Searches for all matches of this birthdate, and resets them to default empty value
 -- Purpose:         Help cleanup a bug introduced from 1.33
 GRM.CleanupBirthdays = function(day, month, forceOthers, g)
+    if not HAS_CALENDAR then return nil end
     if type(day) == "number" and type(month) == "number" then
         if day > 0 and day < 32 and month > 0 and month < 13 then
             local guildData = g or GRM.GetGuild();
@@ -11696,6 +11749,7 @@ end
 -- What it Does:    Returns the year of the given event from timestamp
 -- Purpose:         Keep code clutter down, put this block in reusable form.
 GRM.GetEventYear = function(timestamp)
+    if not HAS_CALENDAR then return nil end
     -- timestamp format = "Day month year hour min"
     local result = 0;
     if timestamp ~= "" and timestamp ~= nil then
@@ -11708,6 +11762,7 @@ end
 -- What it Does:    Returns the 3 letter string of the name of the month of the event.
 -- Purpose:         Again, avoid code cludder. For event tracking, knowing exact date is essential.
 GRM.GetEventMonth = function(timestamp)
+    if not HAS_CALENDAR then return nil end
     if timestamp == "" or timestamp == nil then
         return nil;
     else
@@ -11719,6 +11774,7 @@ end
 -- What it Does:    Returns the integer index representative of the month of the year. Jan = 1 and Dec = 12
 -- Purpose:         Accessibility to Enum from outside this class.
 GRM.GetEventMonthEnumResult = function(month)
+    if not HAS_CALENDAR then return nil end
     return GRM.Time.Enums.abbrev_month_ind[month];
 end
 
@@ -11726,6 +11782,7 @@ end
 -- What it Does:    Returns the number of the day, as a string, based on day of the month for given event timestamp
 -- Purpose:         Important to know what day event should happen on.
 GRM.GetEventDay = function(timestamp)
+    if not HAS_CALENDAR then return nil end
     if timestamp == "" or timestamp == nil then
         return nil;
     else
@@ -11737,6 +11794,7 @@ end
 -- What it Does:    Returns true if the event has already been added to the calendar
 -- Purpose:         If the player wipes his save history, it does not wipe what is added to in-game calendar. This just double-checks to avoid double adding.
 GRM.IsCalendarEventAlreadyAdded = function(name, title, day, month, year, typeIndex)
+    if not HAS_CALENDAR then return nil end
 
     local titleGeneric, titleGeneric2 = "","";
     if typeIndex == 1 then
@@ -11801,6 +11859,7 @@ end
 -- What it Does:    Removes the player/event from the global Calendar Add Que table
 -- Purpose:         Keep the Que Clean
 GRM.RemoveFromCalendarQue = function(name, index, eventName)
+    if not HAS_CALENDAR then return nil end
     local calendarQ = GRM.GetEvents();
 
     for i = 1, #calendarQ do
@@ -11822,12 +11881,14 @@ end
 -- What it Does:    Adds a popup window to confirm if the player wishes to remove all the players from the calendar que and then does that if confirmed
 -- Purpose:         Give the option for the player to more easily clean up the calendar que.
 GRM.RemoveAllFromEventQue = function()
+    if not HAS_CALENDAR then return nil end
     local msg = "";
     local calendarQ = GRM.GetEvents();
     local num = #calendarQ;
 
     -- Function for the popup window
     local removeAllEvents = function()
+    if not HAS_CALENDAR then return nil end
         GRM_CalendarAddQue_Save[GRM_G.guildName] = {};
         GRM.Report(GRM.L("All events have been removed."));
 
@@ -11857,6 +11918,7 @@ end
 -- What it Does:    It checks the Add Que list, if the event is already on the calendar, then it removes it from the addque list.
 -- Purpose:         In case other players add items to the calendar, this keeps it clean.
 GRM.CalendarQueCheck = function()
+    if not HAS_CALENDAR then return nil end
     if GRM_G.BuildVersion >= 30000 then
         local calendarQ = GRM.GetEvents();
 
@@ -11873,6 +11935,7 @@ end
 -- What it Does:    Returns the proper string of the annivesary events, both formats. One for UI display, and one for readabilty
 -- Purpose:         For the addon feature of reporting and adding the anniversary to the calendar.
 GRM.GetAnniversaryLogReport = function(name, class, numYears)
+    if not HAS_CALENDAR then return nil end
     local result;
     local classifiedName = GRM.GetClassColorRGB(class, true) .. GRM.SlimName(name) .. "|r";
 
@@ -11888,6 +11951,7 @@ end
 -- What it Does:    Returns the proper string of the birthday events, both formats. One for UI display, and one for readabilty
 -- Purpose:         For the addon feature of reporting and adding the anniversary to the calendar.
 GRM.GetBirthdayLogReport = function(name, class)
+    if not HAS_CALENDAR then return nil end
     local classifiedName = GRM.GetClassColorRGB(class, true) .. GRM.SlimName(name) .. "|r";
 
     return GRM.L("Happy Birthday, {name}!", classifiedName);
@@ -11897,6 +11961,7 @@ end
 -- What it Does:    Returns the proper string of the custom events, both formats. One for UI display, and one for readabilty
 -- Purpose:         For the addon feature of reporting and adding the anniversary to the calendar.
 -- GRM.GetCustomEventReport = function ( name , numYears , eventDate )
+    if not HAS_CALENDAR then return nil end
 --     local result , result2;
 
 --     return result , result2;
@@ -11906,6 +11971,7 @@ end
 -- What it Does:    It checks if the event is on the eventsLog announcecment, and then if so, removes it.
 -- Purpose:         Events log needs to be adjusted as the player adjusts the settings. This is used for many conditions, so it keeps it in one reusable function.
 GRM.ResetPlayerEvent = function(name, index, eventName)
+    if not HAS_CALENDAR then return nil end
     if GRM.IsOnAnnouncementList(name, index, eventName) then
         GRM.RemoveFromCalendarQue(name, index, eventName);
     end
@@ -11915,6 +11981,7 @@ end
 -- What it Does:    If the player is not found in the guild but they are still on the event list, just dump the event list.
 -- Purpose:         Cleanup events QoL
 GRM.CleanupEventsFromplayers = function()
+    if not HAS_CALENDAR then return nil end
     local cleanupHappened = false;
     local calendarQ = GRM.GetEvents();
 
@@ -11936,6 +12003,7 @@ end
 -- What it Does:    Inserts new event sorted by date, and if the same day, then sorted by name order
 -- Purpose:         Cleanly insert the event into the array in order of date most soon, for UI purposes
 GRM.InsertNewEvent = function(name, title, eventDay, eventMonthIndex, finalYear, description, typeEvent)
+    if not HAS_CALENDAR then return nil end
     local standardDateTime = tonumber(GRM.Time.ConvertToStandardFormatDate(eventDay, eventMonthIndex, finalYear));
     local calendarQ = GRM.GetEvents();
 
@@ -11994,6 +12062,7 @@ end
 --                  be linked to a button on the "GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame" window. Again, this cannot be activated, it WILL NOT WORK without
 --                  in-game action to remove protection on function
 GRM.AddAnnouncementToCalendar = function(title, eventMonthIndex, eventDay, year, description)
+    if not HAS_CALENDAR then return nil end
     C_Calendar.CloseEvent() -- Just in case previous event was never closed, either by other addons or by player
     local month, day, _, hourServer, minServer = select(2, GRM.Time.GetTodaysDate());
     if not hourServer then
@@ -15411,6 +15480,7 @@ end
 -- What it Does:    Purges literally ALL saved data, then rebuilds it from scratch as if addon was just installed.
 -- Purpose:         Clear data for any purpose needed.
 GRM.ResetAllSavedData = function()
+    if not HAS_CLUB then return nil end
     GRM.Report(GRM.L("Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."));
 
     GRM_GuildMemberHistory_Save = nil;
@@ -15476,6 +15546,7 @@ end
 -- What it Does:    Purges all saved data from the guild and only the guild...
 -- Purpose:         Sometimes you don't want to reset everything... just the guild.
 GRM.ResetGuildSavedData = function(guildName)
+    if not HAS_CLUB then return nil end
     -- Removing Players that left saved metadaa
     GRM_PlayersThatLeftHistory_Save[guildName] = nil;
 
@@ -15538,6 +15609,7 @@ end
 -- What it Does:    Live checks when a player joins the guild and reports on it
 -- Purpose:         For live detection use separate than on scheduled scan
 GRM.CheckForNewPlayer = function( name )
+    if not HAS_CLUB then return nil end
     local isFound = false;
 
     -- Error protection if player leaves guild within the 1 second someone joins
@@ -22028,11 +22100,20 @@ GRM.SlashCommandSync = function(count)
 
                     GRMsyncGlobals.reloadControl = false; -- Remove the hold on the first sync if it applies.
 
-                    -- if not GRMsyncGlobals.SyncTracker.TriggeringSync then
-                    --     GRMsyncGlobals.SyncTracker.TriggeringSync = true;
-                    --     GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Initializing Sync. One Moment..." ) );
-                    --     GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
-                    -- end
+                    -- Classic 1.15.8: the Progress Tracker window expects these flags to be set
+                    -- so it can display that a sync attempt is in progress.
+                    if GRM_UI and GRM_UI.GRM_SyncTrackerWindow and not GRMsyncGlobals.SyncTracker.TriggeringSync then
+                        GRMsyncGlobals.SyncTracker.TriggeringSync = true;
+                        GRMsyncGlobals.progStart = time();
+                        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Initializing Sync. One Moment..." ) );
+                        if GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton and GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:IsVisible() then
+                            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Hide();
+                        end
+                        if GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar then
+                            GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+                            GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Show();
+                        end
+                    end
 
                     GRM_G.slashCommandSyncTimer = time();
 
@@ -22614,6 +22695,7 @@ end
 
 -- SLASH COMMAND LOGIC
 SlashCmdList["ROSTER"] = function(input)
+    if not HAS_CLUB then return nil end
 
     local isAlreadyReported = false;
 
@@ -22632,6 +22714,7 @@ end
 
 -- SLASH COMMAND LOGIC
 SlashCmdList["GRM"] = function(input)
+    if not HAS_CLUB then return nil end
     -- if input is invalid or is just a blank info... print details on addon.
     local command;
     local alreadyReported = false;
@@ -22768,6 +22851,7 @@ end
 --                      "GuildRoster()" needs to fire for this to activate as it creates the following 4 listeners this is looking for: GUILD_ROSTER_UPDATE
 -- Purpose:             Create an Event Listener for the Guild Roster Frame in the guild window ('J' key)
 GRM.InitiateMemberDetailFrame = function()
+    if not HAS_CLUB then return nil end
     if not GRM_G.FramesInitialized then
         GRM_G.FramesInitialized = true;
 
@@ -22787,6 +22871,7 @@ end
 -- What it Does:    Initializes general important frames that are not in relations to the guild roster window.
 -- Purpose:         By walling this off, it allows far greater resource control rather than needing to initialize entire UI.
 GRM.AllRemainingNonDelayFrameInitialization = function()
+    if not HAS_CLUB then return nil end
     UI_Events:RegisterEvent("PLAYER_LOGOUT");
 end
 
@@ -22794,6 +22879,7 @@ end
 -- What it Does:    It establishes the properly formated guildName as well as the clubID
 -- Purpose:         Why cycle through the guilds over and over again to find the position, when you can store the index of the database in the array with a simple global variable? Massive resource save!
 GRM.ConfigureGuild = function()
+    if not HAS_CLUB then return nil end
     -- Configure the guild
     if GRM_G.guildName == "" or not GRM.GetGuild() then
         local guildName, _, _, server = GetGuildInfo("PLAYER");
@@ -22890,6 +22976,7 @@ end
 -- Purpose:         You do not want to trigger and initialize the addon to sync with others until this initial process is completed after login. It could take just a few seconds to complete
 --                  particularly due to players who have removed many many from the guild and have limited friends slot places to determine their server status with the add frienc, check, remove trick
 GRM.InitializePreCheck = function(recursive)
+    if not HAS_CLUB then return nil end
     if not GRM_G.InitializePreCheck or recursive then
         GRM_G.InitializePreCheck = true;
         if not GRM_G.OnFirstLoad then
@@ -22911,6 +22998,7 @@ end
 -- What it Does:    Initializes the first check on login after configuring all the initial details for guild
 -- Purpose:         Control flow of data inquiries
 GRM.TrackingConfiguration = function(forced)
+    if not HAS_CLUB then return nil end
     if IsInGuild() and (not GRM_G.trackingTriggered or forced) then
 
         GRM_G.trackingTriggered = true;
@@ -23073,6 +23161,7 @@ end
 -- What it Does:    It basically recursively waits til the conditions are met and the server properly retrieved the guildCreationDate
 -- Purpose:         If a guild is on more than one server with the same name, that can complicate things. This helps idenitfy the server by the creation date as well...
 GRM.DelayForGuildInfoCallback = function()
+    if not HAS_CLUB then return nil end
     if GRM_G.guildCreationDate == "" then
         GRM.SetGuildInfoDetails();
         GRM.GuildRoster();

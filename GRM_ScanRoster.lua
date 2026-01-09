@@ -1,5 +1,8 @@
 -- For all scanning of the roster and the live updates of the roster as they occur.
 
+
+-- Compatibility guards
+local HAS_CLUB = (C_Club and C_Club.GetGuildClubId and C_Club.GetClubMembers and C_Club.GetMemberInfo)
 local Scan = {};
 GRM.Scan = Scan;
 
@@ -86,6 +89,7 @@ end
 -- What it does:    Rebuilds the roster to check against for any changes.
 -- Purpose:         To track for guild changes of course!
 Scan.BuildNewRoster = function( forceScan )
+    if not HAS_CLUB then return nil end
     -- Prevent overlapping scans
     if not forceScan then
         if GRM_G.CurrentlyScanning or Scan.ScanKillSwitch() or GRM_G.MacroInProgress then
@@ -115,6 +119,7 @@ end
 --                  a cleaned up version of the name
 -- Purpose:         Bandaid Blizz's bug til they fix it.
 Scan.CleanUpNameRepeatedServer = function( name )
+    if not HAS_CLUB then return nil end
 
     local _ , count = name:gsub("-","-"); -- Not actually replacing, just getting count so replacing with itself.
     if count > 1 then
@@ -129,6 +134,7 @@ end
 -- What it Does:    Builds the roster using GetGuildRosterInfo, throttled.
 -- Purpose:         Avoid script timeouts during the initial roster build phase, particularly for large guilds
 Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, count , liveRosterSnapshot )
+    if not HAS_CLUB then return nil end
 
     -- Leave an exit if player quits guild in middle of scan
     if not IsInGuild() then
@@ -275,6 +281,7 @@ end
 -- What it Does:    Returns the full club member data
 -- Purpose:         Easy access using Club Communities API
 Scan.GetClubMemberTable = function()
+    if not HAS_CLUB then return nil end
     local members = C_Club.GetClubMembers(GRM_G.gClubID);
     local clubMemberTable = {};
     for i = 1 , #members do
@@ -290,6 +297,7 @@ end
 -- What it Does:    Quickly builds a member reference table by GUID of the roster index location
 -- Purpose:         Avoid big O n^2 notation by building the table in one loop for reference rather than looping check each player.
 Scan.GetGuildMemberIndexTable = function()
+    if not HAS_CLUB then return nil end
     local roster = {};
     for i = 1, GRM.G_Util.GetNumGuildies() do
         local player_guid = select ( 17 , GetGuildRosterInfo(i) );
@@ -304,6 +312,7 @@ end
 -- What it Does:    Throttles the querying of the data by the Communities C_Club API. This server call seems much slower and can overload if too fast.
 -- Purpose:         Avoid stutter.
 Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , members , index )
+    if not HAS_CLUB then return nil end
     -- Leave an exit if player quits guild in middle of scan
     if not IsInGuild() then
         GRM_G.CurrentlyScanning= false;
@@ -385,6 +394,7 @@ end
 -- What it Does:    Performs the final checks and processing after roster data is gathered.
 -- Purpose:         To complete the scan cycle after operations.
 Scan.FinalizeRosterBuild = function( roster, orderedRoster, count )
+    if not HAS_CLUB then return nil end
     -- For some reason, on occasion the entire guild DB doesn't load on the full server query...
     -- Check if the built roster size matches expected size (minus duplicates counted)
     local expectedSize = GRM.G_Util.GetNumGuildies() - count;
@@ -431,6 +441,7 @@ end
 -- What it Does:    Allows the scanning for recommendations to be completely asynchronously and thne only to move on to here when done
 -- Purpose:         Prevent overload and stuttering in game when processing large guilds with many macro rules.
 Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
+    if not HAS_CLUB then return nil end
     -- Only moves forward once Async Recommendations scan process is finished.
     if Scan.currentScanState and Scan.currentScanState.isRunning then
         C_Timer.After(0.1 , function()
@@ -459,6 +470,7 @@ end
 -- What it Does:    Guild namechange detection
 -- Purpose:         Determine if it is a guild nameChange and if so, to convert DB to new name without losing everything.
 Scan.BuildNewGuildOrNameChange = function(roster )
+    if not HAS_CLUB then return nil end
 
     local guildNameChanged, currentGuildName, oldGuildName = Scan.GuildNameChanged(GRM_G.guildName);
 

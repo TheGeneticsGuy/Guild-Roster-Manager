@@ -28,6 +28,8 @@ GRMsyncGlobals.InitializeTime = 0;                  -- to ensure no crossover ta
 -- in the case that they may be syncing with another player already. Depending on the amount of data transferring, and the size of the guild, sync can take some time due to the 4kb/sec cap for ALL addons.
 -- Based on server response time, per person. At least, initially. Live Sync updates happen near instantly.
 GRMsyncGlobals.SyncQue = {};
+GRMsyncGlobals.SyncQueuePos = 0;           -- 1-based index of the current sync target in this queue run
+GRMsyncGlobals.SyncQueueTotal = 0;         -- Total targets in this queue run (dynamic; includes already-processed)
 
 -- SYNC START AND STOP CONTROLS
 
@@ -250,21 +252,22 @@ end);
 
 -- Keeps track of the framerate as the lower the framerate, as in, less than 20FPS, it can hamper the ability to send messages without disconnecting.
 -- This throttles it down by 0.5 or it resets them. Weird anomaly but thoroughly tested
-InstanceManager:SetScript ( "OnUpdate" , function ( self , elapsed )
-    self.OnUpdateDelay = self.OnUpdateDelay + elapsed;
-    if self.OnUpdateDelay < 0.08 then
-        return;
-    end
-    self.OnUpdateDelay = 0;
+-- FPS monitor (ticker-based to avoid per-frame OnUpdate cost)
+if InstanceManager.GRM_FpsTicker then
+    InstanceManager.GRM_FpsTicker:Cancel();
+    InstanceManager.GRM_FpsTicker = nil;
+end
+InstanceManager.GRM_FpsTicker = C_Timer.NewTicker(0.08, function()
     local framerate = GetFramerate();
-    if framerate < GRMsyncGlobals.minFPS and self.StatusFlip < 2 then
-        self.StatusFlip = 2;
+    if framerate < GRMsyncGlobals.minFPS and InstanceManager.StatusFlip < 2 then
+        InstanceManager.StatusFlip = 2;
         GRMsyncGlobals.ThrottleCap = ( GRMsyncGlobals.ThrottleCap * 0.5 );
-    elseif framerate >= GRMsyncGlobals.minFPS and self.StatusFlip > 1 then
-        self.StatusFlip = 1;
+    elseif framerate >= GRMsyncGlobals.minFPS and InstanceManager.StatusFlip > 1 then
+        InstanceManager.StatusFlip = 1;
         GRMsyncGlobals.ThrottleCap = ( GRMsyncGlobals.ThrottleCap * 2 );
     end
 end);
+
 
 -- Method:          GRMsync.MessageThrottleUpdate ( frame , float )
 -- What it Does:    Changes the throttle cap to the much lower default cap after the player has entered the world for 15 seconds.
@@ -319,6 +322,8 @@ GRMsync.ResetDefaultValuesOnSyncReEnable = function()
     GRMsyncGlobals.currentlySyncing = false;
     GRMsyncGlobals.ElectionProcessing = false;
     GRMsyncGlobals.SyncQue = {};
+GRMsyncGlobals.SyncQueuePos = 0;           -- 1-based index of the current sync target in this queue run
+GRMsyncGlobals.SyncQueueTotal = 0;         -- Total targets in this queue run (dynamic; includes already-processed)
     GRMsyncGlobals.InitializeTime = 0;
     GRMsyncGlobals.firstSync = true
     GRMsyncGlobals.refreshCount = 0;
@@ -467,7 +472,11 @@ GRMsync.ResetSyncTracker = function()
     end
 
     if not GRMsyncGlobals.currentlySyncing then
-        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
+        if #GRMsyncGlobals.SyncQue > 0 then
+                GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( "Queued Sync Requests: " .. tostring ( #GRMsyncGlobals.SyncQue ) );
+            else
+                GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
+            end;
     end
 
     GRMsyncGlobals.BanValue = 0;
@@ -795,6 +804,47 @@ GRMsync.LiveTracking = function()
 
     end
 
+    -- Classic 1.15.8: The upstream project had the detailed per-phase tracker code
+    -- heavily commented out. To keep the Progress Tracker useful, we provide a
+    -- lightweight “activity” progress bar that moves while a sync attempt is
+    -- running, and snaps to 100% on finish.
+    if GRM_UI and GRM_UI.GRM_SyncTrackerWindow and GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar then
+        local bar = GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar;
+
+        -- If the sync finished, show 100%.
+        if GRMsyncGlobals.SyncTracker.finish then
+            GRM_API.SetProgressBarColor ( bar , { 0.42 , 0.92 , 1 } );
+            GRM_API.TriggerProgressBar ( bar , 100 , 0 );
+        
+        -- If a sync attempt is in progress (starting or currently syncing), pulse the bar.
+        elseif GRMsyncGlobals.SyncTracker.TriggeringSync or GRMsyncGlobals.currentlySyncing then
+            if not bar:IsVisible() then
+                bar:Show();
+            end
+
+            -- Start time for animation.
+            if not GRMsyncGlobals.progStart or GRMsyncGlobals.progStart == 0 then
+                GRMsyncGlobals.progStart = time();
+            end
+
+            local elapsed = time() - GRMsyncGlobals.progStart;
+            -- Classic 1.15.8: Keep the bar monotonic (no looping) so it doesn't look like it is restarting.
+            -- We avoid showing 100% until the sync is marked finished.
+            local pct = math.floor ( elapsed * 4 ); -- ~4% per second
+            if pct < 1 then pct = 1; end
+            if pct > 95 then pct = 95; end
+
+            GRM_API.SetProgressBarColor ( bar , { 1 , 0 , 0 } );
+            GRM_API.TriggerProgressBar ( bar , pct , 0 );
+        
+        -- Otherwise, keep it hidden unless the user is actively syncing.
+        else
+            if bar:IsVisible() and ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton and GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:IsVisible() ) then
+                bar:Hide();
+            end
+        end
+    end
+
 end
 
 -- Method:          GRMsync.TimeDelayResetTracker()
@@ -875,7 +925,19 @@ GRMsync.SyncTrackerOnShow = function()
                 else
                     --- SYNC IS IN PROGRESS
 
-                    GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Currently Syncing With: {name}" , GRM.GetClassifiedName ( name ) ) );
+                    do
+                        local qPos = GRMsyncGlobals.SyncQueuePos or 0;
+                        local qTotal = GRMsyncGlobals.SyncQueueTotal or 0;
+                        if qTotal == 0 and #GRMsyncGlobals.SyncQue > 0 then
+                            qTotal = ( ( qPos > 0 ) and ( qPos - 1 ) or 0 ) + #GRMsyncGlobals.SyncQue;
+                        end
+                        local baseText = GRM.L ( "Currently Syncing With: {name}" , GRM.GetClassifiedName ( name ) );
+                        if qPos > 0 and qTotal > 0 then
+                            GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( baseText .. " (" .. tostring ( qPos ) .. "/" .. tostring ( qTotal ) .. ")" );
+                        else
+                            GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( baseText );
+                        end
+                    end
 
                     GRM_API.SetProgressBarColor ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } );
                     -- GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , syncProgress[GRMsyncGlobals.trackerPoint][1] , syncProgress[GRMsyncGlobals.trackerPoint][2] );
@@ -947,17 +1009,27 @@ GRMsync.LoadSyncUI = function()
         GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetJustifyH ( "CENTER" );
         GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetWidth ( GRM_UI.GRM_SyncTrackerWindow:GetWidth() - 30 );
         GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetTextColor ( 0.64 , 0.102 , 0.102 );
-        GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Not Currentlly Syncing" ) );
-
-        -- FRAME SCRIPTS
-        GRM_UI.GRM_SyncTrackerWindow:SetScript ( "OnUpdate" , function ( self , elapsed )
-
-            self.timer = self.timer + elapsed;
-            if self.timer >= 1 then
+        
+        -- Live tracking updates (ticker-based to avoid per-frame OnUpdate cost)
+        if GRM_UI.GRM_SyncTrackerWindow.GRM_LiveTrackTicker then
+            GRM_UI.GRM_SyncTrackerWindow.GRM_LiveTrackTicker:Cancel();
+            GRM_UI.GRM_SyncTrackerWindow.GRM_LiveTrackTicker = nil;
+        end
+        GRM_UI.GRM_SyncTrackerWindow.GRM_LiveTrackTicker = C_Timer.NewTicker( 1 , function()
+            -- Only update while the window is shown
+            if GRM_UI and GRM_UI.GRM_SyncTrackerWindow and GRM_UI.GRM_SyncTrackerWindow:IsShown() then
                 GRMsync.LiveTracking();
             end
+        end );
 
-        end);
+        GRM_UI.GRM_SyncTrackerWindow:HookScript ( "OnHide" , function( self )
+            if self.GRM_LiveTrackTicker then
+                self.GRM_LiveTrackTicker:Cancel();
+                self.GRM_LiveTrackTicker = nil;
+            end
+        end );
+
+        GRMsync.LiveTracking();
 
         GRM_UI.GRM_SyncTrackerWindow:SetScript ( "OnShow" , function()
             GRMsync.SyncTrackerOnShow();
@@ -1352,8 +1424,21 @@ GRMsync.SyncTriggerMessage = function ( name )
    GRMsyncGlobals.StartMessage = true;
     if not GRMsyncGlobals.syncTempDelay then
         GRMsync.InitializeRankRestrictionCheck();
-        -- GRMsyncGlobals.SyncTracker.TriggeringSync = true;
-        -- GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Currently Syncing With: {name}" , name ) );
+        -- Classic 1.15.8: keep the progress tracker in a "sync is starting" state so the
+        -- user doesn't see a misleading 0% "Not Currently Syncing" message while the
+        -- leader election / handshake is happening.
+        if GRM_UI and GRM_UI.GRM_SyncTrackerWindow then
+            GRMsyncGlobals.SyncTracker.TriggeringSync = true;
+            GRMsyncGlobals.progStart = ( GRMsyncGlobals.progStart and GRMsyncGlobals.progStart > 0 ) and GRMsyncGlobals.progStart or time();
+            GRM_UI.GRM_SyncTrackerWindow.SyncTrackerText:SetText ( GRM.L ( "Initializing Sync. One Moment..." ) );
+            if GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton and GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:IsVisible() then
+                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncTrackerWindowButton:Hide();
+            end
+            if GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar then
+                GRM_API.ResetProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , { 1 , 0 , 0 } , false );
+                GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar:Show();
+            end
+        end
 
         if GRM.S().syncChatEnabled then
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Syncing Data With Guildies Now..." ) .. "\n" .. GRM.L ( "(Loading screens may cause sync to fail)" ) );
@@ -2435,20 +2520,31 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
             reason = "";
         end
 
-        for i = #GRMsyncGlobals.BanReceivedTempFinal , 1 , -1 do        -- Start from the end since it is assumed the last entry was added at end
-            if GRMsyncGlobals.BanReceivedTempFinal[i][1] == playerName then
-                table.insert ( GRMsyncGlobals.messageIndexesReceived.BANFINAL , tonumber ( indReceived ) );
+		-- When the reason is sent separately, we must merge it with the previously
+		-- received "no-reason" placeholder stored in BanReceivedTempFinal.
+		--
+		-- NOTE: A long-standing bug in this code path attempted to read ban details
+		-- from messageIndexesReceived.BANFINAL (which only stores message indices),
+		-- causing the ban/unban payload to be discarded and preventing full ban list
+		-- sync for any entry that required a second packet for the reason.
+		for i = #GRMsyncGlobals.BanReceivedTempFinal , 1 , -1 do        -- Start from the end since it is assumed the last entry was added at end
+			if GRMsyncGlobals.BanReceivedTempFinal[i][1] == playerName then
+				if indReceived then
+					table.insert ( GRMsyncGlobals.messageIndexesReceived.BANFINAL , tonumber ( indReceived ) );
+				end
 
-                dataIsReady = true;
-                -- Player name already set
-                banTimeEpoch = GRMsyncGlobals.messageIndexesReceived.BANFINAL[i][2];
-                banType = GRMsyncGlobals.messageIndexesReceived.BANFINAL[i][3];
-                -- Reason is already set
-                playerWhoBanned = GRMsyncGlobals.messageIndexesReceived.BANFINAL[i][5];
+				dataIsReady = true;
+				-- Player name already set
+				banTimeEpoch = GRMsyncGlobals.BanReceivedTempFinal[i][2];
+				banType = GRMsyncGlobals.BanReceivedTempFinal[i][3];
+				-- Reason is already set
+				playerWhoBanned = GRMsyncGlobals.BanReceivedTempFinal[i][5];
+				-- Persist the reason so later logic can reference it if needed
+				GRMsyncGlobals.BanReceivedTempFinal[i][4] = reason;
 
-                break;
-            end
-        end
+				break;
+			end
+		end
 
     elseif prefix == "GRM_BANSYNCUP4" or prefix == "GRM_BANSYNCUP5" then
 
@@ -5189,6 +5285,16 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
             if GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and GRM.G_Util.IsGuildieOnline ( GRMsyncGlobals.CurrentSyncPlayer ) then
 
                 table.remove ( GRMsyncGlobals.SyncQue , 1 );
+                -- Classic 1.15.8: advance queue-based progress index
+                if GRMsyncGlobals.SyncQueuePos and GRMsyncGlobals.SyncQueuePos > 0 then
+                    GRMsyncGlobals.SyncQueuePos = GRMsyncGlobals.SyncQueuePos + 1;
+                    GRMsyncGlobals.SyncQueueTotal = ( GRMsyncGlobals.SyncQueuePos - 1 ) + #GRMsyncGlobals.SyncQue;
+                    if #GRMsyncGlobals.SyncQue == 0 then
+                        GRMsyncGlobals.SyncQueuePos = 0;
+                        GRMsyncGlobals.SyncQueueTotal = 0;
+                    end
+                end
+
                 GRMsyncGlobals.currentlySyncing = false;
                 GRMsyncGlobals.errorCheckEnabled = false;
                 GRMsyncGlobals.firstSync = true
@@ -5220,6 +5326,16 @@ GRMsync.ErrorCheck = function ( forceStop , sendMessage )
             else
 
                 table.remove ( GRMsyncGlobals.SyncQue , 1 );
+                -- Classic 1.15.8: advance queue-based progress index
+                if GRMsyncGlobals.SyncQueuePos and GRMsyncGlobals.SyncQueuePos > 0 then
+                    GRMsyncGlobals.SyncQueuePos = GRMsyncGlobals.SyncQueuePos + 1;
+                    GRMsyncGlobals.SyncQueueTotal = ( GRMsyncGlobals.SyncQueuePos - 1 ) + #GRMsyncGlobals.SyncQue;
+                    if #GRMsyncGlobals.SyncQue == 0 then
+                        GRMsyncGlobals.SyncQueuePos = 0;
+                        GRMsyncGlobals.SyncQueueTotal = 0;
+                    end
+                end
+
                 GRMsyncGlobals.currentlySyncing = false;
                 GRMsyncGlobals.errorCheckEnabled = false;
 
@@ -5382,20 +5498,14 @@ end
 -- What it Does:    Reports a Message to chat indicating how much of the GRM profile data is complete on members of the whole guild
 -- Purpose:         Useful report to act as a reminder after sync completes.
 GRMsync.ReportAuditMessage = function()
-    local numIncomplete = GRM.GetIncompleteGuildDataCounts()[5];
-    local message = "";
-    local val = ( numIncomplete / GRM.G_Util.GetNumGuildies() ) * 100;
-    if val < 1 and val > 0 then
-        val = 1;
-    end
-    local percentComplete = 100 - ( math.floor ( val ) );
+    -- This runs after the audit has completed; the sync/audit did finish.
+    -- Report completion as 100% while still showing how many members have incomplete data.
+    local numIncomplete = (GRM.GetIncompleteGuildDataCounts() and GRM.GetIncompleteGuildDataCounts()[5]) or 0;
 
-    if numIncomplete == 0 then
-        message = GRM.L ( "100% complete. Great work!" );
-    elseif numIncomplete == 1 then
-        message = GRM.L ( "{num}% complete." , nil , nil , percentComplete ) .. " " .. GRM.L ( "Only 1 member with incomplete data." );
-    else
-        message = GRM.L ( "{num}% complete." , nil , nil , percentComplete ) .. " " .. GRM.L ( "{num} members with incomplete data." , nil , nil , numIncomplete );
+    local message = GRM.L ( "100% complete." );
+    if numIncomplete and numIncomplete > 0 then
+        -- Avoid placeholder formatting here to prevent localization-format issues; keep it simple and safe.
+        message = message .. " " .. tostring(numIncomplete) .. " " .. GRM.L ( "members with incomplete data." );
     end
 
     GRM.Report ( "\n|CFFFF0000" .. GRM.L ( "GRM Audit Report:" ) .. "|r " .. message );
@@ -5425,6 +5535,12 @@ GRMsync.InitiateDataSync = function ()
     if not GRMsyncGlobals.currentlySyncing then
         -- First step, let's check Join Date Changes! Kickstart the fun!
         if #GRMsyncGlobals.SyncQue > 0 then
+            -- Classic 1.15.8: Initialize queue-based progress tracking
+            if not GRMsyncGlobals.SyncQueuePos or GRMsyncGlobals.SyncQueuePos == 0 then
+                GRMsyncGlobals.SyncQueuePos = 1;
+            end
+            GRMsyncGlobals.SyncQueueTotal = ( GRMsyncGlobals.SyncQueuePos - 1 ) + #GRMsyncGlobals.SyncQue;
+
             -- Let's make sure the currentSyncPlayer is still online, as some time may have passed since we last checked.
             if GRM.G_Util.IsGuildieOnline ( GRMsyncGlobals.SyncQue[1] ) then
                 GRMsyncGlobals.currentlySyncing = true;
@@ -5480,6 +5596,16 @@ GRMsync.InitiateDataSync = function ()
                 if #GRMsyncGlobals.SyncQue > 1 then
                     local msg = GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Sync Failed with {name}..." , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] , true ) );
                     table.remove ( GRMsyncGlobals.SyncQue , 1 );
+                -- Classic 1.15.8: advance queue-based progress index
+                if GRMsyncGlobals.SyncQueuePos and GRMsyncGlobals.SyncQueuePos > 0 then
+                    GRMsyncGlobals.SyncQueuePos = GRMsyncGlobals.SyncQueuePos + 1;
+                    GRMsyncGlobals.SyncQueueTotal = ( GRMsyncGlobals.SyncQueuePos - 1 ) + #GRMsyncGlobals.SyncQue;
+                    if #GRMsyncGlobals.SyncQue == 0 then
+                        GRMsyncGlobals.SyncQueuePos = 0;
+                        GRMsyncGlobals.SyncQueueTotal = 0;
+                    end
+                end
+
                     if GRM.S().syncChatEnabled then
                         GRM.Report ( msg .. "\n" .. GRM.L ( "The Player Appears to Be Offline." ) .. "\n" .. GRM.L ( "Initiating Sync with {name} Instead!" , GRM.GetClassifiedName ( GRMsyncGlobals.SyncQue[1] ) ) );
                     end
@@ -5492,6 +5618,16 @@ GRMsync.InitiateDataSync = function ()
                     end);
                 else
                     table.remove ( GRMsyncGlobals.SyncQue , 1 );
+                -- Classic 1.15.8: advance queue-based progress index
+                if GRMsyncGlobals.SyncQueuePos and GRMsyncGlobals.SyncQueuePos > 0 then
+                    GRMsyncGlobals.SyncQueuePos = GRMsyncGlobals.SyncQueuePos + 1;
+                    GRMsyncGlobals.SyncQueueTotal = ( GRMsyncGlobals.SyncQueuePos - 1 ) + #GRMsyncGlobals.SyncQue;
+                    if #GRMsyncGlobals.SyncQue == 0 then
+                        GRMsyncGlobals.SyncQueuePos = 0;
+                        GRMsyncGlobals.SyncQueueTotal = 0;
+                    end
+                end
+
                     GRMsyncGlobals.firstSync = true;
                     GRM_G.slashCommandSyncTimer = time();
                     GRMsyncGlobals.timeOfLastSyncCompletion = time();
@@ -5505,9 +5641,9 @@ GRMsync.InitiateDataSync = function ()
                     end
 
                     -- Progress tracking
-                    -- if not GRMsyncGlobals.SyncTracker.finish then
-                    --     GRMsyncGlobals.ProgressControl ( "FINISH" );
-                    -- end
+                    if GRM_UI and GRM_UI.GRM_SyncTrackerWindow and not GRMsyncGlobals.SyncTracker.finish then
+                        GRMsyncGlobals.ProgressControl ( "FINISH" );
+                    end
                     GRM_UI.RefreshSelectFrames ( true , true , true , true , true , true );
                 end
             end
@@ -6389,6 +6525,16 @@ GRMsync.FinalSyncComplete = function()
         -- We made it... remove from the syncQue
         if #GRMsyncGlobals.SyncQue > 1 then
             table.remove ( GRMsyncGlobals.SyncQue , 1 );
+                -- Classic 1.15.8: advance queue-based progress index
+                if GRMsyncGlobals.SyncQueuePos and GRMsyncGlobals.SyncQueuePos > 0 then
+                    GRMsyncGlobals.SyncQueuePos = GRMsyncGlobals.SyncQueuePos + 1;
+                    GRMsyncGlobals.SyncQueueTotal = ( GRMsyncGlobals.SyncQueuePos - 1 ) + #GRMsyncGlobals.SyncQue;
+                    if #GRMsyncGlobals.SyncQue == 0 then
+                        GRMsyncGlobals.SyncQueuePos = 0;
+                        GRMsyncGlobals.SyncQueueTotal = 0;
+                    end
+                end
+
 
             if GRM.S().syncChatEnabled then
                 GRM.Report ( GRM.L ( "Sync with {name} complete." , GRM.GetClassifiedName ( nameOfCurrentSyncSender ) ) );
@@ -6407,6 +6553,16 @@ GRMsync.FinalSyncComplete = function()
             end);
         else
             table.remove ( GRMsyncGlobals.SyncQue , 1 );
+                -- Classic 1.15.8: advance queue-based progress index
+                if GRMsyncGlobals.SyncQueuePos and GRMsyncGlobals.SyncQueuePos > 0 then
+                    GRMsyncGlobals.SyncQueuePos = GRMsyncGlobals.SyncQueuePos + 1;
+                    GRMsyncGlobals.SyncQueueTotal = ( GRMsyncGlobals.SyncQueuePos - 1 ) + #GRMsyncGlobals.SyncQue;
+                    if #GRMsyncGlobals.SyncQue == 0 then
+                        GRMsyncGlobals.SyncQueuePos = 0;
+                        GRMsyncGlobals.SyncQueueTotal = 0;
+                    end
+                end
+
             -- Disable sync again if necessary!
             GRMsync.ReportSyncCompletion ( nameOfCurrentSyncSender , true );
             GRMsyncGlobals.firstSync = true;
@@ -8138,9 +8294,9 @@ GRMsync.ReportSyncCompletion = function ( currentSyncer , finalAnnounce )
             end
 
             -- Progress tracking
-            -- if not GRMsyncGlobals.SyncTracker.finish then
-            --     GRMsyncGlobals.ProgressControl ( "FINISH" );
-            -- end
+            if GRM_UI and GRM_UI.GRM_SyncTrackerWindow and finalAnnounce and not GRMsyncGlobals.SyncTracker.finish then
+                GRMsyncGlobals.ProgressControl ( "FINISH" );
+            end
 
             GRM.Report ( announce );
             GRMsync.ReportResults();

@@ -1,4 +1,7 @@
 
+-- Compatibility guards
+local HAS_CLUB = (C_Club and C_Club.GetGuildClubId and C_Club.GetClubMembers and C_Club.GetMemberInfo)
+
 -- Creating a new Guild Roster window
 GRM_R = {};
 
@@ -42,15 +45,29 @@ GRM_R.BuildRosterFrames = function ()
         GRM_UI.GRM_RosterFrame.isHooked = true;
         GRM_UI.GRM_RosterFrame.timer = 0;
 
-        GRM_UI.GRM_RosterFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-            GRM_UI.GRM_RosterFrame.timer = GRM_UI.GRM_RosterFrame.timer + elapsed;
-            if GRM_UI.GRM_RosterFrame.timer >= 10 then
-                -- Refresh the log every 10 seconds when it is open, just to be certain. There is a problem with the guild roster not updating properly when guild changes occur in status.
-                GRM.GuildRoster();
-                QueryGuildEventLog();
-                GRM_UI.GRM_RosterFrame.timer = 0;
+        GRM_UI.GRM_RosterFrame:HookScript ( "OnShow" , function ( self )
+            if self.GRM_RosterRefreshTicker then
+                self.GRM_RosterRefreshTicker:Cancel();
+                self.GRM_RosterRefreshTicker = nil;
             end
-        end)
+            -- Refresh the log every 10 seconds while the roster window is open.
+            self.GRM_RosterRefreshTicker = C_Timer.NewTicker ( 10 , function()
+                if self:IsVisible() then
+                    GRM.GuildRoster();
+                    QueryGuildEventLog();
+                end
+            end );
+            -- Run once immediately so the roster is up-to-date as soon as it opens.
+            GRM.GuildRoster();
+            QueryGuildEventLog();
+        end );
+
+        GRM_UI.GRM_RosterFrame:HookScript ( "OnHide" , function ( self )
+            if self.GRM_RosterRefreshTicker then
+                self.GRM_RosterRefreshTicker:Cancel();
+                self.GRM_RosterRefreshTicker = nil;
+            end
+		end );
     end
 
     -- Options Menu
@@ -376,6 +393,7 @@ end
 -- What it Does:    Builds the rankPromotionWindow
 -- Purpose:         Easily give people ability to bump ranks with menus.
 GRM_R.BuildPromotionRankSelectionDropDown = function ( buttonFrame )
+    if not HAS_CLUB then return nil end
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank.GRM_RosterFrameDropDownRankText:SetText ( GRM.L ( "Promote Player to:" ) );
 
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:ClearAllPoints();
@@ -408,6 +426,7 @@ end
 -- What it Does:    Builds the rankDemotionWindow
 -- Purpose:         Easily give people ability to bump ranks with menus.
 GRM_R.BuildDemotionRankSelectionDropDown = function ( buttonFrame )
+    if not HAS_CLUB then return nil end
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank.GRM_RosterFrameDropDownRankText:SetText ( GRM.L ( "Demote Player to:" ) );
 
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank.promote = false;
@@ -441,6 +460,7 @@ end
 -- What it Does:    Determines to use the demote or promote logic
 -- Purpose:         Quality of life feature
 GRM_R.RankSelection = function( button )
+    if not HAS_CLUB then return nil end
     if GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank.promote then
         GRM_R.PromotePlayer ( button )
     elseif GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank.demote then
@@ -453,6 +473,7 @@ end
 --                  control load of information to populate the macro tool
 -- Purpose:         Fix the issue with right-clicking a name on the roster to kick or demote
 GRM_R.ConfigureMacroForRightClick = function ( tabNum , entries )
+    if not HAS_CLUB then return nil end
     GRM_UI.GRM_ToolCoreFrame.TabPosition = tabNum;
     C_Timer.After ( 0.1 , function()
         GRM_UI.ConfigureToolTab();
@@ -477,6 +498,7 @@ GRM_R.ConfigureMacroForRightClick = function ( tabNum , entries )
                 end
                 -- Uh oh, you are going to overwrite...
                 local confirmLogic = function()
+    if not HAS_CLUB then return nil end
                     GRM_UI.GRM_ToolCoreFrame.rightClickMode = true;
                     GRM_UI.RefreshManagementTool( entries );
                 end
@@ -494,6 +516,7 @@ end
 -- What it Does:    Takes the player to be promoted and builds macr otool
 -- Purpose:         Quality of life feature for the custom guild roster
 GRM_R.PromotePlayer = function ( button )
+    if not HAS_CLUB then return nil end
     local promoEntries = GRM.BuildCustomPromoteEntries ( { GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName } , false , button );
 
     if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
@@ -509,6 +532,7 @@ end
 -- What it Does:    Takes the player to be Demoted and builds macro otool
 -- Purpose:         Quality of life feature for the custom guild roster
 GRM_R.DemotePlayer = function( button )
+    if not HAS_CLUB then return nil end
     local demoteEntries = GRM.BuildCustomDemoteEntries ( { GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName } , false , button );
 
     if not GRM_UI.GRM_ToolCoreFrame or ( GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible() ) then
@@ -525,6 +549,7 @@ end
 -- What it Does:    Takes the player to be kicked, builds it for the macro tool, and builds the macro
 -- Purpose:         Quality of Life ease of taking advantage of the macro tool
 GRM_R.KickPlayer = function()
+    if not HAS_CLUB then return nil end
     if GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.canKick then
         local kickEntries = GRM.BuildCustomKickEntries ( { GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName } , false );
 
@@ -542,6 +567,7 @@ end
 -- What it Does:    Refreshes the online status of all the players in the guild for the DB
 -- Purpose:         To ensure the GRM custom roster is accurate always.
 GRM_R.RefreshOnlineStatus = function( guildData )
+    if not HAS_CLUB then return nil end
     local count = 0;
 
     if guildData then

@@ -1465,7 +1465,24 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData:EnableMouse ( true );
     GRM_UI.GRM_MemberDetailMetaData:SetToplevel ( true );
 
-    GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnUpdate" , GRM.MemberDetailToolTips );
+    -- Tooltip polling moved from per-frame OnUpdate to a 0.1s ticker that runs only while the frame is shown.
+    GRM_UI.GRM_MemberDetailMetaData:HookScript ( "OnShow" , function ( self )
+        if self.GRM_TooltipTicker then
+            self.GRM_TooltipTicker:Cancel();
+            self.GRM_TooltipTicker = nil;
+        end
+        self.GRM_TooltipTicker = C_Timer.NewTicker ( 0.1 , function()
+            GRM.MemberDetailToolTips ( self , 0.1 );
+        end );
+        -- Run once immediately to populate tooltips without waiting.
+        GRM.MemberDetailToolTips ( self , 0.1 );
+    end );
+    GRM_UI.GRM_MemberDetailMetaData:HookScript ( "OnHide" , function ( self )
+        if self.GRM_TooltipTicker then
+            self.GRM_TooltipTicker:Cancel();
+            self.GRM_TooltipTicker = nil;
+        end
+    end );
 
     -- Logic handling: If pause is set, this unpauses it. If it is not paused, this will then hide the window.
     GRM_UI.GRM_MemberDetailMetaData:SetScript ( "OnKeyDown" , function ( self , key )
@@ -12250,12 +12267,18 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_SyncProgressButton:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
-            if GRMsyncGlobals.UILoaded and GRM_UI.GRM_SyncTrackerWindow:IsVisible() then
-                GRM_UI.GRM_SyncTrackerWindow:Hide();
-            else
-                -- GRM.SyncCommandScan();
-                GRM.Report ( "Feature is pending - still need to debug it.")
-            end
+			-- Classic 1.15.8: the Sync Tracker UI is on-demand; ensure it is created, then toggle it.
+			if GRMsync and GRMsync.LoadSyncUI then
+				GRMsync.LoadSyncUI();
+			end
+
+			if GRM_UI.GRM_SyncTrackerWindow then
+				if GRM_UI.GRM_SyncTrackerWindow:IsShown() then
+					GRM_UI.GRM_SyncTrackerWindow:Hide();
+				else
+					GRM_UI.GRM_SyncTrackerWindow:Show();
+				end
+			end
         end
     end);
 
