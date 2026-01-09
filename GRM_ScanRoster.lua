@@ -2,6 +2,19 @@
 
 
 -- Compatibility guards
+-- Localized globals (performance)
+local GetTime = GetTime;
+local wipe = wipe;
+local pairs = pairs;
+local ipairs = ipairs;
+local tinsert = table.insert;
+local tremove = table.remove;
+local format = string.format;
+local strfind = string.find;
+local strmatch = string.match;
+local tostring = tostring;
+local tonumber = tonumber;
+
 local HAS_CLUB = (C_Club and C_Club.GetGuildClubId and C_Club.GetClubMembers and C_Club.GetMemberInfo)
 local Scan = {};
 GRM.Scan = Scan;
@@ -291,7 +304,9 @@ end
 -- Purpose:         Avoid big O n^2 notation by building the table in one loop for reference rather than looping check each player.
 Scan.GetGuildMemberIndexTable = function()
     if not HAS_CLUB then return nil end
-    local roster = {};
+    Scan._guildIndexByGuid = Scan._guildIndexByGuid or {};
+    local roster = Scan._guildIndexByGuid;
+    wipe(roster);
     for i = 1, GRM.G_Util.GetNumGuildies() do
         local player_guid = select ( 17 , GetGuildRosterInfo(i) );
         if player_guid then
@@ -449,8 +464,8 @@ Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
     GRM_G.newPlayers = {};          -- Reset for CheckPlayerChanges
     GRM_G.leavingPlayers = {};
 
-    GRM.GuildRoster();
-    QueryGuildEventLog();
+    GRM.RequestGuildRoster();
+    GRM.RequestGuildEventLog();
 
     -- Sort the ordered roster *before* passing to CheckPlayerChanges
     sort(orderedRoster);
@@ -3908,7 +3923,7 @@ Scan.GetGuildEventString = function(index, playerName, initRank, finRank, class,
     local eventType = {"demote", "promote", "invite", "join", "quit", "remove"};
     local logEntryMetaData = {false};
 
-    QueryGuildEventLog();
+    GRM.RequestGuildEventLog();
 
     if index == 1 or index == 2 then
         for i = GetNumGuildEvents(), 1, -1 do

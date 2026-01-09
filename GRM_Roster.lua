@@ -53,13 +53,13 @@ GRM_R.BuildRosterFrames = function ()
             -- Refresh the log every 10 seconds while the roster window is open.
             self.GRM_RosterRefreshTicker = C_Timer.NewTicker ( 10 , function()
                 if self:IsVisible() then
-                    GRM.GuildRoster();
-                    QueryGuildEventLog();
+                    GRM.RequestGuildRoster();
+                    GRM.RequestGuildEventLog();
                 end
             end );
             -- Run once immediately so the roster is up-to-date as soon as it opens.
-            GRM.GuildRoster();
-            QueryGuildEventLog();
+            GRM.RequestGuildRoster();
+            GRM.RequestGuildEventLog();
         end );
 
         GRM_UI.GRM_RosterFrame:HookScript ( "OnHide" , function ( self )

@@ -21,4 +21,3 @@ GRM_M.AddModuleSetting = function ( moduleName , type , settingsName , defaultSe
 
 
 end
-

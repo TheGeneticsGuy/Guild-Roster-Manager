@@ -321,4 +321,3 @@ HC.HardCoreInitialize = function()
 end
 
 HC.HardCoreInitialize();
-

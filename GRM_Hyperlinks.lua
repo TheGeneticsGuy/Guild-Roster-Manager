@@ -71,4 +71,3 @@ HL.HyperlinkClick = function ( self , link , text , button )
         end
     end
 end
-

@@ -28,4 +28,3 @@ GRM.IsPlayerEE = function ( nameOfPlayer )
     end
     return result;
 end
-

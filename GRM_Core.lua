@@ -2,6 +2,19 @@
 -- Addon Name: "Guild Roster Manager"
 
 -- Global Tables
+-- Localized globals (performance)
+local GetTime = GetTime;
+local wipe = wipe;
+local pairs = pairs;
+local ipairs = ipairs;
+local tinsert = table.insert;
+local tremove = table.remove;
+local format = string.format;
+local strfind = string.find;
+local strmatch = string.match;
+local tostring = tostring;
+local tonumber = tonumber;
+
 GRM_G = {};
 -- Global Table to hold all global variables made by GRM.
 GRM_L = {};
@@ -467,6 +480,82 @@ GRM.GuildRoster = function()
         GuildRoster();
     end
 end
+
+-- Wrapper for QueryGuildEventLog across client versions
+GRM.QueryGuildEventLog = function()
+    if C_GuildInfo.QueryGuildEventLog then
+        C_GuildInfo.QueryGuildEventLog();
+    elseif QueryGuildEventLog then
+        QueryGuildEventLog();
+    end
+end
+
+
+-------------------------------------------------
+-- Refresh Scheduler (CPU optimization)
+-- Coalesces frequent refresh requests into one call
+-------------------------------------------------
+GRM._RefreshScheduler = GRM._RefreshScheduler or {
+    rosterLast = 0,
+    rosterPending = false,
+    rosterMinInterval = 2,   -- seconds
+    eventLogLast = 0,
+    eventLogPending = false,
+    eventLogMinInterval = 5, -- seconds
+};
+
+-- Request a roster refresh (coalesced). Use force=true for user-initiated actions.
+GRM.RequestGuildRoster = function(force)
+    if not IsInGuild() then return end
+    local now = GetTime();
+    local minInterval = (force and 0) or GRM._RefreshScheduler.rosterMinInterval;
+
+    if (now - (GRM._RefreshScheduler.rosterLast or 0)) >= minInterval then
+        GRM._RefreshScheduler.rosterLast = now;
+        GRM.GuildRoster();
+        return;
+    end
+
+    if GRM._RefreshScheduler.rosterPending then return end
+    GRM._RefreshScheduler.rosterPending = true;
+
+    local delay = minInterval - (now - GRM._RefreshScheduler.rosterLast);
+    if delay < 0 then delay = 0 end
+
+    C_Timer.After(delay, function()
+        GRM._RefreshScheduler.rosterPending = false;
+        if not IsInGuild() then return end
+        GRM._RefreshScheduler.rosterLast = GetTime();
+        GRM.GuildRoster();
+    end);
+end
+
+-- Request an event log refresh (coalesced). Use force=true for user-initiated actions.
+GRM.RequestGuildEventLog = function(force)
+    if not IsInGuild() then return end
+    local now = GetTime();
+    local minInterval = (force and 0) or GRM._RefreshScheduler.eventLogMinInterval;
+
+    if (now - (GRM._RefreshScheduler.eventLogLast or 0)) >= minInterval then
+        GRM._RefreshScheduler.eventLogLast = now;
+        GRM.QueryGuildEventLog();
+        return;
+    end
+
+    if GRM._RefreshScheduler.eventLogPending then return end
+    GRM._RefreshScheduler.eventLogPending = true;
+
+    local delay = minInterval - (now - GRM._RefreshScheduler.eventLogLast);
+    if delay < 0 then delay = 0 end
+
+    C_Timer.After(delay, function()
+        GRM._RefreshScheduler.eventLogPending = false;
+        if not IsInGuild() then return end
+        GRM._RefreshScheduler.eventLogLast = GetTime();
+        GRM.QueryGuildEventLog();
+    end);
+end
+
 
 -- 10.2.5 change
 GRM.GetColorPickerFrame = function(type)
@@ -2418,9 +2507,11 @@ GRM.L = function(key, playerName, playerName2, num, custom1, custom2)
                     if key == "nil" then
                         error("Localization key is nil... Please report the error to Addon Dev")
                     else
-                        GRM.Report(GRM.L(
-                            "GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!",
-                            key)); -- for debugging purposes.
+                        if GRM_G.DebugEnabled then
+                            GRM.Report(GRM.L(
+                                "GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!",
+                                key)); -- for debugging purposes.
+                        end
                     end
                 end
             end
@@ -15725,7 +15816,7 @@ GRM.CheckForNewPlayer = function( name )
         if GRM_G.RejoinControlCheck % 10 == 0 then
             GRM.GuildRoster();
             if GRM_G.BuildVersion >= 10000 then
-                QueryGuildEventLog();
+                GRM.QueryGuildEventLog();
             end
         end
 
@@ -15933,7 +16024,7 @@ GRM.GetPlayerKickedFromButton = function(nameOrGUID, isMacro)
         end
         GRM.GuildRoster();
         if GRM_G.BuildVersion >= 10000 then
-            QueryGuildEventLog();
+            GRM.QueryGuildEventLog();
         end
 
         if not GRM_G.CurrentlyScanning then
@@ -16231,9 +16322,9 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
                 end
 
                 C_Timer.After(3, function()
-                    GRM.GuildRoster(); -- Initial queries...
+                    GRM.RequestGuildRoster(); -- Initial queries...
                     if GRM_G.BuildVersion >= 10000 then
-                        QueryGuildEventLog();
+                        GRM.QueryGuildEventLog();
                     end
                 end);
 
@@ -16258,9 +16349,9 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
                 end
 
                 C_Timer.After(3, function()
-                    GRM.GuildRoster(); -- Initial queries...
+                    GRM.RequestGuildRoster(); -- Initial queries...
                     if GRM_G.BuildVersion >= 10000 then
-                        QueryGuildEventLog();
+                        GRM.QueryGuildEventLog();
                     end
                 end);
 
@@ -16278,7 +16369,7 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
 
             GRM.GuildRoster();
             if GRM_G.BuildVersion >= 10000 then
-                QueryGuildEventLog();
+                GRM.QueryGuildEventLog();
             end
             GRM_G.TempBanSystemMessage = true;
             GRM_G.MainNameSystemMsgControl = true;
@@ -16307,9 +16398,9 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
                 end
 
                 C_Timer.After(3, function()
-                    GRM.GuildRoster(); -- Initial queries...
+                    GRM.RequestGuildRoster(); -- Initial queries...
                     if GRM_G.BuildVersion >= 10000 then
-                        QueryGuildEventLog();
+                        GRM.QueryGuildEventLog();
                     end
                 end);
 
@@ -21942,7 +22033,7 @@ GRM.TrackingIntegrityCheck = function(isLoop)
             if (time() - GRM_G.ScanControl) >= (GRM.S().scanDelay) then
                 GRM.GuildRoster();
                 if GRM_G.BuildVersion >= 10000 then
-                    QueryGuildEventLog();
+                    GRM.QueryGuildEventLog();
                 end
 
             else
@@ -22059,7 +22150,7 @@ GRM.SlashCommandScan = function()
     GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Scanning for Guild Changes Now. One Moment..."));
     GRM_G.ManualScanEnabled = true;
     GRM.GuildRoster();
-    QueryGuildEventLog();
+    GRM.QueryGuildEventLog();
     C_Timer.After(1.5, GRM.Scan.BuildNewRoster);
 end
 
@@ -23110,7 +23201,7 @@ GRM.TrackingConfiguration = function(forced)
 
         GRM.GuildRoster();
         if GRM_G.BuildVersion >= 10000 then
-            QueryGuildEventLog();
+            GRM.QueryGuildEventLog();
         end -- Let's trigger this and get it loading at the start.
 
         C_Timer.After(2, function()
@@ -23334,7 +23425,7 @@ GRM.finalLoadSteps = function()
     -- Activate the GRM frames!
     GRM.InitiateMemberDetailFrame();
     GRM.GuildRoster();
-    QueryGuildEventLog();
+    GRM.QueryGuildEventLog();
 
     C_Timer.After(1, function()
         GRM.TrackingConfiguration(false);
@@ -23355,7 +23446,7 @@ GRM.ReactivateAddon = function()
     GRM.SetGuildInfoDetails();
     GRM.GuildRoster();
     if GRM_G.BuildVersion >= 10000 then
-        QueryGuildEventLog();
+        GRM.QueryGuildEventLog();
     end
 
     if not GRM.S() then
@@ -23505,8 +23596,8 @@ GRM.SettingsLoadedFinishDataLoad = function( isManual )
             GRM_UI.VerifyIfHCChannelsEnabled();
         end
 
-        GRM.GuildRoster(); -- Initial queries...
-        QueryGuildEventLog();
+        GRM.RequestGuildRoster(); -- Initial queries...
+        GRM.QueryGuildEventLog();
 
         -- MISC Quality of Life Settings...
         -- Addon Compatibility Detection

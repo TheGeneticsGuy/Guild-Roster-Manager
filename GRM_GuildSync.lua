@@ -3,6 +3,19 @@
 -- Author: Arkaan... aka "The Genetics Guy"
 -- To hold all Sync Methods/Functions
 
+-- Localized globals (performance)
+local GetTime = GetTime;
+local wipe = wipe;
+local pairs = pairs;
+local ipairs = ipairs;
+local tinsert = table.insert;
+local tremove = table.remove;
+local format = string.format;
+local strfind = string.find;
+local strmatch = string.match;
+local tostring = tostring;
+local tonumber = tonumber;
+
 GRMsync = {};
 
 -- All Sync Globals
@@ -5263,7 +5276,7 @@ end
 -- Purpose:         To exit out the sync attempt and retry in an efficiennt non, time-wasting way.
 GRMsync.ErrorCheck = function ( forceStop , sendMessage )
     if not GRM.IsCalendarEventEditOpen() then
-        GRM.GuildRoster();
+        GRM.RequestGuildRoster();
     end
     -- Sync Leader logic
     if GRMsyncGlobals.DesignatedLeader == GRM_G.addonUser then
@@ -5528,7 +5541,7 @@ end
 -- Purpose:         To Sync data!
 GRMsync.InitiateDataSync = function ()
     if not GRM.IsCalendarEventEditOpen() then
-        GRM.GuildRoster();
+        GRM.RequestGuildRoster();
     end
     GRMsyncGlobals.LeadSyncProcessing = false;
     GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
@@ -8845,7 +8858,7 @@ GRMsync.DataRequestStart = function()
     local delay = 0;
     -- Initialize the error check now as you are now the front of the que being currently sync'd
     if not GRM.IsCalendarEventEditOpen() then
-        GRM.GuildRoster();
+        GRM.RequestGuildRoster();
         delay = 0.5;
     end
 

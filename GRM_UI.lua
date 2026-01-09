@@ -17,6 +17,19 @@
 --------------------------------------
 
 -- Contains the entire UI initialization of frames (no logic details yet)
+-- Localized globals (performance)
+local GetTime = GetTime;
+local wipe = wipe;
+local pairs = pairs;
+local ipairs = ipairs;
+local tinsert = table.insert;
+local tremove = table.remove;
+local format = string.format;
+local strfind = string.find;
+local strmatch = string.match;
+local tostring = tostring;
+local tonumber = tonumber;
+
 GRM_UI.IsLoaded = false;
 
 -- Just controls for reloading in ElvUI in case of language chain which rebuilds the UI in new language.
@@ -9553,7 +9566,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_G.S.scanEnabled = true;
             GRM.Report ( GRM.L ( "Reactivating SCAN for Guild Member Changes..." ) );
 
-            GRM.GuildRoster();
+            GRM.RequestGuildRoster();
             GRM_G.IntegrityTackingEnabled = false;
             GRM.TriggerTrackingCheck();
         else
@@ -9620,7 +9633,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
             -- Reset the integrity check
             GRM_G.TimeAtCompletion = time();
-            GRM.GuildRoster();
+            GRM.RequestGuildRoster();
         else
             GRM.Report ( GRM.L ( "Please choose a scan interval {num} seconds or higher!" , nil , nil , 20 ) .. " " .. GRM.L ( "{num} is too Low!" , nil , nil , numSeconds ) );
         end

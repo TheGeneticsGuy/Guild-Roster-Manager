@@ -1,5 +1,18 @@
 
 -- Tool to use GRM data to build pre-made macros based on certain filters to handle promotions/demotions/kicking of players. This is due to the fact that the API to do these actions was restricted in patch 7.3, effectively breaking many guild leadership and management addons. This is an attempt to help officers and Guild Leaders' lives out a little bit through creating quick rebuilding macros.
+-- Localized globals (performance)
+local GetTime = GetTime;
+local wipe = wipe;
+local pairs = pairs;
+local ipairs = ipairs;
+local tinsert = table.insert;
+local tremove = table.remove;
+local format = string.format;
+local strfind = string.find;
+local strmatch = string.match;
+local tostring = tostring;
+local tonumber = tonumber;
+
 GRM_Macro = {};
 
 GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();  -- Need to load this at start.
@@ -1409,8 +1422,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM.PurgeMacrodNames();
 
-                    GRM.GuildRoster();
-                    QueryGuildEventLog();
+                    GRM.RequestGuildRoster();
+                    GRM.RequestGuildEventLog();
 
                     -- Need to validate the names are update now...
                     if GRM.IsMacroActionComplete() then
@@ -7564,8 +7577,8 @@ GRM.ValidateMacroRecordingSuccess = function( isReScan )
             GRM.Report ( GRM.L ( "GRM:" ) .. " : " .. GRM.L ( "Not all macro changes validated. One moment..." ) );
             GRM_UI.GRM_ToolCoreFrame.MacroSuccess = false
 
-            GRM.GuildRoster();
-            QueryGuildEventLog();
+            GRM.RequestGuildRoster();
+            GRM.RequestGuildEventLog();
 
             C_Timer.After ( 2 , function()
                 GRM_G.ManualScanEnabled = true;
