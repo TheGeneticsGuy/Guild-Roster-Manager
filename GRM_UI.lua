@@ -2061,16 +2061,29 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     -- Do not want to give player the option to sync JD data if they remove all their alts or reset JD data whilst this frame is open... close it if changes. Check every 2 seconds.
-    GRM_UI.GRM_MemberDetailMetaData.GRM_SyncJoinDateSideFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-        self.timer = self.timer + elapsed;
-        if self.timer > 2 then
+    -- CPU optimization: replace per-frame OnUpdate polling with a 2s ticker that runs only while the frame is shown.
+    GRM_UI.GRM_MemberDetailMetaData.GRM_SyncJoinDateSideFrame:HookScript ( "OnShow" , function ( self )
+        if self.GRM_JDGateTicker then
+            self.GRM_JDGateTicker:Cancel();
+            self.GRM_JDGateTicker = nil;
+        end
+        self.GRM_JDGateTicker = C_Timer.NewTicker ( 2 , function()
             if not GRM.PlayerOrAltHasJD ( GRM_G.currentName ) then
                 self:Hide();
             end
-            self.timer = 0;
+        end );
+        -- Run once immediately on show.
+        if not GRM.PlayerOrAltHasJD ( GRM_G.currentName ) then
+            self:Hide();
         end
-    end)
-    -- Logic for syncing JDs...
+    end );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_SyncJoinDateSideFrame:HookScript ( "OnHide" , function ( self )
+        if self.GRM_JDGateTicker then
+            self.GRM_JDGateTicker:Cancel();
+            self.GRM_JDGateTicker = nil;
+        end
+    end );
+-- Logic for syncing JDs...
     GRM_UI.GRM_MemberDetailMetaData.GRM_SyncJoinDateSideFrame.GRM_JDOldestButton:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
             GRM.SyncJoinDateUsingEarliest();
@@ -3240,7 +3253,25 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         end
     end);
 
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetScript ( "OnUpdate" , GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate );
+    -- CPU optimization: update ignore list settings once per second via ticker (no per-frame OnUpdate).
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:HookScript ( "OnShow" , function ( self )
+        if self.GRM_IgnoreTicker then
+            self.GRM_IgnoreTicker:Cancel();
+            self.GRM_IgnoreTicker = nil;
+        end
+        self.GRM_IgnoreTicker = C_Timer.NewTicker ( 1 , function()
+            -- Call existing update function with a 1s elapsed to preserve behavior.
+            GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate ( self , 1 );
+        end );
+        GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate ( self , 1 );
+    end );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:HookScript ( "OnHide" , function ( self )
+        if self.GRM_IgnoreTicker then
+            self.GRM_IgnoreTicker:Cancel();
+            self.GRM_IgnoreTicker = nil;
+        end
+    end );
+
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetSize ( 400 , 235 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData , "BOTTOMLEFT" , 0 , 2 );
@@ -5078,14 +5109,25 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
 
     if not isManualUpdate then
 
-        GRM_UI.GRM_LoadToolButton:SetScript ( "OnUpdate" , function ( self , elapsed )
-            self.Timer = self.Timer + elapsed;
-            if self.Timer > 60 then       -- Only update once per minute
-                GRM_UI.RefreshToolButtonsOnUpdate_Async();
-                self.Timer = 0;
+        -- CPU optimization: periodic refresh via ticker instead of per-frame OnUpdate.
+        GRM_UI.GRM_LoadToolButton:HookScript ( "OnShow" , function ( self )
+            if self.GRM_RefreshTicker then
+                self.GRM_RefreshTicker:Cancel();
+                self.GRM_RefreshTicker = nil;
             end
-        end);
-    end
+            self.GRM_RefreshTicker = C_Timer.NewTicker ( 60 , function()
+                GRM_UI.RefreshToolButtonsOnUpdate_Async();
+            end );
+            -- Run once immediately.
+            GRM_UI.RefreshToolButtonsOnUpdate_Async();
+        end );
+        GRM_UI.GRM_LoadToolButton:HookScript ( "OnHide" , function ( self )
+            if self.GRM_RefreshTicker then
+                self.GRM_RefreshTicker:Cancel();
+                self.GRM_RefreshTicker = nil;
+            end
+        end );
+end
 
     GRM_UI.GetMacroCountMessage = function ( firstNum, highestNum )
 
@@ -5308,22 +5350,33 @@ GRM_UI.PreAddonLoadUI = function()
     end);
 
     -- Add Event Frame
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:SetScript ( "OnUpdate" , function( self , elapsed )
-        self.timer = self.timer + elapsed;
-        if self.timer >= 10 then
-            local calendarQ = GRM.GetEvents();
-
-            if calendarQ ~= nil then
-                if #calendarQ > 0 and GRM.S().allowEventsToCalendar and GRM.S().calendarAnnouncements then
-                    self:SetText ( GRM.L ( "EVENTS" ) .. ": " .. #calendarQ );     -- First index will be nil.
-                else
-                    self:SetText ( GRM.L ( "EVENTS" ) );
-                end
-                GRM_UI.ScaleFontStringToObjectSize ( true , 95 , self:GetFontString() , 2 );
-            end
-            self.timer = 0;
+    -- CPU optimization: update tab text with a 10s ticker (same cadence, no per-frame OnUpdate).
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:HookScript ( "OnShow" , function ( self )
+        if self.GRM_TabTicker then
+            self.GRM_TabTicker:Cancel();
+            self.GRM_TabTicker = nil;
         end
-    end);
+        local function GRM_UpdateAddEventTab()
+            local calendarQ = GRM.GetEvents();
+            
+                        if calendarQ ~= nil then
+                            if #calendarQ > 0 and GRM.S().allowEventsToCalendar and GRM.S().calendarAnnouncements then
+                                self:SetText ( GRM.L ( "EVENTS" ) .. ": " .. #calendarQ );     -- First index will be nil.
+                            else
+                                self:SetText ( GRM.L ( "EVENTS" ) );
+                            end
+                            GRM_UI.ScaleFontStringToObjectSize ( true , 95 , self:GetFontString() , 2 );
+                        end
+        end
+        self.GRM_TabTicker = C_Timer.NewTicker ( 10 , function() GRM_UpdateAddEventTab(); end );
+        GRM_UpdateAddEventTab();
+    end );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:HookScript ( "OnHide" , function ( self )
+        if self.GRM_TabTicker then
+            self.GRM_TabTicker:Cancel();
+            self.GRM_TabTicker = nil;
+        end
+    end );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:SetScript ( "OnEnter" , function( self )
         GRM_UI.SetTooltipScale();
@@ -5378,15 +5431,26 @@ GRM_UI.PreAddonLoadUI = function()
     end
 
     -- Add Event Frame
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:SetScript ( "OnUpdate" , function( self , elapsed )
-        self.timer = self.timer + elapsed;
-        if self.timer >= 60 then
+    -- CPU optimization: update ban tab with a 60s ticker (same cadence, no per-frame OnUpdate).
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:HookScript ( "OnShow" , function ( self )
+        if self.GRM_BanTicker then
+            self.GRM_BanTicker:Cancel();
+            self.GRM_BanTicker = nil;
+        end
+        local function GRM_UpdateBanTab()
             if GRM.GetGuild() then
                 GRM_UI.UpdateBanTabCurrentlyInGuild();
             end
-            self.timer = 0;
         end
-    end);
+        self.GRM_BanTicker = C_Timer.NewTicker ( 60 , function() GRM_UpdateBanTab(); end );
+        GRM_UpdateBanTab();
+    end );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:HookScript ( "OnHide" , function ( self )
+        if self.GRM_BanTicker then
+            self.GRM_BanTicker:Cancel();
+            self.GRM_BanTicker = nil;
+        end
+    end );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:SetScript ( "OnEnter" , function( self )
         if GRM_G.numberInGuildBans > 0 then
@@ -5444,17 +5508,24 @@ GRM_UI.PreAddonLoadUI = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab.Timer = 0;
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:SetScript ( "OnUpdate" , function( self , elapsed )
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab.Timer = GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab.Timer + elapsed;
-
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab.Timer >= 10 then
-
-            GRM_UI.RefreshAuditTab ( self );
-
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab.Timer = 0;
+    -- CPU optimization: refresh audit tab with a 10s ticker (same cadence, no per-frame OnUpdate).
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:HookScript ( "OnShow" , function ( self )
+        if self.GRM_AuditTicker then
+            self.GRM_AuditTicker:Cancel();
+            self.GRM_AuditTicker = nil;
         end
-
-    end);
+        local function GRM_UpdateAuditTab()
+            GRM_UI.RefreshAuditTab ( self );
+        end
+        self.GRM_AuditTicker = C_Timer.NewTicker ( 10 , function() GRM_UpdateAuditTab(); end );
+        GRM_UpdateAuditTab();
+    end );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:HookScript ( "OnHide" , function ( self )
+        if self.GRM_AuditTicker then
+            self.GRM_AuditTicker:Cancel();
+            self.GRM_AuditTicker = nil;
+        end
+    end );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:SetScript ( "OnEnter" , function( self )
 
@@ -7931,19 +8002,24 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
     end
 
-    GRM_UI.ColorPickerFrame:HookScript ( "OnUpdate" , function ( _ , elapsed )
-        if not GRM_UI.ColorPickerFrame.colorTimer then
-            GRM_UI.ColorPickerFrame.colorTimer = 0;
+    -- CPU optimization: color picker live updates via ticker (no per-frame OnUpdate). Runs while the color picker is shown.
+    GRM_UI.ColorPickerFrame:HookScript ( "OnShow" , function ( self )
+        if self.GRM_ColorTicker then
+            self.GRM_ColorTicker:Cancel();
+            self.GRM_ColorTicker = nil;
         end
-
-        GRM_UI.ColorPickerFrame.colorTimer = GRM_UI.ColorPickerFrame.colorTimer + elapsed;
-
-        if GRM_UI.ColorPickerFrame.colorTimer > 0.01 and ( GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 ) and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerB:HasFocus() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerG:HasFocus() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ColorPickerR:HasFocus() then
+        local function GRM_ColorPickerUpdate()
             GRM_UI.ColorSelectFrameTextureUpdate();
-            GRM_UI.ColorPickerFrame.colorTimer = 0;
         end
-
-    end);
+        self.GRM_ColorTicker = C_Timer.NewTicker ( 0.02 , function() GRM_ColorPickerUpdate(); end );
+        GRM_ColorPickerUpdate();
+    end );
+    GRM_UI.ColorPickerFrame:HookScript ( "OnHide" , function ( self )
+        if self.GRM_ColorTicker then
+            self.GRM_ColorTicker:Cancel();
+            self.GRM_ColorTicker = nil;
+        end
+    end );
 
     -- Colorpicker window RGB editboxes!
     -- Let's also establish the RGB editboxes
@@ -12308,34 +12384,39 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersTooltip:SetWidth ( 300 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersTooltip:SetFrameStrata ( "DIALOG" );
     -- Tooltip logic for on update
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-        self.timer2 = self.timer2 + elapsed;
-        if self.timer2 >= 0.1 then
+    -- CPU optimization: tooltip hover scanning via 0.1s ticker while the frame is shown (no per-frame OnUpdate).
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:HookScript ( "OnShow" , function ( self )
+        if self.GRM_AddonUsersTicker then
+            self.GRM_AddonUsersTicker:Cancel();
+            self.GRM_AddonUsersTicker = nil;
+        end
+        local function GRM_AddonUsersHoverUpdate()
             local isOver = false;
-            for i = 1 , #self.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings do
-                if self.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1]:IsMouseOver ( 2 , -2 , -2 , 2 ) then
-                    isOver = true;
-                    if not self.GRM_AddonUsersTooltip:IsVisible() and GRM_G.currentAddonUsers[i] ~= nil and GRM_G.currentAddonUsers[i][1] ~= nil then
-                        local classColorRGB = GRM.GetClassColorRGB ( GRM.GetPlayerClass ( GRM_G.currentAddonUsers[i][1] ) );
-                        self.GRM_AddonUsersTooltip:SetOwner( self.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1] , "ANCHOR_CURSOR" );
-                        self.GRM_AddonUsersTooltip:AddLine( GRM_G.currentAddonUsers[i][1] , classColorRGB[1] , classColorRGB[2] , classColorRGB[3] , true );
-                        self.GRM_AddonUsersTooltip:Show();
-                    end
-                    break
-                end
-            end
-            if not isOver then
-                self.GRM_AddonUsersTooltip:Hide();
-            end
-            self.timer2 = 0;
+                        for i = 1 , #self.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings do
+                            if self.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1]:IsMouseOver ( 2 , -2 , -2 , 2 ) then
+                                isOver = true;
+                                if not self.GRM_AddonUsersTooltip:IsVisible() and GRM_G.currentAddonUsers[i] ~= nil and GRM_G.currentAddonUsers[i][1] ~= nil then
+                                    local classColorRGB = GRM.GetClassColorRGB ( GRM.GetPlayerClass ( GRM_G.currentAddonUsers[i][1] ) );
+                                    self.GRM_AddonUsersTooltip:SetOwner( self.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1] , "ANCHOR_CURSOR" );
+                                    self.GRM_AddonUsersTooltip:AddLine( GRM_G.currentAddonUsers[i][1] , classColorRGB[1] , classColorRGB[2] , classColorRGB[3] , true );
+                                    self.GRM_AddonUsersTooltip:Show();
+                                end
+                                break
+                            end
+                        end
+                        if not isOver then
+                            self.GRM_AddonUsersTooltip:Hide();
+                        end
         end
-        -- Update the refresh frames...
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.timer = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.timer + elapsed;
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.timer >= 5 then
-            GRM.RegisterGuildAddonUsersRefresh ();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.timer = 0;
+        self.GRM_AddonUsersTicker = C_Timer.NewTicker ( 0.1 , function() GRM_AddonUsersHoverUpdate(); end );
+        GRM_AddonUsersHoverUpdate();
+    end );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:HookScript ( "OnHide" , function ( self )
+        if self.GRM_AddonUsersTicker then
+            self.GRM_AddonUsersTicker:Cancel();
+            self.GRM_AddonUsersTicker = nil;
         end
-    end);
+    end );
 
     -- Method:          GRM_UI.NameSearchTT( frameObject )
     -- What it Does:    Builds tooltip for search box
@@ -12978,29 +13059,40 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     -- For tooltip on the audit frame...
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-        self.timer2 = self.timer2 + elapsed;
-        if self.timer2 > 0.05 then
-            if self:IsMouseOver() then
-                if not GameTooltip:IsVisible() and ( self.GRM_AuditFrameText7:IsMouseOver ( 4 , -4 , -4 , 4 ) or self.GRM_AuditFrameText8:IsMouseOver ( 4 , -4 , -4 , 4 ) ) then
-                    GRM_UI.SetTooltipScale();
-                    GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-                    GameTooltip:AddLine ( GRM.L ( "WARNING!" ) , 0.9 , 0.8 , 0.5 );
-                    GameTooltip:AddLine ( GRM.L ( "Unique accounts pull from the server is known to be faulty" ) );
-                    GameTooltip:AddLine( GRM.L ( "Use only as an estimate. Hopefully Blizz fixes this soon" ) );
-                    GameTooltip:Show();
-
-                elseif GameTooltip:IsVisible() and not ( self.GRM_AuditFrameText7:IsMouseOver ( 4 , -4 , -4 , 4 ) or self.GRM_AuditFrameText8:IsMouseOver ( 4 , -4 , -4 , 4 ) ) then
-                    if GameTooltip:GetOwner() ~= nil and GameTooltip:GetOwner():GetName() == "GRM_AuditFrame" then
-                        GRM.RestoreTooltip();
-                    end
-                end
-            elseif GameTooltip:IsVisible() and GameTooltip:GetOwner() ~= nil and GameTooltip:GetOwner():GetName() == "GRM_AuditFrame" then
-                GRM.RestoreTooltip();
-            end
-            self.timer2 = 0;
+    -- CPU optimization: audit frame tooltip hover updates via 0.05s ticker while shown (no per-frame OnUpdate).
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:HookScript ( "OnShow" , function ( self )
+        if self.GRM_AuditHoverTicker then
+            self.GRM_AuditHoverTicker:Cancel();
+            self.GRM_AuditHoverTicker = nil;
         end
-    end);
+        local function GRM_AuditHoverUpdate()
+            if self:IsMouseOver() then
+                            if not GameTooltip:IsVisible() and ( self.GRM_AuditFrameText7:IsMouseOver ( 4 , -4 , -4 , 4 ) or self.GRM_AuditFrameText8:IsMouseOver ( 4 , -4 , -4 , 4 ) ) then
+                                GRM_UI.SetTooltipScale();
+                                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                                GameTooltip:AddLine ( GRM.L ( "WARNING!" ) , 0.9 , 0.8 , 0.5 );
+                                GameTooltip:AddLine ( GRM.L ( "Unique accounts pull from the server is known to be faulty" ) );
+                                GameTooltip:AddLine( GRM.L ( "Use only as an estimate. Hopefully Blizz fixes this soon" ) );
+                                GameTooltip:Show();
+            
+                            elseif GameTooltip:IsVisible() and not ( self.GRM_AuditFrameText7:IsMouseOver ( 4 , -4 , -4 , 4 ) or self.GRM_AuditFrameText8:IsMouseOver ( 4 , -4 , -4 , 4 ) ) then
+                                if GameTooltip:GetOwner() ~= nil and GameTooltip:GetOwner():GetName() == "GRM_AuditFrame" then
+                                    GRM.RestoreTooltip();
+                                end
+                            end
+                        elseif GameTooltip:IsVisible() and GameTooltip:GetOwner() ~= nil and GameTooltip:GetOwner():GetName() == "GRM_AuditFrame" then
+                            GRM.RestoreTooltip();
+                        end
+        end
+        self.GRM_AuditHoverTicker = C_Timer.NewTicker ( 0.05 , function() GRM_AuditHoverUpdate(); end );
+        GRM_AuditHoverUpdate();
+    end );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:HookScript ( "OnHide" , function ( self )
+        if self.GRM_AuditHoverTicker then
+            self.GRM_AuditHoverTicker:Cancel();
+            self.GRM_AuditHoverTicker = nil;
+        end
+    end );
     GRM_UI.GRM_AuditJDTool:ClearAllPoints();
     GRM_UI.GRM_AuditJDTool:SetPoint ( "CENTER" , UIParent );
     GRM_UI.GRM_AuditJDTool:SetFrameStrata ( "MEDIUM" );
@@ -13204,18 +13296,27 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM.AuditRefresh( true );
     end);
 
-    GRM_UI.GRM_AuditJDTool:SetScript ( "OnUpdate" , function ( self , elapsed )
-        GRM_UI.GRM_AuditJDTool.OnUpdateTimer = GRM_UI.GRM_AuditJDTool.OnUpdateTimer + elapsed;
-
-        if GRM_UI.GRM_AuditJDTool.OnUpdateTimer >= 5 then
-            if not GRM.IsPlayerAnOfficer() then
-                self:Hide();
-                GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Player no longer has officer access. Advanced Join Date Tool has been closed." ) )
-            end
-
-            GRM_UI.GRM_AuditJDTool.OnUpdateTimer = 0;
+    -- CPU optimization: audit JD tool periodic updates via 5s ticker while shown (no per-frame OnUpdate).
+    GRM_UI.GRM_AuditJDTool:HookScript ( "OnShow" , function ( self )
+        if self.GRM_AuditJDTicker then
+            self.GRM_AuditJDTicker:Cancel();
+            self.GRM_AuditJDTicker = nil;
         end
-    end);
+        local function GRM_AuditJDUpdate()
+            if not GRM.IsPlayerAnOfficer() then
+                            self:Hide();
+                            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Player no longer has officer access. Advanced Join Date Tool has been closed." ) )
+                        end
+        end
+        self.GRM_AuditJDTicker = C_Timer.NewTicker ( 5 , function() GRM_AuditJDUpdate(); end );
+        GRM_AuditJDUpdate();
+    end );
+    GRM_UI.GRM_AuditJDTool:HookScript ( "OnHide" , function ( self )
+        if self.GRM_AuditJDTicker then
+            self.GRM_AuditJDTicker:Cancel();
+            self.GRM_AuditJDTicker = nil;
+        end
+    end );
 
     GRM_UI.GRM_AuditJDTool:SetScript ( "OnHide" , function()
         if GRM_UI.GRM_GeneralPopupWindow:IsVisible() then
@@ -14617,53 +14718,63 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     if not isManualUpdate then
         -- Logic for sorting the ban list frames
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-            self.timerUpdate = self.timerUpdate + elapsed;
-            if self.timerUpdate > 0.05 then
-                if GRM.GetMouseFocus( GRM_UI.GRM_RosterChangeLogFrame ) and IsMouseButtonDown ( 1 ) and ( time() - self.timer ) > 0.2 then
-                    self.timer = time();
-                    local needsRefresh = false;
-
-                    local setValue = function ( int )
-                        if GRM_G.banDetailsControl[1] ~= int then
-                            GRM_G.banDetailsControl = { int , true };
-                        else
-                            if GRM_G.banDetailsControl[2] then
-                                GRM_G.banDetailsControl[2] = false;
-                            else
-                                GRM_G.banDetailsControl[2] = true;
+        -- CPU optimization: ban list hover/sort updates via 0.05s ticker while shown (no per-frame OnUpdate).
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:HookScript ( "OnShow" , function ( self )
+        if self.GRM_BanHoverTicker then
+            self.GRM_BanHoverTicker:Cancel();
+            self.GRM_BanHoverTicker = nil;
+        end
+        local function GRM_BanHoverUpdate()
+            if GRM.GetMouseFocus( GRM_UI.GRM_RosterChangeLogFrame ) and IsMouseButtonDown ( 1 ) and ( time() - self.timer ) > 0.2 then
+                                self.timer = time();
+                                local needsRefresh = false;
+            
+                                local setValue = function ( int )
+                                    if GRM_G.banDetailsControl[1] ~= int then
+                                        GRM_G.banDetailsControl = { int , true };
+                                    else
+                                        if GRM_G.banDetailsControl[2] then
+                                            GRM_G.banDetailsControl[2] = false;
+                                        else
+                                            GRM_G.banDetailsControl[2] = true;
+                                        end
+                                    end
+                                end
+            
+                                if self.GRM_CoreBanListFrameTitleText2:IsMouseOver ( 1 , -1 , -1 , 1 ) then
+                                    setValue ( 2 );
+                                    needsRefresh = true;
+                                elseif self.GRM_CoreBanListFrameTitleText3:IsMouseOver ( 1 , -1 , -1 , 1 ) then
+                                    setValue ( 3 );
+                                    needsRefresh = true;
+                                elseif self.GRM_CoreBanListFrameTitleText4:IsMouseOver ( 1 , -1 , -1 , 1 ) then
+                                    setValue ( 4 );
+                                    needsRefresh = true;
+                                end
+                                if needsRefresh then
+                                    GRM.RefreshBanListFrames();
+                                end
                             end
-                        end
-                    end
-
-                    if self.GRM_CoreBanListFrameTitleText2:IsMouseOver ( 1 , -1 , -1 , 1 ) then
-                        setValue ( 2 );
-                        needsRefresh = true;
-                    elseif self.GRM_CoreBanListFrameTitleText3:IsMouseOver ( 1 , -1 , -1 , 1 ) then
-                        setValue ( 3 );
-                        needsRefresh = true;
-                    elseif self.GRM_CoreBanListFrameTitleText4:IsMouseOver ( 1 , -1 , -1 , 1 ) then
-                        setValue ( 4 );
-                        needsRefresh = true;
-                    end
-                    if needsRefresh then
-                        GRM.RefreshBanListFrames();
-                    end
-                end
-
-                if self.GRM_CoreBanListFrameTitleText2:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_CoreBanListFrameTitleText3:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_CoreBanListFrameTitleText4:IsMouseOver ( 1 , -1 , -1 , 1 ) then
-                    if not self.GRM_BanHeaderTooltip:IsVisible() then
-                        self.GRM_BanHeaderTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-                        self.GRM_BanHeaderTooltip:AddLine( GRM.L ( "Click to Sort" ) );
-                        self.GRM_BanHeaderTooltip:Show();
-                    end;
-                elseif self.GRM_BanHeaderTooltip:IsVisible() then
-                    self.GRM_BanHeaderTooltip:Hide();
-                end
-
-                self.timerUpdate = 0;
-            end
-        end);
+            
+                            if self.GRM_CoreBanListFrameTitleText2:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_CoreBanListFrameTitleText3:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_CoreBanListFrameTitleText4:IsMouseOver ( 1 , -1 , -1 , 1 ) then
+                                if not self.GRM_BanHeaderTooltip:IsVisible() then
+                                    self.GRM_BanHeaderTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                                    self.GRM_BanHeaderTooltip:AddLine( GRM.L ( "Click to Sort" ) );
+                                    self.GRM_BanHeaderTooltip:Show();
+                                end;
+                            elseif self.GRM_BanHeaderTooltip:IsVisible() then
+                                self.GRM_BanHeaderTooltip:Hide();
+                            end
+        end
+        self.GRM_BanHoverTicker = C_Timer.NewTicker ( 0.05 , function() GRM_BanHoverUpdate(); end );
+        GRM_BanHoverUpdate();
+    end );
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:HookScript ( "OnHide" , function ( self )
+        if self.GRM_BanHoverTicker then
+            self.GRM_BanHoverTicker:Cancel();
+            self.GRM_BanHoverTicker = nil;
+        end
+    end );
     end
 
     -- UnBanSyncMessage
@@ -15267,27 +15378,37 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     if not isManualUpdate then
-        GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-            self.timer2 = self.timer2 + elapsed;
-            self.timer1 = self.timer1 + elapsed;
-            if self.timer2 > 0.05 then
-                if ( self.GRM_AltGroupingName:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_AltGroupingLastOnline:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_AltGroupingLevel:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_AltGroupingRank:IsMouseOver ( 1 , -1 , -1 , 1 ) ) then
-                    if not self.GRM_AltGroupHeaderTooltip:IsVisible() then
-                        self.GRM_AltGroupHeaderTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-                        self.GRM_AltGroupHeaderTooltip:AddLine( GRM.L ( "Click to Sort" ) );
-                        self.GRM_AltGroupHeaderTooltip:Show();
-                    end;
-                elseif self.GRM_AltGroupHeaderTooltip:IsVisible() then
-                    self.GRM_AltGroupHeaderTooltip:Hide();
-                end
-
-                if self.timer1 > 300 then
-                    GRM.BuildAltGroupingScrollFrame( GRM_G.currentName );      -- Rebuild every 5 min just in case changes.
-                    self.timer1 = 0;
-                end
-                self.timer2 = 0;
-            end
-        end);
+        -- CPU optimization: alt grouping hover updates via 0.05s ticker while shown (no per-frame OnUpdate).
+    GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:HookScript ( "OnShow" , function ( self )
+        if self.GRM_AltGroupTicker then
+            self.GRM_AltGroupTicker:Cancel();
+            self.GRM_AltGroupTicker = nil;
+        end
+        local function GRM_AltGroupHoverUpdate()
+            if ( self.GRM_AltGroupingName:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_AltGroupingLastOnline:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_AltGroupingLevel:IsMouseOver ( 1 , -1 , -1 , 1 ) or self.GRM_AltGroupingRank:IsMouseOver ( 1 , -1 , -1 , 1 ) ) then
+                                if not self.GRM_AltGroupHeaderTooltip:IsVisible() then
+                                    self.GRM_AltGroupHeaderTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                                    self.GRM_AltGroupHeaderTooltip:AddLine( GRM.L ( "Click to Sort" ) );
+                                    self.GRM_AltGroupHeaderTooltip:Show();
+                                end;
+                            elseif self.GRM_AltGroupHeaderTooltip:IsVisible() then
+                                self.GRM_AltGroupHeaderTooltip:Hide();
+                            end
+            
+                            if self.timer1 > 300 then
+                                GRM.BuildAltGroupingScrollFrame( GRM_G.currentName );      -- Rebuild every 5 min just in case changes.
+                                self.timer1 = 0;
+                            end
+        end
+        self.GRM_AltGroupTicker = C_Timer.NewTicker ( 0.05 , function() GRM_AltGroupHoverUpdate(); end );
+        GRM_AltGroupHoverUpdate();
+    end );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_AltGroupingScrollBorderFrame:HookScript ( "OnHide" , function ( self )
+        if self.GRM_AltGroupTicker then
+            self.GRM_AltGroupTicker:Cancel();
+            self.GRM_AltGroupTicker = nil;
+        end
+    end );
     end
 
     -- GENERAL POPUP WINDOW FOR ANY FEATURE TO USE
@@ -16323,20 +16444,29 @@ GRM_UI.MainRoster_OnShow = function( isManual )
             GRM_UI.GRM_LoadLogButton.timer = 0;
 
             -- On Uodate logic
-            GRM_UI.GRM_LoadLogButton:SetScript ( "OnUpdate" , function ( _ , elapsed )
-                GRM_UI.GRM_LoadLogButton.timer = GRM_UI.GRM_LoadLogButton.timer + elapsed;
-                if GRM_UI.GRM_LoadLogButton.timer >= 1 then
-
-                    -- If the button is not visible... you know the window has shrunk. You need to hide the checkbox.
-                    if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID and nextToButton:IsVisible() and not rosterFrame.GRM_EnableMouseOver:IsVisible() then
-                        rosterFrame.GRM_EnableMouseOver:Show();
-                    elseif CommunitiesFrame:GetSelectedClubId() ~= GRM_G.gClubID or ( not nextToButton:IsVisible() and rosterFrame.GRM_EnableMouseOver:IsVisible() ) then
-                        rosterFrame.GRM_EnableMouseOver:Hide();
-                    end
-
-                    GRM_UI.GRM_LoadLogButton.timer = 0;
+            -- CPU optimization: load log button periodic checks via 1s ticker while shown (no per-frame OnUpdate).
+            GRM_UI.GRM_LoadLogButton:HookScript ( "OnShow" , function ( self )
+                if self.GRM_LoadLogTicker then
+                    self.GRM_LoadLogTicker:Cancel();
+                    self.GRM_LoadLogTicker = nil;
                 end
-            end);
+                local function GRM_LoadLogUpdate()
+            -- If the button is not visible... you know the window has shrunk. You need to hide the checkbox.
+                                if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID and nextToButton:IsVisible() and not rosterFrame.GRM_EnableMouseOver:IsVisible() then
+                                    rosterFrame.GRM_EnableMouseOver:Show();
+                                elseif CommunitiesFrame:GetSelectedClubId() ~= GRM_G.gClubID or ( not nextToButton:IsVisible() and rosterFrame.GRM_EnableMouseOver:IsVisible() ) then
+                                    rosterFrame.GRM_EnableMouseOver:Hide();
+                                end
+                end
+                self.GRM_LoadLogTicker = C_Timer.NewTicker ( 1 , function() GRM_LoadLogUpdate(); end );
+                GRM_LoadLogUpdate();
+            end );
+            GRM_UI.GRM_LoadLogButton:HookScript ( "OnHide" , function ( self )
+                if self.GRM_LoadLogTicker then
+                    self.GRM_LoadLogTicker:Cancel();
+                    self.GRM_LoadLogTicker = nil;
+                end
+            end );
         else
             rosterFrame.GRM_EnableMouseOver:SetPoint ( "BOTTOMRIGHT" , nextToButton , "TOPRIGHT" , -1 , -3 );
         end

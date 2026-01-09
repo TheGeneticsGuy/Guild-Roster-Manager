@@ -8392,7 +8392,13 @@ local macroSync = { ["GRM_MACRO_T"] = true , ["GRM_Macro_SK"] = true , ["GRM_Mac
 -- Purpose:         Need to make rules to get this to behave properly!
 GRMsync.RegisterCommunicationProtocols = function()
     GRMsync.MessageTracking:RegisterEvent ( "CHAT_MSG_ADDON" );
-    GRMsync.MessageTracking:SetScript ( "OnUpdate" , GRMsync.MessageThrottleUpdate );
+        -- Ticker-based throttling (avoids per-frame OnUpdate cost)
+    if not GRMsync.MessageTracking._grmThrottleTicker then
+        GRMsync.MessageTracking._grmThrottleTicker = C_Timer.NewTicker(0.05, function()
+            GRMsync.MessageThrottleUpdate(GRMsync.MessageTracking, 0.05);
+        end);
+    end
+
     -- Register used prefixes!
     GRMsync.RegisterPrefixes ( GRMsyncGlobals.listOfPrefixes );
 
@@ -8400,7 +8406,12 @@ GRMsync.RegisterCommunicationProtocols = function()
     GRMsync.MessageTracking:SetScript ( "OnEvent" , function( self , event , prefix , msg , channel , sender )
         if not IsInGuild() then
             self:UnregisterAllEvents();
-        else
+        
+            if self._grmThrottleTicker then
+                self._grmThrottleTicker:Cancel();
+                self._grmThrottleTicker = nil;
+            end
+else
 
             if event == "CHAT_MSG_ADDON" and ( channel == GRMsyncGlobals.channelName or channel == "WHISPER" ) and GRMsync.IsPrefixVerified ( prefix ) then     -- Don't need to register my own prefixes.
 

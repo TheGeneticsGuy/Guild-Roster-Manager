@@ -282,15 +282,8 @@ end
 -- Purpose:         Easy access using Club Communities API
 Scan.GetClubMemberTable = function()
     if not HAS_CLUB then return nil end
-    local members = C_Club.GetClubMembers(GRM_G.gClubID);
-    local clubMemberTable = {};
-    for i = 1 , #members do
-        local member = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
-
-        table.insert ( clubMemberTable , member );
-    end
-
-    return clubMemberTable;
+    -- Return member IDs (lighter) and fetch memberInfo as needed during throttled scan.
+    return C_Club.GetClubMembers(GRM_G.gClubID);
 end
 
 -- Method:          Scan.GetGuildMemberIndexTable()
@@ -330,7 +323,9 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
     local sex
 
     while index <= #members do
-        memberInfo = members[index];
+        local memberId = members[index];
+
+        memberInfo = memberId and C_Club.GetMemberInfo(GRM_G.gClubID, memberId) or nil;
 
         if memberInfo and memberInfo.guid and memberInfo.name then
             -- local name , sex = GRM.GetFullNameClubMember(memberInfo.guid);

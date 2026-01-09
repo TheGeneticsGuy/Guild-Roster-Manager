@@ -1384,8 +1384,17 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_G.PlayersWithNotesToAdd = {};
         end
 
-        GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-            self.Timer = self.Timer + elapsed;
+        -- Core macro processing ticker (replaces per-frame OnUpdate to reduce CPU)
+        if not GRM_UI.GRM_ToolCoreFrame._grmCoreTicker then
+            GRM_UI.GRM_ToolCoreFrame.Timer = GRM_UI.GRM_ToolCoreFrame.Timer or 0;
+            GRM_UI.GRM_ToolCoreFrame._grmCoreTicker = C_Timer.NewTicker(0.05, function()
+                local self = GRM_UI.GRM_ToolCoreFrame;
+                -- Only tick while visible or when macro work is pending.
+                if (not self:IsShown()) and (not GRM_G.HK) and (not GRM_G.MacroInProgress) then
+                    return;
+                end
+                local elapsed = 0.05;
+                self.Timer = (self.Timer or 0) + elapsed;
             if self.Timer >= 0.025 then
 
                 -- Macro runs GRM.RMM() which resets macro and sets .HK true
@@ -1437,9 +1446,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
             --         GRM_UI.EstablishAsyncFrameRefreshFlag ( "quedMacro" ,{true,true,true,false,true,true,true})
             --     end);
             -- end
-        end);
+            end);
+        end
 
         GRM_UI.GRM_ToolCoreFrame:SetScript ( "OnHide" , function()
+            if GRM_UI.GRM_ToolCoreFrame._grmCoreTicker then
+                GRM_UI.GRM_ToolCoreFrame._grmCoreTicker:Cancel();
+                GRM_UI.GRM_ToolCoreFrame._grmCoreTicker = nil;
+            end
             -- Clear the macro!
             GRM.CreateMacro ( "/run GRM.Report(\"" .. GRM.L ( "Reserved for GRM Macro Tool Usage. Please do not delete." ) .."\")" , "GRM_Tool" , "INV_MISC_QUESTIONMARK" , GRM_G.MacroHotKey , true );
             GRM_G.MacroInProgress = false;
