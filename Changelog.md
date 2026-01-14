@@ -6,6 +6,9 @@
 
 * On new anniversary expansion releases, in some cases Blizz tweaks the GUIDs of the player. This has bad consequences for GRM. I wrote a way to detect and avoid losing your guild player data as a result. If it has already happened to you, if you have a backup GRM savedVaraibles file just restore it and load the game again.
 
+***QUALITY OF LIFE***
+
+* The GRM Log Options (click button below the log color filters on the right) now can delete more than 9999 log lines at a time. It now can do over 100,000+.
 
 
 ## **VERSION 1.9936 - December 29th, 2025**

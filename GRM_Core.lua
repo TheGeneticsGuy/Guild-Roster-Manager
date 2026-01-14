@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9936";
+GRM_G.Version = "R1.9937";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1766998337";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1766998337;            -- In Epoch Time
+GRM_G.PatchDayString = "1768429552";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1768429552;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 110207;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.56;
+GRM_G.GroupInfoV = 1.57;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -2692,8 +2692,6 @@ GRM.RestoreAllOldNotes = function()
         end
     end
 end
-
-local g,a,c,d=GRM.GetFormerMembers(),GRM.G_Util.GetNumGuildies(),0,0;for i=1,a do n=GetGuildRosterInfo(i);if g[n] then c=c+1;else d=d+1;end;end;print("Found: "..c .. "\nMissing: "..(d))
 
 -- Method:          GRM.ChangeServerNameOfAll ( table , string , bool , bool , bool )
 -- What it Does:    Converts all of the server names of the players on the saved guild DB to the new server, in case of a guild transfer
