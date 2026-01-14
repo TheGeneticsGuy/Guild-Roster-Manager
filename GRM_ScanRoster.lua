@@ -3,6 +3,9 @@
 local Scan = {};
 GRM.Scan = Scan;
 
+-- Globals
+GRM_G.processNewServerGUID = {false,"",""}; -- For edge case where part of GUID changes on new server like pre-patch Classic Drops
+
 -- Method:          Scan.NoLivecheck()
 -- What it Does:    It compares the live Check event table if a live scan is going, and it ignores checking roster
 -- Purpose:         To prevent overlap reporting erroneously to the log.
@@ -621,6 +624,56 @@ Scan.GuildNameChanged = function(currentGuildName)
     return result, currentGuildName, oldGuildName;
 end
 
+-- Method:          Scan.GUID_EdgeCaseMatch ( string , string )
+-- What it Does:    Ensures GUID comparison is only on the end value
+-- Purpose:    If a guild transferred to a new server, it might change the server identifier middle value, but GUID is same. This resolves it
+Scan.GUID_EdgeCaseMatch = function( oldGUID , newGUID)
+    local pattern = ("Player%-%w+%-(%w+)");
+    if oldGUID:match(pattern) == newGUID:match(pattern) then
+        return true;
+    end
+    return false;
+end
+
+-- Method:          Scan.processNewGUIDFormerMembers()
+-- What it Does:    Updates the GUID
+-- Purpose:         On a server change, there can be a time where the GUID is modified but not fully changed, like during classic
+--                  going from one expansion to the next. This preserves the guild data
+Scan.processNewGUIDFormerMembers = function()
+    GRM.Report( GRM.L ( "GRM:" ) .. " " .. GRM.L("Expansion Change Detected - Updating player server IDs..." ) );
+    -- Update former members
+    local database = { GRM.GetFormerMembers() , GRM_Restore_FormerMembers[GRM_G.guildName] };
+
+    for i = 1 , #database do
+        for _, player in pairs(database[i]) do
+            -- Ok, let's update the GUIDs here
+            -- self
+            if player.GUID and player.GUID ~= "" then
+                player.GUID = string.gsub(player.GUID , GRM_G.processNewServerGUID[2] , GRM_G.processNewServerGUID[3] );
+            end
+            -- alts
+            if #player.altsAtTimeOfLeaving > 0 then
+                for j = 1, #player.altsAtTimeOfLeaving do
+                    if player.altsAtTimeOfLeaving[j][3] then
+                        player.altsAtTimeOfLeaving[j][3] = string.gsub(player.altsAtTimeOfLeaving[j][3] , GRM_G.processNewServerGUID[2] , GRM_G.processNewServerGUID[3] );
+                    end
+                end
+            end
+            --main
+            if #player.mainAtTimeOfLeaving > 0 and player.mainAtTimeOfLeaving[3] then
+                player.mainAtTimeOfLeaving[3] = string.gsub(player.mainAtTimeOfLeaving[3] , GRM_G.processNewServerGUID[2] , GRM_G.processNewServerGUID[3] );
+            end
+        end
+    end
+
+    C_Timer.After ( 1.5 , function()
+        GRM.Report ( GRM.L("GRM:") .. " " .. GRM.L ( "Database updated with new server IDs!" ) );
+    end);
+    -- Reset state
+    GRM_G.processNewServerGUID={false,"",""};
+end
+
+
 -- Method:          Scan.CheckPlayerChanges ( array , array , ind , guildTable )
 -- What it Does:    Scans through guild roster and re-checks for any  (Will only fire if guild is found!)
 -- Purpose:         Keep whoever uses the addon in the know instantly of what is going and changing in the guild.
@@ -650,6 +703,20 @@ Scan.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
             updatedPlayer = roster[orderedRoster[i]];
 
             if player then
+
+                -- Edge case on new expansion releases.
+                if player.GUID ~= updatedPlayer.GUID then
+                    if Scan.GUID_EdgeCaseMatch(player.GUID , updatedPlayer.GUID) then
+
+                        -- Store the old and new GUID changes to update backups and other vars
+                        if not GRM_G.processNewServerGUID[1] then
+                            local pattern = "Player%-(%w+)%-%w+";
+                            GRM_G.processNewServerGUID = { true , player.GUID:match(pattern) , updatedPlayer.GUID:match(pattern) };
+                        end
+
+                        player.GUID = updatedPlayer.GUID;
+                    end
+                end
 
                 -- Compare GUIDs not just names
                 if player.GUID == updatedPlayer.GUID or
@@ -707,6 +774,9 @@ end
 -- Purpose:         Communication
 Scan.FinishedScan = function()
     Scan.FinalReport();
+    if GRM_G.processNewServerGUID[1] then
+        Scan.processNewGUIDFormerMembers();
+    end
 
     -- Disable manual scan if activated.
     if GRM_G.ManualScanEnabled and GRM_UI.GRM_ToolCoreFrame.MacroSuccess then

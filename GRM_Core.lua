@@ -2693,6 +2693,8 @@ GRM.RestoreAllOldNotes = function()
     end
 end
 
+local g,a,c,d=GRM.GetFormerMembers(),GRM.G_Util.GetNumGuildies(),0,0;for i=1,a do n=GetGuildRosterInfo(i);if g[n] then c=c+1;else d=d+1;end;end;print("Found: "..c .. "\nMissing: "..(d))
+
 -- Method:          GRM.ChangeServerNameOfAll ( table , string , bool , bool , bool )
 -- What it Does:    Converts all of the server names of the players on the saved guild DB to the new server, in case of a guild transfer
 -- Purpose:         Restore all guild data easily when transferring servers.

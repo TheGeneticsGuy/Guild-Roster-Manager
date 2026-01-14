@@ -210,11 +210,15 @@ end
 -- Purpose:         Necessary for asynchronous scan through the guild since you can't use the pairs dictionary scan
 G_Util.GetSortedPlayerNames = function()
     local names = {}
-    for name, player in pairs(GRM.GetGuild()) do
-        if type(player) == "table" then
-            table.insert(names, name)
+    local guild = GRM.GetGuild()
+
+    if guild then
+        for name, player in pairs(GRM.GetGuild()) do
+            if type(player) == "table" then
+                table.insert(names, name)
+            end
         end
+        table.sort(names)
     end
-    table.sort(names)
     return names
 end

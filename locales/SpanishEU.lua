@@ -1972,4 +1972,8 @@ GRML.SpanishEU = function()
     GRM_L["Want to learn more about GRM, check out the FAQ, changelog, and receive general tips and tricks? Check out the website!"] = true
     GRM_L["Check out the new GRM website"] = true
 
+    -- 1.99347
+    GRM_L["Expansion Change Detected - Updating player server IDs..."] = true
+    GRM_L["Database updated with new server IDs!"] = true
+
 end
