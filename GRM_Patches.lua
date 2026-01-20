@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 148 - 2025-12-29
+--- Total Patches: 149   2026-01-20
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1801,8 +1801,21 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM.Report(GRM.L( "Check out the new GRM website" ) .. "\n" .. GRM.WebApps.GetWebAppURL("www" , true) );
         GRM.Report(" ");
 
-        GRM_AddonSettings_Save.VERSION = "R1.99346";
+        GRM_AddonSettings_Save.VERSION = "R1.9936";
         if loopCheck ( 1.9936 ) then
+            return;
+        end
+    end
+
+    -- 149
+    if numericV < 1.99371 and baseValue < 1.99371 then
+        GRM_Patch.FixAltGroupData();
+        GRM_Patch.FixBirthdayPostAnniversary();
+        GRM_Patch.AltGroupUpdateTweak();
+        GRM_Patch.AddNewSetting ( "ignoreDeathChannel" , false ); -- I want to reset it all to false
+
+        GRM_AddonSettings_Save.VERSION = "R1.99371";
+        if loopCheck ( 1.99371 ) then
             return;
         end
     end
@@ -9955,6 +9968,73 @@ GRM_Patch.FixLocalizationTimestampBug = function()
             for _ , player in pairs ( guildData ) do
                 if type( player ) == "table" then
                     if player.birthdayInfo.date[2] == nil then
+                        player.birthdayInfo = {};
+                        player.birthdayInfo.date = { 0 , 0 };
+                        player.birthdayInfo.announced = false;
+                        player.birthdayInfo.timeUpdated = 0;
+                        player.birthdayInfo.unknown = false;
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- R1.99371
+-- Method:          GRM_Patch.FixBirthdayPostAnniversary()
+-- What it Does:    Fixes birthday data that got corrupted during the anniversary update
+-- Purpose:         Some data didn't get configured properly from the update
+GRM_Patch.FixBirthdayPostAnniversary = function()
+    local data = { GRM_GuildMemberHistory_Save , GRM_GuildDataBackup_Save };
+    local altGroups = {};
+    local members = {};
+
+    for i = 1 , 2 do
+
+        for guildName , guildData in pairs ( data[i] ) do
+            if type ( guildData ) == "table" then
+                if i == 1 then
+                    altGroups = GRM.GetGuildAlts ( guildName );
+                    members = guildData;
+                else
+                    altGroups = guildData.alts;
+                    members = GRM_Restore_Members[guildName];
+                end
+
+                -- Fix the alt Group bday first
+                for _ , group in pairs ( altGroups ) do
+                    if not group.birthdayInfo or not group.birthdayInfo.date or not group.birthdayInfo.date[1] then
+                        group.birthdayInfo = {};
+                        group.birthdayInfo.date = { 0 , 0 };
+                        group.birthdayInfo.announced = false;
+                        group.birthdayInfo.timeUpdated = 0;
+                        group.birthdayInfo.unknown = false;
+                    end
+                end
+
+                -- Then the player
+                if members then
+                    for _ , player in pairs ( members ) do
+                        if type( player ) == "table" then
+                            if not player.birthdayInfo or not player.birthdayInfo.date or not player.birthdayInfo.date[1] then
+                                player.birthdayInfo = {};
+                                player.birthdayInfo.date = { 0 , 0 };
+                                player.birthdayInfo.announced = false;
+                                player.birthdayInfo.timeUpdated = 0;
+                                player.birthdayInfo.unknown = false;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    for _ , guildData in pairs ( GRM_PlayersThatLeftHistory_Save ) do
+        if type ( guildData ) == "table" then
+            for _ , player in pairs ( guildData ) do
+                if type( player ) == "table" then
+                    if not player.birthdayInfo or not player.birthdayInfo.date or not player.birthdayInfo.date[1] then
                         player.birthdayInfo = {};
                         player.birthdayInfo.date = { 0 , 0 };
                         player.birthdayInfo.announced = false;

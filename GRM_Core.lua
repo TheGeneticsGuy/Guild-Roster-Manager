@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9937";
+GRM_G.Version = "R1.99371";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1768429552";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1768429552;            -- In Epoch Time
+GRM_G.PatchDayString = "1768947705";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1768947705;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 110207;
+GRM_G.RetailBaseBuild = 120000;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.57;
+GRM_G.GroupInfoV = 1.58;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -7494,7 +7494,7 @@ GRM.ImportJoinDate = function(gName)
         end
     end
 end
--- /run GRM_PlayerListOfAlts_Save[GRM_G.guildName]["Dezmonnd-Zul'jin"] = nil
+
 ----------------------------------
 ------ LOG FUNCTIONS -------------
 ----------------------------------
@@ -22907,6 +22907,24 @@ GRM.InitializePreCheck = function(recursive)
     end
 end
 
+-- Method:          GRM.AutoImportDate( table )
+-- What it Does:    Automatically imports the join date for the player if they have not already
+-- Purpose:         To ensure the player's join date is recorded for accurate tracking.
+GRM.AutoImportDate = function( userGuildAltsTable)
+    userGuildAltsTable = userGuildAltsTable or GRM.GetAddOnUserGuildAlts();
+
+    if userGuildAltsTable and userGuildAltsTable[GRM_G.addonUser] then
+
+        if #userGuildAltsTable[GRM_G.addonUser] == 0 then
+            userGuildAltsTable[GRM_G.addonUser][1] = false;
+        end
+
+        if not userGuildAltsTable[GRM_G.addonUser][1] then
+            GRM.ImportJoinDate(GRM_G.guildName);
+        end
+    end
+end
+
 -- Method:          GRM.TrackingConfiguration( bool )
 -- What it Does:    Initializes the first check on login after configuring all the initial details for guild
 -- Purpose:         Control flow of data inquiries
@@ -22988,17 +23006,14 @@ GRM.TrackingConfiguration = function(forced)
 
         -- Auto import if it is player's own toon.
         local userGuildAltsTable = GRM.GetAddOnUserGuildAlts();
-
-        if userGuildAltsTable[GRM_G.addonUser] then
-
-            if #userGuildAltsTable[GRM_G.addonUser] == 0 then
-                userGuildAltsTable[GRM_G.addonUser][1] = false;
-            end
-
-            if not userGuildAltsTable[GRM_G.addonUser][1] then
-                GRM.ImportJoinDate(GRM_G.guildName);
-            end
+        if userGuildAltsTable and userGuildAltsTable[GRM_G.addonUser] then
+            GRM.AutoImportDate( userGuildAltsTable);
+        else
+            -- First time you ever login this is not configured and needs
+            -- delay for first toon in guild
+            C_Timer.After(10, GRM.AutoImportDate );
         end
+        
 
         C_Timer.After(5, function()
             GRM.UpdateGuildLeaderPermissions(false, false);

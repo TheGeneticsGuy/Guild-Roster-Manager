@@ -312,7 +312,7 @@ HC.HardCoreInitialize = function()
                 end
 
                 local msg = GRM.L("You will not be asked this again.")
-                GRM.InitiateConfirmFrame ( GRM.L ( "For GRM to log guild member deaths, you will need to join the \"{name}\" channel. Do you wish to join?" , GRM_G.HardCoreDeaths ) .. "\n\n" .. msg , EnabledChannel , nil , nil , IgnoreDeathChannel , false , 375 , 140 );
+                GRM.InitiateConfirmFrame ( GRM.L ( "For GRM to log guild member deaths, you will need to join the \"{name}\" channel. Do you wish to join?" , GRM_G.HardCoreDeaths ) .. "\n\n" .. msg , EnabledChannel , nil , GRM.L("No") , IgnoreDeathChannel , true , 375 , 140 );
             end
 
             return false;

@@ -1969,6 +1969,10 @@ GRML.German = function()
     GRM_L["Expansion Change Detected - Updating player server IDs..."] = true
     GRM_L["Database updated with new server IDs!"] = true
 
+    -- 1.99347
+    GRM_L["No"] = true
+    GRM_L["Loading..."] = true
+    
 end
 
     -- THANK YOU @Nehry for this full translation up to R1.20

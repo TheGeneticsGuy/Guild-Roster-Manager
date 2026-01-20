@@ -801,6 +801,7 @@ GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_Too
 -- Guild Event Log Frame Confirm Details.
 GRM_UI.GRM_RosterConfirmFrame = CreateFrame ( "Frame" , "GRM_RosterConfirmFrame" , UIParent , "BasicFrameTemplate" );
 GRM_UI.GRM_RosterConfirmFrameText = GRM_UI.GRM_RosterConfirmFrame:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny");
+GRM_UI.GRM_RosterConfirmFrame:Hide();
 GRM_UI.GRM_RosterConfirmYesButton = CreateFrame ( "Button" , "GRM_RosterConfirmYesButton" , GRM_UI.GRM_RosterConfirmFrame , "UIPanelButtonTemplate" );
 GRM_UI.GRM_RosterConfirmYesButtonText = GRM_UI.GRM_RosterConfirmYesButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny");
 GRM_UI.GRM_RosterConfirmCancelButton = CreateFrame ( "Button" , "GRM_RosterConfirmCancelButton" , GRM_UI.GRM_RosterConfirmFrame , "UIPanelButtonTemplate" );
@@ -5584,9 +5585,10 @@ GRM_UI.PreAddonLoadUI = function()
 
                         if MinimapDataBroker then
                             GRM_UI.LDB = MinimapDataBroker:NewDataObject ( "Guild_Roster_Manager", {
-                                type = "launcher",
+                                type  = "data source",
                                 icon = "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp",
-                                label = "...",
+                                label = GRM.L("Guild Roster Manager"),
+                                text = GRM.L ("Loading..."),
                                 OnClick = MinimapButtonClick,
                                 OnTooltipShow = MinimapOnEnter,
                             } );
@@ -5600,10 +5602,12 @@ GRM_UI.PreAddonLoadUI = function()
                                         local numTotal = GRM.G_Util.GetNumGuildies()
 
                                         if numTotal and numTotal > 0 then
-                                            GRM_UI.LDB.label = string.format("|CFF00CCFF%d/%d|r ", numOnline, numTotal) .. GRM.L("Online");
+                                            GRM_UI.LDB.label = GRM.L("Online");
+                                            GRM_UI.LDB.text = string.format ( "|CFF00CCFF%d/%d" , numOnline , numTotal );
                                         end
                                     else
-                                        GRM_UI.LDB.label = GRM.L ( "Not in Guild" );
+                                        GRM_UI.LDB.label = GRM.L ("GRM");
+                                        GRM_UI.LDB.text = GRM.L ( "Not in Guild" );
                                     end
                                 end
                                 -- Initialize
@@ -5809,37 +5813,41 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.AdjustTextColoring ( GRM.S().joinDateDestination );
     end
 
-    GRM_UI.GRM_RosterConfirmFrame:Hide();
-    GRM_UI.GRM_RosterConfirmFrame:ClearAllPoints();
-    GRM_UI.GRM_RosterConfirmFrame:SetPoint ( "CENTER" , UIParent , 0 , 200 );
-    GRM_UI.GRM_RosterConfirmFrame:SetSize ( 275 , 120 );
-    GRM_UI.GRM_RosterConfirmFrame:SetFrameStrata ( "FULLSCREEN_DIALOG" );
-    GRM_UI.GRM_RosterConfirmFrameText:SetPoint ( "TOP" , GRM_UI.GRM_RosterConfirmFrame , "TOP" , 0 , -30 );
+    if GRM_UI.GRM_RosterConfirmFrame:GetWidth() == 0 then
+        GRM_UI.GRM_RosterConfirmFrame:ClearAllPoints();
+        GRM_UI.GRM_RosterConfirmFrame:SetPoint ( "CENTER" , UIParent , 0 , 200 );
+        GRM_UI.GRM_RosterConfirmFrame:SetSize ( 275 , 120 );
+        GRM_UI.GRM_RosterConfirmFrame:SetFrameStrata ( "FULLSCREEN_DIALOG" );
+        GRM_UI.GRM_RosterConfirmFrameText:SetPoint ( "TOP" , GRM_UI.GRM_RosterConfirmFrame , "TOP" , 0 , -30 );
+        GRM_UI.GRM_RosterConfirmFrameText:SetWidth ( 265 );
+        GRM_UI.GRM_RosterConfirmFrameText:SetSpacing ( 1 );
+        GRM_UI.GRM_RosterConfirmFrameText:SetTextColor ( 1.0 , 0 , 0 , 1.0 );
+        GRM_UI.GRM_RosterConfirmYesButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_RosterConfirmFrame , 15 , 5 );
+        GRM_UI.GRM_RosterConfirmYesButton:SetSize ( 70 , 35 );
+        GRM_UI.GRM_RosterConfirmYesButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterConfirmYesButton );
+        
+
+        GRM_UI.GRM_RosterConfirmCancelButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_RosterConfirmFrame , -15 , 5 );
+        GRM_UI.GRM_RosterConfirmCancelButton:SetSize ( 70 , 35 );
+        GRM_UI.GRM_RosterConfirmCancelButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterConfirmCancelButton );
+        
+        GRM_UI.GRM_RosterConfirmCancelButtonText:SetText ( GRM.L ( "Cancel" ) );
+        GRM_UI.ScaleFontStringToObjectSize ( true , 70 , GRM_UI.GRM_RosterConfirmCancelButtonText , 4 );
+        GRM_UI.GRM_RosterConfirmCancelButton:SetScript ( "OnClick" , function ( _ , button )
+            if button == "LeftButton" then
+                GRM_UI.GRM_RosterConfirmFrame:Hide();
+            end
+        end);
+        GRM_UI.GRM_RosterConfirmFrame:SetScript ( "OnHide" , function ()
+            GRM_UI.GRM_RosterChangeLogFrame:EnableMouse ( true );
+            GRM_UI.GRM_RosterChangeLogFrame:SetMovable ( true );
+        end);
+        
+    end
     GRM_UI.GRM_RosterConfirmFrameText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_RosterConfirmFrameText:SetWidth ( 265 );
-    GRM_UI.GRM_RosterConfirmFrameText:SetSpacing ( 1 );
-    GRM_UI.GRM_RosterConfirmFrameText:SetTextColor ( 1.0 , 0 , 0 , 1.0 );
-    GRM_UI.GRM_RosterConfirmYesButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_RosterConfirmFrame , 15 , 5 );
-    GRM_UI.GRM_RosterConfirmYesButton:SetSize ( 70 , 35 );
-    GRM_UI.GRM_RosterConfirmYesButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterConfirmYesButton );
     GRM_UI.GRM_RosterConfirmYesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-
-    GRM_UI.GRM_RosterConfirmCancelButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_RosterConfirmFrame , -15 , 5 );
-    GRM_UI.GRM_RosterConfirmCancelButton:SetSize ( 70 , 35 );
-    GRM_UI.GRM_RosterConfirmCancelButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_RosterConfirmCancelButton );
     GRM_UI.GRM_RosterConfirmCancelButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
-    GRM_UI.GRM_RosterConfirmCancelButtonText:SetText ( GRM.L ( "Cancel" ) );
-    GRM_UI.ScaleFontStringToObjectSize ( true , 70 , GRM_UI.GRM_RosterConfirmCancelButtonText , 4 );
-    GRM_UI.GRM_RosterConfirmCancelButton:SetScript ( "OnClick" , function ( _ , button )
-        if button == "LeftButton" then
-            GRM_UI.GRM_RosterConfirmFrame:Hide();
-        end
-    end);
-    GRM_UI.GRM_RosterConfirmFrame:SetScript ( "OnHide" , function ()
-        GRM_UI.GRM_RosterChangeLogFrame:EnableMouse ( true );
-        GRM_UI.GRM_RosterChangeLogFrame:SetMovable ( true );
-    end);
-
+    
     GRM_UI.GRM_CustomPopupFrame:SetPoint ( "CENTER" , UIParent , 0 , -25 );
     GRM_UI.GRM_CustomPopupFrame:SetSize ( 400 , 120 );
     GRM_UI.GRM_CustomPopupFrame:SetFrameStrata ( "FULLSCREEN_DIALOG" );

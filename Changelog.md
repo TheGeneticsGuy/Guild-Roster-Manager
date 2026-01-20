@@ -1,3 +1,23 @@
+## **VERSION 1.99371 - January 20th, 2025**
+
+*Compatibility release with Midnight*
+
+***BUG FIXES***
+
+* Fixed an issue where after the Anniversary TBC migration - some player alt group data was misaligned. This is because it kind of messed with how the alt group indexing worked and so you ended up with players in mismatched alt groups and missing birthday info (birthday data is indexed and shared among all players in an alt group). This would make your audit window not be able to load properly. This is now fixed.
+
+* Fixed an issue where the join date would not import properly on the first toon of yours joining a guild. It would self-fix on reload or your next login, but now, it should properly import the join date of all of your toons the first time they join a guild.
+
+* Fixed an issue with the Hardcore Mode indication that you want to join the Hardcore channel to listen and track HC deaths. You HAVE to join the channel for this GRM feature to work, so GRM indicates to the player on login if they want to join or not, and it is a one-time message. Well, the window would go away and hide too quickly on accident. This is now fixed. Please note, if you alread already joined to the HC channel, then you will not see the notification.
+
+* Cleaned up the Titan Panel integration slightly. It is formatted better and the name now shows in the General settings.
+
+**QUALITY OF LIFE**
+
+* The list of all Realms has been updated for all regions and all builds of the game, from Classic Era, HC, Anniversary, MoP, and Retail. When creating a x-realm ban, no need to manually try to type in their server name, all the servers will be listed and an autocomplete suggestion as you type to filter through and get the name perfect. This is less useful for banning existing players or former members from your guild.
+
+I wrote my own custom software to parse out all the realm names from all regions, from all builds, wchi is quite a lot. It then exports this data into a Lua formatted file that GRM uses to import the data easily. You can [See the software here](https://github.com/TheGeneticsGuy/WarcraftRealms)
+
 ## **VERSION 1.9937 - January 14th, 2025**
 
 *Compatibility update with TBC Anniversary Release*
