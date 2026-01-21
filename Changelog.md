@@ -1,3 +1,9 @@
+## **VERSION 1.99372 - January 20th, 2025**
+
+**BUG FIXES**
+
+* Error causing some people to not be able to update GRM properly. It was failing on patching. This is now resolved.
+
 ## **VERSION 1.99371 - January 20th, 2025**
 
 *Compatibility release with Midnight*
