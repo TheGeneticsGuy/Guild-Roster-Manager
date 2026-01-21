@@ -1976,5 +1976,9 @@ GRML.English = function()
     GRM_L["No"] = true
     GRM_L["Loading..."] = true
 
+    -- 1.993473
+    GRM_L["Standard"] = true
+    GRM_L["Move Anywhere"] = true
+
 end
 

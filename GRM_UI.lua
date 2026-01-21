@@ -5498,291 +5498,10 @@ GRM_UI.PreAddonLoadUI = function()
         end
     end);
 
-    -----------------------------
-    ----- MINIMAP LOGIC ---------
-    -----------------------------
-
-    GRM_UI.MainWindowOpenLogic = function()
-        if IsShiftKeyDown() and IsControlKeyDown() then
-
-            GRM_UI.GRM_MinimapButton:Hide("Guild_Roster_Manager");
-            GRM.S().minimapEnabled = false;
-            GRM_MinimapPosition.hide = true;
-
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton ~= nil and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton:IsVisible() then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton:SetChecked ( false );
-            end
-
-        else
-
-            if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                GRM_UI.GRM_RosterChangeLogFrame:Hide();
-
-            else
-
-                if IsInGuild() then
-                    if ( time() - GRMsyncGlobals.timeAtLogin ) > 5 or GRM_G.MinimapOk then
-                        if not GRM_G.minmapButtonDelay then
-                            GRM.DelayMinimapButtonOpen ( false , false );
-                        end
-                    else
-                        GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
-                    end
-                else
-                    GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Player is Not Currently in a Guild" ) );
-                end
-            end
-        end
-    end
-
-    local MinimapButtonClick = function ( _ , button )
-
-        if button == "LeftButton" then
-            GRM_UI.MainWindowOpenLogic();
-        end
-    end
-
-    local MinimapOnEnter = function ( tooltip )
-
-        if IsInGuild() then
-            local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
-
-            if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
-                versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
-            end
-
-            tooltip:AddLine( versionLine );
-            tooltip:AddLine( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
-            tooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
-            tooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
-
-            local MOTD = GetGuildRosterMOTD();
-            if MOTD ~= "" and MOTD ~= nil then
-                MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
-                tooltip:AddLine ( " " );
-                tooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
-                tooltip:AddLine ( MOTD );
-            end
-            tooltip:AddLine ( " " );
-            tooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
-        else
-            tooltip:AddLine ( GRM.L ( "Not in Guild" ) );
-        end
-    end
-
-    GRM_UI.GRM_MinimapButtonInit  = function()
-        -- If LibDBICon is already available, use it.
-        if IsInGuild() then
-
-            if not GRM_UI.GRM_MinimapButton then
-                GRM_UI.LDB = nil;
-                if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
-
-                    -- Broker Compatibility
-                    if LibStub then
-                        local MinimapDataBroker = LibStub("LibDataBroker-1.1", true)
-                        GRM_UI.GRM_MinimapButton = MinimapDataBroker and LibStub("LibDBIcon-1.0", true)
-
-                        if MinimapDataBroker then
-                            GRM_UI.LDB = MinimapDataBroker:NewDataObject ( "Guild_Roster_Manager", {
-                                type  = "data source",
-                                icon = "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp",
-                                label = GRM.L("Guild Roster Manager"),
-                                text = GRM.L ("Loading..."),
-                                OnClick = MinimapButtonClick,
-                                OnTooltipShow = MinimapOnEnter,
-                            } );
-
-                            if GRM_UI.GRM_MinimapButton then
-                                GRM_UI.GRM_MinimapButton:Register("Guild_Roster_Manager", GRM_UI.LDB, GRM_MinimapPosition )
-
-                                GRM_UI.UpdateMinimapLabel = function()
-                                    if IsInGuild() then
-                                        local numOnline = GRM.G_Util.GetNumGuildiesOnline()
-                                        local numTotal = GRM.G_Util.GetNumGuildies()
-
-                                        if numTotal and numTotal > 0 then
-                                            GRM_UI.LDB.label = GRM.L("Online");
-                                            GRM_UI.LDB.text = string.format ( "|CFF00CCFF%d/%d" , numOnline , numTotal );
-                                        end
-                                    else
-                                        GRM_UI.LDB.label = GRM.L ("GRM");
-                                        GRM_UI.LDB.text = GRM.L ( "Not in Guild" );
-                                    end
-                                end
-                                -- Initialize
-                                GRM_UI.UpdateMinimapLabel();
-                            end
-                        end
-                    end
-                else
-
-                    -- MINIMAP BUTTON if creating from scratch.
-                    GRM_UI.GRM_MinimapButton = CreateFrame ( "Button" , "GRM_MinimapButton" , Minimap );
-                    GRM.CreateTexture ( GRM_UI.GRM_MinimapButton , "GRM_MinimapButtonIcon" , "BORDER" , false );
-                    GRM.CreateTexture ( GRM_UI.GRM_MinimapButton , "GRM_MinimapButtonBorder" , "OVERLAY" , false );
-
-                    GRM_UI.GRM_MinimapButton:EnableMouse ( true );
-                    GRM_UI.GRM_MinimapButton:SetMovable ( false );
-                    GRM_UI.GRM_MinimapButton:SetFrameStrata ( "HIGH" );
-                    GRM_UI.GRM_MinimapButton:SetWidth ( 33 );
-                    GRM_UI.GRM_MinimapButton:SetHeight ( 33 );
-                    GRM_UI.GRM_MinimapButton:SetHighlightTexture ( "Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight" );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetPoint ( "CENTER" , GRM_UI.GRM_MinimapButton , -2 , 1 );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\MageTower_Icon.blp" );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetWidth ( 20 );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonIcon:SetHeight ( 20 );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetWidth ( 52 );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetHeight ( 52 );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MinimapButton );
-                    GRM_UI.GRM_MinimapButton.GRM_MinimapButtonBorder:SetTexture ( "Interface\\Minimap\\MiniMap-TrackingBorder" );
-
-                    GRM_UI.GRM_MinimapButtonUpdatePos = function()
-                        if not GRM.S().customPos then
-                            GRM_UI.GRM_MinimapButton:ClearAllPoints();
-                            local mod , mod2 = 74 , 75;
-                            if GRM_G.BuildVersion >= 100000 then
-                                mod , mod2 = 80 , 81;
-                            end
-                            GRM_UI.GRM_MinimapButton:SetPoint ( "TOPLEFT" , Minimap , "TOPLEFT" , mod - ( GRM.S().minimapRad * cos ( GRM.S().minimapPos ) ) , ( GRM.S().minimapRad * sin ( GRM.S().minimapPos ) ) - mod2 );
-                        else
-                            GRM_UI.GRM_MinimapButton:ClearAllPoints();
-                            GRM_UI.GRM_MinimapButton:SetPoint ( GRM.S().minimapCustomPos[1] , UIParent , GRM.S().minimapCustomPos[2] , GRM.S().minimapRad , GRM.S().minimapPos );
-                        end
-                    end
-
-                    -- Method:          GRM_UI.ResetMinimapPositionToDefault()
-                    -- What it Does:    Sets the minimap icon back to default position.
-                    GRM_UI.ResetMinimapPositionToDefault = function()
-
-                        if GRM_G.BuildVersion >= 100000 then
-                            GRM.S().minimapRad = 105;
-                        else
-                            GRM.S().minimapRad = 78;
-                        end
-                        GRM.S().minimapPos = 345;
-                        GRM.S().customPos = false;
-                        GRM_UI.GRM_MinimapButtonUpdatePos();
-                    end
-
-                    -- Thanks to Yatlas for this code
-                    GRM_UI.GRM_MinimapButtonDuringDrag = function()
-                        local x , y = GetCursorPosition()
-                        local scale = Minimap:GetEffectiveScale();
-                        local xmin , ymin = Minimap:GetLeft() , Minimap:GetBottom();
-
-                        x = xmin - x / scale + 70;
-                        y = y / scale - ymin - 70;
-
-                        local vector = math.deg ( math.atan2 ( y , x ) );
-                        if vector < 0 then
-                            vector = vector + 360
-                        end
-
-                        GRM.S().minimapPos = vector;
-                        GRM_UI.GRM_MinimapButtonUpdatePos();
-                    end
-
-                    GRM_UI.GRM_MinimapButton:RegisterForDrag ( "LeftButton" );
-                    GRM_UI.GRM_MinimapButton:SetScript ( "OnDragStart" , function ( self )
-                        if not GRM.S().customPos and not IsControlKeyDown() then
-                            -- Circular motion.
-                            self:SetScript ( "OnUpdate" , GRM_UI.GRM_MinimapButtonDuringDrag );
-                        elseif not IsControlKeyDown() then
-                            -- Reset Position
-                            GRM_UI.ResetMinimapPositionToDefault();
-                        else
-                            -- Draggable anywhere.
-                            GRM_UI.GRM_MinimapButton:SetMovable ( true );
-                            GRM.S().customPos = true;
-                            self:StartMoving();
-                        end
-                    end);
-
-                    GRM_UI.GRM_MinimapButton:SetScript ( "OnDragStop" , function ( self )
-                        self:SetScript ( "OnUpdate" , nil );
-                        self:StopMovingOrSizing();
-                        if GRM.S().customPos then
-                            local side1, _ , side2 , point1 , point2 = GRM_UI.GRM_MinimapButton:GetPoint();
-                            GRM.S().minimapCustomPos[1] = side1;
-                            GRM.S().minimapCustomPos[2] = side2;
-                            GRM.S().minimapRad = point1;
-                            GRM.S().minimapPos = point2;
-                        end
-                        GRM_UI.GRM_MinimapButton:SetMovable ( false );
-                    end)
-
-                    GRM_UI.GRM_MinimapButton:SetScript ( "OnEnter" , function ( self )
-                        GRM_UI.SetTooltipScale();
-                        GameTooltip:SetOwner ( self , "ANCHOR_LEFT" );
-                        if IsInGuild() then
-                            local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
-                            if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
-                                versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
-                            end
-                            GameTooltip:AddLine ( versionLine );
-                            GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );
-                            GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
-                            GameTooltip:AddLine( GRM.L ( "{custom1} and drag to move this button anywhere." , nil , nil , nil , "|CFFE6CC7F" .. GRM.L ( "Ctrl-Left-Click" ) .. "|r" ) );
-                            GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
-
-
-                            local MOTD = GetGuildRosterMOTD();
-                            if MOTD ~= "" and MOTD ~= nil then
-                                MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
-                                GameTooltip:AddLine ( " " );
-                                GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
-                                GameTooltip:AddLine ( MOTD );
-                                GameTooltip:AddLine ( " " );
-                            end
-                            GameTooltip:AddLine ( " " );
-                            GameTooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
-                        else
-                            tooltip:AddLine ( GRM.L ( "Not in Guild" ) );
-                        end
-                        GameTooltip:Show();
-                    end)
-
-                    GRM_UI.MinimapOnLeave = function ()
-                        GRM.RestoreTooltip()
-                    end
-
-                    GRM_UI.GRM_MinimapButton:SetScript ( "OnLeave" , GRM_UI.MinimapOnLeave );
-
-                    GRM_UI.GRM_MinimapButton:SetScript ( "OnClick" , MinimapButtonClick );
-
-                    GRM.S().minimapRad = GRM.S().minimapRad or 78;
-                    GRM.S().minimapPos = GRM.S().minimapPos or 345;
-                    GRM_UI.GRM_MinimapButtonUpdatePos();
-                end
-
-                -- Initialise defaults if not present
-                if GRM.S().minimapEnabled == false then
-                    GRM_UI.GRM_MinimapButton:Hide ( "Guild_Roster_Manager" );
-                    GRM_MinimapPosition.hide = true;
-                else
-                    GRM_UI.GRM_MinimapButton:Show ("Guild_Roster_Manager" );
-                    GRM_MinimapPosition.hide = false;
-                end
-            else
-                if GRM.S().minimapEnabled then
-                    GRM_UI.GRM_MinimapButton:Show ("Guild_Roster_Manager" );
-                    GRM_MinimapPosition.hide = false;
-                else
-                    GRM_UI.GRM_MinimapButton:Hide ( "Guild_Roster_Manager" );
-                    GRM_MinimapPosition.hide = true;
-                end
-            end
-        end
-
-    end
-
     -- Load Custom Roster frames
     GRM_R.BuildRosterFrames();
 
-    ---- END TOOLTIP ----
     GRM_UI.IsLoaded = true;
-
 end
 
 
@@ -7601,15 +7320,19 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             if self:GetChecked() then
                 GRM.S().minimapEnabled = true;
-                GRM_UI.GRM_MinimapButton:Show("Guild_Roster_Manager");
+                GRM.MinimapGRM.Show();
                 GRM_MinimapPosition.hide = false;
             else
                 GRM.S().minimapEnabled = false;
-                GRM_UI.GRM_MinimapButton:Hide("Guild_Roster_Manager");
+                GRM.MinimapGRM.Hide();
                 GRM_MinimapPosition.hide = true;
             end
         end
     end);
+
+    if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
+        GRM_UI.CreateRadialButtons ( "GRM_MinimapTypeButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame , nil , { GRM.L ( "Standard" ) , GRM.L ( "Move Anywhere" ) } , { "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButtonText , "RIGHT" , 10 , 0 } , true , true , 12 , nil , GRM.MinimapGRM.SetSelectedMinimap );
+    end
 
     -- Sync Addon Settings
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_SyncAllSettingsCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton , "BOTTOMLEFT" , 0 , -6 );
@@ -7628,10 +7351,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.BuildLogFrames();
 
                 if GRM.S().minimapEnabled then
-                    GRM_UI.GRM_MinimapButton:Show("Guild_Roster_Manager");
+                    GRM.MinimapGRM.Show();
                     GRM_MinimapPosition.hide = false;
                 else
-                    GRM_UI.GRM_MinimapButton:Hide("Guild_Roster_Manager");
+                    GRM.MinimapGRM.Hide();
                     GRM_MinimapPosition.hide = true;
                 end
 
@@ -7644,10 +7367,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.BuildLogFrames();
 
                 if GRM.S().minimapEnabled then
-                    GRM_UI.GRM_MinimapButton:Show("Guild_Roster_Manager");
+                    GRM.MinimapGRM.Show();
                     GRM_MinimapPosition.hide = false;
                 else
-                    GRM_UI.GRM_MinimapButton:Hide("Gwuild_Roster_Manager");
+                    GRM.MinimapGRM.Hide();
                     GRM_MinimapPosition.hide = true;
                 end
 
@@ -15591,6 +15314,15 @@ GRM_UI.BuildLogFrames = function()
     else
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton:SetChecked ( false );
     end
+    
+    if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MinimapTypeButtonRadial1 then
+        if GRM.S().minimapType == 1 then
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MinimapTypeButtonRadial1:SetChecked ( true );
+        elseif GRM.S().minimapType == 2 then
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_MinimapTypeButtonRadial2:SetChecked ( true );
+        end
+    end
+
     if GRM.S().achievements then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_AchievementAnnounceButton:SetChecked ( true );
     end

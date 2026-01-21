@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99372";
+GRM_G.Version = "R1.99373";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1768973626";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1768973626;            -- In Epoch Time
+GRM_G.PatchDayString = "1768981511";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1768981511;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120000;
@@ -912,6 +912,14 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.onlyViewIfChanges = true;
         player.syncSettings = true;
         player.minimapEnabled = true;
+
+        -- Minimap button type - 1 is custom default, but 2 is standard
+        if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
+            player.minimapType = 1;
+        else
+            player.minimapType = 2;
+        end
+
         player.twentyFourHrScale = GRM.Use24HrBasedOnDefaultLanguage();
         player.selectedLang = GRM_G.LocalizedIndex;
         player.selectedFont = 1;
@@ -1384,7 +1392,7 @@ GRM.FinalSettingsConfigurations = function( isManual )
     -- In case of disconnect during some events that you may need to continue from.
     GRM.MiscCleanupOnLogin();
     -- Let's load that minimap button now too...
-    GRM_UI.GRM_MinimapButtonInit();
+    GRM.MinimapGRM.GRM_MinimapButtonInit();
     -- One time processing, saves a bit of resources for an oft used string manipulation feature.
 
     if IsInGuild() then
@@ -1739,7 +1747,7 @@ GRM.ResetDefaultSettings = function(pageIndex)
         end
 
         if not (LibStub and LibStub("LibDataBroker-1.1", true) and LibStub("LibDBIcon-1.0", true)) then
-            GRM_UI.GRM_MinimapButtonInit();
+            GRM.MinimapGRM.GRM_MinimapButtonInit();
         end
 
         GRM_UI.CorePositionInit();
@@ -22288,7 +22296,7 @@ end
 -- What it Does:    Resets the minimap to default position
 -- Purpose:         In case player drags the minimap off screen...
 GRM.SlashCommandMinimapReset = function()
-    GRM_UI.ResetMinimapPositionToDefault()
+    GRM.MinimapGRM.ResetMinimapPositionToDefault()
 end
 
 -- Method:          GRM.SlashCommandKick()
@@ -22602,7 +22610,7 @@ GRM.OpenCoreWindow = function(isGeneric)
             openExport = true; -- Window is visible, we are going to open the export window
 
         else
-            GRM_UI.MainWindowOpenLogic();
+            GRM.MinimapGRM.MainWindowOpenLogic();
         end
 
     else
@@ -23305,7 +23313,7 @@ GRM.ReactivateAddon = function()
         end
 
         -- Re-trigger the minimap
-        GRM_UI.GRM_MinimapButtonInit();
+        GRM.MinimapGRM.GRM_MinimapButtonInit();
     end
 
     C_Timer.After(2, GRM.LoadAddon);
@@ -23347,9 +23355,7 @@ GRM.ManageGuildStatus = function()
                 GRM_G.guildRankNames = nil; -- reset guild rank names.
                 GRMsyncGlobals.DatabaseLoaded = false;
 
-                if GRM_UI.GRM_MinimapButton then
-                    GRM_UI.GRM_MinimapButton:Hide();
-                end
+                GRM.MinimapGRM.Hide();
 
                 if GRM_G.BuildVersion >= 10000 then
                     UI_Events:UnregisterEvent("GUILD_EVENT_LOG_UPDATE"); -- This prevents it from doing an unnecessary tracking call if not in guild.

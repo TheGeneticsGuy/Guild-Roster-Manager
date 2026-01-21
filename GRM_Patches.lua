@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 150  2026-01-20
+--- Total Patches: 151  2026-01-21
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1825,6 +1825,21 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.99372";
         if loopCheck ( 1.99372 ) then
+            return;
+        end
+    end
+
+    -- 151
+    if numericV < 1.99373 and baseValue < 1.99373 then
+        if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
+            -- Broker Compatibility
+            GRM_Patch.AddNewSetting ( "minimapType" , 2 ); -- 1 = default, 2 = broker, 3 = hidden
+        else
+            GRM_Patch.AddNewSetting ( "minimapType" , 1 );
+        end
+
+        GRM_AddonSettings_Save.VERSION = "R1.99373";
+        if loopCheck ( 1.99373 ) then
             return;
         end
     end

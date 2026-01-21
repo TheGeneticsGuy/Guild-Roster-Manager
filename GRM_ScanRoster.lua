@@ -48,8 +48,8 @@ end
 Scan.RosterPreCheck = function()
     -- Minimap Databroker update for number of online
     C_Timer.After(0.5 , function()
-        if GRM_UI.UpdateMinimapLabel then
-            GRM_UI.UpdateMinimapLabel()
+        if GRM.MinimapGRM.UpdateMinimapLabel then
+            GRM.MinimapGRM.UpdateMinimapLabel()
         end
     end)
 

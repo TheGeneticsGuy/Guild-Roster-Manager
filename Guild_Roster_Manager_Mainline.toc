@@ -1,7 +1,7 @@
 ## Interface: 120000
 
 ## Author: Arkaan
-## Version: 1.99372
+## Version: 1.99373
 ## Title: Guild Roster Manager
 ## Notes: Manage Guild Roster Changes, Events, with Alt/Main tagging, for ALL guildies
 ## X-Website: https://www.curseforge.com/wow/addons/guild-roster-manager
@@ -42,6 +42,7 @@ GRM_Localization.lua
 
 GRM_UI_API.lua
 GRM_Roster.lua
+GRM_Minimap.lua
 GRM_UI.lua
 GRM_ClassicFrames.lua
 GRM_Macro_Tool.lua

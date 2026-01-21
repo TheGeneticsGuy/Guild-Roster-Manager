@@ -1,3 +1,12 @@
+## **VERSION 1.99373 - January 21st, 2025**
+
+***QOL***
+
+* Minimap button is now more configurable. In the General settings you can choose to keep it as a standard minimap icon, which uses the widely used library "LibDBIcon," or selecting the "Move anywhere" option where you use GRM's custom minimap icon you can drag and drop anywhere. The choice will only appear if you have an addon with this library installed. GRM does not natively support it standalone, but if it detects the library exists in the global space, then GRM will take advantage of it so addons like Titan Panel can detect GRM minimap icon, among others. However, some people maybe don't want to be forced to use the standard behavior icon, so now in GRM you have a choice. Use GRM's custom, or use the standard library one. It's as simple as choosing. You can swap back and forth without issue. GRM window > Options > General Tab.
+
+
+
+
 ## **VERSION 1.99372 - January 20th, 2025**
 
 **BUG FIXES**
