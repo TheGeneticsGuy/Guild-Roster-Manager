@@ -281,7 +281,18 @@ GRM.CreateAltGroup = function ( playerName , setAsMain , timestamp )
             group.birthdayInfo.timeUpdated = player.birthdayInfo.timeUpdated;      -- Epoch Timestamp of update
             group.birthdayInfo.unknown = player.birthdayInfo.unknown;
         end
+
+        -- Nickname details:
+        group.nicknameDetails = GRM.NN.CreateNickObject();
+    
+        -- If the player already had an individual nickname, import it to the group
+        if player.nicknameDetails and player.nicknameDetails.nickname ~= "" and not player.nicknameDetails.bypassAltGroup then
+            group.nicknameDetails.nickname = player.nicknameDetails.nickname;
+            group.nicknameDetails.nickEnabled = player.nicknameDetails.nickEnabled;
+            group.nicknameDetails.editedDetails = player.nicknameDetails.editedDetails;
+        end
     end
+    
 end
 
 -- Method:          GRM.AddAlt ( string, string , int )
@@ -635,6 +646,7 @@ GRM.AddPlayerToAltGroup = function ( player , groupID , timestamp , setAsMain , 
 
             if player.altGroup == "" then      -- This will ONLY add to a group if they are not already in one.
 
+                -- Set Birthday
                 if player.birthdayInfo.date[1] ~= 0 and player.birthdayInfo.timeUpdated > group.birthdayInfo.timeUpdated then
                     GRM.SetBirthdayForAltGrouping ( group[1].name , player.birthdayInfo.date[1] , player.birthdayInfo.date[2] , player.birthdayInfo.timeUpdated , syncChange , player.birthdayInfo.announced , player.birthdayInfo.unknown );
                 elseif group.birthdayInfo.timeUpdated > player.birthdayInfo.timeUpdated then
@@ -643,6 +655,23 @@ GRM.AddPlayerToAltGroup = function ( player , groupID , timestamp , setAsMain , 
                     player.birthdayInfo.announced = group.birthdayInfo.announced;
                     player.birthdayInfo.timeUpdated = group.birthdayInfo.timeUpdated;
                     player.birthdayInfo.unknown = group.birthdayInfo.unknown;
+                end
+
+                -- Merge the alt name with the group or with the player - group priority first
+                if not player.nicknameDetails.bypassAltGroup then
+                    if group.nicknameDetails.nickname == "" and player.nicknameDetails.nickname ~= "" then
+                        -- Group has no nick, but player does. Import it.
+                        group.nicknameDetails.nickname = player.nicknameDetails.nickname;
+                        group.nicknameDetails.nickEnabled = player.nicknameDetails.nickEnabled;
+                        group.nicknameDetails.editedDetails = player.nicknameDetails.editedDetails;
+
+                    elseif group.nicknameDetails.nickname ~= "" then
+                        -- Group has a nick, overwrite the player's individual one to match the group
+                        player.nicknameDetails.nickname = group.nicknameDetails.nickname;
+                        player.nicknameDetails.nickEnabled = group.nicknameDetails.nickEnabled;
+                        player.nicknameDetails.editedDetails = group.nicknameDetails.editedDetails;
+                        -- remember, bypassAltGroup remains unique to each player
+                    end
                 end
 
                 timestamp = timestamp or time();

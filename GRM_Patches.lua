@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 151  2026-01-21
+--- Total Patches: 152  2026-01-22
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1844,6 +1844,15 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 152
+    if numericV < 1.994 and baseValue < 1.994 then
+        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNamesToPlayer , true , true , false , nil );
+
+        GRM_AddonSettings_Save.VERSION = "R1.994";
+        if loopCheck ( 1.994 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -10227,4 +10236,14 @@ GRM_Patch.AltGroupUpdateTweakNewDB = function()
             end
         end
     end
+end
+
+-- 1.994
+-- Method:          GRM_Patch.AddNickNamesToPlayer ( playerTable )
+-- What it Does:    Removes the old placeholder structure and replaces with updated
+-- purpose:         New nickname system
+GRM_Patch.AddNickNamesToPlayer = function ( player )
+    player.nickname = nil;      -- Remove the old nickname structure
+    player.nicknameDetails = GRM.NN.CreateNickObject( true );
+    return player;
 end
