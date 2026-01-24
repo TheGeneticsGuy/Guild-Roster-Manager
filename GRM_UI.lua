@@ -6483,7 +6483,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     -- What it Does:    Returns true if player has joined this channel
     -- Purpose:         Useful to know, particularly for HC mode deaths tracking.
     GRM_UI.ChannelEnabled = function ( name )
-        local channelList = {GetChannelList()};
+        local channels = GetChannelList();  -- Forcing this to trigger twice so server configures it.
+        channels = {GetChannelList()};
         for i = 2 , #channelList , 3 do
             if channelList[i] == name then
                 return true;

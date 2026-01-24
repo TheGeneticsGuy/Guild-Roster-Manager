@@ -3239,8 +3239,8 @@ end
 -- Method:          GRM.SystemMessageHandler ( self , string , string )
 -- What it Does:    Starts tracking the system messages. This only runs if system messages are disabled, thus this prioritizes over the filtering function
 -- Purpose:         For faster response to LIVE events rather than waiting for server query updates.
-GRM.SystemMessageHandler = function(_, _, msg)
-    if not GRM_G.SystemMessagesEnabled then
+GRM.SystemMessageHandler = function(_, event, msg)
+    if not GRM_G.SystemMessagesEnabled and not issecretvalue(msg) then
 
         -- Error protection to not break chat
         if GRM.S() and GRM.GetGuild() ~= nil then
@@ -3430,10 +3430,16 @@ GRM.GetBirthday = function ( player )
         local alts = GRM.GetAltGroup ( player.altGroup );
         if alts then
             return alts.birthdayInfo;
+
+        -- ERROR PROTECTION
+        else
+            -- No alt group should not happen... need to purge the altGroup reference from player.
+            player.altGroup = "";
         end
     else
         return player.birthdayInfo;
     end
+    return; -- Returning nothing...
 end
 
 -- Method:          GRM.SetBirthdayInfo ( playerTable , int , int , bool , int , bool )
@@ -5009,7 +5015,7 @@ end
 -- What it Does:    It adds either a Main tag to the player, or if they are on an alt, includes the name of the main.
 -- Purpose:         Easy to see player name in guild chat, for achievments and so on...
 GRM.AddMainToChat = function(_, event, msg, sender, ...)
-    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" then
+    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not issecretvalue(msg)then
         local placeHolderMsg = msg;
 
         if sender ~= GRM_G.addonUser then
@@ -23428,8 +23434,13 @@ GRM.SettingsLoadedFinishDataLoad = function( isManual )
         -- Let's set window scales now...
         GRM_UI.SetAllWindowScales(true);
 
-        if GRM.IsHardcoreActive() and GRM.S() then -- Needs testing
-            GRM_UI.VerifyIfHCChannelsEnabled();
+        if GRM.IsHardcoreActive() then
+            
+            C_Timer.After (5, function()
+                if GRM.S() then
+                    GRM_UI.VerifyIfHCChannelsEnabled();
+                end
+            end);
         end
 
         GRM.GuildRoster(); -- Initial queries...

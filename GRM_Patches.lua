@@ -1847,6 +1847,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     -- 152
     if numericV < 1.994 and baseValue < 1.994 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNamesToPlayer , true , true , false , nil );
+        GRM_Patch.FixPotentialAltIssue();
 
         GRM_AddonSettings_Save.VERSION = "R1.994";
         if loopCheck ( 1.994 ) then
@@ -10246,4 +10247,102 @@ GRM_Patch.AddNickNamesToPlayer = function ( player )
     player.nickname = nil;      -- Remove the old nickname structure
     player.nicknameDetails = GRM.NN.CreateNickObject( true );
     return player;
+end
+
+-- 1.994
+-- Method:          GRM_Patch.FixPotentialAltIssue()
+-- What it Does:    Fixes potential alt group issues from prior updates that may have left
+-- Purpose:         Aggressive fix for a latent bug post 12.0 updates.
+GRM_Patch.FixPotentialAltIssue = function()
+    local data = { GRM_GuildMemberHistory_Save , GRM_GuildDataBackup_Save };
+    local altGroups = {};
+    local members = {};
+
+    local namesToPurgeFromAltGroups = {};
+    local alts = {};
+    local altGroupstoKill = {};
+
+    for i = 1 , 2 do
+        for guildName , guildData in pairs ( data[i] ) do
+            if type ( guildData ) == "table" then
+                if i == 1 then
+                    altGroups = GRM.GetGuildAlts ( guildName );
+                    members = guildData;
+                else
+                    altGroups = guildData.alts;
+                    members = GRM_Restore_Members[guildName];
+                end
+
+                namesToPurgeFromAltGroups = {};    -- Reset for each guild
+                altGroupstoKill = {};
+
+                -- Ok, scannign through members and their alt groups
+                for _ , player in pairs ( members ) do
+                    if type( player ) == "table" then
+                        if player.altGroup ~= "" then
+                            alts = altGroups[player.altGroup];
+
+                            if alts then
+                                if not alts.birthdayInfo then
+                                    -- altGroup broken data
+                                    for i = 1 , #alts do        -- Scan through each alt to add to queue so they can be removed from alt group
+                                        namesToPurgeFromAltGroups[alts[i].name] = true;  -- In case they are in more than one alt group, due to erro - cleanup.
+
+                                        if alts[i].name ~= player.name then -- No need to process yourself twice.
+                                            local tempPlayer = guildData[alts[i].name];
+                                            if tempPlayer then
+                                                tempPlayer.altGroup = "";
+                                            end
+                                        end
+                                    end
+
+                                    -- Names collected and altGroups reset
+                                    -- Time to purge the altGroup
+                                    altGroups[player.altGroup] = nil;
+                                    player.altGroup = "";
+                                end
+                            else
+                                -- alt group is not found - bad altGroup id.
+                                player.altGroup = "";
+                                namesToPurgeFromAltGroups[player.name] = true;
+                            end
+                            
+                        end
+                    end
+                end
+                -- Guild Data Scan complete - Now process results.
+
+                -- N^2 + Dictionary key check is VERY dangerous Big O Notation!!! But, these are very very small tables so it will be fine...
+                for groupID in pairs(altGroups) do
+                    for i = #altGroups[groupID] , 1 , -1 do
+                        if namesToPurgeFromAltGroups[altGroups[groupID][i].name] then
+                            if altGroups[groupID][i].name == altGroups[groupID].main then   -- Remove them from Main status first
+                                altGroups[groupID].main = "";
+                            end
+                            table.remove ( altGroups[groupID] , i );
+                        end
+
+                        if #altGroups[groupID] == 0 or ( #altGroups[groupID] == 1 and altGroups[groupID].main == "" ) then -- After removing, no one is left.
+                            if #altGroups[groupID] == 1 then
+                                local tempPlayer = guildData[altGroups[groupID][1].name];    -- player is NOT main and onoly 1 in alt group - purge it.
+                                if tempPlayer then
+                                    tempPlayer.altGroup = "";
+                                end
+                            end
+                            altGroupstoKill[groupID] = true;
+                            break;
+                        end
+                        
+                    end
+                end
+
+                -- Now, we purge the altGroups if any remaining
+                for groupID in pairs ( altGroupstoKill ) do
+                    altGroups[groupID] = nil;
+                end
+            end
+        end
+
+
+    end
 end
