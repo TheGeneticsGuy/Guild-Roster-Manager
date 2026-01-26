@@ -13,6 +13,7 @@
 
 GRM_SaveVar_API.lua
 GRM_Core.lua
+GRM_Debug.lua
 
 GRM_WebApps.lua
 GRM_G_Util.lua

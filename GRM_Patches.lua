@@ -3180,7 +3180,7 @@ end
 -- Purpose:         Database Backup Management
 GRM_Patch.RemoveGuildBackup = function( guildName , creationDate , factionInd , backupPoint , reportChange )
     if GRM_G.DebugEnabled then
-        GRM.AddDebugMessage ( time() .. "GRM_Patch.RemoveGuildBackup()?" .. guildName .. "?" .. creationDate .. "?" .. backupPoint );
+        GRM.Debug.AddDebugMessage ( time() .. "GRM_Patch.RemoveGuildBackup()?" .. guildName .. "?" .. creationDate .. "?" .. backupPoint );
     end
 
     local forcedForm = 0;
@@ -10342,7 +10342,6 @@ GRM_Patch.FixPotentialAltIssue = function()
                 end
             end
         end
-
 
     end
 end

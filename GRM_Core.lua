@@ -164,6 +164,7 @@ GRM_G.CheckGuild = false;
 GRM_G.CurrentlyScanning = false;
 GRM_G.ScanControl = 0;
 GRM_G.ScanTimer = 0;
+GRM_G.HeartBeatOn = false;
 GRM_G.DefaultMinScanTime = 5;
 GRM_G.changeHappenedExitScan = false;
 GRM_G.silenceOfficerNoteReporting = false;
@@ -423,6 +424,16 @@ GRM.GameVersion = function()
     end
 end
 
+-- Method:          GRM.issecretvalue()
+-- What it Does:    Returns if a value is a secret value, but since this dropped in 12.0, API doesn't currently exist
+-- Purpose:         Compatibility of all builds
+GRM.issecretvalue = function( value )
+    if issecretvalue then
+        return issecretvalue(value);
+    end
+    return false
+end
+
 -------------------------------------
 -------- BUILD COMPATIBILITY --------
 -------------------------------------
@@ -565,6 +576,7 @@ GRM_G.StatusChecking:RegisterEvent("GROUP_ROSTER_UPDATE");
 GRM_G.StatusChecking:RegisterEvent("GROUP_FORMED");
 GRM_G.StatusChecking:RegisterEvent("GROUP_LEFT");
 GRM_G.StatusChecking:RegisterEvent("PLAYER_ROLES_ASSIGNED");
+GRM_G.StatusChecking:RegisterEvent("PLAYER_ENTERING_WORLD");
 GRM_G.StatusChecking:SetScript("OnEvent", function(_, event)
 
     if IsInGuild() then
@@ -582,6 +594,12 @@ GRM_G.StatusChecking:SetScript("OnEvent", function(_, event)
             if not UnitOnTaxi("player") then
                 GRM.FrameCombatHide();
             end
+        
+        elseif event == "PLAYER_ENTERING_WORLD" then
+            GRM_G.inCombat = false;            
+            -- If frames were hidden before the load, keep them hidden.
+            -- I do not want them popping up unexpectedly after a load screen.
+            GRM.WipeCombatHiddenState(); 
 
         elseif eventList[event] then
 
@@ -664,6 +682,12 @@ end
 -- Purpose:         Control GRM frames
 GRM.FrameCombatRestore = function()
 
+    -- if on a tax - let's not restore any frames
+    if UnitOnTaxi("player") then
+        GRM.WipeCombatHiddenState();
+        return;
+    end
+
     if GRM_G.CoreFramesHidden.hidden then
         if GRM_G.CoreFramesHidden[1] then
             if (CommunitiesFrame and CommunitiesFrame:IsVisible()) or
@@ -695,6 +719,18 @@ GRM.FrameCombatRestore = function()
     end
 
     GRM_G.CoreFramesHidden.hidden = false
+end
+
+-- Method:          GRM.WipeCombatHiddenState()
+-- What it Does:    Resets the 'frames hidden by combat' flags without showing the frames.
+-- Purpose:         Used on loading screens or flight paths to prevent windows popping up unexpectedly.
+GRM.WipeCombatHiddenState = function()
+    if GRM_G.CoreFramesHidden then
+        for i = 1, 6 do
+            GRM_G.CoreFramesHidden[i] = false;
+        end
+        GRM_G.CoreFramesHidden.hidden = false;
+    end
 end
 
 ------------------------------
@@ -1374,7 +1410,6 @@ GRM.GuildSpecificConfigurations = function()
         -- Register window to save data to.
         GRM.SetReportWindow();
         GRM.RefreshMainTagHexCode();
-        GRM.SetGuildInfoDetails(); -- an early systems check too
         -- The Tag Headers
         GRM.SetJoinAndRejoinTags();
         -- General one-time configurations
@@ -2828,60 +2863,6 @@ end
 --- END OF RESTORE POINT -------
 --------------------------------
 
---------------------------------------
--------- DEBUGGING -------------------
---------------------------------------
-
--- Method:          GRM.DebugLog ( int )
--- What it Does:    Prints out the Debug Log the last X number of items that occurred before logging off or disconnecting.
--- Purpose:         Occasionally disconnects happen. This will let me know what happened!
-GRM.DebugLog = function(numToShow)
-    local index;
-    if numToShow < 0 or #GRM_G.DebugLog - numToShow < 0 then
-        index = 0;
-        numToShow = #GRM_G.DebugLog;
-    else
-        index = #GRM_G.DebugLog - numToShow;
-    end
-
-    GRM.Report(string.upper(GRM.L("Debugger Start") .. ": " .. numToShow .. "/" .. #GRM_G.DebugLog));
-    for i = index + 1, #GRM_G.DebugLog do
-        GRM.Report(GRM_G.DebugLog[i]);
-    end
-end
-
--- Method:          GRM.AddDebugMessage ( string )
--- What it Does:    Addes messages of recent events to debug log...
--- Purpose:         Debugging tracking
-GRM.AddDebugMessage = function(msg)
-    -- To prevent too large of a debug log...
-    if msg == "" then
-        msg = "Empty Msg";
-    end
-    if #GRM_G.DebugLog < 250 then
-        table.insert(GRM_G.DebugLog, time() .. ": " .. msg);
-    else
-        local tempLog = {};
-        for i = #GRM_G.DebugLog - 50, #GRM_G.DebugLog do
-            table.insert(tempLog, time() .. ": " .. GRM_G.DebugLog[i]);
-        end
-        GRM_G.DebugLog = tempLog;
-        table.insert(GRM_G.DebugLog, msg);
-    end
-end
-
--- Method:          GRM.DebugMessages()
--- What it Does:    Enables debugging messages
--- Purpose:         Get rid of need of 2 sets of programs... just enable and disable.
-GRM.DebugMessages = function()
-    if GRM_G.DebugMsgEnabled then
-        GRM_G.DebugMsgEnabled = false;
-        GRM.Report(GRM.L("Debugging Enabled"));
-    else
-        GRM_G.DebugMsgEnabled = true;
-        GRM.Report(GRM.L("Debugging Disabled"));
-    end
-end
 
 --------------------------------------
 ------ GROUP METHODS AND LOGIC -------
@@ -3109,12 +3090,12 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
 
     -- Error protection to not break chat
     if GRM.S() then
-        if msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
+        if msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage and not GRM.issecretvalue(msg)  then
             GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or
-                                               string.sub(GUILD_INFO_TEMPLATE, 1,
+                                            string.sub(GUILD_INFO_TEMPLATE, 1,
                     string.find(GUILD_INFO_TEMPLATE, "%%") - 1);
             -- GUILD INFO FILTER (GuildInfo())
-            if GRM_G.MsgFilterDelay and
+            if GRM_G.MsgFilterDelay and 
                 (string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil or string.find(msg, GRM.Trim(CHAT_GUILD_SEND)) ~=
                     nil) then -- These may need to be localized. I have not yet tested if other regions return same info. It IS system info.
                 if string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil and ((time() - GRM_G.SystemMsgThrottle) > 1) then
@@ -3154,7 +3135,6 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
                         end
 
                         GRM_G.numAccounts = numUniqueAccounts;
-
                         local date = day .. "-" .. month .. "-" .. year;
 
                         if GRM_G.guildCreationDate == "" or GRM_G.guildCreationDate ~= date then
@@ -3240,7 +3220,7 @@ end
 -- What it Does:    Starts tracking the system messages. This only runs if system messages are disabled, thus this prioritizes over the filtering function
 -- Purpose:         For faster response to LIVE events rather than waiting for server query updates.
 GRM.SystemMessageHandler = function(_, event, msg)
-    if not GRM_G.SystemMessagesEnabled and not issecretvalue(msg) then
+    if not GRM_G.SystemMessagesEnabled and not GRM.issecretvalue(msg) then
 
         -- Error protection to not break chat
         if GRM.S() and GRM.GetGuild() ~= nil then
@@ -4892,7 +4872,7 @@ end
 -- Purpose:         To prevent accidental click of the minmap button if player is in combat.
 GRM.DelayMinimapButtonOpen = function(messageDisplayed, message2Displayed)
 
-    if not GRM_G.inCombat and GRM.GetLog() ~= nil then
+    if (not GRM_G.inCombat or UnitOnTaxi("player") ) and GRM.GetLog() ~= nil then
         GRM_G.minmapButtonDelay = false;
         -- Set Window Scales
 
@@ -5015,7 +4995,7 @@ end
 -- What it Does:    It adds either a Main tag to the player, or if they are on an alt, includes the name of the main.
 -- Purpose:         Easy to see player name in guild chat, for achievments and so on...
 GRM.AddMainToChat = function(_, event, msg, sender, ...)
-    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not issecretvalue(msg)then
+    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg)then
         local placeHolderMsg = msg;
 
         if sender ~= GRM_G.addonUser then
@@ -22572,33 +22552,6 @@ GRM.InitiateConfirmFrame = function(InfoText, buttonFunction, button1Text, butto
     GRM_UI.GRM_RosterConfirmFrame:Show();
 end
 
--- Method:          GRM.DebugConfig( string )
--- What it Does:    Enables debugging logging
--- Purpose:         To help debug issues of course, by logging them.
-GRM.DebugConfig = function(command)
-    if GRM_G.DebugEnabled and not string.find(command, " ") then
-        GRM_G.DebugEnabled = false;
-        GRM.Report(GRM.L("GRM Debugging Disabled."));
-    else
-        if GRM_G.DebugEnabled then
-            local number = GRM.Trim(string.sub(command, string.find(command, " ") + 1));
-            if string.find(command, " ") ~= nil and tonumber(number) ~= nil then
-                GRM.DebugLog(tonumber(number));
-            else
-                GRM.Report(GRM.L("Error: Debug Command not recognized.") .. "\n" .. GRM.L("Format: \"/grm debug 10\""));
-            end
-        else
-            GRM_G.DebugEnabled = true;
-            GRM.Report(GRM.L("GRM Debugging Enabled.") .. "\n" ..
-                           GRM.L("Please type \"/grm debug 10\" to report 10 events (or any number)"));
-            if #GRM_G.currentAddonUsers > 0 and GRM.S().syncEnabled then
-                GRM.Report(GRM.L(
-                    "You may want to temporarily disable SYNC in the options if you are debugging another feature."));
-            end
-        end
-    end
-end
-
 -- Method:          GRM.OpenCoreWindow ( bool )
 -- What it Does:    Opens the Core Window
 -- Purpose:         Reusable window to open the roster.
@@ -22755,7 +22708,7 @@ SlashCmdList["GRM"] = function(input)
         GRM.SlashCommandSearch(command)
 
     elseif string.find(command, "debug") ~= nil then
-        GRM.DebugConfig(command);
+        GRM.Debug.DebugConfig(command);
     else
         alreadyReported = true;
         GRM.Report(GRM.L("Invalid Command: Please type '/grm help' for More Info!"));

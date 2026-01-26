@@ -12,6 +12,10 @@
 
 * An issue with the Classic Hardcore where the noltification about joining the Hardcore channel was appearing even if you had already joined the channel.
 
+* Fixed an issue where at some point in a session the player and guild changes would just stop updating. This is because the GRM scan got "stuck" in a state where it wasn't processing another scan as it thought it was already in a scan. I found the source of the flaw and fixed it, but I also added a rather robust, though lightweight "heartbeat" check to ensure that the scanning is bundled up and reset and completed after it is triggered in case it ever gets stuck, so the anomaly will go away.
+
+* I believe I finally resolved the weird kind of latent bug where the GRM window would just refresh and appear for some people when zoning or on flightpaths. This is due to it being stuck in a windows hidden state from combat where it never exited it until later. This should now be resolved.
+
 
 ## **VERSION 1.99372 - January 20th, 2025**
 

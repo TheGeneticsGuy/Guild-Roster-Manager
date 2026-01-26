@@ -1375,7 +1375,7 @@ GRMsync.SendMessage = function ( prefix , msg , type )
         return
     else
         if GRM_G.DebugEnabled then
-            GRM.AddDebugMessage ( msg );
+            GRM.Debug.AddDebugMessage ( msg );
         end
 
         if type ~= "GUILD" then

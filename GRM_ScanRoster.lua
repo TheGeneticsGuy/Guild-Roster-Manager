@@ -33,9 +33,7 @@ Scan.LogPrecheck = function()
             if (((time() - GRM_G.ScanControl) >= GRM_G.DefaultMinScanTime) and Scan.NoLivecheck() and #GRM.LiveScanQue ==
                 0) or GRM_G.OnFirstLoad then
                 if not GRM_G.CurrentlyScanning then
-
                     Scan.BuildNewRoster();
-
                 end
             end
         end);
@@ -65,24 +63,109 @@ Scan.RosterPreCheck = function()
     end
 end
 
--- Method:          Scan.StartScanProtect()
--- What it Does:    Adds a scan protection to clear the scan process if it hangs
--- Purpose:         Prevent odd anomalies or lag from killing scan that session by refreshing it.
-Scan.StartScanProtect = function()
-    if GRM_G.CurrentlyScanning and not GRM_G.ScanProcessing then
-        GRM_G.ScanProcessing = true;
 
-        if (time() - GRM_G.ScanTimer) > 15 then
-            -- Scan broke some how - Let's kill switch it
-            GRM_G.changeHappenedExitScan = true
-            if Scan.ScanKillSwitch() then
-                return
+-- Method:          Scan.HeartbeatCheck( [int] )
+-- What it Does:    Adds a scan protection to clear the scan process if it hangs.
+-- Purpose:         Prevent odd anomalies or lag from killing scan that session by refreshing it.
+Scan.HeartbeatCheck = function( stuckCounter )
+    stuckCounter = stuckCounter or 0;
+    local timeoutThreshold = 25; -- Seconds before forcing a reset
+    local pulseRate = 5;         -- Check every 5 seconds
+    local forceReset = false;
+
+    --CHECK FOR ACTIVE SCAN HANGS
+    if GRM_G.CurrentlyScanning then
+        -- Reset stuckCounter because we are actively scanning
+        stuckCounter = 0; 
+        
+        local elapsed = time() - GRM_G.ScanTimer;
+        
+        -- If scan has been running too long
+        if elapsed >= timeoutThreshold then
+            if GRM_G.DebugEnabled then
+                GRM.Debug.AddDebugMessage("GRM Debug: Active Scan Timeout (" .. elapsed .. "s). Forcing Reset.");
+            end
+            forceReset = true;
+        end
+
+    -- Edge case - checking for a Ghost block
+    -- Scan is NOT running, but LiveScanningBlock has entries returning 'true', preventing new scans.
+    elseif not Scan.NoLivecheck() then 
+        
+        -- Scan blocked, but not scanning. This is valid for a few seconds during a KillSwitch transition,
+        -- but if it persists, it's a bug.
+        stuckCounter = stuckCounter + pulseRate;
+
+        if stuckCounter >= timeoutThreshold then
+            if GRM_G.DebugEnabled then
+                GRM.Debug.AddDebugMessage("GRM Debug: Live Event Block Stuck (" .. stuckCounter .. "s). Forcing Reset.");
+            end
+            forceReset = true;
+        end
+
+    -- ALL CLEAR
+    else
+        -- Not scanning, and not blocked. Turning off the heartbeat.
+        GRM_G.HeartBeatOn = false;
+        return;
+    end
+
+    -- Alright, let's force the reset...
+    if forceReset then
+        
+        -- Attempt to salvage data before wiping
+        -- If queued live events, process them now
+        if #GRM.LiveScanQue > 0 then
+            GRM.ProcessLiveScanQue(); 
+        end
+        
+        -- Check if there are reports pending from a partial scan and print them
+        if Scan.AnyReportsRemaining and Scan.AnyReportsRemaining() then
+            Scan.FullReportCheck();
+        end
+
+        -- Clear the Locks
+        GRM_G.CurrentlyScanning = false;
+        
+        -- Wipe the blocking tables
+        for _, group in pairs(GRM_G.LiveScanningBlock) do
+            for k in pairs(group) do
+                group[k] = nil;
             end
         end
 
-    elseif not GRM_G.CurrentlyScanning then
-        GRM_G.ScanProcessing = false;
+        -- Wipe the queue
+        GRM.LiveScanQue = {};
+        GRM_G.processingLiveScanQue = false;
+
+        -- Reset State Flags
+        GRM_G.OnFirstLoad = false;
+        GRM_G.changeHappenedExitScan = false;
+        GRM_G.silenceOfficerNoteReporting = false;
+        GRM_G.numRanksHasChanged = false;
+        GRM_G.rankChangeShift = 0;
+        
+        -- Cleanup Logic
+        Scan.ResetTempLogs();
+        
+        if Scan.currentScanState then
+            Scan.currentScanState.isRunning = false;
+            Scan.currentScanState = nil;
+        end
+
+        -- Stop Heartbeat
+        GRM_G.HeartBeatOn = false;
+
+        -- Since it got stuck, let's trigger a fresh roster update to "Unstick" the game client data
+        GRM.GuildRoster();
+        print("Scan got stuck, restarting...")
+        return
     end
+
+    -- Didn't return or reset - check again in 5 seconds.
+    C_Timer.After( pulseRate , function()
+        Scan.HeartbeatCheck( stuckCounter );
+    end);
 end
 
 -- Method:          Scan.BuildNewRoster( bool )
@@ -106,7 +189,10 @@ Scan.BuildNewRoster = function( forceScan )
     GRM_G.CurrentlyScanning = true;
     GRM_G.ScanTimer = time();
     GRM_G.ScanControl = time();
-    Scan.StartScanProtect();
+    if not GRM_G.HeartBeatOn then
+        GRM_G.HeartBeatOn = true;
+        Scan.HeartbeatCheck();
+    end
 
     C_Timer.After ( 0.1 , function()
         Scan.BuildRosterClassicMethod();
@@ -3244,6 +3330,7 @@ Scan.ScanKillSwitch = function()
         GRM_G.OnFirstLoad = false;
         GRM_G.numRanksHasChanged = false;
         GRM_G.rankChangeShift = 0;
+        GRM_G.HeartBeatOn = false;
         return true;
     else
         return false;
