@@ -22,7 +22,7 @@ GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level o
 GRM_G.RetailBaseBuild = 120000;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.58;
+GRM_G.GroupInfoV = 1.59;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -339,6 +339,9 @@ if GRM_G.SOD and GetMaxLevelForPlayerExpansion then
     GRM_G.LvlCap = GetMaxLevelForPlayerExpansion(); -- For some reason in SOD level cap seems to not report properly as it has been 25, then 40, then 50, now 60 in Season 4;
 end
 
+-- Secret Value Scan Control
+GRM_G.secretValueDelay = false;
+
 -- Enums
 GRM_G.raceIDEnum = {};
 GRM_G.classFileIDEnum = {};
@@ -422,16 +425,6 @@ GRM.GameVersion = function()
     else
         return "RETAIL" -- Just default return retail if you can't find
     end
-end
-
--- Method:          GRM.issecretvalue()
--- What it Does:    Returns if a value is a secret value, but since this dropped in 12.0, API doesn't currently exist
--- Purpose:         Compatibility of all builds
-GRM.issecretvalue = function( value )
-    if issecretvalue then
-        return issecretvalue(value);
-    end
-    return false
 end
 
 -------------------------------------
@@ -544,6 +537,19 @@ GRM.SetSliderTemplate = function()
 end
 GRM_G.SliderTemplate = "UISliderTemplate"
 
+-- Method:          GRM.issecretvalue()
+-- What it Does:    Returns if a value is a secret value, but since this dropped in 12.0, API doesn't currently exist
+-- Purpose:         Compatibility of all builds
+GRM.issecretvalue = function( value )
+    if issecretvalue then
+        if not GRM_G.secretValueDelay then
+            GRM_G.secretValueDelay = true;
+        end
+        return issecretvalue(value);
+    end
+    return false
+end
+
 -------------------------------
 --- END COMPATIBILITY CHECK ---
 -------------------------------
@@ -589,6 +595,10 @@ GRM_G.StatusChecking:SetScript("OnEvent", function(_, event)
             GRM_G.inCombat = false;
             GRM.FrameCombatRestore()
 
+            if not GRM.IsInAnyPvPInstance() then
+                GRM.SecretValueRestrictionRestore();
+            end
+
         elseif event == "PLAYER_REGEN_DISABLED" then
             GRM_G.inCombat = true;
             if not UnitOnTaxi("player") then
@@ -599,7 +609,8 @@ GRM_G.StatusChecking:SetScript("OnEvent", function(_, event)
             GRM_G.inCombat = false;            
             -- If frames were hidden before the load, keep them hidden.
             -- I do not want them popping up unexpectedly after a load screen.
-            GRM.WipeCombatHiddenState(); 
+            GRM.WipeCombatHiddenState();
+            GRM.SecretValueRestrictionRestore();
 
         elseif eventList[event] then
 
@@ -733,6 +744,23 @@ GRM.WipeCombatHiddenState = function()
     end
 end
 
+-- Method:          GRM.SecretValueRestrictionRestore()
+-- What it Does:    If a secret value delay was set, it resets it and triggers a guild roster update
+-- Purpose:         To handle secret value restrictions lifting after combat or after leaving a BG.
+GRM.SecretValueRestrictionRestore = function()
+    if GRM_G.secretValueDelay then
+        GRM_G.secretValueDelay = false;
+        GRM.GuildRoster();
+    end
+end
+
+-- Method:          GRM.IsInAnyPvPInstance()
+-- What it Does:    Returns true if the player is in a PvP instance (battleground or arena)
+-- Purpose:         Only need to reset the secretValue when leaving combat if NOT in a pvp instance.
+GRM.IsInAnyPvPInstance = function()
+    local _, instanceType = IsInInstance()
+    return instanceType == "pvp" or instanceType == "arena"
+end
 ------------------------------
 --- EXTERNAL COMPATIBILITY ---
 ------------------------------

@@ -2858,7 +2858,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
 
             if number >= GRM_G.LvlCap then
-                number = GRM_G.LvlCap;
+                number = 999; -- 999 is default for level cap.
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = tostring ( GRM_G.LvlCap );
             else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = tostring ( number );
@@ -9812,12 +9812,18 @@ GRM.UpdateRulesTooltip = function ( ind )
 
     if rule.levelFilter then
         local topLevel;
+        local lowerLevel;
+        if rule.levelRange[1] == 999 then
+            lowerLevel = GRM_G.LvlCap;
+        else
+            lowerLevel = rule.levelRange[1];
+        end
         if rule.levelRange[2] == 999 then
             topLevel = GRM_G.LvlCap;
         else
             topLevel = rule.levelRange[2];
         end
-        GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "{num} to {custom1}" , nil , nil , rule.levelRange[1] , topLevel ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
+        GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "{num} to {custom1}" , nil , nil , lowerLevel , topLevel ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     else
         GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "1 to {num}" , nil , nil , GRM_G.LvlCap ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     end
@@ -10294,9 +10300,10 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                     -- Level Filters
                     if ruleConfirmedCheck and rule.levelFilter then
                         ruleConfirmedCheck = false;
+                        local lowerLevel = (rule.levelRange[1] == 999) and GRM_G.LvlCap or rule.levelRange[1];
                         local topLevel = (rule.levelRange[2] == 999) and GRM_G.LvlCap or rule.levelRange[2];
-                        if player.level >= rule.levelRange[1] and player.level <= topLevel then
-                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Level", rule.levelRange[1], topLevel });
+                        if player.level >= lowerLevel and player.level <= topLevel then
+                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Level", lowerLevel, topLevel });
                         end
                     end
                     -- Reputation Filter
@@ -10994,14 +11001,20 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                         ruleConfirmedCheck = false;
 
                         local topLevel;
+                        local lowerLevel;
+                        if rule.levelRange[1] == 999 then
+                            lowerLevel = GRM_G.LvlCap;
+                        else
+                            lowerLevel = rule.levelRange[1];
+                        end
                         if rule.levelRange[2] == 999 then
                             topLevel = GRM_G.LvlCap;
                         else
                             topLevel = rule.levelRange[2];
                         end
-                        if player.level >= rule.levelRange[1] and player.level <= topLevel then
+                        if player.level >= lowerLevel and player.level <= topLevel then
                             ruleConfirmedCheck = true;
-                            table.insert ( tempRuleCollection , { "Level" , rule.levelRange[1] , topLevel } );
+                            table.insert ( tempRuleCollection , { "Level" , lowerLevel , topLevel } );
                         end
                     end
 
@@ -11298,14 +11311,20 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
                             ruleConfirmedCheck = false;
 
                             local topLevel;
+                            local lowerLevel;
+                            if rule.levelRange[1] == 999 then
+                                lowerLevel = GRM_G.LvlCap;
+                            else
+                                lowerLevel = rule.levelRange[1];
+                            end
                             if rule.levelRange[2] == 999 then
                                 topLevel = GRM_G.LvlCap;
                             else
                                 topLevel = rule.levelRange[2];
                             end
-                            if player.level >= rule.levelRange[1] and player.level <= topLevel then
+                            if player.level >= lowerLevel and player.level <= topLevel then
                                 ruleConfirmedCheck = true;
-                                table.insert ( tempRuleCollection , { "Level" , rule.levelRange[1] , topLevel } );
+                                table.insert ( tempRuleCollection , { "Level" , lowerLevel , topLevel } );
                             end
                         end
 

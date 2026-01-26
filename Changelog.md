@@ -8,7 +8,7 @@
 
 ***BUG FIXES***
 
-* 12.0 Midnight changes means some API restrictions that have caused a lot of error spam when in raid boss combat or in BGs. GRM has cleaned up the new API conflicts. Please be aware that Blizz has made some addon restrictions that CANNOT be circumvented. Notably, chat text manipulation where GRM hooks the text and adds the player main name (or pending nickname feature). This is 100% restricted by Blizzard, but only when in raid boss combat or in BGs. 
+* 12.0 Midnight changes means some API restrictions that have caused a lot of error spam when in raid boss combat or in BGs. GRM has cleaned up the new API conflicts. Please be aware that Blizz has made some addon restrictions that CANNOT be circumvented. Notably, chat text manipulation where GRM hooks the text and adds the player main name (or pending nickname feature). This is 100% restricted by Blizzard, but only when in raid boss combat or in BGs. GRM attempts to handle this intelligently, however, in that if it detects the new restricted state, it queues up scan to analyze the state post Raid boss, or when exiting a PVP instance (BG or arena). So, in theory, this shouldn't really matter a whole lot as when you are busy PVPing or in a raid bosss fight, I doubt people will be that concerned if the main name is getting added to the chat names.
 
 * An issue with the Classic Hardcore where the noltification about joining the Hardcore channel was appearing even if you had already joined the channel.
 

@@ -1848,6 +1848,9 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.994 and baseValue < 1.994 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNamesToPlayer , true , true , false , nil );
         GRM_Patch.FixPotentialAltIssue();
+        GRM_Patch.EditSetting ( "kickRules", GRM_Patch.FixMaxLevelMacroSetting );
+        GRM_Patch.EditSetting ( "demoteRules", GRM_Patch.FixMaxLevelMacroSetting );
+        GRM_Patch.EditSetting ( "promoteRules", GRM_Patch.FixMaxLevelMacroSetting );
 
         GRM_AddonSettings_Save.VERSION = "R1.994";
         if loopCheck ( 1.994 ) then
@@ -10344,4 +10347,19 @@ GRM_Patch.FixPotentialAltIssue = function()
         end
 
     end
+end
+
+-- 1.994
+-- Method:          GRM_Patch.FixMaxLevelMacroSetting ( rules )
+-- What it Does:    Fixes any kick/demote/promote level range rules to set lower level to 999 if at level cap
+-- Purpose:         Prior to level cap increase, max level was hardcoded. This fixes that to be dynamic no matter the expansion
+GRM_Patch.FixMaxLevelMacroSetting = function( rules )
+    local maxLevel = GRM_G.LvlCap or GetMaxPlayerLevel();
+
+    for ruleName , rule in pairs(rules) do
+        if rule.levelRange[1] == maxLevel then
+            rule.levelRange[1] = 999;   -- 999 indicates level cap. The index [2] range is already good at 999 if at cap
+        end
+    end
+    return rules;
 end
