@@ -249,7 +249,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
             GameTooltip:AddLine ( " " );
             GameTooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
         else
-            tooltip:AddLine ( GRM.L ( "Not in Guild" ) );
+            GameTooltip:AddLine ( GRM.L ( "Not in Guild" ) );
         end
         GameTooltip:Show();
     end)

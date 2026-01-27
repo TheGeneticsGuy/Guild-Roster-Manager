@@ -1972,13 +1972,19 @@ GRML.English = function()
     GRM_L["Expansion Change Detected - Updating player server IDs..."] = true
     GRM_L["Database updated with new server IDs!"] = true
 
-    -- 1.99347
+    -- 1.99372
     GRM_L["No"] = true
     GRM_L["Loading..."] = true
 
-    -- 1.993473
+    -- 1.99373
     GRM_L["Standard"] = true
     GRM_L["Move Anywhere"] = true
+
+    -- 1.99374
+    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = true
+    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
+    GRM_L["Addons are no longer restricted. Continuing GRM initialization now."] = true
+    GRM_L["Please specify a number limit after the altlimit command."] = true
 
 end
 

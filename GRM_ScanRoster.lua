@@ -158,7 +158,6 @@ Scan.HeartbeatCheck = function( stuckCounter )
 
         -- Since it got stuck, let's trigger a fresh roster update to "Unstick" the game client data
         GRM.GuildRoster();
-        print("Scan got stuck, restarting...")
         return
     end
 
@@ -481,7 +480,7 @@ Scan.FinalizeRosterBuild = function( roster, orderedRoster, count )
 
     if actualSize ~= expectedSize then
         if GRM_G.DebugEnabled then
-            print(string.format("GRM: Roster size mismatch. Expected ~%d, Got %d. Retrying scan soon.", expectedSize, actualSize));
+            GRM.Debug.AddDebugMessage(string.format("GRM: Roster size mismatch. Expected ~%d, Got %d. Retrying scan soon.", expectedSize, actualSize));
         end
         C_Timer.After(5, function()
             GRM_G.CurrentlyScanning = false;
@@ -510,7 +509,7 @@ Scan.FinalizeRosterBuild = function( roster, orderedRoster, count )
     else
         -- Case where no members were found or guild name is missing
         if GRM_G.DebugEnabled then
-            print("GRM: Finalizing roster build, but no members found or guild name missing.");
+            GRM.Debug.AddDebugMessage("GRM: Finalizing roster build, but no members found or guild name missing.");
         end
         GRM_G.CurrentlyScanning = false; -- Allow next scan attempt later
     end
@@ -547,11 +546,11 @@ end
 -- Method:          Scan.BuildNewGuildOrNameChange ( table )
 -- What it Does:    Guild namechange detection
 -- Purpose:         Determine if it is a guild nameChange and if so, to convert DB to new name without losing everything.
-Scan.BuildNewGuildOrNameChange = function(roster )
+Scan.BuildNewGuildOrNameChange = function(roster)
 
     local guildNameChanged, currentGuildName, oldGuildName = Scan.GuildNameChanged(GRM_G.guildName);
 
-    if not forceRebuild and guildNameChanged then
+    if guildNameChanged then
         Scan.ProcessGuildNameChange(currentGuildName, oldGuildName);
 
     else
@@ -2175,9 +2174,9 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                 -- Adding timestamp to new Player.
                 local noteIsSet = false;
                 local officerNoteIsSet = false;
+                local rosterSelection = GRM.GetRosterSelectionID ( member.name , member.GUID );
                 if not player.isTransfer and GRM.S().addTimestampToNote and useTimeStamp then
                     local index;
-                    local rosterSelection = GRM.GetRosterSelectionID ( member.name , member.GUID );
 
                     if rosterSelection and rosterSelection ~= 0 then
                         index = rosterSelection;
@@ -2411,6 +2410,7 @@ Scan.CheckPlayerEvents = function( rescanning )
 
         -- Quickly cleanup the list if necessary
         GRM.CleanupEventsFromplayers();
+
         local guildData = GRM.GetGuild();
         local cleanupHappened = false;
         local count = 0;
@@ -2420,10 +2420,8 @@ Scan.CheckPlayerEvents = function( rescanning )
                 if type(player) == "table" then
 
                     cleanupHappened , count = Scan.CheckPlayerAnniversary ( player , day , month, year , count );
-
                     cleanupHappened , count = Scan.CheckPlayerBirthday ( player , day , month , year , cleanupHappened , count );
 
-                    playerSlimName = GRM.SlimName(player.name);
                     if count == 10 then
                         break;
                     end
@@ -2504,8 +2502,7 @@ Scan.CheckPlayerAnniversary = function( player , day , month , year , count )
                                     finalYear = finalYear + 1;
                                 end
 
-                                if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, r ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
-
+                                if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 1 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
 
                                     GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
                                         description, 1);
@@ -3093,9 +3090,7 @@ Scan.FullReportCheck = function()
     end
 
     -- OK, NOW LET'S REPORT TO LOG FRAME IN REVERSE ORDER!!!
-
     if #GRM_G.TempEventRecommendKickReport > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3105,7 +3100,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempEventRecommendPromotionReport > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3115,7 +3109,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempEventRecommendDemotionReport > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3125,7 +3118,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempEventRecommendSpecialReport > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3135,7 +3127,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempEventReport > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3145,7 +3136,6 @@ Scan.FullReportCheck = function()
     end
 
     if not GRM_G.silenceOfficerNoteReporting and #GRM_G.TempLogONote > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3155,7 +3145,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempLogNote > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3165,7 +3154,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempLogLeveled > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3175,7 +3163,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempRankRename > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3185,7 +3172,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempRejoin > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3195,7 +3181,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempNewMember > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3205,7 +3190,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempLogDemotion > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3215,7 +3199,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempLogPromotion > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3225,7 +3208,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempNameChanged > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3235,7 +3217,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempInactiveReturnedLog > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3245,7 +3226,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempBannedRejoin > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end
@@ -3255,7 +3235,6 @@ Scan.FullReportCheck = function()
     end
 
     if #GRM_G.TempDeathReport > 0 then
-        needToReport = true;
         if GRM_G.OnFirstLoad then
             GRM_G.ChangesFoundOnLoad = true;
         end

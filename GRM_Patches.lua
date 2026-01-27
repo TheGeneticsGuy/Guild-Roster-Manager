@@ -1845,15 +1845,15 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- 152
-    if numericV < 1.994 and baseValue < 1.994 then
+    if numericV < 1.99374 and baseValue < 1.99374 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNamesToPlayer , true , true , false , nil );
         GRM_Patch.FixPotentialAltIssue();
         GRM_Patch.EditSetting ( "kickRules", GRM_Patch.FixMaxLevelMacroSetting );
         GRM_Patch.EditSetting ( "demoteRules", GRM_Patch.FixMaxLevelMacroSetting );
         GRM_Patch.EditSetting ( "promoteRules", GRM_Patch.FixMaxLevelMacroSetting );
 
-        GRM_AddonSettings_Save.VERSION = "R1.994";
-        if loopCheck ( 1.994 ) then
+        GRM_AddonSettings_Save.VERSION = "R1.99374";
+        if loopCheck ( 1.99374 ) then
             return;
         end
     end
@@ -8999,7 +8999,7 @@ end
 GRM_Patch.FixAltGroupData = function()
 
     for guildName in pairs ( GRM_Alts ) do
-        for groupID , alts in pairs ( GRM_Alts[guildName] ) do
+        for _ , alts in pairs ( GRM_Alts[guildName] ) do
             for i = #alts , 1 , -1 do
                 if alts[i] == nil then
                     table.remove ( alts , i );
@@ -9010,7 +9010,7 @@ GRM_Patch.FixAltGroupData = function()
 
     for guildName in pairs ( GRM_GuildDataBackup_Save ) do
         if GRM_Alts[guildName].alts then
-            for groupID , alts in pairs ( GRM_Alts[guildName].alts ) do
+            for _ , alts in pairs ( GRM_Alts[guildName].alts ) do
                 for i = #alts , 1 , -1 do
                     if alts[i] == nil then
                         table.remove ( alts , i );
@@ -9089,7 +9089,7 @@ GRM_Patch.BuildNewMainAltDB = function()
                         return;
                     end
 
-                    group = alts[player.altGroup];
+                    local group = alts[player.altGroup];
 
                     -- Mains
                     if player.isMain and group and group.main == name then
@@ -9167,7 +9167,7 @@ GRM_Patch.BuildNewMainAltDB = function()
                             return;
                         end
 
-                        group = alts[player.altGroup];
+                        local group = alts[player.altGroup];
 
                         -- Mains
                         if player.isMain and group and group.main == name then
@@ -9334,7 +9334,7 @@ GRM_Patch.AltGroupUpdateTweak = function()
     end
 
     -- For backups
-    for guildName , guildData in pairs ( GRM_GuildDataBackup_Save ) do
+    for _ , guildData in pairs ( GRM_GuildDataBackup_Save ) do
         if type ( guildData ) == "table" then
             altGroups = guildData.alts;
             namesCollected = {};                        -- Reset for each guild
@@ -9487,7 +9487,7 @@ GRM_Patch.StandardDateFix = function ( player )
                     end
                 end
             elseif #player.rankHist[i][5] == 8 then
-                year = string.sub ( player.rankHist[i][5] , 1 , 4 )
+                local year = string.sub ( player.rankHist[i][5] , 1 , 4 )
                 if tonumber (year) < 2000 then
                     if i == 1 then
                         player.rankHist[1] = { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 }
@@ -9795,7 +9795,7 @@ GRM_Patch.FixBirthdayUnknown = function()
     -- Now, let's cleanup prior member data and prior member backup
     -- Alt groups can be ignored here because alt groups are broken up when player leaves the guild
     for i = 2 , #data do
-        for guildName , guildData in pairs ( data[i] ) do
+        for _ , guildData in pairs ( data[i] ) do
             if type ( guildData ) == "table" then
                 if i == 2 then
                     members = guildData.formerMembers;
@@ -10242,7 +10242,7 @@ GRM_Patch.AltGroupUpdateTweakNewDB = function()
     end
 end
 
--- 1.994
+-- 1.99374
 -- Method:          GRM_Patch.AddNickNamesToPlayer ( playerTable )
 -- What it Does:    Removes the old placeholder structure and replaces with updated
 -- purpose:         New nickname system
@@ -10252,7 +10252,7 @@ GRM_Patch.AddNickNamesToPlayer = function ( player )
     return player;
 end
 
--- 1.994
+-- 1.99374
 -- Method:          GRM_Patch.FixPotentialAltIssue()
 -- What it Does:    Fixes potential alt group issues from prior updates that may have left
 -- Purpose:         Aggressive fix for a latent bug post 12.0 updates.
@@ -10349,14 +10349,14 @@ GRM_Patch.FixPotentialAltIssue = function()
     end
 end
 
--- 1.994
+-- 1.99374
 -- Method:          GRM_Patch.FixMaxLevelMacroSetting ( rules )
 -- What it Does:    Fixes any kick/demote/promote level range rules to set lower level to 999 if at level cap
 -- Purpose:         Prior to level cap increase, max level was hardcoded. This fixes that to be dynamic no matter the expansion
 GRM_Patch.FixMaxLevelMacroSetting = function( rules )
     local maxLevel = GRM_G.LvlCap or GetMaxPlayerLevel();
 
-    for ruleName , rule in pairs(rules) do
+    for _ , rule in pairs(rules) do
         if rule.levelRange[1] == maxLevel then
             rule.levelRange[1] = 999;   -- 999 indicates level cap. The index [2] range is already good at 999 if at cap
         end

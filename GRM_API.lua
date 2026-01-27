@@ -457,18 +457,15 @@ GRM_API.ReportAltGroupsOverLimit = function ( limit )
     if limit < 1 then
         GRM.Report ( "Limit must be at least 1 or greater." );
     else
-        print(" ");
-        GRM.Report ( GRM.L ("Alt Group Limit Audit" ) );
-        GRM.Report ( "-------------------------" );
-        print(" ");
+        GRM.Report ( " \n" .. GRM.L ("Alt Group Limit Audit" ) );
+        GRM.Report ( "-------------------------\n " );
     end
 
     for id, altGroup in pairs ( alts ) do
         if #altGroup > limit then
             totalOver = totalOver + 1;
             if altGroup.main ~= "" then
-                GRM.Report( GRM.L("Main") .. ": " .. GRM.GetClassifiedName(altGroup.main, false) .. " | " .. GRM.L("Total Alts") .. ": " .. #altGroup );
-                print(" ");
+                GRM.Report( GRM.L("Main") .. ": " .. GRM.GetClassifiedName(altGroup.main, false) .. " | " .. GRM.L("Total Alts") .. ": " .. #altGroup .. "\n " );
             else
                 GRM.Report( GRM.L("No Main Set") .. " | " .. GRM.L("Total Alts") .. ": " .. #altGroup );
                 GRM.Report("Alts in Group:");
@@ -478,14 +475,14 @@ GRM_API.ReportAltGroupsOverLimit = function ( limit )
                         GRM.Report ( "   - " .. GRM.GetClassifiedName(player.name,false) .. " | " .. GRM.L ("Rank") .. ": " .. player.rankName .. " | " .. GRM.L ("Join Date") .. ": " .. GRM.Time.FormatTimeStamp ( player.joinDateHist[1] ) );
                     end
                 end
-                print(" ");
+                GRM.Report(" ");
             end
 
         end
     end
     if totalOver == 0 then
         GRM.Report ( "< " .. string.upper (GRM.L ( "None Found" ) ) .. " >" );
-        print (" ");
+        GRM.Report (" ");
     end
     GRM.Report ( "-------------------------" );
     GRM.Report(GRM.L( "Total Alt Groups Over Limit of {num}: {custom1}" , nil, nil , limit, totalOver ));

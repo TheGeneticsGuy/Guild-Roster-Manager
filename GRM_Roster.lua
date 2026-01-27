@@ -43,12 +43,12 @@ GRM_R.BuildRosterFrames = function ()
         GRM_UI.GRM_RosterFrame.timer = 0;
 
         GRM_UI.GRM_RosterFrame:SetScript ( "OnUpdate" , function ( self , elapsed )
-            GRM_UI.GRM_RosterFrame.timer = GRM_UI.GRM_RosterFrame.timer + elapsed;
-            if GRM_UI.GRM_RosterFrame.timer >= 10 then
+            self.timer = self.timer + elapsed;
+            if self.timer >= 10 then
                 -- Refresh the log every 10 seconds when it is open, just to be certain. There is a problem with the guild roster not updating properly when guild changes occur in status.
                 GRM.GuildRoster();
                 QueryGuildEventLog();
-                GRM_UI.GRM_RosterFrame.timer = 0;
+                self.timer = 0;
             end
         end)
     end

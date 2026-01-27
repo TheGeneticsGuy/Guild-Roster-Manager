@@ -900,13 +900,13 @@ GRM_UI.CreateTooltipFromTable = function ( self , ... )
             elseif lines[i][1] == 2 then
                 for i = 1 , #lines do
                     -- Coloring for both lines
-                    if lines[i][4] and line[i][7] then
+                    if lines[i][4] and lines[i][7] then
                         GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] , lines[i][7] , lines[i][8] , lines[i][9] );
                     -- Only coloring for first line
-                    elseif line[i][4] then
+                    elseif lines[i][4] then
                         GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] );
                     -- only coloring for second line
-                    elseif line[i][7] then
+                    elseif lines[i][7] then
                         GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][7] , lines[i][8] , lines[i][9] );
                     -- No specific coloring.
                     else

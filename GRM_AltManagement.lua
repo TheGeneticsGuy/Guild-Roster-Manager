@@ -736,14 +736,7 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
                     local member = GRM.GetPlayer ( group[1].name );
                     if member then
                         member.altGroup = "";
-                        if scanDiscovery then
-                            member.altGroupLeft = tonumber ( group.timeModified );
-                            if group.timeModified > 0 then
-                                member.altGroupLeft = member.altGroupLeft - 1;
-                            end
-                        else
-                            member.altGroupLeft = timestamp;        -- Necessary for sync purposes - log when players were no longer in an alt Group
-                        end
+                        member.altGroupLeft = timestamp;        -- Necessary for sync purposes - log when players were no longer in an alt Group
                     end
                     GRM.GetGuildAlts()[player.altGroup] = nil;
                 end
@@ -964,7 +957,7 @@ end
 GRM.ChangePlayerNameInAltGrouping = function ( oldName , newName )
     local guildAlts = GRM.GetGuildAlts();
 
-    for groupID , alts in pairs ( guildAlts ) do
+    for _ , alts in pairs ( guildAlts ) do
 
         for i = 1 , #alts do
             if alts[i].name == oldName then
@@ -1566,6 +1559,7 @@ GRM.AddAltAutoComplete = function()
     local tag = 0;
     local players = {};
     local guildData = GRM.GetGuild();
+    local altGroup = {};
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then

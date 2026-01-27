@@ -143,7 +143,7 @@ end
 -- Method:          Prof.AppendProfessionReportToNote ( string , int )
 -- What it Does:    Updates the note of the player with the profession details, and overwrites old if necessary
 -- Purpose:         Add professions to Classic usefulness
-Prof.AppendProfessionReportToNote = function ( name , destination , removeNote )
+Prof.AppendProfessionReportToNote = function ( name , destination )
 
     local player = GRM.GetPlayer ( name );
     local note, officerNote, customNote = "" , "" , "";

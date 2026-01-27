@@ -5886,7 +5886,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end
 
         -- Choose note destination
-        GRM_UI.AddMessageToNoteDestinationChoice = function( self )
+        GRM_UI.AddMessageToNoteDestinationChoice = function()
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:GetChecked() then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 1
             elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:GetChecked() then
@@ -6717,7 +6717,7 @@ GRM.ProcessNextQueuedEntriesChunk = function()
     local state = GRM_G.queuedEntriesScanState;
     if not state or not state.isRunning then return; end
 
-    local recommendationsInChunk; -- For this scan, we only care about the primary list, not higherAltCount or disabledList.
+    local recommendationsInChunk, _; -- For this scan, we only care about the primary list, not higherAltCount or disabledList.
 
     if state.currentIndex <= #state.allNames then
         if state.category == 1 then

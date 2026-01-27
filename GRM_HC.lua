@@ -28,7 +28,7 @@ HC.HardCoreInitialize = function()
         GRM_G.HardcoreActive = true;
 
         HC.deathEvent:RegisterEvent ( "CHAT_MSG_CHANNEL" );
-        HC.deathEvent:SetScript ( "OnEvent" , function ( _ , _ , text , playerName , _ , _ ,  _ , _ , _ , _ , channel )
+        HC.deathEvent:SetScript ( "OnEvent" , function ( _ , _ , text , _ , _ , _ ,  _ , _ , _ , _ , channel )
 
             if GRM_G.HardCoreDeaths == channel then
                 local name = HC.ParseOutPlayerName ( text );
@@ -117,8 +117,8 @@ HC.HardCoreInitialize = function()
             if i then
 
                 local memberNote = select ( 7 , GetGuildRosterInfo( i ) );
-                if not note then
-                    note = "";
+                if not memberNote then
+                    memberNote = "";
                 end
 
                 if not memberNote:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then

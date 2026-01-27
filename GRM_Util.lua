@@ -55,7 +55,7 @@ local function CountTableElements(tbl, visited)
     visited[tbl] = true
 
     local count = 0
-    for k, v in pairs(tbl) do
+    for _, v in pairs(tbl) do
         count = count + 1 -- Count the key-value pair
         if type(v) == "table" then
             count = count + CountTableElements(v, visited) -- Recursive into nested tables

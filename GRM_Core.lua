@@ -13,7 +13,7 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.994";
+GRM_G.Version = "R1.99374";
 GRM_G.Beta = false;
 GRM_G.PatchDayString = "1769056187";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.PatchDay = 1769056187;            -- In Epoch Time
@@ -341,6 +341,7 @@ end
 
 -- Secret Value Scan Control
 GRM_G.secretValueDelay = false;
+GRM_G.secretValueOnLoadDelay = false;
 
 -- Enums
 GRM_G.raceIDEnum = {};
@@ -373,7 +374,7 @@ GRM_G.StatusChecking.Timer = 0;
 -- Method           GRM.CreateTexture ( frame , string , string )
 -- What it Does:    Wraps 2 ways to implement the texture, for version compatibility
 -- Purpose:         Version Compatibility
-GRM.CreateTexture = function(frame, name, layer, useFrame)
+GRM.CreateTexture = function(frame, name, layer)
     frame[name] = frame:CreateTexture(nil, layer, nil, 0);
 end
 
@@ -2928,7 +2929,7 @@ end
 GRM.GetFullNameClubMember = function( memberGUID )
     local fullName = "";
     local sex;
-    tries = tries or 10;
+    local tries = 10;
 
     if memberGUID and memberGUID ~= "" then
         local s, name, realm = select(5, GetPlayerInfoByGUID(memberGUID));
@@ -3247,7 +3248,7 @@ end
 -- Method:          GRM.SystemMessageHandler ( self , string , string )
 -- What it Does:    Starts tracking the system messages. This only runs if system messages are disabled, thus this prioritizes over the filtering function
 -- Purpose:         For faster response to LIVE events rather than waiting for server query updates.
-GRM.SystemMessageHandler = function(_, event, msg)
+GRM.SystemMessageHandler = function(_, _, msg)
     if not GRM_G.SystemMessagesEnabled and not GRM.issecretvalue(msg) then
 
         -- Error protection to not break chat
@@ -3718,7 +3719,6 @@ GRM.SetGuildInfoDetails = function()
         GRM_G.MsgFilterEnabled = true; -- Establishing boolean gate so it is only registered once.
         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
     end
-
     GuildInfo();
     -- This should only be blocked momentarily.
     C_Timer.After(2, function()
@@ -8567,7 +8567,7 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
             end
         end);
 
-        button:SetScript("OnEnter", function(self)
+        button:SetScript("OnEnter", function()
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
                 .EscapeControl = true;
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox
@@ -8603,7 +8603,7 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
             end
         end)
 
-        button:SetScript("OnLeave", function(self)
+        button:SetScript("OnLeave", function()
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox
                 .EscapeControl = false;
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
@@ -11076,7 +11076,7 @@ end
 -- What it Does:    Removes Line breaks with a given char
 -- Purpose:         Presentation in the log.
 GRM.RemoveLineBreaks = function(text, replacementChar)
-    replacementChat = replacementChar or "-";
+    replacementChar = replacementChar or "-";
 
     return string.gsub(text, "\n", replacementChar);
 end
@@ -15394,7 +15394,7 @@ GRM.ResetPlayerMetaData = function(playerName)
             member.GUID = player.guid;
             member.race = C_CreatureInfo.GetRaceInfo(player.race).clientFileString;
             member.sex = sex;
-            member.rosterSelection = i;
+            member.rosterSelection = GRM.GetRosterSelectionID(member.name,member.GUID);
 
             if GRM_G.BuildVersion > 80000 then
                 member.MythicScore = 0;
@@ -16561,7 +16561,6 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
             else
                 local member = GRM.GetClubMemberInfo(handle, GRM_G.gClubID);
                 if member then
-                    name = handle;
                     zone = member.zone;
                     online = GRM.IsPresenceOnline(member.presence);
                 end
@@ -16992,8 +16991,7 @@ GRM.RemoveBanSendSyncMessage = function(name, epochTimeStamp, index, index2)
                         end
 
                         C_Timer.After(GRMsyncGlobals.ThrottleDelay, function()
-                            GRM.RemoveBanSendSyncMessage(playerThatWasKicked, epochTimeStamp, reason, class, GUID,
-                                banAllAlts, index, index2);
+                            GRM.RemoveBanSendSyncMessage(name, epochTimeStamp, reason, index, index2);
                         end);
                         return;
                     end
@@ -22487,7 +22485,7 @@ GRM.SlashCommandAltLimitAudit = function( input )
     if limit then
         GRM_API.ReportAltGroupsOverLimit ( tonumber ( limit ) );
     else
-        print("Not Parsed")
+        GRM.Report(GRM.L("Please specify a number limit after the altlimit command."));
     end
 end
 
@@ -23074,19 +23072,50 @@ GRM.TrackingConfiguration = function(forced)
     end
 end
 
+-- Method:          GRM.SecretValueLoadDelayHandler()
+-- What it Does:    Handles the delay logic for when the addon is loaded while in a PVP instance or in raid combat
+-- Purpose:         In 12.0 Blizz introduced addon restrictions. This accomodates that to prevent spam as GRM is unable to fully configure able if reload
+GRM.SecretValueLoadDelayHandler = function()
+    if not GRM_G.secretValueOnLoadDelay then
+        GRM_G.secretValueOnLoadDelay = true;
+
+        if GRM.IsInAnyPvPInstance() then
+            local pvpType = select(2, IsInInstance());
+            if pvpType == "pvp" then
+                pvpType = BATTLEGROUND;
+            elseif pvpType == "arena" then
+                pvpType = ARENA ;
+            end
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends." , pvpType));
+        else
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"));
+        end
+
+    end
+end
+
 -- Method:          GRM.DelayForGuildInfoCallback()
 -- What it Does:    It basically recursively waits til the conditions are met and the server properly retrieved the guildCreationDate
 -- Purpose:         If a guild is on more than one server with the same name, that can complicate things. This helps idenitfy the server by the creation date as well...
 GRM.DelayForGuildInfoCallback = function()
     if GRM_G.guildCreationDate == "" then
-        GRM.SetGuildInfoDetails();
-        GRM.GuildRoster();
+        if not GRM_G.secretValueDelay then
+            GRM.SetGuildInfoDetails();
+            GRM.GuildRoster();
+            if GRM_G.secretValueOnLoadDelay then
+                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
+                GRM_G.secretValueOnLoadDelay = false;
+            end
+        else
+            GRM.SecretValueLoadDelayHandler();
+        end
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
+        return
     elseif GRM_G.NumberOfHoursTilRecommend.kick == nil or GRM_G.NumberOfHoursTilRecommend.kickActive == nil then
         GRM.Scan.RefreshNumberOfHoursTilRecommend();
 
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
-
+        return
     elseif GRM_G.BuildVersion >= 10000 and GRM_G.gClubID == 0 then
         if C_Club.GetGuildClubId() ~= nil then
             GRM_G.gClubID = C_Club.GetGuildClubId();
@@ -23094,7 +23123,7 @@ GRM.DelayForGuildInfoCallback = function()
             GRM_G.gClubID = 1;
         end
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
-
+        return
     else
         GRM_G.trackingTriggered = false;
         GRM.TrackingConfiguration(false);

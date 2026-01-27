@@ -1348,7 +1348,7 @@ end
 -- Method:          GRMsync.SyncTriggerMessage( string )
 -- What it Does:    Triggers just the message
 -- Purpose:         Easy reporting start of sync process after leader election.
-GRMsync.SyncTriggerMessage = function ( name )
+GRMsync.SyncTriggerMessage = function ()    -- Add name as argument eventually
    GRMsyncGlobals.StartMessage = true;
     if not GRMsyncGlobals.syncTempDelay then
         GRMsync.InitializeRankRestrictionCheck();
@@ -1691,7 +1691,6 @@ GRMsync.CheckAddAltChange = function ( msg , sender )
             main = altData[3];
         end
 
-        timestamp = tonumber ( altData[4] );
         GRMsyncGlobals.AltSyncReceived[leadName] = nil; -- Wipe the old from memory
         GRMsyncGlobals.AltSyncReceived[leadName] = {};
         if GRM.GetPlayer ( main ) then  -- Verify not receiving bad data.
@@ -2000,7 +1999,7 @@ GRMsync.CheckCustomNoteSyncChange = function ( msg , prefix , isReceived )
             if player then
                 -- Player identified... now we need to find out what sync restriction you have on them.
                 if player.customNote[1] then
-                    if ( isReceivedSync and GRMsyncGlobals.senderCustRankReq < GRM_G.playerRankID ) then
+                    if ( isReceived and GRMsyncGlobals.senderCustRankReq < GRM_G.playerRankID ) then
                         return;
                     else
                         if player.customNote[2] <= timeStampOfChange then
@@ -2358,10 +2357,10 @@ GRMsync.CheckUnbanListChangeLive = function ( msg , sender )
     end
 end
 
--- Method:          GRMsync.BanManagement ( string or table , string , string )
+-- Method:          GRMsync.BanManagement ( string or table , string )
 -- What it Does:    Updates the ban data while syncing.
 -- Purpose:         Syncing bans and unbans between players...
-GRMsync.BanManagement = function ( msg , prefix , sender )
+GRMsync.BanManagement = function ( msg , prefix )
 
     -- { playerName , banTimeEpoch , banType , playerWhoBanned , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID , reason }
     local playerName , banTimeEpoch , banType , playerWhoBanned , rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID , reason , indReceived;
@@ -2486,6 +2485,8 @@ GRMsync.BanManagement = function ( msg , prefix , sender )
             if banTimeEpoch >= player.bannedInfo[2] then
                 -- Ok, let's see if it is a ban or an unban!
                 isAnEdit = false;
+                local addLog = false
+
                 if banType == "1" then
 
                     if player.bannedInfo[1] then
@@ -3983,7 +3984,7 @@ GRMsync.BuildPromoteDatesForSync = function()
             -- Cycle through guild data to find them. This is now in array format, remember, so that arrays align.
             for j = 1, #guildData do
                 if guildData[j].name == dataIndexes[i][1] then
-                    if guildData[j].rankHist[1][7] and GRMsync.ValidatePromoteDataForSync( guildData[j].rankHist ) then
+                    if guildData[j].rankHist[1][7] and GRMsync.ValidatePromoteDataForSync( guildData[j].rankHist , guildData[j].rankName ) then
 
                         table.insert ( playersWithPromoteDates , { guildData[j].name , guildData[j].rankHist[1][5] , guildData[j].rankHist[1][6] } );    -- Name, standardDate "YYYYMMDD", epochTimestamp
 
@@ -3998,10 +3999,10 @@ GRMsync.BuildPromoteDatesForSync = function()
     return playersWithPromoteDates;
 end
 
--- Method:          GRMsync.ValidatePromoteDataForSync ( list )
+-- Method:          GRMsync.ValidatePromoteDataForSync ( list , string )
 -- What it Does:    Fixes the standard date if not properly formatted and returns if validated
 -- Purpose:         Data sync integrity
-GRMsync.ValidatePromoteDataForSync = function( rankHist )
+GRMsync.ValidatePromoteDataForSync = function( rankHist , rankName)
     local validated = false;
 
     if #rankHist[1][5] > 1 then
@@ -4021,7 +4022,7 @@ GRMsync.ValidatePromoteDataForSync = function( rankHist )
     end
 
     if not validated then
-        rankHist = { { player.rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
+        rankHist = { { rankName , 0 , 0 , 0 , "0" , 0 , false , 1 } };
     end
 
     return validated
@@ -4954,7 +4955,7 @@ GRMsync.SendBanPacketsFullDetails = function( completedPath , messageCount , ind
     local reasonMsg = "";
     local prefix = "";
 
-    players = players or GRMsync.BuildBanNamesForSync();
+    local players = GRMsync.BuildBanNamesForSync();
 
     for i = index , #players do
         syncMessage = "";
@@ -5966,7 +5967,7 @@ GRMsync.UnifyBirthdaysAmongAltGroups = function()
     local needToRemoveFromQue = false;
     local birthdayInfo;
 
-    for altGroupID , altGroup in pairs ( alts ) do
+    for _ , altGroup in pairs ( alts ) do
         hasBdaySet = false;
         newest = { "" , 0 , 0 , "" , 0 };
 
@@ -6163,17 +6164,17 @@ GRMsync.SubmitFinalBansData = function( messageCount , index )
                         -- NOT LEADER'S DATA, thus leader should update.
                         -- Leader needs to update the received data, but no reason to send back.
                         if prefix == "GRM_BANSYNCUP1" then
-                            GRMsync.BanManagement ( { GRMsyncGlobals.BanChanges[i][1] , GRMsyncGlobals.BanChanges[i][2] , GRMsyncGlobals.BanChanges[i][3] , GRMsyncGlobals.BanChanges[i][5] , GRMsyncGlobals.BanChanges[i][6][1] , GRMsyncGlobals.BanChanges[i][6][2] , GRMsyncGlobals.BanChanges[i][6][3] , GRMsyncGlobals.BanChanges[i][6][4] , GRMsyncGlobals.BanChanges[i][6][5] , GRMsyncGlobals.BanChanges[i][6][6] , GRMsyncGlobals.BanChanges[i][6][7] , GRMsyncGlobals.BanChanges[i][4] } , prefix , GRMsyncGlobals.CurrentSyncPlayer );
+                            GRMsync.BanManagement ( { GRMsyncGlobals.BanChanges[i][1] , GRMsyncGlobals.BanChanges[i][2] , GRMsyncGlobals.BanChanges[i][3] , GRMsyncGlobals.BanChanges[i][5] , GRMsyncGlobals.BanChanges[i][6][1] , GRMsyncGlobals.BanChanges[i][6][2] , GRMsyncGlobals.BanChanges[i][6][3] , GRMsyncGlobals.BanChanges[i][6][4] , GRMsyncGlobals.BanChanges[i][6][5] , GRMsyncGlobals.BanChanges[i][6][6] , GRMsyncGlobals.BanChanges[i][6][7] , GRMsyncGlobals.BanChanges[i][4] } , prefix );
 
                         elseif prefix == "GRM_BANSYNCUP4" then
-                            GRMsync.BanManagement ( { GRMsyncGlobals.BanChanges[i][1] , GRMsyncGlobals.BanChanges[i][2] , GRMsyncGlobals.BanChanges[i][3] , GRMsyncGlobals.BanChanges[i][5] , GRMsyncGlobals.BanChanges[i][4] } , prefix , GRMsyncGlobals.CurrentSyncPlayer );
+                            GRMsync.BanManagement ( { GRMsyncGlobals.BanChanges[i][1] , GRMsyncGlobals.BanChanges[i][2] , GRMsyncGlobals.BanChanges[i][3] , GRMsyncGlobals.BanChanges[i][5] , GRMsyncGlobals.BanChanges[i][4] } , prefix );
                         end
 
                     else
 
                         if prefix == "GRM_BANSYNCUP1" then
 
-                            GUID = GRMsyncGlobals.BanChanges[i][6][7];
+                            local GUID = GRMsyncGlobals.BanChanges[i][6][7];
                             if GUID == "" then
                                 GUID = "#";
                             else
@@ -6508,10 +6509,10 @@ GRMsync.CollectBanData = function ( msg , prefix )
 
     local indReceived = "";
     msg , indReceived = msg:match ( "(.+)%~|~(%d+)$" );   -- Parse out the msg num
-
+    local values = {};
+    local playerName , classIndex , rankName , rankIndex , level , standardDate , originalJoinEpoch , GUID , banType , banTimeEpoch , playerWhoBanned , reason;
+    
     values = GRMsync.ParseAllSeparatedItems( msg , "~|~" );
-
-    local playerName , classIndex , rankName , rankIndex , level , standardDate , originalJoinEpoch , GUID , banType , banTimeInEpoch , playerWhoBanned , reason;
 
     -- BAN/UNBAN scan of LEFT players
     if prefix == "GRM_BANSYNC1" or prefix == "GRM_BANSYNC2" then
@@ -6519,6 +6520,7 @@ GRMsync.CollectBanData = function ( msg , prefix )
         -- if not GRMsyncGlobals.SyncTracker.banData then
         --     GRMsyncGlobals.ProgressControl ( "BAN" );
         -- end
+
         playerName = values[1];
         classIndex = tonumber ( values[2] );
         rankName = values[3];
@@ -6927,7 +6929,7 @@ end
 -- Purpose:         Let's analyze the alt lists to setup for final sync
 GRMsync.CheckingALTChanges = function()
     local altData = GRMsync.BuildValidatedAltGroupsForSync();  -- { playersNotInGroup , playersOnlyMain , playersAltGroups };
-    namesAdded = {};
+    local namesAdded = {};
     -- No Group is most current data
     for i = #GRMsyncGlobals.AltReceivedTemp.NoGroup , 1 , -1 do
         for j = 1 , #altData[1] do
@@ -7019,7 +7021,7 @@ GRMsync.CheckingALTChanges = function()
     local isFound = false;
     -- STEP 2: Determine if my data is more recent.
     for leadName , receivedgroup in pairs ( GRMsyncGlobals.AltReceivedTemp.AltGroups ) do
-        isfound = false;
+        isFound = false;
         for i = 1 , #receivedgroup do                               -- Cycle through received alt group
             for j = 1 , #altData[3] do                              -- Cycle through all of my alt groups
                 for k = 1 , #altData[3][j] do                       -- Cycle through all group alt data, each list of alts
@@ -7060,7 +7062,7 @@ GRMsync.CheckingALTChanges = function()
     end
 
     -- STEP 3: Add the details of the received groups
-    for leadName , altGroup in pairs ( GRMsyncGlobals.AltReceivedTemp.AltGroups ) do
+    for _ , altGroup in pairs ( GRMsyncGlobals.AltReceivedTemp.AltGroups ) do
 
         for i = #altGroup , 1 , -1 do
             if namesAdded[altGroup[i]] then
@@ -7543,7 +7545,7 @@ GRMsync.SendRequestsForMissingMessages = function( missingMessages , index1 , fi
                 if j == #missingMessages[i] then
                     index1 = i + 1;
                 else
-                    index = i;
+                    index1 = i;
                     index2 = j;
                 end
 
