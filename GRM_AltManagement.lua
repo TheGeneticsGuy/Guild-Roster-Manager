@@ -558,7 +558,6 @@ GRM.GetListOfAltsLowerRankThanMyself = function( player )
 
     if #alts > 0 then
         sort ( alts , function ( a , b ) return a[1] < b[1] end );
-        local guild_data = GRM.GetGuild();
         local alt = {};
         local myRank = GRM.GetPlayer(GRM_G.addonUser).rankIndex
 

@@ -1329,7 +1329,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                                 player.note = tempNote;
 
                                 local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
-                                local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , oldNote , player.note , GRM.Time.GetTimestamp() );
+                                local logReportWithTime = GRM.GetNoteChangeString ( simpleName , oldNote , player.note , GRM.Time.GetTimestamp() );
 
                                 -- Adding it to the log!
                                 GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , oldNote , player.note , GRM.Time.GetTimestamp() } );
@@ -1349,7 +1349,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                                 player.officerNote = tempNote;
 
                                 local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
-                                local logReportWithTime , logReport = GRM.GetOfficerNoteChangeString ( simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() );
+                                local logReportWithTime = GRM.GetOfficerNoteChangeString ( simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() );
 
                                 -- Adding it to the log!
                                 GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() } );
@@ -7318,23 +7318,11 @@ GRM.GetMacroEntries = function ()
     local ind = 1;
     local entries = GRM.Util.DeepCopyArray(GRM_UI.GRM_ToolCoreFrame.QueuedEntries);
     local macroSet = false;
-    local type = 1;
 
     -- Create the macro
     while ind <= #entries do
         if not GRM.IsNameBlacklisted ( entries[ind].name ) then
             tempText = macroTxt;
-
-            -- Save room on the macro if player is on the same server as you
-            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
-                if entries[ind].action == "Promote" then
-                    type = 2;
-                elseif entries[ind].action == "Demote" then
-                    type = 3;
-                end
-            else
-                type = GRM_UI.GRM_ToolCoreFrame.TabPosition;
-            end
 
             if count == 0 then
                 tempText = "/run GRM.RMM()\n" .. entries[ind].macro .. " " .. entries[ind].name;
@@ -7399,23 +7387,11 @@ GRM.GetMacroCountForPromoteAndDemote = function()
     local i = 1;
     local entries = GRM.Util.DeepCopyArray ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries );
     local listOfNames = {};
-    local type = 1;
 
     -- Create the macro
     while i <= #entries do
         if not GRM.IsNameBlacklisted ( entries[i].name ) then
             tempText = macroTxt;
-
-            -- Save room on the macro if player is on the same server as you
-            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
-                if entries[i].action == "Promote" then
-                    type = 2;
-                elseif entries[i].action == "Demote" then
-                    type = 3;
-                end
-            else
-                type = GRM_UI.GRM_ToolCoreFrame.TabPosition;
-            end
 
             if count == 0 then
                 tempText = "/run GRM.RMM()\n" .. entries[i].macro .. " " .. entries[i].name;
@@ -7579,13 +7555,6 @@ end
 -- Purpose:         Quality of life feature.
 GRM.SetMacroValues = function ( ind , ind2 )
     local line = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[ind];
-
-    local type = 1;
-    if GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].macro == "/gpromote" then
-        type = 2;
-    elseif GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].macro == "/gdemote" then
-        type = 3;
-    end
 
     -- Player Name
     line[2]:SetText ( GRM_UI.GRM_ToolCoreFrame.MacroEntries[ind2].name );
@@ -10104,7 +10073,6 @@ GRM_UI.GetYourOwnAltHighestRank = function()
     end
 
     local highest = { GRM_G.playerRankID , GRM_G.addonUser };
-    local sameRank = {};
     local myAlts = GRM.GetAddOnUserGuildAlts();
     local rankInd;
     local promote, demote, kick
@@ -10124,8 +10092,6 @@ GRM_UI.GetYourOwnAltHighestRank = function()
                             if rankInd < highest[1] then
                                 -- Alt has higher rank (lower index)
                                 highest = { rankInd , name };
-                                -- We can reset the same rank now as now we only have 1 person higher rank
-                                sameRank = {};
 
                                 if GRM.IsMain ( name ) then
                                     mainFound = true;

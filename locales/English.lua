@@ -1985,6 +1985,14 @@ GRML.English = function()
     GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
     GRM_L["Addons are no longer restricted. Continuing GRM initialization now."] = true
     GRM_L["Please specify a number limit after the altlimit command."] = true
+    GRM_L["Nickname is too long. Max {num} letters."] = true
+    GRM_L["Invalid Character: \"|\" is not allowed."] = true
+    GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
+    GRM_L["Nickname contains invalid hidden characters." ] = true
+    GRM_L["{name} has removed the shared nickname for {name2} and all alts ({custom1})"] = true
+    GRM_L["{name} has removed {name2}'s nickname ({custom1})"] = true
+    GRM_L["{name} has added the shared nickname for {name2} and all alts ({custom1})"] = true
+    GRM_L["{name} has added {name2}'s nickname ({custom1})"] = true
 
 end
 

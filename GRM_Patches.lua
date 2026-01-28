@@ -1867,17 +1867,17 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
     local versionReport = "|CFFFFD100" .. GRM.L ( "GRM Updated:" ) .. " v" .. GRM_G.Version:match ( "R(.+)" );
     if patchNeeded then
         -- Ok, let's update the version!
-        print ( versionReport );
+        GRM.Report ( versionReport );
 
         if numActions > 1 then
-            print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... {num} patches applied." , nil , nil , numActions ) );
+            GRM.Report ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... {num} patches applied." , nil , nil , numActions ) );
         else
-            print ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... 1 patch applied." ) );
+            GRM.Report ( "|CFFFFD100" .. GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Update Complete... 1 patch applied." ) );
         end
-        print ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.Time.GetTimePassedInZone ( startTime ) );
+        GRM.Report ( "|CFFFFD100" ..  GRM.L ( "Total Patch Time:" ) .. " " .. GRM.Time.GetTimePassedInZone ( startTime ) );
 
     elseif GRM_AddonSettings_Save.VERSION ~= GRM_G.Version then
-        print ( versionReport );
+        GRM.Report ( versionReport );
     end
 
     GRM_G.currentlyPatching = false;
@@ -9529,7 +9529,7 @@ GRM_Patch.StandardDateFix = function ( player )
                     end
                 end
             elseif #player.joinDateHist[i][4] == 8 then
-                year = string.sub ( player.joinDateHist[i][4] , 1 , 4 )
+                local year = string.sub ( player.joinDateHist[i][4] , 1 , 4 )
                 if tonumber (year) < 2000 then
                     if i == 1 then
                         player.joinDateHist[1] = { 0 , 0 , 0 , "0" , 0 , false , 1 }
@@ -10248,7 +10248,7 @@ end
 -- purpose:         New nickname system
 GRM_Patch.AddNickNamesToPlayer = function ( player )
     player.nickname = nil;      -- Remove the old nickname structure
-    player.nicknameDetails = GRM.NN.CreateNickObject( true );
+    player.nicknameDetails = GRM.NN.CreateNickObject( { false , "" , 0 } ); -- { bypassBool, nameWhoChanged, epoch }
     return player;
 end
 

@@ -1683,7 +1683,6 @@ GRMsync.CheckAddAltChange = function ( msg , sender )
     local headerTag = altData[1];
     local leadName = altData[2];
     local main = "";
-    local numAlts = 0;
     local index = 0;
 
     if headerTag == "S" and GRM.GetPlayer(altData[6]) then
@@ -2147,7 +2146,6 @@ GRMsync.CheckBirthdayForSync = function ( data )
     local timestamp;
     local month = 0;
     local day = 0;
-    local date = "";
 
     if type ( data ) == "string" then
 
@@ -2213,7 +2211,6 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         guid = "";
     end
 
-    local banSet = false;
     local isAnEdit = false;
     local isFormerMember = false;
     local timeArray = GRM.Time.GetTimestamp();
@@ -2695,12 +2692,6 @@ GRMsync.GetCustomPseudoHash = function( dataRequested )
 
     -- GRMsyncGlobals.SyncTracker.buildingHashes = true;
 
-    local getHashPrecision = function ( rNum1 , rString2 )
-        table.insert ( rString2 , tostring ( rNum1 ) );
-        rNum1 = 0;          -- reset the count
-        return rNum1 , rString2;
-    end
-
     local player;
     GRMsync.RefreshPlayerRankIDs();
 
@@ -2896,7 +2887,6 @@ GRMsync.GetListPlayersWithAltTimeStamp = function( guildData , altGroups , repla
     local result = {};
     local alts = {};
     local player;
-    local int;
     local timeStamp = 0;
 
     for i = 1 , #guildData do
@@ -6142,7 +6132,6 @@ GRMsync.SubmitFinalBansData = function( messageCount , index )
             local playerWhoBanned = "";
             local rankName = "";
             local rankIndex = "";
-            local joinDateStandardFormat = "";
             local reason = "";
 
             for i = index , #GRMsyncGlobals.BanChanges do
@@ -6207,7 +6196,7 @@ GRMsync.SubmitFinalBansData = function( messageCount , index )
                                 syncMessage = tempMessage .. tempMessage2 .. reasonMsg .. "~|~" .. messageCount;
                             else
                                 syncMessage = "GRM_BANSYNCUP2?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. tempMessage2 .. "~|~" .. messageCount;
-                                syncMessage2 = "GRM_BANSYNCUP3?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. players[i][2] .. "~|~" ..reasonMsg;
+                                syncMessage2 = "GRM_BANSYNCUP3?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. GRMsyncGlobals.BanChanges[i][1] .. "~|~" ..reasonMsg;
                             end
 
                         elseif prefix == "GRM_BANSYNCUP4" then
@@ -6229,7 +6218,7 @@ GRMsync.SubmitFinalBansData = function( messageCount , index )
                                 syncMessage = tempMessage .. tempMessage2 .. reasonMsg .. "~|~" .. messageCount;
                             else
                                 syncMessage = "GRM_BANSYNCUP5?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. tempMessage2 .. "~|~" .. messageCount;
-                                syncMessage2 = "GRM_BANSYNCUP6?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. players[i][2] .. "~|~" ..reasonMsg;
+                                syncMessage2 = "GRM_BANSYNCUP6?" .. tostring ( GRM.S().syncRankBanList ) .. "?" .. GRMsyncGlobals.BanChanges[i][1] .. "~|~" ..reasonMsg;
                             end
 
                         end
@@ -6288,9 +6277,9 @@ GRMsync.SubmitFinalSyncData = function ()
         -- no bday
         GRMsync.FinalSyncComplete();
     else
-        local former = {};
         GRMsyncGlobals.guildData = nil;
-        GRMsyncGlobals.guildData , former , GRMsyncGlobals.guildAltData = GRM.convertToArrayFormat( false , true );           -- Reprocess the guild with the new alt changes
+        GRMsyncGlobals.formerGuildData = nil;
+        GRMsyncGlobals.guildData , GRMsyncGlobals.formerGuildData , GRMsyncGlobals.guildAltData = GRM.convertToArrayFormat( false , true );           -- Reprocess the guild with the new alt changes
         GRMsync.PreCheckHashValues[5] = GRMsync.GetCustomPseudoHash( "bday" )[5];       -- Set the hash values for precheck
         GRMsync.SendPrecheckData ( nil , 5 , nil , true );                              -- Sending the full Bday Hash values precheck
     end
@@ -6620,7 +6609,6 @@ GRMsync.CollectDataPacketsF = function ( msg , prefix )
 
     if dataTypes[prefix] then
         local selection = dataTypes[prefix];
-        local name = "";
         local indReceived = "";
         local values = {};
 
@@ -6629,7 +6617,6 @@ GRMsync.CollectDataPacketsF = function ( msg , prefix )
         -- end
 
         -- Add the message index received
-        local indReceived = "";
         msg , indReceived = msg:match ( "(.+)%?(%d+)$" );   -- Parse out the msg num
         table.insert ( GRMsyncGlobals.messageIndexesReceived[selection[2]] , tonumber ( indReceived ) );
 
@@ -6984,7 +6971,6 @@ GRMsync.CheckingALTChanges = function()
 
     sort ( GRMsyncGlobals.AltChangesMainOnly , function ( a , b ) return a[1] < b[1] end );
 
-    local isFound = false;
     -- I can't just compare alt groups now easily. It is possible a toon in a more recent updated alt group on one side, has someone set as main only more
     -- recently on the other player's account, so i need to go through all of the alt groups received and remove any names already processed.
 
@@ -7310,7 +7296,6 @@ GRMsync.BuildValidatedAltGroupsForSync = function()
     local finalTable = { playersNotInGroup , playersOnlyMain , playersAltGroups };
 
     -- Variables to carry player data
-    local altGroup = {};
     local index = 0;
 
     for i = 1 , #dataIndexes do         -- Scan through the ALTF data
@@ -7366,7 +7351,6 @@ GRMsync.CheckingBdayChanges = function()
     sort ( players , function ( a , b ) return a[1] < b[1] end );
     local namesAdded = {};
     local altGroup = {};
-    local member = {}
 
     for i = #GRMsyncGlobals.BirthdayReceivedTemp , 1 , -1 do
 
@@ -7654,12 +7638,12 @@ end
 GRMsync.ValidateReSentMessages = function()
     GRMsync.SortReceivedMessageIndexes();
 
-    local missingMessages , count = GRMsync.AnyMessagesMissing ( GRMsyncGlobals.preCheckResult[1] , GRMsyncGlobals.preCheckResult[2] , GRMsyncGlobals.preCheckResult[3] , GRMsyncGlobals.preCheckResult[4] , GRMsyncGlobals.preCheckResult[5] , GRMsyncGlobals.preCheckResult[6] , GRMsyncGlobals.preCheckResult[7] , GRMsyncGlobals.preCheckResult[8] , GRMsyncGlobals.preCheckResult[9] , GRMsyncGlobals.preCheckResult[10] );
+    local count = select ( 2 , GRMsync.AnyMessagesMissing ( GRMsyncGlobals.preCheckResult[1] , GRMsyncGlobals.preCheckResult[2] , GRMsyncGlobals.preCheckResult[3] , GRMsyncGlobals.preCheckResult[4] , GRMsyncGlobals.preCheckResult[5] , GRMsyncGlobals.preCheckResult[6] , GRMsyncGlobals.preCheckResult[7] , GRMsyncGlobals.preCheckResult[8] , GRMsyncGlobals.preCheckResult[9] , GRMsyncGlobals.preCheckResult[10] ) );
 
     if count > 0 then
-        -- if #missingMessages[4] > 0 then
-        -- end
-
+        if GRM_G.DebugEnabled then
+            GRM.Debug.PrintDebugMessage ( "Messages for Sync still missing after re-send - ValidateReSentMessages - Count: " .. count );
+        end
     end
 
     GRMsync.PreCheckChanges();
@@ -7669,11 +7653,12 @@ end
 -- What it Does:    Validates the messages requested have been received
 -- Purpose:         Data integrity.
 GRMsync.ValidateReSentMessagesFinal = function()
-    local missingMessages , count = GRMsync.AnyMessagesMissingFinal ( GRMsyncGlobals.FinalMsgCommCount[1] , GRMsyncGlobals.FinalMsgCommCount[2] , GRMsyncGlobals.FinalMsgCommCount[3] , GRMsyncGlobals.FinalMsgCommCount[4] , GRMsyncGlobals.FinalMsgCommCount[5] );
+    local count = select ( 2 , GRMsync.AnyMessagesMissingFinal ( GRMsyncGlobals.FinalMsgCommCount[1] , GRMsyncGlobals.FinalMsgCommCount[2] , GRMsyncGlobals.FinalMsgCommCount[3] , GRMsyncGlobals.FinalMsgCommCount[4] , GRMsyncGlobals.FinalMsgCommCount[5] ) );
         -- JD, PD, ALT, BAN
     if count > 0 then
-       -- Not sure if I want to try to issue a recheck again or just move on...
-
+        if GRM_G.DebugEnabled then
+            GRM.Debug.PrintDebugMessage ( "Messages for Sync still missing after re-send - ValidateReSentMessagesFinal - Count: " .. count );
+        end
     end
 
     -- Process alt groups
@@ -7684,16 +7669,17 @@ end
 -- What it Does:    Validates messages have arrived after a re-request
 -- Purpose:         Data integrity. Lowers chance of losing data.
 GRMsync.ValidateReSentMessagesBday = function ( isPrecheck )
-    local missingMessages , count = {} , 0;
+    local count = 0;
     if isPrecheck then
-        missingMessages , count = GRMsync.AnyMessagesMissingBDAY ( isPrecheck , GRMsyncGlobals.FinaBdayCommCount[1] , GRMsyncGlobals.FinaBdayCommCount[2] );
+        count = select ( 2 , GRMsync.AnyMessagesMissingBDAY ( isPrecheck , GRMsyncGlobals.FinaBdayCommCount[1] , GRMsyncGlobals.FinaBdayCommCount[2] ) );
     else
-        missingMessages , count = GRMsync.AnyMessagesMissingBDAY ( isPrecheck , GRMsyncGlobals.FinaBdayCommCount[1] );
+        count = select ( 2 , GRMsync.AnyMessagesMissingBDAY ( isPrecheck , GRMsyncGlobals.FinaBdayCommCount[1] ) );
     end
 
     if count > 0 then
-        -- Still missing messages
-
+        if GRM_G.DebugEnabled then
+            GRM.Debug.PrintDebugMessage ( "Messages for Sync still missing after re-send - ValidateReSentMessagesBday - Count: " .. count );
+        end
     end
 
     if isPrecheck then
@@ -8233,6 +8219,8 @@ local commsMissing = { ["GRM_REQMISJDF"] = true , ["GRM_REQMISJD"] = true , ["GR
 
 local macroSync = { ["GRM_MACRO_T"] = true , ["GRM_Macro_SK"] = true , ["GRM_Macro_SP"] = true , ["GRM_Macro_SD"] = true , ["GRM_Macro_RK"] = true , ["GRM_Macro_RP"] = true , ["GRM_Macro_RD"] = true , ["GRM_Macro_LK"] = true , ["GRM_Macro_LP"] = true , ["GRM_Macro_LD"] = true , ["GRM_Macro_PQ"] = true , ["GRM_Macro_FN"] = true , ["GRM_Macro_XX"] = true , ["GRM_Macro_MK"] = true , ["GRM_Macro_MP"] = true , ["GRM_Macro_MD"] = true , ["GRM_MISSINGCHECK"] = true }; -- Received, sentKick , sentPromote , sentDemote , sentCustom
 
+local nickNameSync = { ["GRM_NICK_RM"] = true , ["GRM_NICK_ADD"] = true };
+
 -- Method:          GRMsync.RegisterCommunicationProtocols()
 -- What it Does:    Establishes the channel communication rules for sending and receiving
 -- Purpose:         Need to make rules to get this to behave properly!
@@ -8273,6 +8261,11 @@ GRMsync.RegisterCommunicationProtocols = function()
                         return; -- no need to move forward if we are working the macro sync logic here.
                     end
 
+                    -- Nickname sync
+                    if nickNameSync[comms.prefix2] then
+                        GRM.NN.NickNamesSync(msg , comms.prefix2);
+                    end
+
                     -- At this point forward is strictly Member data syncing and if disabled just return
                     if not GRM.S().syncEnabled then
                         return;
@@ -8307,8 +8300,8 @@ GRMsync.RegisterCommunicationProtocols = function()
 
                     elseif ( not GRMsyncGlobals.IsElectedLeader and not commsLead[comms.prefix2] and sender ~= GRMsyncGlobals.DesignatedLeader ) and ( comms.senderRankID > GRM.S().syncRank or comms.senderRankRequirement < GRM_G.playerRankID ) then        -- If player's rank is below settings threshold, ignore message.
                         return
-
                     end
+                    
                     -- parsing out the rankRequirementOfSender
                     msg = GRM.Next ( msg );
 

@@ -285,17 +285,6 @@ HC.HardCoreInitialize = function()
             end
 
             if not GRM.S().ignoreDeathChannel then
-                -- Enable or Disable the text
-                local IsDeathChatEnabled = function()
-                    local list = FCF_GetCurrentChatFrame().channelList;
-                    for i = 1 , #list do
-                        if list[i] == GRM_G.HardCoreDeaths then
-                            return true;
-                        end
-                    end
-
-                    return false;
-                end
 
                 local EnabledChannel = function()
                     JoinChannelByName ( GRM_G.HardCoreDeaths );

@@ -268,12 +268,10 @@ GRM_API.RestoreAllPublicNotes = function( name )
             local guildData = GRM.GetGuild( guildName );
 
             if guildData then
-                local memberName = "";
-
                 for i = 1 , GRM.G_Util.GetNumGuildies() do
-                    local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
+                    local memberName , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
                     for n , player in pairs ( guildData ) do
-                        if type ( player ) == "table" and guildie_name == n and guid == player.GUID then
+                        if type ( player ) == "table" and memberName == n and guid == player.GUID then
 
                             GuildRosterSetPublicNote ( i , player.note);
                             break;
@@ -461,7 +459,7 @@ GRM_API.ReportAltGroupsOverLimit = function ( limit )
         GRM.Report ( "-------------------------\n " );
     end
 
-    for id, altGroup in pairs ( alts ) do
+    for _, altGroup in pairs ( alts ) do
         if #altGroup > limit then
             totalOver = totalOver + 1;
             if altGroup.main ~= "" then
@@ -524,7 +522,7 @@ GRM_API.DetermineInterfaceRule = function( text_match )
     local settings = ConsoleGetAllCommands();
     for i = 1 , #settings do
         if string.find(string.lower(settings[i].command),text_match) ~= nil then
-            print(settings[i].command .. " - " ..i);
+            GRM.Report(settings[i].command .. " - " ..i);
         end
     end
 end

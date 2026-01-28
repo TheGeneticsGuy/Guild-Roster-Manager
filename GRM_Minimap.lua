@@ -7,6 +7,7 @@
 
 local MinimapGRM = {};
 local blizzMinimap = _G.Minimap;
+GRM_MinimapPosition.hide = GRM_MinimapPosition.hide or false;
 
 GRM.MinimapGRM = MinimapGRM;
 

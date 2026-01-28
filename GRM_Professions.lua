@@ -153,7 +153,6 @@ Prof.AppendProfessionReportToNote = function ( name , destination )
     local updatedNote = "";
     local success = false;
     local sizeTooBig = 0;
-    local countOfChanges = 0;
 
     -- Function to control handling of the note formatting and replacement of old info no matter where the destination.
     local updateNote = function ( pendingNote , notes , size )
@@ -350,7 +349,7 @@ Prof.ReportPlayersNotUpdated = function()
     local max = 15;
 
     if #GRM_G.playersNotUpdated > 0 then
-        print("\n");    -- Spacing for Aesthetics
+        GRM.Report("\n");    -- Spacing for Aesthetics
     end
 
     for i = #GRM_G.playersNotUpdated , 1 , -1 do

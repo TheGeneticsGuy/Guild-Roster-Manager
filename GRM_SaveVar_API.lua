@@ -18,6 +18,7 @@ GRM_Restore_FormerMembers = GRM_Restore_FormerMembers or {};
 GRM_Restore_Log = GRM_Restore_Log or {};
 -- Minimap position for databroker
 GRM_MinimapPosition = GRM_MinimapPosition or {};                                -- Saving this due to changes in frame positions need to now be saved
+GRM_MinimapPosition.hide = GRM_MinimapPosition.hide or false;
 
 -- Functions table
 GRM = {};

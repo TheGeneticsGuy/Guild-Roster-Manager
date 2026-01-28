@@ -406,7 +406,6 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
 
     local memberInfo;
     local player;
-    local sex
 
     while index <= #members do
         memberInfo = members[index];
@@ -1390,7 +1389,6 @@ Scan.RecordKickChanges = function(unitName, playerWasKicked, dateArray, officerT
     local isNoLongerOnServer = false;
     local playerLevel = 0;
     local customNote = "";
-    local stringFound = false;
     local standardDate = "";
     -- Live detection
     if officerThatKicked ~= nil then
@@ -1410,7 +1408,6 @@ Scan.RecordKickChanges = function(unitName, playerWasKicked, dateArray, officerT
             -- added = true
             date_table = logEntryMetaData[4][3];
             standardDate = logEntryMetaData[4][2];
-            stringFound = true;
             if logEntryMetaData[3] ~= nil then
                 tempStorage[2] = true;
             else
@@ -2183,7 +2180,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                     end
 
                     if index then
-                        local name , _ , _ , _ , _ , _ , note , oNote , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(rosterSelection);
+                        local name , _ , _ , _ , _ , _ , note , oNote = GetGuildRosterInfo(rosterSelection);
 
                         if not note then
                             note = "";

@@ -2537,6 +2537,9 @@ GRM.Random = function(lower, upper)
     return GRM.Round(lower + (upper * math.random()), 2);
 end
 
+-- Method:          GRM.DeepCopySelfRefProtection(origTable , updatingTable )
+-- What it Does:    Builds the new table fully deep copied from the original with all new memory references
+-- Purpose:         To keep the original table integrity intact.
 GRM.DeepCopySelfRefProtection = function(original, copies)
     copies = copies or {}; -- Table to keep track of visited tables
 
@@ -4345,7 +4348,6 @@ end
 -- What it Does:    Sets the player's rankID for the guild
 -- Purpose:         Critical to have player's rank
 GRM.GetPlayerRankIDAtStart = function ()
-    local player = {};
     for i = 1 , GRM.G_Util.GetNumGuildies() do
         local guildie_name , _ , rank_index = GetGuildRosterInfo(i);
 
@@ -4497,8 +4499,6 @@ end
 -- What it Does:    Returns true if the player is still on the server by checking their GUID. If no GUID info returned you can know they either deleted or transferred
 -- Purpose:         Useful info to know when a player leaves or older list information.
 GRM.IsPlayerStillOnServerByGUID = function(name, guid, isBanCheck, firstCheck)
-
-    local playersStillOnServer = {};
 
     if guid and guid ~= "" and C_PlayerInfo.GUIDIsPlayer(guid) then
         local needToCallOnceToTrigger = GetPlayerInfoByGUID(guid);
@@ -7291,7 +7291,7 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
 
     member.customNote = {true, 0, "", ""}; -- 23 { syncEnabled , epochStampOfEdit , "NameOfPlayerWhoEdited" , "customNoteString" }
 
-    member.nicknameDetails = GRM.NN.CreateNickObject( true );
+    member.nicknameDetails = GRM.NN.CreateNickObject( { false , "" , 0 } );
 
     -- Additional server Data
     member.lastOnline = memberInfo.lastOnline;
@@ -11246,7 +11246,6 @@ end
 -- What it Does:    Returns the integer of the given player's guild rep
 -- Purpose:         Default windows don't show guild rep anymre. This allows you to see it.
 GRM.GetPlayerGuildRep = function( name , guid )
-    local player;
     for i = 1, GRM.G_Util.GetNumGuildies() do
         local player_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , rep_standing , player_guid  = GetGuildRosterInfo(i);
 
@@ -16991,7 +16990,7 @@ GRM.RemoveBanSendSyncMessage = function(name, epochTimeStamp, index, index2)
                         end
 
                         C_Timer.After(GRMsyncGlobals.ThrottleDelay, function()
-                            GRM.RemoveBanSendSyncMessage(name, epochTimeStamp, reason, index, index2);
+                            GRM.RemoveBanSendSyncMessage(name, epochTimeStamp, index, index2);
                         end);
                         return;
                     end
@@ -23147,8 +23146,6 @@ GRM_G.mainTagEvents = {
 -- What it Does:    Handles some communications issues with the chat so that the main tags can be hooked into and edited
 -- Purpose:         Message editing of GRM tags
 GRM.MessageHookControl = function()
-    -- Legacy / Classic path – ChatFrame_GetMessageEventFilters still exists
-    local hasGetFilters = (type(ChatFrame_GetMessageEventFilters) == "function")
 
     if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
         for chat_event in pairs(GRM_G.mainTagEvents) do
