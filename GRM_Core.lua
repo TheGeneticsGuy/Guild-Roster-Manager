@@ -15,8 +15,8 @@ SLASH_GRM1 = '/grm';
 -- Addon Details:
 GRM_G.Version = "R1.99374";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1769056187";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1769056187;            -- In Epoch Time
+GRM_G.PatchDayString = "1769588496";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1769588496;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120000;
@@ -33,9 +33,13 @@ GRM_G.realmName = string.gsub(string.gsub(GetRealmName(), "-", ""), "%s+", ""); 
 GRM_G.addonUser = (GetUnitName("PLAYER", false) .. "-" .. GRM_G.realmName); -- Oddly, GetUnitName set as true will not reliably return realm name on non-merged realms without this formatting.
 GRM_G.clubID = 0; -- The currently selected clubID (for community frame added in 8.0)
 GRM_G.gClubID = 0; -- The immutable guild clubID
-GRM_G.faction = 0;
-if UnitFactionGroup("PLAYER") == "Alliance" then
-    GRM_G.faction = 1;
+
+-- Establish Factions
+GRM_G.factionEnum = { ["Horde"] = 0, ["Alliance"] = 1, ["Neutral"] = 2 };
+if UnitFactionGroup("PLAYER") then
+    GRM_G.faction = GRM_G.factionEnum[UnitFactionGroup("PLAYER")]
+else
+    GRM_G.faction = 0;
 end
 
 -- NoteSizes to allow dynamic flexibility if Blizz ever changes them.
@@ -934,7 +938,13 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.showMouseoverRetail = true;
         player.showMouseoverOld = true;
         player.minimapPos = 345;
-        player.minimapRad = 78;
+
+        if GRM_G.BuildVersion >= 100000 then    -- 10.0 DF increased size of minimap slightly
+            player.minimapRad = 105;
+        else
+            player.minimapRad = 78;
+        end
+
         player.customPos = false;
         player.macroToolCoordinates = {"", "", 0, 0};
         player.minimapCustomPos = {"", ""};
@@ -15391,7 +15401,7 @@ GRM.ResetPlayerMetaData = function(playerName)
             member.status = player.presence;
             member.isOnline = GRM.IsPresenceOnline(player.presence);
             member.GUID = player.guid;
-            member.race = C_CreatureInfo.GetRaceInfo(player.race).clientFileString;
+            member.race = player.race;
             member.sex = sex;
             member.rosterSelection = GRM.GetRosterSelectionID(member.name,member.GUID);
 
@@ -15402,9 +15412,20 @@ GRM.ResetPlayerMetaData = function(playerName)
                 end
             end
 
-            member.faction = GRM_G.faction;
+            
             if GRM_G.BuildVersion >= 100000 then
-                member.faction = player.faction;
+                if not member.faction then
+                    if member.race then
+                        local factionName = C_CreatureInfo.GetFactionInfo(GRM_G.raceIDEnum[player.race]).groupTag;
+                        if factionName then
+                            member.faction = GRM_G.factionEnum[factionName];
+                        end
+                    end
+                else
+                    member.faction = player.faction;
+                end
+            else
+                member.faction = GRM_G.faction; -- X-faction guilds didn't happen until Dragonflight
             end
         end
 
@@ -15624,6 +15645,13 @@ GRM.CheckForNewPlayer = function( name )
                     if player then
                         if player.overallDungeonScore then
                             memberInfoToAdd.MythicScore = player.overallDungeonScore;
+                        end
+
+                        if player.race then
+                            local factionName = C_CreatureInfo.GetFactionInfo(player.race).groupTag;
+                            if factionName then
+                                member.faction = GRM_G.factionEnum[factionName];
+                            end
                         end
 
                         if player.faction then

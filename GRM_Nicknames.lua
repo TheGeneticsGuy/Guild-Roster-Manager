@@ -14,7 +14,7 @@ NN.CreateNickObject = function( includeBypassAltGroup )
     includeBypassAltGroup = includeBypassAltGroup or nil;
     return { 
         nickname = "",
-        nickenabled = true ,
+        nickenabled = true,
         editedDetails = { "" , { 0, 0, 0 } , 0}, -- day, month, year
         bypassAltGroup = includeBypassAltGroup -- { bypassBool, nameWhoChanged, epoch }
     };
@@ -60,7 +60,6 @@ NN.SetNickname = function ( playerName , newNick , setterName , epochStamp , isS
         local timestamp = GRM.Time.GetTimestamp(); -- { day, month, year }
         setterName = setterName or GRM_G.addonUser;
         epochStamp = epochStamp or time();
-        local nickname = player.nicknameDetails.nickname;
         local addingAltGroupNN = false;
 
         player.nicknameDetails.nickname = newNick
@@ -73,7 +72,7 @@ NN.SetNickname = function ( playerName , newNick , setterName , epochStamp , isS
                     addingAltGroupNN = true;
                 end
                 alts.nicknameDetails.nickname = newNick;
-                alts.nicknameDetails.editedDetails = GRM.DeepCopyArray(player.nicknameDetails.editedDetails);
+                alts.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray(player.nicknameDetails.editedDetails);
 
                 -- Need to pass on the nickname to all in the alt group as well.
                 for i = 1 , #alts do
@@ -81,7 +80,7 @@ NN.SetNickname = function ( playerName , newNick , setterName , epochStamp , isS
                         local altPlayer = GRM.GetPlayer(alts[i].name);
                         if altPlayer and not altPlayer.nicknameDetails.bypassAltGroup[1] then
                             altPlayer.nicknameDetails.nickname = newNick;
-                            altPlayer.nicknameDetails.editedDetails = GRM.DeepCopyArray(player.nicknameDetails.editedDetails);
+                            altPlayer.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray(player.nicknameDetails.editedDetails);
                         end
                     end
                 end
@@ -101,8 +100,8 @@ NN.SetNickname = function ( playerName , newNick , setterName , epochStamp , isS
             -- Add to Chat
             local classColor = GRM.GetStringClassColorByName ( playerName );
             local coloredPlayer = classColor .. playerName .. "|r";
-            local coloredNick = classColor .. nickname .. "|r";
-            local setter = GRM.GetClassifiedName ( setterName );
+            local coloredNick = classColor .. newNick .. "|r";
+            local setter = GRM.GetClassifiedName ( setterName, false );
 
             -- Report to Chat
             if addingAltGroupNN then
@@ -141,14 +140,14 @@ NN.RemoveNickname = function ( playerName , removerName , timestamp, epochStamp 
                     removingAltGroupNN = true
                 end
                 alts.nicknameDetails.nickname = "";
-                alts.nicknameDetails.editedDetails = GRM.DeepCopyArray ( player.nicknameDetails.editedDetails );
+                alts.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray ( player.nicknameDetails.editedDetails );
 
                 for i = 1 , #alts do
                     if alts[i].name ~= player.name then
                         local altPlayer = GRM.GetPlayer(alts[i].name);
                         if altPlayer and not altPlayer.nicknameDetails.bypassAltGroup[1] then
                             altPlayer.nicknameDetails.nickname = "";
-                            altPlayer.nicknameDetails.editedDetails = GRM.DeepCopyArray(player.nicknameDetails.editedDetails);
+                            altPlayer.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray(player.nicknameDetails.editedDetails);
                         end
                     end
                 end
@@ -165,7 +164,7 @@ NN.RemoveNickname = function ( playerName , removerName , timestamp, epochStamp 
             local classColor = GRM.GetStringClassColorByName ( playerName );
             local coloredPlayer = classColor .. playerName .. "|r";
             local coloredNick = classColor .. nickname .. "|r";
-            local setter = GRM.GetClassifiedName ( removerName );
+            local setter = GRM.GetClassifiedName ( removerName, false );
 
             -- Report to Chat
             if removingAltGroupNN then

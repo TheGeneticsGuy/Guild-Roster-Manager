@@ -71,6 +71,12 @@ local MinimapOnEnter = function ( tooltip )
         end
         tooltip:AddLine ( " " );
         tooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
+        
+        -- Tooltip update:
+        if not GRM_G.MinimapOk then
+            tooltip:AddLine(" ");
+            tooltip:AddLine(GRM.L ( "One moment, GRM is still being configured." ));
+        end
     else
         tooltip:AddLine ( GRM.L ( "Not in Guild" ) );
     end
@@ -249,6 +255,13 @@ MinimapGRM.CreateCustomMinimapButton = function()
             end
             GameTooltip:AddLine ( " " );
             GameTooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
+
+            -- Tooltip update:
+            if not GRM_G.MinimapOk then
+                GameTooltip:AddLine(" ");
+                GameTooltip:AddLine(GRM.L ( "One moment, GRM is still being configured." ));
+            end
+            
         else
             GameTooltip:AddLine ( GRM.L ( "Not in Guild" ) );
         end

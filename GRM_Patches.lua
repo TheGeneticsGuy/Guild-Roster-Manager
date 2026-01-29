@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 152  2026-01-22
+--- Total Patches: 151  2026-01-28
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1830,7 +1830,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- 151
-    if numericV < 1.99373 and baseValue < 1.99373 then
+    if numericV < 1.99374 and baseValue < 1.99374 then
         if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
             -- Broker Compatibility
             GRM_Patch.AddNewSetting ( "minimapType" , 2 ); -- 1 = default, 2 = broker, 3 = hidden
@@ -1838,15 +1838,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             GRM_Patch.AddNewSetting ( "minimapType" , 1 );
         end
 
-        GRM_AddonSettings_Save.VERSION = "R1.99373";
-        if loopCheck ( 1.99373 ) then
-            return;
-        end
-    end
-
-    -- 152
-    if numericV < 1.99374 and baseValue < 1.99374 then
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNamesToPlayer , true , true , false , nil );
+        GRM_Patch.AddNickNamesToAltGroups();
         GRM_Patch.FixPotentialAltIssue();
         GRM_Patch.EditSetting ( "kickRules", GRM_Patch.FixMaxLevelMacroSetting );
         GRM_Patch.EditSetting ( "demoteRules", GRM_Patch.FixMaxLevelMacroSetting );
@@ -10250,6 +10243,31 @@ GRM_Patch.AddNickNamesToPlayer = function ( player )
     player.nickname = nil;      -- Remove the old nickname structure
     player.nicknameDetails = GRM.NN.CreateNickObject( { false , "" , 0 } ); -- { bypassBool, nameWhoChanged, epoch }
     return player;
+end
+
+-- 1.99374
+-- Method:          GRM_Patch.AddNickNamesToAltGroups()
+-- What it Does:    Adds the nicknameDetails to all the alt groups
+-- Purpose:         New nickname feature
+GRM_Patch.AddNickNamesToAltGroups = function()
+    local data = {GRM_Alts , GRM_GuildDataBackup_Save};
+    local guildAlts = {};
+    
+    for i = 1 , #data do
+        for _,guildData in pairs(data[i]) do
+            if i == 1 then
+                guildAlts = guildData;
+            elseif i == 2 then
+                guildAlts = guildData.alts
+            end
+
+            for _,altGroup in pairs(guildAlts) do
+                if not altGroup.nicknameDetails then
+                    altGroup.nicknameDetails = GRM.NN.CreateNickObject();
+                end
+            end
+        end
+    end
 end
 
 -- 1.99374

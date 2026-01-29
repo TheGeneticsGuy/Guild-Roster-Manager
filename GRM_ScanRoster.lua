@@ -406,7 +406,7 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
 
     local memberInfo;
     local player;
-
+    
     while index <= #members do
         memberInfo = members[index];
 
@@ -421,11 +421,15 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
                     player.MythicScore = memberInfo.overallDungeonScore;
                 end
 
-                -- faction
-                player.faction = memberInfo.faction;
-
                 -- race
                 player.race = memberInfo.race
+                
+                if player.race then
+                    local factionName = C_CreatureInfo.GetFactionInfo(player.race).groupTag;
+                    if factionName then
+                        player.faction = GRM_G.factionEnum[factionName];
+                    end
+                end
 
                 -- sex
                 player.sex = GRM.GetPlayerSex(memberInfo.guid); -- This will return nil if unable to determine
@@ -1201,6 +1205,10 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     -- Add Faction if applicable (WoW since DF)
     if updatedPlayer.faction and player.faction ~= updatedPlayer.faction then
         player.faction = updatedPlayer.faction;
+        -- For edge case of being neutral panderan to becoming faction chosen:
+        if player.name == GRM_G.addonUser then
+            GRM_G.faction = player.faction;
+        end
     elseif not player.faction then
         player.faction = GRM_G.faction
     end

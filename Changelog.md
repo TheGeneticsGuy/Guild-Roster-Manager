@@ -1,8 +1,8 @@
-## **VERSION 1.99373 - January 21st, 2025**
+## **VERSION 1.99374 - January 29th, 2026**
 
 ***QOL***
 
-* Minimap button is now more configurable. In the General settings you can choose to keep it as a standard minimap icon, which uses the widely used library "LibDBIcon," or selecting the "Move anywhere" option where you use GRM's custom minimap icon you can drag and drop anywhere. The choice will only appear if you have an addon with this library installed. GRM does not natively support it standalone, but if it detects the library exists in the global space, then GRM will take advantage of it so addons like Titan Panel can detect GRM minimap icon, among others. However, some people maybe don't want to be forced to use the standard behavior icon, so now in GRM you have a choice. Use GRM's custom, or use the standard library one. It's as simple as choosing. You can swap back and forth without issue. GRM window > Options > General Tab.
+* Minimap button is now more configurable. In the General settings you can choose to keep it as a standard minimap icon, which uses the widely used library "LibDBIcon," or selecting the "Move anywhere" option where you use GRM's custom minimap icon you can drag and drop anywhere. The choice will only appear if you have an addon with this library installed. GRM does not natively support it standalone, but if it detects the library exists in the global space, then GRM will take advantage of it so addons like Titan Panel can detect GRM minimap icon, among others. However, some people maybe don't want to be forced to use the standard behavior icon, so now in GRM you have a choice. Use GRM's custom, or use the standard library one. It's as simple as choosing. You can swap back and forth without issue. GRM window > Options > General Tab. -- Please note, you may want
 
 ***BUG FIXES***
 
@@ -16,13 +16,17 @@
 
 * Massive cleanup on the backend of the global space as I had not done a true cleanup of unused variables or accidental writes to the global space.
 
-## **VERSION 1.99372 - January 20th, 2025**
+* Fixed a bug where the default position of the custom minimap icon was too small due to the minimap size change in 10.0. This will reset on it's own if you Ctrl-click to move and drag it.
+
+* Fixed an issue where the guild faction wasn't showing in the roster anymore due to the Blizz API changes. A workaround inferring faction by race has been implemented.
+
+## **VERSION 1.99372 - January 20th, 2026**
 
 **BUG FIXES**
 
 * Error causing some people to not be able to update GRM properly. It was failing on patching. This is now resolved.
 
-## **VERSION 1.99371 - January 20th, 2025**
+## **VERSION 1.99371 - January 20th, 2026**
 
 *Compatibility release with Midnight*
 
@@ -42,7 +46,7 @@
 
 I wrote my own custom software to parse out all the realm names from all regions, from all builds, wchi is quite a lot. It then exports this data into a Lua formatted file that GRM uses to import the data easily. You can [See the software here](https://github.com/TheGeneticsGuy/WarcraftRealms)
 
-## **VERSION 1.9937 - January 14th, 2025**
+## **VERSION 1.9937 - January 14th, 2026**
 
 *Compatibility update with TBC Anniversary Release*
 
@@ -53,7 +57,6 @@ I wrote my own custom software to parse out all the realm names from all regions
 ***QUALITY OF LIFE***
 
 * The GRM Log Options (click button below the log color filters on the right) now can delete more than 9999 log lines at a time. It now can do over 100,000+.
-
 
 ## **VERSION 1.9936 - December 29th, 2025**
 
