@@ -50,6 +50,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     -- Updates are not that computationally intensive on their own, but I'd imagine if a player has not updated GRM is a very very long time the process might cause the game to hang for several seconds and possible
     -- timeout. This prevents that and makes it more obvious to the player what is occurring.
     local loopCheck = function ( actionValue )
+        print("Patching: " .. actionValue)
 
         if not delayTrigger then
             numActions = numActions + 1;
@@ -6100,6 +6101,7 @@ GRM_Patch.FixNameChangePreReleaseBug = function()
     end
 
 end
+
 -- Method:          GRM_Patch.LegacyPurge ( string , string )
 -- What it Does:    Removes the database of this guild compeltely
 -- Purpose:         Deal with old errors from legacy data.

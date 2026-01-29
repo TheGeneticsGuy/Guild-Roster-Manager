@@ -1464,6 +1464,7 @@ GRML.English = function()
     GRM_L["{name}'s Kick Rule {num}"] = true
     GRM_L["{name}'s Promote Rule {num}"] = true
     GRM_L["{name}'s Demote Rule {num}"] = true
+    GRM_L["Kick Rule {num}"] = true
     GRM_L["Sync: {name}"] = true
     GRM_L["Macro Rules Sync Result:"] = true
     GRM_L["Kick Rules Added: {num}"] = true

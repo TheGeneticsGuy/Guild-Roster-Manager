@@ -20,6 +20,8 @@
 
 * Fixed an issue where the guild faction wasn't showing in the roster anymore due to the Blizz API changes. A workaround inferring faction by race has been implemented.
 
+* Fixed an old bug from updating a very old version of the addon where you'd get spammed in the chat as it updated your macro rules. This will no longer do that. This only applies to people that haven't updated in about the last 100 releases lol.
+
 ## **VERSION 1.99372 - January 20th, 2026**
 
 **BUG FIXES**
