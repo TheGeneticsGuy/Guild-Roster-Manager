@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99374";
+GRM_G.Version = "R1.99375";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1769588496";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1769588496;            -- In Epoch Time
+GRM_G.PatchDayString = "1769715556";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1769715556;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120000;
@@ -16616,14 +16616,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                 classColors[3], 1.0);
 
             -- FACTION ICON
-            local faction;
-            if memberInfo then
-                faction = memberInfo.faction;
-            else
-                faction = player.faction;
-            end
-
-            GRM.FactionIcon( faction );
+            GRM.FactionIcon( player.faction );
 
             local note;
             if memberInfo then
@@ -17035,7 +17028,7 @@ GRM.FactionIcon = function(index)
 
     -- If server isn't returning the faction...
     if not index then
-        if GRM_G.BuildVersion >= 10000 then -- DragonFlight allowed x-faction guilds in 10.1
+        if GRM_G.BuildVersion >= 100000 then -- DragonFlight allowed x-faction guilds in 10.1
             GRM_UI.GRM_MemberDetailMetaData.GRM_AllianceIconTexture:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_HordeIconTexture:Hide();
             return;
