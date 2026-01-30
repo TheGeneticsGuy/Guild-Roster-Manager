@@ -5,6 +5,8 @@ GRM.Scan = Scan;
 
 -- Globals
 GRM_G.processNewServerGUID = {false,"",""}; -- For edge case where part of GUID changes on new server like pre-patch Classic Drops
+GRM_G.LogCheckRestart = 0;
+GRM_G.RosterCheckRestart = 0;
 
 -- Method:          Scan.NoLivecheck()
 -- What it Does:    It compares the live Check event table if a live scan is going, and it ignores checking roster
@@ -23,20 +25,43 @@ Scan.NoLivecheck = function()
     return result;
 end
 
+-- Method:          Scan.NoLiveReset()
+-- What it Does:    Resets the live registered table just in case of any errors
+-- Purpose:         If a mass stream of joins and quits happens, it can trigger an inconsistent result in the scanning, so this just
+--                  resets to default state if detected it got stuck.
+Scan.NoLiveReset = function()
+    print("Wiping Scanning Block")
+    for group in pairs(GRM_G.LiveScanningBlock) do
+        GRM_G.LiveScanningBlock[group] = {};
+    end
+end
+
 -- Method:          Scan.LogPrecheck()
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.LogPrecheck = function()
+    print("Log Pre-check")
+    if GRM_G.LogCheckRestart == 0 then
+        GRM_G.LogCheckRestart = time();
+    end
+
     if (not GRM_G.inCombat and ((time() - GRM_G.ScanControl) >= GRM_G.DefaultMinScanTime) and Scan.NoLivecheck()) or
         GRM_G.OnFirstLoad then
         C_Timer.After(0.2, function()
             if (((time() - GRM_G.ScanControl) >= GRM_G.DefaultMinScanTime) and Scan.NoLivecheck() and #GRM.LiveScanQue ==
                 0) or GRM_G.OnFirstLoad then
                 if not GRM_G.CurrentlyScanning then
+                    GRM_G.LogCheckRestart = 0;
                     Scan.BuildNewRoster();
                 end
             end
         end);
+    elseif GRM_G.LogCheckRestart > 0 and (time()-GRM_G.LogCheckRestart > 15) and not Scan.NoLivecheck() then
+        print("Live Log Reset")
+        GRM.Scan.NoLiveReset();
+        GRM_G.CurrentlyScanning = false;
+        GRM_G.RosterCheckRestart = 0;
+        Scan.BuildNewRoster();
     end
 end
 
@@ -44,6 +69,11 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.RosterPreCheck = function()
+    print("Roster Pre-check")
+    if GRM_G.RosterCheckRestart == 0 then
+        GRM_G.RosterCheckRestart = time();
+    end
+
     -- Minimap Databroker update for number of online
     C_Timer.After(0.5 , function()
         if GRM.MinimapGRM.UpdateMinimapLabel then
@@ -56,26 +86,32 @@ Scan.RosterPreCheck = function()
         C_Timer.After(0.1, function()
             if (((time() - GRM_G.ScanControl) >= GRM_G.DefaultMinScanTime) and Scan.NoLivecheck()) or GRM_G.OnFirstLoad then
                 if not GRM_G.CurrentlyScanning then
-                    Scan.BuildNewRoster();
+                    GRM_G.RosterCheckRestart = 0;
+                    GRM.Scan.BuildNewRoster();
                 end
             end
         end);
+    elseif GRM_G.RosterCheckRestart > 0 and (time()-GRM_G.RosterCheckRestart > 15) and not Scan.NoLivecheck() then
+        print("Live Roster Reset")
+        GRM.Scan.NoLiveReset();
+        GRM_G.CurrentlyScanning = false;
+        GRM_G.RosterCheckRestart = 0;
+        GRM.Scan.BuildNewRoster();
     end
 end
-
 
 -- Method:          Scan.HeartbeatCheck( [int] )
 -- What it Does:    Adds a scan protection to clear the scan process if it hangs.
 -- Purpose:         Prevent odd anomalies or lag from killing scan that session by refreshing it.
 Scan.HeartbeatCheck = function( stuckCounter )
     stuckCounter = stuckCounter or 0;
-    local timeoutThreshold = 25; -- Seconds before forcing a reset
+    local timeoutThreshold = 10; -- Seconds before forcing a reset
     local pulseRate = 5;         -- Check every 5 seconds
     local forceReset = false;
 
     --CHECK FOR ACTIVE SCAN HANGS
     if GRM_G.CurrentlyScanning then
-        -- Reset stuckCounter because we are actively scanning
+        -- Reset GRM_G.stuckCounter because we are actively scanning
         stuckCounter = 0; 
         
         local elapsed = time() - GRM_G.ScanTimer;
@@ -90,12 +126,11 @@ Scan.HeartbeatCheck = function( stuckCounter )
 
     -- Edge case - checking for a Ghost block
     -- Scan is NOT running, but LiveScanningBlock has entries returning 'true', preventing new scans.
-    elseif not Scan.NoLivecheck() then 
-        
+    elseif not Scan.NoLivecheck() then
+      
         -- Scan blocked, but not scanning. This is valid for a few seconds during a KillSwitch transition,
         -- but if it persists, it's a bug.
         stuckCounter = stuckCounter + pulseRate;
-
         if stuckCounter >= timeoutThreshold then
             if GRM_G.DebugEnabled then
                 GRM.Debug.AddDebugMessage("GRM Debug: Live Event Block Stuck (" .. stuckCounter .. "s). Forcing Reset.");
@@ -103,7 +138,7 @@ Scan.HeartbeatCheck = function( stuckCounter )
             forceReset = true;
         end
 
-    -- ALL CLEAR
+        -- ALL CLEAR
     else
         -- Not scanning, and not blocked. Turning off the heartbeat.
         GRM_G.HeartBeatOn = false;
@@ -112,7 +147,6 @@ Scan.HeartbeatCheck = function( stuckCounter )
 
     -- Alright, let's force the reset...
     if forceReset then
-        
         -- Attempt to salvage data before wiping
         -- If queued live events, process them now
         if #GRM.LiveScanQue > 0 then
@@ -128,10 +162,8 @@ Scan.HeartbeatCheck = function( stuckCounter )
         GRM_G.CurrentlyScanning = false;
         
         -- Wipe the blocking tables
-        for _, group in pairs(GRM_G.LiveScanningBlock) do
-            for k in pairs(group) do
-                group[k] = nil;
-            end
+        for group in pairs(GRM_G.LiveScanningBlock) do
+            GRM_G.LiveScanningBlock[group] = {};
         end
 
         -- Wipe the queue

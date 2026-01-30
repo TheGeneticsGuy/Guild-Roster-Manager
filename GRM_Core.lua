@@ -15742,6 +15742,8 @@ end
 --                  Limited in Classic to only detect your own changes, not others, due to some server limitations and lack of desire to parse text for 11 different languages.
 GRM.LiveKickDetection = function(text, scanNumber)
 
+    GRM_G.LiveScanningBlock.kick[scanNumber] = nil;
+
     if GRM_G.ClassicKickErrorProtect ~= text then
         GRM_G.ClassicKickErrorProtect = text;
 
@@ -15762,7 +15764,6 @@ GRM.LiveKickDetection = function(text, scanNumber)
             GRM.KickAction(playerThatWasKicked, playerThatKicked);
         end
 
-        GRM_G.LiveScanningBlock.kick[scanNumber] = false;
         return result;
     else
         return false;
@@ -16008,9 +16009,9 @@ GRM.KickAction = function(kickedToon, kickerOfficer, scanNumber, isMacro , refre
     end
 
     if isMacro then
-        GRM_G.LiveScanningBlock.kickM[scanNumber] = false;
+        GRM_G.LiveScanningBlock.kickM[scanNumber] = nil;
     elseif scanNumber then
-        GRM_G.LiveScanningBlock.kickS[scanNumber] = false;
+        GRM_G.LiveScanningBlock.kickS[scanNumber] = nil;
     end
 
 end
@@ -16267,6 +16268,7 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
 
             GRM_G.LiveScanningBlock.left, scanNumber = GRM.SetNextTrue(GRM_G.LiveScanningBlock.left);
             GRM.GuildRoster();
+
             if not GRM_G.CurrentlyScanning then
                 GRM.GuildRoster();
                 result = GRM.LiveLeaveDetection(msg, scanNumber);
@@ -16377,9 +16379,9 @@ GRM.LivePromoteOrDemoteDetection = function(msg, isPromotion, scanNumber)
     end
 
     if isPromotion then
-        GRM_G.LiveScanningBlock.promoted[scanNumber] = false;
+        GRM_G.LiveScanningBlock.promoted[scanNumber] = nil;
     else
-        GRM_G.LiveScanningBlock.demoted[scanNumber] = false;
+        GRM_G.LiveScanningBlock.demoted[scanNumber] = nil;
     end
 
     return changeRecorded;
@@ -16390,11 +16392,15 @@ end
 -- purpose:         Instantly report when a player is no longer in the guild. Also to use for your own self-detection.
 GRM.LiveLeaveDetection = function(text, scanNumber)
 
+    GRM_G.LiveScanningBlock.left[scanNumber] = nil;
+
     if GRM_G.ClassicLeftErrorProtect ~= text then
         GRM_G.ClassicLeftErrorProtect = text;
+
         local unitName, playerKicked, timePassed, logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date,
             isFoundInEventLog, isNoLongerOnServer, isLiveDetection, playerLevel, customNote =
             GRM.RecordLeftGuildChanges(GRM.GetParsedplayerName(text), true);
+
         local logReportWithTime, logReport = GRM.GetLeftOrKickString(unitName, playerKicked, timePassed,
             logEntryMetaData, listOfAlts, mainName, publicNote, officerNote, date, isFoundInEventLog,
             isNoLongerOnServer, isLiveDetection, playerLevel, customNote);
@@ -16406,8 +16412,6 @@ GRM.LiveLeaveDetection = function(text, scanNumber)
                     publicNote, officerNote, date});
 
         GRM_UI.RefreshSelectFrames(true, true, true, true, true, true);
-
-        GRM_G.LiveScanningBlock.left[scanNumber] = false;
 
         return true;
     else
@@ -21872,7 +21876,7 @@ end
 -- What it Does:    Helps regulate some resource and timed efficient server queries,
 -- Purpose:         to keep from spamming or double+ looping functions.
 GRM.TriggerTrackingCheck = function()
-
+    print("Test1")
     if GRM_G.BuildVersion >= 30000 and GRM.IsCalendarEventEditOpen() then
 
         if not GRM_G.ScanningDelay then
@@ -21885,6 +21889,7 @@ GRM.TriggerTrackingCheck = function()
 
     else
         if not GRM_G.IntegrityTackingEnabled then
+            print("Test2")
             GRM.TrackingIntegrityCheck();
         end
 
@@ -21896,12 +21901,10 @@ end
 -- Purpose:         Useful for Classic Guild Roster loop integrity check
 GRM.TrackingIntegrityCheck = function(isLoop)
     if GRM.S() and (GRM_G.S.scanEnabled or GRM_G.OnFirstLoad) then -- if Scanning is enabled
-
         if isLoop or not GRM_G.IntegrityTackingEnabled then
 
             GRM_G.IntegrityTackingEnabled = true;
             local delay = GRM.S().scanDelay;
-
             if (time() - GRM_G.ScanControl) >= (GRM.S().scanDelay) then
                 GRM.GuildRoster();
                 if GRM_G.BuildVersion >= 10000 then
@@ -21913,8 +21916,10 @@ GRM.TrackingIntegrityCheck = function(isLoop)
                 delay = (GRM.S().scanDelay - (time() - GRM_G.ScanControl)) + 0.2
 
             end
+            print("Delay: " .. delay)
 
             C_Timer.After(delay, function()
+                print("Rechecking")
                 GRM_G.IntegrityTackingEnabled = false;
                 GRM.TrackingIntegrityCheck(true);
             end);

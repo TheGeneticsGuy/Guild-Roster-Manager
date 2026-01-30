@@ -6,7 +6,7 @@
 
 * Fixed an issue where minimap was appearing double for some addons that hooked the minimap as it was also hooking GRM's custom minimap icon that you can drag anywhere. This will no longer happen and be more compatible with all other minimap management addons, like Leatrix Plus and it's enhanced minimap.
 
-* Fixed an issue with the custom minimap icon not sitting around the Classic build minimaps properly. This will be a non-issue for most that have LibDICon enabled through other addons, but if you ONLY had GRM installed and were using the custom GRM icon, this is now resolved. I just never noticed it before. I honestly think this has been an issue since I rewrote this when the 10.0 Minimap update in Dragonflight deviated from the Classic minimap so wow lol.
+* Fixed an issue with the custom minimap icon not sitting around the Classic build minimaps properly. This will be a non-issue for most that have LibDBIcon enabled through other addons, but if you ONLY had GRM installed and were using the custom GRM icon, this is now resolved. I just never noticed it before. I honestly think this has been an issue since I rewrote this when the 10.0 Minimap update in Dragonflight deviated from the Classic minimap so wow lol.
 
 * Fixed another issue where the minimap icon was not positioned properly on the minimap and the radius from the center was too small.
 
