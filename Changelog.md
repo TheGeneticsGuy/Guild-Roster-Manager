@@ -1,3 +1,21 @@
+## **VERSION 1.99376 - January 30th, 2026**
+
+***BUG FIXES***
+
+* Fixed a very old lingering bug where the right-click was not working in the chat with GRM installed. This ONLY affected people in Classic builds using the profession updating tool to chat. Really silly bug that was really hard to determine the source, but it has been found!
+
+* Fixed an issue where minimap was appearing double for some addons that hooked the minimap as it was also hooking GRM's custom minimap icon that you can drag anywhere. This will no longer happen and be more compatible with all other minimap management addons, like Leatrix Plus and it's enhanced minimap.
+
+* Fixed an issue with the custom minimap icon not sitting around the Classic build minimaps properly. This will be a non-issue for most that have LibDICon enabled through other addons, but if you ONLY had GRM installed and were using the custom GRM icon, this is now resolved. I just never noticed it before. I honestly think this has been an issue since I rewrote this when the 10.0 Minimap update in Dragonflight deviated from the Classic minimap so wow lol.
+
+* Fixed another issue where the minimap icon was not positioned properly on the minimap and the radius from the center was too small.
+
+* Fixed a localization error. The last build accidentally deleted a couple of localization text strings for all other languages besides English.
+
+* Fixed a bug where a Lua error was triggering when a new player joined the guild. Whilst they would still be added to the GRM database and updated on the subsequent guild scan for changes, they initial one would error out. This will no longer occur.
+
+* Fixed a bug that only affected HC - shortly after logging in. Lua error when checking if you were listening to the HC deaths channel. Variable typo. Oops!
+
 ## **VERSION 1.99375 - January 29th, 2026**
 
 *Stealth update - Re-enabling faction icons.*

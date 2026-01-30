@@ -1,6 +1,6 @@
 
 ---UPDATES AND BUG PATCHES
---- Total Patches: 151  2026-01-28
+--- Total Patches: 152  2026-01-29
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -50,7 +50,6 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     -- Updates are not that computationally intensive on their own, but I'd imagine if a player has not updated GRM is a very very long time the process might cause the game to hang for several seconds and possible
     -- timeout. This prevents that and makes it more obvious to the player what is occurring.
     local loopCheck = function ( actionValue )
-        print("Patching: " .. actionValue)
 
         if not delayTrigger then
             numActions = numActions + 1;
@@ -1852,6 +1851,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 152
+    if numericV < 1.99376 and baseValue < 1.99376 then
+        GRM_Patch.EditSetting ( "minimapRad" , GRM_Patch.AdjustMinimapRad );
+
+        GRM_AddonSettings_Save.VERSION = "R1.99376";
+        if loopCheck ( 1.99376 ) then
+            return;
+        end
+    end
+
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -1878,7 +1887,7 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
 
     -- Updating the version for ALL saved accoutns.
     GRM_AddonSettings_Save.VERSION = GRM_G.Version;
-
+    
     if oldDB then
         GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
     end
@@ -10382,4 +10391,19 @@ GRM_Patch.FixMaxLevelMacroSetting = function( rules )
         end
     end
     return rules;
+end
+
+-- 1.99376
+-- Method:          GRM_Patch.AdjustMinimapRad(int)
+-- What it Does:    Adjusts the minimapRadius to be where it should be
+-- Purpose:         Fix an issue with the minimap icon custom note access change.
+GRM_Patch.AdjustMinimapRad = function( minimapRad )
+    if GRM_G.BuildVersion >= 100000 then
+        if minimapRad < 105 then    -- 10.0 DF increased size of minimap slightly
+            minimapRad = 105;
+        end
+    elseif minimapRad == 78 then
+        minimapRad = 80;    -- This is the more accurate radius from the center.
+    end
+    return minimapRad
 end

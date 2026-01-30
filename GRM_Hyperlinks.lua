@@ -53,22 +53,19 @@ end
 -- Purpose:         Quality of life for GRM
 HL.HyperlinkClick = function ( self , link , text , button )
 
-    if button == "LeftButton" then
-        local linkType , arg1  = strsplit( ":" , link );
+    local linkType , arg1  = strsplit( ":" , link );
 
-        if linkType == "GRM" then
+    if linkType == "GRM" then
 
-            if arg1 == "openPlayer" then
-                -- Call the function to open your window here
-                GRM.OpenPlayerWindow ( string.match ( string.match ( text , "%[(.-)%]" ) , "|cff%x%x%x%x%x%x(.-)|r$" ) );   -- Double regex match to keep it easier to read
+        if arg1 == "openPlayer" then
+            -- Call the function to open your window here
+            GRM.OpenPlayerWindow ( string.match ( string.match ( text , "%[(.-)%]" ) , "|cff%x%x%x%x%x%x(.-)|r$" ) );   -- Double regex match to keep it easier to read
 
-            elseif arg1 == "profReport" then
-                GRM.Prof.ReportPlayersNotUpdated();
-
-            end
-        else
-            self:OriginalOnHyperlinkClick( link , text , button)
+        elseif arg1 == "profReport" then
+            GRM.Prof.ReportPlayersNotUpdated();
         end
+    else
+        self:OriginalOnHyperlinkClick( link , text , button)
     end
 end
 

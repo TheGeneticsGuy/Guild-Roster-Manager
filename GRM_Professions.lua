@@ -357,10 +357,16 @@ Prof.ReportPlayersNotUpdated = function()
         table.remove ( GRM_G.playersNotUpdated , i );
         limit = limit + 1;
 
-        if limit == max and i > 1 then
-            GRM.Report ( GRM.HL.GenerateHyperlink( "GRM" , "profReport" , nil , GRM.L ( "Click to Continue - {num} Members Remaining" , nil , nil , #GRM_G.playersNotUpdated ) , "00ccff" ) );
-            break;
+        if limit == max then
+            if i > 1 then
+                GRM.Report ( GRM.HL.GenerateHyperlink( "GRM" , "profReport" , nil , GRM.L ( "Click to Continue - {num} Members Remaining" , nil , nil , #GRM_G.playersNotUpdated ) , "00ccff" ) );
+                break;
+            end
         end
+    end
+
+    if #GRM_G.playersNotUpdated > 0 then
+        GRM.Report("\n");    -- Spacing for Aesthetics
     end
 end
 

@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99375";
+GRM_G.Version = "R1.99376";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1769715556";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1769715556;            -- In Epoch Time
+GRM_G.PatchDayString = "1769765885";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1769765885;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120000;
@@ -942,7 +942,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
         if GRM_G.BuildVersion >= 100000 then    -- 10.0 DF increased size of minimap slightly
             player.minimapRad = 105;
         else
-            player.minimapRad = 78;
+            player.minimapRad = 80;
         end
 
         player.customPos = false;
@@ -15650,7 +15650,7 @@ GRM.CheckForNewPlayer = function( name )
                         if player.race then
                             local factionName = C_CreatureInfo.GetFactionInfo(player.race).groupTag;
                             if factionName then
-                                member.faction = GRM_G.factionEnum[factionName];
+                                memberInfoToAdd.faction = GRM_G.factionEnum[factionName];
                             end
                         end
 

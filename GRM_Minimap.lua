@@ -73,7 +73,7 @@ local MinimapOnEnter = function ( tooltip )
         tooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
         
         -- Tooltip update:
-        if not GRM_G.MinimapOk then
+        if not ( ( time() - GRMsyncGlobals.timeAtLogin ) > 5 or GRM_G.MinimapOk ) then
             tooltip:AddLine(" ");
             tooltip:AddLine(GRM.L ( "One moment, GRM is still being configured." ));
         end
@@ -134,7 +134,7 @@ end
 -- Purpose:         To provide a minimap button for GRM that does not rely on any external libraries.
 MinimapGRM.CreateCustomMinimapButton = function()
     -- MINIMAP BUTTON if creating from scratch.
-    MinimapGRM.CustomMinimap = CreateFrame ( "Button" , "GRM_CustomMinimap" , blizzMinimap );
+    MinimapGRM.CustomMinimap = CreateFrame ( "Button" , "GRM_CustomMinimap" , UIParent );
     GRM.CreateTexture ( MinimapGRM.CustomMinimap , "CustomMinimapIcon" , "BORDER" , false );
     GRM.CreateTexture ( MinimapGRM.CustomMinimap , "CustomMinimapBorder" , "OVERLAY" , false );
 
@@ -155,16 +155,32 @@ MinimapGRM.CreateCustomMinimapButton = function()
     MinimapGRM.CustomMinimap:Hide();
 
     MinimapGRM.CustomMinimapUpdatePos = function()
+        MinimapGRM.CustomMinimap:ClearAllPoints()
+        
         if not GRM.S().customPos then
-            MinimapGRM.CustomMinimap:ClearAllPoints();
-            local mod , mod2 = 74 , 75;
-            if GRM_G.BuildVersion >= 100000 then
-                mod , mod2 = 80 , 81;
+            
+            if GRM.S().minimapRad then
+                radius = GRM.S().minimapRad
+            else
+                if GRM_G.BuildVersion >= 100000 then 
+                    radius = 105;
+                else
+                    radius = 80;
+                end
             end
-            MinimapGRM.CustomMinimap:SetPoint ( "TOPLEFT" , blizzMinimap , "TOPLEFT" , mod - ( GRM.S().minimapRad * cos ( GRM.S().minimapPos ) ) , ( GRM.S().minimapRad * sin ( GRM.S().minimapPos ) ) - mod2 );
+
+            -- Calculating coordinates based on Center anchoring
+            local angle = math.rad(GRM.S().minimapPos or 345)
+            
+            local x = math.cos(angle) * radius
+            local y = math.sin(angle) * radius
+
+            -- Anchor CENTER to CENTER. 
+            MinimapGRM.CustomMinimap:SetPoint("CENTER", Minimap, "CENTER", x, y)
         else
+            -- Free floating position
             MinimapGRM.CustomMinimap:ClearAllPoints();
-            MinimapGRM.CustomMinimap:SetPoint ( GRM.S().minimapCustomPos[1] , UIParent , GRM.S().minimapCustomPos[2] , GRM.S().minimapRad , GRM.S().minimapPos );
+            MinimapGRM.CustomMinimap:SetPoint(GRM.S().minimapCustomPos[1], UIParent, GRM.S().minimapCustomPos[2], GRM.S().minimapRad, GRM.S().minimapPos)
         end
     end
 
@@ -176,14 +192,13 @@ MinimapGRM.CreateCustomMinimapButton = function()
         if GRM_G.BuildVersion >= 100000 then
             GRM.S().minimapRad = 105;
         else
-            GRM.S().minimapRad = 78;
+            GRM.S().minimapRad = 80;
         end
         GRM.S().minimapPos = 345;
         GRM.S().customPos = false;
         MinimapGRM.CustomMinimapUpdatePos();
     end
 
-    -- Thanks to Yatlas for this code
     MinimapGRM.CustomMinimapDuringDrag = function()
         local x , y = GetCursorPosition()
         local scale = blizzMinimap:GetEffectiveScale();
@@ -199,6 +214,30 @@ MinimapGRM.CreateCustomMinimapButton = function()
 
         GRM.S().minimapPos = vector;
         MinimapGRM.CustomMinimapUpdatePos();
+    end
+
+
+    MinimapGRM.CustomMinimapDuringDrag = function()
+        local mx, my = GetCursorPosition()
+        local scale = Minimap:GetEffectiveScale()
+        
+        -- Getting the center of the Minimap in scaled coordinates
+        local cx, cy = Minimap:GetCenter()
+        
+        -- Normalize cursor position to the same scale as the Minimap
+        mx = mx / scale
+        my = my / scale
+        
+        -- Calculate the angle. 
+        -- atan2(y, x) gives the angle. Subtract center from mouse to get delta.
+        local rad = math.atan2(my - cy, mx - cx)
+        local degrees = math.deg(rad)
+        
+        -- Save the angle
+        GRM.S().minimapPos = degrees
+        
+        -- Update the button position immediately
+        MinimapGRM.CustomMinimapUpdatePos()
     end
 
     MinimapGRM.CustomMinimap:RegisterForDrag ( "LeftButton" );
@@ -257,7 +296,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
             GameTooltip:AddLine ( "|CFF00CCFF" .. string.format ( "%d/%d |r" , GRM.G_Util.GetNumGuildiesOnline() , GRM.G_Util.GetNumGuildies() ) .. GRM.L( "Online" ) );
 
             -- Tooltip update:
-            if not GRM_G.MinimapOk then
+            if not ( ( time() - GRMsyncGlobals.timeAtLogin ) > 5 or GRM_G.MinimapOk ) then
                 GameTooltip:AddLine(" ");
                 GameTooltip:AddLine(GRM.L ( "One moment, GRM is still being configured." ));
             end
@@ -270,7 +309,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
 
     MinimapGRM.CustomMinimap:SetScript ( "OnLeave" , GRM.RestoreTooltip );
     MinimapGRM.CustomMinimap:SetScript ( "OnClick" , MinimapButtonClick );
-    GRM.S().minimapRad = GRM.S().minimapRad or 78;
+    GRM.S().minimapRad = GRM.S().minimapRad or 80;
     GRM.S().minimapPos = GRM.S().minimapPos or 345;
     MinimapGRM.CustomMinimapUpdatePos();
 end
