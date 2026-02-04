@@ -163,7 +163,7 @@ Util.WarnTableSize = function()
             local finalMsg = message .. "\n\n" .. messagePart2 .. "\n\n" .. messagePart3 .. "\n\n" .. messagePart4;
             GRM.InitiateConfirmFrame( finalMsg, updateLogWarning , GRM.L ( "Ok!" ) , GRM.L ("Ignore") , nil, nil , 500 , 300 , false );
 
-            GRM.InitiateEditBoxPopup( GRM.WebApps.GetWebAppURL("log") , GRM.L("Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file") );
+            GRM.InitiateEditBoxPopup( GRM.WebApps.GetWebAppURL("extract") , GRM.L("Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file") );
 
         end
     end

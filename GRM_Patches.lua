@@ -1,6 +1,6 @@
 
----UPDATES AND BUG PATCHES
---- Total Patches: 152  2026-01-29
+-- UPDATES AND BUG PATCHES
+-- Total Patches: 153  2026-04-02
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1809,6 +1809,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- 149
     if numericV < 1.99371 and baseValue < 1.99371 then
+        GRM_Patch.FixLegacyAltGroupData();
         GRM_Patch.FixAltGroupData();
         GRM_Patch.FixBirthdayPostAnniversary();
         GRM_Patch.AddNewSetting ( "ignoreDeathChannel" , false ); -- I want to reset it all to false
@@ -1840,6 +1841,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNamesToPlayer , true , true , false , nil );
         GRM_Patch.AddNickNamesToAltGroups();
+        GRM_Patch.RestructureBackupDB();
         GRM_Patch.FixPotentialAltIssue();
         GRM_Patch.EditSetting ( "kickRules", GRM_Patch.FixMaxLevelMacroSetting );
         GRM_Patch.EditSetting ( "demoteRules", GRM_Patch.FixMaxLevelMacroSetting );
@@ -1857,6 +1859,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_AddonSettings_Save.VERSION = "R1.99376";
         if loopCheck ( 1.99376 ) then
+            return;
+        end
+    end
+
+    -- 153
+    if numericV < 1.99378 and baseValue < 1.99378 then
+        GRM_Patch.FixLegacyAltGroupData();
+
+        GRM_AddonSettings_Save.VERSION = "R1.99378";
+        if loopCheck ( 1.99378 ) then
             return;
         end
     end
@@ -9895,13 +9907,16 @@ GRM_Patch.RestructureBackupDB = function ()
     if GRM_GuildDataBackup_Save then
         for guild_name , guild in pairs ( GRM_GuildDataBackup_Save ) do
             if not GRM_Restore_Members[guild_name] then
-                GRM_Restore_Members[guild_name] = guild.members;
+                GRM_Restore_Members[guild_name] = GRM.Util.DeepCopyArray(guild.members);
+                guild.members = {};
                 guild.members = nil;
 
-                GRM_Restore_FormerMembers[guild_name] = guild.formerMembers;
+                GRM_Restore_FormerMembers[guild_name] = GRM.Util.DeepCopyArray(guild.formerMembers);
+                guild.formerMembers = {};
                 guild.formerMembers = nil;
 
-                GRM_Restore_Log[guild_name] = guild.log;
+                GRM_Restore_Log[guild_name] = GRM.Util.DeepCopyArray(guild.log);
+                guild.log = {};
                 guild.log = nil;
 
                 -- Need to remove the mains as it is deprecated
@@ -10406,4 +10421,22 @@ GRM_Patch.AdjustMinimapRad = function( minimapRad )
         minimapRad = 80;    -- This is the more accurate radius from the center.
     end
     return minimapRad
+end
+
+-- 1.99378
+-- Method:          GRM_Patch.FixLegacyAltGroupData()
+-- What it Does:    Fixes an issue where the alt group reference was not created when importing a guild and transferring to a new server
+-- Purpose:         DB fix from guild data transfer bug
+GRM_Patch.FixLegacyAltGroupData = function()
+    for guildName in pairs(GRM_GuildMemberHistory_Save) do
+        if not GRM_Alts[guildName] then
+            GRM_Alts[guildName] = {};
+        end
+    end
+
+    for guildName in pairs (GRM_Alts) do
+        if not GRM_GuildMemberHistory_Save[guildName] then
+            GRM_Alts[guildName] = nil;
+        end
+    end
 end

@@ -30,7 +30,6 @@ end
 -- Purpose:         If a mass stream of joins and quits happens, it can trigger an inconsistent result in the scanning, so this just
 --                  resets to default state if detected it got stuck.
 Scan.NoLiveReset = function()
-    print("Wiping Scanning Block")
     for group in pairs(GRM_G.LiveScanningBlock) do
         GRM_G.LiveScanningBlock[group] = {};
     end
@@ -40,7 +39,6 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.LogPrecheck = function()
-    print("Log Pre-check")
     if GRM_G.LogCheckRestart == 0 then
         GRM_G.LogCheckRestart = time();
     end
@@ -57,7 +55,6 @@ Scan.LogPrecheck = function()
             end
         end);
     elseif GRM_G.LogCheckRestart > 0 and (time()-GRM_G.LogCheckRestart > 15) and not Scan.NoLivecheck() then
-        print("Live Log Reset")
         GRM.Scan.NoLiveReset();
         GRM_G.CurrentlyScanning = false;
         GRM_G.RosterCheckRestart = 0;
@@ -69,7 +66,6 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.RosterPreCheck = function()
-    print("Roster Pre-check")
     if GRM_G.RosterCheckRestart == 0 then
         GRM_G.RosterCheckRestart = time();
     end
@@ -92,7 +88,6 @@ Scan.RosterPreCheck = function()
             end
         end);
     elseif GRM_G.RosterCheckRestart > 0 and (time()-GRM_G.RosterCheckRestart > 15) and not Scan.NoLivecheck() then
-        print("Live Roster Reset")
         GRM.Scan.NoLiveReset();
         GRM_G.CurrentlyScanning = false;
         GRM_G.RosterCheckRestart = 0;

@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99376";
+GRM_G.Version = "R1.99378";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1769765885";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1769765885;            -- In Epoch Time
+GRM_G.PatchDayString = "1770104310";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1770104310;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120000;
@@ -889,6 +889,12 @@ GRM.ClearPermData = function()
     GRM_PlayerListOfAlts_Save = nil;
     GRM_PlayerListOfAlts_Save = {};
 
+    GRM_Alts = nil;
+    GRM_Alts = {};
+
+    GRM_MinimapPosition = nil;
+    GRM_MinimapPosition = {};
+
     -- Player speicif save tables
     GRM_DebugLog_Save = nil;
     GRM_DebugLog_Save = {};
@@ -896,7 +902,7 @@ GRM.ClearPermData = function()
     GRM_Misc = {};
     GRM.ConfigureAnnounceOnLogin(true);
 
-    return GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_Restore_Members, GRM_Restore_FormerMembers, GRM_Restore_Log, GRM_PlayerListOfAlts_Save;
+    return GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_Restore_Members, GRM_Restore_FormerMembers, GRM_Restore_Log, GRM_PlayerListOfAlts_Save, GRM_Alts, GRM_MinimapPosition;
 end
 
 -- Method:          GRM.ConfigureMiscForPlayer( string );
@@ -1278,7 +1284,7 @@ end
 -- What it Does:    Resets the whole addon due to missing save settings data.
 -- Purpose:         Adapt the new DB.
 GRM.RefreshAllSettings = function()
-    GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_Restore_Members, GRM_Restore_FormerMembers, GRM_Restore_Log, GRM_PlayerListOfAlts_Save = GRM.ClearPermData();
+    GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_Restore_Members, GRM_Restore_FormerMembers, GRM_Restore_Log, GRM_PlayerListOfAlts_Save, GRM_Alts, GRM_MinimapPosition = GRM.ClearPermData();
     GRM_AddonSettings_Save.VERSION = GRM_G.Version;
 end
 
@@ -2685,11 +2691,9 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
 
             GRM_GuildMemberHistory_Save[guildName].grmClubID = C_Club.GetGuildClubId();
 
-            GRM_PlayersThatLeftHistory_Save[guildName] = GRM.ChangeServerNameOfAll(GRM.Util.DeepCopyArray(
-                GRM_Restore_FormerMembers[oldName]), newServerName, false, true, true, false);
+            GRM_PlayersThatLeftHistory_Save[guildName] = GRM.ChangeServerNameOfAll(GRM.Util.DeepCopyArray(GRM_Restore_FormerMembers[oldName]), newServerName, false, true, true, false);
             GRM_LogReport_Save[guildName] = GRM.Util.DeepCopyArray(GRM_Restore_Log[oldName]);
-            GRM_Alts[guildName] = GRM.ChangeServerNameOfAll(GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[oldName].alts),
-                newServerName, true, false, false, false);
+            GRM_Alts[guildName] = GRM.ChangeServerNameOfAll(GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[oldName].alts),newServerName, true, false, false, false);
             GRM_CalendarAddQue_Save[guildName] = {};
 
             -- Clear the backup point
@@ -2721,11 +2725,12 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
         else
 
             GRM_GuildMemberHistory_Save[guildName] = GRM.Util.DeepCopyArray(GRM_Restore_Members[guildName]);
-            GRM_PlayersThatLeftHistory_Save[guildName] = GRM.Util.DeepCopyArray(
-                GRM_Restore_FormerMembers[guildName]);
+            GRM_PlayersThatLeftHistory_Save[guildName] = GRM.Util.DeepCopyArray(GRM_Restore_FormerMembers[guildName]);
             GRM_LogReport_Save[guildName] = GRM.Util.DeepCopyArray(GRM_Restore_Log[guildName]);
             GRM_Alts[guildName] = GRM.Util.DeepCopyArray(GRM_GuildDataBackup_Save[guildName].alts);
+
             GRM.Report(GRM.L("Backup Point Restored for Guild \"{name}\"", guildName));
+            
             GRM_CalendarAddQue_Save[guildName] = {};
 
         end
@@ -10189,6 +10194,10 @@ GRM.GetRankRenamedString = function(rankNum, oldRank, newRank, date)
     local result = "";
 
     if rankNum == nil then
+        if not oldRank or oldRank == "" then
+            oldRank = GRM.L("Unknown");
+        end
+        
         result = GRM.L("Guild Rank Renamed from {custom1} to {custom2}", nil, nil, nil, oldRank, newRank);
     else
         if rankNum > 0 then
@@ -15742,7 +15751,7 @@ end
 --                  Limited in Classic to only detect your own changes, not others, due to some server limitations and lack of desire to parse text for 11 different languages.
 GRM.LiveKickDetection = function(text, scanNumber)
 
-    GRM_G.LiveScanningBlock.kick[scanNumber] = nil;
+    GRM_G.LiveScanningBlock.kick[scanNumber] = false;
 
     if GRM_G.ClassicKickErrorProtect ~= text then
         GRM_G.ClassicKickErrorProtect = text;
@@ -16009,9 +16018,9 @@ GRM.KickAction = function(kickedToon, kickerOfficer, scanNumber, isMacro , refre
     end
 
     if isMacro then
-        GRM_G.LiveScanningBlock.kickM[scanNumber] = nil;
+        GRM_G.LiveScanningBlock.kickM[scanNumber] = false;
     elseif scanNumber then
-        GRM_G.LiveScanningBlock.kickS[scanNumber] = nil;
+        GRM_G.LiveScanningBlock.kickS[scanNumber] = false;
     end
 
 end
@@ -16379,9 +16388,9 @@ GRM.LivePromoteOrDemoteDetection = function(msg, isPromotion, scanNumber)
     end
 
     if isPromotion then
-        GRM_G.LiveScanningBlock.promoted[scanNumber] = nil;
+        GRM_G.LiveScanningBlock.promoted[scanNumber] = false;
     else
-        GRM_G.LiveScanningBlock.demoted[scanNumber] = nil;
+        GRM_G.LiveScanningBlock.demoted[scanNumber] = false;
     end
 
     return changeRecorded;
@@ -16392,7 +16401,7 @@ end
 -- purpose:         Instantly report when a player is no longer in the guild. Also to use for your own self-detection.
 GRM.LiveLeaveDetection = function(text, scanNumber)
 
-    GRM_G.LiveScanningBlock.left[scanNumber] = nil;
+    GRM_G.LiveScanningBlock.left[scanNumber] = false;
 
     if GRM_G.ClassicLeftErrorProtect ~= text then
         GRM_G.ClassicLeftErrorProtect = text;
@@ -21876,7 +21885,6 @@ end
 -- What it Does:    Helps regulate some resource and timed efficient server queries,
 -- Purpose:         to keep from spamming or double+ looping functions.
 GRM.TriggerTrackingCheck = function()
-    print("Test1")
     if GRM_G.BuildVersion >= 30000 and GRM.IsCalendarEventEditOpen() then
 
         if not GRM_G.ScanningDelay then
@@ -21889,7 +21897,6 @@ GRM.TriggerTrackingCheck = function()
 
     else
         if not GRM_G.IntegrityTackingEnabled then
-            print("Test2")
             GRM.TrackingIntegrityCheck();
         end
 
@@ -21916,10 +21923,8 @@ GRM.TrackingIntegrityCheck = function(isLoop)
                 delay = (GRM.S().scanDelay - (time() - GRM_G.ScanControl)) + 0.2
 
             end
-            print("Delay: " .. delay)
 
             C_Timer.After(delay, function()
-                print("Rechecking")
                 GRM_G.IntegrityTackingEnabled = false;
                 GRM.TrackingIntegrityCheck(true);
             end);
