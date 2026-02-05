@@ -1,5 +1,9 @@
 ## **VERSION 1.99378 - February 4th, 2026**
 
+***QUALITY OF LIFE***
+
+* Imgur is no longer hosting the GRM images used in the [GRM GitHub README](https://github.com/TheGeneticsGuy/Guild-Roster-Manager) - Very useful guide for a detailed dive on all of GRM's features. This was done due to some European region nations no longer having a working Imgur site (like Great Britain).
+
 ***BUG FIXES***
 
 * Fixed an issue where some data was not being purged when doing a full GRM reset with `/grm hardreset` (DO NOT USE UNLESS YOU WANT ALL ADDON DATA WIPED ACCOUNT WIDE - WARNING!!!)
