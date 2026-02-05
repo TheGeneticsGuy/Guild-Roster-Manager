@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99378";
+GRM_G.Version = "R1.99379";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1770277654";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1770277654;            -- In Epoch Time
+GRM_G.PatchDayString = "1770332852";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1770332852;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120000;
@@ -524,14 +524,6 @@ GRM.ForceLoadAddon = function(addonName)
     end
 end
 
-GRM.GetMaxPlayerLevel = function()
-    if GetMaxLevelForPlayerExpansion then -- This works for retail
-        return GetMaxLevelForPlayerExpansion();
-    else -- This should work for everything else
-        return GetMaxPlayerLevel();
-    end
-end
-
 -- 1.15.4 Changes - soon to be retail
 GRM.SetSliderTemplate = function()
     if pcall ( CreateFrame , "Frame" , nil , UIParent , "UISliderTemplateWithLabels" ) then -- pcall will not throw errors, just return false if doesnt' exist
@@ -553,6 +545,18 @@ GRM.issecretvalue = function( value )
         return issecretvalue(value);
     end
     return false
+end
+
+-- Method:          GRM.GetMaxPlayerLevelByExpansion()
+-- What it Does:    Returns the max player based on the current expansion, not the build. 
+-- Purpose:         With things like  pre-patches, the actual real max level will not yet be expansion level, like 80, but not yet 90 for Midnight 12.0.
+--                  So you have to swap to the more accurate API. The problem is this API is limited and doesn't exist in all builds.
+GRM.GetMaxPlayerLevelByExpansion = function()
+    if GetMaxLevelForLatestExpansion then
+        return GetMaxLevelForLatestExpansion();
+    else
+        return GetMaxPlayerLevel();
+    end
 end
 
 -------------------------------
@@ -1521,11 +1525,49 @@ GRM.VerifyAddonSettings = function()
     end
 
     local Validate = function(saveSettings)
+        local updateSetting = false;
+        local saveSettingsType = "";
+        local playerSettingsType = "";
+        local length1 = 0;
+        local length2 = 0;
 
         for settingName in pairs(player) do
-            if saveSettings[settingName] == nil or
-                (type(saveSettings[settingName])=="table" and #saveSettings[settingName] ~= #player[settingName]) then
-                saveSettings[settingName] = player[settingName];
+            updateSetting = false;
+
+            if saveSettings[settingName] == nil then
+                updateSetting = true;
+            else
+                saveSettingsType = type(saveSettings[settingName]);
+                playerSettingsType = type(player[settingName]);
+                if saveSettingsType == "table" then
+                    length1 = GRM.Util.TableLength(saveSettings[settingName]);
+                end
+                if playerSettingsType == "table" then
+                    length2 = GRM.Util.TableLength(player[settingName]);
+                end
+
+                -- Ensure same type if not, wipe and set as default
+                if saveSettingsType ~= playerSettingsType then
+                    updateSetting = true;
+
+                elseif saveSettingsType == "table" and length1 ~= length2 and length1 > 0 and length2 > 0 then
+                    updateSetting = true;
+                    -- Mismatched length tables - whoops!
+                    for i = 1, length2 do
+                        if saveSettings[settingName][i] ~= nil then
+                            player[settingName][i] = saveSettings[settingName][i];
+                        end
+                    end
+                end
+
+            end
+            if updateSetting then
+                if type(player[settingName]) == "table" then
+                    saveSettings[settingName] = GRM.Util.DeepCopyArray(player[settingName]);
+                else
+                    saveSettings[settingName] = player[settingName];
+                end
+                
             end
 
         end
@@ -23054,7 +23096,7 @@ GRM.TrackingConfiguration = function(forced)
 
         GRM.UI_Pre.checkClassicUIRoster();
 
-        GRM_G.LvlCap = GetMaxLevelForLatestExpansion();  -- This will show true level cap if say, in pre-patch, not the pending soon level cap
+        GRM_G.LvlCap = GRM.GetMaxPlayerLevelByExpansion();  -- This will show true level cap if say, in pre-patch, not the pending soon level cap
 
         GRM.GuildRoster();
         if GRM_G.BuildVersion >= 10000 then

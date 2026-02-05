@@ -1,3 +1,9 @@
+## **VERSION 1.99379 - February 5th, 2026**
+
+***BUG FIXES***
+
+* Fixed a bug that only affected MoP Classic from last build, preventing it from loading.
+
 ## **VERSION 1.99378 - February 4th, 2026**
 
 ***QUALITY OF LIFE***
