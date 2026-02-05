@@ -15,8 +15,8 @@ SLASH_GRM1 = '/grm';
 -- Addon Details:
 GRM_G.Version = "R1.99378";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1770104310";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1770104310;            -- In Epoch Time
+GRM_G.PatchDayString = "1770277654";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1770277654;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120000;
@@ -1021,7 +1021,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.onlyAnnounceForMain = false;
         player.scanEnabled = true;
         player.levelReportMin = 10;
-        player.levelFilters = {true, true, true, true, true, true, true, true, true};
+        player.levelFilters = {true, true, true, true, true, true, true, true, true, true, true};
         player.allAltRequirement = false; -- I want it off by default.
         player.recordLevelUp = true;
         player.AnnounceBdayOnLogin = true;
@@ -1523,7 +1523,8 @@ GRM.VerifyAddonSettings = function()
     local Validate = function(saveSettings)
 
         for settingName in pairs(player) do
-            if saveSettings[settingName] == nil then
+            if saveSettings[settingName] == nil or
+                (type(saveSettings[settingName])=="table" and #saveSettings[settingName] ~= #player[settingName]) then
                 saveSettings[settingName] = player[settingName];
             end
 
@@ -6555,7 +6556,7 @@ GRM.GetLevelRange = function()
     if GRM.S().recordLevelUp then
         result = "|cffffd100" .. GRM.L("Reporting:") .. "|r|cff00ccff";
         local initialNumber = "";
-        local caps = {10, 20, 30, 40, 50, 60, 70, 80};
+        local caps = {10, 20, 30, 40, 50, 60, 70, 80, 90};
         local addon = "";
 
         local atLeastOne = false;
@@ -23052,6 +23053,8 @@ GRM.TrackingConfiguration = function(forced)
         GRM.AllRemainingNonDelayFrameInitialization();
 
         GRM.UI_Pre.checkClassicUIRoster();
+
+        GRM_G.LvlCap = GetMaxLevelForLatestExpansion();  -- This will show true level cap if say, in pre-patch, not the pending soon level cap
 
         GRM.GuildRoster();
         if GRM_G.BuildVersion >= 10000 then

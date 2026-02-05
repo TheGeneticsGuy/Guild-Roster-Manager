@@ -10392,7 +10392,7 @@ GRM_Patch.FixPotentialAltIssue = function()
 
     end
 end
-
+GRM_G.PrePatchLvl = GetMaxLevelForLatestExpansion()
 -- 1.99374
 -- Method:          GRM_Patch.FixMaxLevelMacroSetting ( rules )
 -- What it Does:    Fixes any kick/demote/promote level range rules to set lower level to 999 if at level cap

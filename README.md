@@ -79,7 +79,7 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 **DATA SYNCING**
 
-![Sync Details](https://i.imgur.com/jgfi9SU.jpg)
+![Sync Details](https://www.guildrostermanager.com/assets/readme_images/image1.jpg)
 
 *No need for every GRM user to configure all of these details, they will be sync'd both retroactively, and live. The more GRM users, the more redundancy in the guild if you lose your data and have no backups.*
 
@@ -98,8 +98,8 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 **ALT/MAIN MANAGEMENT AND TAGGING**
 
-![Add an alt to a grouping easily](https://i.imgur.com/MJI75L7.jpg)
-![Chat tag of alt/main information](https://i.imgur.com/Ou9AyqA.jpg)
+![Add an alt to a grouping easily](https://www.guildrostermanager.com/assets/readme_images/image2.jpg)
+![Chat tag of alt/main information](https://www.guildrostermanager.com/assets/readme_images/image3.jpg)
 
 * The main tag can be customized to whatever color you like, or even to a different format (it can be disabled)
 
@@ -109,13 +109,13 @@ I just want to make it extremely clear that even though GRM provides a way to un
 
 This is accessible by typing `/roster` in chat.
 
-![Custom GRM Guild Roster](https://i.imgur.com/AxPTWny.jpg)
+![Custom GRM Guild Roster](https://www.guildrostermanager.com/assets/readme_images/image4.jpg)
 
 * Being able to group in the roster by Main/Alt groups, search notes, find players by name, as well as right-click to promote/demote/kick.
 
 **ROSTER MOUSEOVER WINDOW**
 
-![Mouseover Window!](https://i.imgur.com/cCbKn7H.gif)
+![Mouseover Window!](https://www.guildrostermanager.com/assets/readme_images/image5.gif)
 
 * Track player status, join dates, promotion dates, birthdates (can be disabled), alts, and so on.
 
@@ -125,9 +125,9 @@ This is accessible by typing `/roster` in chat.
 
 * Customizable. Within the core GRM window (/grm) you can go to the OPTIONS > UI and change features, like disabling the borders around the notes, hiding Birthday info because your guild doesn't use it. Hiding Guild Rep if you find it redundant. Of course, such things will automatically disabled if they do not apply to Classic.
 
-![Right Click a player's status for additional options](https://i.imgur.com/A9sQLCd.jpg)
+![Right Click a player's status for additional options](https://www.guildrostermanager.com/assets/readme_images/image6.jpg)
 
-![Add additional syncable information about the player with 150 extra characters in the custom note](https://i.imgur.com/Kje1577.jpg)
+![Add additional syncable information about the player with 150 extra characters in the custom note](https://www.guildrostermanager.com/assets/readme_images/image7.jpg)
 
 * In regards to the Custom Note - These can be controlled globally in sync restriction. I personally keep custom notes open to almost all ranks in the guild, but I know some may not wish to. I'd still recommend keeping private officer only info to officer channel so maximum utility of the custom note can be had.
 
@@ -135,27 +135,27 @@ This is accessible by typing `/roster` in chat.
 
 *In patch 7.3 Blizzard removed the ability of addons from being able to remove, demote, or promote players from the guild. There is no way around this, you **HAVE** to manually implement this action in-game. So, GRM has attempted to adapt to these changes, and while not as simple as pre-7.3, it is still far easier to deal with. By creating a list of players you wish to kick and then using the addon to auto-create a macro to remove them, the player only then needs to activate the "hot-key combo" to trigger the macro, and the addon will automatically rebuild the macro with the next set of names to be removed after each trigger of the macro.*
 
-![Macro Tool to kick players](https://i.imgur.com/ln9xRL9.jpeg)
+![Macro Tool to kick players](https://www.guildrostermanager.com/assets/readme_images/image8.jpg)
 
 *I have been in guild leadership for coming on, I think, 13 years. I have been the casual leader, and I have worn the shoes of leader that hustles and promotes and recruits and grinds for status and rank. At the end of the day, the one thing in leadership that never changes is the opportunity you have to build your guild how you want to and get to experience the game how you want to. That's the main reason I do it. I get to build my guild and shape it with the culture I wish to have. But, there is one caveat. Time. The more time you spend doing administrative work, the less time you get to actually "play" the game, to join events with your friends and your members of the guild. Coming home after a long day at work, sometimes you'd rather just jump into some BGs with friends than have to spend an hour doing busy stuff. I get it. That is why I know that this "macro tool" here is more than just a "feature" of an addon. It is something that can help you leaders get back some of your time that gets lost into the black hole of administrative obligations forever. Burnout in leadership is a real thing. If there is just a small way I can help lower the burden of leadership, I am happy to be a part of it.*
 
 **KICKING**
 
-![Unconfigured Kick Settings](https://i.imgur.com/I7jN4XW.png)
+![Unconfigured Kick Settings](https://www.guildrostermanager.com/assets/readme_images/image9.png)
 
 **PROMOTIONS**
 
-![Unconfigured Promotion Settings](https://i.imgur.com/EdCogco.png)
+![Unconfigured Promotion Settings](https://www.guildrostermanager.com/assets/readme_images/image10.png)
 
 **DEMOTIONS**
 
-![Matching to Demotion Rules](https://i.imgur.com/lG7fAgp.png)
+![Matching to Demotion Rules](https://www.guildrostermanager.com/assets/readme_images/image11.png)
 
-![Macro Button Improved Tooltip](https://i.imgur.com/Ju8fLuI.png)
+![Macro Button Improved Tooltip](https://www.guildrostermanager.com/assets/readme_images/image12.png)
 
 **SPECIAL RULES**
 
-![Alt Group Sync](https://i.imgur.com/5d1dHlX.png)
+![Alt Group Sync](https://www.guildrostermanager.com/assets/readme_images/image13.png)
 
 * Easily promote all alts in a group to either the same rank as the main, or to a destination rank for guilds who have designated "alt" ranks.
 
@@ -172,21 +172,21 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 **JOIN AND PROMOTION DATE HISTORIES**
 
-![Easily Log and keep track of promotion dates](https://i.imgur.com/e17N9rV.jpg)
+![Easily Log and keep track of promotion dates](https://www.guildrostermanager.com/assets/readme_images/image14.jpg)
 
 * It should be noted that in the Audit tool you can even sort by promotion dates timing, so easily sort players by who hasn't been promoted from longest to shortest and go down the list to more easily make better judgements on promotions, and if they are overdue.
 
-![The Same applies for player membership histories](https://i.imgur.com/0mIr5mD.jpg)
+![The Same applies for player membership histories](https://www.guildrostermanager.com/assets/readme_images/image15.jpg)
 
 
 * Efficiency tool - configure the join date to just one grouping of alts, then easily sync that date to all of the alts rather than have to configure for each one.
 
-![Right click "Date Joined" and use the sync tool to easily unify the Join Dates and save configuration time](https://i.imgur.com/n33LeDE.jpg)
+![Right click "Date Joined" and use the sync tool to easily unify the Join Dates and save configuration time](https://www.guildrostermanager.com/assets/readme_images/image16.jpg)
 
 
 **LOG OF GUILD CHANGES**
 
-![Enhanced Guild Log](https://i.imgur.com/6YFRb0c.jpg)
+![Enhanced Guild Log](https://www.guildrostermanager.com/assets/readme_images/image17.jpg)
 
 * This log detects all of these as they occur *LIVE* while you are playing, and it also reports on the events that occurred since you last logged in.
 
@@ -197,7 +197,7 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * You can configure the Level reporting to the log quite intricately. Wish to skip a lot of the low level spam? Not a problem. Custom filters in the "Scanning for Changes" options
 
-![Report ALL levels, or within a range, and even you can choose to only report expansion milestones](https://i.imgur.com/6qADCu4.jpg)
+![Report ALL levels, or within a range, and even you can choose to only report expansion milestones](https://www.guildrostermanager.com/assets/readme_images/image18.jpg)
 
 * Reinvited players will retain their info and you will be informed if they return. You will get a special warning if they return to the guild and they were previously banned.
 
@@ -216,11 +216,11 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * Not only can you ban players when you remove them from the guild, you can also ban all their alts with them at the same time with the simple click of a button. It's that easy.
 
-![Ban their alts too!](https://i.imgur.com/DsVYGlh.jpg)
+![Ban their alts too!](https://www.guildrostermanager.com/assets/readme_images/image19.jpg)
 
 * You can add bans to players who are not even in the guild just by adding them in manually, but if they were previously in the guild, the addon will attempt to autocomplete the name as you type
 
-![Adding a Ban](https://i.imgur.com/428xL9q.jpg)
+![Adding a Ban](https://www.guildrostermanager.com/assets/readme_images/image20.jpg)
 
 
 [CLICK HERE FOR A SHORT VIDEO ON BAN FEATURES AND CAPABILITIES](https://www.youtube.com/watch?v=4uvn2sV4xQ0)
@@ -228,7 +228,7 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 **EXPORT TOOL**
 
-![Export GRM and Guild Data](https://i.imgur.com/nPYpJG8.jpg)
+![Export GRM and Guild Data](https://www.guildrostermanager.com/assets/readme_images/image21.jpg)
 
 * Export your guild member data, including all normally accessible player info, as well as all unique GRM data, like alt lists
 
@@ -238,13 +238,13 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 * Delimited export list for easy pasting or importing into a spreadsheet program like Google Docs or Excel
 
-![Exporting your log](https://i.imgur.com/NxG2YVT.jpg)
+![Exporting your log](https://www.guildrostermanager.com/assets/readme_images/image22.jpg)
 
 **!NOTE TRIGGER**
 
 *This particular tool is more useful in CLASSIC since players have to deal with the issue of any guildie being able to edit other members' public notes again, unlike retail.*
 
-![Note Trigger](https://i.imgur.com/sG7iA4C.jpg)
+![Note Trigger](https://www.guildrostermanager.com/assets/readme_images/image23.jpg)
 
 * Format to Type: !note And Everything After Is The Note
 
@@ -258,13 +258,13 @@ Bring up the Macro tool with any of the following SLASH commands.
 
 There are some limitations, due to the lack of a built-in log, but any players that die you or other GRM users are logged in will have their player note tagged with a death time and the mouseover will indicate they are perma dead.
 
-![Perma Death](https://i.imgur.com/VRQuqgk.jpeg)
+![Perma Death](https://www.guildrostermanager.com/assets/readme_images/image24.jpg)
 
 **GUILD AUDIT WINDOW**
 
 *Are you a completionist? Want to know all information about your guild on all players? Use the audit list to help!*
 
-![GRM Audit Window](https://i.imgur.com/YOoYSla.jpg)
+![GRM Audit Window](https://www.guildrostermanager.com/assets/readme_images/image25.jpg)
 
 * Reorder by clicking the column headers.
 
@@ -277,7 +277,7 @@ There are some limitations, due to the lack of a built-in log, but any players t
 
 *The goal of this tool is to ensure data properly matches up and can be easily configured.*
 
-![Advanced Join Date Tool](https://i.imgur.com/OFso9zD.jpg)
+![Advanced Join Date Tool](https://www.guildrostermanager.com/assets/readme_images/image26.jpg)
 
 * This will check if the GRM stored join date differs from the one in the player note
 
@@ -290,7 +290,7 @@ There are some limitations, due to the lack of a built-in log, but any players t
 
 *Add Events to Calendar that Automatically popup, like anniversary notifications*
 
-![Calendar](https://i.imgur.com/n5mlZcV.png)
+![Calendar](https://www.guildrostermanager.com/assets/readme_images/image27.png)
 
 * Applies to member anniversary dates
 
@@ -301,23 +301,23 @@ There are some limitations, due to the lack of a built-in log, but any players t
 
 Is your guild transferring servers? Easily carry over and transfer your guild data by setting a restore point.
 
-![Backups](https://i.imgur.com/N8dPoUD.png)
+![Backups](https://www.guildrostermanager.com/assets/readme_images/image28.png)
 
 *Note, this is NOT the equivalent of a full File Side "WTF" folder backup/restore. Addons are not capable of doing that. This is purely so you can have restore points of GRM data in case say, an officer went rogue on you and changed a ton of crap, or you want to transfer the guild without starting over. It is OK to restructure your ranks on the transfer, but be aware this might show players as promoted/demoted based on the new rank structure. If the rank structure remains consistent on the new server, there shouldn't be any changes.*
 
 
 **USEFUL SLASH COMMANDS**
 
-![Slash Commands](https://i.imgur.com/IjGDGvr.png)
+![Slash Commands](https://www.guildrostermanager.com/assets/readme_images/image29.png)
 
 
 **GLOBAL CONTROLS TO UNIFY SETTINGS AMONG GUILD GRM USERS**
 
 *Control global settings of all GRM users in the guild! This is VERY critical you use this!*
 
-![Control Tags can be easily exported](https://i.imgur.com/eKyVYiM.jpg)
+![Control Tags can be easily exported](https://www.guildrostermanager.com/assets/readme_images/image30.jpg)
 
-![GRM Global Controls](https://i.imgur.com/G47NMsp.jpg)
+![GRM Global Controls](https://www.guildrostermanager.com/assets/readme_images/image31.jpg)
 
 * Control the minimum rank threshold for syncing data between users, so not just any player can make changes to the dates or alt lists.
 
@@ -339,9 +339,9 @@ Is your guild transferring servers? Easily carry over and transfer your guild da
 * **Group Info**
 
 
-![Mouseover Information](https://i.imgur.com/MKwNQQv.jpg)
+![Mouseover Information](https://www.guildrostermanager.com/assets/readme_images/image32.jpg)
 
-![Lock window, then mouseover each name for more details](https://i.imgur.com/Y6ySSca.jpg)
+![Lock window, then mouseover each name for more details](https://www.guildrostermanager.com/assets/readme_images/image33.jpg)
 
 * It will tell you the names of all the people currently in your group who are guildies.
 

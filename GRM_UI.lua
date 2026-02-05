@@ -9410,7 +9410,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 end
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter7Button:Enable();
 
-            elseif GRM_G.BuildVersion >= 120000 then
+            elseif GRM_G.BuildVersion >= 120000 and GRM_G.LvlCap >= 90 then
                 if GRM.S().levelFilters[11] or GRM.S().levelReportMin <= 90 then
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter90Text:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
                 else
@@ -10662,7 +10662,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Button:Enable();
                 end
 
-                if GRM_G.BuildVersion >= 120000 then
+                if GRM_G.BuildVersion >= 120000 and GRM_G.LvlCap >= 90 then
                     if GRM.S().levelFilters[11] or GRM.S().levelReportMin <= 90 then
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter90Text:SetTextColor ( 0.0 , 0.8 , 1.0 , 1.0 );
                     else
@@ -10834,7 +10834,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.ConfigureLevelFilterButton ( self , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter85Text , 8 , 85 );
     end);
 
-    if GRM_G.BuildVersion >= 120000 then
+    if GRM_G.BuildVersion >= 120000 and GRM_G.LvlCap >= 90 then
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter90Text:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter8Button , "RIGHT" , 4 , 0 );
     else
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter90Text:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelFilter85Button , "RIGHT" , 4 , 0 );
