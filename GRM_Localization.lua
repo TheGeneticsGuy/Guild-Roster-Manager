@@ -129,13 +129,13 @@ GRML.listOfFonts = {
 -- What it Does:    Allows the creation of custom slash command.
 -- purpose:         Localization reasons.
 GRM.ConfigureAlternativeSlashCommands = function()
-    if GRM.L ( "/XXXX" ) ~= true then
-        SLASH_GRM2 = GRM.L ( "/XXXX" );
+    if GRM_L["/XXXX"]~= true then
+        SLASH_GRM2 = GRM_L ["/XXXX"];
         GRM.SlashCommandActions(string.gsub(GRM_L["/XXXX"], "/", "" ));
     end
 
-    if GRM.L ( "/YYYY" ) ~= true then
-        SLASH_ROSTER2 = GRM.L ( "/YYYY" );
+    if GRM_L["/YYYY"] ~= true then
+        SLASH_ROSTER2 = GRM_L["/YYYY"];
         GRM.SlashCommandRosterActions(string.gsub(GRM_L["/YYYY"], "/", "" ));
     end
 end
