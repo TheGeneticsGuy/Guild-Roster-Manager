@@ -1,3 +1,13 @@
+## **VERSION 1.99380 - February 8th, 2026**
+
+***BUG FIXES***
+
+* Fixed a bug where the macro tool was not informing players that there was a higher ranked alt with actions to perform. It should now appear properly.
+
+* Fixed a bug where the "custom" localized slash commands were not working. I am surprised no one has mentioned this who uses a different language.
+
+
+
 ## **VERSION 1.99379 - February 5th, 2026**
 
 ***BUG FIXES***

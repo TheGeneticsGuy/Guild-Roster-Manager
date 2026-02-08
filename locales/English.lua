@@ -30,7 +30,7 @@ GRML.English = function()
 
     -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
     GRM_L["/XXXX"] = true   -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
-    GRM_L["/YYYY"] = true;  -- /roster              -- This is the custom GRM roster
+    GRM_L["/YYYY"] = true  -- /roster              -- This is the custom GRM roster
 
     GRM_L["German"] = true
 	GRM_L["English"] = true

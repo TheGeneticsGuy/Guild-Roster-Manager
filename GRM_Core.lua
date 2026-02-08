@@ -22674,149 +22674,156 @@ GRM.OpenCoreWindow = function(isGeneric)
 end
 
 -- SLASH COMMAND LOGIC
-SlashCmdList["ROSTER"] = function(input)
+GRM.SlashCommandRosterActions = function ( slashCommand )
+    SlashCmdList[slashCommand] = function(input)
 
-    local isAlreadyReported = false;
+        local isAlreadyReported = false;
 
-    if input == nil or input:trim() == "" then
-        GRM_R.LoadRosterFrame();
-    else
-        isAlreadyReported = true;
-        GRM.Report(GRM.L("Invalid Command: Please type '/grm help' for More Info!"));
+        if input == nil or input:trim() == "" then
+            GRM_R.LoadRosterFrame();
+        else
+            isAlreadyReported = true;
+            GRM.Report(GRM.L("Invalid Command: Please type '/grm help' for More Info!"));
+        end
+
+        if not IsInGuild() and not isAlreadyReported then
+            GRM.Report(GRM.L("{name} is not currently in a guild. Unable to Proceed!", GRM.SlimName(GRM_G.addonUser)));
+        end
+
     end
-
-    if not IsInGuild() and not isAlreadyReported then
-        GRM.Report(GRM.L("{name} is not currently in a guild. Unable to Proceed!", GRM.SlimName(GRM_G.addonUser)));
-    end
-
 end
 
 -- SLASH COMMAND LOGIC
-SlashCmdList["GRM"] = function(input)
-    -- if input is invalid or is just a blank info... print details on addon.
-    local command;
-    local alreadyReported = false;
-    local inGuild = IsInGuild();
-    if input ~= nil and string.lower(input) ~= nil then -- and string.find ( input , "forcepurge" , 1 , true ) == nil then  -- purge data may have name after, don't want to lowercase that
-        command = string.lower(input);
-    end
-
-    if input == nil or input:trim() == "" then
-        GRM.OpenCoreWindow(true);
-
-        -- Clears all saved data and resets to as if the addon was just installed. The only thing not reset is the default settings.
-    elseif command == "clearall" or command == "resetall" or command == GRM.L("clearall") then
-        alreadyReported = true;
-        GRM.SlashCommandClearAll();
-
-        -- Clears all saved data specific to the guild...
-    elseif command == "clearguild" or command == "resetguild" or command == GRM.L("clearguild") then
-        if inGuild then
-            GRM.SlashCommandClearGuild();
+GRM.SlashCommandActions = function( slashCommand )
+    SlashCmdList[slashCommand] = function(input)
+        -- if input is invalid or is just a blank info... print details on addon.
+        local command;
+        local alreadyReported = false;
+        local inGuild = IsInGuild();
+        if input ~= nil and string.lower(input) ~= nil then -- and string.find ( input , "forcepurge" , 1 , true ) == nil then  -- purge data may have name after, don't want to lowercase that
+            command = string.lower(input);
         end
 
-        -- Does a hard reset of the entire database...
-    elseif command == "hardreset" or command == GRM.L("hardreset") then
-        GRM.HardReset();
-        -- List of all the slash commands at player's disposal.
-    elseif command == "help" or command == GRM.L("help") then
-        alreadyReported = true;
-        GRM.SlashCommandHelp();
+        if input == nil or input:trim() == "" then
+            GRM.OpenCoreWindow(true);
 
-        -- Version
-    elseif command == "version" or command == "ver" or command == GRM.L("version") then
-        alreadyReported = true;
-        GRM.SlashCommandVersion();
+            -- Clears all saved data and resets to as if the addon was just installed. The only thing not reset is the default settings.
+        elseif command == "clearall" or command == "resetall" or command == GRM.L("clearall") then
+            alreadyReported = true;
+            GRM.SlashCommandClearAll();
 
-        -- Resets the poisition of the window back to the center.
-    elseif command == "reset" or command == "center" or command == GRM.L("center") then
-        alreadyReported = true;
-        GRM.SlashCommandCenter();
+            -- Clears all saved data specific to the guild...
+        elseif command == "clearguild" or command == "resetguild" or command == GRM.L("clearguild") then
+            if inGuild then
+                GRM.SlashCommandClearGuild();
+            end
 
-        -- Re-triggering SYNC
-    elseif command == "sync" or command == GRM.L("sync") then
-        if inGuild then
-            GRM.SlashCommandSync()
+            -- Does a hard reset of the entire database...
+        elseif command == "hardreset" or command == GRM.L("hardreset") then
+            GRM.HardReset();
+            -- List of all the slash commands at player's disposal.
+        elseif command == "help" or command == GRM.L("help") then
+            alreadyReported = true;
+            GRM.SlashCommandHelp();
+
+            -- Version
+        elseif command == "version" or command == "ver" or command == GRM.L("version") then
+            alreadyReported = true;
+            GRM.SlashCommandVersion();
+
+            -- Resets the poisition of the window back to the center.
+        elseif command == "reset" or command == "center" or command == GRM.L("center") then
+            alreadyReported = true;
+            GRM.SlashCommandCenter();
+
+            -- Re-triggering SYNC
+        elseif command == "sync" or command == GRM.L("sync") then
+            if inGuild then
+                GRM.SlashCommandSync()
+            end
+
+            -- For manual scan trigger!
+        elseif command == "scan" or command == GRM.L("scan") then
+            if inGuild then
+                GRM.SlashCommandScan();
+            end
+
+            -- for resetting the minimap
+        elseif command == "minimap" or command == GRM.L("minimap") then
+            alreadyReported = true
+            GRM.SlashCommandMinimapReset();
+
+        elseif command == "ban" or command == GRM.L("ban") then
+            GRM.SlashCommandBan();
+
+        elseif command == "audit" or command == GRM.L("audit") then
+            GRM.SlashCommandAudit();
+
+        elseif command == "log" or command == GRM.L("log") then
+            GRM.SlashCommandLog();
+
+        elseif command == "kick" or command == GRM.L("kick") or command == "tool" or command == string.lower(GRM.L("Tool")) or
+            command == "promote" or command == string.lower(GRM.L("Promote")) or command == "demote" or command ==
+            string.lower(GRM.L("Demote")) or command == "macro" or command == string.lower(GRM.L("Macro")) or command ==
+            "special" or command == string.lower(GRM.L("Special")) then
+            GRM.SlashCommandKick();
+
+        elseif command == "users" or command == "syncusers" or command == GRM.L("users") or command == GRM.L("syncusers") then
+            GRM.SlashCommandUsers();
+
+        elseif command == "event" or command == "events" or command == GRM.L("event") or command == GRM.L("events") then
+            GRM.SlashCommandEvents();
+
+        elseif command == "opt" or command == "option" or command == "options" or command == GRM.L("opt") or command ==
+            GRM.L("option") or command == GRM.L("options") then
+            GRM.SlashCommandOptions();
+
+        elseif command == "export" or command == string.lower(GRM.L("Export")) then
+            GRM.SlashCommandExport();
+
+        elseif command == "module" or command == string.lower(GRM.L("Module")) or command == "plugin" or command ==
+            string.lower(GRM.L("Plugin")) then
+            GRM.SlashCommandModulesOptions();
+
+        elseif command == "dead" or command == string.lower(GRM.L("dead")) or command == "deadnames" or command ==
+            string.lower(GRM.L("deadnames")) then
+            local customKickList = GRM.Scan.CheckForDeadAccounts(true);
+            GRM.Report(GRM.L("Dead player accounts found: {num}", nil, nil, #customKickList));
+
+            -- FOR FUN!!!
+        elseif command == "hello" or command == "sexy" then
+            alreadyReported = true;
+            GRM.Report("Arkaan is SEXY! Mmmm Arkaan! Super, ridiculously hot addon dev!");
+
+        elseif command == "guid" then
+            GRM.SlashCommandGUID();
+
+        elseif command == "prof" or command == string.lower ( GRM.L ( "Prof" ) ) then
+            GRM.SlashCommandProf();
+
+        elseif input:find( "altlimit" ) or input:find ( string.lower ( GRM.L ( "altlimit" ) ) ) then
+            GRM.SlashCommandAltLimitAudit(input);
+
+            -- /grm search
+        elseif string.match(command, "(" .. string.lower(GRM.L("Search")) .. ").+") ~= nil or
+            string.match(command, "(Search).+") ~= nil or command == string.lower(GRM.L("Search")) or command == "Search" then
+            GRM.SlashCommandSearch(command)
+
+        elseif string.find(command, "debug") ~= nil then
+            GRM.Debug.DebugConfig(command);
+        else
+            alreadyReported = true;
+            GRM.Report(GRM.L("Invalid Command: Please type '/grm help' for More Info!"));
         end
 
-        -- For manual scan trigger!
-    elseif command == "scan" or command == GRM.L("scan") then
-        if inGuild then
-            GRM.SlashCommandScan();
+        if not inGuild and not alreadyReported then
+            GRM.Report(GRM.L("{name} is not currently in a guild. Unable to Proceed!", GRM.SlimName(GRM_G.addonUser)));
         end
-
-        -- for resetting the minimap
-    elseif command == "minimap" or command == GRM.L("minimap") then
-        alreadyReported = true
-        GRM.SlashCommandMinimapReset();
-
-    elseif command == "ban" or command == GRM.L("ban") then
-        GRM.SlashCommandBan();
-
-    elseif command == "audit" or command == GRM.L("audit") then
-        GRM.SlashCommandAudit();
-
-    elseif command == "log" or command == GRM.L("log") then
-        GRM.SlashCommandLog();
-
-    elseif command == "kick" or command == GRM.L("kick") or command == "tool" or command == string.lower(GRM.L("Tool")) or
-        command == "promote" or command == string.lower(GRM.L("Promote")) or command == "demote" or command ==
-        string.lower(GRM.L("Demote")) or command == "macro" or command == string.lower(GRM.L("Macro")) or command ==
-        "special" or command == string.lower(GRM.L("Special")) then
-        GRM.SlashCommandKick();
-
-    elseif command == "users" or command == "syncusers" or command == GRM.L("users") or command == GRM.L("syncusers") then
-        GRM.SlashCommandUsers();
-
-    elseif command == "event" or command == "events" or command == GRM.L("event") or command == GRM.L("events") then
-        GRM.SlashCommandEvents();
-
-    elseif command == "opt" or command == "option" or command == "options" or command == GRM.L("opt") or command ==
-        GRM.L("option") or command == GRM.L("options") then
-        GRM.SlashCommandOptions();
-
-    elseif command == "export" or command == string.lower(GRM.L("Export")) then
-        GRM.SlashCommandExport();
-
-    elseif command == "module" or command == string.lower(GRM.L("Module")) or command == "plugin" or command ==
-        string.lower(GRM.L("Plugin")) then
-        GRM.SlashCommandModulesOptions();
-
-    elseif command == "dead" or command == string.lower(GRM.L("dead")) or command == "deadnames" or command ==
-        string.lower(GRM.L("deadnames")) then
-        local customKickList = GRM.Scan.CheckForDeadAccounts(true);
-        GRM.Report(GRM.L("Dead player accounts found: {num}", nil, nil, #customKickList));
-
-        -- FOR FUN!!!
-    elseif command == "hello" or command == "sexy" then
-        alreadyReported = true;
-        GRM.Report("Arkaan is SEXY! Mmmm Arkaan! Super, ridiculously hot addon dev!");
-
-    elseif command == "guid" then
-        GRM.SlashCommandGUID();
-
-    elseif command == "prof" or command == string.lower ( GRM.L ( "Prof" ) ) then
-        GRM.SlashCommandProf();
-
-    elseif input:find( "altlimit" ) or input:find ( string.lower ( GRM.L ( "altlimit" ) ) ) then
-        GRM.SlashCommandAltLimitAudit(input);
-
-        -- /grm search
-    elseif string.match(command, "(" .. string.lower(GRM.L("Search")) .. ").+") ~= nil or
-        string.match(command, "(Search).+") ~= nil or command == string.lower(GRM.L("Search")) or command == "Search" then
-        GRM.SlashCommandSearch(command)
-
-    elseif string.find(command, "debug") ~= nil then
-        GRM.Debug.DebugConfig(command);
-    else
-        alreadyReported = true;
-        GRM.Report(GRM.L("Invalid Command: Please type '/grm help' for More Info!"));
-    end
-
-    if not inGuild and not alreadyReported then
-        GRM.Report(GRM.L("{name} is not currently in a guild. Unable to Proceed!", GRM.SlimName(GRM_G.addonUser)));
     end
 end
+
+GRM.SlashCommandRosterActions("ROSTER");
+GRM.SlashCommandActions("GRM");
 
 ------------------------------------------------
 ------------------------------------------------

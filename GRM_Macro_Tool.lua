@@ -6683,6 +6683,7 @@ GRM.StartQueuedEntriesScan = function()
     if not categoryToScan then
         GRM.DoBuildScrollFrameWithEntries({}); -- Return empty list
         GRM_UI.LoadRulesUI();
+        GRM.GetHigherRankCountMessage();
         return;
     end
 
@@ -12342,7 +12343,6 @@ end
 -- What it Does:    Holds functions to load AFTER async actions
 -- Purpose:         Control load of frames efficiently.
 GRM_UI.RefreshManagementToolDelay = function()
-
     if GRM_G.RefreshManagementDelay then
         GRM_G.RefreshManagementDelay = false;
         GRM_UI.GRM_ToolCoreFrame.MacroEntries = {};
