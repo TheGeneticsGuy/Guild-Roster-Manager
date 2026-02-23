@@ -1,3 +1,9 @@
+## **VERSION 1.99380 - February 17th, 2026**
+
+***BUG FIXES***
+
+* 12.0.1 had a few stealth changes spreading the tentacles of Blizz's Addongeddon bug to other functions. For some reason, querying guild roster data is now protected when in the new restricted state. This is pretty lame and I have no idea why it is like this, but it is. There's also a lot of really weird things now protected as well. I can't AFK check players with the API without calling errors if in an API state. I noticed that the "IsInGuild()" API to check if you are still in a guild is now restricted in certain circumstances, except it throws no error, it just returns false. Why!? This is a useful check I have to prevent a lot of downstream API because I don't want players who use GRM, when you quit a guild, to all of a sudden get bombarded with a ton of API checks querying guild data. It's useful to do a quick API check that they are in a guild before I do.
+
 ## **VERSION 1.99380 - February 10th, 2026**
 
 *Compatibility Build with 12.0.1 Midnight*

@@ -207,8 +207,6 @@ Scan.BuildNewRoster = function( forceScan )
 
     -- Just cancel if not in a guild
     if not IsInGuild() then
-        GRM_G.guildName = "";
-        GRM_G.gClubID = 0;
         return;
     end
 
@@ -390,12 +388,15 @@ end
 -- What it Does:    Returns the full club member data
 -- Purpose:         Easy access using Club Communities API
 Scan.GetClubMemberTable = function()
-    local members = C_Club.GetClubMembers(GRM_G.gClubID);
     local clubMemberTable = {};
-    for i = 1 , #members do
-        local member = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
+    local members = C_Club.GetClubMembers(GRM_G.gClubID);
+    if not GRM.issecretvalue(members) then
 
-        table.insert ( clubMemberTable , member );
+        for i = 1 , #members do
+            local member = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
+            table.insert ( clubMemberTable , member );
+        end
+
     end
 
     return clubMemberTable;
@@ -430,6 +431,12 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
     local processedCount = 0;
     index = index or 1;
     members = members or Scan.GetClubMemberTable();
+
+    -- SECRET VALUE PROTECTION
+    if #members == 0 then
+        GRM_G.CurrentlyScanning= false;
+        return;
+    end
 
     local memberInfo;
     local player;
@@ -497,7 +504,7 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
     end
 
     Scan.FinalizeRosterBuild ( roster, orderedRoster , count );
-end
+end 
 
 -- Method:          Scan.FinalizeRosterBuild( table, table, int )
 -- What it Does:    Performs the final checks and processing after roster data is gathered.
@@ -3397,7 +3404,7 @@ Scan.AddonPlayerRankChange = function(newRankIndex)
         end
     end
 end
-
+-- 
 -- Method:          Scan.GetNewerAccountByGUID ( string , string
 -- What it Does:    Returns the GUID that is created more recently by comparing the values of the player
 -- Purpose:         For double copies of players, it is easy to quickly determine which account is most current.
@@ -3407,7 +3414,7 @@ Scan.GetNewerAccountByGUID = function ( guid1 , guid2 )
         local guidPattern = "Player%-5099%-(%x+)";
         local match1 = string.match( guid1, guidPattern );
         local match2 = string.match( guid2, guidPattern );
-
+        
         if match1 and match2 then
             -- Now, let's convert the hexadecimal to a number. Use the "tonumber" with base 16 for hex to int conversion
             local num1 = tonumber ( match1 , 16 );

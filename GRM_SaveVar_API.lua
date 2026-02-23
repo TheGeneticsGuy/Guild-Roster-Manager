@@ -193,16 +193,18 @@ GRM.GetClubMemberInfo = function ( playerName , clubID )
 
     if clubID and clubID ~= "" then
         local members = C_Club.GetClubMembers ( clubID );
-        local name = "";
-        local player = {};
+        if not GRM.issecretvalue(members) then            
+            local name = "";
+            local player = {};
 
-        for i = 1 , #members do
-            player = C_Club.GetMemberInfo ( clubID , members[i] )
-            name = GRM.GetFullNameClubMember ( player.guid );
+            for i = 1 , #members do
+                player = C_Club.GetMemberInfo ( clubID , members[i] )
+                name = GRM.GetFullNameClubMember ( player.guid );
 
-            if name ~= "" and name == playerName then
-                result = player;
-                break;
+                if name ~= "" and name == playerName then
+                    result = player;
+                    break;
+                end
             end
         end
 
@@ -251,18 +253,21 @@ end
 -- Purpose:         Occasionally you want a list of guild members.
 GRM.GetListOfGuildies = function( slimName )
     local list = {};
-    local members = C_Club.GetClubMembers ( GRM_G.gClubID );
-    local fullName = "";
+    if not GRM_G.AddonRestricted then
+        local members = C_Club.GetClubMembers ( GRM_G.gClubID );
+        local fullName = "";
 
-    for i = 1 , #members do
-        if slimName then
-            table.insert ( list , C_Club.GetMemberInfo ( GRM_G.gClubID , members[i] ).name );
-        else
-            fullName = select ( 2 , GRM.GetMemberInfoWithFullName ( members[i] ) );
-            table.insert ( list , fullName );
+        for i = 1 , #members do
+            if slimName then
+                table.insert ( list , C_Club.GetMemberInfo ( GRM_G.gClubID , members[i] ).name );
+            else
+                fullName = select ( 2 , GRM.GetMemberInfoWithFullName ( members[i] ) );
+                table.insert ( list , fullName );
+            end
         end
+        sort ( list );
     end
-    sort ( list );
+
     return list;
 end
 

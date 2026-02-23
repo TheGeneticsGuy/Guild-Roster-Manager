@@ -545,22 +545,25 @@ GRM_R.RefreshOnlineStatus = function( guildData )
     local count = 0;
 
     if guildData then
+        
         local members = C_Club.GetClubMembers ( GRM_G.gClubID );
-        local player = {};
-        local fullName = "";
+        if not GRM.issecretvalue(members) then
+            local player = {};
+            local fullName = "";
 
-        for i = 1 , #members do
-            player = C_Club.GetMemberInfo ( GRM_G.gClubID , members[i] );
-            fullName = GRM.GetFullNameClubMember ( player.guid );
+            for i = 1 , #members do
+                player = C_Club.GetMemberInfo ( GRM_G.gClubID , members[i] );
+                fullName = GRM.GetFullNameClubMember ( player.guid );
 
-            if guildData[fullName] then
-                guildData[fullName].isOnline = ( player.presence ~= 3 and player.presence ~= 0 );
-                if guildData[fullName].isOnline then
-                    count = count + 1;
+                if guildData[fullName] then
+                    guildData[fullName].isOnline = ( player.presence ~= 3 and player.presence ~= 0 );
+                    if guildData[fullName].isOnline then
+                        count = count + 1;
+                    end
                 end
             end
+            GRM_UI.GRM_RosterFrame.GRM_RosterMemberCount:SetText ( GRM.L ( "{num}/{custom1} Online" , nil , nil , count , GRM.G_Util.GetNumGuildies() ) );
         end
-        GRM_UI.GRM_RosterFrame.GRM_RosterMemberCount:SetText ( GRM.L ( "{num}/{custom1} Online" , nil , nil , count , GRM.G_Util.GetNumGuildies() ) );
     end
 
 end

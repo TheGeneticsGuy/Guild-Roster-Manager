@@ -351,6 +351,9 @@ GRM_G.secretValueOnLoadDelay = false;
 GRM_G.raceIDEnum = {};
 GRM_G.classFileIDEnum = {};
 
+-- Compatibility
+GRM_G.Compat = {};
+
 
 local AllClasses = {"Deathknight", "Demonhunter", "Druid", "Evoker", "Hunter", "Mage", "Monk", "Paladin", "Priest",
                     "Rogue", "Shaman", "Warlock", "Warrior"}; -- This is only here as an alphabetized list
@@ -1992,22 +1995,35 @@ GRM.SetReportWindow = function(count)
         return;
     end
 
+    if not GRM_G.Compat.ChattynatorInitialized then
+        GRM_G.Compat.ChattynatorInitialized = true;
+        GRM.chattynator.IsChattynatorLoaded();  -- Establishes Chattynator Compatibility
+    end
+
     for i = #GRM.S().reportChannel, 1, -1 do
         isEstablished = false;
 
-        for j = 1, #CHAT_FRAMES do
-            chatFrame = _G[CHAT_FRAMES[j]];
+        if GRM_G.Compat.ChattynatorLoaded then
+            local wIndex, tIndex, tabName = GRM.chattynator.GetChattynatorTab(GRM.S().reportChannel[i]);
+            if wIndex and tIndex then
+                isEstablished = true;
+                GRM.chattynator.SetReportChannel(wIndex, tIndex, tabName);
+            end
+        else
+            for j = 1, #CHAT_FRAMES do
+                chatFrame = _G[CHAT_FRAMES[j]];
 
-            if chatFrame ~= nil and chatFrame.name == GRM.S().reportChannel[i] then
-                -- Custom frame writte, custom frame found! Now, let's see if there is a tab
+                if chatFrame ~= nil and chatFrame.name == GRM.S().reportChannel[i] then
+                    -- Custom frame writte, custom frame found! Now, let's see if there is a tab
 
-                if _G[CHAT_FRAMES[j] .. "Tab"]:IsVisible() then
-                    isEstablished = true;
+                    if _G[CHAT_FRAMES[j] .. "Tab"]:IsVisible() then
+                        isEstablished = true;
 
-                    GRM.AddReportChannel(nil, chatFrame, true); -- Just adds it to the GRM_G.Chat
-                    break
+                        GRM.AddReportChannel(nil, chatFrame, true); -- Just adds it to the GRM_G.Chat
+                        break
+                    end
+
                 end
-
             end
         end
 
@@ -2023,6 +2039,11 @@ GRM.SetReportWindow = function(count)
                 table.insert(removedChannels , GRM.S().reportChannel[i])
             end
         end
+    end
+
+    -- Let's initialize all the Chattynator channels that exist
+    if GRM_G.Compat.ChattynatorLoaded then
+        GRM.chattynator.InitializeTabsForGRM();
     end
 
     if #removedChannels > 0 then
@@ -7723,6 +7744,7 @@ GRM.PrintLog = function(logReport)
     end
 end
 
+
 -- Method:          GRM.Report ( string )
 -- What it Does:    Sends to the main chat window messages on various events as deemed necessary to report on by addon creator.
 -- Purpose:         To clean up the reporting and have a way to present the information blended into the default system UI
@@ -7734,8 +7756,13 @@ GRM.Report = function(msg, R, G, B)
 
     if GRM_G.AddonIsFullyConfigured then
         GRM.ReportLocationCheck();
-        for i = 1, #GRM_G.Chat do
-            GRM_G.Chat[i]:AddMessage(msg, r, g, b);
+
+        if GRM_G.Compat.ChattynatorLoaded then
+            GRM.chattynator.ChattynatorReport(msg, r, g, b)
+        else
+            for i = 1, #GRM_G.Chat do
+                GRM_G.Chat[i]:AddMessage(msg, r, g, b);
+            end
         end
 
     else
