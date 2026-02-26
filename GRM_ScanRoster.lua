@@ -7,6 +7,7 @@ GRM.Scan = Scan;
 GRM_G.processNewServerGUID = {false,"",""}; -- For edge case where part of GUID changes on new server like pre-patch Classic Drops
 GRM_G.LogCheckRestart = 0;
 GRM_G.RosterCheckRestart = 0;
+GRM_G.DiscrepancyDataProtectCount = 0;
 
 -- Method:          Scan.NoLivecheck()
 -- What it Does:    It compares the live Check event table if a live scan is going, and it ignores checking roster
@@ -238,6 +239,24 @@ Scan.CleanUpNameRepeatedServer = function( name )
     return name;
 end
 
+-- Method:          Scan.RosterDiscrepancyPassed( table )
+-- What it Does:    Checks the live roster snapshot against the current guild roster size to see if possible major deviancy.
+-- Purpose:         Protect against possible data retrieval error from server that can occur shortly after logging in.
+Scan.RosterDiscrepancyPassed = function(liveRosterSnapshot)
+    local guildData = GRM.GetGuild();
+    if not guildData then
+        return true; -- No guild data at all, then return true because it is first time configuring guild
+    end
+
+    local DBRosterSize = GRM.Util.TableLength(guildData) - 5;      -- 5 are non player data references
+    local newRosterSize = #liveRosterSnapshot;
+
+    if newRosterSize == 0 or (newRosterSize / DBRosterSize) < 0.5 then  -- 50% deviation implies possible data error
+        return false;
+    end
+    return true;
+end
+
 -- Method:          Scan.BuildRosterClassicMethod([int], [table], [table], [int] , table)
 -- What it Does:    Builds the roster using GetGuildRosterInfo, throttled.
 -- Purpose:         Avoid script timeouts during the initial roster build phase, particularly for large guilds
@@ -262,6 +281,22 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
             local years, months, days, hours = GetGuildRosterLastOnline(i);
             liveRosterSnapshot[i][18] = { years or 0, months or 0, days or 0, hours or 0 };
         end
+
+        -- Mass data discrepancy from server protection.
+        if not Scan.RosterDiscrepancyPassed(liveRosterSnapshot) then
+           GRM_G.DiscrepancyDataProtectCount = GRM_G.DiscrepancyDataProtectCount + 1;
+           if GRM_G.DiscrepancyDataProtectCount < 3 then
+                GRM_G.CurrentlyScanning = false;    -- On the 3rd check, going to let the scan continue.
+                if GRM_G.OnFirstLoad then
+                    C_Timer.After(5,function()
+                        GRM.GuildRoster();
+                        QueryGuildEventLog();
+                    end);
+                end
+                return
+           end
+        end
+        GRM_G.DiscrepancyDataProtectCount = 0;
 
         C_Timer.After (delay, function()
             Scan.BuildRosterClassicMethod ( startIndex, roster, orderedRoster, count , liveRosterSnapshot );
@@ -824,45 +859,48 @@ Scan.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
             player = guildData[orderedRoster[i]];
             updatedPlayer = roster[orderedRoster[i]];
 
-            if player then
+            if updatedPlayer and updatedPlayer.GUID and updatedPlayer.GUID ~= "" then -- Ignore this player if the server failed to provide a GUID, as it is likely a server error and we don't want to mark them as new or kicked by accident. This can cause issues with guilds that have a lot of alts with same name, but unfortunately there is no workaround until Blizzard fixes the server issue. This starting happening in 12.0.1 shortly after loogging in. Subsequent scans seem to show the proper guild member.
 
-                -- Edge case on new expansion releases.
-                if player.GUID ~= updatedPlayer.GUID then
-                    if Scan.GUID_EdgeCaseMatch(player.GUID , updatedPlayer.GUID) then
+                if player then
 
-                        -- Store the old and new GUID changes to update backups and other vars
-                        if not GRM_G.processNewServerGUID[1] then
-                            local pattern = "Player%-(%w+)%-%w+";
-                            GRM_G.processNewServerGUID = { true , player.GUID:match(pattern) , updatedPlayer.GUID:match(pattern) };
+                    -- Edge case on new expansion releases.
+                    if player.GUID ~= updatedPlayer.GUID then
+                        if Scan.GUID_EdgeCaseMatch(player.GUID , updatedPlayer.GUID) then
+
+                            -- Store the old and new GUID changes to update backups and other vars
+                            if not GRM_G.processNewServerGUID[1] then
+                                local pattern = "Player%-(%w+)%-%w+";
+                                GRM_G.processNewServerGUID = { true , player.GUID:match(pattern) , updatedPlayer.GUID:match(pattern) };
+                            end
+
+                            player.GUID = updatedPlayer.GUID;
                         end
+                    end
 
-                        player.GUID = updatedPlayer.GUID;
+                    -- Compare GUIDs not just names
+                    if player.GUID == updatedPlayer.GUID or
+                        (player.isTransfer and updatedPlayer.name == player.name and updatedPlayer.class == player.class) then -- In case someone deleted a toon, then joined a new toon with same name, need to confirm it is the same.
+
+                        newPlayerFound = false;
+                        Scan.CheckLogChanges(updatedPlayer, player, orderedRoster[i]);
+                        Scan.CheckRosterChanges(updatedPlayer, player, orderedRoster[i]);
+
+                    else
+                        -- This means same name found, but different GUIDs, so different toon.
+                        -- Player found in existing database - they need to be added to leaving players, then need to import the new player.
+                        newPlayerFound = true;
+
+                        GRM.Log.AddLeftOrKickEntry(Scan.RecordKickChanges(player.name, GRM.SlimName(player.name),
+                            GRM.Time.GetTimestamp()));
+
                     end
                 end
 
-                -- Compare GUIDs not just names
-                if player.GUID == updatedPlayer.GUID or
-                    (player.isTransfer and updatedPlayer.name == player.name and updatedPlayer.class == player.class) then -- In case someone deleted a toon, then joined a new toon with same name, need to confirm it is the same.
-
-                    newPlayerFound = false;
-                    Scan.CheckLogChanges(updatedPlayer, player, orderedRoster[i]);
-                    Scan.CheckRosterChanges(updatedPlayer, player, orderedRoster[i]);
-
-                else
-                    -- This means same name found, but different GUIDs, so different toon.
-                    -- Player found in existing database - they need to be added to leaving players, then need to import the new player.
-                    newPlayerFound = true;
-
-                    GRM.Log.AddLeftOrKickEntry(Scan.RecordKickChanges(player.name, GRM.SlimName(player.name),
-                        GRM.Time.GetTimestamp()));
-
-                end
-            end
-
-            -- NEW PLAYER FOUND! (Maybe)
-            if newPlayerFound then
-                if not GRM_G.liveKickedToons[updatedPlayer.name] then
-                    table.insert(GRM_G.newPlayers, updatedPlayer);
+                -- NEW PLAYER FOUND! (Maybe)
+                if newPlayerFound then
+                    if not GRM_G.liveKickedToons[updatedPlayer.name] then
+                        table.insert(GRM_G.newPlayers, updatedPlayer);
+                    end
                 end
             end
 

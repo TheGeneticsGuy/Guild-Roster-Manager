@@ -7921,7 +7921,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.ReportDestination = function( reportEditBox )
         reportEditBox:SetText ( GRM.BuildMultiChannelString() );
     end
-
+    
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetScript ( "OnShow" , function ( self )
         GRM_UI.ReportDestination ( self );
     end);
@@ -7933,6 +7933,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetScript ( "OnEnterPressed" , function ( self )
         local text = self:GetText();
         GRM.EstablishNewCustomReportWindow ( text );
+        if GRM_G.Compat.ChattynatorLoaded then
+            GRM.chattynator.InitializeTabsForGRM();
+        end
         self:ClearFocus();
         GRM_UI.ReportDestination ( self );
     end);
@@ -7942,12 +7945,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if self:IsVisible() then
             local text = self:GetText();
             GRM.EstablishNewCustomReportWindow ( text );
+            if GRM_G.Compat.ChattynatorLoaded then
+                GRM.chattynator.InitializeTabsForGRM();
+            end
             self:ClearFocus();
         else
             self:HighlightText ( 0 , 0 );
         end
 
         GRM_UI.ReportDestination ( self );
+        GRM.chattynator.CleanupChattynatorTabs();
     end)
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetScript ( "OnEditFocusGained" , function ( self )

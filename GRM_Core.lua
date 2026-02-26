@@ -2095,15 +2095,18 @@ GRM.AddReportChannel = function(name, newFrame, onlyFrame)
         isFound = false;
     end
 
-    for i = 1, #GRM_G.Chat do
-        if GRM_G.Chat[i] == newFrame then
-            isFound = true;
-            break
-        end
-    end
+    if newFrame then
 
-    if not isFound then
-        table.insert(GRM_G.Chat, newFrame);
+        for i = 1, #GRM_G.Chat do
+            if GRM_G.Chat[i] == newFrame then
+                isFound = true;
+                break
+            end
+        end
+
+        if not isFound then
+            table.insert(GRM_G.Chat, newFrame);
+        end
     end
 end
 
@@ -2112,15 +2115,20 @@ end
 -- Purpose:         UX quality control
 GRM.CreateChatTabs = function()
     local customName = GRM_G.UnconfirmedChatTabs[1];
-    -- Core Blizzard logic to create a new window
-    local frame = FCF_OpenNewWindow(customName , true);     -- True is necessary to keep Blizz from default SAY,YELL, GUILD, etc to channel
 
-    -- Now we configure them
-    FCF_CopyChatSettings(frame, DEFAULT_CHAT_FRAME);
-    FCF_DockUpdate();
+    if GRM_G.Compat.ChattynatorLoaded then
+        GRM.chattynator.CreateChattynatorTab(customName);
+        GRM.chattynator.CleanupChattynatorTabs();
+    else
+        -- Core Blizzard logic to create a new window
+        local frame = FCF_OpenNewWindow(customName , true);     -- True is necessary to keep Blizz from default SAY,YELL, GUILD, etc to channel
 
-    -- GRM actions - Add the names and set the reporting logic to GRM database
-    GRM.AddReportChannel(customName, frame, false);
+        -- Now we configure them
+        FCF_CopyChatSettings(frame, DEFAULT_CHAT_FRAME);
+        FCF_DockUpdate();
+        -- GRM actions - Add the names and set the reporting logic to GRM database
+        GRM.AddReportChannel(customName, frame, false);
+    end
 
     -- Update the options editbox
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
@@ -2153,16 +2161,21 @@ end
 -- What it Does:    Informs the player of the missing custom chat channels and asks for permission to rebuild
 -- Purpose:         There is an occasional issue of custom chat channels disappearing, not sure why. This adapts to it.
 --                  The channels disappearing on occasion can even happen with all addons disabled.
-GRM.MissingChatTabs = function( channels )
+GRM.MissingChatTabs  = function( channels )
     if #channels > 0 then
 
         local createChatWindows = function()
+            
             for i = 1 , #channels do
-                local frame = FCF_OpenNewWindow(channels[i] , true);
-                FCF_CopyChatSettings(frame, DEFAULT_CHAT_FRAME);
-                table.insert ( GRM_G.Chat , frame );
+                if GRM_G.Compat.ChattynatorLoaded then
+                    GRM.chattynator.CreateChattynatorTab(channels[i]);
+                else
+                    local frame = FCF_OpenNewWindow(channels[i] , true);
+                    FCF_CopyChatSettings(frame, DEFAULT_CHAT_FRAME);
+                    table.insert ( GRM_G.Chat , frame );
+                    FCF_DockUpdate();
+                end
             end
-            FCF_DockUpdate();
 
             local updateText = ""
             if #channels == 1 then
@@ -2297,30 +2310,78 @@ GRM.EstablishNewCustomReportWindow = function(channelNames)
 
         for i = 1, #channels do
             isEstablished = false;
-            for j = 1, #CHAT_FRAMES do
-                chatFrame = GetClickFrame(CHAT_FRAMES[j]);
 
-                if chatFrame and chatFrame.name == channels[i] then
-                    -- Custom frame writte, custom frame found! Now, let's see if there is a tab
+            if GRM_G.Compat.ChattynatorLoaded then
+                local wIndex, tIndex, tabName = GRM.chattynator.GetChattynatorTab(channels[i]);
+                if wIndex and tIndex then
+                    isEstablished = true;
+                    GRM.chattynator.SetReportChannel(wIndex, tIndex, tabName);
+                end
+            else
+                for j = 1, #CHAT_FRAMES do
+                    chatFrame = GetClickFrame(CHAT_FRAMES[j]);
 
-                    if GetClickFrame(chatFrame:GetName() .. "Tab"):IsVisible() then
-                        isEstablished = true;
-                        GRM.AddReportChannel(channels[i], chatFrame, false);
-                        break
+                    if chatFrame and chatFrame.name == channels[i] then
+                        -- Custom frame writte, custom frame found! Now, let's see if there is a tab
+
+                        if GetClickFrame(chatFrame:GetName() .. "Tab"):IsVisible() then
+                            isEstablished = true;
+                            GRM.AddReportChannel(channels[i], chatFrame, false);
+                            break
+                        end
+
                     end
-
                 end
             end
 
             if not isEstablished then
                 table.insert(GRM_G.UnconfirmedChatTabs, channels[i]); -- These are custom chat tabs that don't exist yet and need to be built. Storing them so they can be qued up.
+            else
+                if GRM_G.Compat.ChattynatorLoaded then
+                    GRM.AddReportChannel(channels[i], nil, false); -- Just adds it to the GRM_G.Chat
+                else
+                    for j = 1, #CHAT_FRAMES do
+                        chatFrame = GetClickFrame(CHAT_FRAMES[j]);
+
+                        if chatFrame and chatFrame.name == channels[i] then
+                            GRM.AddReportChannel(channels[i], chatFrame, false);
+                            break;
+
+                        end
+                    end
+                end
             end
         end
 
         if #GRM_G.UnconfirmedChatTabs > 0 then
             -- Popup window logic...
-            GRM.InitiateConfirmFrame(GRM.L("\"{name}\" Chat Window\nDo you wish to create it?",
+            if #GRM_G.UnconfirmedChatTabs == 1 then
+                GRM.InitiateConfirmFrame(GRM.L("\"{name}\" Chat Window\nDo you wish to create it?",
                 GRM_G.UnconfirmedChatTabs[1]), GRM.CreateChatTabs, nil, nil, GRM.CancelChatTabCreation, true);
+            else
+                 local createMultipleTabs = function()
+                    for i = 1 , #GRM_G.UnconfirmedChatTabs do
+                        if GRM_G.Compat.ChattynatorLoaded then
+                            GRM.chattynator.CreateChattynatorTab(GRM_G.UnconfirmedChatTabs[i]);
+                        else
+                            local frame = FCF_OpenNewWindow(GRM_G.UnconfirmedChatTabs[i] , true);
+                            FCF_CopyChatSettings(frame, DEFAULT_CHAT_FRAME);
+                            table.insert ( GRM_G.Chat , frame );
+                            FCF_DockUpdate();
+                        end
+                    end
+                    GRM_G.UnconfirmedChatTabs = {};
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(GRM.BuildMultiChannelString());
+                    GRM.chattynator.CleanupChattynatorTabs();
+                end
+                local missingChannels = GRM_G.UnconfirmedChatTabs[1];
+                for i = 2 ,#GRM_G.UnconfirmedChatTabs do
+                    missingChannels = missingChannels .. ", " .. GRM_G.UnconfirmedChatTabs[i];
+                end
+                local text = GRM.L ( "The following Custom Chat Windows for GRM appear to be missing:" ) .. "\n" .. missingChannels .. "\n\n" .. GRM.L ("Would you like to recreate these chat windows for messages unique to the GRM addon?" );
+                GRM.InitiateConfirmFrame(text, createMultipleTabs, nil, nil, nil, true, 350 , 175 , false);
+
+            end
         end
     else
         GRM.S().reportChannel = {};
@@ -3090,7 +3151,10 @@ end
 -- Purpose:    AppendServerName = fun     In some cases you need the full name-serverName to do some actions, when the server only gives you the name of players you are on same realm with trimmed of server. This adds it back.
 GRM.AppendServerName = function(name, currentGuild)
     if name ~= nil and name ~= "" and not string.find(name, "-", 1, true) then
-        name = name .. "-" .. GRM.GetPlayerServer(name, currentGuild);
+        local realm = GRM.GetPlayerServer(name, currentGuild);
+        if realm ~= "" then
+            name = name .. "-" .. realm;
+        end
     elseif name == nil then
         name = "";
     end
@@ -3123,16 +3187,8 @@ GRM.GetPlayerServer = function( name )
         local guildData = GRM.GetGuild();
         local matches = {};
 
-        for memberName , player in pairs ( guildData ) do
-            if type ( player ) == "table" then
-                if name == GRM.SlimName ( memberName ) then
-                    table.insert ( matches , memberName );
-                end
-            end
-        end
+        if guildData then
 
-        if #matches == 0 then
-            guildData = GRM.GetFormerMembers();
             for memberName , player in pairs ( guildData ) do
                 if type ( player ) == "table" then
                     if name == GRM.SlimName ( memberName ) then
@@ -3140,10 +3196,21 @@ GRM.GetPlayerServer = function( name )
                     end
                 end
             end
-        end
 
-        if #matches >= 1 then
-            server = matches[1]:match ( "-(.+)" );-- FLAW IF 2 PLAYERS SAME NAME DIFF SERVERS!!!
+            if #matches == 0 then
+                guildData = GRM.GetFormerMembers();
+                for memberName , player in pairs ( guildData ) do
+                    if type ( player ) == "table" then
+                        if name == GRM.SlimName ( memberName ) then
+                            table.insert ( matches , memberName );
+                        end
+                    end
+                end
+            end
+
+            if #matches >= 1 then
+                server = matches[1]:match ( "-(.+)" );-- FLAW IF 2 PLAYERS SAME NAME DIFF SERVERS!!!
+            end
         end
 
     end
@@ -3674,7 +3741,7 @@ GRM.AddMainTagToComeOnlineSystemMessage = function(msg)
     local fullName = GRM.AppendServerName(name);
     local result = msg;
 
-    if GRM_G.guildName ~= "" and IsInGuild() then
+    if GRM.GetGuild() and GRM_G.guildName ~= "" and IsInGuild() then
 
         local player = GRM.GetPlayer(fullName);
         if IsInGuild() and player then
@@ -3738,6 +3805,7 @@ end
 -- What it Does:    Adds the main tag to the system message announce when a player goes offline and colorizes their names
 -- Purpose:         Quality of life information.
 GRM.AddMainTagToGoneOfflineSystemMessage = function(msg)
+    
     local breakIndex = string.find(msg, " "); -- This format fits almost all
     if breakIndex == nil then
         breakIndex = string.find(msg, "下線了。"); -- Taiwanese
@@ -3746,35 +3814,40 @@ GRM.AddMainTagToGoneOfflineSystemMessage = function(msg)
         end
     end
 
-    local fullName = GRM.AppendServerName(string.sub(msg, 1, breakIndex - 1));
-    local tempName = "";
     local finalNameFormat = "";
+    local tempName = "";
+    local fullName = "";
 
-    if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
-        local mainName = GRM.GetFormattedMainName(fullName, false);
-        if mainName ~= "" then
-            local mainColoring = GRM.GetStringClassColorByName(mainName);
-            tempName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
+    if GRM.GetGuild() then
+
+        fullName = GRM.AppendServerName(string.sub(msg, 1, breakIndex - 1));
+
+        if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+            local mainName = GRM.GetFormattedMainName(fullName, false);
+            if mainName ~= "" then
+                local mainColoring = GRM.GetStringClassColorByName(mainName);
+                tempName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
+            end
+
+        elseif ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+            local showAltTag = false;
+            local player = GRM.GetPlayer(fullName);
+
+            if player and not GRM.PlayerHasAlts(player) or not GRM.S().showMainName then
+                showAltTag = true;
+            end
+
+            finalNameFormat = GRM.GetNameWithMainTags(fullName, true, GRM.S().showMainName, showAltTag, true);
         end
 
-    elseif ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
-        local showAltTag = false;
-        local player = GRM.GetPlayer(fullName);
-
-        if player and not GRM.PlayerHasAlts(player) or not GRM.S().showMainName then
-            showAltTag = true;
+        if GRM.S().colorizeNames then
+            if finalNameFormat == "" then
+                local hexCode = GRM.GetStringClassColorByName(fullName);
+                fullName = hexCode .. GRM.FormatName(fullName) .. "|r";
+            end
+        else
+            fullName = GRM.FormatName(fullName);
         end
-
-        finalNameFormat = GRM.GetNameWithMainTags(fullName, true, GRM.S().showMainName, showAltTag, true);
-    end
-
-    if GRM.S().colorizeNames then
-        if finalNameFormat == "" then
-            local hexCode = GRM.GetStringClassColorByName(fullName);
-            fullName = hexCode .. GRM.FormatName(fullName) .. "|r";
-        end
-    else
-        fullName = GRM.FormatName(fullName);
     end
 
     if finalNameFormat == "" then

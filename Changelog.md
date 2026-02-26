@@ -1,3 +1,20 @@
+## **VERSION 1.99381 - February 25th, 2026**
+
+
+***QUALITY OF LIFE***
+
+* GRM is now compatible with custom Chattynator channels. The integration was fairly extensive, but this is a really nice addon.
+
+***BUG FIXES***
+
+
+* Fixed an issue where you were getting spammed in combat or BGs again when GRM would query guild roster changes. This should no longer happen. This was part of the addongeddon changes.
+
+* Fixed a bug where a Lua error could pop shortly after joining a guild if someone goes online or offline and GRM is still not fully configured.
+
+* Fixed a bug that could cause the entire roster to declare they had all left the guild. Seems to be related to the roster API sometimes returning no information shortly after login. This might not be fully fixed as I was unable to recreate it on my end, but the solution was a fairly robust check on the DB pulled from the server before comparing to the existing GRM DB for changes. This is fairly new and only 1 person has reported this issue, so hopefully it resolves it. Please let me know if you encounter any issues where your guild is spammed with everyone leaving the guild and then rejoining immediately after. Hopefully this is resolved though and I get no reports!
+
+
 ## **VERSION 1.99380 - February 17th, 2026**
 
 ***BUG FIXES***
