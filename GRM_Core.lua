@@ -239,6 +239,12 @@ GRM_G.mainTag = "";
 GRM_G.altTag = "";
 GRM_G.CurrentTagColorBox = 0;
 
+-- Main Tag Duplication protection
+GRM_G.MainTagDupeProtect = {};
+GRM_G.MainTagDupeProtect.time = 0;
+GRM_G.MainTagDupeProtect.name = "";
+GRM_G.MainTagDupeProtect.msg = "";
+
 -- Current Addon users
 GRM_G.currentAddonUsers = {};
 GRM_G.ReportedNoOfficerOnly = false;
@@ -344,8 +350,9 @@ if GRM_G.SOD and GetMaxLevelForPlayerExpansion then
 end
 
 -- Secret Value Scan Control
-GRM_G.secretValueDelay = false;
+GRM_G.secretValueDelay = true;
 GRM_G.secretValueOnLoadDelay = false;
+GRM_G.RestrictionAnnounced = false;
 
 -- Enums
 GRM_G.raceIDEnum = {};
@@ -5178,6 +5185,15 @@ GRM.AddMainToChat = function(_, event, msg, sender, ...)
     if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg)then
         local placeHolderMsg = msg;
 
+        -- Dupe protection for universal addon compatibility as an addon like Prat will reprocess the string twice.
+        if time() == GRM_G.MainTagDupeProtect.time and sender == GRM_G.MainTagDupeProtect.name and string.find( msg , GRM_G.MainTagDupeProtect.msg) then
+            return false, msg, sender, ...;
+        else
+            GRM_G.MainTagDupeProtect.time = time();
+            GRM_G.MainTagDupeProtect.name = sender;
+            GRM_G.MainTagDupeProtect.msg = msg
+        end
+
         if sender ~= GRM_G.addonUser then
             local player = GRM.GetPlayer(sender);
 
@@ -8736,13 +8752,14 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(
                     text);
 
-            elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:HasFocus() then
-                local text = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
-                                 .GRM_AddBanScrollChildFrame.AllButtons[i][2]:GetText();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(
-                    GRM.SlimName(text));
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(
-                    string.match(text, "-(.+)"));
+             elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:HasFocus() then
+                local text = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i][2]:GetText();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(GRM.SlimName(text));
+
+                if text and text ~= "" then
+                    local server = string.match(text, "-(.+)")
+                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(server);
+                end
 
                 local player = GRM.GetPlayer(text);
                 if not player then
@@ -23268,9 +23285,19 @@ GRM.SecretValueLoadDelayHandler = function()
             elseif pvpType == "arena" then
                 pvpType = ARENA ;
             end
+            GRM_G.RestrictionAnnounced = true;
             GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends." , pvpType));
         else
-            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"));
+            -- Sometimes GRM can trigger early...
+            if IsInInstance() and UnitAffectingCombat("player") then
+                GRM_G.RestrictionAnnounced = true;
+                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"));
+            end
+
+            C_Timer.After(5, function()
+                GRM.SecretValueRestrictionRestore();    -- Restore it one time
+            end);
+            
         end
 
     end
@@ -23281,15 +23308,14 @@ end
 -- Purpose:         If a guild is on more than one server with the same name, that can complicate things. This helps idenitfy the server by the creation date as well...
 GRM.DelayForGuildInfoCallback = function()
     if GRM_G.guildCreationDate == "" then
-        if not GRM_G.secretValueDelay then
-            GRM.SetGuildInfoDetails();
-            GRM.GuildRoster();
-            if GRM_G.secretValueOnLoadDelay then
-                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
-                GRM_G.secretValueOnLoadDelay = false;
-            end
-        else
+        GRM.SetGuildInfoDetails();
+        GRM.GuildRoster();
+        if GRM_G.secretValueDelay then
             GRM.SecretValueLoadDelayHandler();
+        else
+            if GRM_G.RestrictionAnnounced then
+                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
+            end
         end
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
         return
@@ -23304,6 +23330,8 @@ GRM.DelayForGuildInfoCallback = function()
         else
             GRM_G.gClubID = 1;
         end
+
+        GRM_G.secretValueOnLoadDelay = false;
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
         return
     else

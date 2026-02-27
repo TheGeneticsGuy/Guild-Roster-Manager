@@ -48,7 +48,7 @@ end
 -- Method:          MinimapOnEnter( tooltip )
 -- What it Does:    Handles the tooltip display when hovering over the minimap button
 -- Purpose:         To provide users with information about GRM when they hover over the minimap button
-local MinimapOnEnter = function ( tooltip )
+MinimapGRM.MinimapOnEnter = function ( tooltip )
 
     if IsInGuild() then
         local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
@@ -80,6 +80,7 @@ local MinimapOnEnter = function ( tooltip )
     else
         tooltip:AddLine ( GRM.L ( "Not in Guild" ) );
     end
+
 end
 
 -- Method:          MinimapButtonClick( _ , button )
@@ -102,7 +103,7 @@ MinimapGRM.CreateMiniMapWithLibDataBroker = function()
             label = GRM.L("Guild Roster Manager"),
             text = GRM.L ("Loading..."),
             OnClick = MinimapButtonClick,
-            OnTooltipShow = MinimapOnEnter,
+            OnTooltipShow = MinimapGRM.MinimapOnEnter,
         } );
 
         if MinimapGRM.LibDBIconMinimap then

@@ -80,3 +80,5 @@ end
 -- Initialize the first frames as game is being loaded.
 Initialization:RegisterEvent("ADDON_LOADED");
 Initialization:SetScript("OnEvent", Config.ActivateAddon );
+
+_G["GRM_ToggleOptionsWindow"] = GRM.MinimapGRM.MainWindowOpenLogic; -- Addon Compartment button above minimap (see .toc)

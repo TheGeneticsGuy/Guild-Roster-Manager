@@ -4644,8 +4644,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText , "RIGHT" , 5 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetSize ( 25 , 22 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetMaxLetters ( 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetSize ( 30 , 22 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetMaxLetters ( 3 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetNumeric ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetTextColor ( 1.0 , 0 , 0 , 1.0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:EnableMouse ( true );
@@ -4670,21 +4670,21 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 lowerLimit = -1;
             end
 
-            if numMonths > lowerLimit and numMonths < 100 then
+            if numMonths > lowerLimit and numMonths < 1000 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.numDaysOrMonths = numMonths;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox.value = numMonths;
             else
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
                     if lowerLimit == 0 then
-                        GRM.Report ( GRM.L ( "Please choose a month between 1 and 99" ) );
+                        GRM.Report ( GRM.L ( "Please choose a month between 1 and 999" ) );
                     else
-                        GRM.Report ( GRM.L ( "Please choose a month between 0 and 99" ) );
+                        GRM.Report ( GRM.L ( "Please choose a month between 0 and 999" ) );
                     end
                 elseif not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
                     if lowerLimit == 0 then
-                        GRM.Report ( GRM.L ( "Please choose a day between 1 and 99" ) );
+                        GRM.Report ( GRM.L ( "Please choose a day between 1 and 999" ) );
                     else
-                        GRM.Report ( GRM.L ( "Please choose a day between 0 and 99" ) );
+                        GRM.Report ( GRM.L ( "Please choose a day between 0 and 999" ) );
                     end
                 end
             end
@@ -4979,8 +4979,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText , "RIGHT" , 7 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetSize ( 25 , 22 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetMaxLetters ( 2 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetSize ( 30 , 22 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetMaxLetters ( 3 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetNumeric ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:SetTextColor ( 1.0 , 0 , 0 , 1.0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox:EnableMouse ( true );
@@ -5000,14 +5000,14 @@ GRM_UI.LoadToolFrames = function ( isManual )
             self:HighlightText ( 0 , 0 );
 
             local numMonths = tonumber ( self:GetText() );
-            if numMonths > 0 and numMonths < 100 then
+            if numMonths > 0 and numMonths < 1000 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialNumDaysOrMonths = numMonths;
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value = numMonths;
             else
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
-                    GRM.Report ( GRM.L ( "Please choose a month between 1 and 99" ) );
+                    GRM.Report ( GRM.L ( "Please choose a month between 1 and 999" ) );
                 elseif not GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
-                    GRM.Report ( GRM.L ( "Please choose a day between 1 and 99" ) );
+                    GRM.Report ( GRM.L ( "Please choose a day between 1 and 999" ) );
                 end
             end
             self:SetText ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveEditBox.value );
