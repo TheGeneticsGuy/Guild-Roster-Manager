@@ -1,3 +1,10 @@
+## **VERSION 1.99382 - February 28th, 2026**
+
+***BUG FIXES***
+
+* Fixed a bug for Prat compatibility with GRM where if someone in chat used pattern matching Regular Expression characters (like a `:)` smily face), it could throw an error. This will no longer happen.
+
+
 ## **VERSION 1.99381 - February 27th, 2026**
 
 ***QUALITY OF LIFE***

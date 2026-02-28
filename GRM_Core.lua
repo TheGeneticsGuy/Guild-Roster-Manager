@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99380";
+GRM_G.Version = "R1.99382";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1770784577";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1770784577;            -- In Epoch Time
+GRM_G.PatchDayString = "1772262763";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1772262763;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120001;
@@ -5186,7 +5186,7 @@ GRM.AddMainToChat = function(_, event, msg, sender, ...)
         local placeHolderMsg = msg;
 
         -- Dupe protection for universal addon compatibility as an addon like Prat will reprocess the string twice.
-        if time() == GRM_G.MainTagDupeProtect.time and sender == GRM_G.MainTagDupeProtect.name and string.find( msg , GRM_G.MainTagDupeProtect.msg) then
+        if time() == GRM_G.MainTagDupeProtect.time and sender == GRM_G.MainTagDupeProtect.name and string.find( msg , GRM_G.MainTagDupeProtect.msg, 1 , true) then
             return false, msg, sender, ...;
         else
             GRM_G.MainTagDupeProtect.time = time();
