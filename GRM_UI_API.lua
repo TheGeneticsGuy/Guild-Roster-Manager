@@ -1206,11 +1206,20 @@ end
 -- CUSTOM POPUP FRAMES AND DIALOGS --
 -------------------------------------
 
--- Method:          GRM.InitiateEditBoxPopup ( string , string )
+-- Method:          GRM.InitiateEditBoxPopup ( string , string. function )
 -- What it Does:    Opens the custom popup edit box with the given text and title
 -- Purpose:         Reusable popup edit box for various inputs for player to copy
-GRM.InitiateEditBoxPopup = function( editBoxText , TitleText )
-    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetText ( editBoxText );
-    GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetText ( TitleText );
-    GRM_UI.GRM_CustomPopupFrame:Show();
+GRM.InitiateEditBoxPopup = function( editBoxText , TitleText, optionalOnCloseFunction )
+    if not GRM_UI.GRM_CustomPopupFrame:IsVisible() then
+        GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetText ( editBoxText );
+        GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetText ( TitleText );
+        GRM_UI.GRM_CustomPopupFrame:Show();
+
+        if optionalOnCloseFunction then
+            GRM_UI.GRM_CustomPopupFrame:SetScript ( "OnHide" , function(self)
+                optionalOnCloseFunction();
+                self:SetScript ( "OnHide" , nil ); -- Remove from running again
+            end);
+        end
+    end
 end

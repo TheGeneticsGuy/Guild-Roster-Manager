@@ -222,3 +222,21 @@ G_Util.GetSortedPlayerNames = function()
     end
     return names
 end
+
+-- Method:          G_Util.GetGuildInfoText()
+-- What it Does:    Gets the guild info text, with a check to see if it is currently restricted or not
+-- Purpose:         Adapt to the 12.0.1 Midnight changes where many functions are now restricted in combat.
+G_Util.GetGuildInfoText = function()
+    local isRetricted = false;
+    local result = "";
+    if C_GuildInfo.GetInfoText then
+        if not GRM_G.secretValueDelay then
+            result = C_GuildInfo.GetInfoText();
+        else
+            isRetricted = true;
+        end
+    else
+        result = GetGuildInfoText();
+    end
+    return result, isRestricted;
+end

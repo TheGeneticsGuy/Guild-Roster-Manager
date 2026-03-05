@@ -13,7 +13,7 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99382";
+GRM_G.Version = "R1.99383";
 GRM_G.Beta = false;
 GRM_G.PatchDayString = "1772262763";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.PatchDay = 1772262763;            -- In Epoch Time
@@ -350,7 +350,7 @@ if GRM_G.SOD and GetMaxLevelForPlayerExpansion then
 end
 
 -- Secret Value Scan Control
-GRM_G.secretValueDelay = true;
+GRM_G.secretValueDelay = false;
 GRM_G.secretValueOnLoadDelay = false;
 GRM_G.RestrictionAnnounced = false;
 
@@ -549,10 +549,11 @@ GRM_G.SliderTemplate = "UISliderTemplate"
 -- Purpose:         Compatibility of all builds
 GRM.issecretvalue = function( value )
     if issecretvalue then
-        if not GRM_G.secretValueDelay then
+        local isSecret = issecretvalue(value);
+        if isSecret and not GRM_G.secretValueDelay then
             GRM_G.secretValueDelay = true;
         end
-        return issecretvalue(value);
+        return isSecret
     end
     return false
 end
@@ -18538,34 +18539,36 @@ end
 -- What it Does:    Modifies the position of the guild Control and returns the string
 -- Purpose:         Easy modification of the string.
 GRM.ModifySpecificGuildControlValue = function(position, newValue)
-    local rules = GRM.GetRulesString();
+    local rules = GRM.GetRulesString(GRM.G_Util.GetGuildInfoText());
     local result = "";
     local pos1;
 
-    if position == 1 then
-        local pos = string.find(rules, ";", 1, true);
-        result = newValue .. string.sub(rules, pos);
-    elseif position == 10 then
-        result = string.sub(rules, 1, #rules - 1) .. newValue;
-    else
-        local c = 1; -- start it at 1 so it is always incremented up by 1 ahead.
+    if rules then
+        if position == 1 then
+            local pos = string.find(rules, ";", 1, true);
+            result = newValue .. string.sub(rules, pos);
+        elseif position == 10 then
+            result = string.sub(rules, 1, #rules - 1) .. newValue;
+        else
+            local c = 1; -- start it at 1 so it is always incremented up by 1 ahead.
 
-        for i = 1, #rules do
-            if string.sub(rules, i, i) == ";" then
-                c = c + 1;
+            for i = 1, #rules do
+                if string.sub(rules, i, i) == ";" then
+                    c = c + 1;
 
-                -- Joined and rejoined dates.
-                if pos1 ~= nil then
-                    result = string.sub(rules, 1, pos1) .. newValue .. string.sub(rules, i);
-                    break
-                end
-
-                if c == position then
-                    if c ~= 7 and c ~= 8 then
-                        result = string.sub(rules, 1, i) .. newValue .. string.sub(rules, i + 2);
+                    -- Joined and rejoined dates.
+                    if pos1 ~= nil then
+                        result = string.sub(rules, 1, pos1) .. newValue .. string.sub(rules, i);
                         break
-                    else
-                        pos1 = i;
+                    end
+
+                    if c == position then
+                        if c ~= 7 and c ~= 8 then
+                            result = string.sub(rules, 1, i) .. newValue .. string.sub(rules, i + 2);
+                            break
+                        else
+                            pos1 = i;
+                        end
                     end
                 end
             end
@@ -18580,26 +18583,40 @@ end
 -- Purpose:         Ease of controls of global GRM controls for the addon user.
 GRM.UpdateGuildInfoWithNewValue = function(controlIndex, newValue)
     if CanEditGuildInfo() then
-        local guildInfoText = GetGuildInfoText();
-        local rulesString = GRM.GetRulesString();
+        local guildInfoText , isRestricted = GRM.G_Util.GetGuildInfoText();
 
-        if rulesString ~= nil then
-            local first, last = string.find(guildInfoText, GRM.GetRulesString(), 1, true);
+        if isRestricted then
+            GRM.Report(GRM.L("Addon currently restricted by the server from reading Guild Info. Please adjust the settings when addon is not restricted to update global controls."));
+        else
+            local rulesString = GRM.GetRulesString(guildInfoText);
 
-            if first ~= nil and last ~= nil and CanEditGuildInfo() then
-                SetGuildInfoText(string.sub(guildInfoText, 1, first - 1) ..
-                                     GRM.ModifySpecificGuildControlValue(controlIndex, tostring(newValue)) ..
-                                     string.sub(guildInfoText, last + 1));
+            if rulesString ~= nil then
+                local first, last = string.find(guildInfoText, rulesString, 1, true);
+
+                if first and last then
+                    local text = string.sub(guildInfoText, 1, first - 1) .. GRM.ModifySpecificGuildControlValue(controlIndex, tostring(newValue)) .. string.sub(guildInfoText, last + 1);
+
+                    local onCloseFunction = function()
+                        GRM.Report(GRM.L("Complete") .. " - " .. GRM.L("It may take up to 60 seconds for other guild members to detect the changes and update."));
+                        C_Timer.After(10, function()
+                            -- The delay needs to be here as sometimes the note, while update on your end, takes about 10 seconds or less to get a callback that the server properly updated it.
+                            GRMsync.SendMessage("GRM_GCHAT", "GINFOUPDATE?", "GUILD"); -- Send out to force others to update their permissions
+                            GRM.UpdateGuildLeaderPermissions(true, true);
+                        end);
+                    end
+
+                    GRM.InitiateEditBoxPopup( result , GRM.L("Copy this text anywhere intto the Guild Info window (preferably the end).") , onCloseFunction );
+                end
             end
         end
     end
 end
 
--- Method:          GRM.GetRulesString()
+-- Method:          GRM.GetRulesString( string)
 -- What it Does:    Pulls the rules from the guild Info note
 -- Purpose:         To clear the guildInfo and clean it up for expanded  global controls.
-GRM.GetRulesString = function()
-    return string.match(GetGuildInfoText(), "grm^(.+)^g");
+GRM.GetRulesString = function( guildInfoText )
+    return string.match(guildInfoText, "grm^(.+)^g");
 end
 
 -- Method:          GRM.GetEachGlobalControl()
@@ -18620,13 +18637,14 @@ end
 -- What it Does:    Returns the Global control value from the guildInfo global string
 -- Purpose:         Easily pull values from the parsed note.
 GRM.GetGlobalControlValue = function(index)
-    local rulesString = GRM.GetRulesString();
+    local guildInfoText = GRM.G_Util.GetGuildInfoText();
+    local rulesString = GRM.GetRulesString(guildInfoText);
     local result;
 
     if rulesString ~= nil and rulesString ~= "" then
         result = select(index, GRM.GetEachGlobalControl(rulesString));
     end
-
+ 
     -- Error protection
     if rulesString == "" then
         result = true;
@@ -18639,9 +18657,9 @@ end
 -- What it Does:    Scans the guild leader note for special tags and controls, pushes them to addon player setting - Rechecks every 60 seconds...
 -- Purpose:         So the guild leader can mass enable/disable certain features in the addon.
 GRM.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
-    local notes = GetGuildInfoText();
+    local notes, isRestricted = GRM.G_Util.GetGuildInfoText();
 
-    if IsInGuild() and GRM_G.GuildInfo ~= notes and GRM.S() then
+    if not isRestricted and IsInGuild() and GRM_G.GuildInfo ~= notes and GRM.S() then
         if notes ~= nil and #notes > 0 then
 
             if not GRM_G.tagFormatChangeNotice then
@@ -18657,9 +18675,9 @@ GRM.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
 
             end
 
-            local rulesString = GRM.GetRulesString();
+            local rulesString = GRM.GetRulesString(notes);
 
-            if rulesString ~= nil then
+            if rulesString then
                 local timeFormat, generalSync, banSync, customSync, joinDateLocation, enableUsingTags, joinTag,
                     rejoinTag, noteTrigger = GRM.GetEachGlobalControl(rulesString);
 
@@ -18689,7 +18707,7 @@ GRM.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
 
             end
         end
-        GRM_G.GuildInfo = GetGuildInfoText();
+        GRM_G.GuildInfo = notes;
 
         if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
             GRM_UI.BuildLogFrames()
@@ -19259,10 +19277,11 @@ end
 -- What it Does:    Compiles the progress with the global functions
 -- Purpose:         For use with creating an export of them.
 GRM.GetGlobalSettingsProgress = function()
-    local rulesString = GRM.GetRulesString();
+    local guildInfoText = GRM.G_Util.GetGuildInfoText();
+    local rulesString = GRM.GetRulesString(guildInfoText);
     local result = {};
 
-    if rulesString ~= nil then
+    if rulesString then
         local guildControl = {GRM.GetEachGlobalControl(rulesString)};
 
         for i = 1, #guildControl do
@@ -19302,12 +19321,16 @@ end
 -- What it Does:    Rebuilds the guild control tags and inserts them back into the guildInfo
 -- Purpose:         Give the user the ability to control some specific functions globally.
 GRM.SetGlobalControlsToGuildInfo = function()
+    local notes, isRestricted = GRM.G_Util.GetGuildInfoText();
+    if isRestricted then
+        GRM.Report(GRM.L("Addon currently restricted by the server from reading Guild Info. Please wait to export the global control text when addon is not restricted."));
+        return;
+    end
     local controlString = GRM.GetAllGlobalRulesAsString();
-    local existingRules = GRM.GetRulesString();
-    local notes = GetGuildInfoText();
+    local existingRules = GRM.GetRulesString(notes);
     local result = "";
 
-    if existingRules ~= nil then
+    if existingRules then
         -- ok rules already there, so we will need to save over them.
         local startIndex, endIndex = string.find(notes, existingRules, 1, true);
         if startIndex ~= nil and endIndex ~= nil then
@@ -19322,22 +19345,16 @@ GRM.SetGlobalControlsToGuildInfo = function()
     if #result > 0 and GRM_UI.GuildInfoEditBox then
         if #result <= GRM_UI.GuildInfoEditBox:GetMaxLetters() then
 
-            SetGuildInfoText(result);
-            GRM.Report(GRM.L("Global controls exported to the guild info note. Updating..."));
+            local onCloseFunction = function()
+                GRM.Report(GRM.L("Complete") .. " - " .. GRM.L("It may take up to 60 seconds for other guild members to detect the changes and update."));
+                C_Timer.After(10, function()
+                    -- The delay needs to be here as sometimes the note, while update on your end, takes about 10 seconds or less to get a callback that the server properly updated it.
+                    GRMsync.SendMessage("GRM_GCHAT", "GINFOUPDATE?", "GUILD"); -- Send out to force others to update their permissions
+                    GRM.UpdateGuildLeaderPermissions(true, true);
+                end);
+            end
 
-            -- No delay is really needed but this is a fun progression feeling
-            C_Timer.After(1.5, function()
-                GRM.Report(GRM.L("Complete") .. " - " ..
-                               GRM.L(
-                        "It may take up to 60 seconds for other guild members to detect the changes and update."));
-            end);
-
-            -- The delay needs to be here as sometimes the note, while update on your end, takes about 10 seconds or less to get a callback that the server properly updated it.
-            C_Timer.After(10, function()
-                GRMsync.SendMessage("GRM_GCHAT", "GINFOUPDATE?", "GUILD"); -- Send out to force others to update their permissions
-                GRM.UpdateGuildLeaderPermissions(true, true);
-            end);
-
+            GRM.InitiateEditBoxPopup( result , GRM.L("Copy this text anywhere intto the Guild Info window (preferably the end).") , onCloseFunction );
         else
             GRM.Report(GRM.L("Unable to add globals controls to GuildInfo. There is not enough room."));
             GRM.Report(GRM.L("You need to clear {num} characters to fit the control tags", nil, nil,
@@ -21546,7 +21563,8 @@ GRM.GlobalSettingsLoopCheck = function(epochTime, first)
     local timer = epochTime or time();
     local reCheck = function()
         local canExit = false;
-        if GRM_G.GuildInfo ~= GetGuildInfoText() and not first then
+        local text, isRestricted = GRM.G_Util.GetGuildInfoText();
+        if isRestricted or (GRM_G.GuildInfo ~= text and not first) then
             canExit = true;
         end
 

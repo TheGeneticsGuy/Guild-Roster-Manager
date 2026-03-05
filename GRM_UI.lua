@@ -6413,16 +6413,20 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 self:LockHighlight();
                 GRM.OptionTabFrameControl ( self );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:Show();
+                local text, isRestricted = GRM.G_Util.GetGuildInfoText();
+                    if not isRestricted then
+                    local rulesString = GRM.GetRulesString(text);
 
-                if CanEditGuildInfo() and GRM.GetRulesString() == nil then
-                    local msg = "";
-                    if IsGuildLeader() then
-                        msg = GRM.L ( "Export settings to unify sync controls, timestamp format, and so on with your officers and members." );
-                    else
-                        msg = GRM.L ( "Consult with your guild leader and export settings to unify sync controls, timestamp format, and so on." );
+                    if CanEditGuildInfo() and rulesString then
+                        local msg = "";
+                        if IsGuildLeader() then
+                            msg = GRM.L ( "Export settings to unify sync controls, timestamp format, and so on with your officers and members." );
+                        else
+                            msg = GRM.L ( "Consult with your guild leader and export settings to unify sync controls, timestamp format, and so on." );
+                        end
+
+                        GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Global controls have not yet been set!" ) .. "\n" .. msg );
                     end
-
-                    GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Global controls have not yet been set!" ) .. "\n" .. msg );
                 end
             end
         end
@@ -16341,11 +16345,14 @@ GRM_UI.InitalizeGuildFrame = function()
 
     GRM_UI.GuildDetailsGuildInformationButton:HookScript ( "OnEnter" , function( self )
         if CanEditMOTD() and self:IsMouseOver() and not GRM_UI.GRM_OfficerNoteTooltip:IsVisible() and not GRM_UI.MOTDEditBox:HasFocus() then
-            if GetGuildInfoText() ~= nil then
-                -- Build the header...
-                GRM_UI.GRM_OfficerNoteTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-                GRM_UI.GRM_OfficerNoteTooltip:SetText ( GetGuildInfoText() , 1.0 , 0.84 , 0 , 1 , true );
-                GRM_UI.GRM_OfficerNoteTooltip:Show();
+            local text, isRestricted = GRM.G_Util.GetGuildInfoText();
+                if not isRestricted then
+                if text and text ~= "" then
+                    -- Build the header...
+                    GRM_UI.GRM_OfficerNoteTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                    GRM_UI.GRM_OfficerNoteTooltip:SetText ( text , 1.0 , 0.84 , 0 , 1 , true );
+                    GRM_UI.GRM_OfficerNoteTooltip:Show();
+                end
             end
         end
     end);

@@ -974,6 +974,10 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRangeT
 
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1 = CreateFrame ( "CheckButton" , "GRM_ToolCustomRulesLevelRadialButton1" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "UIRadioButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton = CreateFrame ( "CheckButton" , "GRM_ToolCustomRulesLevelRadialMaxLvlButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "UIRadioButtonTemplate" );
+GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2 = CreateFrame ( "CheckButton" , "GRM_ToolCustomRulesLevelRadialButton2" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "UIRadioButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" )
@@ -1314,48 +1318,48 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     if player and roster[player.GUID] then
                         local tempNote = "";
 
-                        if details.destination == 1 and GRM.CanEditPublicNote() and not string.find ( player.note , details.note , 1 , true ) then
-                            tempNote = GRM.Trim ( player.note .. " " .. details.note );
+                        -- if details.destination == 1 and GRM.CanEditPublicNote() and not string.find ( player.note , details.note , 1 , true ) then
+                        --     tempNote = GRM.Trim ( player.note .. " " .. details.note );
 
-                            if GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize or details.forceOverwrite then
+                        --     if GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize or details.forceOverwrite then
 
-                                if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxPublicNoteSize then
-                                    tempNote = details.note;
-                                end
+                        --         if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxPublicNoteSize then
+                        --             tempNote = details.note;
+                        --         end
 
-                                local oldNote = tostring ( player.note );
-                                GuildRosterSetPublicNote( roster[player.GUID] , tempNote);
+                        --         local oldNote = tostring ( player.note );
+                        --         GuildRosterSetPublicNote( roster[player.GUID] , tempNote);
 
-                                player.note = tempNote;
+                        --         player.note = tempNote;
 
-                                local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
-                                local logReportWithTime = GRM.GetNoteChangeString ( simpleName , oldNote , player.note , GRM.Time.GetTimestamp() );
+                        --         local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
+                        --         local logReportWithTime = GRM.GetNoteChangeString ( simpleName , oldNote , player.note , GRM.Time.GetTimestamp() );
 
-                                -- Adding it to the log!
-                                GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , oldNote , player.note , GRM.Time.GetTimestamp() } );
-                            end
+                        --         -- Adding it to the log!
+                        --         GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , oldNote , player.note , GRM.Time.GetTimestamp() } );
+                        --     end
 
-                        elseif details.destination == 2 and GRM.CanEditOfficerNote() and not string.find ( player.officerNote , details.note , 1 , true ) then
-                            tempNote = GRM.Trim ( player.officerNote .. " " .. details.note );
+                        -- elseif details.destination == 2 and GRM.CanEditOfficerNote() and not string.find ( player.officerNote , details.note , 1 , true ) then
+                        --     tempNote = GRM.Trim ( player.officerNote .. " " .. details.note );
 
-                            if GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize or details.forceOverwrite then
+                        --     if GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize or details.forceOverwrite then
 
-                                if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxOfficerNoteSize then
-                                    tempNote = details.note;
-                                end
+                        --         if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxOfficerNoteSize then
+                        --             tempNote = details.note;
+                        --         end
 
-                                local oldNote = tostring ( player.officerNote );
-                                GuildRosterSetOfficerNote( roster[player.GUID] , tempNote);
-                                player.officerNote = tempNote;
+                        --         local oldNote = tostring ( player.officerNote );
+                        --         GuildRosterSetOfficerNote( roster[player.GUID] , tempNote);
+                        --         player.officerNote = tempNote;
 
-                                local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
-                                local logReportWithTime = GRM.GetOfficerNoteChangeString ( simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() );
+                        --         local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
+                        --         local logReportWithTime = GRM.GetOfficerNoteChangeString ( simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() );
 
-                                -- Adding it to the log!
-                                GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() } );
-                            end
+                        --         -- Adding it to the log!
+                        --         GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() } );
+                        --     end
 
-                        elseif details.destination == 3 and not string.find ( player.customNote[4] , details.note , 1 , true ) then    -- Custom note no server permission needed
+                        if details.destination == 1 and not string.find ( player.customNote[4] , details.note , 1 , true ) then    -- Custom note no server permission needed
                             tempNote = GRM.Trim ( player.officerNote .. " " .. details.note );
 
                             if GRM.GetNumLetters(tempNote) <= GRM_G.MaxCustomNoteSize or details.forceOverwrite then
@@ -2690,7 +2694,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Core Frame
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:ClearAllPoints();
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetPoint ( "CENTER" , UIParent );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 770 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 775 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:EnableMouse ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetMovable ( true );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetToplevel ( true );
@@ -2782,27 +2786,44 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         -- LEVEL RANGE
         -- Radial buttons
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetHitRectInsets ( 0 , -115 , 0 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1 , "RIGHT" , 2 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetHitRectInsets ( 0 , -150 , 0 , 0 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1 , "BOTTOMLEFT" , 0 , -5 );
-        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2 , "RIGHT" , 2 , 0 );
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1 , "BOTTOMLEFT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton , "RIGHT" , 2 , 0 );
+        
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton , "BOTTOMLEFT" , 0 , -5 );
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetPoint ( "Left" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2, "RIGHT" , 2 , 0 );
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetScript ( "OnClick", function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked ( true );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter = false;
+            GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter = 1;
+            GRM_UI.DisableLevelSelectionEditBoxes();
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetScript ( "OnClick", function()
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked ( true );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_ToolCustomRulesLevelRadialButton1:SetChecked ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter = 2;
             GRM_UI.DisableLevelSelectionEditBoxes();
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetScript ( "OnClick", function()
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter = true;
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter = 3;
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( true );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked ( false );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+            GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked ( false );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0.82 , 0 );
             GRM_UI.EnableLevelSelectionEditBoxes();
         end);
 
@@ -3454,16 +3475,30 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeMenu:Hide();
 
                 -- Level Range
-                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter then
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter == 3 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0.82 , 0  );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( false );
+                    GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetTextColor ( 1 , 0.82 , 0  );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked( false );
+
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
                     GRM_UI.EnableLevelSelectionEditBoxes();
                 else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( true );
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter == 2 then
+                        GRM_ToolCustomRulesLevelRadialButton1:SetChecked( false );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0.82 , 0 );
+                        GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked( true );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0 , 0 )
+
+                    elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter == 1 then
+                        GRM_ToolCustomRulesLevelRadialButton1:SetChecked( true );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                        GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked( false );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0.82 , 0 )
+
+                    end
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
                     GRM_UI.DisableLevelSelectionEditBoxes();
                 end
@@ -3673,7 +3708,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 -- Level Range
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked ( true );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0.82 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( 1 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( GRM_G.LvlCap );
@@ -3752,7 +3789,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
 
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 775 );
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 790 );
 
         end
 
@@ -4013,16 +4050,32 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.SetRankCustomRuleFilters();
 
                 -- Level Range
-                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter then
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter == 3 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0.82 , 0  );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( false );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( true );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0.82 , 0 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0 , 0 );
                     GRM_UI.EnableLevelSelectionEditBoxes();
+                    
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked( false );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( true );
+
                 else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( true );
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter == 2 then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( false );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked( true );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0 , 0 );
+
+                    elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter == 1 then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked( true );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
+
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked( false );
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0.82 , 0 );
+                    end
+                    
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
                     GRM_UI.DisableLevelSelectionEditBoxes();
                 end
@@ -4269,9 +4322,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 -- Level Range
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton:SetChecked ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2:SetChecked ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetTextColor ( 1 , 0 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetTextColor ( 1 , 0.82 , 0 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetTextColor ( 1 , 0.82 , 0 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetText ( 1 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetText ( GRM_G.LvlCap );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox.levelNameText = "1";
@@ -4355,9 +4410,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
 
             if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 805 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 820 );
             else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 840 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 855 );
             end
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
@@ -5889,26 +5944,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.AddMessageToNoteDestinationChoice = function()
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:GetChecked() then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 1
-            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:GetChecked() then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 2
-            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:GetChecked() then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 3
             end
         end
 
         GRM_UI.SetMessageToNoteRadialConfig = function()
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 1 then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(true);
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:SetChecked(false);
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:SetChecked(false);
-            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 2 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(false);
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:SetChecked(true);
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:SetChecked(false);
-            elseif GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 3 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(false);
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:SetChecked(false);
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:SetChecked(true);
             end
         end
 
@@ -5938,12 +5979,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_AddMessageToNoteCheckbox_Enable = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:SetChecked( true );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Enable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Enable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(true);
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Enable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetTextColor ( 1 , 0.82, 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetTextColor ( 1 , 0.82, 0 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetTextColor ( 1 , 0.82, 0 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetTextColor ( 1 , 0.82, 0 );
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetTextColor ( 1 , 1 , 1 );
@@ -5953,12 +5991,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_AddMessageToNoteCheckbox_Disable = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:SetChecked ( false );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Disable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Disable();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Disable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Disable();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetTextColor ( 0.5,0.5,0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetTextColor ( 0.5,0.5,0.5 );
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetTextColor ( 0.5,0.5,0.5 );
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetTextColor ( 0.5,0.5,0.5 );
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
@@ -5968,8 +6002,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.HideAllAddMessageToNote = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Hide();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Hide();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:Hide();
 
@@ -5980,8 +6012,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.ShowAllAddMessageToNote = function()
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox:Show();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:Show();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2:Show();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3:Show();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:Show();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:Show();
 
@@ -5991,9 +6021,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.CreateCheckBox ( "GRM_AddMessageToNoteCheckbox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , nil , { "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.AddMessageToNoteAfterRankChange , "" , "GameFontNormal" , 12 );
 
-        GRM_UI.CreateRadialButtons ( "GRM_AddMessageToNoteDestination" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , { GRM.L ( "Public" ) , GRM.L ( "Officer" ) , GRM.L ( "Custom" )  } , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox , "BOTTOMRIGHT" , 0 , -6 } , true , true , 12 , nil , GRM_UI.AddMessageToNoteDestinationChoice );
+        GRM_UI.CreateRadialButtons ( "GRM_AddMessageToNoteDestination" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , { GRM.L ( "Custom" )  } , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox , "BOTTOMRIGHT" , 0 , -6 } , true , true , 12 , nil , GRM_UI.AddMessageToNoteDestinationChoice );
 
-        GRM_UI.CreateCheckBox ( "GRM_AddMessageToNoteOverwriteCheckbox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , nil , { "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text , "RIGHT" , 8 , 0 } , GRM_UI.AddMessageToNoteOverwriteLogic , "" , "GameFontNormal" , 12 , GRM_UI.MessageToNoteOverwriteTT , GRM.RestoreTooltip );
+        GRM_UI.CreateCheckBox ( "GRM_AddMessageToNoteOverwriteCheckbox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , nil , nil , { "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text , "RIGHT" , 8 , 0 } , GRM_UI.AddMessageToNoteOverwriteLogic , "" , "GameFontNormal" , 12 , GRM_UI.MessageToNoteOverwriteTT , GRM.RestoreTooltip );
 
         GRM_UI.CreateEditBox ( "GRM_AddMessageToNoteEditBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InputBoxTemplate" , 332 , 25 , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1 , "BOTTOMLEFT" , 3 , -12 } , "CENTER" , nil , GRM_G.MaxPublicNoteSize , false , GRM_UI.AddMessageToNoteEditBoxTT , GRM.RestoreTooltip , nil , false , true , nil )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetMultiLine ( false );
@@ -6259,9 +6289,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -10 );
 
                 if GRM.S().selectedLang == 5 then -- Russian
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
                 else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
                 end
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Hide();
@@ -6291,9 +6321,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -80 );
 
                 if GRM.S().selectedLang == 5 then -- Russian
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
                 else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 780 );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Show();
@@ -6355,6 +6385,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text:SetText ( GRM.L ( "Apply to All Levels" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton1Text );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText:SetText ( GRM.L ( "Apply to Max Level Only" ) );
+    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialMaxLvlButtonText );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text:SetText ( GRM.L ( "Apply Only to Level Range" ) );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRadialButton2Text );
@@ -6439,17 +6472,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox.GRM_AddMessageToNoteCheckboxText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteCheckbox.GRM_AddMessageToNoteCheckboxText );
 
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetText( GRM.L ( "Public" ) );
+    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetText( GRM.L ( "Custom" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1.GRM_AddMessageToNoteDestinationRadial1Text );
-
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetText( GRM.L ( "Officer" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial2.GRM_AddMessageToNoteDestinationRadial2Text );
-
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetText( GRM.L ( "Custom" ) );
-    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3 , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial3.GRM_AddMessageToNoteDestinationRadial3Text );
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetText( GRM.L ( "Force Overwrite" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox.GRM_AddMessageToNoteOverwriteCheckboxText:SetFont( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
@@ -6730,9 +6755,11 @@ GRM.ProcessNextQueuedEntriesChunk = function()
                 2, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
             );
         elseif state.category == 3 then
+            print("Demote Chunk1")
             recommendationsInChunk, _, _ = GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(
                 3, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
             );
+            print("Total Found: " .. #recommendationsInChunk .. " : " .. #state.accumulatedResults)
         elseif state.category == 4 then
             recommendationsInChunk, _, _ = GRM_UI.GetNamesBySpecialRulesChunk(
                 state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
@@ -8705,7 +8732,7 @@ GRM.BuildNewKickRuleTemplate = function( name , num )
     result.rankFilter = false;
     result.ranks = {};
 
-    result.levelFilter = false;
+    result.levelFilter = 1;
     result.levelRange = { 1 , 999 };
 
     result.noteMatch = false;
@@ -8784,7 +8811,7 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
     result.rankFilter = true;
     result.ranks = {};
 
-    result.levelFilter = false;
+    result.levelFilter = 1;
     result.levelRange = { 1 , 999 };
 
     result.noteMatch = false;
@@ -8969,9 +8996,9 @@ GRM.IsRuleReady = function()
 
     if result then
 
-        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter then
+        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter == 3 then
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[1] == 1 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[2] == 999 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter = false;     -- No need to check a range if it already fits the range.
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelFilter = 1;     -- No need to check a range if it already fits the range.
             end
         end
 
@@ -9780,18 +9807,24 @@ GRM.UpdateRulesTooltip = function ( ind )
         GameTooltip:AddDoubleLine ( GRM.L ( "Ranks:" ) , GRM.L ( "All Ranks" ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     end
 
-    if rule.levelFilter then
+    if rule.levelFilter > 1 then
         local topLevel;
         local lowerLevel;
-        if rule.levelRange[1] == 999 then
+
+        if rule.levelFilter == 2 then
+            topLevel = GRM_G.LvlCap;
             lowerLevel = GRM_G.LvlCap;
         else
-            lowerLevel = rule.levelRange[1];
-        end
-        if rule.levelRange[2] == 999 then
-            topLevel = GRM_G.LvlCap;
-        else
-            topLevel = rule.levelRange[2];
+            if rule.levelRange[1] == 999 then
+                lowerLevel = GRM_G.LvlCap;
+            else
+                lowerLevel = rule.levelRange[1];
+            end
+            if rule.levelRange[2] == 999 then
+                topLevel = GRM_G.LvlCap;
+            else
+                topLevel = rule.levelRange[2];
+            end
         end
         GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "{num} to {custom1}" , nil , nil , lowerLevel , topLevel ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     else
@@ -10265,10 +10298,17 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                         end
                     end
                     -- Level Filters
-                    if ruleConfirmedCheck and rule.levelFilter then
+                    if ruleConfirmedCheck and rule.levelFilter > 1 then
                         ruleConfirmedCheck = false;
-                        local lowerLevel = (rule.levelRange[1] == 999) and GRM_G.LvlCap or rule.levelRange[1];
-                        local topLevel = (rule.levelRange[2] == 999) and GRM_G.LvlCap or rule.levelRange[2];
+                        local lowerLevel;
+                        local topLevel;
+                        if rule.levelFilter == 2 then
+                            topLevel = GRM_G.LvlCap;
+                            lowerLevel = GRM_G.LvlCap;
+                        else
+                            lowerLevel = (rule.levelRange[1] == 999) and GRM_G.LvlCap or rule.levelRange[1];
+                            topLevel = (rule.levelRange[2] == 999) and GRM_G.LvlCap or rule.levelRange[2];
+                        end
                         if player.level >= lowerLevel and player.level <= topLevel then
                             ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Level", lowerLevel, topLevel });
                         end
@@ -10506,7 +10546,6 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                     end
                 end
 
-
                 if processThisRuleForPlayer then
                     -- === Start of existing rule filter logic (largely unchanged) ===
                     -- MAIN/ALT
@@ -10535,14 +10574,26 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                             ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Rank", player.rankName });
                         end
                     end
+
                     -- Level Filters
-                    if ruleConfirmedCheck and rule.levelFilter then
+                    if ruleConfirmedCheck and rule.levelFilter > 1 then
                         ruleConfirmedCheck = false;
-                        local topLevel = (rule.levelRange[2] == 999) and GRM_G.LvlCap or rule.levelRange[2];
-                        if player.level >= rule.levelRange[1] and player.level <= topLevel then
-                            ruleConfirmedCheck = true; table.insert(tempRuleCollection, { "Level", rule.levelRange[1], topLevel });
+                        local lowerLevel;
+                        local topLevel;
+                        if rule.levelFilter == 2 then
+                            topLevel = GRM_G.LvlCap;
+                            lowerLevel = GRM_G.LvlCap;
+                        else
+                            lowerLevel = (rule.levelRange[1] == 999) and GRM_G.LvlCap or rule.levelRange[1];
+                            topLevel = (rule.levelRange[2] == 999) and GRM_G.LvlCap or rule.levelRange[2];
+                        end
+
+                        if player.level >= lowerLevel and player.level <= topLevel then
+                            ruleConfirmedCheck = true;
+                            table.insert(tempRuleCollection, { "Level", lowerLevel, topLevel });
                         end
                     end
+
                     -- Reputation Filter
                     if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
                         ruleConfirmedCheck = false; local msg = "";
@@ -10625,7 +10676,6 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                             table.insert(tempRuleCollection, { "Safe Tag", rule.safeText });
                         end
                     end
-                    -- === End of existing rule filter logic ===
 
                     if ruleConfirmedCheck then
                         if rule.isEnabled then
@@ -10689,6 +10739,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
             end
         end
     end
+
     return recommendationsForThisChunk, higherAltRuleMatchesCount, ruleDisabledListForThisChunk;
 end
 
@@ -10869,6 +10920,7 @@ end
 -- What it Does:    Gets the names that adhere to the given rules
 -- Purpose:         To populate the macro tool
 GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
+    print("test1")
     local listOfPlayers = {};
     local ruleDisabledList = {};
     local higherAltCount = 0;
@@ -10964,20 +11016,25 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                     end
 
                     -- Level Filters
-                    if ruleConfirmedCheck and rule.levelFilter then
+                    if ruleConfirmedCheck and rule.levelFilter > 1 then
                         ruleConfirmedCheck = false;
 
-                        local topLevel;
                         local lowerLevel;
-                        if rule.levelRange[1] == 999 then
+                        local topLevel;
+                        if rule.levelFilter == 2 then
+                            topLevel = GRM_G.LvlCap;
                             lowerLevel = GRM_G.LvlCap;
                         else
-                            lowerLevel = rule.levelRange[1];
-                        end
-                        if rule.levelRange[2] == 999 then
-                            topLevel = GRM_G.LvlCap;
-                        else
-                            topLevel = rule.levelRange[2];
+                            if rule.levelRange[1] == 999 then
+                                lowerLevel = GRM_G.LvlCap;
+                            else
+                                lowerLevel = rule.levelRange[1];
+                            end
+                            if rule.levelRange[2] == 999 then
+                                topLevel = GRM_G.LvlCap;
+                            else
+                                topLevel = rule.levelRange[2];
+                            end
                         end
                         if player.level >= lowerLevel and player.level <= topLevel then
                             ruleConfirmedCheck = true;
@@ -11274,20 +11331,25 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
                         end
 
                         -- Level Filters
-                        if ruleConfirmedCheck and rule.levelFilter then
+                        if ruleConfirmedCheck and rule.levelFilter > 1 then
                             ruleConfirmedCheck = false;
 
-                            local topLevel;
                             local lowerLevel;
-                            if rule.levelRange[1] == 999 then
+                            local topLevel;
+                            if rule.levelFilter == 2 then
+                                topLevel = GRM_G.LvlCap;
                                 lowerLevel = GRM_G.LvlCap;
                             else
-                                lowerLevel = rule.levelRange[1];
-                            end
-                            if rule.levelRange[2] == 999 then
-                                topLevel = GRM_G.LvlCap;
-                            else
-                                topLevel = rule.levelRange[2];
+                                if rule.levelRange[1] == 999 then
+                                    lowerLevel = GRM_G.LvlCap;
+                                else
+                                    lowerLevel = rule.levelRange[1];
+                                end
+                                if rule.levelRange[2] == 999 then
+                                    topLevel = GRM_G.LvlCap;
+                                else
+                                    topLevel = rule.levelRange[2];
+                                end
                             end
                             if player.level >= lowerLevel and player.level <= topLevel then
                                 ruleConfirmedCheck = true;
@@ -12860,7 +12922,7 @@ end);
 --     GRM.B2Num ( rule.rankSpecialIsMonths , true ) .. "?" ..     -- 15
 --     GRM.B2Num ( rule.allAltsApplyToKick , true ) .. "?" ..      -- 16
 --     GRM.B2Num ( rule.rankFilter , true ) .. "?" ..              -- 17
---     GRM.B2Num ( rule.levelFilter , true ) .. "?" ..             -- 18
+--     tostring (rule.levelFilter ) .. "?" ..                      -- 18
 --     GRM.B2Num ( rule.repFilter , true ) .. "?" ..               -- 19
 --     GRM.B2Num ( rule.customLog , true ) .. "?" ..               -- 20
 --     tostring ( rule.numDaysOrMonths ) .. "?" ..                 -- 21
@@ -12906,7 +12968,7 @@ end);
 --     GRM.B2Num ( rule.rankSpecialIsMonths , true ) .. "?" ..     -- 15
 --     GRM.B2Num ( rule.allAltsApplyToKick , true ) .. "?" ..      -- 16
 --     GRM.B2Num ( rule.rankFilter , true ) .. "?" ..              -- 17
---     GRM.B2Num ( rule.levelFilter , true ) .. "?" ..             -- 18
+--     tostring ( rule.levelFilter ) .. "?" ..                     -- 18
 --     GRM.B2Num ( rule.repFilter , true ) .. "?" ..               -- 19
 --     GRM.B2Num ( rule.customLog , true ) .. "?" ..               -- 20
 --     tostring ( rule.numDaysOrMonths ) .. "?" ..                 -- 21
@@ -12952,7 +13014,7 @@ end);
 --     GRM.B2Num ( rule.notesToCheck[3] , true ) .. "?" ..         -- 13
 --     GRM.B2Num ( rule.allAltsApplyToKick , true ) .. "?" ..      -- 14
 --     GRM.B2Num ( rule.rankFilter , true ) .. "?" ..              -- 15
---     GRM.B2Num ( rule.levelFilter , true ) .. "?" ..             -- 16
+--     tostring ( rule.levelFilter ) .. "?" ..             -- 16
 --     GRM.B2Num ( rule.repFilter , true ) .. "?" ..               -- 17
 --     GRM.B2Num ( rule.customLog , true ) .. "?" ..               -- 18
 --     tostring ( rule.numDaysOrMonths ) .. "?" ..                 -- 19

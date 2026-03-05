@@ -1995,5 +1995,11 @@ GRML.English = function()
     GRM_L["{name} has added the shared nickname for {name2} and all alts ({custom1})"] = true
     GRM_L["{name} has added {name2}'s nickname ({custom1})"] = true
 
+    -- 1.99383
+    GRM_L["Apply to Max Level Only"] = true
+    GRM_L["Copy this text anywhere intto the Guild Info window (preferably the end)."] = true
+    GRM_L["Addon currently restricted by the server from reading Guild Info. Please adjust the settings when addon is not restricted to update global controls."] = true
+    GRM_L["Addon currently restricted by the server from reading Guild Info. Please wait to export the global control text when addon is not restricted."] = true
+
 end
 

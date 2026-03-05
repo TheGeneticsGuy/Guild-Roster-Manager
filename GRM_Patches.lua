@@ -1,6 +1,6 @@
 
 -- UPDATES AND BUG PATCHES
--- Total Patches: 153  2026-04-02
+-- Total Patches: 154  2026-03-04
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1822,6 +1822,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     -- 150
     if numericV < 1.99372 and baseValue < 1.99372 then
+        GRM_Patch.FixMissingBackupTables();
         GRM_Patch.AltGroupUpdateTweakNewDB();
 
         GRM_AddonSettings_Save.VERSION = "R1.99372";
@@ -1872,6 +1873,19 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
+
+    -- 154
+    if numericV < 1.99383 and baseValue < 1.99383 then
+        GRM_Patch.EditSetting ( "kickRules", GRM_Patch.RemoveDeprecatedNoteMacroOptions );
+        GRM_Patch.EditSetting ( "demoteRules", GRM_Patch.RemoveDeprecatedNoteMacroOptions );
+        GRM_Patch.EditSetting ( "promoteRules", GRM_Patch.RemoveDeprecatedNoteMacroOptions );
+
+        GRM_AddonSettings_Save.VERSION = "R1.99383";
+        if loopCheck ( 1.99383 ) then
+            return;
+        end
+    end
+    
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
@@ -3820,12 +3834,15 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
     end
     if result ~= "" then
         result = "\n\n" .. GRM.L ( "GRM:" ) .. "\n" .. string.gsub ( result , "_" , "\n" );
-        local guildInfo = GetGuildInfoText();
-        GRM.L ( "GRM has moved the Guild Leader setting restriction codes to the Guild Info tab." );
-        if #guildInfo + #result <= 500 then
-            SetGuildInfoText ( guildInfo .. result );
-        else
-            GRM.L ( "Please make room for them and re-add." );
+        local guildInfo, isRestricted = GRM.G_Util.GetGuildInfoText();
+        if not isRestricted then
+            GRM.L ( "GRM has moved the Guild Leader setting restriction codes to the Guild Info tab." );
+            if #guildInfo + #result <= 500 then
+                local text = guildInfo .. result
+                GRM.InitiateEditBoxPopup( text , GRM.L("Copy this text anywhere intto the Guild Info window (preferably the end).") );
+            else
+                GRM.Report(GRM.L ( "Please make room for them and re-add." ));
+            end
         end
     end
 end
@@ -10439,4 +10456,53 @@ GRM_Patch.FixLegacyAltGroupData = function()
             GRM_Alts[guildName] = nil;
         end
     end
+end
+
+-- R1.99383
+-- Method:          GRM_Patch.FixMissingBackupTables()
+-- What it Does:    Fixes an issue where the backup tables were not created for some guilds during the backup restructure
+-- Purpose:         DB fix from backup restructure bug - Source is resolved
+GRM_Patch.FixMissingBackupTables = function()
+
+    for guildName in pairs(GRM_GuildDataBackup_Save) do
+        if not GRM_Restore_Members[guildName] then
+            GRM_Restore_Members[guildName] = {};
+        end
+        if not GRM_Restore_FormerMembers[guildName] then
+            GRM_Restore_FormerMembers[guildName] = {};
+        end
+        if not GRM_Restore_Log[guildName] then
+            GRM_Restore_Log[guildName] = {};
+        end
+    end
+
+end
+
+-- R1.99383
+-- Method:          GRM_Patch.RemoveDeprecatedNoteMacroOptions ( table )
+-- What it Does:    Removes the old note macro options and replaces with new level filter and AddNoteOnDemotion default value
+-- Purpose:         Removes ability to choose anything but custom option as Blizz removed capabilities in Midnight to write to public/officer notes
+GRM_Patch.RemoveDeprecatedNoteMacroOptions = function ( macroRules )
+    local maxLevel = GRM_G.LvlCap or GetMaxPlayerLevel();
+
+    for _ , rule in pairs(macroRules) do
+        if rule.levelFilter ~= nil and type(rule.levelFilter) ~= "number" then
+            if rule.levelFilter == true then
+                if rule.levelRange[1] == 999 and rule.levelRange[2] == 999 then
+                    rule.levelFilter = 2;
+                else
+                    rule.levelFilter = 3;
+                end
+            else
+                rule.levelFilter = 1;
+            end
+        elseif rule.levelFilter == nil then
+            rule.levelFilter = 1;
+        end
+
+        if rule.ruleType == 3 then
+            rule.AddNoteOnDemotion[3] = 1;
+        end
+    end
+    return macroRules;
 end
