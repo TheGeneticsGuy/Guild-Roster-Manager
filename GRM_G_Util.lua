@@ -238,5 +238,5 @@ G_Util.GetGuildInfoText = function()
     else
         result = GetGuildInfoText();
     end
-    return result, isRestricted;
+    return result, isRetricted;
 end

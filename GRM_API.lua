@@ -186,10 +186,14 @@ end
 -- What it Does:    Clears every officer note to every player in the guild
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllOfficerNotes = function()
-    if GRM.CanEditOfficerNote() then
-        for i = 1 , GetNumGuildMembers() do
-            GuildRosterSetOfficerNote ( i , "" );
+    if GRM.CanModifyOfficerNote() then
+        if GRM.CanEditOfficerNote() then
+            for i = 1 , GetNumGuildMembers() do
+                GuildRosterSetOfficerNote ( i , "" );
+            end
         end
+    else
+        GRM.Report(GRM.L("API restricted by Blizzard - Officer note editing not possible."));
     end
 end
 
@@ -197,10 +201,13 @@ end
 -- What it Does:    Clears every public note to every player in the guild
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllPublicNotes = function()
-    if GRM.CanEditPublicNote() then
-        for i = 1 , GetNumGuildMembers() do
-            GuildRosterSetPublicNote ( i , "" );
+    if GRM.CanModifyPublicNote() then
+        if GRM.CanEditPublicNote() then
+            for i = 1 , GetNumGuildMembers() do
+                GuildRosterSetPublicNote ( i , "" );
+            end
         end
+        GRM.Report(GRM.L("API restricted by Blizzard - Public note editing not possible."));
     end
 end
 
@@ -208,18 +215,22 @@ end
 -- What it Does:    Looks at the GRM save database and restores all the public notes
 -- Purpose:         In case someone nefariously overwrites all public notes
 GRM_API.RestoreAllPublicNotesFromSave = function()
-    local members = GRM_Restore_Members[GRM_G.guildName];
+    if GRM.CanModifyPublicNote() then
+        local members = GRM_Restore_Members[GRM_G.guildName];
 
-    if GRM.CanEditPublicNote() then
-        for i = 1 , GRM.G_Util.GetNumGuildies() do
-            local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
-            -- Big O^2 - kind of inefficient
-            for name , player in pairs ( members ) do
-                if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
-                    GuildRosterSetPublicNote ( i , player.note);
+        if GRM.CanEditPublicNote() then
+            for i = 1 , GRM.G_Util.GetNumGuildies() do
+                local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
+                -- Big O^2 - kind of inefficient
+                for name , player in pairs ( members ) do
+                    if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
+                        GuildRosterSetPublicNote ( i , player.note);
+                    end
                 end
             end
         end
+    else
+        GRM.Report(GRM.L("API restricted by Blizzard - Public note editing not possible."));
     end
 end
 
@@ -227,66 +238,22 @@ end
 -- What it Does:    Looks at the GRM save database and restores all the officer notes
 -- Purpose:         In case someone nefariously overwrites all officer notes
 GRM_API.RestoreAllOfficerNotesFromSave = function()
-    local members = GRM_Restore_Members[GRM_G.guildName];
+    if GRM.CanModifyOfficerNote() then
+        local members = GRM_Restore_Members[GRM_G.guildName];
 
-    if GRM.CanEditOfficerNote() then
-        for i = 1 , GRM.G_Util.GetNumGuildies() do
-            local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
+        if GRM.CanEditOfficerNote() then
+            for i = 1 , GRM.G_Util.GetNumGuildies() do
+                local guildie_name , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
 
-            for name , player in pairs ( members ) do
-                if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
-                    GuildRosterSetOfficerNote ( i , player.officerNote );
-                end
-            end
-        end
-    end
-end
-
--- Method:          GRM_API.RestoreAllPublicNotes ( [string] )
--- What it Does:    Takes all the saved strings and overwrites all public notes
--- Purpose:         To enable players to restore all their public notes from a GRM physical backup save of the WTF \
---                  saveVariables file if they did not have an internal save point. Run the script immediately after logging in.
--- TIP:             Disable all other addons aside from GRM to ensure speedy login and run this script immediately after logging in. You only have seconds.
--- Example:         /run GRM_API.RestoreAllPublicNotes()  -- Paste into chat ASAP
-GRM_API.RestoreAllPublicNotes = function( name )
-
-    if IsInGuild() then
-        if GRM.CanEditPublicNote() then
-            local guildName = "";
-
-            if not name then
-                local gName , _ , _ , server = GetGuildInfo ( "PLAYER" );
-
-                if server ~= nil then
-                    guildName = gName .. "-" .. string.gsub ( string.gsub ( server , "-" , "" ) , "%s+" , "" );
-                else
-                    guildName = gName .. "-" .. GRM_G.realmName;
-                end
-            else
-                guildName = name;
-            end
-            local guildData = GRM.GetGuild( guildName );
-
-            if guildData then
-                for i = 1 , GRM.G_Util.GetNumGuildies() do
-                    local memberName , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , guid  = GetGuildRosterInfo(i);
-                    for n , player in pairs ( guildData ) do
-                        if type ( player ) == "table" and memberName == n and guid == player.GUID then
-
-                            GuildRosterSetPublicNote ( i , player.note);
-                            break;
-                        end
+                for name , player in pairs ( members ) do
+                    if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
+                        GuildRosterSetOfficerNote ( i , player.officerNote );
                     end
                 end
-
-            else
-                -- print("Trouble finding guild...")
             end
-        else
-            -- print("Player does not have permission to edit public notes")
         end
     else
-        -- print("Player is not currently in a guild")
+        GRM.Report(GRM.L("API restricted by Blizzard - Officer note editing not possible."));
     end
 end
 

@@ -2000,5 +2000,21 @@ GRML.Danish = function()
     GRM_L["{name} has added the shared nickname for {name2} and all alts ({custom1})"] = true
     GRM_L["{name} has added {name2}'s nickname ({custom1})"] = true
 
+    -- 1.99383
+    GRM_L["Apply to Max Level Only"] = true
+    GRM_L["Copy this text anywhere into the Guild Info window (preferably the end)."] = true
+    GRM_L["Addon currently restricted by the server from reading Guild Info. Please adjust the settings when addon is not restricted to update global controls."] = true
+    GRM_L["Addon currently restricted by the server from reading Guild Info. Please wait to export the global control text when addon is not restricted."] = true
+    GRM_L["Get Join Date"] = true
+    GRM_L["Copy the Join date to add to your note (Ctrl-C)"] = true
+    GRM_L["{name}'s Join Date is not yet Established."] = true
+    GRM_L["{name}'s Join Date is NOT VERIFIED. Please verify join date before adding."] = true
+    GRM_L["FEATURE DISABLED - Addons restricted from editing Public or Officer notes with Midnight 12.0.1 Launch"] = true
+    GRM_L["Public Note not set"] = true
+    GRM_L["Officer Note not Set"] = true
+    GRM_L["API restricted by Blizzard - Public note editing not possible."] = true
+    GRM_L["API restricted by Blizzard - Officer note editing not possible."] = true
+    GRM_L["(Unavailable in Retail)"] = true
+    GRM_L["The Global Control string in your guild info needs to be updated. GRM no longer has the ability to do it. Please type /grm and go to the Options and Officer tab to re-obtain a new control text string to manually copy over."] = true
     
 end

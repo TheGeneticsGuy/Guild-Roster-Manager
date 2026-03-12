@@ -1,4 +1,4 @@
-## **VERSION 1.99383 - March 2nd, 2026**
+## **VERSION 1.99383 - March 12th, 2026**
 
 ***ADDONGEDDON WITH MIDNIGHT***
 
@@ -12,7 +12,13 @@ In the meantime, here is how these direct changes affect GRM:
 
 * Mouseover you can no longer edit your public/officer notes, only view them easily.
 
-* Macro Tool Demote rule can no longer add an automatic custom mote after demoting to anywhere but the Custom GRM note.
+* Auto-adding the join date to a note can now only be added to the GRM Custom Note. Adding to the Officer or Public note can not longer be done as per the Blizz addon restrictions. As a reminder, adding the join date to notes only appends the date, if there is sufficient room. Again, it will not overwrite your note, only append to it.  As a reminder, the Custom GRM note is actually much like a Public Note. It will be freely, outgoing, and shared to all GRM users, including the lowest rank members, just like the alt data, the main, and so on. HOWEVER, who can make edits to the custom GRM note is 100% up to the guild sync restrictions. If you do not wish to allow synced information to be edited by all, just only read, then be sure to configure, in the `/grm > Options > Sync tab`, which ranks have permission to edit. And yes, I AM considering creating a new Officer only custom note.     
+
+* Macro Tool Demote rule can no longer add an automatic custom note to public or officer note, after demoting. It can only be added to the GRM Custom Note of the player.
+
+* The !note feature to let players set their own public notes is no longer accessible in Retail and is disabled. This was largely redundant in Retail anyway as Communities interface improved the public note editing to only officers and yourself, unlike in Classic where you can edit all fellow guild members notes.
+
+* The Advanced Join Date audit tool is significantly less useful now and needs to be adapted to these changes. I have not yet modified this tool appropriately for the retail changes. So importing dates will still work, but exporting to anywhere but Custom is now the only thing possible. The text has not been made clear in retail. I am debating what to do as this is still fully functionaly in classic builds.
 
 
 ***QUALITY OF LIFE***
@@ -20,8 +26,9 @@ In the meantime, here is how these direct changes affect GRM:
 * The Macro Rules now have an option to apply a rule to "Max Level only." You technically can still just set it 90-90, but now there is an option to where it always applies max level.
 
 
-
 ***BUG FIXES***
+
+* Various bugs related to the massive underlying changes of Midnight's launch. I will not post all of them.
 
 * Fixed a bug where GRM would not configure and load properly due to failing to properly apply a patch. This is now resolved.
 

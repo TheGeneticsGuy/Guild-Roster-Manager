@@ -101,30 +101,38 @@ Prof.RemoveProfessionNote = function ( player , ind )
         local patterns = { pattern3 , pattern2 , pattern };
         local updatedNote = "";
 
-        if not string.find ( player.note , "%[" .. GRM.L("D") .. "%]" ) then
-            if GRM.CanEditPublicNote() or player.name == GRM_G.addonUser then
-                for i = 1 , #patterns do
-                    if string.match ( player.note , patterns[i] ) then
-                        updatedNote = GRM.Trim(string.gsub ( player.note , patterns[i] , "" ));
-                        player.note = updatedNote;
-                        GuildRosterSetPublicNote(ind,updatedNote);
-                        count = count + 1;
-                        break;
+        local noteToCheck = player.note;
+        if not GRM.CanModifyPublicNote() then
+            noteToCheck = player.customNote[4];
+        end
+
+        if not string.find ( noteToCheck , "%[" .. GRM.L("D") .. "%]" ) then
+            if GRM.CanModifyPublicNote() then
+                if GRM.CanEditPublicNote() or player.name == GRM_G.addonUser then
+                    for i = 1 , #patterns do
+                        if string.match ( player.note , patterns[i] ) then
+                            updatedNote = GRM.Trim(string.gsub ( player.note , patterns[i] , "" ));
+                            player.note = updatedNote;
+                            GuildRosterSetPublicNote(ind,updatedNote);
+                            count = count + 1;
+                            break;
+                        end
+                    end
+                end
+
+                if GRM.CanEditOfficerNote() then
+                    for i = 1 , #patterns do
+                        if string.match ( player.officerNote , patterns[i] ) then
+                            updatedNote = GRM.Trim(string.gsub ( player.officerNote , patterns[i] , "" ));
+                            player.officerNote = updatedNote;
+                            GuildRosterSetOfficerNote(ind,updatedNote);
+                            count = count + 1;
+                            break;
+                        end
                     end
                 end
             end
 
-            if GRM.CanEditOfficerNote() then
-                for i = 1 , #patterns do
-                    if string.match ( player.officerNote , patterns[i] ) then
-                        updatedNote = GRM.Trim(string.gsub ( player.officerNote , patterns[i] , "" ));
-                        player.officerNote = updatedNote;
-                        GuildRosterSetOfficerNote(ind,updatedNote);
-                        count = count + 1;
-                        break;
-                    end
-                end
-            end
             for i = 1 , #patterns do
                 if string.match ( player.customNote[4] , patterns[i] ) then
                     updatedNote = GRM.Trim(string.gsub ( player.customNote[4] , patterns[i] , "" ));
@@ -289,6 +297,11 @@ Prof.InitiateProfessionUpdate = function( showReport , namesProcessed , playersN
             if type ( player ) == "table" then
                 if not namesProcessed[name] then
                     namesProcessed[name] = true;
+
+                    -- Error protection in case Blizz pushes restrictions to classic.
+                    if not GRM.CanModifyPublicNote() and GRM.S().ProfNoteDestination ~= 3 then
+                        GRM.S().ProfNoteDestination = 3;
+                    end
                     success , sizeTooBig = Prof.AppendProfessionReportToNote ( name , GRM.S().ProfNoteDestination );
                     if success or ( not success and sizeTooBig > 0 ) then
                         if not success then

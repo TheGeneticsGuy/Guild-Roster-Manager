@@ -438,7 +438,9 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     patchNum = patchNum + 1;
     if numericV < 1.32 and baseValue < 1.32 then
-        GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo();  -- Formatting the guild controls to be in the player note window...
+        if GRM.CanModifyPublicNote() then
+            GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo();  -- Formatting the guild controls to be in the player note window...
+        end
         GRM_Patch.ExpandOptionsType ( 2 , 1 , 65 );             -- Add boolean for leader purge controls
         GRM_Patch.ModifyNewDefaultSetting ( 66 , false );       -- put them off by default.
         if loopCheck ( 1.32 ) then
@@ -1879,7 +1881,10 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.EditSetting ( "kickRules", GRM_Patch.RemoveDeprecatedNoteMacroOptions );
         GRM_Patch.EditSetting ( "demoteRules", GRM_Patch.RemoveDeprecatedNoteMacroOptions );
         GRM_Patch.EditSetting ( "promoteRules", GRM_Patch.RemoveDeprecatedNoteMacroOptions );
-
+        GRM_Patch.EditSetting ( "joinDateDestination" , GRM_Patch.AdaptMidnightPublicAndOfficerNote );
+        GRM_Patch.EditSetting ( "noteSetEnabled" , GRM_Patch.AdaptNoteFeatureRetail );
+        
+        
         GRM_AddonSettings_Save.VERSION = "R1.99383";
         if loopCheck ( 1.99383 ) then
             return;
@@ -3838,7 +3843,7 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
         if not isRestricted then
             GRM.L ( "GRM has moved the Guild Leader setting restriction codes to the Guild Info tab." );
             if #guildInfo + #result <= 500 then
-                local text = guildInfo .. result
+                local text = result
                 GRM.InitiateEditBoxPopup( text , GRM.L("Copy this text anywhere intto the Guild Info window (preferably the end).") );
             else
                 GRM.Report(GRM.L ( "Please make room for them and re-add." ));
@@ -10505,4 +10510,26 @@ GRM_Patch.RemoveDeprecatedNoteMacroOptions = function ( macroRules )
         end
     end
     return macroRules;
+end
+
+-- R1.99383
+-- Method:          GRM_Patch.AdaptMidnightPublicAndOfficerNote(int)
+-- What it Does:    Sets the join date destination strictly to the Custom Note
+-- Purpose:         Midnight Changes strictly removes ability of addons to add to public and officer notes.
+GRM_Patch.AdaptMidnightPublicAndOfficerNote = function ( joinDateDestination )
+    if not GRM.CanModifyPublicNote() and joinDateDestination ~= 3 then
+        joinDateDestination = 3;
+    end
+    return joinDateDestination
+end
+
+-- R1.99383
+-- Method:          GRM_Patch.AdaptNoteFeatureRetail ( bool )
+-- What it Does:    Sets the !note feature to be disabled if unable to edit public notes
+-- Purpose:         Midnight changes strictly removes ability of addons to edit or add to public notes.
+GRM_Patch.AdaptNoteFeatureRetail = function ( noteSetEnabled )
+    if not GRM.CanModifyPublicNote() and noteSetEnabled == true then
+        noteSetEnabled = false;
+    end
+    return noteSetEnabled
 end

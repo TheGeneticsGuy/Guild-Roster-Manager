@@ -543,6 +543,10 @@ GRM_UI.GRM_LoadToolButton = CreateFrame( "Button" , "GRM_LoadToolButton" , Commu
 GRM_UI.GRM_LoadToolButton:Hide();
 GRM_UI.GRM_LoadToolButtonText = GRM_UI.GRM_LoadToolButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny");
 
+GRM_UI.GRM_GetJoinDateButton = CreateFrame( "Button" , "GRM_GetJoinDateButton" , CommunitiesFrame , "UIPanelButtonTemplate" );
+GRM_UI.GRM_GetJoinDateButton.Text = GRM_UI.GRM_GetJoinDateButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny");
+GRM_UI.GRM_GetJoinDateButton:Hide();
+
 -- TITTLE
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogFrameTitleText = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:CreateFontString ( nil , "OVERLAY" , "GameFontNormal" );
@@ -1385,7 +1389,6 @@ GRM_UI.CreateCharacterCountText = function( editFrame , editButton , editBox , x
             end
 
         end);
-
         editButton:HookScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
                 editBox:HighlightText( 0 );
@@ -1397,7 +1400,9 @@ GRM_UI.CreateCharacterCountText = function( editFrame , editButton , editBox , x
         editBox:HookScript ( "OnEditFocusLost" , function()
             editFrame.Count:Hide();
             GRMsync.SendMessage ( "GRM_GCHAT" , "GINFOUPDATE?" , "GUILD" );     -- Send out to force others to update their permissions
-            GRM.UpdateGuildLeaderPermissions( true , true );
+            C_Timer.After (2, function()
+                GRM.UpdateGuildLeaderPermissions( false , true );
+            end);
         end);
 
         editBox:HookScript ( "OnEditFocusGained" , function()
@@ -1929,6 +1934,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                     GRM_G.pause = false;
                 end
+                GRM_UI.GRM_GetJoinDateButton:Hide();
+            end);
+
+            GRM_UI.MemberDetailFrame:HookScript ( "OnShow" , function()
+                GRM_UI.GRM_GetJoinDateButton:Show();
             end);
 
         else
@@ -1946,35 +1956,53 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         local clearDeath = false;
 
         if player then
+            local noteToCheck = player.note;
+            if not GRM.CanModifyPublicNote() then
+                noteToCheck = player.customNote[4];
+            end
 
-            if player.note:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
-                if GRM.CanEditPublicNote() then
-                    local newNote = string.gsub ( player.note:gsub ( "%[" .. GRM.L ( "D" ) .. "%]%-%d%d%d%d%d%d%d%d" , "" ) , "%[" .. GRM.L ( "D" ) .. "%]" , "" );
-                    newNote = GRM.Trim ( newNote );
+            if noteToCheck:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
+                if GRM.CanModifyPublicNote() then
+                    if GRM.CanEditPublicNote() then
+                        local newNote = string.gsub ( noteToCheck:gsub ( "%[" .. GRM.L ( "D" ) .. "%]%-%d%d%d%d%d%d%d%d" , "" ) , "%[" .. GRM.L ( "D" ) .. "%]" , "" );
+                        newNote = GRM.Trim ( newNote );
 
-                    if newNote ~= player.note then
-                        local i = GRM.GetRosterSelectionID ( player.name , player.GUID );
+                        if newNote ~= noteToCheck then
+                            local i = GRM.GetRosterSelectionID ( player.name , player.GUID );
 
-                        if i then
+                            if i then
 
-                            local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
+                                local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
 
-                            local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , player.note , newNote , GRM.Time.GetTimestamp() );
+                                local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , noteToCheck , newNote , GRM.Time.GetTimestamp() );
 
-                            if GRM.S().toChat.note then
-                                GRM.PrintLog ( { 4 , logReport } );
+                                if GRM.S().toChat.note then
+                                    GRM.PrintLog ( { 4 , logReport } );
+                                end
+                                -- Also adding it to the log!
+                                GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , noteToCheck , newNote , GRM.Time.GetTimestamp() } );
+
+                                player.note = newNote;
+                                GuildRosterSetPublicNote ( i , newNote );
+                                clearDeath = true;
+
                             end
-                            -- Also adding it to the log!
-                            GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , player.note , newNote , GRM.Time.GetTimestamp() } );
-
-                            player.note = newNote;
-                            GuildRosterSetPublicNote ( i , newNote );
-                            clearDeath = true;
-
                         end
+                    else
+                        GRM.Report ( GRM.L ( "The \"{custom1}\" indicates the player is dead." , nil , nil , nil , "[" .. GRM.L ( "D" ) .. "]" ) .. "\n" .. GRM.L ( "Your rank does not have permission to remove the tag." ) , GRM.S().logColor[15][1] , GRM.S().logColor[15][2] , GRM.S().logColor[15][3] );
                     end
                 else
-                    GRM.Report ( GRM.L ( "The \"{custom1}\" indicates the player is dead." , nil , nil , nil , "[" .. GRM.L ( "D" ) .. "]" ) .. "\n" .. GRM.L ( "Your rank does not have permission to remove the tag." ) , GRM.S().logColor[15][1] , GRM.S().logColor[15][2] , GRM.S().logColor[15][3] );
+                    local newNote = string.gsub ( noteToCheck:gsub ( "%[" .. GRM.L ( "D" ) .. "%]%-%d%d%d%d%d%d%d%d" , "" ) , "%[" .. GRM.L ( "D" ) .. "%]" , "" );
+                    newNote = GRM.Trim ( newNote );
+
+                    if newNote ~= noteToCheck then
+                        
+                        player.customNote[2] = time();
+                        player.customNote[3] = GRM_G.addonUser;
+                        player.customNote[4] = newNote;
+
+                        GRM.RecordCustomNoteChanges(newNote, noteToCheck, GRM_G.addonUser, player.name, true)
+                    end
                 end
             else
                 clearDeath = true;
@@ -2646,6 +2674,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     -- OFFICER AND PLAYER NOTES
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetPoint( "LEFT" , GRM_UI.GRM_MemberDetailMetaData , 15 , 10 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetSize ( 166 , 53 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , 8 , -7 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetWordWrap ( true );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetSpacing ( 1 );
@@ -2653,25 +2682,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetJustifyH ( "LEFT" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetMaxLines ( 3 );
 
-    if not GRM.S() or GRM.S().showBorders then
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
-    else
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
-    end
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetSize ( 166 , 53 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "TOP" , 0 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetPoint ( "BOTTOM" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "BOTTOM" , 0 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetSize ( 166 , 60 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetTextInsets ( 8 , 9 , 9 , 8 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetMaxLetters ( 31 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetMultiLine ( true );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetSpacing ( 1 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:EnableMouse ( true );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFrameStrata ( "HIGH" );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetPoint ("TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , -6 , 8 );
-
     -- Officer Note
     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetPoint( "RIGHT" , GRM_UI.GRM_MemberDetailMetaData , -15 , 10 );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetSize ( 166 , 53 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow , 8 , -7 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetWordWrap ( true );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetSpacing ( 1 );
@@ -2679,50 +2692,234 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetJustifyH ( "LEFT" );
     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetMaxLines ( 3 );
 
-    if GRM.S().showBorders then
+    if not GRM.S() or GRM.S().showBorders then
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
     else
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
     end
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetSize ( 166 , 53 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetPoint( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow , "TOP" , 0 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetPoint( "BOTTOM" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow , "BOTTOM" , 0 , 0 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetSize ( 166 , 60 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetTextInsets( 8 , 9 , 9 , 8 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetMaxLetters ( 31 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetMultiLine( true );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetSpacing ( 1 );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:EnableMouse( true );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetFrameStrata ( "HIGH" );
 
-    GRM_UI.ReconfigureNoteFonts = function()
-
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFontObject ( "GameFontWhite" );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetFontObject ( "GameFontWhite" );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetFontObject ( "GameFontWhite" );
-    end
     -- Due to sizing and spacing... don't want to allow font manipulation of the edits...
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailONoteTitle:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailNoteTitle:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
 
-    GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.ReconfigureNoteFonts = function()
+        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetFontObject ( "GameFontWhite" );
+        if GRM.CanModifyPublicNote() then
+            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFontObject ( "GameFontWhite" );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetFontObject ( "GameFontWhite" );
+        end
+    end
 
-    -- Script handlers on Note Edit Boxes
-    local defNotes = {};
-    defNotes.defaultNote = GRM.L ( "Click here to set a Public Note" );
-    defNotes.defaultONote = GRM.L ( "Click here to set an Officer's Note" );
-    defNotes.tempNote = "";
-    defNotes.finalNote = "";
+    if GRM.CanModifyPublicNote() then
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "TOP" , 0 , 0 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetPoint ( "BOTTOM" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "BOTTOM" , 0 , 0 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetSize ( 166 , 60 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetTextInsets ( 8 , 9 , 9 , 8 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetMaxLetters ( 31 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetMultiLine ( true );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetSpacing ( 1 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:EnableMouse ( true );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFrameStrata ( "HIGH" );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetPoint ("TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , -6 , 8 );
 
-    -- Script handlers on Note Frames
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetScript ( "OnMouseDown" , function ( self , button )
-        if button == "LeftButton" and GRM.CanEditPublicNote() or ( GRM_G.BuildVersion >= 10000 and GRM_G.currentName == GRM_G.addonUser ) then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetPoint ("TOPRIGHT" , self , -6 , 8 );
-            GRM_G.pause = true;
-            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Hide();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetPoint( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow , "TOP" , 0 , 0 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetPoint( "BOTTOM" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow , "BOTTOM" , 0 , 0 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetSize ( 166 , 60 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetTextInsets( 8 , 9 , 9 , 8 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetMaxLetters ( 31 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetMultiLine( true );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetSpacing ( 1 );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:EnableMouse( true );
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetFrameStrata ( "HIGH" );
+
+        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    
+        -- Script handlers on Note Edit Boxes
+        local defNotes = {};
+        defNotes.defaultNote = GRM.L ( "Click here to set a Public Note" );
+        defNotes.defaultONote = GRM.L ( "Click here to set an Officer's Note" );
+        defNotes.tempNote = "";
+        defNotes.finalNote = "";
+
+        -- Script handlers on Note Frames
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetScript ( "OnMouseDown" , function ( self , button )
+            if button == "LeftButton" and GRM.CanEditPublicNote() or ( GRM_G.BuildVersion >= 10000 and GRM_G.currentName == GRM_G.addonUser ) then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetPoint ("TOPRIGHT" , self , -6 , 8 );
+                GRM_G.pause = true;
+                GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Hide();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
+                defNotes.tempNote = GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:GetText();
+                if defNotes.tempNote ~= defNotes.defaultONote and defNotes.tempNote ~= "" then
+                    defNotes.finalNote = defNotes.tempNote;
+                else
+                    defNotes.finalNote = "";
+                end
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetText( defNotes.finalNote );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Show();
+
+                GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText( GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:GetNumLetters() .. "/31");
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Hide();
+            end
+        end);
+
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetScript ( "OnMouseDown" , function ( self , button )
+
+            if button == "LeftButton" and GRM.CanEditOfficerNote() then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetPoint ("TOPRIGHT" , self , -6 , 8 );
+                GRM_G.pause = true;
+                GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Hide();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
+                defNotes.tempNote = GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:GetText();
+                if defNotes.tempNote ~= defNotes.defaultNote and defNotes.tempNote ~= "" then
+                    defNotes.finalNote = defNotes.tempNote;
+                else
+                    defNotes.finalNote = "";
+                end
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText( defNotes.finalNote );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
+
+                -- How many characters initially
+                GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText( GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:GetNumLetters() .. "/31" );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:Hide();
+
+                -- Clear the Tooltip
+                if GRM_UI.GRM_OfficerNoteTooltip:IsVisible() then
+                    GRM_UI.GRM_OfficerNoteTooltip:Hide();
+                end
+            end
+        end);
+
+        -- Method:          GRM_UI.PlayerPublicNoteEditBox()
+        -- What it Does:    Performs the exit note logic where it does not save the public note
+        -- Purpose:         Repeat use, clean logic use
+        GRM_UI.PlayerPublicNoteEditBox = function()
+            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
+            defNotes.tempNote = GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:GetText();
+            if defNotes.tempNote ~= defNotes.defaultNote and defNotes.tempNote ~= "" then
+                defNotes.finalNote = defNotes.tempNote;
+            else
+                defNotes.finalNote = "";
+            end
+            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText ( defNotes.finalNote );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
+                GRM_UI.Unpause();
+            end
+        end
+
+        -- Cancels editing in Note editbox
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnEscapePressed" , GRM_UI.PlayerPublicNoteEditBox );
+
+        -- Edit focus lost logic on both editboxes
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnEditFocusLost" , function( self )
+            self:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
+        end);
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnEditFocusLost" , function( self )
+            self:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Show();
+        end);
+
+        -- Updates char count as player types.
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnTextChanged" , function ( self )
+            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText ( self:GetNumLetters() .. "/31" );
+        end);
+
+        -- Updating the new information to Public Note
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnEnterPressed" , function ( self )
+            local playerDetails = {};
+            playerDetails.newNote = self:GetText();
+            playerDetails.name = GRM_G.currentName;
+            local player = GRM.GetPlayer ( playerDetails.name );
+
+            if player then
+                -- First, let's add the change to the official server-sde note
+                local h = GRM.GetRosterSelectionID ( playerDetails.name , player.GUID );
+                if h then
+                    local publicNote = select ( 7 , GetGuildRosterInfo( h ) );
+                    if not publicNote then
+                        publicNote = "";
+                    end
+
+                    if publicNote ~= playerDetails.newNote and ( GRM.CanEditPublicNote() or GRM_G.currentName == GRM_G.addonUser ) then      -- No need to update old note if it is the same.
+
+                        -- Saving the changes!
+                        player.note = playerDetails.newNote;                        -- Metadata
+                        GuildRosterSetPublicNote ( h , playerDetails.newNote );     -- Server Side
+
+                        if GRM_G.CurrentlyScanning then
+                            GRM_G.changeHappenedExitScan = true;
+                        end
+
+                        -- To metadata reporting
+                        local simpleName = GRM.GetStringClassColorByName ( playerDetails.name ) .. GRM.SlimName ( playerDetails.name ) .. "|r";
+                        local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
+
+                        if GRM.S().toChat.note then
+                            GRM.PrintLog ( { 4 , logReport } );
+                        end
+                        -- Also adding it to the log!
+                        GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
+
+                        -- Set the note
+                        local theNote = "";
+                        if #playerDetails.newNote == 0 then
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText ( defNotes.defaultNote );
+                            theNote = defNotes.defaultNote;
+                        else
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText ( playerDetails.newNote );
+                            theNote = playerDetails.newNote;
+                        end
+                        -- update the edit box
+                        self:SetText( playerDetails.newNote );
+
+                        -- If the memberdetailframe is open, set it as well...
+                        if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
+
+                            if GRM_G.BuildVersion >= 10000 then
+                                if CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:IsVisible() then
+                                    CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:SetText ( theNote );
+                                end
+
+                                -- Classic era < 8.0
+                            elseif PersonalNoteText and PersonalNoteText:IsVisible() then
+                                PersonalNoteText:SetText ( theNote );
+                            end
+
+                        end
+
+                        if GRM_UI.GRM_AuditJDTool:IsVisible() then
+                            GRM.AuditRefresh( true );
+                        end
+
+                        GRM_UI.RefreshSelectFrames ( true , false , false , false , true , false );
+                    end
+                end
+            end
+
+            self:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
+                GRM_UI.Unpause();
+            end
+        end);
+
+        -- Method:          GRM_UI.EscapeOfficerNoteEditBox ()
+        -- What it Does:    Holds the logic for the editbox
+        -- Purpose:         For repeat use...
+        GRM_UI.EscapeOfficerNoteEditBox = function ()
+            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
             defNotes.tempNote = GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:GetText();
             if defNotes.tempNote ~= defNotes.defaultONote and defNotes.tempNote ~= "" then
@@ -2732,253 +2929,87 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             end
             GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetText( defNotes.finalNote );
             GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Show();
-
-            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText( GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:GetNumLetters() .. "/31");
-            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:Show();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Show();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Hide();
-        end
-    end);
-
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteWindow:SetScript ( "OnMouseDown" , function ( self , button )
-
-        if button == "LeftButton" and GRM.CanEditOfficerNote() then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetPoint ("TOPRIGHT" , self , -6 , 8 );
-            GRM_G.pause = true;
-            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Hide();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
-            defNotes.tempNote = GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:GetText();
-            if defNotes.tempNote ~= defNotes.defaultNote and defNotes.tempNote ~= "" then
-                defNotes.finalNote = defNotes.tempNote;
-            else
-                defNotes.finalNote = "";
-            end
-            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText( defNotes.finalNote );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
-
-             -- How many characters initially
-            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText( GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:GetNumLetters() .. "/31" );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Show();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Show();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:Hide();
-
-            -- Clear the Tooltip
-            if GRM_UI.GRM_OfficerNoteTooltip:IsVisible() then
-                GRM_UI.GRM_OfficerNoteTooltip:Hide();
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
+                GRM_UI.Unpause();
             end
         end
-    end);
 
-    -- Method:          GRM_UI.PlayerPublicNoteEditBox()
-    -- What it Does:    Performs the exit note logic where it does not save the public note
-    -- Purpose:         Repeat use, clean logic use
-    GRM_UI.PlayerPublicNoteEditBox = function()
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
-        defNotes.tempNote = GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:GetText();
-        if defNotes.tempNote ~= defNotes.defaultNote and defNotes.tempNote ~= "" then
-            defNotes.finalNote = defNotes.tempNote;
-        else
-            defNotes.finalNote = "";
-        end
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText ( defNotes.finalNote );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
-        if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
-            GRM_UI.Unpause();
-        end
-    end
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnEscapePressed" , GRM_UI.EscapeOfficerNoteEditBox );
 
-    -- Cancels editing in Note editbox
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnEscapePressed" , GRM_UI.PlayerPublicNoteEditBox );
+        -- Updates char count as player types.
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnTextChanged" , function ( self )
+            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText( self:GetNumLetters() .. "/31" );
+        end);
 
-    -- Edit focus lost logic on both editboxes
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnEditFocusLost" , function( self )
-        self:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
-    end);
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnEditFocusLost" , function( self )
-        self:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Show();
-    end);
+        -- Updating the new information to Public Note
+        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnEnterPressed" , function ( self )
+            local playerDetails = {};
+            playerDetails.newNote = self:GetText();
+            playerDetails.name = GRM_G.currentName;
 
-    -- Updates char count as player types.
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnTextChanged" , function ( self )
-        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText ( self:GetNumLetters() .. "/31" );
-    end);
+            local player = GRM.GetPlayer ( playerDetails.name );
 
-    -- Updating the new information to Public Note
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetScript ( "OnEnterPressed" , function ( self )
-        local playerDetails = {};
-        playerDetails.newNote = self:GetText();
-        playerDetails.name = GRM_G.currentName;
-        local player = GRM.GetPlayer ( playerDetails.name );
-
-        if player then
-            -- First, let's add the change to the official server-sde note
-            local h = GRM.GetRosterSelectionID ( playerDetails.name , player.GUID );
-            if h then
-                local publicNote = select ( 7 , GetGuildRosterInfo( h ) );
-                if not publicNote then
-                    publicNote = "";
-                end
-
-                if publicNote ~= playerDetails.newNote and ( GRM.CanEditPublicNote() or GRM_G.currentName == GRM_G.addonUser ) then      -- No need to update old note if it is the same.
-
-                    -- Saving the changes!
-                    player.note = playerDetails.newNote;                        -- Metadata
-                    GuildRosterSetPublicNote ( h , playerDetails.newNote );     -- Server Side
-
-                    if GRM_G.CurrentlyScanning then
-                        GRM_G.changeHappenedExitScan = true;
+            if player then
+                -- First, let's add the change to the official server-sde note
+                local h = GRM.GetRosterSelectionID ( playerDetails.name , player.GUID );
+                if h then
+                    local officerNote = select ( 8 , GetGuildRosterInfo( h ) );
+                    if not officerNote then
+                        officerNote = "";
                     end
 
-                    -- To metadata reporting
-                    local simpleName = GRM.GetStringClassColorByName ( playerDetails.name ) .. GRM.SlimName ( playerDetails.name ) .. "|r";
-                    local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
+                    if officerNote ~= playerDetails.newNote and GRM.CanEditOfficerNote() then      -- No need to update old note if it is the same.
 
-                    if GRM.S().toChat.note then
-                        GRM.PrintLog ( { 4 , logReport } );
-                    end
-                    -- Also adding it to the log!
-                    GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
+                        -- Saving the new note details!
+                        player.officerNote = playerDetails.newNote;      -- to addon metadata
+                        GuildRosterSetOfficerNote ( h , playerDetails.newNote );
+                        if GRM_G.CurrentlyScanning then
+                            GRM_G.changeHappenedExitScan = true;
+                        end
 
-                    -- Set the note
-                    local theNote = "";
-                    if #playerDetails.newNote == 0 then
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText ( defNotes.defaultNote );
-                        theNote = defNotes.defaultNote;
-                    else
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText ( playerDetails.newNote );
-                        theNote = playerDetails.newNote;
-                    end
-                    -- update the edit box
-                    self:SetText( playerDetails.newNote );
+                        -- To metadata reporting
+                        local simpleName = GRM.GetStringClassColorByName ( playerDetails.name ) .. GRM.SlimName ( playerDetails.name ) .. "|r";
+                        local logReportWithTime , logReport = GRM.GetOfficerNoteChangeString ( simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
 
-                    -- If the memberdetailframe is open, set it as well...
-                    if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
+                        if GRM.S().toChat.officerNote then
+                            GRM.PrintLog ( { 5 , logReport } );
+                        end
+                        -- Also adding it to the log!
+                        GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
 
-                        if GRM_G.BuildVersion >= 10000 then
-                            if CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:IsVisible() then
-                                CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:SetText ( theNote );
+                        local theNote = "";
+                        if #playerDetails.newNote == 0 then
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( defNotes.defaultONote );
+                            theNote = defNotes.defaultONote;
+                        else
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( playerDetails.newNote );
+                            theNote = playerDetails.newNote;
+                        end
+                        self:SetText( playerDetails.newNote );
+
+                        if GRM_UI.MemberDetailFrame:IsVisible() then
+                            if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
+                                GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText( theNote );
                             end
-
-                            -- Classic era < 8.0
-                        elseif PersonalNoteText and PersonalNoteText:IsVisible() then
-                            PersonalNoteText:SetText ( theNote );
                         end
 
+                        if GRM_UI.GRM_AuditJDTool:IsVisible() then
+                            GRM.AuditRefresh( true );
+                        end
+                        GRM_UI.RefreshSelectFrames ( true , false , false , false , true , false );
                     end
-
-                    if GRM_UI.GRM_AuditJDTool:IsVisible() then
-                        GRM.AuditRefresh( true );
-                    end
-
-                    GRM_UI.RefreshSelectFrames ( true , false , false , false , true , false );
                 end
             end
-        end
 
-        self:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Show();
-        if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
-            GRM_UI.Unpause();
-        end
-    end);
+            self:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Show();
+            if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
+                GRM_UI.Unpause();
+            end
+        end);
 
-    -- Method:          GRM_UI.EscapeOfficerNoteEditBox ()
-    -- What it Does:    Holds the logic for the editbox
-    -- Purpose:         For repeat use...
-    GRM_UI.EscapeOfficerNoteEditBox = function ()
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
-        defNotes.tempNote = GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:GetText();
-        if defNotes.tempNote ~= defNotes.defaultONote and defNotes.tempNote ~= "" then
-            defNotes.finalNote = defNotes.tempNote;
-        else
-            defNotes.finalNote = "";
-        end
-        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetText( defNotes.finalNote );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Show();
-        if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
-            GRM_UI.Unpause();
-        end
     end
-
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnEscapePressed" , GRM_UI.EscapeOfficerNoteEditBox );
-
-    -- Updates char count as player types.
-    GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnTextChanged" , function ( self )
-        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetText( self:GetNumLetters() .. "/31" );
-    end);
-
-     -- Updating the new information to Public Note
-     GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetScript ( "OnEnterPressed" , function ( self )
-        local playerDetails = {};
-        playerDetails.newNote = self:GetText();
-        playerDetails.name = GRM_G.currentName;
-
-        local player = GRM.GetPlayer ( playerDetails.name );
-
-        if player then
-            -- First, let's add the change to the official server-sde note
-            local h = GRM.GetRosterSelectionID ( playerDetails.name , player.GUID );
-            if h then
-                local officerNote = select ( 8 , GetGuildRosterInfo( h ) );
-                if not officerNote then
-                    officerNote = "";
-                end
-
-                if officerNote ~= playerDetails.newNote and GRM.CanEditOfficerNote() then      -- No need to update old note if it is the same.
-
-                    -- Saving the new note details!
-                    player.officerNote = playerDetails.newNote;      -- to addon metadata
-                    GuildRosterSetOfficerNote ( h , playerDetails.newNote );
-                    if GRM_G.CurrentlyScanning then
-                        GRM_G.changeHappenedExitScan = true;
-                    end
-
-                    -- To metadata reporting
-                    local simpleName = GRM.GetStringClassColorByName ( playerDetails.name ) .. GRM.SlimName ( playerDetails.name ) .. "|r";
-                    local logReportWithTime , logReport = GRM.GetOfficerNoteChangeString ( simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
-
-                    if GRM.S().toChat.officerNote then
-                        GRM.PrintLog ( { 5 , logReport } );
-                    end
-                    -- Also adding it to the log!
-                    GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
-
-                    local theNote = "";
-                    if #playerDetails.newNote == 0 then
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( defNotes.defaultONote );
-                        theNote = defNotes.defaultONote;
-                    else
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText ( playerDetails.newNote );
-                        theNote = playerDetails.newNote;
-                    end
-                    self:SetText( playerDetails.newNote );
-
-                    if GRM_UI.MemberDetailFrame:IsVisible() then
-                        if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
-                            GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText( theNote );
-                        end
-                    end
-
-                    if GRM_UI.GRM_AuditJDTool:IsVisible() then
-                        GRM.AuditRefresh( true );
-                    end
-                    GRM_UI.RefreshSelectFrames ( true , false , false , false , true , false );
-                end
-            end
-        end
-
-        self:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:Show();
-        if GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButton:IsVisible() ~= true then            -- Does not unpause if the date still needs to be selected or canceled.
-            GRM_UI.Unpause();
-        end
-    end);
 
     -- Reusable function for the Ignroe rules selection window
     GRM_UI.ReEnableSubIgnoreOption = function ( button , text , editBox )
@@ -5099,6 +5130,67 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
         GRM.RestoreTooltip();
     end);
 
+    GRM_UI.GRM_GetJoinDateButton:SetSize ( GRM_UI.MemberDetailFrame:GetWidth() - 19 , 22 );
+    GRM_UI.GRM_GetJoinDateButton:SetPoint ( "TOP" , GRM_UI.MemberDetailFrame , "BOTTOM" , 6 , 8 );
+    GRM_UI.GRM_GetJoinDateButton.Text:SetPoint ( "CENTER" , GRM_UI.GRM_GetJoinDateButton );
+    GRM_UI.GRM_GetJoinDateButton.Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+    GRM_UI.GRM_GetJoinDateButton.Text:SetTextColor ( 1, 0.82 ,0 );
+    GRM_UI.GRM_GetJoinDateButton.Text:SetText ( GRM.L ( "Get Join Date" ) );
+
+    GRM_UI.GRM_GetJoinDateButton:SetScript("OnClick", function()
+        local player = GRM.GetPlayer(GRM_G.currentName);
+        if player then
+            if player.joinDateHist[1][1] ~= 0 and player.joinDateHist[1][6] then
+                local joinDate = GRM.Time.FormatTimeStamp({player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false);
+                if GRM.S().includeTag then
+                    joinDate = GRM_G.customHeaderJoin .. " " .. joinDate;
+                end
+
+                GRM.InitiateEditBoxPopup(joinDate,GRM.L("Copy the Join date to add to your note (Ctrl-C)"),nil,{400,80})
+            else
+                if player.joinDateHist[1][1] == 0 then
+                    GRM.Report(GRM.L("{name}'s Join Date is not yet Established." , GRM.GetClassifiedName(player.name)) );
+
+                elseif player.joinDateHist[1][6] == false then
+                    GRM.Report(GRM.L("{name}'s Join Date is NOT VERIFIED. Please verify join date before adding." , GRM.GetClassifiedName(player.name)) );
+                end
+            end
+        end
+    end)
+
+    GRM_UI.GRM_GetJoinDateButton:SetScript ( "OnKeyDown" , function ( self , key )
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput ( true );      -- Ensures keyboard access will default to the main chat window on / or Enter. UX feature.
+            if key == "ESCAPE" then
+                self:SetPropagateKeyboardInput ( false );
+                self:Hide();
+            end
+        else
+            self:Hide()
+        end
+    end);
+
+    GRM_UI.GRM_GetJoinDateButton:SetScript ( "OnEnter" , function ( self )
+        local player = GRM.GetPlayer(GRM_G.currentName);
+        if player then
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+            if player.joinDateHist[1][1] == 0 or player.joinDateHist[1][6] == false then
+                if player.joinDateHist[1][1] == 0 then
+                    GameTooltip:AddLine(GRM.L("{name}'s Join Date is not yet Established." , GRM.GetClassifiedName(player.name)));
+                elseif player.joinDateHist[1][6] == false then
+                    GameTooltip:AddLine(GRM.L("{name}'s Join Date is NOT VERIFIED. Please verify join date before adding." , GRM.GetClassifiedName(player.name)));
+                end
+            end
+
+            GameTooltip:Show();
+        end
+    end);
+
+    GRM_UI.GRM_GetJoinDateButton:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip();
+    end);
+
 end
 
 -- Method:          GRM_UI.PreAddonLoadUI()
@@ -5570,6 +5662,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CustomPopupFrame:SetPoint ( "CENTER" , UIParent , 0 , -25 );
     GRM_UI.GRM_CustomPopupFrame:SetSize ( 400 , 120 );
     GRM_UI.GRM_CustomPopupFrame:SetFrameStrata ( "FULLSCREEN_DIALOG" );
+    GRM_UI.GRM_CustomPopupFrame:SetToplevel ( true );
     GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetPoint ( "TOP" , GRM_UI.GRM_CustomPopupFrame , "TOP" , 0 , -25 );
     GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
     GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetWidth ( 380 );
@@ -5582,6 +5675,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetSpacing ( 1 );
     GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetMultiLine ( true );
     GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetMaxLetters ( 100 );
+    GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetJustifyH("CENTER");
 
     -- MAIN GUILD LOG FRAME!!!
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogFrameTitleText:SetPoint ( "TOP" , GRM_UI.GRM_RosterChangeLogFrame , 0 , - 3.5 );
@@ -6414,10 +6508,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM.OptionTabFrameControl ( self );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:Show();
                 local text, isRestricted = GRM.G_Util.GetGuildInfoText();
-                    if not isRestricted then
+                if not isRestricted then
                     local rulesString = GRM.GetRulesString(text);
 
-                    if CanEditGuildInfo() and rulesString then
+                    if CanEditGuildInfo() and not rulesString then
                         local msg = "";
                         if IsGuildLeader() then
                             msg = GRM.L ( "Export settings to unify sync controls, timestamp format, and so on with your officers and members." );
@@ -6630,6 +6724,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.CreateCheckBox ( "GRM_ProfReportUpdatesToChatCheckBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.ProfReportUpdatesToChat , GRM.L ( "Report Details to Chat if Professions Updated" ) , "GameFontNormal" , 12 );
 
     GRM_UI.ProfNoteDestination = function ( buttonNum )
+        if not GRM.CanModifyPublicNote() then
+            buttonNum = 3;
+        end
         GRM.S().ProfNoteDestination = buttonNum;
         GRM_UI.ConfigureProfRadial ( buttonNum );
     end
@@ -8846,7 +8943,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
                 if GRM.S().joinDateDestination == 0 then
                     GRM.S().joinDateDestination = 1;
-                    GRM.UpdateGuildInfoWithNewValue ( 5 , 1 );
+                    GRM.UpdateGuildInfoWithNewValue ( 5 , 1 , true );
                 end
 
             else
@@ -8856,7 +8953,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.DisableNoteDestinationButtons();
                 if GRM.S().joinDateDestination > 0 then
                     GRM.S().joinDateDestination = 0;
-                    GRM.UpdateGuildInfoWithNewValue ( 5 , 0 );
+                    GRM.UpdateGuildInfoWithNewValue ( 5 , 0 , true );
                 end
             end
             GRM_UI.ConfigureJoinDateLocation();
@@ -8934,45 +9031,55 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.RadialButtonTooltipGlobalControlsConfig ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButton , true );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetScript ( "OnClick" , function( self , button )
-        if button == "LeftButton" and not GRM_G.GlobalControl4 then
-            GRM.S().joinDateDestination = 1;
-            GRM_UI.AdjustTextColoring ( 1 );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
-            GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText );
-            GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2 );
-            GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3 );
-            if not GRM.CanEditOfficerNote() then
-                GRM.Report ( GRM.L ( "Warning! Due to your rank you will be unable to add Join Date timestamps to the {name}" , GRM.L ( "Officer Note" ) ) );
-            end
-            GRM.UpdateGuildInfoWithNewValue ( 5 , 1 );
-            self:SetChecked ( true );
-        elseif GRM_G.GlobalControl4 then
-            if GRM_G.IsRadialChecked then
+        if GRM.CanModifyPublicNote() then
+            if button == "LeftButton" and not GRM_G.GlobalControl4 then
+                GRM.S().joinDateDestination = 1;
+                GRM_UI.AdjustTextColoring ( 1 );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
+                GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText );
+                GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText2 );
+                GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButtonText3 );
+                if not GRM.CanEditOfficerNote() then
+                    GRM.Report ( GRM.L ( "Warning! Due to your rank you will be unable to add Join Date timestamps to the {name}" , GRM.L ( "Officer Note" ) ) );
+                end
+                GRM.UpdateGuildInfoWithNewValue ( 5 , 1 , true );
                 self:SetChecked ( true );
-            else
-                self:SetChecked ( false );
+            elseif GRM_G.GlobalControl4 then
+                if GRM_G.IsRadialChecked then
+                    self:SetChecked ( true );
+                else
+                    self:SetChecked ( false );
+                end
             end
+        else
+            self:SetChecked ( false );
+            GRM.Report(GRM.L("FEATURE DISABLED - Addons restricted from editing Public or Officer notes with Midnight 12.0.1 Launch"));
         end
     end)
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetScript ( "OnClick" , function( self , button )
-        if button == "LeftButton" and not GRM_G.GlobalControl4 then
-            GRM.S().joinDateDestination = 2;
-            GRM_UI.AdjustTextColoring ( 2 );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
-            if not GRM.CanEditOfficerNote() then
-                GRM.Report ( GRM.L ( "Warning! Due to your rank you will be unable to add Join Date timestamps to the {name}" , GRM.L ( "Public Note" ) ) );
-            end
-            GRM.UpdateGuildInfoWithNewValue ( 5 , 2 );
-            self:SetChecked ( true );
-        elseif GRM_G.GlobalControl4 then
-            if GRM_G.IsRadialChecked then
+        if GRM.CanModifyPublicNote() then
+            if button == "LeftButton" and not GRM_G.GlobalControl4 then
+                GRM.S().joinDateDestination = 2;
+                GRM_UI.AdjustTextColoring ( 2 );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton3:SetChecked ( false );
+                if not GRM.CanEditOfficerNote() then
+                    GRM.Report ( GRM.L ( "Warning! Due to your rank you will be unable to add Join Date timestamps to the {name}" , GRM.L ( "Public Note" ) ) );
+                end
+                GRM.UpdateGuildInfoWithNewValue ( 5 , 2 , true );
                 self:SetChecked ( true );
-            else
-                self:SetChecked ( false );
+            elseif GRM_G.GlobalControl4 then
+                if GRM_G.IsRadialChecked then
+                    self:SetChecked ( true );
+                else
+                    self:SetChecked ( false );
+                end
             end
+        else
+            self:SetChecked ( false );
+            GRM.Report(GRM.L("FEATURE DISABLED - Addons restricted from editing Public or Officer notes with Midnight 12.0.1 Launch"));
         end
     end)
 
@@ -8982,7 +9089,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.AdjustTextColoring ( 3 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
-            GRM.UpdateGuildInfoWithNewValue ( 5 , 3 );
+            GRM.UpdateGuildInfoWithNewValue ( 5 , 3 , true );
             self:SetChecked ( true );
         elseif GRM_G.GlobalControl4 then
             if GRM_G.IsRadialChecked then
@@ -9002,10 +9109,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if not GRM_G.GlobalControl4_5 and button == "LeftButton" then
             if self:GetChecked() then
                 GRM.S().includeTag = true;
-                GRM.UpdateGuildInfoWithNewValue ( 6 , "+" );
+                GRM.UpdateGuildInfoWithNewValue ( 6 , "+" , true );
             else
                 GRM.S().includeTag = false;
-                GRM.UpdateGuildInfoWithNewValue ( 6 , "-" );
+                GRM.UpdateGuildInfoWithNewValue ( 6 , "-" , true );
             end
 
             GRM.RestoreTooltip();
@@ -9098,7 +9205,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if header == "" then
             header = "XX";
         end
-        GRM.UpdateGuildInfoWithNewValue ( 7 , header );
+        GRM.UpdateGuildInfoWithNewValue ( 7 , header , true );
         GRM.SetJoinAndRejoinTags();
         self:ClearFocus();
     end);
@@ -9172,7 +9279,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if header == "" then
             header = "XX";
         end
-        GRM.UpdateGuildInfoWithNewValue ( 8 , header );
+        GRM.UpdateGuildInfoWithNewValue ( 8 , header , true );
         GRM.SetJoinAndRejoinTags();
         self:ClearFocus();
     end);
@@ -9691,7 +9798,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GameTooltip:AddLine ( GRM.L ( "Configure your settings. Click to set in Guild Info" ) , incomplete[1] , incomplete[2] , incomplete[3] );
             end
             GameTooltip:AddDoubleLine ( " " , " " );
-            GameTooltip:AddDoubleLine ( GRM.L ( "What tags look like:" ) , GRM.GetAllGlobalRulesAsString() , 1 , 0.82 , 0 , 1 , 0 , 0 );
+            GameTooltip:AddDoubleLine ( GRM.L ( "What tags look like:" ) , GRM.GetAllGlobalRulesAsString(true) , 1 , 0.82 , 0 , 1 , 0 , 0 );
 
         end
 
@@ -11781,72 +11888,83 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetJustifyH ( "LEFT" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetWidth ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:GetWidth() - 50 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , "RIGHT" , 1 , 0 );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText );
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnClick", function ( self , button )
-        if button == "LeftButton" and not GRM_G.GlobalControl7 then
-            if self:GetChecked() then
-                GRM.S().noteSetEnabled = true;
-                GRM.UpdateGuildInfoWithNewValue ( 9 , 1 );
-            else
-                GRM.S().noteSetEnabled = false;
-                GRM.UpdateGuildInfoWithNewValue ( 9 , 2 );
+
+        if GRM.CanModifyPublicNote() then
+        GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnClick", function ( self , button )
+            if button == "LeftButton" and not GRM_G.GlobalControl7 then
+                if self:GetChecked() then
+                    GRM.S().noteSetEnabled = true;
+                    GRM.UpdateGuildInfoWithNewValue ( 9 , 1 , true );
+                else
+                    GRM.S().noteSetEnabled = false;
+                    GRM.UpdateGuildInfoWithNewValue ( 9 , 2 , true );
+                end
+            elseif GRM_G.GlobalControl7 then
+                if GRM.S().noteSetEnabled then
+                    self:SetChecked ( true );
+                else
+                    self:SetChecked ( false );
+                end
             end
-        elseif GRM_G.GlobalControl7 then
-            if GRM.S().noteSetEnabled then
-                self:SetChecked ( true );
-            else
-                self:SetChecked ( false );
+        end);
+
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnEnter" , function( self )
+            local isRestricted = GRM.IsSyncRankGuildLeaderRestricted ( 9 );
+
+            if isRestricted and not CanEditGuildInfo() then
+                GRM_G.GlobalControl7 = true;
+                local setting = "";
+                if GRM.S().noteSetEnabled then
+                    setting = GRM.L ( "Enabled" );
+                elseif not GRM.S().noteSetEnabled then
+                    setting = GRM.L ( "Disabled" );
+                end
+
+                GRM_UI.SetTooltipScale();
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
+                GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , setting ) );
+                GameTooltip:Show();
             end
-        end
-    end);
+        end);
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnEnter" , function( self )
-        local isRestricted = GRM.IsSyncRankGuildLeaderRestricted ( 9 );
-
-        if isRestricted and not CanEditGuildInfo() then
-            GRM_G.GlobalControl7 = true;
-            local setting = "";
-            if GRM.S().noteSetEnabled then
-                setting = GRM.L ( "Enabled" );
-            elseif not GRM.S().noteSetEnabled then
-                setting = GRM.L ( "Disabled" );
-            end
-
-            GRM_UI.SetTooltipScale();
-            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
-            GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , setting ) );
-            GameTooltip:Show();
-        end
-    end);
-
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-    end);
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip()
+        end);
+    else
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:Disable();
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetTextColor(0.5,0.5,0.5);
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetText( GRM.L ( "Allow Guild Members to Type \"!note notehere\" to Set Their Own Public Note") .. " |CFFFF0000" .. GRM.L ( "(Unavailable in Retail)"  ) );
+    end
 
      -- Propagate for keyboard control of the frames!!!
     GRM_UI.GRM_RosterChangeLogFrame:SetScript ( "OnKeyDown" , function ( self , key )
 
         local hideLogic = function()
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-
-                -- Edit Boxes
-                if GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:HasFocus() then
-                    GRM_UI.EscapeOfficerNoteEditBox();
-                elseif GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:HasFocus() then
-                    GRM_UI.PlayerPublicNoteEditBox();
-                elseif GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
-                    if GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:HasFocus() then
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:SetText( "" );
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:ClearFocus();
-                    else
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame:Hide();
+                if GRM.CanModifyPublicNote() then
+                    -- Edit Boxes
+                    if GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:HasFocus() then
+                        GRM_UI.EscapeOfficerNoteEditBox();
+                    elseif GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:HasFocus() then
+                        GRM_UI.PlayerPublicNoteEditBox();
+                    elseif GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
+                        if GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:HasFocus() then
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:SetText( "" );
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:ClearFocus();
+                        else
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_AddAltEditFrame:Hide();
+                        end
                     end
-                elseif GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:IsVisible() and GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
+                end
+                
+                if GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:IsVisible() and GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
                     GRM_UI.CustomNoteEditBoxOnFocusLost();
+                end
 
                 -- Drop down menus
-                elseif GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:IsVisible() then
+                if GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:IsVisible() then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Hide();
                 elseif GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:IsVisible() then
                     GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Hide();

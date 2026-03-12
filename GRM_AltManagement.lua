@@ -1074,9 +1074,9 @@ GRM.SyncJoinDatesOnAllAlts = function ( playerName )
                                 noteDate = timestamp;
                             end
 
-                            if GRM.S().joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
+                            if GRM.CanModifyOfficerNote() and GRM.S().joinDateDestination == 1 and GRM.CanEditOfficerNote() and ( oNote == "" or oNote == nil ) then
                                 GuildRosterSetOfficerNote( h , noteDate );
-                            elseif GRM.S().joinDateDestination == 2 and GRM.CanEditPublicNote() and ( note == "" or note == nil ) then
+                            elseif GRM.CanModifyPublicNote() and GRM.S().joinDateDestination == 2 and GRM.CanEditPublicNote() and ( note == "" or note == nil ) then
                                 GuildRosterSetPublicNote ( h , noteDate );
                             elseif GRM.S().joinDateDestination == 3 then
                                 GRM.SetJoinDateToCustomNote ( tempAlt.name , noteDate );

@@ -570,6 +570,21 @@ GRM.GetMaxPlayerLevelByExpansion = function()
     end
 end
 
+-- Method:          GRM.CanModifyPublicNote()
+-- What it Does:    Returns true if the API exists
+-- Purpose:         12.0.1 removed this critical API, but it still exists in Classic builds, for now.
+GRM.CanModifyPublicNote = function()
+    return not (GuildRosterSetPublicNote == nil);
+end
+
+-- Method:          GRM.CanModifyOfficerNote()
+-- What it Does:    Returns true if the API exists
+-- Purpose:         12.0.1 removed this critical API, but it still exists in Classic builds, for now.
+GRM.CanModifyOfficerNote = function()
+    return not (GuildRosterSetOfficerNote == nil);
+end
+
+
 -------------------------------
 --- END COMPATIBILITY CHECK ---
 -------------------------------
@@ -1061,10 +1076,16 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.addTimestampToNote = false;
         player.allowEventsToCalendar = true;
         player.joinDateDestination = 1;
+        if not GRM.CanModifyPublicNote() then
+            player.joinDateDestination = 3; -- Default to Custom Note
+        end
         player.customTags = {"", ""};
         player.includeTag = true;
         player.addNotesToLeft = true;
         player.noteSetEnabled = true;
+        if not GRM.CanModifyPublicNote() then
+            player.noteSetEnabled = false;
+        end
         player.globalDateFormat = 1;
 
         -- Backup Options Tab
@@ -1262,6 +1283,9 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.ProfReportUpdatesToChat = false;
         player.ProfRankAutoUpdate = false;
         player.ProfNoteDestination = 1;
+        if not GRM.CanModifyPublicNote() then
+            player.ProfNoteDestination = 3;
+        end
 
         -- Names Tab
     elseif page == 17 then
@@ -2894,24 +2918,26 @@ end
 -- What it Does:    Restores all of the original notes
 -- Purpose:         Sets all public and officer notes.
 GRM.RestoreAllOldNotes = function()
-    local guildData = GRM.GetGuild();
-    local name = "";
+    if GRM.CanModifyPublicNote() then
+        local guildData = GRM.GetGuild();
+        local name = "";
 
-    for i = 1, GRM.G_Util.GetNumGuildies() do
-        -- For guild info
-        name = GetGuildRosterInfo(i);
+        for i = 1, GRM.G_Util.GetNumGuildies() do
+            -- For guild info
+            name = GetGuildRosterInfo(i);
 
-        if guildData[name] then
+            if guildData[name] then
 
-            -- player found in guild, let's update the notes.
-            if GRM.CanEditOfficerNote() and guildData[name].officerNote then
-                GuildRosterSetOfficerNote(i, guildData[name].officerNote);
+                -- player found in guild, let's update the notes.
+                if GRM.CanEditOfficerNote() and guildData[name].officerNote then
+                    GuildRosterSetOfficerNote(i, guildData[name].officerNote);
+                end
+
+                if GRM.CanEditPublicNote() and guildData[name].note then
+                    GuildRosterSetPublicNote(i, guildData[name].note);
+                end
+
             end
-
-            if GRM.CanEditPublicNote() and guildData[name].note then
-                GuildRosterSetPublicNote(i, guildData[name].note);
-            end
-
         end
     end
 end
@@ -3815,9 +3841,9 @@ end
 GRM.AddMainTagToGoneOfflineSystemMessage = function(msg)
     
     local breakIndex = string.find(msg, " "); -- This format fits almost all
-    if breakIndex == nil then
+    if not breakIndex then
         breakIndex = string.find(msg, "下線了。"); -- Taiwanese
-        if breakIndex == nil then
+        if not breakIndex then
             breakIndex = string.find(msg, "下线了。"); -- Mandarin
         end
     end
@@ -5255,7 +5281,9 @@ GRM.AddMainToChat = function(_, event, msg, sender, ...)
 
         -- This will check if public note needs to be set.
         if GRM.S().noteSetEnabled and event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
-            GRM.TriggerPlayerNote(sender, placeHolderMsg);
+            if GRM.CanModifyPublicNote() then
+                GRM.TriggerPlayerNote(sender, placeHolderMsg);
+            end
         end
 
     end
@@ -7343,7 +7371,7 @@ GRM.BuildMacroInviteAll = function(slashCommand, listOfPlayers)
     end
     return newMacroString;
 end
--- /dump GRM.GetPlayer("Emforster-Zul'jin").bannedInfo[2]
+
 -- Method:          GRM.BanSpecificPlayer ( string , boolean , string , string , int )
 -- What it Does:    Bans just a specific player, either in the guild database, or the left player database
 -- purpose:         To maintain exact function of banning a player without doing other tasks.
@@ -14301,7 +14329,7 @@ GRM.PopulateOptionsRankDropDown = function()
                         .GRM_RosterSyncRankDropDownSelectedText:SetText(RankButtonsText:GetText());
                     GRM.S().syncRank = selectedRank;
 
-                    GRM.UpdateGuildInfoWithNewValue(2, selectedRank);
+                    GRM.UpdateGuildInfoWithNewValue(2, selectedRank, true);
 
                     -- ban list check
                     if GRM.S().syncRank < GRM.S().syncRankBanList then
@@ -14314,7 +14342,7 @@ GRM.PopulateOptionsRankDropDown = function()
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                             .GRM_RosterBanListDropDownSelectedText:SetText(RankButtonsText:GetText());
 
-                        GRM.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank);
+                        GRM.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank, true);
 
                     end
 
@@ -14428,13 +14456,13 @@ GRM.PopulateBanListOptionsDropDown = function()
                                 .GRM_RosterSyncRankDropDownSelectedText:GetText()) .. "\n" ..
                                        GRM.L("Setting to match core filter rank"));
 
-                        GRM.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank);
+                        GRM.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank, true);
                     else
                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                             .GRM_RosterBanListDropDownSelectedText:SetText(RankButtonsText:GetText());
                         GRM.S().syncRankBanList = selectedRank;
 
-                        GRM.UpdateGuildInfoWithNewValue(3, selectedRank);
+                        GRM.UpdateGuildInfoWithNewValue(3, selectedRank, true);
                     end
 
                     -- Re-trigger addon users permissions
@@ -14530,7 +14558,7 @@ GRM.PopulateDefaultDropDownRankMenu = function()
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:SetText(
                         RankButtonsText:GetText());
                     GRM.S().syncRankCustom = selectedRank;
-                    GRM.UpdateGuildInfoWithNewValue(4, selectedRank);
+                    GRM.UpdateGuildInfoWithNewValue(4, selectedRank, true);
 
                 else
                     -- Report to player about Guild Leader restriction
@@ -15227,7 +15255,7 @@ GRM.PopulateTimestampFormatDropDown = function(nonGlobal)
                     local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
 
                     GRM.S().globalDateFormat = parsedNumber;
-                    GRM.UpdateGuildInfoWithNewValue(1, parsedNumber);
+                    GRM.UpdateGuildInfoWithNewValue(1, parsedNumber, true);
                     GRM.ReprocessAllLogEntriesToCurrentLanguage();
 
                     selectedText:SetText(timeStampButtonText:GetText());
@@ -15388,17 +15416,17 @@ GRM.CreateOptionsRankDropDown = function()
     -- General sync restriction
     if GRM.S().syncRank > numRanks then -- There's been a change since the player last logged in...
         GRM.S().syncRank = numRanks;
-        GRM.UpdateGuildInfoWithNewValue(2, numRanks);
+        GRM.UpdateGuildInfoWithNewValue(2, numRanks, true);
     end
     -- Ban List Sync restriction
     if GRM.S().syncRankBanList > numRanks then -- There's been a change since the player last logged in...
         GRM.S().syncRankBanList = numRanks;
-        GRM.UpdateGuildInfoWithNewValue(3, numRanks);
+        GRM.UpdateGuildInfoWithNewValue(3, numRanks, true);
     end
     -- Custom Note Sync Restriction
     if GRM.S().syncRankCustom > numRanks then -- There's been a change since the player last logged in...
         GRM.S().syncRankCustom = numRanks;
-        GRM.UpdateGuildInfoWithNewValue(4, numRanks);
+        GRM.UpdateGuildInfoWithNewValue(4, numRanks, true);
     end
 
     local setRankName = GuildControlGetRankName(GRM.S().syncRank + 1);
@@ -16976,8 +17004,18 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
             if not GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:HasFocus() and
                 not GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:HasFocus() and
                 not GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
-                local finalNote = GRM.L("Click here to set a Public Note");
-                local finalONote = GRM.L("Click here to set an Officer's Note");
+                
+                local finalNote = "";
+                local finalONote = "";
+                local canModifyPublicNote = GRM.CanModifyPublicNote();
+                if canModifyPublicNote then
+                    finalNote = GRM.L("Click here to set a Public Note");
+                    finalONote = GRM.L("Click here to set an Officer's Note");
+                else
+                    finalNote = GRM.L("Public Note not set");
+                    finalONote = GRM.L("Officer Note not Set");
+                end
+
                 GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:Hide();
 
@@ -16987,15 +17025,18 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                 end
 
                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText(finalNote);
-                if ( GRM.CanEditPublicNote() or handle == GRM_G.addonUser ) then
-                    if finalNote ~= GRM.L("Click here to set a Public Note") then
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText(finalNote);
-                    else
-                        GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText("");
+
+                if canModifyPublicNote then
+                    if ( GRM.CanEditPublicNote() or handle == GRM_G.addonUser ) then
+                        if finalNote ~= GRM.L("Click here to set a Public Note") then
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText(finalNote);
+                        else
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText("");
+                        end
+                    elseif finalNote == GRM.L("Click here to set a Public Note") then
+                        GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText(GRM.L(
+                            "Unable to Edit Public Note at Rank"));
                     end
-                elseif finalNote == GRM.L("Click here to set a Public Note") then
-                    GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText(GRM.L(
-                        "Unable to Edit Public Note at Rank"));
                 end
 
                 local officerNote;
@@ -17017,11 +17058,13 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                         finalONote = officerNote;
                     end
 
-                    if finalONote == GRM.L("Click here to set an Officer's Note") and not GRM.CanEditOfficerNote() then
+                    if canModifyPublicNote and finalONote == GRM.L("Click here to set an Officer's Note") and not GRM.CanEditOfficerNote() then
                         finalONote = GRM.L("Unable to Edit Officer Note at Rank");
                     end
+
                     GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText(finalONote);
-                    if finalONote ~= GRM.L("Click here to set an Officer's Note") then
+
+                    if canModifyPublicNote and finalONote ~= GRM.L("Click here to set an Officer's Note") then
                         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetText(finalONote);
 
                         -- Accomodate the mouseover error in classic not showing officer note
@@ -18578,34 +18621,33 @@ GRM.ModifySpecificGuildControlValue = function(position, newValue)
     return result;
 end
 
--- Method:          GRM.UpdateGuildInfoWithNewValue ( int , string )
+-- Method:          GRM.UpdateGuildInfoWithNewValue ( int , string, bool )
 -- What it Does:    Modifies the control values then inserts them into the guildInfo over the original GRM controls, effectively replacing them
 -- Purpose:         Ease of controls of global GRM controls for the addon user.
-GRM.UpdateGuildInfoWithNewValue = function(controlIndex, newValue)
-    if CanEditGuildInfo() then
+GRM.UpdateGuildInfoWithNewValue = function(controlIndex, newValue, isMyEdit )
+    if CanEditGuildInfo() and isMyEdit then
         local guildInfoText , isRestricted = GRM.G_Util.GetGuildInfoText();
 
         if isRestricted then
             GRM.Report(GRM.L("Addon currently restricted by the server from reading Guild Info. Please adjust the settings when addon is not restricted to update global controls."));
         else
-            local rulesString = GRM.GetRulesString(guildInfoText);
+            local rulesString = GRM.GetRulesString(GRM.G_Util.GetGuildInfoText());
 
             if rulesString ~= nil then
                 local first, last = string.find(guildInfoText, rulesString, 1, true);
 
                 if first and last then
-                    local text = string.sub(guildInfoText, 1, first - 1) .. GRM.ModifySpecificGuildControlValue(controlIndex, tostring(newValue)) .. string.sub(guildInfoText, last + 1);
+                    local text = "grm^" .. GRM.ModifySpecificGuildControlValue(controlIndex, tostring(newValue)) .. "^g";
 
                     local onCloseFunction = function()
                         GRM.Report(GRM.L("Complete") .. " - " .. GRM.L("It may take up to 60 seconds for other guild members to detect the changes and update."));
-                        C_Timer.After(10, function()
+                        C_Timer.After(30, function()
                             -- The delay needs to be here as sometimes the note, while update on your end, takes about 10 seconds or less to get a callback that the server properly updated it.
                             GRMsync.SendMessage("GRM_GCHAT", "GINFOUPDATE?", "GUILD"); -- Send out to force others to update their permissions
                             GRM.UpdateGuildLeaderPermissions(true, true);
                         end);
                     end
-
-                    GRM.InitiateEditBoxPopup( result , GRM.L("Copy this text anywhere intto the Guild Info window (preferably the end).") , onCloseFunction );
+                    GRM.InitiateEditBoxPopup( text , GRM.L("Copy this text anywhere into the Guild Info window (preferably the end).") , onCloseFunction );
                 end
             end
         end
@@ -18675,7 +18717,7 @@ GRM.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
 
             end
 
-            local rulesString = GRM.GetRulesString(notes);
+            local rulesString = GRM.GetRulesString(GRM.G_Util.GetGuildInfoText());
 
             if rulesString then
                 local timeFormat, generalSync, banSync, customSync, joinDateLocation, enableUsingTags, joinTag,
@@ -18697,7 +18739,7 @@ GRM.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
                 GRM.SetLeaderJoinDateRestrictionSetting(joinDateLocation, isMyEdit);
 
                 -- -- Use join/Rejoin headers
-                GRM.SetLeaderUsingJoinTagHeaders(enableUsingTags);
+                GRM.SetLeaderUsingJoinTagHeaders(enableUsingTags, isMyEdit);
 
                 -- Tag Formatting
                 GRM.SetJoinTagCustomFormat(joinTag, rejoinTag, isMyEdit);
@@ -18714,7 +18756,7 @@ GRM.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
         end
     end
     if not forced then
-        C_Timer.After(60, function()
+        C_Timer.After(1800, function()      -- Just check once per 30 minutes as it will check at start of session and you SHOULD get a message of change. Message may not come through immediately though if addon to addon comms temporarily restricted.
             if IsInGuild() and GRM.S() then
                 GRM.UpdateGuildLeaderPermissions(false, false);
             end
@@ -18824,6 +18866,7 @@ GRM.SetJoinTagCustomFormat = function(customJoin, customRejoin, isMyEdit)
     end
 end
 
+GRM_G.GuildInfoNeedsChangeNotification = false;
 -- Method:          GRM.SetNoteTriggerRestrictions ( string )
 -- What it Does:    Checks the Guildinfo tag if settings need to be adjusted and modify the settings if they do.
 -- Purpose:         Allow global control in enforcing all officers use this function.
@@ -18831,6 +18874,17 @@ GRM.SetNoteTriggerRestrictions = function(noteTrigger)
     noteTrigger = tonumber(noteTrigger);
     -- first, very it is not nil
     if noteTrigger ~= nil and noteTrigger < 3 then
+
+        if not GRM.CanModifyPublicNote() and noteTrigger == 1 then
+            GRM_G.GlobalControl7 = false;
+            needsRefresh = false;
+            GRM.S().noteSetEnabled = false;
+            if not GRM_G.GuildInfoNeedsChangeNotification and CanEditGuildInfo() then
+                GRM_G.GuildInfoNeedsChangeNotification = true;
+                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("The Global Control string in your guild info needs to be updated. GRM no longer has the ability to do it. Please type /grm and go to the Options and Officer tab to re-obtain a new control text string to manually copy over."))
+            end
+            return
+        end
 
         if not CanEditGuildInfo() then
             GRM_G.GlobalControl7 = true;
@@ -18928,7 +18982,7 @@ GRM.SetTimestampRestriction = function(timeFormatIndex, isMyEdit)
     if timeFormatIndex ~= GRM.S().globalDateFormat then
 
         GRM.S().globalDateFormat = timeFormatIndex;
-        GRM.UpdateGuildInfoWithNewValue(1, timeFormatIndex);
+        GRM.UpdateGuildInfoWithNewValue(1, timeFormatIndex , isMyEdit);
 
         local finalReport = "";
         local month, day, year = select(2, GRM.Time.GetTodaysDate());
@@ -19010,7 +19064,7 @@ GRM.SetLeaderBanRestrictionSetting = function(banSync, isMyEdit)
 
             if GRM.S().syncRank < banSync then
                 GRM.S().syncRankBanList = GRM.S().syncRank;
-                GRM.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank)
+                GRM.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank, isMyEdit)
 
                 GRM.Report(GRM.L("Warning! Unable to select a Ban List rank below \"{name}\"",
                     GuildControlGetRankName(GRM.S().syncRankBanList + 1)) .. "\n" ..
@@ -19019,7 +19073,7 @@ GRM.SetLeaderBanRestrictionSetting = function(banSync, isMyEdit)
             else
                 GRM.S().syncRankBanList = banSync;
 
-                GRM.UpdateGuildInfoWithNewValue(3, banSync)
+                GRM.UpdateGuildInfoWithNewValue(3, banSync, isMyEdit)
 
                 local finalReport = "";
                 if isMyEdit or CanEditGuildInfo() then
@@ -19104,7 +19158,7 @@ GRM.SetLeaderJoinDateRestrictionSetting = function(joinDateLocationIndex, isMyEd
             GRM.S().joinDateDestination = 1;
             GRM.S().addTimestampToNote = true;
             joinDateLocationIndex = 1;
-            GRM.UpdateGuildInfoWithNewValue(5, joinDateLocationIndex);
+            GRM.UpdateGuildInfoWithNewValue(5, joinDateLocationIndex, isMyEdit);
 
             -- Update guildinfo...
             GRM.Report(GRM.L(
@@ -19118,7 +19172,7 @@ GRM.SetLeaderJoinDateRestrictionSetting = function(joinDateLocationIndex, isMyEd
         -- Disabled = 0, Officer Note = 1, Public Note = 2 , custom = 3
         if joinDateLocationIndex ~= GRM.S().joinDateDestination then
             GRM.S().joinDateDestination = joinDateLocationIndex;
-            GRM.UpdateGuildInfoWithNewValue(5, joinDateLocationIndex);
+            GRM.UpdateGuildInfoWithNewValue(5, joinDateLocationIndex, isMyEdit);
 
             if joinDateLocationIndex == 0 then
                 if GRM.S().addTimestampToNote then
@@ -19162,10 +19216,10 @@ GRM.SetLeaderJoinDateRestrictionSetting = function(joinDateLocationIndex, isMyEd
     end
 end
 
--- Method:          GRM.SetLeaderUsingJoinTagHeaders ( string )
+-- Method:          GRM.SetLeaderUsingJoinTagHeaders ( string, bool)
 -- What it Does:    Checks if including the tag headers should be enabled or disabled
 -- Purpose:         To help conformity in the guild on the destination of the notes.
-GRM.SetLeaderUsingJoinTagHeaders = function(headerControl)
+GRM.SetLeaderUsingJoinTagHeaders = function(headerControl, isMyEdit)
     if headerControl == "+" or headerControl == "-" then
         local needsRefresh = false;
 
@@ -19192,7 +19246,7 @@ GRM.SetLeaderUsingJoinTagHeaders = function(headerControl)
             if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
                 GRM_UI.ConfigureJoinDateLocation();
             end
-            GRM.UpdateGuildInfoWithNewValue(6, headerControl);
+            GRM.UpdateGuildInfoWithNewValue(6, headerControl, isMyEdit);
         end
 
     else
@@ -19314,6 +19368,16 @@ GRM.AllGlobalsAreSet = function()
         result = false;
     end
 
+    if result then
+        local rulesString = GRM.GetRulesString(GRM.G_Util.GetGuildInfoText())
+        local correctRules = GRM.GetAllGlobalRulesAsString(false);
+
+        if rulesString ~= correctRules then
+            result = false;
+        end
+
+    end
+
     return result;
 end
 
@@ -19326,7 +19390,7 @@ GRM.SetGlobalControlsToGuildInfo = function()
         GRM.Report(GRM.L("Addon currently restricted by the server from reading Guild Info. Please wait to export the global control text when addon is not restricted."));
         return;
     end
-    local controlString = GRM.GetAllGlobalRulesAsString();
+    local controlString = GRM.GetAllGlobalRulesAsString( true );
     local existingRules = GRM.GetRulesString(notes);
     local result = "";
 
@@ -19353,8 +19417,7 @@ GRM.SetGlobalControlsToGuildInfo = function()
                     GRM.UpdateGuildLeaderPermissions(true, true);
                 end);
             end
-
-            GRM.InitiateEditBoxPopup( result , GRM.L("Copy this text anywhere intto the Guild Info window (preferably the end).") , onCloseFunction );
+            GRM.InitiateEditBoxPopup( controlString , GRM.L("Copy this text anywhere into the Guild Info window (preferably the end).") , onCloseFunction );
         else
             GRM.Report(GRM.L("Unable to add globals controls to GuildInfo. There is not enough room."));
             GRM.Report(GRM.L("You need to clear {num} characters to fit the control tags", nil, nil,
@@ -19364,10 +19427,10 @@ GRM.SetGlobalControlsToGuildInfo = function()
 
 end
 
--- Method:          GRM.GetAllGlobalRulesAsString()
+-- Method:          GRM.GetAllGlobalRulesAsString( bool )
 -- What it Does:    Builds the Globals string for the GuildInfo window
 -- Purpose:         Quality of Life to help ease new players into the addon.
-GRM.GetAllGlobalRulesAsString = function()
+GRM.GetAllGlobalRulesAsString = function( includeEnds )
 
     local modifier = "+";
     if not GRM.S().includeTag then
@@ -19393,10 +19456,14 @@ GRM.GetAllGlobalRulesAsString = function()
         noteEnabled = 2;
     end
 
-    local globalRules =
-        ("grm^" .. GRM.S().globalDateFormat .. ";" .. GRM.S().syncRank .. ";" .. GRM.S().syncRankBanList .. ";" ..
+    local globalRules = (GRM.S().globalDateFormat .. ";" .. GRM.S().syncRank .. ";" .. GRM.S().syncRankBanList .. ";" ..
             GRM.S().syncRankCustom .. ";" .. GRM.S().joinDateDestination .. ";" .. modifier .. ";" .. customHeader ..
-            ";" .. customRejoinHeader .. ";" .. noteEnabled .. ";" .. "X" .. "^g");
+            ";" .. customRejoinHeader .. ";" .. noteEnabled .. ";" .. "X");
+
+    if includeEnds then
+        globalRules = "grm^" .. globalRules .. "^g";
+    end
+
 
     return globalRules;
 end
@@ -20628,62 +20695,64 @@ GRM.EditSavedNoteDateManually = function(member)
 
             -- Modify the notes
             if member[3] == 4 then -- if true, multiple locations
-                if GRM.CanViewOfficerNote() then
-                    tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
-                    if success then
-                        -- yes, it was modified
-                        finalNote = (GRM.Trim(finalNote .. tempNote));
-                        if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
-                            player.officerNote = finalNote;
-                            GuildRosterSetOfficerNote(i, player.officerNote);
-                        else
-                            finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
-                                                                       player.joinDateHist[1][2],
-                                                                       player.joinDateHist[1][3]}, false, false,
-                                GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
-                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
+                if GRM.CanModifyPublicNote() then
+                    if GRM.CanViewOfficerNote() then
+                        tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
+                        if success then
+                            -- yes, it was modified
+                            finalNote = (GRM.Trim(finalNote .. tempNote));
+                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                                 player.officerNote = finalNote;
                                 GuildRosterSetOfficerNote(i, player.officerNote);
+                            else
+                                finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
+                                                                        player.joinDateHist[1][2],
+                                                                        player.joinDateHist[1][3]}, false, false,
+                                    GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
+                                if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
+                                    player.officerNote = finalNote;
+                                    GuildRosterSetOfficerNote(i, player.officerNote);
+                                end
                             end
+                            success = false;
                         end
-                        success = false;
                     end
-                end
-                if (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) then
-                    tempNote, success = GRM.RemoveDateFromNote(player.note);
-                    if success then
-                        -- yes, it was modified
-                        finalNote = (GRM.Trim(finalNote .. tempNote));
-                        if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
-                            player.note = finalNote;
-                            GuildRosterSetPublicNote(i, player.note);
-                        else
-                            finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
-                                                                       player.joinDateHist[1][2],
-                                                                       player.joinDateHist[1][3]}, false, false,
-                                GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
-                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
+                    if (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) then
+                        tempNote, success = GRM.RemoveDateFromNote(player.note);
+                        if success then
+                            -- yes, it was modified
+                            finalNote = (GRM.Trim(finalNote .. tempNote));
+                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                                 player.note = finalNote;
                                 GuildRosterSetPublicNote(i, player.note);
+                            else
+                                finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
+                                                                        player.joinDateHist[1][2],
+                                                                        player.joinDateHist[1][3]}, false, false,
+                                    GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
+                                if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
+                                    player.note = finalNote;
+                                    GuildRosterSetPublicNote(i, player.note);
+                                end
                             end
+                            success = false;
                         end
+                    end
+                    tempNote, success = GRM.RemoveDateFromNote(player.customNote[4]);
+                    if success then
+                        -- yes, it was modified
+                        player.customNote[2] = time();
+                        player.customNote[3] = GRM_G.addonUser;
+                        finalNote = (GRM.Trim(finalNote .. tempNote));
+                        if GRM.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
+                            finalNote = string.sub(finalNote, 1, GRM_G.MaxCustomNoteSize); -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
+                        end
+                        player.customNote[4] = (finalNote);
                         success = false;
                     end
                 end
-                tempNote, success = GRM.RemoveDateFromNote(player.customNote[4]);
-                if success then
-                    -- yes, it was modified
-                    player.customNote[2] = time();
-                    player.customNote[3] = GRM_G.addonUser;
-                    finalNote = (GRM.Trim(finalNote .. tempNote));
-                    if GRM.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
-                        finalNote = string.sub(finalNote, 1, GRM_G.MaxCustomNoteSize); -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
-                    end
-                    player.customNote[4] = (finalNote);
-                    success = false;
-                end
             else
-                if member[3] == 1 and GRM.CanViewOfficerNote() then
+                if member[3] == 1 and GRM.CanViewOfficerNote() and GRM.CanModifyPublicNote() then
                     tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
                     if success then
                         -- yes, it was modified
@@ -20703,7 +20772,7 @@ GRM.EditSavedNoteDateManually = function(member)
                         end
                         success = false;
                     end
-                elseif member[3] == 2 and (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) then
+                elseif member[3] == 2 and GRM.CanModifyPublicNote() and (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) then
                     tempNote, success = GRM.RemoveDateFromNote(player.note);
                     if success then
                         -- yes, it was modified
@@ -20784,7 +20853,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                 {player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false, false,
                 GRM.S().globalDateFormat);
 
-        if GRM.CanViewOfficerNote() then
+        if GRM.CanViewOfficerNote() and GRM.CanModifyPublicNote() then
             -- Public and officer
             if GRM.S().joinDateDestination == 1 then
                 -- Officer is default.
@@ -20910,7 +20979,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                     noteDate = date;
                 end
 
-                if GRM.S().joinDateDestination == 1 then
+                if GRM.S().joinDateDestination == 1 and GRM.CanModifyOfficerNote() then
                     if GRM.CanEditOfficerNote() then
                         tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(oNote);
                         if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
@@ -20926,7 +20995,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                             end
                         end
                     end
-                elseif GRM.S().joinDateDestination == 2 then
+                elseif GRM.S().joinDateDestination == 2 and GRM.CanModifyPublicNote() then
                     if GRM.CanEditPublicNote() then
                         tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(note);
                         if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
@@ -20965,7 +21034,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
             local tempNote = "";
             local success = false;
 
-            if GRM.CanViewOfficerNote() and GRM.S().joinDateDestination ~= 1 then
+            if GRM.CanViewOfficerNote() and GRM.S().joinDateDestination ~= 1 and GRM.CanModifyOfficerNote() then
                 tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
                 if success then
                     -- yes, it was modified
@@ -20977,7 +21046,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
                     success = false;
                 end
             end
-            if (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) and GRM.S().joinDateDestination ~= 2 then
+            if (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) and GRM.S().joinDateDestination ~= 2 and GRM.CanModifyPublicNote() then
                 tempNote, success = GRM.RemoveDateFromNote(player.note);
                 if success then
                     -- yes, it was modified
@@ -22945,7 +23014,8 @@ GRM.SlashCommandActions = function( slashCommand )
             GRM.SlashCommandSearch(command)
 
         elseif string.find(command, "debug") ~= nil then
-            GRM.Debug.DebugConfig(command);
+            GRM.Debug.DebugConfig(command);            
+
         else
             alreadyReported = true;
             GRM.Report(GRM.L("Invalid Command: Please type '/grm help' for More Info!"));

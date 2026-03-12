@@ -1209,11 +1209,13 @@ end
 -- Method:          GRM.InitiateEditBoxPopup ( string , string. function )
 -- What it Does:    Opens the custom popup edit box with the given text and title
 -- Purpose:         Reusable popup edit box for various inputs for player to copy
-GRM.InitiateEditBoxPopup = function( editBoxText , TitleText, optionalOnCloseFunction )
-    if not GRM_UI.GRM_CustomPopupFrame:IsVisible() then
+GRM.InitiateEditBoxPopup = function( editBoxText , TitleText, optionalOnCloseFunction , size )
+    if not GRM_UI.GRM_CustomPopupFrame:IsVisible() and editBoxText and TitleText then
+        size = size or {400, 120};
         GRM_UI.GRM_CustomPopupFrame.GRM_PopupEditBox:SetText ( editBoxText );
         GRM_UI.GRM_CustomPopupFrame.GRM_PopupTitleText:SetText ( TitleText );
-        GRM_UI.GRM_CustomPopupFrame:Show();
+        GRM_UI.GRM_CustomPopupFrame:SetSize( size[1], size[2] )
+        
 
         if optionalOnCloseFunction then
             GRM_UI.GRM_CustomPopupFrame:SetScript ( "OnHide" , function(self)
@@ -1221,5 +1223,7 @@ GRM.InitiateEditBoxPopup = function( editBoxText , TitleText, optionalOnCloseFun
                 self:SetScript ( "OnHide" , nil ); -- Remove from running again
             end);
         end
+        
+        GRM_UI.GRM_CustomPopupFrame:Show();
     end
 end
