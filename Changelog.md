@@ -20,11 +20,9 @@ In the meantime, here is how these direct changes affect GRM:
 
 * The Advanced Join Date audit tool is significantly less useful now and needs to be adapted to these changes. I have not yet modified this tool appropriately for the retail changes. So importing dates will still work, but exporting to anywhere but Custom is now the only thing possible. The text has not been made clear in retail. I am debating what to do as this is still fully functionaly in classic builds.
 
-
 ***QUALITY OF LIFE***
 
 * The Macro Rules now have an option to apply a rule to "Max Level only." You technically can still just set it 90-90, but now there is an option to where it always applies max level.
-
 
 ***BUG FIXES***
 
