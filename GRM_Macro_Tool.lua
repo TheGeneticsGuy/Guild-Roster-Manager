@@ -6755,11 +6755,9 @@ GRM.ProcessNextQueuedEntriesChunk = function()
                 2, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
             );
         elseif state.category == 3 then
-            print("Demote Chunk1")
             recommendationsInChunk, _, _ = GRM.GetPromoteAndDemoteNamesByFilterRulesChunk(
                 3, state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
             );
-            print("Total Found: " .. #recommendationsInChunk .. " : " .. #state.accumulatedResults)
         elseif state.category == 4 then
             recommendationsInChunk, _, _ = GRM_UI.GetNamesBySpecialRulesChunk(
                 state.allNames, state.currentIndex, state.chunkSize, state.includeHigherAlt, state.highest
@@ -10920,7 +10918,6 @@ end
 -- What it Does:    Gets the names that adhere to the given rules
 -- Purpose:         To populate the macro tool
 GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
-    print("test1")
     local listOfPlayers = {};
     local ruleDisabledList = {};
     local higherAltCount = 0;

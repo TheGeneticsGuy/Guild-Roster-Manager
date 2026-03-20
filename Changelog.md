@@ -1,3 +1,11 @@
+## **VERSION 1.99384 - March 17th, 2026**
+
+***BUG FIXES***
+
+* Accidentally left some debug print traces that will print out in chat when clicking the Demote Tab in the macro tool. This is now removed.
+
+* The Haranir race is now supported by GRM. The race ID was just a higher limit that I realized it would be. Future race adds by Blizz should automatically work on their own now without the need for manual adjustment.
+
 ## **VERSION 1.99383 - March 12th, 2026**
 
 ***ADDONGEDDON WITH MIDNIGHT***
@@ -12,7 +20,7 @@ In the meantime, here is how these direct changes affect GRM:
 
 * Mouseover you can no longer edit your public/officer notes, only view them easily.
 
-* Auto-adding the join date to a note can now only be added to the GRM Custom Note. Adding to the Officer or Public note can not longer be done as per the Blizz addon restrictions. As a reminder, adding the join date to notes only appends the date, if there is sufficient room. Again, it will not overwrite your note, only append to it.  As a reminder, the Custom GRM note is actually much like a Public Note. It will be freely, outgoing, and shared to all GRM users, including the lowest rank members, just like the alt data, the main, and so on. HOWEVER, who can make edits to the custom GRM note is 100% up to the guild sync restrictions. If you do not wish to allow synced information to be edited by all, just only read, then be sure to configure, in the `/grm > Options > Sync tab`, which ranks have permission to edit. And yes, I AM considering creating a new Officer only custom note.     
+* Auto-adding the join date to a note can now only be added to the GRM Custom Note. Adding to the Officer or Public note can no longer be done as per the Blizz addon restrictions. As a reminder, adding the join date to notes only appends the date, if there is sufficient room. Again, it will not overwrite your note, only append to it.  As a reminder, the Custom GRM note is actually much like a Public Note. It will be synced freely, outgoing, and shared to all GRM users, including the lowest rank members, just like the alt data, the main, and so on. HOWEVER, who can make edits to the custom GRM note is 100% up to the guild sync restrictions. If you do not wish to allow synced information to be edited by all, just only read, then be sure to configure in the `/grm > Options > Sync tab`, which ranks have permission to edit. And yes, I AM considering creating a new Officer only custom note.     
 
 * Macro Tool Demote rule can no longer add an automatic custom note to public or officer note, after demoting. It can only be added to the GRM Custom Note of the player.
 

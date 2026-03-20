@@ -353,10 +353,13 @@ end
 GRM_G.secretValueDelay = false;
 GRM_G.secretValueOnLoadDelay = false;
 GRM_G.RestrictionAnnounced = false;
+GRM_G.AddonRestricted = false;
+GRM_G.BuildHasRestrictions = false;
 
 -- Enums
 GRM_G.raceIDEnum = {};
 GRM_G.classFileIDEnum = {};
+GRM_G.maxRaceID = 100;
 
 -- Compatibility
 GRM_G.Compat = {};
@@ -569,21 +572,6 @@ GRM.GetMaxPlayerLevelByExpansion = function()
         return GetMaxPlayerLevel();
     end
 end
-
--- Method:          GRM.CanModifyPublicNote()
--- What it Does:    Returns true if the API exists
--- Purpose:         12.0.1 removed this critical API, but it still exists in Classic builds, for now.
-GRM.CanModifyPublicNote = function()
-    return not (GuildRosterSetPublicNote == nil);
-end
-
--- Method:          GRM.CanModifyOfficerNote()
--- What it Does:    Returns true if the API exists
--- Purpose:         12.0.1 removed this critical API, but it still exists in Classic builds, for now.
-GRM.CanModifyOfficerNote = function()
-    return not (GuildRosterSetOfficerNote == nil);
-end
-
 
 -------------------------------
 --- END COMPATIBILITY CHECK ---
@@ -844,7 +832,7 @@ GRM.BuildRaceIDEnum = function()
     local doNotInclude = {
         [23] = ""
     }; -- 23 = Human, but a Gilnean, which is weird with ID
-    for i = 1, 85 do
+    for i = 1, GRM_G.maxRaceID do
         if not doNotInclude[i] then
             race = C_CreatureInfo.GetRaceInfo(i);
             if race then
@@ -1076,14 +1064,14 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.addTimestampToNote = false;
         player.allowEventsToCalendar = true;
         player.joinDateDestination = 1;
-        if not GRM.CanModifyPublicNote() then
+        if GRM_G.BuildHasRestrictions then
             player.joinDateDestination = 3; -- Default to Custom Note
         end
         player.customTags = {"", ""};
         player.includeTag = true;
         player.addNotesToLeft = true;
         player.noteSetEnabled = true;
-        if not GRM.CanModifyPublicNote() then
+        if GRM_G.BuildHasRestrictions then
             player.noteSetEnabled = false;
         end
         player.globalDateFormat = 1;
@@ -1283,7 +1271,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.ProfReportUpdatesToChat = false;
         player.ProfRankAutoUpdate = false;
         player.ProfNoteDestination = 1;
-        if not GRM.CanModifyPublicNote() then
+        if GRM_G.BuildHasRestrictions then
             player.ProfNoteDestination = 3;
         end
 
@@ -2918,7 +2906,7 @@ end
 -- What it Does:    Restores all of the original notes
 -- Purpose:         Sets all public and officer notes.
 GRM.RestoreAllOldNotes = function()
-    if GRM.CanModifyPublicNote() then
+    if not GRM_G.BuildHasRestrictions then
         local guildData = GRM.GetGuild();
         local name = "";
 
@@ -5281,7 +5269,7 @@ GRM.AddMainToChat = function(_, event, msg, sender, ...)
 
         -- This will check if public note needs to be set.
         if GRM.S().noteSetEnabled and event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
-            if GRM.CanModifyPublicNote() then
+            if not GRM_G.BuildHasRestrictions then
                 GRM.TriggerPlayerNote(sender, placeHolderMsg);
             end
         end
@@ -17007,7 +16995,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                 
                 local finalNote = "";
                 local finalONote = "";
-                local canModifyPublicNote = GRM.CanModifyPublicNote();
+                local canModifyPublicNote = (not GRM_G.BuildHasRestrictions)
                 if canModifyPublicNote then
                     finalNote = GRM.L("Click here to set a Public Note");
                     finalONote = GRM.L("Click here to set an Officer's Note");
@@ -18875,7 +18863,7 @@ GRM.SetNoteTriggerRestrictions = function(noteTrigger)
     -- first, very it is not nil
     if noteTrigger ~= nil and noteTrigger < 3 then
 
-        if not GRM.CanModifyPublicNote() and noteTrigger == 1 then
+        if GRM_G.BuildHasRestrictions and noteTrigger == 1 then
             GRM_G.GlobalControl7 = false;
             needsRefresh = false;
             GRM.S().noteSetEnabled = false;
@@ -19591,6 +19579,24 @@ GRM.CheckAllDates = function(showAll)
         return a[1] < b[1]
     end);
     return collectNamesThatMisMatched;
+end
+
+-- Method:          GRM.RestrictedNoteCount()
+-- What it Does:    Returns the number of notes in restricted locations for each type
+-- In Midnight 12.0.1 Blizz made it so officer/public notes could not be edited by way of addons.
+GRM.RestrictedNoteCount = function()
+    local public, officer = 0,0;
+    for i = 1 , #GRM_G.AuditToolGuildies do
+        if GRM_G.AuditToolGuildies[i][3] > 0 and GRM_G.AuditToolGuildies[i][3] < 3 then
+            if GRM_G.AuditToolGuildies[i][3] == 1 then
+                officer = officer + 1;
+            else
+                public = public + 1;
+            end
+
+        end
+    end
+    return public, officer;
 end
 
 -- Method:          GRM.GetParsedDate ( string )
@@ -20695,7 +20701,7 @@ GRM.EditSavedNoteDateManually = function(member)
 
             -- Modify the notes
             if member[3] == 4 then -- if true, multiple locations
-                if GRM.CanModifyPublicNote() then
+                if not GRM_G.BuildHasRestrictions then
                     if GRM.CanViewOfficerNote() then
                         tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
                         if success then
@@ -20752,7 +20758,7 @@ GRM.EditSavedNoteDateManually = function(member)
                     end
                 end
             else
-                if member[3] == 1 and GRM.CanViewOfficerNote() and GRM.CanModifyPublicNote() then
+                if member[3] == 1 and GRM.CanViewOfficerNote() and (not GRM_G.BuildHasRestrictions) then
                     tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
                     if success then
                         -- yes, it was modified
@@ -20772,7 +20778,7 @@ GRM.EditSavedNoteDateManually = function(member)
                         end
                         success = false;
                     end
-                elseif member[3] == 2 and GRM.CanModifyPublicNote() and (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) then
+                elseif member[3] == 2 and (not GRM_G.BuildHasRestrictions) and (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) then
                     tempNote, success = GRM.RemoveDateFromNote(player.note);
                     if success then
                         -- yes, it was modified
@@ -20853,7 +20859,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                 {player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false, false,
                 GRM.S().globalDateFormat);
 
-        if GRM.CanViewOfficerNote() and GRM.CanModifyPublicNote() then
+        if GRM.CanViewOfficerNote() and (not GRM_G.BuildHasRestrictions) then
             -- Public and officer
             if GRM.S().joinDateDestination == 1 then
                 -- Officer is default.
@@ -20979,7 +20985,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                     noteDate = date;
                 end
 
-                if GRM.S().joinDateDestination == 1 and GRM.CanModifyOfficerNote() then
+                if GRM.S().joinDateDestination == 1 and (not GRM_G.BuildHasRestrictions) then
                     if GRM.CanEditOfficerNote() then
                         tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(oNote);
                         if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
@@ -20995,7 +21001,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                             end
                         end
                     end
-                elseif GRM.S().joinDateDestination == 2 and GRM.CanModifyPublicNote() then
+                elseif GRM.S().joinDateDestination == 2 and (not GRM_G.BuildHasRestrictions) then
                     if GRM.CanEditPublicNote() then
                         tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(note);
                         if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
@@ -21034,7 +21040,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
             local tempNote = "";
             local success = false;
 
-            if GRM.CanViewOfficerNote() and GRM.S().joinDateDestination ~= 1 and GRM.CanModifyOfficerNote() then
+            if GRM.CanViewOfficerNote() and GRM.S().joinDateDestination ~= 1 and (not GRM_G.BuildHasRestrictions) then
                 tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
                 if success then
                     -- yes, it was modified
@@ -21046,7 +21052,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
                     success = false;
                 end
             end
-            if (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) and GRM.S().joinDateDestination ~= 2 and GRM.CanModifyPublicNote() then
+            if (GRM.CanViewOfficerNote() or player.name == GRM_G.addonUser) and GRM.S().joinDateDestination ~= 2 and (not GRM_G.BuildHasRestrictions) then
                 tempNote, success = GRM.RemoveDateFromNote(player.note);
                 if success then
                     -- yes, it was modified
@@ -21333,7 +21339,7 @@ GRM.GetNumMismatchedButton7 = function()
     for i = 1, #GRM_G.AuditToolGuildies do
         if GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolButton7Text:GetText() ==
             GRM.L("Clear all join dates from incorrect note locations") or GRM_G.AuditToolGuildies[i][6] then -- if All or notAll, but IS selected.
-            if GRM_G.AuditToolGuildies[i][3] == 4 or GRM_G.AuditToolGuildies[i][3] == 2 then -- 4 = multiple locations (1=officer, 2 = public, 3=custom, thus if in more than 1 it equals 4)
+            if GRM_G.AuditToolGuildies[i][3] == 4 then -- 4 = multiple locations (1=officer, 2 = public, 3=custom, thus if in more than 1 it equals 4)
                 -- parse the default note positions now...
                 count = count + 1;
             end
@@ -21342,9 +21348,6 @@ GRM.GetNumMismatchedButton7 = function()
     return count;
 end
 
--- GRM.FindLikelyDateStart = function ( note )
-
--- end
 --------------------------------------------
 -------- HYBRID SCROLLFRAME TEMPLATES ------
 --------------------------------------------

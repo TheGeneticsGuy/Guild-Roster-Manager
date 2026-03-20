@@ -438,7 +438,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
     patchNum = patchNum + 1;
     if numericV < 1.32 and baseValue < 1.32 then
-        if GRM.CanModifyPublicNote() then
+        if not GRM_G.BuildHasRestrictions then
             GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo();  -- Formatting the guild controls to be in the player note window...
         end
         GRM_Patch.ExpandOptionsType ( 2 , 1 , 65 );             -- Add boolean for leader purge controls
@@ -10517,7 +10517,7 @@ end
 -- What it Does:    Sets the join date destination strictly to the Custom Note
 -- Purpose:         Midnight Changes strictly removes ability of addons to add to public and officer notes.
 GRM_Patch.AdaptMidnightPublicAndOfficerNote = function ( joinDateDestination )
-    if not GRM.CanModifyPublicNote() and joinDateDestination ~= 3 then
+    if GRM_G.BuildHasRestrictions and joinDateDestination ~= 3 then
         joinDateDestination = 3;
     end
     return joinDateDestination
@@ -10528,7 +10528,7 @@ end
 -- What it Does:    Sets the !note feature to be disabled if unable to edit public notes
 -- Purpose:         Midnight changes strictly removes ability of addons to edit or add to public notes.
 GRM_Patch.AdaptNoteFeatureRetail = function ( noteSetEnabled )
-    if not GRM.CanModifyPublicNote() and noteSetEnabled == true then
+    if GRM_G.BuildHasRestrictions and noteSetEnabled == true then
         noteSetEnabled = false;
     end
     return noteSetEnabled

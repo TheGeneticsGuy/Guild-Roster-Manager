@@ -1957,12 +1957,12 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
         if player then
             local noteToCheck = player.note;
-            if not GRM.CanModifyPublicNote() then
+            if GRM_G.BuildHasRestrictions then
                 noteToCheck = player.customNote[4];
             end
 
             if noteToCheck:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
-                if GRM.CanModifyPublicNote() then
+                if not GRM_G.BuildHasRestrictions then
                     if GRM.CanEditPublicNote() then
                         local newNote = string.gsub ( noteToCheck:gsub ( "%[" .. GRM.L ( "D" ) .. "%]%-%d%d%d%d%d%d%d%d" , "" ) , "%[" .. GRM.L ( "D" ) .. "%]" , "" );
                         newNote = GRM.Trim ( newNote );
@@ -2708,13 +2708,13 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
         GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
         GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetFontObject ( "GameFontWhite" );
-        if GRM.CanModifyPublicNote() then
+        if not GRM_G.BuildHasRestrictions then
             GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetFontObject ( "GameFontWhite" );
             GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetFontObject ( "GameFontWhite" );
         end
     end
 
-    if GRM.CanModifyPublicNote() then
+    if not GRM_G.BuildHasRestrictions then
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetPoint ( "TOP" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "TOP" , 0 , 0 );
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetPoint ( "BOTTOM" , GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow , "BOTTOM" , 0 , 0 );
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetSize ( 166 , 60 );
@@ -6724,7 +6724,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.CreateCheckBox ( "GRM_ProfReportUpdatesToChatCheckBox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.ProfReportUpdatesToChat , GRM.L ( "Report Details to Chat if Professions Updated" ) , "GameFontNormal" , 12 );
 
     GRM_UI.ProfNoteDestination = function ( buttonNum )
-        if not GRM.CanModifyPublicNote() then
+        if GRM_G.BuildHasRestrictions then
             buttonNum = 3;
         end
         GRM.S().ProfNoteDestination = buttonNum;
@@ -9031,7 +9031,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.RadialButtonTooltipGlobalControlsConfig ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampCheckButton , true );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetScript ( "OnClick" , function( self , button )
-        if GRM.CanModifyPublicNote() then
+        if not GRM_G.BuildHasRestrictions then
             if button == "LeftButton" and not GRM_G.GlobalControl4 then
                 GRM.S().joinDateDestination = 1;
                 GRM_UI.AdjustTextColoring ( 1 );
@@ -9059,7 +9059,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end)
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetScript ( "OnClick" , function( self , button )
-        if GRM.CanModifyPublicNote() then
+        if not GRM_G.BuildHasRestrictions then
             if button == "LeftButton" and not GRM_G.GlobalControl4 then
                 GRM.S().joinDateDestination = 2;
                 GRM_UI.AdjustTextColoring ( 2 );
@@ -11889,9 +11889,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetWidth ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:GetWidth() - 50 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , "RIGHT" , 1 , 0 );
 
-        if GRM.CanModifyPublicNote() then
-        GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText );
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnClick", function ( self , button )
+        if not GRM_G.BuildHasRestrictions then
+            GRM.NormalizeHitRects ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnClick", function ( self , button )
             if button == "LeftButton" and not GRM_G.GlobalControl7 then
                 if self:GetChecked() then
                     GRM.S().noteSetEnabled = true;
@@ -11943,7 +11943,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
         local hideLogic = function()
             if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                if GRM.CanModifyPublicNote() then
+                if not GRM_G.BuildHasRestrictions then
                     -- Edit Boxes
                     if GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox ~= nil and GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:HasFocus() then
                         GRM_UI.EscapeOfficerNoteEditBox();
@@ -13215,13 +13215,28 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     ---- BUTTON 7 ----
     GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolButton7:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
-            if GRM.GetCountThatAreInMultipleLocations() > 0 then
+            local multipleLocations = GRM.GetCountThatAreInMultipleLocations();
+            local publicNoteC, officerNoteC = 0,0;
+            local finalCount = 0;
+            
+            if GRM_G.BuildHasRestrictions then
+                publicNoteC, officerNoteC = GRM.RestrictedNoteCount();
+                finalCount = multipleLocations - publicNoteC - officerNoteC;
+            else
+                finalCount = multipleLocations;
+            end
+            if finalCount > 0 then
                 GRM.SetConfirmationWindow ( GRM.MismatchConfirmConfig5 , GRM.L ( "Do you really want to remove the join dates from notes other than the {name}?" , GRM.GetNoteName() ) )
             else
-                GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "There are currently no dates that need to be removed from incorrect notes" ) );
+                if GRM_G.BuildHasRestrictions and finalCount < multipleLocations then
+                    GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually." , nil , nil , (publicNoteC + officerNoteC) ) );
+                else
+                    GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "There are currently no dates that need to be removed from incorrect notes" ) );
+                end
             end
         end
     end);
+
     GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolButton7:SetScript ( "OnEnter" , function ( self )
         GRM_UI.SetTooltipScale();
         GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
@@ -13231,35 +13246,46 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         local isNoteImported = GRM.GetCountIncorrectLocationNotCorrectNotImported();
         local difference = needsFixed - canBeFixed;
 
-            if difference > 0 then
+        if difference > 0 then
 
-                if difference == 1 then
-                    GameTooltip:AddLine ( GRM.L ( "1 player has a join date listed in the incorrect note. The default location is full" ) );
-                else
-                    GameTooltip:AddLine ( GRM.L ( "{num} players have join dates listed in the incorrect note. The default location is full" , nil , nil , difference ) );
-                end
-                GameTooltip:AddLine ( GRM.L ( "Make room and transfer before clearing" ) );
-
-                if canBeFixed > 0 then
-                    if canBeFixed == 1 then
-                        GameTooltip:AddLine ( GRM.L ( "Otherwise, 1 note is ready to be cleared from the incorrect location" ) );
-                    else
-                        GameTooltip:AddLine ( GRM.L ( "Otherwise, {num} notes are ready to be cleared from the incorrect location" , nil , nil , canBeFixed ) );
-                    end
-                end
-
+            if difference == 1 then
+                GameTooltip:AddLine ( GRM.L ( "1 player has a join date listed in the incorrect note." ) );
             else
-                GameTooltip:AddLine( GRM.L ( "There are currently {num} players who have join dates listed in the incorrect note" , nil , nil , GRM.GetNumMismatchedButton7() ) );
+                GameTooltip:AddLine ( GRM.L ( "{num} players have join dates listed in the incorrect note." , nil , nil , difference ) );
             end
+            GameTooltip:AddLine ( GRM.L ( "Make room and transfer before clearing" ) );
 
-            if needsFixed > 0 and isNoteImported > 0 then
-                GameTooltip:AddLine ( " " );
-                if isNoteImported == 1 then
-                    GameTooltip:AddLine ( GRM.L ( "WARNING!" ) .. " " .. GRM.L ( "1 player's join date has not been imported yet! Do that first!" ) , 1 , 0 , 0 );
+            if canBeFixed > 0 then
+                if canBeFixed == 1 then
+                    GameTooltip:AddLine ( GRM.L ( "Otherwise, 1 note is ready to be cleared from the incorrect location" ) );
                 else
-                    GameTooltip:AddLine ( GRM.L ( "WARNING!" ) .. " " .. GRM.L ( "{num} join dates have not been imported yet! Do that first!" , nil , nil , isNoteImported ) , 1 , 0 , 0 );
+                    GameTooltip:AddLine ( GRM.L ( "Otherwise, {num} notes are ready to be cleared from the incorrect location" , nil , nil , canBeFixed ) );
                 end
             end
+
+        else
+            GameTooltip:AddLine( GRM.L ( "There are currently {num} players who have join dates listed in the incorrect note" , nil , nil , GRM.GetNumMismatchedButton7() ) );
+        end
+
+        if needsFixed > 0 and isNoteImported > 0 then
+            GameTooltip:AddLine ( " " );
+            if isNoteImported == 1 then
+                GameTooltip:AddLine ( GRM.L ( "WARNING!" ) .. " " .. GRM.L ( "1 player's join date has not been imported yet! Do that first!" ) , 1 , 0 , 0 );
+            else
+                GameTooltip:AddLine ( GRM.L ( "WARNING!" ) .. " " .. GRM.L ( "{num} join dates have not been imported yet! Do that first!" , nil , nil , isNoteImported ) , 1 , 0 , 0 );
+            end
+        end
+
+        if GRM_G.BuildHasRestrictions then
+            local publicNoteC, officerNoteC = GRM.RestrictedNoteCount();
+            if (publicNoteC > 0) or (officerNoteC > 0) then
+                GameTooltip:AddLine ( " " );
+                GameTooltip:AddLine ( GRM.L("NOTICE - Note Editing Restrictions Active - Unable to Edit") , 1 , 0 , 0 );
+                GameTooltip:AddLine ( GRM.L("Public Note Locations:" ) .. " |CFFFFFFFF" .. publicNoteC ,1,0.82,0);
+                GameTooltip:AddLine ( GRM.L("Officer Note Locations:" ) .. " |CFFFFFFFF" .. officerNoteC, 1,0.82,0);
+            end
+
+        end
 
         GameTooltip:Show();
     end);

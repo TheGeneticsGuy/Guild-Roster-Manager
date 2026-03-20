@@ -199,9 +199,11 @@ end
 -- What it does:    Rebuilds the roster to check against for any changes.
 -- Purpose:         To track for guild changes of course!
 Scan.BuildNewRoster = function( forceScan )
+
     -- Prevent overlapping scans
     if not forceScan then
         if GRM_G.CurrentlyScanning or Scan.ScanKillSwitch() or GRM_G.MacroInProgress then
+            Scan.UnfinishedReports();
             return;
         end
     end
@@ -1844,7 +1846,7 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
             finalTStamp = timeS;
         end
 
-        if added and GRM.S().addTimestampToNote and GRM.S().joinDateDestination < 3 and GRM.CanModifyPublicNote() then
+        if added and GRM.S().addTimestampToNote and GRM.S().joinDateDestination < 3 and not GRM_G.BuildHasRestrictions then
             -- In case of index shift, let's re-get roster selection
             local verifyName = GetGuildRosterInfo(member.rosterSelection);
             local rosterSelection = 0;
@@ -2287,7 +2289,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                             end
 
                             if GRM.S().joinDateDestination == 1 then
-                                if GRM.CanEditOfficerNote() and GRM.CanModifyPublicNote() then
+                                if GRM.CanEditOfficerNote() and not GRM_G.BuildHasRestrictions then
 
                                     tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(oNote);
 
@@ -2309,7 +2311,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                     end
                                 end
                             elseif GRM.S().joinDateDestination == 2 then
-                                if GRM.CanEditPublicNote() and GRM.CanModifyPublicNote() then
+                                if GRM.CanEditPublicNote() and not GRM_G.BuildHasRestrictions then
                                     tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(note);
                                     if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                                         noteIsSet = true;
@@ -2335,7 +2337,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
 
                     -- treat it like restoring the player, not rejoining them.
                     -- Restore their player notes.
-                elseif player.isTransfer and GRM.CanModifyPublicNote() then
+                elseif player.isTransfer and not GRM_G.BuildHasRestrictions then
                     local index;
                     if rosterSelection and rosterSelection ~= 0 then
                         index = member.rosterSelection;
@@ -3390,6 +3392,16 @@ Scan.ScanKillSwitch = function()
         return true;
     else
         return false;
+    end
+end
+
+-- Method:          Scan.UnfinishedReports()
+-- What it Does:    If any unfinished reports... this takes care of them
+-- Purpose:         Ensure if early exit reports aren't wiped.
+Scan.UnfinishedReports = function()
+    if Scan.AnyReportsRemaining() then
+        Scan.FullReportCheck();
+        Scan.ResetTempLogs();
     end
 end
 

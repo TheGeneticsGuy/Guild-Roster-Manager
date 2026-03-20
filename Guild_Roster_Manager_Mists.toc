@@ -61,6 +61,7 @@ GRM_Nicknames.lua
 GRM_TimeUtil.lua
 GRM_Export.lua
 GRM_UI_Precheck.lua
+GRM_SecretProtection.lua
 
 Compatibility\grm_chattynator.lua
 

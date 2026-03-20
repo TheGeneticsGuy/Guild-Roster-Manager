@@ -62,7 +62,7 @@ MinimapGRM.MinimapOnEnter = function ( tooltip )
         tooltip:AddLine( GRM.L ( "|CFFE6CC7FLeft-Click|r and drag to move this button." ) );
         tooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
 
-        local MOTD = GetGuildRosterMOTD();
+        local MOTD = GRM.G_Util.GetGuildMOTD();
         if MOTD ~= "" and MOTD ~= nil then
             MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
             tooltip:AddLine ( " " );
@@ -285,7 +285,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
             GameTooltip:AddLine( GRM.L ( "|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button." ) );
 
 
-            local MOTD = GetGuildRosterMOTD();
+            local MOTD = GRM.G_Util.GetGuildMOTD();
             if MOTD ~= "" and MOTD ~= nil then
                 MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
                 GameTooltip:AddLine ( " " );

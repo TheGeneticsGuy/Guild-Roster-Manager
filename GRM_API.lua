@@ -201,7 +201,7 @@ end
 -- What it Does:    Clears every public note to every player in the guild
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllPublicNotes = function()
-    if GRM.CanModifyPublicNote() then
+    if not GRM_G.BuildHasRestrictions then
         if GRM.CanEditPublicNote() then
             for i = 1 , GetNumGuildMembers() do
                 GuildRosterSetPublicNote ( i , "" );
@@ -215,7 +215,7 @@ end
 -- What it Does:    Looks at the GRM save database and restores all the public notes
 -- Purpose:         In case someone nefariously overwrites all public notes
 GRM_API.RestoreAllPublicNotesFromSave = function()
-    if GRM.CanModifyPublicNote() then
+    if not GRM_G.BuildHasRestrictions then
         local members = GRM_Restore_Members[GRM_G.guildName];
 
         if GRM.CanEditPublicNote() then

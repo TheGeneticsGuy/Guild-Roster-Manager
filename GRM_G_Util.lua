@@ -230,7 +230,7 @@ G_Util.GetGuildInfoText = function()
     local isRetricted = false;
     local result = "";
     if C_GuildInfo.GetInfoText then
-        if not GRM_G.secretValueDelay then
+        if not GRM_G.AddonRestricted then
             result = C_GuildInfo.GetInfoText();
         else
             isRetricted = true;
@@ -239,4 +239,15 @@ G_Util.GetGuildInfoText = function()
         result = GetGuildInfoText();
     end
     return result, isRetricted;
+end
+
+-- Method:          G_Util.GetGuildMOTD()
+-- What it Does:    Gets the guild MOTD text, with a check to see if it is currently restricted or not
+-- Purpose:         Adapt to the 12.0.1 Midnight changes where many functions are now restricted in combat.
+G_Util.GetGuildMOTD = function()
+    if not GRM_G.AddonRestricted then
+        return GetGuildRosterMOTD();
+    end
+
+    return "";
 end

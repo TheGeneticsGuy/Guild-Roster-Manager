@@ -1170,8 +1170,8 @@ GRML.English = function()
     GRM_L["Global controls have not yet been set!"] = true
     GRM_L["Include Birthdays as Incomplete"] = true
     GRM_L["Make room and transfer before clearing"] = true
-    GRM_L["1 player has a join date listed in the incorrect note. The default location is full"] = true             -- Singular (Join Date Audit tool - bottom button mouseover) - rare tooltip use
-    GRM_L["{num} players have join dates listed in the incorrect note. The default location is full"] = true        -- Plural (same)
+    GRM_L["1 player has a join date listed in the incorrect note."] = true             -- Singular (Join Date Audit tool - bottom button mouseover) - rare tooltip use
+    GRM_L["{num} players have join dates listed in the incorrect note."] = true        -- Plural (same)
     GRM_L["Otherwise, {num} notes are ready to be cleared from the incorrect location"] = true                      -- Plural (same tooltip)
     GRM_L["Otherwise, 1 note is ready to be cleared from the incorrect location"] = true                            -- Plural (same tooltip)
     GRM_L["There are currently {num} dates that can be added to the {name}"] = true
@@ -2011,6 +2011,12 @@ GRML.English = function()
     GRM_L["API restricted by Blizzard - Officer note editing not possible."] = true
     GRM_L["(Unavailable in Retail)"] = true
     GRM_L["The Global Control string in your guild info needs to be updated. GRM no longer has the ability to do it. Please type /grm and go to the Options and Officer tab to re-obtain a new control text string to manually copy over."] = true
+
+        -- 1.99384
+    GRM_L["NOTICE - Note Editing Restrictions Active - Unable to Edit"] = true
+    GRM_L["Public Note Locations:"] = true
+    GRM_L["Officer Note Locations:"] = true
+    GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = true
 
 end
 

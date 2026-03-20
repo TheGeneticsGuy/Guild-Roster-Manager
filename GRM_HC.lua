@@ -91,7 +91,7 @@ HC.HardCoreInitialize = function()
 
                     local deathNote = "[D]-" .. HC.ConvertLastOnlineHoursToTimestamp ( lastOnlineHours );
 
-                    if GRM.CanModifyPublicNote() then
+                    if not GRM_G.BuildHasRestrictions then
                         GuildRosterSetPublicNote ( index , deathNote );
                     else
                         -- Adaptation in case Blizz brings note restrictions to HC mode...
@@ -138,7 +138,7 @@ HC.HardCoreInitialize = function()
         -- What it Does:    Exports the death tag to the player note
         -- Purpose:         Report on when a player dies... Useful since there is not UI Interface
         HC.ExportDeathTag = function ( player , dateArray )
-            if GRM.CanModifyPublicNote() then
+            if not GRM_G.BuildHasRestrictions then
                 local i = GRM.GetRosterSelectionID ( player.name , player.GUID );
                 if i then
 

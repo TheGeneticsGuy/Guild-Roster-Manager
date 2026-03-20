@@ -102,12 +102,12 @@ Prof.RemoveProfessionNote = function ( player , ind )
         local updatedNote = "";
 
         local noteToCheck = player.note;
-        if not GRM.CanModifyPublicNote() then
+        if GRM_G.BuildHasRestrictions then
             noteToCheck = player.customNote[4];
         end
 
         if not string.find ( noteToCheck , "%[" .. GRM.L("D") .. "%]" ) then
-            if GRM.CanModifyPublicNote() then
+            if not GRM_G.BuildHasRestrictions then
                 if GRM.CanEditPublicNote() or player.name == GRM_G.addonUser then
                     for i = 1 , #patterns do
                         if string.match ( player.note , patterns[i] ) then
@@ -299,7 +299,7 @@ Prof.InitiateProfessionUpdate = function( showReport , namesProcessed , playersN
                     namesProcessed[name] = true;
 
                     -- Error protection in case Blizz pushes restrictions to classic.
-                    if not GRM.CanModifyPublicNote() and GRM.S().ProfNoteDestination ~= 3 then
+                    if GRM_G.BuildHasRestrictions and GRM.S().ProfNoteDestination ~= 3 then
                         GRM.S().ProfNoteDestination = 3;
                     end
                     success , sizeTooBig = Prof.AppendProfessionReportToNote ( name , GRM.S().ProfNoteDestination );
