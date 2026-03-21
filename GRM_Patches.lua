@@ -1,6 +1,6 @@
 
 -- UPDATES AND BUG PATCHES
--- Total Patches: 155  2026-03-20
+-- Total Patches: 155  2026-03-21
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1892,11 +1892,11 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     end
 
     -- 155
-    if numericV < 1.99384 and baseValue < 1.99384 then
+    if numericV < 1.99385 and baseValue < 1.99385 then
         GRM_Patch.AddNewSetting ( "JDAuditToolIgnoreProtected" , false );
 
-        GRM_AddonSettings_Save.VERSION = "R1.99384";
-        if loopCheck ( 1.99384 ) then
+        GRM_AddonSettings_Save.VERSION = "R1.99385";
+        if loopCheck ( 1.99385 ) then
             return;
         end
     end
@@ -10499,6 +10499,7 @@ end
 -- Purpose:         Removes ability to choose anything but custom option as Blizz removed capabilities in Midnight to write to public/officer notes
 GRM_Patch.RemoveDeprecatedNoteMacroOptions = function ( macroRules )
     local maxLevel = GRM_G.LvlCap or GetMaxPlayerLevel();
+    macroRules = macroRules or {};
 
     for _ , rule in pairs(macroRules) do
         if rule.levelFilter ~= nil and type(rule.levelFilter) ~= "number" then

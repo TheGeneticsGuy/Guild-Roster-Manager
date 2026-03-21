@@ -1,4 +1,4 @@
-## **VERSION 1.99384 - March 21st, 2026**
+## **VERSION 1.99385 - March 21st, 2026**
 
 ***BUG FIXES***
 
@@ -9,6 +9,8 @@
 * The Haranir race is now supported by GRM. The race ID was just a higher limit that I realized it would be. Future race adds by Blizz should automatically work on their own now without the need for manual adjustment.
 
 * The `/grm audit` advanced join date tool has been cleaned up and adapted to these changes. Unfortunately, the ability to edit the note locations you don't want the note to be are not available... but there is useful tooltip info about it, as well as if you click the button and are unable to edit. Furthermore, I have added a new checkbox filter to disregard the audit indicating a note is in an invalid location if it is a protected note. These features will NOT be useful at all in Classic builds, so they will not even appear in Classic builds and will be retail restricted, or at least if addon detects any kind of note editing restrictions.
+
+* Fixed an issue that was preventing GRM from loading for some people as it was failing to patch a previous bug properly. This did not affect very many.
 
 * Fixed a few more misc bugs related to Midnight Launch that should no longer occur.
 
