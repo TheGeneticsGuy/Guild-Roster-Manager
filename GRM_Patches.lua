@@ -1,6 +1,6 @@
 
 -- UPDATES AND BUG PATCHES
--- Total Patches: 154  2026-03-04
+-- Total Patches: 155  2026-03-20
 
 GRM_Patch = {};
 local patchNeeded = false;
@@ -1887,6 +1887,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         
         GRM_AddonSettings_Save.VERSION = "R1.99383";
         if loopCheck ( 1.99383 ) then
+            return;
+        end
+    end
+
+    -- 155
+    if numericV < 1.99384 and baseValue < 1.99384 then
+        GRM_Patch.AddNewSetting ( "JDAuditToolIgnoreProtected" , false );
+
+        GRM_AddonSettings_Save.VERSION = "R1.99384";
+        if loopCheck ( 1.99384 ) then
             return;
         end
     end

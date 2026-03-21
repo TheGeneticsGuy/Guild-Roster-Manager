@@ -2018,6 +2018,13 @@ GRML.Russian = function()
     GRM_L["(Unavailable in Retail)"] = true
     GRM_L["The Global Control string in your guild info needs to be updated. GRM no longer has the ability to do it. Please type /grm and go to the Options and Officer tab to re-obtain a new control text string to manually copy over."] = true
     
+    -- 1.99384
+    GRM_L["NOTICE - Note Editing Restrictions Active - Unable to Edit"] = true
+    GRM_L["Public Note Locations:"] = true
+    GRM_L["Officer Note Locations:"] = true
+    GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = true
+    GRM_L["Disregard notes located in Public or Officer notes"] = true
+    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
     
 end
 

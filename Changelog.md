@@ -1,10 +1,16 @@
-## **VERSION 1.99384 - March 17th, 2026**
+## **VERSION 1.99384 - March 21st, 2026**
 
 ***BUG FIXES***
 
 * Accidentally left some debug print traces that will print out in chat when clicking the Demote Tab in the macro tool. This is now removed.
 
+* The bug of spamming you while in a BG or in raid combat if you /reload will no longer happen. GRM is not able to full configure if you login/reload whilst in an addon restricted state because important functionality and API limitations by Blizzard are currently in place. I have managed to somewhat compartmentalize it so GRM as a whole still configures, but the stuff it cannot fully configure will be limited. It will auto-finish the configuration and initialization once the restrictive addon state is lifted.
+
 * The Haranir race is now supported by GRM. The race ID was just a higher limit that I realized it would be. Future race adds by Blizz should automatically work on their own now without the need for manual adjustment.
+
+* The `/grm audit` advanced join date tool has been cleaned up and adapted to these changes. Unfortunately, the ability to edit the note locations you don't want the note to be are not available... but there is useful tooltip info about it, as well as if you click the button and are unable to edit. Furthermore, I have added a new checkbox filter to disregard the audit indicating a note is in an invalid location if it is a protected note. These features will NOT be useful at all in Classic builds, so they will not even appear in Classic builds and will be retail restricted, or at least if addon detects any kind of note editing restrictions.
+
+* Fixed a few more misc bugs related to Midnight Launch that should no longer occur.
 
 ## **VERSION 1.99383 - March 12th, 2026**
 

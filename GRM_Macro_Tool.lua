@@ -6523,7 +6523,7 @@ end
 ----- QUED SCROLL FRAME -----
 -----------------------------
 
--- Method::         GRM.BuildCustomKickEntries(table)
+-- Method::         GRM.BuildCustomKickEntries(table,bool)
 -- What it Does:    Creates a list of players to be fed kicked - You can feed it ANY names and it will build the list
 -- Purpose:         Custom use of the macro tool.
 -- Note:            Names past to the list must be in an array, and they must be the full "Name-ServerName" in roster

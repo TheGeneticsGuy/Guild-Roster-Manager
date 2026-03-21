@@ -2862,7 +2862,7 @@ Scan.FinalReportInformation = function(needToReport)
 
     if GRM_G.OnFirstLoad then
 
-        if GRM.S() then
+        if not GRM.S() then
             GRM.LoadSettings( true );
         end
 

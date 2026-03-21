@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99383";
+GRM_G.Version = "R1.99384";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1772262763";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1772262763;            -- In Epoch Time
+GRM_G.PatchDayString = "1774077161";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1774077161;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120001;
@@ -606,6 +606,7 @@ GRM_G.StatusChecking:RegisterEvent("GROUP_FORMED");
 GRM_G.StatusChecking:RegisterEvent("GROUP_LEFT");
 GRM_G.StatusChecking:RegisterEvent("PLAYER_ROLES_ASSIGNED");
 GRM_G.StatusChecking:RegisterEvent("PLAYER_ENTERING_WORLD");
+GRM_G.StatusChecking:RegisterEvent("LOADING_SCREEN_ENABLED");
 GRM_G.StatusChecking:SetScript("OnEvent", function(_, event)
 
     if IsInGuild() then
@@ -634,6 +635,8 @@ GRM_G.StatusChecking:SetScript("OnEvent", function(_, event)
             -- I do not want them popping up unexpectedly after a load screen.
             GRM.WipeCombatHiddenState();
             GRM.SecretValueRestrictionRestore();
+        elseif event == "LOADING_SCREEN_ENABLED" then
+            GRM.WipeCombatHiddenState();
 
         elseif eventList[event] then
 
@@ -771,6 +774,7 @@ end
 -- What it Does:    If a secret value delay was set, it resets it and triggers a guild roster update
 -- Purpose:         To handle secret value restrictions lifting after combat or after leaving a BG.
 GRM.SecretValueRestrictionRestore = function()
+    GRM_G.secretValueOnLoadDelay = false;
     if GRM_G.secretValueDelay then
         GRM_G.secretValueDelay = false;
         GRM.GuildRoster();
@@ -978,6 +982,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.disableMacroToolLogSpam = false;
         player.ignoreDeadNames = false;
         player.JDAuditToolFilter = false;
+        player.JDAuditToolIgnoreProtected = false;
 
         -- GRM Roster
         player.showMains = true;
@@ -7275,8 +7280,7 @@ GRM.KickAllBanned = function()
 
     if #kickBannedEntries > 0 then
         -- Bring popup reminder to select it...
-        GRM.Report(GRM.L("GRM:") .. " " ..
-                       GRM.L("Kick macro created. Press Hotkey to Remove Banned Players Still in Guild"));
+        GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Kick macro created. Press Hotkey to Remove Banned Players Still in Guild"));
 
         if not GRM_UI.GRM_ToolCoreFrame or (GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible()) then
             GRM_G.RosterRightClickControl = true;
@@ -19545,8 +19549,15 @@ GRM.CheckAllDates = function(showAll)
                             end
                         end
                     end
-                    table.insert(collectNamesThatMisMatched,
-                        {player.name, result, noteLocation, noteStatus, player.name, false});
+                    local add = true;
+                    if GRM_G.BuildHasRestrictions and GRM.S().JDAuditToolIgnoreProtected then
+                        if noteStatus == 2 or noteStatus == 7 or noteStatus == 8 then
+                            add = false;
+                        end
+                    end
+                    if add then
+                        table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false});
+                    end
                 else
                     -- Else, they DO match!!!
                     -- If note matches, but is in the wrong location
@@ -19563,15 +19574,29 @@ GRM.CheckAllDates = function(showAll)
                         end
                     end
                     if showAll or (not showAll and noteStatus ~= 0) then
-                        table.insert(collectNamesThatMisMatched,
-                            {player.name, result, noteLocation, noteStatus, player.name, false});
+                        local add = true;
+                        if GRM_G.BuildHasRestrictions and GRM.S().JDAuditToolIgnoreProtected then
+                            if noteStatus == 2 or noteStatus == 7 or noteStatus == 8 then
+                                add = false;
+                            end
+                        end
+                        if add then
+                            table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false});
+                        end
                     end
                 end
             elseif player.joinDateHist[1][1] ~= 0 then
                 -- Date is in GRM, but there is no note.
                 noteStatus = 3 -- Doesn't exist, or at least was not identified in the parsing...
-                table.insert(collectNamesThatMisMatched,
-                    {player.name, result, noteLocation, noteStatus, player.name, false});
+                local add = true;
+                if GRM_G.BuildHasRestrictions and GRM.S().JDAuditToolIgnoreProtected then
+                    if noteStatus == 2 or noteStatus == 7 or noteStatus == 8 then
+                        add = false;
+                    end
+                end
+                if add then
+                    table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false});
+                end
             end
         end
     end
@@ -20039,6 +20064,11 @@ GRM.AuditRefresh = function(fullRefresh)
     if GRM.S().JDAuditToolFilter then
         GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolCheckBox:SetChecked(true);
     end
+
+    if GRM_G.BuildHasRestrictions and GRM.S().JDAuditToolIgnoreProtected then
+        GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButton:SetChecked(true);
+    end
+
 
     GRM.RefreshJDAuditToolFrames(not GRM.S().JDAuditToolFilter, fullRefresh);
 end
@@ -23366,31 +23396,29 @@ end
 -- What it Does:    Handles the delay logic for when the addon is loaded while in a PVP instance or in raid combat
 -- Purpose:         In 12.0 Blizz introduced addon restrictions. This accomodates that to prevent spam as GRM is unable to fully configure able if reload
 GRM.SecretValueLoadDelayHandler = function()
-    if not GRM_G.secretValueOnLoadDelay then
-        GRM_G.secretValueOnLoadDelay = true;
-
-        if GRM.IsInAnyPvPInstance() then
-            local pvpType = select(2, IsInInstance());
-            if pvpType == "pvp" then
-                pvpType = BATTLEGROUND;
-            elseif pvpType == "arena" then
-                pvpType = ARENA ;
-            end
+    if GRM.IsInAnyPvPInstance() then
+        local pvpType = select(2, IsInInstance());
+        if pvpType == "pvp" then
+            pvpType = BATTLEGROUND;
+        elseif pvpType == "arena" then
+            pvpType = ARENA ;
+        end
+        GRM_G.RestrictionAnnounced = true;
+        GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends." , pvpType));
+    else
+        -- Sometimes GRM can trigger early...
+        if IsInInstance() and UnitAffectingCombat("player") then
             GRM_G.RestrictionAnnounced = true;
-            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends." , pvpType));
-        else
-            -- Sometimes GRM can trigger early...
-            if IsInInstance() and UnitAffectingCombat("player") then
-                GRM_G.RestrictionAnnounced = true;
-                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"));
-            end
-
-            C_Timer.After(5, function()
-                GRM.SecretValueRestrictionRestore();    -- Restore it one time
-            end);
-            
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"));
+        elseif not IsInInstance() and GRM_G.AddonRestricted then
+            GRM_G.RestrictionAnnounced = true;
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."));
         end
 
+        -- C_Timer.After(5, function()
+        --     GRM.SecretValueRestrictionRestore();    -- Restore it one time
+        -- end);
+        
     end
 end
 
@@ -23399,13 +23427,16 @@ end
 -- Purpose:         If a guild is on more than one server with the same name, that can complicate things. This helps idenitfy the server by the creation date as well...
 GRM.DelayForGuildInfoCallback = function()
     if GRM_G.guildCreationDate == "" then
-        GRM.SetGuildInfoDetails();
-        GRM.GuildRoster();
-        if GRM_G.secretValueDelay then
-            GRM.SecretValueLoadDelayHandler();
-        else
-            if GRM_G.RestrictionAnnounced then
-                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
+        if not GRM_G.secretValueOnLoadDelay then
+            if GRM_G.secretValueDelay then
+                GRM_G.secretValueOnLoadDelay = true
+                GRM.SecretValueLoadDelayHandler();
+            else
+                GRM.SetGuildInfoDetails();
+                GRM.GuildRoster();
+                if GRM_G.RestrictionAnnounced then
+                    GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
+                end
             end
         end
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
@@ -23415,7 +23446,7 @@ GRM.DelayForGuildInfoCallback = function()
 
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
         return
-    elseif GRM_G.BuildVersion >= 10000 and GRM_G.gClubID == 0 then
+    elseif GRM_G.gClubID == 0 then
         if C_Club.GetGuildClubId() ~= nil then
             GRM_G.gClubID = C_Club.GetGuildClubId();
         else
@@ -23536,7 +23567,7 @@ GRM.LoadAddon = function()
     GRM_G.GRMfunctionDisabled = false;
 
     -- Delay needs to be here to try to help prevent any initialization errors that might occur for some people.
-    if GRM_G.BuildVersion >= 10000 and not CommunitiesFrame then
+    if not CommunitiesFrame then
         C_Timer.After(3, function()
             GRM.LoadRecursiveErrorCheck();
             GRM.ForceLoadAddon("Blizzard_Communities");
@@ -23591,16 +23622,12 @@ end
 --                  is necessary because it doesn't need to re-register frames like it would on the first activation upon logging in.
 -- Purpose:         Resource efficiency.
 GRM.ReactivateAddon = function()
-
     C_Timer.After(5, GRM.Util.RegisterGuildChatPermission);
 
     GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
 
     GRM.SetGuildInfoDetails();
-    GRM.GuildRoster();
-    if GRM_G.BuildVersion >= 10000 then
-        QueryGuildEventLog();
-    end
+    QueryGuildEventLog();
 
     if not GRM.S() then
         GRM_AddonSettings_Save[GRM_G.guildName] = {};

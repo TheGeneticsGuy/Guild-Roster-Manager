@@ -1100,6 +1100,9 @@ GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollBorderFrame.GRM_AuditToolStep4Text = GRM_
 -- CHECKBOX
 GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolCheckBox = CreateFrame ( "CheckButton" , "GRM_AuditJDToolCheckBox" , GRM_UI.GRM_AuditJDTool , "InterfaceOptionsCheckButtonTemplate" );
 GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolCheckBoxText = GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolCheckBox:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButton = CreateFrame ( "CheckButton" , "GRM_AuditJDToolIgnoreProtectedButton" , GRM_UI.GRM_AuditJDTool , "InterfaceOptionsCheckButtonTemplate" );
+GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButtonText = GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+
 
 -- Right-Click DropDownMenu on ChatFrame
 GRM_UI.GRM_DropDownList1AttachmentFrame = CreateFrame ( "Frame" , "GRM_DropDownList1AttachmentFrame" , UIParent , BackdropTemplateMixin and "BackdropTemplate" );
@@ -13050,6 +13053,25 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             end
         end
     end);
+
+    if GRM_G.BuildHasRestrictions then
+        GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButton:SetPoint ( "LEFT" , GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolCheckBoxText , "RIGHT" , 10 , 0 )
+        GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButton , "RIGHT" , 2 , 0 );
+        GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 11 );
+        GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButtonText:SetText ( GRM.L ( "Disregard notes located in Public or Officer notes" ) );
+        GRM.NormalizeHitRects ( GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButton , GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButtonText );
+        GRM_UI.GRM_AuditJDTool.GRM_AuditJDToolIgnoreProtectedButton:SetScript ( "OnClick" , function( self , button )
+            if button == "LeftButton" then
+                if self:GetChecked() then
+                    GRM.S().JDAuditToolIgnoreProtected = true;
+                    GRM.AuditRefresh( true );
+                else
+                    GRM.S().JDAuditToolIgnoreProtected = false;
+                    GRM.AuditRefresh( true );
+                end
+            end
+        end);
+    end
 
     -- CORE AUDIT TOOL --
     GRM_UI.GRM_AuditJDTool:SetScript ( "OnKeyDown" , function ( self , key )
