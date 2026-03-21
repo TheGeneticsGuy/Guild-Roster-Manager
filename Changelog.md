@@ -14,6 +14,8 @@
 
 * Fixed a few more misc bugs related to Midnight Launch that should no longer occur.
 
+* The GRM was occasionally popping up after a loading screen. This should no longer occur.
+
 ## **VERSION 1.99383 - March 12th, 2026**
 
 ***ADDONGEDDON WITH MIDNIGHT***
