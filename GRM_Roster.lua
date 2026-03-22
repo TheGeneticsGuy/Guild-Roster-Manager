@@ -567,7 +567,7 @@ GRM_R.RefreshOnlineStatus = function( guildData )
     end
 
 end
--- /run local g=GRM_R.GetAllMembersAsArray();for i=1,#g do if not g[i].MythicScore then print(g[i].name .. " : " .. i);end;end
+
 -- Method:          GRM_R.GetAllMembersAsArray( string , string )
 -- What it Does:    Returns an unsorted list of all guild members as an array, as well as some accompanying details.
 -- Purpose:         A sorted list is useful for columns
@@ -587,7 +587,6 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
         if GRM.S().showRosterOffline or ( not GRM.S().showRosterOffline and player.isOnline ) then
 
             if ( not nameSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , nameSearch , 1 , true ) or string.find ( string.lower ( player.name ) , nameSearch , 1 , true ) ) and ( not noteSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.note ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.note ) , noteSearch , 1 , true ) or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.customNote[4] ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.customNote[4] ) , noteSearch , 1 , true ) or ( GRM.CanEditOfficerNote() and ( string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.officerNote ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.officerNote ) , noteSearch , 1 , true ) ) ) ) then
-
                 if GRM.IsMain ( player.name ) then
                     tempPlayer.isMain = true;
                     tempPlayer.isAlt = false;
@@ -611,7 +610,7 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
 
                 if GRM.S().showMains and GRM.S().groupByMain and not altAdd then
 
-                    if tempPlayer.isAlt then
+                    if tempPlayer.isAlt and not nameSearch then
                         toAdd = false;
                     else
                         if tempPlayer.isMain then

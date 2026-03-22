@@ -116,7 +116,6 @@ GRML.MandarinCN = function()
     GRM_L["LOG"] = "日志"                                                    -- Context - The guild Log shorthand for the tab
     GRM_L["Guild Roster Event Log"] = "成员变动日志"
     GRM_L["Clear Log"] = "清除日志"
-    GRM_L["Really Clear the Guild Log?"] = "确认清除公会日志?"
     GRM_L["{name} KICKED {name2} from the Guild!"] = "{name} 已将 {name2} 开除出公会!"
     GRM_L["kicked"] = "已开除"
     GRM_L["{name} has Left the guild"] = "{name} 离开了公会"
@@ -2026,6 +2025,12 @@ GRML.MandarinCN = function()
     GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = true
     GRM_L["Disregard notes located in Public or Officer notes"] = true
     GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
+    
+    -- R1.99386
+    GRM_L["Unable to Retrieve. Addons currently restricted."] = true
+    GRM_L["The Log is already empty."] = true
+    GRM_L["Only the visible non-filtered log entries will be cleared. Do you really wish to delete the {num} log entries?"] = true
+    GRM_L["Only the currently filtered {num} log entries will be removed."] = true
     
 end
 

@@ -5655,6 +5655,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.GRM_RosterConfirmFrame:SetScript ( "OnHide" , function ()
             GRM_UI.GRM_RosterChangeLogFrame:EnableMouse ( true );
             GRM_UI.GRM_RosterChangeLogFrame:SetMovable ( true );
+
+            -- Tags
+            GRM_UI.GRM_RosterConfirmFrame.LogClearOption = false;
         end);
         
     end
@@ -6084,18 +6087,42 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_RosterClearLogButtonText:SetText ( GRM.L ( "Clear Log" ) );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_RosterClearLogButton:SetScript ( "OnClick" , function( _ , button )
         if button == "LeftButton" then
-            GRM_UI.GRM_RosterChangeLogFrame:EnableMouse( false );
-            GRM_UI.GRM_RosterChangeLogFrame:SetMovable( false );
-            GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Really Clear the Guild Log?" ) );
-            GRM_UI.GRM_RosterConfirmYesButtonText:SetText ( GRM.L ( "Yes!" ) );
-            GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
-                if button == "LeftButton" then
-                    GRM.ResetLogReport();       --Resetting!
-                    GRM_UI.GRM_RosterConfirmFrame:Hide();
-                end
-            end);
-            GRM_UI.GRM_RosterConfirmFrame:Show();
+            if #GRM_G.fullLogMatch > 0 then
+                GRM_UI.GRM_RosterChangeLogFrame:EnableMouse( false );
+                GRM_UI.GRM_RosterChangeLogFrame:SetMovable( false );
+                GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Only the visible non-filtered log entries will be cleared. Do you really wish to delete the {num} log entries?" , nil , nil , GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] ) );
+                GRM_UI.GRM_RosterConfirmYesButtonText:SetText ( GRM.L ( "Yes!" ) );
+                
+                GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
+                    if button == "LeftButton" then
+                        GRM.ClearAllLogLinesWithinRange ( 1 , GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] );
+                        GRM_UI.GRM_RosterConfirmFrame:Hide();
+                        if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then -- if frame is open, let's rebuild it!
+                            GRM.BuildLogComplete(true, true);
+                        end
+                    end
+                end);
+                GRM_UI.GRM_RosterConfirmFrame.LogClearOption = true;
+                GRM_UI.GRM_RosterConfirmFrame:Show();
+                
+            else
+                GRM.Report( GRM.L( "The Log is already empty." ) );
+            end                
         end
+    end);
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_RosterClearLogButton:SetScript ( "OnEnter" , function ( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        if #GRM_G.fullLogMatch > 0 then
+            GameTooltip:AddLine ( GRM.L ( "Only the currently filtered {num} log entries will be removed." , nil , nil , GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5]  ) );
+        else
+            GameTooltip:AddLine ( GRM.L ( "The Log is already empty." ) );
+        end
+        GameTooltip:Show();
+    end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_RosterResetOptionsButton:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip()
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_RosterResetOptionsButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame , "BOTTOMRIGHT" , -15 , 15 );
@@ -6176,52 +6203,56 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_ConfirmClearButton.GRM_ConfirmClearButtonText:SetWidth ( 70 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_ConfirmClearButton:SetScript ( "OnClick" , function ( _ , button )
         if button == "LeftButton" then
-            local numBox1 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:GetText() );
-            local numBox2 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:GetText() );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:ClearFocus();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:ClearFocus();
+            if #GRM_G.fullLogMatch > 0 then
+                local numBox1 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:GetText() );
+                local numBox2 = tonumber ( GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:GetText() );
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:ClearFocus();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:ClearFocus();
 
-            if numBox1 == 0 and numBox1 == numBox2 then
-               GRM.Report ( GRM.L ( "Please Select Range of Lines from the Log You Wish to Remove" ) );
+                if numBox1 == 0 and numBox1 == numBox2 then
+                GRM.Report ( GRM.L ( "Please Select Range of Lines from the Log You Wish to Remove" ) );
 
-            elseif numBox1 > numBox2 then
-                GRM.Report ( GRM.L ( "Please put the lowest number in the first box" ) );
+                elseif numBox1 > numBox2 then
+                    GRM.Report ( GRM.L ( "Please put the lowest number in the first box" ) );
 
-            elseif numBox1 > GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] then
-                GRM.Report ( GRM.L ( "Line selection is not valid" ) );
+                elseif numBox1 > GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] then
+                    GRM.Report ( GRM.L ( "Line selection is not valid" ) );
 
-                if not GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogShowLinesCheckButton:GetChecked() then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogShowLinesCheckButton:SetChecked ( true );
-                    GRM.Report ( GRM.L ( "Enabling Line Numbers... Please choose within the given range" ) );
-                    GRM.S().showLineNumbers = true;
-                    GRM.ResetLogStringPoints ( true )
-                    GRM.BuildLogComplete( true , false, true );
-                end
-
-            else
-
-                if numBox2 > GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] then
-                    numBox2 = GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5];
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetText ( numBox2 );
-                end
-
-                if numBox1 == numBox2 then
-                    GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Really Clear line {num}?" , nil , nil , numBox1 ) );
-                else
-                    GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Really Clear lines {custom1} to {custom2}?" , nil , nil , nil , numBox1 , numBox2 ) );
-                end
-
-                GRM_UI.GRM_RosterConfirmYesButtonText:SetText ( GRM.L ( "Yes!" ) );
-                GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
-                    if button == "LeftButton" then
-                        GRM.ClearAllLogLinesWithinRange ( numBox1 , numBox2 );
-                        GRM_UI.GRM_RosterConfirmFrame:Hide();
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetText ( "0" );
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetText ( "0" );
-                        GRM.BuildLogComplete( true , true );
+                    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogShowLinesCheckButton:GetChecked() then
+                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogShowLinesCheckButton:SetChecked ( true );
+                        GRM.Report ( GRM.L ( "Enabling Line Numbers... Please choose within the given range" ) );
+                        GRM.S().showLineNumbers = true;
+                        GRM.ResetLogStringPoints ( true )
+                        GRM.BuildLogComplete( true , false, true );
                     end
-                end);
-                GRM_UI.GRM_RosterConfirmFrame:Show();
+
+                else
+
+                    if numBox2 > GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] then
+                        numBox2 = GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5];
+                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetText ( numBox2 );
+                    end
+
+                    if numBox1 == numBox2 then
+                        GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Really Clear line {num}?" , nil , nil , numBox1 ) );
+                    else
+                        GRM_UI.GRM_RosterConfirmFrameText:SetText( GRM.L ( "Really Clear lines {custom1} to {custom2}?" , nil , nil , nil , numBox1 , numBox2 ) );
+                    end
+
+                    GRM_UI.GRM_RosterConfirmYesButtonText:SetText ( GRM.L ( "Yes!" ) );
+                    GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
+                        if button == "LeftButton" then
+                            GRM.ClearAllLogLinesWithinRange ( numBox1 , numBox2 );
+                            GRM_UI.GRM_RosterConfirmFrame:Hide();
+                            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetText ( "0" );
+                            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetText ( "0" );
+                            GRM.BuildLogComplete( true , true );
+                        end
+                    end);
+                    GRM_UI.GRM_RosterConfirmFrame:Show();
+                end
+            else
+                GRM.Report( GRM.L( "The Log is already empty." ) );
             end
         end
     end);
@@ -6236,9 +6267,15 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         self:HighlightText( 0 );
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetScript ( "OnEditFocusLost" , function ( self )
-        self:HighlightText( 0 , 0 );
-        if self:GetText() == "" then
-            self:SetText ( "0" );
+
+        if #GRM_G.fullLogMatch > 0 then
+            self:HighlightText( 0 , 0 );
+            if self:GetText() == "" then
+                self:SetText ( "0" );
+            end
+        else
+            self:SetText(0);
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetText(0);        
         end
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetScript ( "OnTabPressed" , function ( self )
@@ -6268,15 +6305,20 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         self:HighlightText( 0 );
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetScript ( "OnEditFocusLost" , function ( self )
-        if tonumber ( self:GetText() ) ~= nil and tonumber ( self:GetText() ) > GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] then
-            self:SetText ( GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] );
+        if #GRM_G.fullLogMatch > 0 then
+            if tonumber ( self:GetText() ) ~= nil and tonumber ( self:GetText() ) > GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] then
+                self:SetText ( GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] );
+            end
+            self:HighlightText( 0 , 0 );
+            if self:GetText() == "" then
+                self:SetText ( "0" );
+            end
+            GRM.SetColoredLines();
+            GRM.BuildLogComplete( true , false , true );
+        else
+            self:SetText(0);
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetText(0);
         end
-        self:HighlightText( 0 , 0 );
-        if self:GetText() == "" then
-            self:SetText ( "0" );
-        end
-        GRM.SetColoredLines();
-        GRM.BuildLogComplete( true , false , true );
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetScript ( "OnTabPressed" , function ( self )
         if self:GetText() == "" then
@@ -7401,7 +7443,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
 
     GRM_UI.GRM_RosterCheckBoxSideFrame:SetScript ( "OnHide" , function ()
-        if GRM_UI.GRM_RosterConfirmFrame:IsVisible() and GRM_UI.GRM_RosterConfirmFrameText:GetText() == GRM.L ( "Really Clear the Guild Log?" ) then
+        if GRM_UI.GRM_RosterConfirmFrame:IsVisible() and GRM_UI.GRM_RosterConfirmFrame.LogClearOption then
             GRM_UI.GRM_RosterConfirmFrame:Hide();
         end
     end);
@@ -13247,6 +13289,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             else
                 finalCount = multipleLocations;
             end
+
             if finalCount > 0 then
                 GRM.SetConfirmationWindow ( GRM.MismatchConfirmConfig5 , GRM.L ( "Do you really want to remove the join dates from notes other than the {name}?" , GRM.GetNoteName() ) )
             else

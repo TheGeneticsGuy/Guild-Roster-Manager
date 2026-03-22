@@ -7009,7 +7009,7 @@ GRMsync.CheckingALTChanges = function()
     for leadName , receivedgroup in pairs ( GRMsyncGlobals.AltReceivedTemp.AltGroups ) do
         isFound = false;
         for i = 1 , #receivedgroup do                               -- Cycle through received alt group
-            for j = 1 , #altData[3] do                              -- Cycle through all of my alt groups
+            for j = #altData[3] , 1 , -1 do                              -- Cycle through all of my alt groups
                 for k = 1 , #altData[3][j] do                       -- Cycle through all group alt data, each list of alts
                     if receivedgroup[i] == altData[3][j][k] then
                         isFound = true;

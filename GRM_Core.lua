@@ -22,7 +22,7 @@ GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level o
 GRM_G.RetailBaseBuild = 120001;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.60;
+GRM_G.GroupInfoV = 1.61;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -1214,7 +1214,7 @@ GRM.SetDefaultAddonSettings = function(player, page)
         end
 
         if GRM_G.BuildVersion < 80000 then
-            player.exportFilters.mythicScore = false;
+            player.exportFilters.mythicScore = false; 
         end
 
         -- Macro Tool Kick Options
@@ -4952,53 +4952,57 @@ GRM.QueryNearbyGUIDsAndUpdate = function(specificName, guildInvite)
     -- First, check if I am targeting anyone
 
     local targetGUID = UnitGUID("TARGET");
-    if (targetGUID and string.find(targetGUID, "Player-")) or IsInGroup() then -- No need to move further if both of these are not true
-        local namesNoGUID = {};
+    if not GRM.issecretvalue(targetGUID) then
+        if (targetGUID and string.find(targetGUID, "Player-")) or IsInGroup() then -- No need to move further if both of these are not true
+            local namesNoGUID = {};
 
-        if specificName then
-            namesNoGUID = {{specificName, true}}; -- Since we just added this ban, only gonna scan through this specific name.
-        else
-            namesNoGUID = GRM.GetPlayersWithoutGUID(false, true);
-        end
-
-        local name = "";
-        if targetGUID then
-
-            name = GRM.GetPlayerNameByGUID(targetGUID);
-            for i = 1, #namesNoGUID do
-                if namesNoGUID[i][1] == name then
-                    if not guildInvite then
-                        GRM.UpdateMemberOrFormerMemberGUID(name, targetGUID);
-                    else
-                        return targetGUID;
-                    end
-                    table.remove(namesNoGUID, i);
-                    break
-                end
+            if specificName then
+                namesNoGUID = {{specificName, true}}; -- Since we just added this ban, only gonna scan through this specific name.
+            else
+                namesNoGUID = GRM.GetPlayersWithoutGUID(false, true);
             end
 
-        end
+            local name = "";
+            if targetGUID then
 
-        -- Targeting my have removed the name.
-        if #namesNoGUID > 0 and IsInGroup() then
-            local groupMembers = GRM.CollectGUIDsWithinGoup();
-            for i = 1, #namesNoGUID do
-                for j = #groupMembers, 1, -1 do
-                    if namesNoGUID[i][1] == groupMembers[j][1] then
+                name = GRM.GetPlayerNameByGUID(targetGUID);
+                for i = 1, #namesNoGUID do
+                    if namesNoGUID[i][1] == name then
                         if not guildInvite then
-                            GRM.UpdateMemberOrFormerMemberGUID(groupMembers[j][1], groupMembers[j][2]);
+                            GRM.UpdateMemberOrFormerMemberGUID(name, targetGUID);
                         else
-                            return groupMembers[j][2];
+                            return targetGUID;
                         end
-                        if specificName and not guildInvite and namesNoGUID[i][3] then -- not specificName
-                            GRM.Report(GRM.L("GRM:") .. " " ..
-                                           GRM.L(
-                                    "Banned Player in Group: {name} - Identify Verified and Ban List Updated",
-                                    GRM.GetClassifiedName(groupMembers[j][1], false)));
-                        end
-
-                        table.remove(groupMembers, j);
+                        table.remove(namesNoGUID, i);
                         break
+                    end
+                end
+
+            end
+
+            -- Targeting my have removed the name.
+            if #namesNoGUID > 0 and IsInGroup() then
+                local groupMembers = GRM.CollectGUIDsWithinGoup();
+                if #groupMembers > 0 then       -- This will be an empty table if the addon is in restrictive state
+                    for i = 1, #namesNoGUID do
+                        for j = #groupMembers, 1, -1 do
+                            if namesNoGUID[i][1] == groupMembers[j][1] then
+                                if not guildInvite then
+                                    GRM.UpdateMemberOrFormerMemberGUID(groupMembers[j][1], groupMembers[j][2]);
+                                else
+                                    return groupMembers[j][2];
+                                end
+                                if specificName and not guildInvite and namesNoGUID[i][3] then -- not specificName
+                                    GRM.Report(GRM.L("GRM:") .. " " ..
+                                                GRM.L(
+                                            "Banned Player in Group: {name} - Identify Verified and Ban List Updated",
+                                            GRM.GetClassifiedName(groupMembers[j][1], false)));
+                                end
+
+                                table.remove(groupMembers, j);
+                                break
+                            end
+                        end
                     end
                 end
             end
@@ -5036,6 +5040,10 @@ GRM.CollectGUIDsWithinGoup = function()
         for i = 1, GetNumGroupMembers() do
             unit = groupType .. i;
             guid = UnitGUID(unit);
+            if GRM.issecretvalue(guid) then
+                members = {};
+                break;
+            end
             name = GetUnitName(unit, true); -- name, include Server
 
             if name and guid then
@@ -19475,12 +19483,14 @@ GRM.CheckAllDates = function(showAll)
     local noteLocation = 0; -- 1 = officer, 2 = public, 3 = custom, 4 = multipleLocations
     local noteStatus = 0; -- 1 = doNotMatch , 2 = noteInWrongNote , 3 = NoNoteExists , 4 = doNotMatch && noteInWrongNote , 5 = doNotMatch && correctLocation && dateInMultipleNotes , 6 = doNotMatch && noteInWrongNote && dateInMultipleNotes
     -- 7 = noteInWrongNote && dateInMultipleNotes , 8 == doMatch && CorrectLocation && multipleNotes , 9-12 - no GRM date imported yet
+    local inPublic, inOfficer = false, false;
 
     for _, player in pairs(GRM.GetGuild()) do
         if type(player) == "table" then
             noteStatus = 0;
             noteLocation = 0;
             result = nil;
+            inPublic, inOfficer = false, false;
 
             -- Check Officer
             if canReadOfficer and player.officerNote ~= "" then
@@ -19488,6 +19498,7 @@ GRM.CheckAllDates = function(showAll)
                 -- If the note is found here, but not found in the proper place...
                 if result ~= nil then
                     noteLocation = 1;
+                    inOfficer = true;
                     if GRM.S().joinDateDestination ~= 1 then
                         noteStatus = 2
                     end
@@ -19510,10 +19521,13 @@ GRM.CheckAllDates = function(showAll)
                 result = GRM.GetParsedDate(player.note);
                 if result ~= nil then
                     noteLocation = 2;
+                    inPublic = true;
                     if GRM.S().joinDateDestination ~= 2 then
                         noteStatus = 2
                     end
                 end
+            elseif result and GRM.GetParsedDate(player.note) ~= nil then
+                inPublic = true;
             end
 
             if result ~= nil then
@@ -19556,7 +19570,7 @@ GRM.CheckAllDates = function(showAll)
                         end
                     end
                     if add then
-                        table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false});
+                        table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false , inPublic, inOfficer });
                     end
                 else
                     -- Else, they DO match!!!
@@ -19581,7 +19595,7 @@ GRM.CheckAllDates = function(showAll)
                             end
                         end
                         if add then
-                            table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false});
+                            table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false , inPublic, inOfficer });
                         end
                     end
                 end
@@ -19595,7 +19609,7 @@ GRM.CheckAllDates = function(showAll)
                     end
                 end
                 if add then
-                    table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false});
+                    table.insert(collectNamesThatMisMatched,{player.name, result, noteLocation, noteStatus, player.name, false , inPublic, inOfficer });
                 end
             end
         end
@@ -19612,11 +19626,12 @@ end
 GRM.RestrictedNoteCount = function()
     local public, officer = 0,0;
     for i = 1 , #GRM_G.AuditToolGuildies do
-        if GRM_G.AuditToolGuildies[i][3] > 0 and GRM_G.AuditToolGuildies[i][3] < 3 then
-            if GRM_G.AuditToolGuildies[i][3] == 1 then
-                officer = officer + 1;
-            else
+        if (GRM_G.AuditToolGuildies[i][3] > 0 and GRM_G.AuditToolGuildies[i][3] < 3) or GRM_G.AuditToolGuildies[i][3] == 4 then
+            if GRM_G.AuditToolGuildies[i][7] then
                 public = public + 1;
+            end
+            if GRM_G.AuditToolGuildies[i][8] then
+                officer = officer + 1;
             end
 
         end
@@ -22151,7 +22166,7 @@ GRM.GR_Roster_Click = function(name)
                     end
                 else
                     -- Since player doesn't have keyboard focus, let's just default it to main chat window
-                    ChatFrame_OpenChat(GRM.SlimName(name));
+                    ChatFrameUtil.OpenChat(GRM.SlimName(name));
 
                 end
             end
@@ -22731,10 +22746,15 @@ end
 -- What it Does:    Pastes the player's GUID to the chat box to easily be copied
 -- Purpose:         Special use case to obtain GUIDs
 GRM.SlashCommandGUID = function()
-    C_Timer.After(0.5,
-        function() -- Need to add slight delay as hitting enter on the keyboard for the command auto closes.
-            ChatFrame_OpenChat(UnitGUID("PLAYER"));
-        end);
+    local guid = UnitGUID("PLAYER");
+    if not GRM.issecretvalue(guid) then
+        C_Timer.After(0.5,
+            function() -- Need to add slight delay as hitting enter on the keyboard for the command auto closes.
+                ChatFrameUtil.OpenChat(guid);
+            end);
+    else
+        GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Unable to Retrieve. Addons currently restricted."))
+    end
 end
 
 -- Method:          GRM.SlashCommandProf()

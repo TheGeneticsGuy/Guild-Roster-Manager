@@ -605,9 +605,6 @@ Scan.BaseScanningComplete_MoveToChanges = function( roster , orderedRoster )
     GRM_G.newPlayers = {};          -- Reset for CheckPlayerChanges
     GRM_G.leavingPlayers = {};
 
-    GRM.GuildRoster();
-    QueryGuildEventLog();
-
     -- Sort the ordered roster *before* passing to CheckPlayerChanges
     sort(orderedRoster);
 

@@ -1,3 +1,24 @@
+## **VERSION 1.99386 - March 22nd, 2026**
+
+***QUALITY OF LIFE***
+
+* In the roster you can access at `/roster` - Previously, if you had grouped the roster by mains with their alts, if you searched it would only search by the main names since the roster was sorted by main names with the alts sorted underneath each of the mains. Now, if you search for a player who is an alt, they will still appear in the roster and the names will not just disappear because they are not a main. In other words, the search should function better now and you should no longer need to disable the grouping alts with main whilst searching.
+
+* Clearing log lines is a little more obvious now in the Log options (click button to open them below the log message filters on the right). Clicking the Clear Log button now indicates that it will ONLY clear the log of the visible log entries. So anything you uncheck will not be deleted when you clear the log. Only what is visible.
+
+***BUG FIXES***
+
+* Whoops! I removed a debug trace and added another. The message saying Addon Restricted: True/False will now no longer show. Sorry about that!
+
+* Fixed a Lua error/Taint error related to Midnight API changes when querying the server for player GUID during protected mode - which returns secret value only sometimes. WTF - how could this API in any way give combat advantage with addons? I had it throw an error when I was rested, in a city, immediately after inviting a member to the guild. Why am I getting secret protected data return on this in the city!?
+
+* Fixed a bug that could cause sync to fail during the alt syncing phase... If you successfully synced the join/promote dates, but then sync hanged and failed shortly after, and alt/main data failed to sync, this might have been the case. It's sort of an "edge" case bug that will not affect most people, but it can happen.
+
+* Fixed an issue with the Audit Advanced Join Date tool - it should now properly inform you if there are restrictions in place from editing the join date and auto removing them, which is no longer possible in Midnight.
+
+* If the Log was empty, and you tried to enter a number range on log lines to clear, you would throw a lot of Lua errors. This will no longer occur anymore, and proper messaging will indicate as such, and the number entry will default back to zero.
+
+
 ## **VERSION 1.99385 - March 21st, 2026**
 
 ***BUG FIXES***

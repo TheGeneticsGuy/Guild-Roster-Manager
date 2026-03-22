@@ -29,13 +29,11 @@ local InitializeSecrets = function()
         else
             GRM_G.AddonRestricted = false;
         end
-
-        print("AddonRestricted = " .. tostring(GRM_G.AddonRestricted))
     end);
 
     Secrets.IsAddonRestricted = function()
         for _, state in pairs(GRM_G.Secrets) do
-            if state > 0 then   -- To ensure not a truthy response if it ends up nil...
+            if state > 0 then
                 return true;
             end
         end
