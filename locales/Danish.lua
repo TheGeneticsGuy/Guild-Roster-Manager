@@ -2029,5 +2029,9 @@ GRML.Danish = function()
     GRM_L["The Log is already empty."] = true
     GRM_L["Only the visible non-filtered log entries will be cleared. Do you really wish to delete the {num} log entries?"] = true
     GRM_L["Only the currently filtered {num} log entries will be removed."] = true
+
+    -- R1.99387
+    GRM_L["Custom note exceeds maximum character limit of {num} and cannot be saved." ] = true
+    GRM_L["Appended custom note for {name} exceeds the maximum character limit of {num} and cannot be saved."] = true
     
 end

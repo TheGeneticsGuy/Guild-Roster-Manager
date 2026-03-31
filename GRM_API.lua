@@ -493,3 +493,49 @@ GRM_API.DetermineInterfaceRule = function( text_match )
         end
     end
 end
+
+-- CUSTOM NOTE ACCESS
+------------------------
+
+-- Method:          GRM_API.EditCustomNote ( string , string [, bool ] [, bool ] )
+-- What it Does:    Edits the custom note for a player. If replace_existing is  false or nil, it will append the new note to the end of the existing note. If true, it will replace the existing note. If Skip_log_entry is true, it will not create a log entry for this change.  
+-- Purpose:         To allow editing of the custom note field for a player. This is a powerful tool that can be used for various purposes, such as adding additional information about a player that is not covered by the standard fields, or for temporary notes that you do not want to be permanent. Use with caution, as it can overwrite existing notes if replace_existing is set to true. These notes can be synced across guild members.
+GRM_API.EditCustomNote = function ( player_name , new_note , replace_existing , Skip_log_entry )
+    -- Note, if replaceExisting is nil/false, it will append. If true, it will fully replace the note.
+    if not player_name or not new_note or new_note == "" then
+        return false;
+    elseif #new_note > GRM_G.MaxCustomNoteSize then
+        GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Custom note exceeds maximum character limit of {num} and cannot be saved." , nil, nil, GRM_G.MaxCustomNoteSize));
+        return false;
+    end
+
+    local player = GRM.GetPlayer ( player_name );
+
+    if player then
+        local oldNote = player.customNote[4];
+        local timestamp = time();
+                
+        if replace_existing or currentNote == "" then
+            new_note = GRM.Trim(new_note);
+        else
+            new_note = GRM.Trim(oldNote .. "\n" ..  new_note);
+        end
+
+        if #new_note > GRM_G.MaxCustomNoteSize then
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Appended custom note for {name} exceeds the maximum character limit of {num} and cannot be saved." , player.name, nil, GRM_G.MaxCustomNoteSize));
+            return false;
+        end
+
+        player.customNote[2] = timestamp;
+        player.customNote[3] = GRM_G.addonUser;
+        player.customNote[4] = new_note;
+        
+        if not Skip_log_entry then
+            GRM.RecordCustomNoteChanges(player.customNote[4], oldNote, GRM_G.addonUser, player.name, false); -- Note, this will NOT rebuild the log, you must refresh yourself
+        end
+        
+        return true; -- Optional return use for validation that edit worked.
+    else
+        return false;
+    end
+end

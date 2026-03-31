@@ -1,3 +1,26 @@
+## **VERSION 1.99387 - March 31st, 2026**
+
+* Minor update for some public access use API to edit the custom note. New API is here:
+
+`GRM_API.EditCustomNote`
+`GRM_API.EditCustomNote( player_name , new_note , replace_existing , Skip_log_entry )`
+
+**Example Usage:**
+```
+GRM_API.EditCustomNote("Arkaan-Area52", "Discord: Arkaan")
+
+or 
+
+GRM_API.EditCustomNote("Arkaan-Zul'jin", "I am fully replacing any existing Custom Note", true, false)
+```
+
+The 4th argument you can set to `true` if you don't want it to add a log entry. If you are mass updating players in the guild, maybe you don't want it to just spam your log with those changes, so I included the option to bypass.
+
+Please note, the name has to be perfectly formatted with the Blizz style of server formatting on the backend, which means no spaces, no hyphens. If you want, you can use this script here to learn how to properly format your player names:
+
+`local formatted_serverName = string.gsub(string.gsub(GetRealmName(), "-", ""), "%s+", "")`
+
+
 ## **VERSION 1.99386 - March 22nd, 2026**
 
 ***QUALITY OF LIFE***
