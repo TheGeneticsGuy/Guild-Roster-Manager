@@ -13,6 +13,7 @@ or
 
 GRM_API.EditCustomNote("Arkaan-Zul'jin", "I am fully replacing any existing Custom Note", true, false)
 ```
+The 3rd argument just leave empty or set to false and the note will append to the existing note only, not overwrite. Otherwise, set to true if you wish to overwrite full, like in the example.
 
 The 4th argument you can set to `true` if you don't want it to add a log entry. If you are mass updating players in the guild, maybe you don't want it to just spam your log with those changes, so I included the option to bypass.
 
