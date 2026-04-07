@@ -6144,6 +6144,11 @@ GRM.GetRosterName = function(button, isMouseClick)
         local memberInfo = button.memberInfo;
         if memberInfo then
             name = memberInfo.name;
+
+            if GRM.issecretvalue(name) then -- Midnight Secret Value protections
+                return;
+            end
+
             guid = memberInfo.guid;
 
             if name ~= nil and memberInfo.guid ~= nil and string.find(name, "-") == nil then
@@ -6188,10 +6193,11 @@ GRM.InitializeCommunitiesButtons = function()
                 end
 
                 local name , guid = GRM.GetRosterName(self, true);
-                local player = GRM.GetPlayer ( name );
+                local player;
 
-                if name then
+                if name and name ~= "" then
                     GRM_G.currentName = name;
+                    player = GRM.GetPlayer ( name );
                 end
 
                 if player and player.GUID == guid then
@@ -6250,7 +6256,7 @@ GRM.RosterButton_OnUpdate = function( self, elapsed )
 
         local name , guid = GRM.GetRosterName( self, true );
 
-        if name and name ~= GRM_G.currentName and not GRM_G.pause and
+        if name and name ~= "" and name ~= GRM_G.currentName and not GRM_G.pause and
             not CommunitiesFrame.RecruitmentDialog:IsVisible() then
             GRM_G.currentName = name;
 
@@ -12622,14 +12628,21 @@ GRM.GetSearchLog = function(isSearch, searchString, currentPosition, finalResult
             elseif index == 2 and GRM.S().toLog.demotion then -- Demotion
                 trueString = true;
             elseif index == 3 and GRM.S().toLog.leveled then -- Leveled
-                local num = "";
-                if string.find(logTxt, "***") == nil then
-                    num = GRM.Trim(string.match(logTxt, " %d+ "));
+                
+                if gLog[i][5] then
+                    if gLog[i][5] >= GRM.S().levelReportMin then
+                        trueString = true;
+                    end 
                 else
-                    num = string.match(string.match(logTxt, "cffafffdc%d+"), "%d+");
-                end
-                if tonumber(num) >= GRM.S().levelReportMin then
-                    trueString = true;
+                    local num = "";
+                    if string.find(logTxt, "***") == nil then
+                        num = string.match(logTxt, " (%d+) %(")
+                    else
+                        num = string.match(logText, "(%d+)\124r[^\124]+\124c%x+%*%*%*")
+                    end
+                    if tonumber(num) >= GRM.S().levelReportMin then
+                        trueString = true;
+                    end
                 end
 
             elseif index == 4 and GRM.S().toLog.note then -- Note
@@ -23131,7 +23144,7 @@ GRM.ConfigureGuild = function()
         end
     end
 
-    if C_Club.GetGuildClubId() ~= nil then
+    if C_Club.GetGuildClubId ~= nil then
         GRM_G.gClubID = C_Club.GetGuildClubId();
     end
 
@@ -23262,7 +23275,7 @@ GRM.TrackingConfiguration = function(forced)
 
         -- Add an escape if necessary due to unloaded data points. It will try again in 10 seconds or less, whenever the server calls back.
         if GRM_G.guildCreationDate == "" or not GRM_G.NumberOfHoursTilRecommend.kick or
-            not GRM_G.NumberOfHoursTilRecommend.kickActive or (GRM_G.BuildVersion >= 10000 and GRM_G.gClubID == 0) then
+            not GRM_G.NumberOfHoursTilRecommend.kickActive or GRM_G.gClubID == 0 then
             GRM.DelayForGuildInfoCallback();
             return
         end
@@ -23467,7 +23480,7 @@ GRM.DelayForGuildInfoCallback = function()
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
         return
     elseif GRM_G.gClubID == 0 then
-        if C_Club.GetGuildClubId() ~= nil then
+        if C_Club.GetGuildClubId ~= nil then
             GRM_G.gClubID = C_Club.GetGuildClubId();
         else
             GRM_G.gClubID = 1;

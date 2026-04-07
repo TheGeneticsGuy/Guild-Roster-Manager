@@ -25,6 +25,37 @@ G_Util.GetNumGuildiesInGuild = function(guildData)
     return c;
 end
 
+-- Method:          G_Util.DatabasesAligned()
+-- What it Does:    Checks to see if the number of guildies in expected databases align properly
+-- Purpose:         There appears to be some kind of anomaly that appeared in 12.0.x where guilds of same name but different server could get mixed
+--                  on a server call, but only temporarily. Very weird when querying guild data but this ensures the data aligns.
+G_Util.DatabasesAligned = function()
+    if GRM_G.gClubID and GRM_G.gClubID ~= 0 then
+        local classicAPI_Count = 0;
+        for i = 1, G_Util.GetNumGuildies() do
+            local name = GetGuildRosterInfo(i);
+            if name then
+                classicAPI_Count = classicAPI_Count + 1;
+            else
+                print("GRM DEBUG: Classic Roster API Returnig Empty. PLEASE REPORT TO GRM DEV ON DISCORD (link curseforge).");
+                return false;   -- easy early exit.
+            end
+        end
+
+        local clubMembers = C_Club.GetClubMembers ( GRM_G.gClubID );
+        if GRM.issecretvalue(clubMembers) then
+            return false;   -- Midnight Secret Value protections
+        end
+        
+        if classicAPI_Count > 0 and classicAPI_Count == GRM.Util.TableLength(C_Club.GetClubMembers ( GRM_G.gClubID )) then
+            return true;
+        else
+            print(string.format("GRM DEBUG: Inconsistent Guild Server Data - %s - %s. PLEASE REPORT TO GRM DEV ON DISCORD (link curseforge). Author is trying to source error.", classicAPI_Count , GRM.Util.TableLength(C_Club.GetClubMembers ( GRM_G.gClubID ) )));
+        end
+    end
+    return false;
+end
+
 -- Method:          G_Util.CheckGuildRanks()
 -- What it Does:    Checks for any changes in the guild rank structure of the guild and reports on them
 -- Purpose:         Just extra info, especially to help make it more clear to the player why they might get spammed in their log for mass demote/promotions
@@ -251,3 +282,5 @@ G_Util.GetGuildMOTD = function()
 
     return "";
 end
+
+

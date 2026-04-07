@@ -145,15 +145,15 @@ Scan.HeartbeatCheck = function( stuckCounter )
     if forceReset then
         -- Attempt to salvage data before wiping
         -- If queued live events, process them now
-        if #GRM.LiveScanQue > 0 then
-            GRM.ProcessLiveScanQue(); 
-        end
-        
-        -- Check if there are reports pending from a partial scan and print them
-        if Scan.AnyReportsRemaining and Scan.AnyReportsRemaining() then
-            Scan.FullReportCheck();
+        if not IsInGuild() then
+            Scan.ResetTempLogs();
+            return
         end
 
+        if #GRM.LiveScanQue > 0 and IsInGuild() then
+            GRM.ProcessLiveScanQue();
+        end
+        
         -- Clear the Locks
         GRM_G.CurrentlyScanning = false;
         
@@ -174,7 +174,10 @@ Scan.HeartbeatCheck = function( stuckCounter )
         GRM_G.rankChangeShift = 0;
         
         -- Cleanup Logic
-        Scan.ResetTempLogs();
+        -- Check if there are reports pending from a partial scan and print them
+        if Scan.AnyReportsRemaining() and IsInGuild() then
+            Scan.FullReportCheck();
+        end
         
         if Scan.currentScanState then
             Scan.currentScanState.isRunning = false;
@@ -185,7 +188,11 @@ Scan.HeartbeatCheck = function( stuckCounter )
         GRM_G.HeartBeatOn = false;
 
         -- Since it got stuck, let's trigger a fresh roster update to "Unstick" the game client data
-        GRM.GuildRoster();
+        if IsInGuild() then
+            GRM.GuildRoster();
+        else
+            Scan.ResetTempLogs();
+        end
         return
     end
 
@@ -200,6 +207,11 @@ end
 -- Purpose:         To track for guild changes of course!
 Scan.BuildNewRoster = function( forceScan )
 
+    -- Just cancel if not in a guild
+    if not IsInGuild() then
+        return;
+    end
+
     -- Prevent overlapping scans
     if not forceScan then
         if GRM_G.CurrentlyScanning or Scan.ScanKillSwitch() or GRM_G.MacroInProgress then
@@ -208,8 +220,12 @@ Scan.BuildNewRoster = function( forceScan )
         end
     end
 
-    -- Just cancel if not in a guild
-    if not IsInGuild() then
+    -- Database integrity check
+    if not GRM.G_Util.DatabasesAligned() then
+        C_Timer.After(5,function()
+            GRM.GuildRoster();
+            QueryGuildEventLog();
+        end)
         return;
     end
 

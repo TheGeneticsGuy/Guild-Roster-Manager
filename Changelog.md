@@ -1,3 +1,18 @@
+## **VERSION 1.99388 - April 5th, 2026**
+
+***BUG FIXES***
+
+* There was a bug that would occur if you tried to edit a macro tool rule that was filtering players by level range. It ONLY affected rules that had a specific limited level range.
+
+* Fixed a lua error that could occur from the scan process if in middle of a scan and you quit a guild. This should no longer occur.
+
+* Fixed an issue where a lot of leveling entries in the log were not showing.
+
+
+
+
+
+
 ## **VERSION 1.99387 - March 31st, 2026**
 
 * Minor update for some public access use API to edit the custom note. New API is here:
