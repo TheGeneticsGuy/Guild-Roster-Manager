@@ -5070,8 +5070,10 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     GRM_UI.GRM_LoadLogButtonText:SetText ( GRM.L ( "Guild Log" ) );
 
     GRM_UI.GRM_LoadLogButton:SetScript ( "OnClick" , function ( _ , button)
-        if button == "LeftButton" then
+        if button == "LeftButton" and IsInGuild() then
             GRM.OpenCoreWindow ( true );
+        elseif not IsInGuild() then
+            GRM.Report ( GRM.L ( "You must be in a guild to view the Guild Log!" ) );       
         end
     end);
 
@@ -5117,7 +5119,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function( isManualUpdate )
     end
 
     GRM_UI.GRM_LoadToolButton:SetScript ( "OnEnter" , function ( self )
-        if GRM_UI.GRM_LoadToolButton.total > 0 then
+        if IsInGuild() and GRM_UI.GRM_LoadToolButton.total > 0 then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
             GameTooltip:AddLine ( GRM.L ( "Macro Tool" ) , 0 , 0.8 , 1 );

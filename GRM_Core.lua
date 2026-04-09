@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99387";
+GRM_G.Version = "R1.99388";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1774980912";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1774980912;            -- In Epoch Time
+GRM_G.PatchDayString = "1775761614";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1775761614;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120001;
@@ -11418,7 +11418,11 @@ GRM.SetJoinDateToCustomNote = function(playerName, noteToSet)
         goodToSet = true;
     else
         if string.find(oldNote, newNote, 1, true) == nil then -- No need to merge if note already there
-            newNote = newNote .. "\n" .. GRM.RemoveDateFromNote(oldNote); -- Ok, merged the notes...
+            local tempNote, success = GRM.RemoveDateFromNote(oldNote);
+            if success and tempNote then
+                oldNote = tempNote;
+            end
+            newNote = newNote .. "\n" .. oldNote;
             if GRM.GetNumLetters(newNote) <= GRM_G.MaxCustomNoteSize then
                 goodToSet = true;
             end
@@ -19749,7 +19753,7 @@ GRM.ParseDateFormat = function(date, index, monthName)
         month = tonumber(string.match(date, "%-(%d+)%-"));
         day = tonumber(string.match(date, "(%d+)%-%d+%-%d%d%d%d"));
 
-        if month > 12 then
+        if month > 12 or not GRM.Time.IsValidSubmitDate(day,month,year,nil,true) or (GRM_G.Region == "enUS" and day < 13) then
             day = month;
             month = tonumber(string.match(date, "(%d+)%-%d+%-%d%d%d%d"));
         end
@@ -19765,7 +19769,7 @@ GRM.ParseDateFormat = function(date, index, monthName)
 
         -- Now, we don't know yet which format this date is in, is it MM-DD-YY or DD-MM-YY
         -- Let's see if month > 12 then we know they need to be flipped
-        if month > 12 or (GRM.S().globalDateFormat == 11 and day < 13) then
+        if month > 12 or not GRM.Time.IsValidSubmitDate(day,month,year,nil,true) or ((GRM_G.Region == "enUS" or GRM.S().globalDateFormat == 11) and day < 13) then
             day = month;
             month = tonumber(string.match(date, "(%d+)%-"));
         end
@@ -19777,7 +19781,7 @@ GRM.ParseDateFormat = function(date, index, monthName)
 
         -- Now, we don't know yet which format this date is in, is it MM/DD/YY or DD/MM/YY
         -- Let's see if month > 12 then we know they need to be flipped
-        if month > 12 or (GRM.S().globalDateFormat == 12 and day < 13) then
+        if month > 12 or not GRM.Time.IsValidSubmitDate(day,month,year,nil,true) or ((GRM_G.Region == "enUS" or GRM.S().globalDateFormat == 12) and day < 13) then
             day = month;
             month = tonumber(string.match(date, "(%d+)/"));
         end
@@ -19794,7 +19798,7 @@ GRM.ParseDateFormat = function(date, index, monthName)
 
         -- Now, we don't know yet which format this date is in, is it MM.DD.YY or DD.MM.YY
         -- Let's see if month > 12 then we know they need to be flipped
-        if month > 12 or (GRM.S().globalDateFormat == 13 and day < 13) then
+        if month > 12 or not GRM.Time.IsValidSubmitDate(day,month,year,nil,true) or ((GRM_G.Region == "enUS" or GRM.S().globalDateFormat == 13) and day < 13) then
             day = month;
             month = tonumber(string.match(date, "(%d+)%."));
         end
@@ -19806,7 +19810,7 @@ GRM.ParseDateFormat = function(date, index, monthName)
 
         -- Now, we don't know yet which format this date is in, is it MM.DD.YYYY or DD.MM.YYYY
         -- Let's see if month > 12 then we know they need to be flipped
-        if month > 12 or (GRM.S().globalDateFormat == 14 and day < 13) then
+        if month > 12 or not GRM.Time.IsValidSubmitDate(day,month,year,nil,true) or ((GRM_G.Region == "enUS" or GRM.S().globalDateFormat == 14) and day < 13) then
             day = month;
             month = tonumber(string.match(date, "(%d+)%."));
         end
@@ -19860,7 +19864,7 @@ GRM.CleanupNoteDate = function(note)
     return note;
 end
 
--- Method:          GRM.FindStartOfDate ( note )
+-- Method:          GRM.GetNoteDateDetails ( note )
 -- What it Does:    Parses the given note for a GRM styled note format and returns it, as well as the text before the note and the text after.
 -- Purpose:         Finding the date in the note can be challenging with so many different formats. This does that as long as it is in a GRM supported format.
 GRM.GetNoteDateDetails = function(note)
@@ -19869,19 +19873,19 @@ GRM.GetNoteDateDetails = function(note)
     local monthName;
     local startIndex, lastIndex = 0, 0;
     local datePatterns = { -- Example for May 30th, 2021
-    "%d+%s+~#~%s+'%d+", -- 30 May '21                   1
-    "%d+%s+~#~%s+%d+", -- 30 May 21                    2
-    "%d%d%d%d%-%d+%-%d%d?", -- 2021-05-30                   3
-    "%d+%-%d+%-%d%d%d%d", -- 30-05-2021                   4
-    "%d+%-~#~%-%d%d%d%d", -- 30-May-2021                  5
-    "%d+%-%d+%-%d%d", -- 30-05-21     or 05-30-21     6
-    "%d+/%d+/%d%d", -- 30/05/21     or 05/30/21     7
-    "%d%d%d%d%.%d%d%.%d%d", -- 2021.05.30                   8
-    "%d+%.%d+%.%d%d", -- 30.05.21     or 05.30.21     9
-    "%d+%.%d+%.%d%d%d%d", -- 30.05.2021   or 05.30.2021   10
-    "~#~%s+%d+%s+'%d%d", -- May 30 '21                   11
-    "~#~%s+%d+%s+%d%d", -- May 30 21                    12
-    "~#~%s+%d+%s+%d%d%d%d" -- May 30 2021                  13
+        "%d+%s+~#~%s+'%d+", -- 30 May '21                   1
+        "%d+%s+~#~%s+%d+", -- 30 May 21                    2
+        "%d%d%d%d%-%d+%-%d%d?", -- 2021-05-30                   3
+        "%d+%-%d+%-%d%d%d%d", -- 30-05-2021                   4
+        "%d+%-~#~%-%d%d%d%d", -- 30-May-2021                  5
+        "%d+%-%d+%-%d%d", -- 30-05-21     or 05-30-21     6
+        "%d+/%d+/%d%d", -- 30/05/21     or 05/30/21     7
+        "%d%d%d%d%.%d%d%.%d%d", -- 2021.05.30                   8
+        "%d+%.%d+%.%d%d", -- 30.05.21     or 05.30.21     9
+        "%d+%.%d+%.%d%d%d%d", -- 30.05.2021   or 05.30.2021   10
+        "~#~%s+%d+%s+'%d%d", -- May 30 '21                   11
+        "~#~%s+%d+%s+%d%d", -- May 30 21                    12
+        "~#~%s+%d+%s+%d%d%d%d" -- May 30 2021                  13
     }
 
     local index = 0;
@@ -21045,7 +21049,11 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
 
                 if GRM.S().joinDateDestination == 1 and (not GRM_G.BuildHasRestrictions) then
                     if GRM.CanEditOfficerNote() then
-                        tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(oNote);
+                        local tempNote, success = GRM.RemoveDateFromNote(oNote);
+                        if success and tempNote then
+                            oNote = tempNote;
+                        end
+                        tempNote = noteDate .. " " .. oNote;
                         if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
                             GuildRosterSetOfficerNote(i, tempNote);
 
@@ -21061,7 +21069,11 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                     end
                 elseif GRM.S().joinDateDestination == 2 and (not GRM_G.BuildHasRestrictions) then
                     if GRM.CanEditPublicNote() then
-                        tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(note);
+                        local tempNote, success = GRM.RemoveDateFromNote(note);
+                        if success and tempNote then
+                            note = tempNote;
+                        end
+                        tempNote = noteDate .. " " .. note;
                         if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                             GuildRosterSetPublicNote(i, tempNote);
 
@@ -22648,6 +22660,11 @@ end
 -- What it Does:    Opens or closes the mass kick window
 -- Purpose:         Allow slash command use of the mass kick window for ease
 GRM.SlashCommandKick = function()
+    if not IsInGuild() then
+        GRM.Report(GRM.L("You must be in a guild to view the Guild Macro Tool!"));
+        return
+    end
+    
     if (time() - GRMsyncGlobals.timeAtLogin) > 5 or GRM_G.MinimapOk then
         if GRM_UI.GRM_ToolCoreFrame:IsVisible() then
             GRM_UI.GRM_ToolCoreFrame:Hide();
@@ -23359,9 +23376,9 @@ GRM.TrackingConfiguration = function(forced)
         end);
 
         -- Open the core addon frame...
-        if GRM.S().viewOnLoad and not GRM.S().onlyViewIfChanges then
-            GRM_UI.GRM_RosterChangeLogFrame:Show();
-        end
+        -- if GRM.S().viewOnLoad and not GRM.S().onlyViewIfChanges then
+        --     GRM_UI.GRM_RosterChangeLogFrame:Show();
+        -- end
 
         -- Establish Message Sharing as well!
         GRMsyncGlobals.SyncOK = true;

@@ -1,4 +1,4 @@
-## **VERSION 1.99388 - April 5th, 2026**
+## **VERSION 1.99388 - April 9th, 2026**
 
 ***BUG FIXES***
 
@@ -6,11 +6,17 @@
 
 * Fixed a lua error that could occur from the scan process if in middle of a scan and you quit a guild. This should no longer occur.
 
-* Fixed an issue where a lot of leveling entries in the log were not showing.
+* Fixed an issue where a lot of leveling entries in the log were not showing. This was maybe obvious if you ever logged in and saw that you were seeing new changes and old changes messages, where it wraps all the new log entries, but yet not a single log entry. Then you have experienced this bug.
 
+* Fixed a Lua error issue where if you quit a guild and try to use certain slash commands to access guild-only features it will no longer generate Lua errors.
 
+* Fixed an issue where if you had it set to always show the GRM log after logging in, even if no changes found, but you closed the window quickly, it would re-open on it's own within a few seconds. This should now longer happen.
 
+* Fixed an issue where the incorrect date was getting imported using the audit tool. For example, let's say you had 01/08/26 in your note as the join date. Well, in most of the work that would read as 1st August, 2026, but in the US it reads January 8th, 2026. GRM was supposed to be taking this regional considerations for timestamp parsing/importing from the notes, and while it was mostly doing this, for a couple of timestamp formats, notably the ones with the written with 01.08.26 or 01/08/26 or 01-08-26, it was failing to do this properly. This is now resolved.
 
+* Fixed an issue where the join date getting added to a custom note was not appending the note, but overwriting it completely. This would not happen if a join date already existed there as it would overwrite the old join date only, but due to a logic error, I was overwriting the whole note if no pre-existing join date was already there on editing. This was an ugly bug. Sorry about that!
+
+* Possible fix added to prevent a weird server issue where if you are in multiple guilds of the same name, but different servers, the server is calling the wrong guild data. It is not being imported from GRM's database, but actually from the server, andd it seems to self-correct. But I will be in a different guild, call for guild data from the server, and shortly after logging in, get guild data from the wrong guild on a different server, but of the same name. This is some weird x-realm guild bug it seems and only popped up in Midnight. However, I added some trace check if the defense against it triggers as a confirmation, so if you see a big spammy post about warning of the error, please Screenshot it and post it to discord so I can see.
 
 
 ## **VERSION 1.99387 - March 31st, 2026**

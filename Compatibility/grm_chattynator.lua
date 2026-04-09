@@ -72,14 +72,16 @@ end
 -- What it Does:    Utilizes the Chattynator reporting instead of the AddMessage of the built-in defaults instead
 -- Purpose:         Chattynator is a really cool addon and GRM should support it.
 chattynator.ChattynatorReport = function( msg , r, g, b)
-    for i = 1, #GRM.S().reportChannel do
-        local wIndex, tIndex = chattynator.GetChattynatorTab(GRM.S().reportChannel[i]);
+    if GRM.S() then
+        for i = 1, #GRM.S().reportChannel do
+            local wIndex, tIndex = chattynator.GetChattynatorTab(GRM.S().reportChannel[i]);
 
-        if wIndex and tIndex then
-            chattynator.ConfigureChattynatorTab(wIndex, tIndex)
-            
-            -- Suppress the annoying debug prints left by Chattynator's dev
-            Chattynator.API.AddMessageToWindowAndTab(wIndex, tIndex, msg, r, g, b)
+            if wIndex and tIndex then
+                chattynator.ConfigureChattynatorTab(wIndex, tIndex)
+                
+                -- Suppress the annoying debug prints left by Chattynator's dev
+                Chattynator.API.AddMessageToWindowAndTab(wIndex, tIndex, msg, r, g, b)
+            end
         end
     end
 end

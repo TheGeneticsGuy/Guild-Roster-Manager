@@ -1885,7 +1885,11 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
 
                 if GRM.S().joinDateDestination == 1 then
                     if GRM.CanEditOfficerNote() then
-                        tempNote = finalTStamp .. " " .. GRM.RemoveDateFromNote(oNote);
+                        local tempNote, success = GRM.RemoveDateFromNote(oNote);
+                        if success and tempNote then
+                            oNote = tempNote;
+                        end
+                        tempNote = finalTStamp .. " " .. oNote;
                         if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
                             GuildRosterSetOfficerNote(rosterSelection, tempNote);
                             officerNoteIsSet = true
@@ -1896,7 +1900,11 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
                     end
                 elseif GRM.S().joinDateDestination == 2 then
                     if GRM.CanEditPublicNote() then
-                        tempNote = finalTStamp .. " " .. GRM.RemoveDateFromNote(note);
+                        local tempNote, success = GRM.RemoveDateFromNote(note);
+                        if success and tempNote then
+                            note = tempNote;
+                        end
+                        tempNote = finalTStamp .. " " .. note;
                         if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                             GuildRosterSetPublicNote(rosterSelection, tempNote);
                             noteIsSet = true;
@@ -2303,8 +2311,11 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
 
                             if GRM.S().joinDateDestination == 1 then
                                 if GRM.CanEditOfficerNote() and not GRM_G.BuildHasRestrictions then
-
-                                    tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(oNote);
+                                    local tempNote, success = GRM.RemoveDateFromNote(oNote);
+                                    if success and tempNote then
+                                        oNote = tempNote;
+                                    end
+                                    tempNote = noteDate .. " " .. oNote;
 
                                     if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
 
@@ -2325,7 +2336,11 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                 end
                             elseif GRM.S().joinDateDestination == 2 then
                                 if GRM.CanEditPublicNote() and not GRM_G.BuildHasRestrictions then
-                                    tempNote = noteDate .. " " .. GRM.RemoveDateFromNote(note);
+                                    local tempNote, success = GRM.RemoveDateFromNote(note);
+                                    if success and tempNote then
+                                        note = tempNote;
+                                    end
+                                    tempNote = noteDate .. " " .. note;
                                     if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                                         noteIsSet = true;
                                         GuildRosterSetPublicNote(rosterSelection, tempNote);
@@ -2881,7 +2896,7 @@ Scan.FinalReportInformation = function(needToReport)
 
         if GRM.S() and GRM.S().viewOnLoad then
             if (not GRM.S().onlyViewIfChanges) or GRM_G.ChangesFoundOnLoad then
-                if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame then
+                if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame and not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
                     GRM_UI.GRM_RosterChangeLogFrame:Show()
                 end
             end

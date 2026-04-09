@@ -2035,4 +2035,8 @@ GRML.SpanishMX = function()
     GRM_L["Custom note exceeds maximum character limit of {num} and cannot be saved." ] = true
     GRM_L["Appended custom note for {name} exceeds the maximum character limit of {num} and cannot be saved."] = true
     
+    -- R1.99388
+    GRM_L["You must be in a guild to view the Guild Log!"] = true
+    GRM_L["You must be in a guild to view the Guild Macro Tool!"] = true
+    
 end

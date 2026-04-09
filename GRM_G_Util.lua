@@ -30,7 +30,7 @@ end
 -- Purpose:         There appears to be some kind of anomaly that appeared in 12.0.x where guilds of same name but different server could get mixed
 --                  on a server call, but only temporarily. Very weird when querying guild data but this ensures the data aligns.
 G_Util.DatabasesAligned = function()
-    if GRM_G.gClubID and GRM_G.gClubID ~= 0 then
+    if IsInGuild() and GRM_G.gClubID and GRM_G.gClubID ~= 0 then
         local classicAPI_Count = 0;
         for i = 1, G_Util.GetNumGuildies() do
             local name = GetGuildRosterInfo(i);
@@ -50,7 +50,24 @@ G_Util.DatabasesAligned = function()
         if classicAPI_Count > 0 and classicAPI_Count == GRM.Util.TableLength(C_Club.GetClubMembers ( GRM_G.gClubID )) then
             return true;
         else
+            print("GRM ERROR: \n");
             print(string.format("GRM DEBUG: Inconsistent Guild Server Data - %s - %s. PLEASE REPORT TO GRM DEV ON DISCORD (link curseforge). Author is trying to source error.", classicAPI_Count , GRM.Util.TableLength(C_Club.GetClubMembers ( GRM_G.gClubID ) )));
+            print("ClubID: " .. GRM_G.gClubID .. " - " .. C_Club.GetGuildClubId());
+
+            -- Guild Name
+            local guildName, _, _, server = GetGuildInfo("PLAYER");
+
+            if not guildName then
+                -- Sometimes you have to call the server API twice to get it back.
+                guildName, _, _, server = GetGuildInfo("PLAYER");
+            end
+            
+            if server then
+                guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
+            else
+                guildName = guildName .. "-" .. GRM_G.realmName;
+            end
+            print("Guild Full Name: " .. guildName .. " - " )
         end
     end
     return false;

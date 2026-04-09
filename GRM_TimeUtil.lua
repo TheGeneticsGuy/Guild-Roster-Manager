@@ -1255,21 +1255,21 @@ Time.GetTimestampOfLastRankChange = function(player)
     return result;
 end
 
--- Method:          Time.IsValidSubmitDate ( int , int , boolean )
+-- Method:          Time.IsValidSubmitDate ( int , int , int, boolean, boolean )
 -- What it Does:    Returns true if the submission date is valid (not an untrue day or in the future)
 -- Purpose:         Check to ensure the wrong date is not submitted on accident.
-Time.IsValidSubmitDate = function(daySelected, monthSelected, yearSelected, IsLeapYearSelected)
+Time.IsValidSubmitDate = function(daySelected, monthSelected, yearSelected, IsLeapYearSelected , silenceMsg )
     local closeButtons = true;
     local month, day, year = select(2, Time.GetTodaysDate());
     local numDays;
     IsLeapYearSelected = IsLeapYearSelected or Time.IsLeapYear(yearSelected);
 
-    if monthSelected > 12 then
+    if monthSelected > 12 and not silenceMsg then
         GRM.Report(GRM.L("Please choose a valid Month"));
         return false;
     end
 
-    if yearSelected < 2004 then
+    if yearSelected < 2004 and not silenceMsg then
         GRM.Report(GRM.L("Warcraft was not released until 2004. Please choose a valid year."));
         return false;
     end
@@ -1291,12 +1291,14 @@ Time.IsValidSubmitDate = function(daySelected, monthSelected, yearSelected, IsLe
     if closeButtons then
         if (year < yearSelected) or (year == yearSelected and month < monthSelected) or
             (year == yearSelected and month == monthSelected and day < daySelected) then
-            GRM.Report(GRM.L("Player Does Not Have a Time Machine!"));
+            if not silenceMsg then
+                GRM.Report(GRM.L("Player Does Not Have a Time Machine!"));
+            end
             closeButtons = false;
         end
     end
 
-    if closeButtons == false then
+    if closeButtons == false and not silenceMsg then
         GRM.Report(GRM.L("Please choose a valid DAY"));
     end
 
