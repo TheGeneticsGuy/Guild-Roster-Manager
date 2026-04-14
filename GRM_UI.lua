@@ -10567,7 +10567,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_CustomRankResetButton:SetScript ( "OnClick" , function( _ , button )
         if button == "LeftButton" and not ( GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:IsMouseOver ( 1 , -1 , -1 , 1 ) and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:IsVisible() ) then
 
-            for _ , player in pairs ( GRM.GetGuild() ) do
+            local guildData = GRM.GetGuild();
+            for _ , player in pairs ( guildData ) do
                 if type ( player ) == "table" then
                     player.customNote[1] = true;
                     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and player.name == GRM_G.currentName then
@@ -13743,8 +13744,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             local isFound = false;
             local foundInfo = {};
             local serverList = {};
+            local guildData = GRM.GetGuild();
 
-            for _ , player in pairs ( GRM.GetGuild() ) do
+            for _ , player in pairs ( guildData ) do
 
                 if type ( player ) == "table" then
 

@@ -32,12 +32,12 @@ end
 G_Util.DatabasesAligned = function()
     if IsInGuild() and GRM_G.gClubID and GRM_G.gClubID ~= 0 then
         local classicAPI_Count = 0;
+
         for i = 1, G_Util.GetNumGuildies() do
             local name = GetGuildRosterInfo(i);
             if name then
                 classicAPI_Count = classicAPI_Count + 1;
             else
-                print("GRM DEBUG: Classic Roster API Returnig Empty. PLEASE REPORT TO GRM DEV ON DISCORD (link curseforge).");
                 return false;   -- easy early exit.
             end
         end
@@ -50,10 +50,6 @@ G_Util.DatabasesAligned = function()
         if classicAPI_Count > 0 and classicAPI_Count == GRM.Util.TableLength(C_Club.GetClubMembers ( GRM_G.gClubID )) then
             return true;
         else
-            print("GRM ERROR: \n");
-            print(string.format("GRM DEBUG: Inconsistent Guild Server Data - %s - %s. PLEASE REPORT TO GRM DEV ON DISCORD (link curseforge). Author is trying to source error.", classicAPI_Count , GRM.Util.TableLength(C_Club.GetClubMembers ( GRM_G.gClubID ) )));
-            print("ClubID: " .. GRM_G.gClubID .. " - " .. C_Club.GetGuildClubId());
-
             -- Guild Name
             local guildName, _, _, server = GetGuildInfo("PLAYER");
 
@@ -67,7 +63,6 @@ G_Util.DatabasesAligned = function()
             else
                 guildName = guildName .. "-" .. GRM_G.realmName;
             end
-            print("Guild Full Name: " .. guildName .. " - " )
         end
     end
     return false;
@@ -198,8 +193,9 @@ end
 -- Purpose:         Due to some tables scanning logic I want to keep this stored as a string and then converted to a table during your session or re-converted if the ranks are updated.
 G_Util.ParseGuildRanks = function()
     local ranks = {};
+    local guildData = GRM.GetGuild();
 
-    for rankName in string.gmatch(GRM.GetGuild().ranks, "[^||]+") do
+    for rankName in string.gmatch(guildData.ranks, "[^||]+") do
         table.insert(ranks, rankName);
     end
     return ranks;
@@ -210,8 +206,10 @@ end
 -- Purpose:         Rank needs to be known in certain circumstances, like knowing if something was a promotion or a demotion.
 G_Util.GetGuildMemberRankID = function(name)
     local result
+    local guildData = GRM.GetGuild();
+
     -- Prevents errors if the other players sends a sync call too early, it will just ignore it.
-    if GRM.GetGuild() and GRM.GetPlayer(name) then
+    if guildData and GRM.GetPlayer(name) then
         result = GRM.GetPlayer(name).rankIndex;
     end
     return result;
@@ -244,8 +242,9 @@ end
 -- What it Does:    Lets you know if a guildie is currently online by returning true
 -- Purpose:         It is useful to save resources and for knowledge to know if a player is currently online or not. No need to scan certain things wastefully if they are offline.
 G_Util.IsGuildieOnline = function(name , player )
+    local guildData = GRM.GetGuild();
 
-    player = player or GRM.GetGuild()[name];
+    player = player or guildData[name];
 
     if player and player.isOnline then
         return true;
@@ -258,10 +257,10 @@ end
 -- Purpose:         Necessary for asynchronous scan through the guild since you can't use the pairs dictionary scan
 G_Util.GetSortedPlayerNames = function()
     local names = {}
-    local guild = GRM.GetGuild()
+    local guildData = GRM.GetGuild()
 
-    if guild then
-        for name, player in pairs(GRM.GetGuild()) do
+    if guildData then
+        for name, player in pairs(guildData) do
             if type(player) == "table" then
                 table.insert(names, name)
             end

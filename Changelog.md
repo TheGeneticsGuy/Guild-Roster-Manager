@@ -1,3 +1,11 @@
+## **VERSION 1.99389 - April 14th, 2026**
+
+***BUG FIXES***
+
+* If there are any dead accounts in your guild (Example player name: "Name4C0128"), GRM will actually inform you of them so they can be removed. This should only appear for officers and leaders who have the ability to remove players. Before, it was still showing for all players, even if they couldn't remove them. No need to share that report with non-officers. This is fixed.
+
+
+
 ## **VERSION 1.99388 - April 9th, 2026**
 
 ***BUG FIXES***

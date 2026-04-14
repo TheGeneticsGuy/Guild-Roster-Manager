@@ -4019,8 +4019,9 @@ GRM.GetAllGuildiesInOrder = function(fullNameNeeded, fromAtoZ)
     local classColors = {};
     local birthDate = "";
     local name = "";
+    local guild = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guild) do
         if type(player) == "table" then
             -- proper name format
             name = player.name;
@@ -4064,8 +4065,9 @@ GRM.GetAllGuildiesInJoinDateOrder = function(fullNameNeeded, newFirst)
     local isComplete = true;
     local classColors = {};
     local birthDate = "";
+    local guild = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guild) do
         if type(player) == "table" then
             joinDate, promoDate, mainStatus, isComplete, classColors, birthDate =
                 GRM.GetAuditLinePlayervalues(player, isComplete);
@@ -4159,8 +4161,9 @@ GRM.GetAllGuildiesInPromoDateOrder = function(fullNameNeeded, newFirst)
     local isComplete = true;
     local classColors = {};
     local birthDate = "";
+    local guild = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guild) do
         if type(player) == "table" then
             joinDate, promoDate, mainStatus, isComplete, classColors, birthDate =
                 GRM.GetAuditLinePlayervalues(player, isComplete);
@@ -4262,8 +4265,9 @@ GRM.GetAllMainsAndAltsInOrder = function(mainsFirst)
     local isComplete = true;
     local classColors = {};
     local birthDate = "";
+    local guild = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guild) do
         if type(player) == "table" then
             joinDate, promoDate, mainStatus, isComplete, classColors, birthDate =
                 GRM.GetAuditLinePlayervalues(player, isComplete);
@@ -4328,8 +4332,9 @@ GRM.GetAllGuildiesByBirthdayDateOrder = function(fullNameNeeded, newFirst)
     local isComplete = true;
     local classColors = {};
     local birthdate = "";
+    local guild = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guild) do
         if type(player) == "table" then
             joinDate, promoDate, mainStatus, isComplete, classColors, birthdate =
                 GRM.GetAuditLinePlayervalues(player, isComplete);
@@ -4421,7 +4426,7 @@ end
 -- Purpose:         This will be useful when adding people manually to ban list for auto-complete
 GRM.GetAllCurrentAndFormerGuildies = function(getCurrent, getFormer)
     local result = {};
-    local guildData = GRM.GetGuild();
+    local guildData;
 
     if getCurrent then
         guildData = GRM.GetGuild();
@@ -13070,8 +13075,9 @@ GRM.convertToArrayFormat = function(includeFormer, includeAlts, guildName)
     local altData = {};
     guildName = guildName or GRM_G.guildName;
     local i = 1;
+    local guildData = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild(G)) do
+    for _, player in pairs(guildData) do
         if type(player) == "table" then
             finalGData[i] = player;
             i = i + 1;
@@ -13609,7 +13615,8 @@ GRM.SetAllIncompleteJoinUnknown = function()
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:GetText() ==
                 GRM.L("Set Incomplete to Unknown") then
                 -- Ok, let's go through ALL guildies and clear it!
-                for _, player in pairs(GRM.GetGuild()) do
+                local guildData = GRM.GetGuild();
+                for _, player in pairs(guildData) do
                     if type(player) == "table" then
 
                         -- if not "unknown" already, and if it doesn't have an established join date
@@ -13631,7 +13638,8 @@ GRM.SetAllIncompleteJoinUnknown = function()
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
                     GRM.L("Clear All Unknown"));
             else
-                for _, player in pairs(GRM.GetGuild()) do
+                local guildData = GRM.GetGuild();
+                for _, player in pairs(guildData) do
                     if type(player) == "table" then
 
                         -- if not "unknown" already, and if it doesn't have an established join date
@@ -13672,7 +13680,8 @@ GRM.SetAllIncompletePromoUnknown = function()
 
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:GetText() ==
                 GRM.L("Set Incomplete to Unknown") then
-                for _, player in pairs(GRM.GetGuild()) do
+                local guildData = GRM.GetGuild();
+                for _, player in pairs(guildData) do
                     if type(player) == "table" then
 
                         -- if not "unknown" already, and if it doesn't have an established join date
@@ -13685,7 +13694,8 @@ GRM.SetAllIncompletePromoUnknown = function()
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
                     GRM.L("Clear All Unknown"));
             else
-                for _, player in pairs(GRM.GetGuild()) do
+                local guildData = GRM.GetGuild();
+                for _, player in pairs(guildData) do
                     if type(player) == "table" then
 
                         if player.promoteDateUnknown then
@@ -13716,7 +13726,8 @@ GRM.SetAllIncompleteBdayUnknown = function()
 
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:GetText() ==
                 GRM.L("Set Incomplete to Unknown") then
-                for _, player in pairs(GRM.GetGuild()) do
+                local guildData = GRM.GetGuild();
+                for _, player in pairs(guildData) do
                     if type(player) == "table" then
 
                         local birthdayInfo = GRM.GetBirthday ( player );
@@ -13740,7 +13751,8 @@ GRM.SetAllIncompleteBdayUnknown = function()
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
                     GRM.L("Clear All Unknown"));
             else
-                for _, player in pairs(GRM.GetGuild()) do
+                local guildData = GRM.GetGuild();
+                for _, player in pairs(guildData) do
                     if type(player) == "table" then
 
                         GRM.SetBirthdayInfo ( player , nil , nil , nil , nil , false );
@@ -14252,7 +14264,7 @@ GRM.OnRankChange = function(formerRank, newRank, promotedName, promoterName)
             end
         end
 
-        if GRM_G.BuildVersion >= 10000 and CommunitiesFrame and CommunitiesFrame.GuildMemberDetailFrame:IsVisible() and
+        if CommunitiesFrame and CommunitiesFrame.GuildMemberDetailFrame:IsVisible() and
             promotedName == GRM_G.currentName then
             CommunitiesFrame.GuildMemberDetailFrame.RankDropdown.Text:SetText(newRank);
         end
@@ -15582,7 +15594,9 @@ end
 -- Purpose:             Metadata player management. QoL feature if ever needed.
 GRM.ResetPlayerMetaData = function(playerName)
 
-    if GRM.GetGuild()[playerName] then
+    local guildData = GRM.GetGuild();
+
+    if guildData[playerName] then
         GRM.Report(GRM.L("{name}'s saved data has been wiped!", GRM.GetClassifiedName(playerName)));
 
         local member = {};
@@ -15911,9 +15925,7 @@ GRM.CheckForNewPlayer = function( name )
         -- Try to refresh the roster
         if GRM_G.RejoinControlCheck % 10 == 0 then
             GRM.GuildRoster();
-            if GRM_G.BuildVersion >= 10000 then
-                QueryGuildEventLog();
-            end
+            QueryGuildEventLog();
         end
 
         C_Timer.After(0.1, function()
@@ -16120,9 +16132,7 @@ GRM.GetPlayerKickedFromButton = function(nameOrGUID, isMacro)
             GRM_G.LiveScanningBlock.kickS, scanNumber = GRM.SetNextTrue(GRM_G.LiveScanningBlock.kickS);
         end
         GRM.GuildRoster();
-        if GRM_G.BuildVersion >= 10000 then
-            QueryGuildEventLog();
-        end
+        QueryGuildEventLog();
 
         if not GRM_G.CurrentlyScanning then
             GRM.KickButtonLogic(nameOrGUID, scanNumber, isMacro);
@@ -16420,9 +16430,7 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
 
                 C_Timer.After(3, function()
                     GRM.GuildRoster(); -- Initial queries...
-                    if GRM_G.BuildVersion >= 10000 then
-                        QueryGuildEventLog();
-                    end
+                    QueryGuildEventLog();
                 end);
 
             end
@@ -16447,9 +16455,7 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
 
                 C_Timer.After(3, function()
                     GRM.GuildRoster(); -- Initial queries...
-                    if GRM_G.BuildVersion >= 10000 then
-                        QueryGuildEventLog();
-                    end
+                    QueryGuildEventLog();
                 end);
 
             end
@@ -16465,9 +16471,7 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
             end
 
             GRM.GuildRoster();
-            if GRM_G.BuildVersion >= 10000 then
-                QueryGuildEventLog();
-            end
+            QueryGuildEventLog();
             GRM_G.TempBanSystemMessage = true;
             GRM_G.MainNameSystemMsgControl = true;
 
@@ -16497,9 +16501,7 @@ GRM.SystemMessageLiveDetectionControl = function(msg)
 
                 C_Timer.After(3, function()
                     GRM.GuildRoster(); -- Initial queries...
-                    if GRM_G.BuildVersion >= 10000 then
-                        QueryGuildEventLog();
-                    end
+                    QueryGuildEventLog();
                 end);
 
             end
@@ -17465,8 +17467,9 @@ end
 -- Purpose:         For use on easy re-checking of players' GUID to see if the banned player is no longer on the server
 GRM.GetBannedPlayersWithGUIDs = function()
     local result = {};
+    local guildData = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guildData) do
         if type(player) == "table" then
 
             if player.bannedInfo[1] and player.GUID ~= nil and player.GUID ~= "" then
@@ -19501,8 +19504,9 @@ GRM.CheckAllDates = function(showAll)
     local noteStatus = 0; -- 1 = doNotMatch , 2 = noteInWrongNote , 3 = NoNoteExists , 4 = doNotMatch && noteInWrongNote , 5 = doNotMatch && correctLocation && dateInMultipleNotes , 6 = doNotMatch && noteInWrongNote && dateInMultipleNotes
     -- 7 = noteInWrongNote && dateInMultipleNotes , 8 == doMatch && CorrectLocation && multipleNotes , 9-12 - no GRM date imported yet
     local inPublic, inOfficer = false, false;
+    local guildData = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guildData) do
         if type(player) == "table" then
             noteStatus = 0;
             noteLocation = 0;
@@ -22234,9 +22238,7 @@ GRM.TrackingIntegrityCheck = function(isLoop)
             local delay = GRM.S().scanDelay;
             if (time() - GRM_G.ScanControl) >= (GRM.S().scanDelay) then
                 GRM.GuildRoster();
-                if GRM_G.BuildVersion >= 10000 then
-                    QueryGuildEventLog();
-                end
+                QueryGuildEventLog();
 
             else
                 -- This ensures the timings on the delays line up with availability
@@ -22279,9 +22281,10 @@ GRM.UpdateMacroToolSafeListExpirations = function()
     if IsInGuild() then
         if not GRM_G.SafeListExpirationChecking then
             GRM_G.SafeListExpirationChecking = true;
-
-            if GRM.GetGuild() then
-                for _, player in pairs(GRM.GetGuild()) do
+            local guildData = GRM.GetGuild();
+            
+            if guildData then
+                for _, player in pairs(guildData) do
                     if type(player) == "table" then
                         GRM.ValidateIgnoreExpireDates(player);
                     end
@@ -23168,7 +23171,7 @@ GRM.ConfigureGuild = function()
     local guildData = GRM.GetGuild();
 
     -- Fixes for old guilds... this can only be done when on that actual guild, however.
-    if guildData ~= nil then
+    if guildData then
         -- Guild info
         if guildData.grmNumRanks == 0 then
             if GuildControlGetNumRanks() ~= nil then
@@ -23394,15 +23397,11 @@ GRM.TrackingConfiguration = function(forced)
         GRM_G.LvlCap = GRM.GetMaxPlayerLevelByExpansion();  -- This will show true level cap if say, in pre-patch, not the pending soon level cap
 
         GRM.GuildRoster();
-        if GRM_G.BuildVersion >= 10000 then
-            QueryGuildEventLog();
-        end -- Let's trigger this and get it loading at the start.
+        QueryGuildEventLog();
 
         C_Timer.After(2, function()
             UI_Events:RegisterEvent("GUILD_ROSTER_UPDATE");
-            if GRM_G.BuildVersion >= 10000 then
-                UI_Events:RegisterEvent("GUILD_EVENT_LOG_UPDATE");
-            end
+            UI_Events:RegisterEvent("GUILD_EVENT_LOG_UPDATE");
 
             UI_Events.Timer = 0;
 
@@ -23744,12 +23743,11 @@ GRM.ManageGuildStatus = function()
 
                 GRM.MinimapGRM.Hide();
 
-                if GRM_G.BuildVersion >= 10000 then
-                    UI_Events:UnregisterEvent("GUILD_EVENT_LOG_UPDATE"); -- This prevents it from doing an unnecessary tracking call if not in guild.
-                end
+                UI_Events:UnregisterEvent("GUILD_EVENT_LOG_UPDATE");
                 if GRMsync.MessageTracking ~= nil then
                     GRMsync.MessageTracking:UnregisterAllEvents();
                 end
+                Scan.ResetTempLogs();
                 GRMsync.ResetDefaultValuesOnSyncReEnable(); -- Need to reset sync algorithm too!
                 GRM_UI.GRM_RosterChangeLogFrame:Hide();
             end

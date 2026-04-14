@@ -146,7 +146,6 @@ Scan.HeartbeatCheck = function( stuckCounter )
         -- Attempt to salvage data before wiping
         -- If queued live events, process them now
         if not IsInGuild() then
-            Scan.ResetTempLogs();
             return
         end
 
@@ -177,6 +176,7 @@ Scan.HeartbeatCheck = function( stuckCounter )
         -- Check if there are reports pending from a partial scan and print them
         if Scan.AnyReportsRemaining() and IsInGuild() then
             Scan.FullReportCheck();
+            Scan.ResetTempLogs();
         end
         
         if Scan.currentScanState then
@@ -191,7 +191,7 @@ Scan.HeartbeatCheck = function( stuckCounter )
         if IsInGuild() then
             GRM.GuildRoster();
         else
-            Scan.ResetTempLogs();
+            Scan.ResetTempLogs(); -- Reset these
         end
         return
     end
@@ -206,7 +206,7 @@ end
 -- What it does:    Rebuilds the roster to check against for any changes.
 -- Purpose:         To track for guild changes of course!
 Scan.BuildNewRoster = function( forceScan )
-
+    print("Test1")
     -- Just cancel if not in a guild
     if not IsInGuild() then
         return;
@@ -215,25 +215,30 @@ Scan.BuildNewRoster = function( forceScan )
     -- Prevent overlapping scans
     if not forceScan then
         if GRM_G.CurrentlyScanning or Scan.ScanKillSwitch() or GRM_G.MacroInProgress then
+            print("Test2")
             Scan.UnfinishedReports();
             return;
         end
     end
+    print("Test3")
 
     -- Database integrity check
     if not GRM.G_Util.DatabasesAligned() then
+        print("Test4")
         C_Timer.After(5,function()
             GRM.GuildRoster();
             QueryGuildEventLog();
         end)
         return;
     end
+    print("Test5")
 
     GRM_G.CurrentlyScanning = true;
     GRM_G.ScanTimer = time();
     GRM_G.ScanControl = time();
     if not GRM_G.HeartBeatOn then
         GRM_G.HeartBeatOn = true;
+        print("Test6")
         Scan.HeartbeatCheck();
     end
 
@@ -279,7 +284,7 @@ end
 -- What it Does:    Builds the roster using GetGuildRosterInfo, throttled.
 -- Purpose:         Avoid script timeouts during the initial roster build phase, particularly for large guilds
 Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, count , liveRosterSnapshot )
-
+    print("Test7")
     -- Leave an exit if player quits guild in middle of scan
     if not IsInGuild() then
         GRM_G.CurrentlyScanning = false;
@@ -293,6 +298,7 @@ Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, coun
     count = count or 0; -- Track duplicate GUIDs count
 
     if not liveRosterSnapshot then
+        print("Test8")
         liveRosterSnapshot = {};
         for i = 1 , GRM.G_Util.GetNumGuildies() do
             liveRosterSnapshot[i] = {GetGuildRosterInfo(i)};
@@ -443,10 +449,16 @@ end
 Scan.GetClubMemberTable = function()
     local clubMemberTable = {};
     local members = C_Club.GetClubMembers(GRM_G.gClubID);
+    clubMemberTable.ownNameFound = false;
+
     if not GRM.issecretvalue(members) then
 
         for i = 1 , #members do
             local member = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
+            member.name = GRM.AppendServerNameSimple ( member.name );
+            if member.name == GRM_G.addonUser then
+                clubMemberTable.ownNameFound = true;
+            end
             table.insert ( clubMemberTable , member );
         end
 
@@ -491,6 +503,20 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
         return;
     end
 
+    -- Prevention of incorrect guild load
+    if index == 1 then
+
+        if not members.ownNameFound or not roster[GRM_G.addonUser] or #orderedRoster ~= #members then
+        -- This means the Communities API is not returning the player's own name, which is a critical failure for the scan. Abort and retry later.
+            GRM_G.CurrentlyScanning= false;
+            if not roster[GRM_G.addonUser] then
+                print("GRM: Critical Error - Player's own name not found in Communities API response. Aborting scan and will retry soon. Please report to author");
+            end
+            return;
+        end
+    end
+
+
     local memberInfo;
     local player;
     
@@ -498,8 +524,6 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
         memberInfo = members[index];
 
         if memberInfo and memberInfo.guid and memberInfo.name then
-            -- local name , sex = GRM.GetFullNameClubMember(memberInfo.guid);
-            local name = GRM.AppendServerNameSimple(memberInfo.name);   -- Appends server name if it matters
             player = roster[name];
             if player and player.GUID == memberInfo.guid then
 
@@ -574,7 +598,8 @@ Scan.FinalizeRosterBuild = function( roster, orderedRoster, count )
         end
         C_Timer.After(5, function()
             GRM_G.CurrentlyScanning = false;
-            Scan.BuildNewRoster();
+            GRM.GuildRoster();
+            QueryGuildEventLog();
         end);
         return;
     end
@@ -1372,12 +1397,10 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     end
 end
 
--- Method:          Scan.CheckLogJoinOrLeave ( table )
+-- Method:          Scan.CheckLogJoinOrLeave ( table, table )
 -- What it Does:    Registers if a player as joined or left the guild and builds the string after making changes
 -- Purpose:         Control flow of log information in updating GRM.
-Scan.CheckLogJoinOrLeave = function(roster, data)
-
-    local guildData = data;
+Scan.CheckLogJoinOrLeave = function(roster, guildData)
 
     -- Scan the roster for missing names...
     for _, member in pairs(guildData) do
@@ -2875,6 +2898,10 @@ Scan.FinalLeftPlayersReport = function()
         GRM.Log.AddLog(GRM_G.TempLeftGuild[i]);
     end
 
+    GRM_G.TempLeftGuildPlaceholder = {};
+    GRM_G.TempLeftGuild = {};
+
+
     C_Timer.After(0, function()
         Scan.FinalReportInformation(true);
     end);
@@ -2884,9 +2911,6 @@ end
 -- What it Does:    Cleans up the scan from all the remaining info and reports
 -- Purpose:         Compartmentalize the wrap up part of the scan
 Scan.FinalReportInformation = function(needToReport)
-
-    -- Clear the changes.
-    Scan.ResetTempLogs();
 
     if GRM_G.OnFirstLoad then
 
@@ -2982,15 +3006,16 @@ end
 -- Purpose:         Quality of life feature for maintenance reasons of a roster.
 Scan.CheckForDeadAccounts = function(isManual)
 
-    -- if not CanGuildRemove() then
-    --     return;
-    -- end
+    if not CanGuildRemove() then
+        return;
+    end
 
     local customKickList = {};
     local hours = 4320; -- Equals 180 days - presumably someone with account deleted. This is just a buffer because sometimes names get flagged for rename for TOS violation but are still active.
     local ind = 0;
+    local guildData = GRM.GetGuild();
 
-    for _, player in pairs(GRM.GetGuild()) do
+    for _, player in pairs(guildData) do
         if type(player) == "table" then
             if (not player.deadNameIgnore or isManual) and player.lastOnline >= hours and
                 string.match(GRM.SlimName(player.name), "%d") ~= nil then -- Needs to just be first name because servers may have numbers in them, like Area52, but the player name cannot.
@@ -3075,6 +3100,177 @@ Scan.FullReportCheck = function()
         GRM_G.TempNewMember = tempTable;
     end
 
+    -- OK, NOW LET'S REPORT TO LOG FRAME IN REVERSE ORDER!!!
+    if #GRM_G.TempEventRecommendKickReport > 0 then
+        for i = 1, #GRM_G.TempEventRecommendKickReport do
+            GRM.Log.AddLog(GRM_G.TempEventRecommendKickReport[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempEventRecommendKickReport = {};
+        end
+    end
+
+    if #GRM_G.TempEventRecommendPromotionReport > 0 then
+        for i = 1, #GRM_G.TempEventRecommendPromotionReport do
+            GRM.Log.AddLog(GRM_G.TempEventRecommendPromotionReport[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempEventRecommendPromotionReport = {};
+        end
+    end
+
+    if #GRM_G.TempEventRecommendDemotionReport > 0 then
+        for i = 1, #GRM_G.TempEventRecommendDemotionReport do
+            GRM.Log.AddLog(GRM_G.TempEventRecommendDemotionReport[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempEventRecommendDemotionReport = {};
+        end
+    end
+
+    if #GRM_G.TempEventRecommendSpecialReport > 0 then
+        for i = 1, #GRM_G.TempEventRecommendSpecialReport do
+            GRM.Log.AddLog(GRM_G.TempEventRecommendSpecialReport[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempEventRecommendSpecialReport = {};
+        end
+    end
+
+    if #GRM_G.TempEventReport > 0 then
+        for i = 1, #GRM_G.TempEventReport do
+            GRM.Log.AddLog(GRM_G.TempEventReport[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempEventReport = {};
+        end
+    end
+
+    if not GRM_G.silenceOfficerNoteReporting and #GRM_G.TempLogONote > 0 then
+        for i = 1, #GRM_G.TempLogONote do
+            GRM.Log.AddLog(GRM_G.TempLogONote[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempLogONote = {};
+        end
+    end
+
+    if #GRM_G.TempLogNote > 0 then
+        for i = 1, #GRM_G.TempLogNote do
+            GRM.Log.AddLog(GRM_G.TempLogNote[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempLogNote = {};
+        end
+    end
+
+    if #GRM_G.TempLogLeveled > 0 then
+        for i = 1, #GRM_G.TempLogLeveled do
+            GRM.Log.AddLog(GRM_G.TempLogLeveled[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempLogLeveled = {};
+        end
+    end
+
+    if #GRM_G.TempRankRename > 0 then
+        for i = 1, #GRM_G.TempRankRename do
+            GRM.Log.AddLog(GRM_G.TempRankRename[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempRankRename = {};
+        end
+    end
+
+    if #GRM_G.TempRejoin > 0 then
+        for i = 1, #GRM_G.TempRejoin do
+            GRM.Log.AddLog(GRM_G.TempRejoin[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempRejoin = {};
+        end
+    end
+
+    if #GRM_G.TempNewMember > 0 then
+        for i = 1, #GRM_G.TempNewMember do
+            GRM.Log.AddLog(GRM_G.TempNewMember[i]); -- Adding to the Log of Events
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempNewMember = {};
+        end
+    end
+
+    if #GRM_G.TempLogDemotion > 0 then
+        for i = 1, #GRM_G.TempLogDemotion do
+            GRM.Log.AddLog(GRM_G.TempLogDemotion[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempLogDemotion = {};
+        end
+    end
+
+    if #GRM_G.TempLogPromotion > 0 then
+        for i = 1, #GRM_G.TempLogPromotion do
+            GRM.Log.AddLog(GRM_G.TempLogPromotion[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempLogPromotion = {};
+        end
+    end
+
+    if #GRM_G.TempNameChanged > 0 then
+        for i = 1, #GRM_G.TempNameChanged do
+            GRM.Log.AddLog(GRM_G.TempNameChanged[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempNameChanged = {};
+        end
+    end
+
+    if #GRM_G.TempInactiveReturnedLog > 0 then
+        for i = 1, #GRM_G.TempInactiveReturnedLog do
+            GRM.Log.AddLog(GRM_G.TempInactiveReturnedLog[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempInactiveReturnedLog = {};
+        end
+    end
+
+    if #GRM_G.TempBannedRejoin > 0 then
+        for i = 1, #GRM_G.TempBannedRejoin do
+            GRM.Log.AddLog(GRM_G.TempBannedRejoin[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempBannedRejoin = {};
+        end
+    end
+
+    if #GRM_G.TempDeathReport > 0 then
+        for i = 1, #GRM_G.TempDeathReport do
+            GRM.Log.AddLog(GRM_G.TempDeathReport[i]);
+        end
+        if GRM_G.OnFirstLoad then
+            GRM_G.ChangesFoundOnLoad = true;
+            GRM_G.TempDeathReport = {};
+        end
+    end
+
     -- No need to spam the chat window when logging in.
     if not GRM_G.OnFirstLoad then
 
@@ -3083,6 +3279,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempBannedRejoin do
                 GRM.PrintLog(GRM_G.TempBannedRejoin[i]);
             end
+            GRM_G.TempBannedRejoin = {};
         end
 
         if #GRM_G.TempNameChanged > 0 and GRM.S().toChat.nameChange then
@@ -3090,6 +3287,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempNameChanged do
                 GRM.PrintLog(GRM_G.TempNameChanged[i]);
             end
+            GRM_G.TempNameChanged = {};
         end
 
         if #GRM_G.TempLogPromotion > 0 and GRM.S().toChat.promotion then
@@ -3097,6 +3295,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempLogPromotion do
                 GRM.PrintLog(GRM_G.TempLogPromotion[i]);
             end
+            GRM_G.TempLogPromotion = {};
         end
 
         if #GRM_G.TempLogDemotion > 0 and GRM.S().toChat.demotion then
@@ -3104,6 +3303,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempLogDemotion do
                 GRM.PrintLog(GRM_G.TempLogDemotion[i]);
             end
+            GRM_G.TempLogDemotion = {};
         end
 
         if #GRM_G.TempRejoin > 0 and GRM.S().toChat.joined then
@@ -3111,6 +3311,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempRejoin do
                 GRM.PrintLog(GRM_G.TempRejoin[i]); -- Same Comments on down
             end
+            GRM_G.TempRejoin = {};
         end
 
         if #GRM_G.TempNewMember > 0 and GRM.S().toChat.joined then
@@ -3118,6 +3319,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempNewMember do
                 GRM.PrintLog(GRM_G.TempNewMember[i]); -- Send to print to chat window
             end
+            GRM_G.TempNewMember = {};
         end
 
         if #GRM_G.TempInactiveReturnedLog > 0 and GRM.S().toChat.inactiveReturn then
@@ -3125,6 +3327,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempInactiveReturnedLog do
                 GRM.PrintLog(GRM_G.TempInactiveReturnedLog[i]);
             end
+            GRM_G.TempInactiveReturnedLog = {};
         end
 
         if #GRM_G.TempRankRename > 0 and GRM.S().toChat.rankRename then
@@ -3132,11 +3335,13 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempRankRename do
                 GRM.PrintLog(GRM_G.TempRankRename[i]);
             end
+            GRM_G.TempRankRename = {};
         end
         if #GRM_G.TempLogLeveled > 0 and GRM.S().toChat.leveled then
             for i = 1, #GRM_G.TempLogLeveled do
                 GRM.PrintLog(GRM_G.TempLogLeveled[i]);
             end
+            GRM_G.TempLogLeveled = {};
         end
 
         if #GRM_G.TempLogNote > 0 and GRM.S().toChat.note then
@@ -3144,6 +3349,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempLogNote do
                 GRM.PrintLog(GRM_G.TempLogNote[i]);
             end
+            GRM_G.TempLogNote = {};
         end
 
         if not GRM_G.silenceOfficerNoteReporting and #GRM_G.TempLogONote > 0 and GRM.S().toChat.officerNote then
@@ -3151,6 +3357,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempLogONote do
                 GRM.PrintLog(GRM_G.TempLogONote[i]);
             end
+            GRM_G.TempLogONote = {};
         end
 
         if #GRM_G.TempEventReport > 0 and GRM.S().toChat.eventAnnounce then
@@ -3158,6 +3365,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempEventReport do
                 GRM.PrintLog(GRM_G.TempEventReport[i]);
             end
+            GRM_G.TempEventReport = {};
         end
 
         if #GRM_G.TempEventRecommendKickReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
@@ -3165,6 +3373,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempEventRecommendKickReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendKickReport[i]);
             end
+            GRM_G.TempEventRecommendKickReport = {};
         end
 
         if #GRM_G.TempEventRecommendPromotionReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
@@ -3172,6 +3381,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempEventRecommendPromotionReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendPromotionReport[i]);
             end
+            GRM_G.TempEventRecommendPromotionReport = {};
         end
 
         if #GRM_G.TempEventRecommendDemotionReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
@@ -3179,6 +3389,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempEventRecommendDemotionReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendDemotionReport[i]);
             end
+            GRM_G.TempEventRecommendDemotionReport = {};
         end
 
         if #GRM_G.TempEventRecommendSpecialReport > 0 and GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
@@ -3186,6 +3397,7 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempEventRecommendSpecialReport do
                 GRM.PrintLog(GRM_G.TempEventRecommendSpecialReport[i]);
             end
+            GRM_G.TempEventRecommendSpecialReport = {};
         end
 
         if #GRM_G.TempDeathReport > 0 and GRM.S().toChat.death then
@@ -3193,162 +3405,10 @@ Scan.FullReportCheck = function()
             for i = 1, #GRM_G.TempDeathReport do
                 GRM.PrintLog(GRM_G.TempDeathReport[i]);
             end
+            GRM_G.TempDeathReport  = {};
         end
     end
 
-    -- OK, NOW LET'S REPORT TO LOG FRAME IN REVERSE ORDER!!!
-    if #GRM_G.TempEventRecommendKickReport > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempEventRecommendKickReport do
-            GRM.Log.AddLog(GRM_G.TempEventRecommendKickReport[i]);
-        end
-    end
-
-    if #GRM_G.TempEventRecommendPromotionReport > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempEventRecommendPromotionReport do
-            GRM.Log.AddLog(GRM_G.TempEventRecommendPromotionReport[i]);
-        end
-    end
-
-    if #GRM_G.TempEventRecommendDemotionReport > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempEventRecommendDemotionReport do
-            GRM.Log.AddLog(GRM_G.TempEventRecommendDemotionReport[i]);
-        end
-    end
-
-    if #GRM_G.TempEventRecommendSpecialReport > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempEventRecommendSpecialReport do
-            GRM.Log.AddLog(GRM_G.TempEventRecommendSpecialReport[i]);
-        end
-    end
-
-    if #GRM_G.TempEventReport > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempEventReport do
-            GRM.Log.AddLog(GRM_G.TempEventReport[i]);
-        end
-    end
-
-    if not GRM_G.silenceOfficerNoteReporting and #GRM_G.TempLogONote > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempLogONote do
-            GRM.Log.AddLog(GRM_G.TempLogONote[i]);
-        end
-    end
-
-    if #GRM_G.TempLogNote > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempLogNote do
-            GRM.Log.AddLog(GRM_G.TempLogNote[i]);
-        end
-    end
-
-    if #GRM_G.TempLogLeveled > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempLogLeveled do
-            GRM.Log.AddLog(GRM_G.TempLogLeveled[i]);
-        end
-    end
-
-    if #GRM_G.TempRankRename > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempRankRename do
-            GRM.Log.AddLog(GRM_G.TempRankRename[i]);
-        end
-    end
-
-    if #GRM_G.TempRejoin > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempRejoin do
-            GRM.Log.AddLog(GRM_G.TempRejoin[i]);
-        end
-    end
-
-    if #GRM_G.TempNewMember > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempNewMember do
-            GRM.Log.AddLog(GRM_G.TempNewMember[i]); -- Adding to the Log of Events
-        end
-    end
-
-    if #GRM_G.TempLogDemotion > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempLogDemotion do
-            GRM.Log.AddLog(GRM_G.TempLogDemotion[i]);
-        end
-    end
-
-    if #GRM_G.TempLogPromotion > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempLogPromotion do
-            GRM.Log.AddLog(GRM_G.TempLogPromotion[i]);
-        end
-    end
-
-    if #GRM_G.TempNameChanged > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempNameChanged do
-            GRM.Log.AddLog(GRM_G.TempNameChanged[i]);
-        end
-    end
-
-    if #GRM_G.TempInactiveReturnedLog > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempInactiveReturnedLog do
-            GRM.Log.AddLog(GRM_G.TempInactiveReturnedLog[i]);
-        end
-    end
-
-    if #GRM_G.TempBannedRejoin > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempBannedRejoin do
-            GRM.Log.AddLog(GRM_G.TempBannedRejoin[i]);
-        end
-    end
-
-    if #GRM_G.TempDeathReport > 0 then
-        if GRM_G.OnFirstLoad then
-            GRM_G.ChangesFoundOnLoad = true;
-        end
-        for i = 1, #GRM_G.TempDeathReport do
-            GRM.Log.AddLog(GRM_G.TempDeathReport[i]);
-        end
-    end
 end
 
 -- Method:          Scan.ResetTempLogs()
