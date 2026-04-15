@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99388";
+GRM_G.Version = "R1.99389";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1775761614";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1775761614;            -- In Epoch Time
+GRM_G.PatchDayString = "1776241355";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1776241355;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120001;
@@ -174,6 +174,7 @@ GRM_G.changeHappenedExitScan = false;
 GRM_G.silenceOfficerNoteReporting = false;
 GRM_G.silenceOfficerTimer = 0;
 GRM_G.ReScanningEvents = false;
+GRM_G.SessionTime = 0;
 
 -- Live Detection Controls
 GRM_G.RejoinControlCheck = 0;
@@ -244,6 +245,8 @@ GRM_G.MainTagDupeProtect = {};
 GRM_G.MainTagDupeProtect.time = 0;
 GRM_G.MainTagDupeProtect.name = "";
 GRM_G.MainTagDupeProtect.msg = "";
+GRM_G.MainTagDupeProtect.tableString = "";
+
 
 -- Current Addon users
 GRM_G.currentAddonUsers = {};
@@ -5214,17 +5217,19 @@ end
 -- Method:          GRM.AddMainToChat ( ... )
 -- What it Does:    It adds either a Main tag to the player, or if they are on an alt, includes the name of the main.
 -- Purpose:         Easy to see player name in guild chat, for achievments and so on...
-GRM.AddMainToChat = function(_, event, msg, sender, ...)
+GRM.AddMainToChat = function(chatFrame, event, msg, sender, ...)
     if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg)then
         local placeHolderMsg = msg;
+        local tableString = tostring(chatFrame);
 
         -- Dupe protection for universal addon compatibility as an addon like Prat will reprocess the string twice.
-        if time() == GRM_G.MainTagDupeProtect.time and sender == GRM_G.MainTagDupeProtect.name and string.find( msg , GRM_G.MainTagDupeProtect.msg, 1 , true) then
+        if tableString == GRM_G.MainTagDupeProtect.tableString and time() == GRM_G.MainTagDupeProtect.time and sender == GRM_G.MainTagDupeProtect.name and string.find( msg , GRM_G.MainTagDupeProtect.msg, 1 , true) then
             return false, msg, sender, ...;
         else
             GRM_G.MainTagDupeProtect.time = time();
             GRM_G.MainTagDupeProtect.name = sender;
             GRM_G.MainTagDupeProtect.msg = msg
+            GRM_G.MainTagDupeProtect.tableString = tableString;
         end
 
         if sender ~= GRM_G.addonUser then
@@ -23156,6 +23161,11 @@ GRM.ConfigureGuild = function()
     -- Configure the guild
     if GRM_G.guildName == "" or not GRM.GetGuild() then
         local guildName, _, _, server = GetGuildInfo("PLAYER");
+        local count = 1;
+
+        if not guildName or not server then
+            guildName, _, _, server = GetGuildInfo("PLAYER");
+        end
 
         if server ~= nil then
             GRM_G.guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
@@ -23763,32 +23773,50 @@ GRM.ManageGuildStatus = function()
 end
 
 
--- Method:          GRM.DataLoadDelayProtection()
+-- Method:          GRM.DataLoadDelayProtection( bool , int )
 -- What it Does:    It checks if the calendar and date info is available from the server yet and if not, it recursively reloads
 -- Purpose:         To prevent certain errors due to the server returning this information slowly as of patch 8.1.5 for some reason.
-GRM.DataLoadDelayProtection = function()
-    if GRM.Time.GetCurrentCalendarTime().month ~= 0 and GRM.Time.GetCurrentCalendarTime().month ~= nil and
-        (not IsInGuild() or (IsInGuild() and GetGuildInfo("PLAYER") ~= nil)) then -- Critical to be receiving data properly from the server...
+GRM.DataLoadDelayProtection = function( isReady , count )
+    isReady = isReady or false;
+    count = count or 0;
 
+    if GRM.Time.GetCurrentCalendarTime().month and GRM.Time.GetCurrentCalendarTime().month ~= 0 then
         if IsInGuild() then
-            -- Need to pull guildName
-            local guildName, _, _, server = GetGuildInfo("PLAYER");
-
-            if not guildName then
-                -- Sometimes you have to call the server API twice to get it back.
-                guildName, _, _, server = GetGuildInfo("PLAYER");
+            if GetGuildInfo("PLAYER") ~= nil then -- Critical to be receiving data properly from the server...
+                count=count+1;
+                -- Need to pull guildName
+                local guildName, _, _, server = GetGuildInfo("PLAYER");
+                if not guildName or not server then
+                    guildName, _, _, server = GetGuildInfo("PLAYER")
+                end
+                local timePassed = 0;
+                if not server then
+                    timePassed = time() - GRM_G.SessionTime;
+                end
+                if server or timePassed > 10 or count == 20 then
+                    isReady = true;
+                end
+                
+                if isReady then
+                    if server ~= nil then
+                        GRM_G.guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
+                    else
+                        GRM_G.guildName = guildName .. "-" .. GRM_G.realmName;
+                    end
+                end
+                
             end
-
-            if server ~= nil then
-                GRM_G.guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
-            else
-                GRM_G.guildName = guildName .. "-" .. GRM_G.realmName;
-            end
+        else
+            isReady = true
         end
+    end
 
-        GRM.LoadSettings();
+    if not isReady then
+        C_Timer.After(0.5, function()
+            GRM.DataLoadDelayProtection(isReady, count)
+        end);
     else
-        C_Timer.After(0.2, GRM.DataLoadDelayProtection);
+        GRM.LoadSettings();
     end
 end;
 

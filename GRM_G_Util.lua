@@ -25,6 +25,8 @@ G_Util.GetNumGuildiesInGuild = function(guildData)
     return c;
 end
 
+
+
 -- Method:          G_Util.DatabasesAligned()
 -- What it Does:    Checks to see if the number of guildies in expected databases align properly
 -- Purpose:         There appears to be some kind of anomaly that appeared in 12.0.x where guilds of same name but different server could get mixed

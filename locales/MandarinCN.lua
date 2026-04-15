@@ -2040,6 +2040,10 @@ GRML.MandarinCN = function()
     GRM_L["You must be in a guild to view the Guild Log!"] = true
     GRM_L["You must be in a guild to view the Guild Macro Tool!"] = true
     
+    -- R1.99389
+    GRM_L["Analyzing Guild Event Log..."] = true
+    GRM_L["Relevant Log Entries Added: {num}"] = true
+    
 end
 
 -- Thank you 阿拉贝比-回音山 for you amazing work!

@@ -2647,7 +2647,7 @@ GRMsync.IsCompatibleToShareData = function ( allNormal , isCustom , isBan , fina
             return true;
         end
 
-    elseif isBan then
+    elseif isBan and GRMsyncGlobals.senderBanRankReq then
         if ( GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM.S().syncRankBanList and GRM_G.playerRankID <= GRMsyncGlobals.senderBanRankReq ) then
             return true;
         end
@@ -2661,7 +2661,7 @@ GRMsync.IsCompatibleToShareData = function ( allNormal , isCustom , isBan , fina
         if ( GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM.S().syncRankCustom and GRM_G.playerRankID <= GRMsyncGlobals.syncRankCustomNoteFilter ) then
             return true;
         end
-    elseif finalBan then
+    elseif finalBan and GRMsyncGlobals.senderBanRankReq then
         if ( GRMsyncGlobals.CurrentSyncPlayerRankID <= GRM.S().syncRankBanList and GRM_G.playerRankID <= GRMsyncGlobals.senderBanRankReq ) then
             return true;
         end
@@ -6541,6 +6541,11 @@ GRMsync.CollectBanData = function ( msg , prefix )
         if playerWhoBanned == "#" then
             playerWhoBanned = "";
         end
+
+        if not classIndex then
+            classIndex = 0;
+        end
+        
         local playerData = { rankName , rankIndex , level , classIndex , standardDate , originalJoinEpoch , GUID };
 
         if prefix == "GRM_BANSYNC1" then        -- All data was contained in a single message

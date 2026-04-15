@@ -2031,6 +2031,10 @@ GRML.German = function()
     GRM_L["You must be in a guild to view the Guild Log!"] = true
     GRM_L["You must be in a guild to view the Guild Macro Tool!"] = true
     
+    -- R1.99389
+    GRM_L["Analyzing Guild Event Log..."] = true
+    GRM_L["Relevant Log Entries Added: {num}"] = true
+    
 end
 
     -- THANK YOU @Nehry for this full translation up to R1.20

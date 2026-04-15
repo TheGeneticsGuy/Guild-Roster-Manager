@@ -1652,66 +1652,69 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         local height = 113;
         local player = GRM.GetPlayer ( GRM_G.currentName );
 
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:ClearAllPoints();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt , "BOTTOM" );
+            if player then
 
-        -- Logic already configured as it is static
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton1Text:SetText ( GRM.L ( "Edit Date" ) );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton1:SetScript ( "OnClick" , function ( _ , button )
-            if button == "LeftButton" then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_SetPromoDateButton:Click();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetText ( GRM.L ( "Edit Promo Date" ) );
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:Hide();
-            end
-        end);
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:ClearAllPoints();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt , "BOTTOM" );
 
-        -- Logic reconfigured for each player.
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton2Text:SetText ( GRM.L ( "Clear History" ) );
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton2:SetScript ( "OnClick" , function( _ , button )
-            if button == "LeftButton" then
-                GRM.ClearPromoDateHistory ( player.name , player.promoteDateUnknown , player );
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Hide();
-            end
-        end );
-
-        -- To show button 3 or not.
-        if not player.promoteDateUnknown and not player.rankHist[1][7] then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3Text:SetText ( GRM.L ( "Confirm Date" ) );
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3:SetScript ( "OnClick" , function ( _ , button )
+            -- Logic already configured as it is static
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton1Text:SetText ( GRM.L ( "Edit Date" ) );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton1:SetScript ( "OnClick" , function ( _ , button )
                 if button == "LeftButton" then
-                    GRM_UI.ConfirmPromoDate();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_SetPromoDateButton:Click();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_DateSubmitButtonTxt:SetText ( GRM.L ( "Edit Promo Date" ) );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Hide();
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailRankDateTxt:Hide();
+                end
+            end);
+
+            -- Logic reconfigured for each player.
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton2Text:SetText ( GRM.L ( "Clear History" ) );
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton2:SetScript ( "OnClick" , function( _ , button )
+                if button == "LeftButton" then
+                    GRM.ClearPromoDateHistory ( player.name , player.promoteDateUnknown , player );
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Hide();
                 end
+            end );
 
-            end);
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3:Show();
-            height = height + 16;
-
-            if player.rankHist[1][6] and not player.joinDateUnknown then
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4Text:SetText ( GRM.L ( "Use Join Date" ) );
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4:SetScript ( "OnClick" , function ( _ , button )
+            -- To show button 3 or not.
+            if not player.promoteDateUnknown and not player.rankHist[1][7] then
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3Text:SetText ( GRM.L ( "Confirm Date" ) );
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3:SetScript ( "OnClick" , function ( _ , button )
                     if button == "LeftButton" then
-                        GRM.CopyFromJoinDate();
+                        GRM_UI.ConfirmPromoDate();
                         GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Hide();
                     end
+
                 end);
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4:Show();
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3:Show();
                 height = height + 16;
+
+                if player.rankHist[1][6] and not player.joinDateUnknown then
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4Text:SetText ( GRM.L ( "Use Join Date" ) );
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4:SetScript ( "OnClick" , function ( _ , button )
+                        if button == "LeftButton" then
+                            GRM.CopyFromJoinDate();
+                            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Hide();
+                        end
+                    end);
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4:Show();
+                    height = height + 16;
+                else
+                    GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4:Hide();
+                end
+
             else
+                GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4:Hide();
             end
 
-        else
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton3:Hide();
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame.GRM_MouseOverDateStatusFrameButton4:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Show();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_altDropDownOptions:Hide();
+            GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame:Hide();
+            GRM_G.pause = true;
+            GRM_UI.ConfigureDateContextMenuSize ( height );
         end
-
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverDateStatusFrame:Show();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_altDropDownOptions:Hide();
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MouseOverStatusFrame:Hide();
-        GRM_G.pause = true;
-        GRM_UI.ConfigureDateContextMenuSize ( height );
     end
 
     -- Right Click menu configuration for promotion rank history or editing

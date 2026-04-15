@@ -9,8 +9,6 @@ GRM.Config = Config;
 -- Build UI addon listener for delayed load frames.
 local Initialization = CreateFrame("Frame");
 
-
-
 -- Method:          Config.GetTimeOffesets()
 -- What it Does:    Determines the number of hours a player needs to gain or lose based on their local time, to match server time.
 -- Purpose:         The date() function pulls OS time, not server time. This allows me to adjust for it.
@@ -72,6 +70,7 @@ Config.ActivateAddon = function(_, event, addon, isReload )
         GRM.ConfigureAnnounceOnLogin(); -- So no repeat announcements
 
         GRM_G.OStimeOffset = Config.GetTimeOffesets(); -- One time configuration of gameTime Offsets;
+        GRM_G.SessionTime = time();
 
         GRM.DataLoadDelayProtection();
     end

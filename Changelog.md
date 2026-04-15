@@ -1,10 +1,24 @@
-## **VERSION 1.99389 - April 14th, 2026**
+## **VERSION 1.99389 - April 15th, 2026**
+
+***NEW FEATURE***
+
+* New GRM users will now get a retroactive scan of their built-in guild event log to generate an initial report to the GRM log. Unfortunately the server logs are very limited, but it is better than before, which was nothing!
 
 ***BUG FIXES***
 
+* Fixed an issue where GRM could get stuck in a loop and keep reporting to the log over and over again. This went away if you enabled chat messaging, with exception to joined info which could get stuck in a loop over and over again. This was a slight oversight in some backend changes I needed to make.
+
+* Major bug fix for people who are on x-realm guilds who have a toon on a different realm than the main guild... this did not affect everyone and in fact, seemed to only have some kind of effect on very few people. But, it existed. This was sourced and should no longer occur. This actually is directly related to a bug in the API when querying the server for the guild name and the server name the guild is on. In the past, if you got the server name back, you knew that the guild was on a different server than your own, but if the server returned "nil" on the server name, it meant it was your own server. This is code that has been unchanged since I launched GRM in 2017 and has been 100% reliable. So, connected realms, and when they introduced x-realm guilds, all without issue. However, something happened. Apparently now there is an issue where the API will often now still return nil on server name even if a differing server than your own, so you can no longer infer the realm the guild with this API. REALLY ANNOYING. And again, it's been almost a decade with zero issues with this API call until Midnight's addongeddon. Anyway, I have established a rather robust way to accomodate this. This has been a long-standing bug now I have been trying to source and fix for over a month and I just never considered the API itself to be the unreliable problem as I had been using it for so long. Geesh! This is also probably why I haven't heard any reports on Classic guilds who are on connected realms but only on Midnight.
+
 * If there are any dead accounts in your guild (Example player name: "Name4C0128"), GRM will actually inform you of them so they can be removed. This should only appear for officers and leaders who have the ability to remove players. Before, it was still showing for all players, even if they couldn't remove them. No need to share that report with non-officers. This is fixed.
 
+* Fixed an issue where the Main tag tagging to chat (like <M>) was only showing in the General channel and not others. This is now fixed, and yes it is compatible with all of the mainstream chat addons like Prat and Chattynator.
 
+* Fixed an issue where the log wasn't properly reporting a player's time that they left or got kicked from the guild, even if it was found in the event log. It was just giving the time you noticed it at login. This is now resolved.
+
+* Fixed a small Lua error that could occur when right clicking the promotion date to edit it.
+
+* Fixed an issue where sync could fail due to a lua error on some data.
 
 ## **VERSION 1.99388 - April 9th, 2026**
 
