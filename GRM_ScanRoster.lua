@@ -497,17 +497,12 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
 
     -- Prevention of incorrect guild load
     if index == 1 then
-
         if not members.ownNameFound or not roster[GRM_G.addonUser] or #orderedRoster ~= #members then
         -- This means the Communities API is not returning the player's own name, which is a critical failure for the scan. Abort and retry later.
             GRM_G.CurrentlyScanning= false;
-            if not roster[GRM_G.addonUser] then
-                print("GRM: Critical Error - Player's own name not found in Communities API response. Aborting scan and will retry soon. Please report to author");
-            end
             return;
         end
     end
-
 
     local memberInfo;
     local player;

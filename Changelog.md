@@ -1,3 +1,9 @@
+## **VERSION 1.993891 - April 15th, 2026**
+
+***BUG FIXES***
+
+* Fixed a small Lua error that can occur to people who are not currently in a guild. Smally typo.
+
 ## **VERSION 1.99389 - April 15th, 2026**
 
 ***NEW FEATURE***

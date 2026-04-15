@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99389";
+GRM_G.Version = "R1.993891";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1776241355";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1776241355;            -- In Epoch Time
+GRM_G.PatchDayString = "1776261339";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1776261339;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120001;
@@ -23757,7 +23757,7 @@ GRM.ManageGuildStatus = function()
                 if GRMsync.MessageTracking ~= nil then
                     GRMsync.MessageTracking:UnregisterAllEvents();
                 end
-                Scan.ResetTempLogs();
+                GRM.Scan.ResetTempLogs();
                 GRMsync.ResetDefaultValuesOnSyncReEnable(); -- Need to reset sync algorithm too!
                 GRM_UI.GRM_RosterChangeLogFrame:Hide();
             end
