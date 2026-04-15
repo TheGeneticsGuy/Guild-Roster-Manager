@@ -186,7 +186,7 @@ end
 -- What it Does:    Clears every officer note to every player in the guild
 -- Purpose:         Mass cleanup abilities
 GRM_API.ClearAllOfficerNotes = function()
-    if GRM.CanModifyOfficerNote() then
+    if not GRM_G.BuildHasRestrictions then
         if GRM.CanEditOfficerNote() then
             for i = 1 , GetNumGuildMembers() do
                 GuildRosterSetOfficerNote ( i , "" );
@@ -238,7 +238,7 @@ end
 -- What it Does:    Looks at the GRM save database and restores all the officer notes
 -- Purpose:         In case someone nefariously overwrites all officer notes
 GRM_API.RestoreAllOfficerNotesFromSave = function()
-    if GRM.CanModifyOfficerNote() then
+    if not GRM_G.BuildHasRestrictions then
         local members = GRM_Restore_Members[GRM_G.guildName];
 
         if GRM.CanEditOfficerNote() then
