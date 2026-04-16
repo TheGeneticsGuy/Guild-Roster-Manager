@@ -511,9 +511,8 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
         memberInfo = members[index];
 
         if memberInfo and memberInfo.guid and memberInfo.name then
-            player = roster[name];
+            player = roster[memberInfo.name];
             if player and player.GUID == memberInfo.guid then
-
                 -- Add Mythic Score if applicable
                 if GRM_G.BuildVersion >= 80000 and memberInfo.overallDungeonScore then
                     player.MythicScore = memberInfo.overallDungeonScore;

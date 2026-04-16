@@ -1,3 +1,9 @@
+## **VERSION 1.99390 - April 16th, 2026**
+
+***BUG FIXES***
+
+* Mythic score was not being updated properly. It now should populate player values accurately.
+
 ## **VERSION 1.993892 - April 15th, 2026**
 
 ***BUG FIXES***
