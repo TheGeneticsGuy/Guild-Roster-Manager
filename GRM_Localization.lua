@@ -98,16 +98,16 @@ GRML.listOfFonts = {
     -------------------
     STANDARD_TEXT_FONT,
     -- Non-Cyrillic Friendly
-    "FONTS\\FRIZQT__.TTF",
+    "Fonts\\FRIZQT__.TTF",
     -- Cyrillic Friendly
-    "FONTS\\FRIZQT___CYR.TTF",
+    "Fonts\\FRIZQT___CYR.TTF",
     -- Asian Character Friendly (and Cyrillic)
     -- Korean
-    "FONTS\\2002.TTF",
+    "Fonts\\2002.TTF",
     -- Simplified Chinese
-    "FONTS\\ARKai_T.TTF",
+    "Fonts\\ARKai_T.TTF",
     -- Traditional Chines
-    "FONTS\\blei00d.TTF",
+    "Fonts\\blei00d.TTF",
 
     ---------------
     -- CUSTOM FONTS (so far none are Asian character friendly)

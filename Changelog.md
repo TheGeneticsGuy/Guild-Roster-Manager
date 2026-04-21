@@ -1,3 +1,11 @@
+## **VERSION 1.99392 - April 21st, 2026**
+
+***BUG FIXES***
+
+* With 12.0.5 launch there was a change to the SetFont API that could cause problems. This will no longer happen.
+
+* GRM should now show compatibility with 12.0.1 for users who update early before servers drop in EU, due to the mismatched timing on server launching.
+
 ## **VERSION 1.99391 - April 21st, 2026**
 
 *Compatibility update for 12.0.5 Retail*
