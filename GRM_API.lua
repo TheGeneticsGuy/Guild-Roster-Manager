@@ -539,3 +539,18 @@ GRM_API.EditCustomNote = function ( player_name , new_note , replace_existing , 
         return false;
     end
 end
+
+GRM_API.ForceMyCustomNoteData = function()
+    local updatedTime = time();
+    local guild = GRM.GetGuild();
+
+    if guild then
+        for _,player in pairs(guild) do
+            if type(player) == "table" then
+                if player.customNote[2] ~= 0 then
+                    player.customNote[2] = updatedTime;
+                end
+            end
+        end
+    end
+end

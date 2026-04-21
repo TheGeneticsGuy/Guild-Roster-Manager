@@ -1,3 +1,7 @@
+## **VERSION 1.99391 - April 21st, 2026**
+
+*Compatibility update for 12.0.5 Retail
+
 ## **VERSION 1.99390 - April 16th, 2026**
 
 ***BUG FIXES***
