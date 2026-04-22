@@ -568,13 +568,31 @@ GRM_R.RefreshOnlineStatus = function( guildData )
 
 end
 
--- Method:          GRM_R.GetAllMembersAsArray( string , string )
+-- Method:          GRM_R.GetNameSearch()
+-- What it Does:    Gets the name search text, and formats it for use in searching.
+-- Purpose:         To be used in the search function for the roster.
+GRM_R.GetNameSearch = function()
+    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+
+    if nameSearch == "" then
+        nameSearch = nil;
+    else
+        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
+    end
+    return nameSearch;
+end
+
+local toonsAdded = {};
+local mainsShown = {};
+-- Method:          0( string , string )
 -- What it Does:    Returns an unsorted list of all guild members as an array, as well as some accompanying details.
 -- Purpose:         A sorted list is useful for columns
 GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
     local result = {};
     local guildData = GRM.GetGuild();
     local addPlayer;
+    toonsAdded = {};
+    mainsShown = {};
 
     -- Refresh the online status for accuracy
     GRM_R.RefreshOnlineStatus ( guildData );
@@ -587,6 +605,7 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
         if GRM.S().showRosterOffline or ( not GRM.S().showRosterOffline and player.isOnline ) then
 
             if ( not nameSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.name ) ) , nameSearch , 1 , true ) or string.find ( string.lower ( player.name ) , nameSearch , 1 , true ) ) and ( not noteSearch or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.note ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.note ) , noteSearch , 1 , true ) or string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.customNote[4] ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.customNote[4] ) , noteSearch , 1 , true ) or ( GRM.CanEditOfficerNote() and ( string.find ( string.lower ( GRM.RemoveSpecialCharacters ( player.officerNote ) ) , noteSearch , 1 , true ) or string.find ( string.lower ( player.officerNote ) , noteSearch , 1 , true ) ) ) ) then
+                
                 if GRM.IsMain ( player.name ) then
                     tempPlayer.isMain = true;
                     tempPlayer.isAlt = false;
@@ -597,6 +616,10 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
                         tempPlayer.isAlt = false;
                     else
                         tempPlayer.isAlt = true;
+                        local main = GRM.GetPlayerMain ( player.name );
+                        if main and main ~= "" then
+                            tempPlayer.mainName = main;                            
+                        end
                     end
 
                 end
@@ -622,18 +645,18 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
                                 local addAlt , altDetails;
 
                                 for i = 1 , #alts do
-
                                     addAlt , altDetails = addPlayer ( guildData[alts[i]] , true );
 
                                     if addAlt then
-
+                                        toonsAdded[altDetails.name] = true;   -- Mark as added so we don't add them again in the main loop
+                                        altDetails.mainName = player.name;
                                         table.insert ( tempPlayer.alts , altDetails );
 
                                     end
                                 end
                             end
                         end
-
+                        
                         toAdd = true;   -- Add if Main or no designation - only not showing if designated as an alt.
                     end
                 else
@@ -684,13 +707,31 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
     end
 
     local toAdd , playerDetails;
+    local mains = GRM.GetListOfGuildMains();
+    local player;
 
-    for _ , player in pairs ( guildData ) do
-        if type ( player ) == "table" then
+    for i = 1, #mains do
+        player = GRM.GetPlayer(mains[i]);
+        if player then
             toAdd , playerDetails = addPlayer ( player );
 
             if toAdd then
+                toonsAdded[playerDetails.name] = true;
+                mainsShown[playerDetails.name] = true;
                 table.insert ( result , playerDetails );
+            end
+        end
+    end
+
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+
+            if not GRM.IsMain(player.name) and not toonsAdded[player.name] then
+                toAdd , playerDetails = addPlayer ( player );
+
+                if toAdd then
+                    table.insert ( result , playerDetails );
+                end
             end
 
         end
@@ -704,14 +745,8 @@ end
 -- Purpose:         For the Guild roster
 GRM_R.SortNames = function ( _ , keepType , reSizeButtons )
 
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local nameSearch = GRM_R.GetNameSearch();
     local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
-
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
 
     if noteSearch == "" then
         noteSearch = nil;
@@ -769,14 +804,8 @@ end
 -- Purpose:         For the Guild roster
 GRM_R.SortLastOnline = function ( _ , keepType , reSizeButtons )
 
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local nameSearch = GRM_R.GetNameSearch();
     local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
-
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
 
     if noteSearch == "" then
         noteSearch = nil;
@@ -831,14 +860,8 @@ end
 -- What it Does:    Sorts the players by M+ Score
 -- Purpose:         For the GRM Guild Roster
 GRM_R.SortMythicScore = function ( _ , keepType , reSizeButtons )
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local nameSearch = GRM_R.GetNameSearch();
     local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
-
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
 
     if noteSearch == "" then
         noteSearch = nil;
@@ -897,14 +920,8 @@ end
 -- Purpose:         For the Guild roster
 GRM_R.SortNote = function ( _ , keepType , reSizeButtons )
 
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local nameSearch = GRM_R.GetNameSearch();
     local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
-
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
 
     if noteSearch == "" then
         noteSearch = nil;
@@ -962,14 +979,8 @@ end
 -- Purpose:         For the Guild roster
 GRM_R.SortOfficerNote = function ( _ , keepType , reSizeButtons )
 
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local nameSearch = GRM_R.GetNameSearch();
     local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
-
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
 
     if noteSearch == "" then
         noteSearch = nil;
@@ -1027,14 +1038,8 @@ end
 -- Purpose:         For the Guild roster
 GRM_R.SortCustomNote = function ( _ , keepType , reSizeButtons )
 
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local nameSearch = GRM_R.GetNameSearch();
     local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
-
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
 
     if noteSearch == "" then
         noteSearch = nil;
@@ -1094,14 +1099,8 @@ end
 -- Purpose:         For the Guild roster
 GRM_R.SortRank = function ( _ , keepType , reSizeButtons )
 
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
+    local nameSearch = GRM_R.GetNameSearch();
     local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
-
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
 
     if noteSearch == "" then
         noteSearch = nil;
@@ -1439,12 +1438,7 @@ end
 -- Purpose:         For the Guild roster
 GRM_R.SortLevel = function ( _ , keepType , reSizeButtons )
 
-    local nameSearch = GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:GetText();
-    if nameSearch == "" then
-        nameSearch = nil;
-    else
-        nameSearch = string.lower ( GRM.RemoveSpecialCharacters ( nameSearch ) );
-    end
+    local nameSearch = GRM_R.GetNameSearch();
 
     if not keepType then
         if GRM_UI.GRM_RosterFrame.SortType ~= 7 and GRM_UI.GRM_RosterFrame.SortType ~= 8 then
@@ -2049,7 +2043,7 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
         end
 
         -- Alt vs Main
-        if GRM.S().showMains and GRM.S().groupByMain and GRM_UI.GRM_RosterFrame.Entries[ind2].isAlt then
+        if GRM.S().showMains and GRM.S().groupByMain and GRM_UI.GRM_RosterFrame.Entries[ind2].isAlt and GRM_UI.GRM_RosterFrame.Entries[ind2].mainName and mainsShown[GRM_UI.GRM_RosterFrame.Entries[ind2].mainName] then
             name = "     " .. name;
         end
 

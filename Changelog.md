@@ -1,3 +1,13 @@
+## **VERSION 1.99393 - April 22nd, 2026**
+
+***BUG FIXES***
+
+* Midnight Addongeddon has reared it's head again! This update has change a few API, as well as added some new secret variable conditions that now affect chat channels when in protected mode. You probably saw GRM erroring like crazy in dungeons, delves, or BGs because of this (as well as many other addons, including Blizz's own built-in addons). This is now resolved, at least on GRM's end.
+
+* Fixed an issue when you are grouping the alts under the main, in the custom GRM roster (`/roster`), that if the main was filtered out in a search, and not an alt, it could give the appearance it was an alt of a different main. This is now properly resolved and the alts will only be slightly tabbed over if the main is not filtered out.
+
+* Fixed a Lua error that could prevent the Dead Account reporting from working, as in names that end up with GUID gibberish added to the end because they have been inactive typically 7+ years or so. It will now properly show.
+
 ## **VERSION 1.99392 - April 21st, 2026**
 
 ***BUG FIXES***

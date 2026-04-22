@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99392";
+GRM_G.Version = "R1.99393";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1776812668";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1776812668;            -- In Epoch Time
+GRM_G.PatchDayString = "1776894478";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1776894478;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120005;
@@ -23084,6 +23084,11 @@ GRM.SlashCommandActions = function( slashCommand )
             string.lower(GRM.L("deadnames")) then
             local customKickList = GRM.Scan.CheckForDeadAccounts(true);
             GRM.Report(GRM.L("Dead player accounts found: {num}", nil, nil, #customKickList));
+            if not CanGuildRemove() then
+                for i = 1, #customKickList do
+                    GRM.Report(GRM.GetClassifiedName(customKickList[i].name,false));
+                end
+            end
 
             -- FOR FUN!!!
         elseif command == "hello" or command == "sexy" then

@@ -3000,7 +3000,7 @@ end
 -- Purpose:         Quality of life feature for maintenance reasons of a roster.
 Scan.CheckForDeadAccounts = function(isManual)
 
-    if not CanGuildRemove() then
+    if not CanGuildRemove() and not isManual then
         return;
     end
 
@@ -3040,40 +3040,43 @@ Scan.CheckForDeadAccounts = function(isManual)
                 return a[1] < b[1]
             end);
 
-            local kickDeadNames = function()
-                if not GRM_UI.GRM_ToolCoreFrame or (GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible()) then
-                    GRM_G.RosterRightClickControl = true;
-                    GRM_UI.GRM_ToolCoreFrame:Show();
-                end
+            if CanGuildRemove() then
 
-                GRM_R.ConfigureMacroForRightClick( 1 , customKickList);
-            end
-
-            local ignoreDeadNames = function()
-
-                local player;
-                for i = 1, #customKickList do
-                    player = GRM.GetPlayer(customKickList[i].name);
-                    if player then
-                        player.deadNameIgnore = true;
+                local kickDeadNames = function()
+                    if not GRM_UI.GRM_ToolCoreFrame or (GRM_UI.GRM_ToolCoreFrame and not GRM_UI.GRM_ToolCoreFrame:IsVisible()) then
+                        GRM_G.RosterRightClickControl = true;
+                        GRM_UI.GRM_ToolCoreFrame:Show();
                     end
+
+                    GRM_R.ConfigureMacroForRightClick( 1 , customKickList);
                 end
 
-                GRM.Report(GRM.L("You can re-check in the future by typing '/grm dead'"));
-            end
+                local ignoreDeadNames = function()
 
-            local numDeadMsg = "";
-            if #customKickList > 1 then
-                numDeadMsg = GRM.L("There are {num} players in your guild on dead accounts.", nil, nil,
-                    #customKickList) .. " " .. GRM.L("Would you like to remove them?");
-            else
-                numDeadMsg = GRM.L("There is 1 player in your guild on a dead account.") .. " " ..
-                                GRM.L("Would you like to remove them?");
-            end
+                    local player;
+                    for i = 1, #customKickList do
+                        player = GRM.GetPlayer(customKickList[i].name);
+                        if player then
+                            player.deadNameIgnore = true;
+                        end
+                    end
 
-            GRM.SetConfirmationWindow( kickDeadNames, numDeadMsg .. "\n\n" .. GRM.L(
-                "Click CONFIRM to review the names, IGNORE to remove this pop-up permanently, or CANCEL to be reminded next session."),
-                ignoreDeadNames, {320, 200})
+                    GRM.Report(GRM.L("You can re-check in the future by typing '/grm dead'"));
+                end
+
+                local numDeadMsg = "";
+                if #customKickList > 1 then
+                    numDeadMsg = GRM.L("There are {num} players in your guild on dead accounts.", nil, nil,
+                        #customKickList) .. " " .. GRM.L("Would you like to remove them?");
+                else
+                    numDeadMsg = GRM.L("There is 1 player in your guild on a dead account.") .. " " ..
+                                    GRM.L("Would you like to remove them?");
+                end
+
+                GRM.SetConfirmationWindow( kickDeadNames, numDeadMsg .. "\n\n" .. GRM.L(
+                    "Click CONFIRM to review the names, IGNORE to remove this pop-up permanently, or CANCEL to be reminded next session."),
+                    ignoreDeadNames, {320, 200})
+            end
         end
     end
     return customKickList;

@@ -219,6 +219,25 @@ GRM.IsFormerMemberAnAlt = function ( player )
     return false;
 end
 
+-- Method:          GRM.GetListOfGuildMains()
+-- What it Does:    Returns a list of all of the mains in the guild.
+-- Purpose:         In the roster it is easier to process all mains first and then the alts.
+GRM.GetListOfGuildMains = function()
+    local guildData = GRM.GetGuild();
+    local names = {};
+    for _ , player in pairs ( guildData ) do
+        if type ( player ) == "table" then
+            if GRM.IsMain (player.name) then
+                table.insert(names, player.name);
+            end
+        end
+    end
+
+    sort ( names );
+
+    return names;
+end
+
 ----------------------------------
 --- END MAIN DESIGNATION LOGIC ---
 ----------------------------------
@@ -1959,5 +1978,3 @@ end
 ----------------------
 --- END BDAY LOGIC ---
 ----------------------
-
--- When syncing alt Groups, sync to the main of that alt group.

@@ -18,7 +18,10 @@ end
 local InitializeSecrets = function()
     local restrictionListener = CreateFrame("Frame");
     local stateEnum = {[0]="Inactive", [1]="Activating", [2]="Active"}; -- Enum.AddOnRestrictionState reversed
-    local typeEnum = {[0]="Combat", [1]="Encounter", [2]="ChallengeMode", [3]="PvPMatch", [4]="Map"}; -- Enum.AddOnRestrictionType reversed
+    local typeEnum = {};
+    for x,c in pairs(Enum.AddOnRestrictionType) do
+        typeEnum[c] = x;
+    end
 
     restrictionListener:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED");
     restrictionListener:SetScript("OnEvent", function(_, event, type, state)
