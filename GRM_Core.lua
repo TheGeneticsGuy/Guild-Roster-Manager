@@ -8035,7 +8035,7 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
                     GameTooltip:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
                         "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
                     GameTooltip:Show();
-                end
+                end 
             end
         end);
 
@@ -23266,7 +23266,7 @@ end
 GRM.InitializePreCheck = function(recursive)
     if not GRM_G.InitializePreCheck or recursive then
         GRM_G.InitializePreCheck = true;
-        if not GRM_G.OnFirstLoad then
+        if not GRM_G.OnFirstLoad and GRM.S() then
             GRM_G.InitializePreCheck = false;
             C_Timer.After(GRM.S().syncDelay, function()
                 if GRM.S() and GRM.S().autoTriggerSync and not GRMsyncGlobals.currentlySyncing then

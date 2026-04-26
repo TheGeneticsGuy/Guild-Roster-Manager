@@ -1,3 +1,7 @@
+## **VERSION 1.99394 - April 22nd, 2026**
+
+* Fixed an issue where GRM can trigger a Lua error if you take a portal too quickly after logging in, interrupting initialization. This should no longer occur.
+
 ## **VERSION 1.99393 - April 22nd, 2026**
 
 ***BUG FIXES***
