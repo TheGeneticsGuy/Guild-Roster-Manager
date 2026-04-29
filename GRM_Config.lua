@@ -71,7 +71,6 @@ Config.ActivateAddon = function(_, event, addon, isReload )
 
         GRM_G.OStimeOffset = Config.GetTimeOffesets(); -- One time configuration of gameTime Offsets;
         GRM_G.SessionTime = time();
-
         GRM.DataLoadDelayProtection();
     end
 end

@@ -1,3 +1,9 @@
+## **VERSION 1.99394 - April 29th, 2026**
+
+* Fixed an issue where GRM can trigger a Lua error if you take a portal too quickly after logging in, interrupting initialization. This should no longer occur.
+
+* Fixed a longstanding bug where the GRM window could pop up after hitting a loading screen. This one was REALLY weird. But, after some helpful reporting, what was actually happening is that on hitting a loading screen, the "PLAYER_GUILD_UPDATE" background event was firing, which prior to TWW, only fired when you joined or left a guild. Well now, it fires every time you hit a portal or loading screen. Then, the built-in API "IsInGuild()" was erroneously reporting false, even if you were in a guild, for a few seconds prior. So, what was happening was the GRM addon would see the guild update event, do an API check if you were in a guild, see you weren't, then assume you had left a guild, thus disabling many GRM features... then boom, several seconds later, GRM detects you are in a guild again because now the API is working correctly, so it reloads the addon as if you had just logged in, thus it goes through the cycle of checking for changes and popping the GRM window again. Well, I now have this resolved and accounted for, and should no longer happen. I should note, this didn't affect everyone, and to thsoe it did happen to, it was never consistent because sometimes the API worked just fine, and other times it didn't, with no clear reason why. But yes, it is fixed. Finally! TY for the reports!
+
 ## **VERSION 1.99393 - April 22nd, 2026**
 
 ***BUG FIXES***

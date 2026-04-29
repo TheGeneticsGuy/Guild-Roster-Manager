@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99393";
+GRM_G.Version = "R1.99394";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1776894478";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1776894478;            -- In Epoch Time
+GRM_G.PatchDayString = "1777448341";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1777448341;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120005;
@@ -1548,7 +1548,6 @@ end
 -- What it Does:    Validates the settings by adding missing or removing redundant.
 -- Purpose:         Cleanup the Save DB
 GRM.VerifyAddonSettings = function()
-
     -- Build the template
     local player = {};
     for i = 0, GRM_G.SettingsPages do
@@ -8035,7 +8034,7 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
                     GameTooltip:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
                         "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
                     GameTooltip:Show();
-                end
+                end 
             end
         end);
 
@@ -23266,7 +23265,7 @@ end
 GRM.InitializePreCheck = function(recursive)
     if not GRM_G.InitializePreCheck or recursive then
         GRM_G.InitializePreCheck = true;
-        if not GRM_G.OnFirstLoad then
+        if not GRM_G.OnFirstLoad and GRM.S() then
             GRM_G.InitializePreCheck = false;
             C_Timer.After(GRM.S().syncDelay, function()
                 if GRM.S() and GRM.S().autoTriggerSync and not GRMsyncGlobals.currentlySyncing then
@@ -23569,11 +23568,13 @@ end
 -- Purpose:         Manage tracking guild info. No need if player is not in guild, or to reactivate when player joins guild.
 GRM.LoadAddon = function()
     GeneralEventTracking:RegisterEvent("PLAYER_GUILD_UPDATE"); -- If player leaves or joins a guild, this should fire.
-    IsListeningForMessageType("SYSTEM")
+    GRM_G.SystemMessagesEnabled = IsListeningForMessageType("SYSTEM")
     if GRM_G.BuildVersion < 100000 then
         GeneralEventTracking:SetScript("OnEvent", function(_, event)
             if event == "PLAYER_GUILD_UPDATE" then
-                GRM.ManageGuildStatus();
+                C_Timer.After(5, function()
+                    GRM.ManageGuildStatus();
+                end);
             end
         end);
 
@@ -23584,7 +23585,10 @@ GRM.LoadAddon = function()
         GeneralEventTracking:RegisterEvent("VIGNETTES_UPDATED");
         GeneralEventTracking:SetScript("OnEvent", function(_, event)
             if event == "PLAYER_GUILD_UPDATE" then
-                GRM.ManageGuildStatus();
+                C_Timer.After(5, function()
+                    GRM.ManageGuildStatus();
+                end);
+                
             elseif event == "VIGNETTES_UPDATED" then -- Need to listen for enablign and disablingh of system messages to determine which handler to use.
                 GRM_G.SystemMessagesEnabled = IsListeningForMessageType("SYSTEM");
             end
@@ -23639,7 +23643,6 @@ GRM.LoadAddon = function()
     else
         GRM.LoadRecursiveErrorCheck();
     end
-
 end
 
 -- Method:          GRM.LoadRecursiveErrorCheck()
@@ -23647,8 +23650,7 @@ end
 -- Purpose:         For some reason some edge cases out there some clients load these very slow, and an addon can trigger before this is done.
 GRM.LoadRecursiveErrorCheck = function()
 
-    if (GRM_G.BuildVersion < 10000 and UIDropDownMenu_CreateInfo() == nil) or
-        (GRM_G.BuildVersion >= 10000 and not CommunitiesFrame) then
+    if not CommunitiesFrame then
         C_Timer.After(3, function()
             GRM.LoadRecursiveErrorCheck();
         end);
@@ -23724,21 +23726,22 @@ end
 -- What it Does:    If player leaves or joins the guild, it deactivates/reactivates tracking - as well as re-checks guild to see if rejoining or new guild.
 -- Purpose:         Efficiency in resource use to prevent unnecessary tracking of info if out of the guild.
 GRM.ManageGuildStatus = function()
-    GeneralEventTracking:UnregisterEvent("PLAYER_GUILD_UPDATE");
     if GRM_G.guildStatusChecked ~= true then
         GRM_G.timeDelayValue = time(); -- Prevents it from doing "IsInGuild()" too soon by resetting timer as server reaction is slow.
     end
     if GRM_G.timeDelayValue == 0 or (time() - GRM_G.timeDelayValue) >= 2 then -- Let's do a recheck on guild status to prevent unnecessary scanning.
+        
         if IsInGuild() then
             if GRM_G.DelayedAtLeastOnce then
                 if not GRM_G.currentlyTracking then
                     GRM.ReactivateAddon();
-                    -- return
                 end
+                GRM_G.guildStatusChecked = false;
+                return
             else
                 GRM_G.DelayedAtLeastOnce = true;
                 C_Timer.After(5, GRM.ManageGuildStatus);
-                -- return
+                return
             end
         else
             -- Reset some values;
@@ -23765,12 +23768,10 @@ GRM.ManageGuildStatus = function()
                 GRM.Scan.ResetTempLogs();
                 GRMsync.ResetDefaultValuesOnSyncReEnable(); -- Need to reset sync algorithm too!
                 GRM_UI.GRM_RosterChangeLogFrame:Hide();
-            end
-        end
 
-        GeneralEventTracking:RegisterEvent("PLAYER_GUILD_UPDATE");
-        GeneralEventTracking:SetScript("OnEvent", GRM.ManageGuildStatus);
-        GRM_G.guildStatusChecked = false;
+                GRM_G.guildStatusChecked = false;
+            end
+        end               
     else
         GRM_G.guildStatusChecked = true;
         C_Timer.After(2, GRM.ManageGuildStatus); -- Recursively re-check on guild status trigger.
@@ -23784,6 +23785,7 @@ end
 GRM.DataLoadDelayProtection = function( isReady , count )
     isReady = isReady or false;
     count = count or 0;
+    local countLimit = 25;
 
     if GRM.Time.GetCurrentCalendarTime().month and GRM.Time.GetCurrentCalendarTime().month ~= 0 then
         if IsInGuild() then
@@ -23798,7 +23800,7 @@ GRM.DataLoadDelayProtection = function( isReady , count )
                 if not server then
                     timePassed = time() - GRM_G.SessionTime;
                 end
-                if server or timePassed > 10 or count == 20 then
+                if server or timePassed > 10 or count == countLimit then
                     isReady = true;
                 end
                 
@@ -23809,10 +23811,12 @@ GRM.DataLoadDelayProtection = function( isReady , count )
                         GRM_G.guildName = guildName .. "-" .. GRM_G.realmName;
                     end
                 end
-                
             end
         else
-            isReady = true
+            count = count + 1;
+            if count == countLimit then
+                isReady = true
+            end
         end
     end
 
