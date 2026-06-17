@@ -23727,7 +23727,6 @@ end
 -- What it Does:    If player leaves or joins the guild, it deactivates/reactivates tracking - as well as re-checks guild to see if rejoining or new guild.
 -- Purpose:         Efficiency in resource use to prevent unnecessary tracking of info if out of the guild.
 GRM.ManageGuildStatus = function()
-    print("Managing Guild Status.")
     if GRM_G.guildStatusChecked ~= true then
         GRM_G.timeDelayValue = time(); -- Prevents it from doing "IsInGuild()" too soon by resetting timer as server reaction is slow.
         if not IsInGuild() then
@@ -23740,10 +23739,8 @@ GRM.ManageGuildStatus = function()
     if GRM_G.timeDelayValue == 0 or (time() - GRM_G.timeDelayValue) >= 2 then -- Let's do a recheck on guild status to prevent unnecessary scanning.
         
         if IsInGuild() then
-            print("BACK IN GUILD")
             if GRM_G.DelayedAtLeastOnce then
                 if not GRM_G.currentlyTracking then
-                    print("REACTIVATING ADDON");
                     GRM.ReactivateAddon();
                 end
                 GRM_G.guildStatusChecked = false;
@@ -23754,7 +23751,6 @@ GRM.ManageGuildStatus = function()
                 return
             end
         else
-            print("NO LONGER IN GUILD")
             -- Reset some values;
             if not GRM_G.GRMfunctionDisabled then
                 GRM_G.GRMfunctionDisabled = true;
