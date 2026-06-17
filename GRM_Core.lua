@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99394";
+GRM_G.Version = "R1.994";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1777448341";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1777448341;            -- In Epoch Time
+GRM_G.PatchDayString = "1781682854";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1781682854;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 120005;
+GRM_G.RetailBaseBuild = 120007;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.63;
+GRM_G.GroupInfoV = 1.64;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -3195,10 +3195,11 @@ end
 -- What it Does:    Appends the realm name to a player's name if not alreayd appended
 -- Purpose:         Useful as database matchign requires full name-server.
 GRM.AppendServerNameSimple = function ( name , server )
-
-    if not string.find(name,"-") then
-        server = server or GRM_G.realmName;
-        name = name .. "-" .. server;
+    if name then
+        if not string.find(name,"-") then
+            server = server or GRM_G.realmName;
+            name = name .. "-" .. server;
+        end
     end
     return name;
 end

@@ -16366,10 +16366,14 @@ GRM_UI.OnlineUsersTextUpdate = function()
     if CommunitiesFrame.RosterTab:IsVisible() and CommunitiesFrame.RosterTab:GetChecked() then
         local numOnlineMembers = 0;
         for _ , memberInfo in ipairs ( CommunitiesFrame.MemberList.allMemberList ) do
-            if memberInfo.presence == Enum.ClubMemberPresence.Online or
-                memberInfo.presence == Enum.ClubMemberPresence.Away or
-                memberInfo.presence == Enum.ClubMemberPresence.Busy then
-                numOnlineMembers = numOnlineMembers + 1;
+            if not GRM.issecretvalue(memberInfo.presence) then
+                if memberInfo.presence == Enum.ClubMemberPresence.Online or
+                    memberInfo.presence == Enum.ClubMemberPresence.Away or
+                    memberInfo.presence == Enum.ClubMemberPresence.Busy then
+                    numOnlineMembers = numOnlineMembers + 1;
+                end
+            else
+                break;
             end
         end
         CommunitiesFrame.MemberList.ShowOfflineButton.GRM_MemberCount:SetText ( COMMUNITIES_MEMBER_LIST_MEMBER_COUNT_FORMAT:format ( AbbreviateNumbers(numOnlineMembers) , AbbreviateNumbers ( #CommunitiesFrame.MemberList.allMemberList ) ) );

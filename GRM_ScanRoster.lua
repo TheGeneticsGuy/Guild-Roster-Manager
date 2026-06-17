@@ -447,11 +447,17 @@ Scan.GetClubMemberTable = function()
 
         for i = 1 , #members do
             local member = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
-            member.name = GRM.AppendServerNameSimple ( member.name );
-            if member.name == GRM_G.addonUser then
-                clubMemberTable.ownNameFound = true;
+            if member.name then
+                member.name = GRM.AppendServerNameSimple ( member.name );
+                if member.name == GRM_G.addonUser then
+                    clubMemberTable.ownNameFound = true;
+                end
+                table.insert ( clubMemberTable , member );
+            else
+                -- Reset the table as we don't want it now. Data is inconsistent and bad.
+                clubMemberTable = {};
+                break;
             end
-            table.insert ( clubMemberTable , member );
         end
 
     end

@@ -1,3 +1,14 @@
+## **VERSION 1.994 - June 17th, 2026**
+
+*Compatibility for Retail 12.0.7 and Mists Classic 5.5.4*
+
+***BUG FIXES***
+
+* Fixed an issue where a secret variable was throwing an error when trying to scan the roster when opening it. Previously, I could sort of get around some restrictions with "secret variables" in the roster, and the API limitations, by instead just pulling the data direct from the roster frames Blizz wrote to, notably the communities frame. While not as good as the native API, if you had your roster open, I could at least update individual player data on the mouseover, like their status and so on, because this data was bound to the communities frame. Blizz has decided to now wrap the communities frame data also to be downstream "secret" values when in combat or in PVP situations. Kind of annoying, but just a part of the Midnight addonpocalypse whack-a-mole game of Midnight. The error would most notably occur when you opened your roster with say, the "J" key whilst in PVP or combat. The error will no longer occur.
+
+* Fixed an issue where in some cases now, you will receive the full roster, so it allows you to count the roster and get a general overview of the guild roster when querying the server API for data, but then much of the data is missing, like the name and so on. This has never been an issue before. With the Midnight changes it seems you either got the roster, or you didn't, or it was wrapped as a new "secret" variable you couldn't read. Well, a new twist now is that sometimes when querying the roster, if in one of the specialized circumstances where Blizz restricts addons you will now get the roster with "some" data, like being able to count the roster, but then others will be gone, like the name. So I was trying to append the server to the name and the name was empty. I've been using this API since Blizz introduced it in 2018 in BFA 8.0 without issue, so this is definitely a Midnight induced backend change by Blizz. This error will no longer happen now.
+
+
 ## **VERSION 1.99394 - April 29th, 2026**
 
 * Fixed an issue where GRM can trigger a Lua error if you take a portal too quickly after logging in, interrupting initialization. This should no longer occur.
