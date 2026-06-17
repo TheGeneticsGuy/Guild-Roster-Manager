@@ -8,7 +8,7 @@
 
 * Fixed an issue where in some cases now, you will receive the full roster, so it allows you to count the roster and get a general overview of the guild roster when querying the server API for data, but then much of the data is missing, like the name and so on. This has never been an issue before. With the Midnight changes it seems you either got the roster, or you didn't, or it was wrapped as a new "secret" variable you couldn't read. Well, a new twist now is that sometimes when querying the roster, if in one of the specialized circumstances where Blizz restricts addons you will now get the roster with "some" data, like being able to count the roster, but then others will be gone, like the name. So I was trying to append the server to the name and the name was empty. I've been using this API since Blizz introduced it in 2018 in BFA 8.0 without issue, so this is definitely a Midnight induced backend change by Blizz. This error will no longer happen now.
 
-* Fixed a slight
+* Fixed a recurring bug I thought was resolved last time. It's mostly resolved previously but in some cases it seems it could still occur with the `IsInGuild()` API from Blizz returning false even if you were in a guild shortly after going through a portal... this triggered weird issue with GRM thinking you left the guild, then rejoined moments later, causing your window to pop up as if you had just logged in. This shouldn't happen anymore.
 
 
 ## **VERSION 1.99394 - April 29th, 2026**

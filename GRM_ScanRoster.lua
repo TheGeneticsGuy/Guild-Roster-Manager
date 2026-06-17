@@ -2918,9 +2918,10 @@ Scan.FinalReportInformation = function(needToReport)
             GRM.LoadSettings( true );
         end
 
-        if GRM.S() and GRM.S().viewOnLoad then
+        if GRM.S() and GRM.S().viewOnLoad and not GRM_G.WindowLoadedOnce then
             if (not GRM.S().onlyViewIfChanges) or GRM_G.ChangesFoundOnLoad then
                 if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame and not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+                    GRM_G.WindowLoadedOnce = true;
                     GRM_UI.GRM_RosterChangeLogFrame:Show()
                 end
             end

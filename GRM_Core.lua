@@ -143,6 +143,7 @@ GRM_G.HasAccessToOfficerChat = false;
 GRM_G.tempAltName = "";
 GRM_G.tempAddBanClass = "";
 GRM_G.ChangesFoundOnLoad = false;
+GRM_G.WindowLoadedOnce = false;
 GRM_G.MsgFilterEnabled = false;
 GRM_G.MsgFilterDelay = false;
 GRM_G.MsgFilterDelay2 = false;
