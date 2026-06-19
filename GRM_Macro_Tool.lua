@@ -1328,7 +1328,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         --         end
 
                         --         local oldNote = tostring ( player.note );
-                        --         GuildRosterSetPublicNote( roster[player.GUID] , tempNote);
+
+                        --         GRM.SetNote ( player.GUID, tempNote, true, roster[player.GUID] );
 
                         --         player.note = tempNote;
 
@@ -1349,7 +1350,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         --         end
 
                         --         local oldNote = tostring ( player.officerNote );
-                        --         GuildRosterSetOfficerNote( roster[player.GUID] , tempNote);
+                        --         GRM.SetNote ( player.GUID, tempNote, false, roster[player.GUID] );
                         --         player.officerNote = tempNote;
 
                         --         local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";

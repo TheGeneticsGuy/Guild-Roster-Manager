@@ -92,7 +92,7 @@ HC.HardCoreInitialize = function()
                     local deathNote = "[D]-" .. HC.ConvertLastOnlineHoursToTimestamp ( lastOnlineHours );
 
                     if not GRM_G.BuildHasRestrictions then
-                        GuildRosterSetPublicNote ( index , deathNote );
+                        GRM.SetNote ( playerGUID, deathNote, true, index );
                     else
                         -- Adaptation in case Blizz brings note restrictions to HC mode...
                         local player = GRM.GetPlayer(name);
@@ -211,7 +211,7 @@ HC.HardCoreInitialize = function()
                             GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() } );
 
                             player.note = finalNote;
-                            GuildRosterSetPublicNote ( i , finalNote );
+                            GRM.SetNote ( player.GUID, finalNote, true, i );
 
                         end
 

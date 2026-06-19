@@ -1989,7 +1989,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                                 GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , noteToCheck , newNote , GRM.Time.GetTimestamp() } );
 
                                 player.note = newNote;
-                                GuildRosterSetPublicNote ( i , newNote );
+                                GRM.SetNote ( player.GUID, newNote, true, i );
                                 clearDeath = true;
 
                             end
@@ -2861,7 +2861,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
                         -- Saving the changes!
                         player.note = playerDetails.newNote;                        -- Metadata
-                        GuildRosterSetPublicNote ( h , playerDetails.newNote );     -- Server Side
+                        GRM.SetNote ( player.GUID, playerDetails.newNote, true, h );
 
                         if GRM_G.CurrentlyScanning then
                             GRM_G.changeHappenedExitScan = true;
@@ -2968,7 +2968,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
                         -- Saving the new note details!
                         player.officerNote = playerDetails.newNote;      -- to addon metadata
-                        GuildRosterSetOfficerNote ( h , playerDetails.newNote );
+                        GRM.SetNote ( player.GUID, playerDetails.newNote, false, h );
                         if GRM_G.CurrentlyScanning then
                             GRM_G.changeHappenedExitScan = true;
                         end

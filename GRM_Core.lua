@@ -577,6 +577,27 @@ GRM.GetMaxPlayerLevelByExpansion = function()
     end
 end
 
+-- Method:          GRM.SetNote ( string, string, boolean, int )
+-- What it Does:    If the old API is no longer available, it uses the new SetNote API
+-- Purpose:         SetNote is protected in retail, but it is not protected in Classic builds. Sharing same backend
+--                  API Blizz has removed the officer and public set notes API but there is a lag in classic builds.
+GRM.SetNote = function(guid, newNote, isPublic, index)
+    if isPublic then
+        if GuildRosterSetPublicNote then
+            GuildRosterSetPublicNote(index, newNote);
+        else
+            C_GuildInfo.SetNote(guid, newNote, isPublic);
+        end
+    else
+        if GuildRosterSetOfficerNote then
+            GuildRosterSetOfficerNote(index, newNote);
+        else
+            C_GuildInfo.SetNote(guid, newNote, isPublic);
+        end
+    end
+end
+
+
 -------------------------------
 --- END COMPATIBILITY CHECK ---
 -------------------------------
@@ -2926,11 +2947,11 @@ GRM.RestoreAllOldNotes = function()
 
                 -- player found in guild, let's update the notes.
                 if GRM.CanEditOfficerNote() and guildData[name].officerNote then
-                    GuildRosterSetOfficerNote(i, guildData[name].officerNote);
+                    GRM.SetNote ( guildData[name].GUID, guildData[name].officerNote, false, i );
                 end
 
                 if GRM.CanEditPublicNote() and guildData[name].note then
-                    GuildRosterSetPublicNote(i, guildData[name].note);
+                    GRM.SetNote ( guildData[name].GUID, guildData[name].note, true, i );
                 end
 
             end
@@ -20781,7 +20802,7 @@ GRM.EditSavedNoteDateManually = function(member)
                             finalNote = (GRM.Trim(finalNote .. tempNote));
                             if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                                 player.officerNote = finalNote;
-                                GuildRosterSetOfficerNote(i, player.officerNote);
+                                GRM.SetNote ( player.GUID, player.officerNote, false, i );
                             else
                                 finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                         player.joinDateHist[1][2],
@@ -20789,7 +20810,7 @@ GRM.EditSavedNoteDateManually = function(member)
                                     GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
                                 if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                                     player.officerNote = finalNote;
-                                    GuildRosterSetOfficerNote(i, player.officerNote);
+                                    GRM.SetNote ( player.GUID, player.officerNote, false, i );
                                 end
                             end
                             success = false;
@@ -20802,7 +20823,7 @@ GRM.EditSavedNoteDateManually = function(member)
                             finalNote = (GRM.Trim(finalNote .. tempNote));
                             if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                                 player.note = finalNote;
-                                GuildRosterSetPublicNote(i, player.note);
+                                GRM.SetNote ( player.GUID, player.note, true, i );
                             else
                                 finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                         player.joinDateHist[1][2],
@@ -20810,7 +20831,7 @@ GRM.EditSavedNoteDateManually = function(member)
                                     GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
                                 if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                                     player.note = finalNote;
-                                    GuildRosterSetPublicNote(i, player.note);
+                                    GRM.SetNote ( player.GUID, player.note, true, i );
                                 end
                             end
                             success = false;
@@ -20837,7 +20858,7 @@ GRM.EditSavedNoteDateManually = function(member)
                         finalNote = (GRM.Trim(finalNote .. tempNote));
                         if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                             player.officerNote = finalNote;
-                            GuildRosterSetOfficerNote(i, player.officerNote);
+                            GRM.SetNote ( player.GUID, player.officerNote, false, i );
                         else
                             finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                        player.joinDateHist[1][2],
@@ -20845,7 +20866,7 @@ GRM.EditSavedNoteDateManually = function(member)
                                 GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
                             if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                                 player.officerNote = finalNote;
-                                GuildRosterSetOfficerNote(i, player.officerNote);
+                                GRM.SetNote ( player.GUID, player.officerNote, false, i );
                             end
                         end
                         success = false;
@@ -20857,7 +20878,7 @@ GRM.EditSavedNoteDateManually = function(member)
                         finalNote = (GRM.Trim(finalNote .. tempNote));
                         if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                             player.note = finalNote;
-                            GuildRosterSetPublicNote(i, player.note);
+                            RM.SetNote ( player.GUID, player.note, true, i );
                         else
                             finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                        player.joinDateHist[1][2],
@@ -20865,7 +20886,7 @@ GRM.EditSavedNoteDateManually = function(member)
                                 GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
                             if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                                 player.note = finalNote;
-                                GuildRosterSetPublicNote(i, player.note);
+                                RM.SetNote ( player.GUID, player.note, true, i );
                             end
                         end
                         success = false;
@@ -20942,7 +20963,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                     if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                         if not getCount then
                             player.officerNote = finalNote;
-                            GuildRosterSetOfficerNote(index, player.officerNote);
+                            GRM.SetNote ( player.GUID, player.officerNote, false, index );
                         else
                             count = count + 1;
                         end
@@ -20953,7 +20974,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                         if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                             if not getCount then
                                 player.officerNote = finalNote;
-                                GuildRosterSetOfficerNote(index, player.officerNote);
+                                GRM.SetNote ( player.GUID, player.officerNote, false, index );
                             else
                                 count = count + 1;
                             end
@@ -20969,7 +20990,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                     if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                         if not getCount then
                             player.note = finalNote;
-                            GuildRosterSetPublicNote(index, player.note);
+                            GRM.SetNote ( player.GUID, player.note, true, index );
                         else
                             count = count + 1;
                         end
@@ -20980,7 +21001,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                         if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                             if not getCount then
                                 player.note = finalNote;
-                                GuildRosterSetPublicNote(index, player.note);
+                                GRM.SetNote ( player.GUID, player.note, true, index );
                             else
                                 count = count + 1;
                             end
@@ -21065,7 +21086,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                         end
                         tempNote = noteDate .. " " .. oNote;
                         if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
-                            GuildRosterSetOfficerNote(i, tempNote);
+                            GRM.SetNote ( GUID, tempNote, false, i );
 
                             if GRM_G.currentName == name then
                                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText(tempNote);
@@ -21085,7 +21106,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                         end
                         tempNote = noteDate .. " " .. note;
                         if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
-                            GuildRosterSetPublicNote(i, tempNote);
+                            GRM.SetNote ( GUID, tempNote, true, i );
 
                             if GRM_G.currentName == name then
                                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText(tempNote);
@@ -21128,7 +21149,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
                         tempNote = "";
                     end
                     player.officerNote = GRM.Trim(tempNote);
-                    GuildRosterSetOfficerNote(i, tempNote);
+                    GRM.SetNote ( player.GUID, player.officerNote, false, i );
                     success = false;
                 end
             end
@@ -21140,7 +21161,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
                         tempNote = "";
                     end
                     player.note = GRM.Trim(tempNote);
-                    GuildRosterSetPublicNote(i, player.note);
+                    GRM.SetNote ( player.GUID, player.note, true, i );
                     success = false;
                 end
             end
@@ -21835,7 +21856,7 @@ GRM.UpdateNoteFromChat = function( playerName , note)
     if player then
         local i = GRM.GetRosterSelectionID( playerName , player.GUID );
         if i then
-            GuildRosterSetPublicNote(i, note);
+            GRM.SetNote ( player.GUID, note, true, i );
 
             if GRM.S().toChat.note then
                 C_Timer.After(1, function()

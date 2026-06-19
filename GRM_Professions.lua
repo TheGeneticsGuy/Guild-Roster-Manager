@@ -113,7 +113,7 @@ Prof.RemoveProfessionNote = function ( player , ind )
                         if string.match ( player.note , patterns[i] ) then
                             updatedNote = GRM.Trim(string.gsub ( player.note , patterns[i] , "" ));
                             player.note = updatedNote;
-                            GuildRosterSetPublicNote(ind,updatedNote);
+                            GRM.SetNote ( player.GUID, updatedNote, true, ind );
                             count = count + 1;
                             break;
                         end
@@ -125,7 +125,7 @@ Prof.RemoveProfessionNote = function ( player , ind )
                         if string.match ( player.officerNote , patterns[i] ) then
                             updatedNote = GRM.Trim(string.gsub ( player.officerNote , patterns[i] , "" ));
                             player.officerNote = updatedNote;
-                            GuildRosterSetOfficerNote(ind,updatedNote);
+                            GRM.SetNote ( player.GUID, updatedNote, false, ind );
                             count = count + 1;
                             break;
                         end
@@ -208,7 +208,7 @@ Prof.AppendProfessionReportToNote = function ( name , destination )
 
                     if updatedNote ~= "" and updatedNote ~= note and #updatedNote < 32 then
                         player.note = updatedNote;
-                        GuildRosterSetPublicNote ( index , updatedNote );
+                        GRM.SetNote ( player.GUID, updatedNote, true, index );
                         success = true;
 
                     elseif updatedNote ~= note and #updatedNote > 31 then
@@ -227,7 +227,7 @@ Prof.AppendProfessionReportToNote = function ( name , destination )
 
                     if updatedNote ~= "" and updatedNote ~= officerNote and #updatedNote < 32 then
                         player.officerNote = updatedNote;
-                        GuildRosterSetOfficerNote ( index , updatedNote );
+                        GRM.SetNote ( player.GUID, updatedNote, false, index );
                         success = true;
 
                     elseif updatedNote ~= note and #updatedNote > 31 then

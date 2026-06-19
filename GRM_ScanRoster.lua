@@ -1914,7 +1914,7 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
                         end
                         tempNote = finalTStamp .. " " .. oNote;
                         if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
-                            GuildRosterSetOfficerNote(rosterSelection, tempNote);
+                            GRM.SetNote ( member.GUID, tempNote, false, rosterSelection );
                             officerNoteIsSet = true
                             if liveJoinDetected then
                                 member.officerNote = tempNote;
@@ -1929,7 +1929,7 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
                         end
                         tempNote = finalTStamp .. " " .. note;
                         if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
-                            GuildRosterSetPublicNote(rosterSelection, tempNote);
+                            GRM.SetNote ( member.GUID, tempNote, true, rosterSelection );
                             noteIsSet = true;
                             if liveJoinDetected then
                                 member.note = tempNote;
@@ -2343,7 +2343,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                     if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
 
                                         officerNoteIsSet = true;
-                                        GuildRosterSetOfficerNote(rosterSelection, tempNote);
+                                        GRM.SetNote ( member.GUID, tempNote, false, rosterSelection );
 
                                         if GRM_G.currentName == member.name then
                                             GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText(tempNote);
@@ -2366,7 +2366,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                     tempNote = noteDate .. " " .. note;
                                     if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                                         noteIsSet = true;
-                                        GuildRosterSetPublicNote(rosterSelection, tempNote);
+                                        GRM.SetNote ( member.GUID, tempNote, true, rosterSelection );
 
                                         if GRM_G.currentName == player.name then
                                             GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText(tempNote);
@@ -2404,13 +2404,13 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                         end
 
                         if GRM.CanEditPublicNote() and player.note and player.note ~= "" and player.note ~= note then
-                            GuildRosterSetPublicNote(rosterSelection, player.note);
                             member.note = player.note;
+                            GRM.SetNote ( member.GUID, member.note, true, rosterSelection );
                         end
                         if GRM.CanEditOfficerNote() and player.officerNote and player.officerNote ~= "" and
                             player.officerNote ~= oNote then
-                            GuildRosterSetOfficerNote(rosterSelection, player.officerNote);
                             member.officerNote = player.officerNote;
+                            GRM.SetNote ( member.GUID, member.officerNote, false, rosterSelection );
                         end
                     end
                 end

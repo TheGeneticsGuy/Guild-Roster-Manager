@@ -3776,7 +3776,7 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
 
         for i = 1 , GRM.G_Util.GetNumGuildies() do
             -- For guild info
-            local rankInd , _ , _ , _ , note , officerNote = select ( 3 , GetGuildRosterInfo ( i ) );
+            local rankInd , _ , _ , _ , note , officerNote, _, _, _, _, _, _, _, _, guid = select ( 3 , GetGuildRosterInfo ( i ) );
 
             if rankInd == 0 then
                 -- Guild Leader identified!
@@ -3812,10 +3812,10 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
                             -- Remove it from note now!
                             if j == 1 then
                                 msg = string.gsub ( msg , sign .. "grm1" , "" );
-                                GuildRosterSetPublicNote ( i , GRM.Trim( msg ) );
+                                GRM.SetNote ( guid, GRM.Trim( msg ), true, i );
                             else
                                 msg = string.gsub ( msg , sign .. "grm1" , "" );
-                                GuildRosterSetOfficerNote ( i , GRM.Trim( msg ) );
+                                GRM.SetNote ( guid, GRM.Trim( msg ), false, i );
                             end
                         end;
                     end
@@ -3835,10 +3835,10 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
                             -- Remove it from note now!
                             if j == 1 then
                                 msg = string.gsub ( msg , "g2^" .. sign , "" );
-                                GuildRosterSetPublicNote ( i , GRM.Trim( msg ) );
+                                GRM.SetNote ( guid, GRM.Trim( msg ), true, i );
                             else
                                 msg = string.gsub ( msg , "g2^" .. sign , "" );
-                                GuildRosterSetOfficerNote ( i , GRM.Trim( msg ) );
+                                GRM.SetNote ( guid, GRM.Trim( msg ), false, i );
                             end
                         end;
                     end

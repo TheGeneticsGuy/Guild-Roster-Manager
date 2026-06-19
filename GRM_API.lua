@@ -189,7 +189,8 @@ GRM_API.ClearAllOfficerNotes = function()
     if not GRM_G.BuildHasRestrictions then
         if GRM.CanEditOfficerNote() then
             for i = 1 , GetNumGuildMembers() do
-                GuildRosterSetOfficerNote ( i , "" );
+                local guid = select(17, GetGuildRosterInfo(i));
+                GRM.SetNote ( guid, "", false, i );
             end
         end
     else
@@ -204,9 +205,11 @@ GRM_API.ClearAllPublicNotes = function()
     if not GRM_G.BuildHasRestrictions then
         if GRM.CanEditPublicNote() then
             for i = 1 , GetNumGuildMembers() do
-                GuildRosterSetPublicNote ( i , "" );
+                local guid = select(17, GetGuildRosterInfo(i));
+                GRM.SetNote ( guid, "", true, i );
             end
         end
+    else
         GRM.Report(GRM.L("API restricted by Blizzard - Public note editing not possible."));
     end
 end
@@ -224,7 +227,7 @@ GRM_API.RestoreAllPublicNotesFromSave = function()
                 -- Big O^2 - kind of inefficient
                 for name , player in pairs ( members ) do
                     if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
-                        GuildRosterSetPublicNote ( i , player.note);
+                        GRM.SetNote ( guid, player.note, true, i );
                     end
                 end
             end
@@ -247,7 +250,7 @@ GRM_API.RestoreAllOfficerNotesFromSave = function()
 
                 for name , player in pairs ( members ) do
                     if type ( player ) == "table" and guildie_name == name and guid == player.GUID then
-                        GuildRosterSetOfficerNote ( i , player.officerNote );
+                        GRM.SetNote ( guid, player.officerNote, false, i );
                     end
                 end
             end
