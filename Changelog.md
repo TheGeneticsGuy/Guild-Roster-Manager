@@ -1,9 +1,8 @@
-## **VERSION 1.9941 - June 17th, 2026**
+## **VERSION 1.9941 - June 18th, 2026**
 
 ***BUG FIXES***
 
 * Fixed a MAJOR bug in MoP that completely kills GRM from properly configuring and loading. GRM may appear to partially be working but it is unable to collect new changes. Blizz has merged the backend API in MoP Classic with the Retail API purges changes. HOWEVER, they did not restrict the new API like they did in Retail, which is great, so you can still access and edit public/officer notes in Classic, but there was still a bit of a rewrite due to being forced to use the `SetNote` API. This is fine, except Anniversary and Vanilla Classic/HC modes still use the old API so writing GRM as a single codebase I have to wrap in my own function for duel-compatibility. Not hard, just busy work. All is well now!
-
 
 ## **VERSION 1.994 - June 17th, 2026**
 
