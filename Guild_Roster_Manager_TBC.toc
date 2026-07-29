@@ -1,4 +1,4 @@
-## Interface: 20505
+## Interface: 20506
 
 ## Author: Arkaan
 ## Version: 1.9941

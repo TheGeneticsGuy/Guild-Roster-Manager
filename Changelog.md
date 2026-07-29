@@ -1,3 +1,18 @@
+## **VERSION 1.9942 - July 28th, 2026**
+
+*Compatibility update for 2 Versions*
+
+* Classic Era (SoD, HC, and Vanilla) - 1.15.9
+
+* TBC Anniversary - 2.5.6
+
+***BUG FIXES***
+
+* Log search improvement. This is both a bug fix and an enhancement. For some people with very large logs, the GRM log could end up hanging and timing out if you "searched" for a name. This is because GRM tries to be smart in that it searches the log for direct matches, but also normalizes text so if someone has a name with alt code characters, you could still just search with a normalized English spelling. Example, if you wanted to find the name `Dârknëss` then you could just search Darkness, and GRM would still find this name. The problem is I built that code when I was pretty amateurish in my coding skills and I sort of brute-forced this capability. After hearing about some people's log timing out and not functioning properly, I decided to go back and revamp this. It now is much much faster, and shouldn't really cause that stuttering or get hung up as you search now. I have tested this even with a log of 80,000+ log entries just to kind of stress test it and it worked great..
+
+* Fixed a bug where if in the middle of GRM being configured at loading in, it could happen where GRM hooks the guild change event message but if GRM was not yet fully configured, if something happened in the guild triggering it, it would try to scan for roster changes, except the addon was not fully loaded, triggering a lua error. This would self resolve once the addon configured, but the potential of this error triggering shortly after logging in will no longer happen.
+
+
 ## **VERSION 1.9941 - June 18th, 2026**
 
 ***BUG FIXES***

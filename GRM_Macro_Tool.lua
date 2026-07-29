@@ -3630,6 +3630,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor(0.5,0.5,0.5);
                 end
 
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:SetChecked(
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.safeMatchAllNotes
+                );
+
                 -- Ok let's reset
                 matchString = GRM.L ( "Click to Set" );
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLog then
@@ -4210,6 +4214,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButtonText:SetTextColor( 0.5 , 0.5 , 0.5 );
                 end
 
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextMatchAllNotesButton:SetChecked(
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.safeMatchAllNotes
+                );
+
                 -- Ok let's reset
                 matchString = GRM.L ( "Click to Set" );
                 if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLog then
@@ -4226,7 +4234,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 end
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetText ( matchString );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern = matchString;
-
 
             else
                 -- NOT AN EDIT

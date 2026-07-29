@@ -4481,26 +4481,28 @@ GRM.GetAllCurrentAndFormerGuildies = function(getCurrent, getFormer)
     return result;
 end
 
+-- Defining outside of table for efficiency.
+local altCharMap = {
+    ["Ç"] = "c", ["ü"] = "u", ["é"] = "e", ["â"] = "a", ["ä"] = "a", ["à"] = "a", ["å"] = "a",
+    ["ç"] = "c", ["ê"] = "e", ["ë"] = "e", ["è"] = "e", ["ï"] = "i", ["î"] = "i", ["ì"] = "i",
+    ["Ä"] = "a", ["Å"] = "a", ["É"] = "e", ["æ"] = "ae", ["Æ"] = "ae", ["ô"] = "o", ["ö"] = "o",
+    ["ò"] = "o", ["û"] = "u", ["ù"] = "u", ["ÿ"] = "y", ["Ö"] = "o", ["Ü"] = "u", ["¢"] = "c",
+    ["á"] = "a", ["í"] = "i", ["ó"] = "o", ["ú"] = "u", ["ñ"] = "n", ["Ñ"] = "n", ["Θ"] = "o",
+    ["Á"] = "a", ["Â"] = "a", ["À"] = "a", ["ã"] = "a", ["Ã"] = "a", ["Ð"] = "d", ["Ê"] = "e",
+    ["Ë"] = "e", ["È"] = "e", ["Í"] = "i", ["Î"] = "i", ["Ï"] = "i", ["Ó"] = "o", ["ß"] = "b",
+    ["Ô"] = "o", ["Ò"] = "o", ["õ"] = "o", ["Õ"] = "o", ["µ"] = "u", ["Ú"] = "u", ["Û"] = "u",
+    ["Ù"] = "u", ["ý"] = "y", ["Ý"] = "y"
+}
+
 -- Method:          GRM.RemoveSpecialCharacters ( string )
 -- What it Does:    Replaces all the special alt characters with English alphabet chars
 -- Purpose:         Allows the autocomplete search of a player to provide results without needing to know special chars
 GRM.RemoveSpecialCharacters = function(word)
-    local result = word;
-    local listOfChars = {{"Ç", "c"}, {"ü", "u"}, {"é", "e"}, {"â", "a"}, {"ä", "a"}, {"à", "a"}, {"å", "a"},
-                         {"ç", "c"}, {"ê", "e"}, {"ë", "e"}, {"è", "e"}, {"ï", "i"}, {"î", "i"}, {"ì", "i"},
-                         {"Ä", "a"}, {"Å", "a"}, {"É", "e"}, {"æ", "ae"}, {"Æ", "ae"}, {"ô", "o"}, {"ö", "o"},
-                         {"ò", "o"}, {"û", "u"}, {"ù", "u"}, {"ÿ", "y"}, {"Ö", "o"}, {"Ü", "u"}, {"¢", "c"},
-                         {"á", "a"}, {"í", "i"}, {"ó", "o"}, {"ú", "u"}, {"ñ", "n"}, {"Ñ", "n"}, {"Θ", "o"},
-                         {"Á", "a"}, {"Â", "a"}, {"À", "a"}, {"ã", "a"}, {"Ã", "a"}, {"Ð", "d"}, {"Ê", "e"},
-                         {"Ë", "e"}, {"È", "e"}, {"Í", "i"}, {"Î", "i"}, {"Ï", "i"}, {"Ó", "o"}, {"ß", "b"},
-                         {"Ô", "o"}, {"Ò", "o"}, {"õ", "o"}, {"Õ", "o"}, {"µ", "u"}, {"Ú", "u"}, {"Û", "u"},
-                         {"Ù", "u"}, {"ý", "y"}, {"Ý", "y"}};
-
-    for i = 1, #listOfChars do
-        result = string.gsub(result, listOfChars[i][1], listOfChars[i][2]);
+    if not word then
+        return "";
     end
 
-    return result;
+    return (string.gsub(word, "[\192-\255][\128-\191]+", altCharMap));
 end
 
 -- NOTE: This is assuming 2D arrays and match is at index [i][1]
@@ -12575,164 +12577,169 @@ GRM.GetOperatorsFromText = function(text)
     return GRM.Trim(text), operators;
 end
 
--- Method:          GRM.GetSearchLog ( bool , string )
+-- Helper to avoid re-creation on every recursion
+local function addLogEntry(tempLog, text, uneditedText, ind, point, count)
+    local newlinePos = string.find(text, "\n", 1, true)
+    while newlinePos do
+        table.insert(tempLog, {
+            ind, 
+            string.sub(text, 1, newlinePos - 1), 
+            false, 
+            point, 
+            count, 
+            uneditedText
+        })
+        text = string.sub(text, newlinePos + 1)
+        newlinePos = string.find(text, "\n", 1, true)
+    end
+    table.insert(tempLog, {ind, text, false, point, count, uneditedText})
+    return tempLog
+end
+
+-- Method:          GRM.GetSearchLog ( bool , string , int , table , int )
 -- What it Does:    Pre-builds all the values to display based on the various filter parameters.
 -- Purpose:         Make building a hybridscrollframe for the log that much simpler, and keeps it from reprocessing over and over.
 GRM.GetSearchLog = function(isSearch, searchString, currentPosition, finalResult, TotalC)
-    local result = {};
-    if finalResult then
-        result = finalResult;
-    end
-    local needsToAddSearchString = false;
-    local trueString = false;
-    local index = 0;
-    local logTxt = "";
-    local totalCount = 0;
-    if TotalC then
-        totalCount = TotalC;
-    end
-    local gLog = GRM.GetLog();
-    local c = 0;
+    local result = finalResult or {}
+    local needsToAddSearchString = false
+    local trueString = false
+    local index = 0
+    local logTxt = ""
+    local totalCount = TotalC or 0
+    local gLog = GRM.GetLog()
+    local c = 0
 
     if not gLog then
-        return;
-    end
-
-    -- Keept it simple and reusable add tool
-    local addLogEntry = function(tempLog, text, uneditedText, ind, point, count)
-        if string.find(text, "\n") ~= nil then
-            while string.find(text, "\n") ~= nil do
-                table.insert(tempLog,
-                    {ind, string.sub(text, 1, string.find(text, "\n") - 1), false, point, count, uneditedText});
-                text = string.sub(text, string.find(text, "\n") + 1);
-            end
-        end
-        table.insert(tempLog, {ind, text, false, point, count, uneditedText});
-        return tempLog;
+        return
     end
 
     -- Set possible first Entry
     if not currentPosition and GRM_G.ChangesFoundOnLoad and GRM_G.FirstTimeViewed and GRM_G.IndexOfLastLogEntry < #gLog and
         #gLog > 0 and GRM_G.IndexOfLastLogEntry ~= #gLog then
-        table.insert(result, {97, " ", false, 0, 0, GRM.AddNewChangesHeader()});
-        table.insert(result, {97, GRM.AddNewChangesHeader(), false, 0, 0, GRM.AddNewChangesHeader()});
+        table.insert(result, {97, " ", false, 0, 0, GRM.AddNewChangesHeader()})
+        table.insert(result, {97, GRM.AddNewChangesHeader(), false, 0, 0, GRM.AddNewChangesHeader()})
     end
 
-    local i = #gLog;
-    if currentPosition then
-        i = currentPosition;
-    end
-    local changesEndAdded = false;
+    local i = currentPosition or #gLog
+    local changesEndAdded = false
 
-    while i > 0 and (not isSearch or isSearch and c < 12000) do
-        trueString = false;
-        needsToAddSearchString = false;
+    while i > 0 and (not isSearch or (isSearch and c < 5000)) do
+        trueString = false
+        needsToAddSearchString = false
+        
         if GRM_G.FirstTimeViewed and GRM_G.ChangesFoundOnLoad and not changesEndAdded and GRM_G.IndexOfLastLogEntry <
             #gLog and #gLog > 0 and i == GRM_G.IndexOfLastLogEntry and GRM_G.IndexOfLastLogEntry ~= #gLog then
 
             -- OLD LOG HEADER
-            table.insert(result, {98, GRM.AddOldLogHeader(), false, 0, 0, GRM.AddOldLogHeader()});
-            table.insert(result, {98, " ", false, 0, 0, GRM.AddOldLogHeader()});
-            changesEndAdded = true;
+            table.insert(result, {98, GRM.AddOldLogHeader(), false, 0, 0, GRM.AddOldLogHeader()})
+            table.insert(result, {98, " ", false, 0, 0, GRM.AddOldLogHeader()})
+            changesEndAdded = true
         else
-            -- Check buttons
-            index = gLog[i][1];
-            logTxt = gLog[i][2];
+            index = gLog[i][1]
+            logTxt = gLog[i][2]
 
-            -- first, determine if this is a searchString
-            if isSearch and string.find(logTxt, "\000") == nil and #searchString > 0 then
-                -- Is this an operator search?
-                if string.find(searchString, "^", 1, true) ~= nil and string.sub(searchString, 1, 1) == "^" then
+            -- Process search parameter
+            if isSearch and #searchString > 0 and string.find(logTxt, "\000", 1, true) == nil then
+                local lowerTxt = string.lower(logTxt)
 
-                    -- Pending feature...
-                    -- YES, this is operator control!!!
-                    -- local operators = {};
-                    searchString = GRM.GetOperatorsFromText(string.sub(searchString, 2));
-
-                    if string.find(string.lower(string.gsub(logTxt, "|r", "")), searchString, 1, true) ~= nil then -- Comparing 2 non-case-sensitive strings
-                        needsToAddSearchString = true;
+                -- Operator search integration
+                if string.sub(searchString, 1, 1) == "^" then
+                    local opSearch = GRM.GetOperatorsFromText(string.sub(searchString, 2))
+                    local cleanedTxt = string.gsub(lowerTxt, "|r", "")
+                    if string.find(cleanedTxt, opSearch, 1, true) ~= nil then
+                        needsToAddSearchString = true
                     end
-
-                elseif string.find(string.lower(string.gsub(logTxt, "|r", "")), searchString, 1, true) ~= nil or
-                    string.find(string.lower(GRM.RemoveSpecialCharacters(logTxt)), searchString, 1, true) ~= nil then -- Comparing 2 non-case-sensitive strings
-                    needsToAddSearchString = true;
+                else
+                    -- Normal search
+                    local cleanedTxt = string.gsub(lowerTxt, "|r", "")
+                    
+                    -- Try direct matching first (highly efficient)
+                    if string.find(cleanedTxt, searchString, 1, true) ~= nil then
+                        needsToAddSearchString = true
+                    else
+                        --  Only fallback to purging special characters if direct search yields no results
+                        local noSpecialChars = GRM.RemoveSpecialCharacters(cleanedTxt)
+                        if string.find(noSpecialChars, searchString, 1, true) ~= nil then
+                            needsToAddSearchString = true
+                        end
+                    end
                 end
             end
 
-            if index == 1 and GRM.S().toLog.promotion then -- Promotion
-                trueString = true;
-            elseif index == 2 and GRM.S().toLog.demotion then -- Demotion
-                trueString = true;
-            elseif index == 3 and GRM.S().toLog.leveled then -- Leveled
-                
+            -- Determine if entry matches index filters
+            if index == 1 and GRM.S().toLog.promotion then
+                trueString = true
+            elseif index == 2 and GRM.S().toLog.demotion then
+                trueString = true
+            elseif index == 3 and GRM.S().toLog.leveled then
                 if gLog[i][5] then
                     if gLog[i][5] >= GRM.S().levelReportMin then
-                        trueString = true;
+                        trueString = true
                     end 
                 else
-                    local num = "";
-                    if string.find(logTxt, "***") == nil then
+                    local num = ""
+                    if string.find(logTxt, "***", 1, true) == nil then
                         num = string.match(logTxt, " (%d+) %(")
                     else
-                        num = string.match(logText, "(%d+)\124r[^\124]+\124c%x+%*%*%*")
+                        -- Fixed potential nil global error (changed logText to logTxt)
+                        num = string.match(logTxt, "(%d+)\124r[^\124]+\124c%x+%*%*%*")
                     end
-                    if tonumber(num) >= GRM.S().levelReportMin then
-                        trueString = true;
+                    if tonumber(num) and tonumber(num) >= GRM.S().levelReportMin then
+                        trueString = true
                     end
                 end
-
-            elseif index == 4 and GRM.S().toLog.note then -- Note
-                trueString = true;
-            elseif index == 5 and GRM.S().toLog.officerNote then -- OfficerNote
-                trueString = true;
-            elseif index == 6 and GRM.S().toLog.rankRename then -- rankRename
-                trueString = true;
-            elseif (index == 7 or index == 8) and GRM.S().toLog.joined then -- Join/Rejoin
-                trueString = true;
-            elseif index == 10 and GRM.S().toLog.left then -- Left Guild
-                trueString = true;
-            elseif index == 11 and GRM.S().toLog.nameChange then -- NameChange
-                trueString = true;
-            elseif index == 14 and GRM.S().toLog.inactiveReturn then -- Return from inactivity
-                trueString = true;
-            elseif index == 15 and GRM.S().toLog.eventAnnounce then -- Event Announcement
-                trueString = true;
-            elseif (index == 16 or index == 22 or index == 23 or index == 25) and GRM.S().toLog.recommend then -- recommendations
-                trueString = true;
-            elseif (index == 17 or index == 18 or index == 20 or index == 21) and GRM.S().toLog.banned then -- ban info
-                trueString = true;
-            elseif (index == 9 or index == 12 or index == 13) and GRM.S().toLog.joined then -- Banned Rejoin
-                trueString = true;
+            elseif index == 4 and GRM.S().toLog.note then
+                trueString = true
+            elseif index == 5 and GRM.S().toLog.officerNote then
+                trueString = true
+            elseif index == 6 and GRM.S().toLog.rankRename then
+                trueString = true
+            elseif (index == 7 or index == 8) and GRM.S().toLog.joined then
+                trueString = true
+            elseif index == 10 and GRM.S().toLog.left then
+                trueString = true
+            elseif index == 11 and GRM.S().toLog.nameChange then
+                trueString = true
+            elseif index == 14 and GRM.S().toLog.inactiveReturn then
+                trueString = true
+            elseif index == 15 and GRM.S().toLog.eventAnnounce then
+                trueString = true
+            elseif (index == 16 or index == 22 or index == 23 or index == 25) and GRM.S().toLog.recommend then
+                trueString = true
+            elseif (index == 17 or index == 18 or index == 20 or index == 21) and GRM.S().toLog.banned then
+                trueString = true
+            elseif (index == 9 or index == 12 or index == 13) and GRM.S().toLog.joined then
+                trueString = true
             elseif index == 24 and GRM.S().toLog.death then
-                trueString = true;
+                trueString = true
             elseif index == 19 and GRM.S().toLog.customNote then
-                trueString = true;
+                trueString = true
             end
+
             if trueString then
                 if (isSearch and needsToAddSearchString) or (not isSearch) then
-                    totalCount = totalCount + 1;
-                    local logTxt2 = logTxt;
-                    result = addLogEntry( result , logTxt , logTxt2 , index , i , totalCount );
+                    totalCount = totalCount + 1
+                    result = addLogEntry(result, logTxt, logTxt, index, i, totalCount)
                 end
             end
-            i = i - 1;
-            c = c + 1;
+            i = i - 1
+            c = c + 1
         end
     end
 
     if isSearch and i > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Show();
-        C_Timer.After(1, function()
-            GRM.GetSearchLog(isSearch, searchString, i, result, totalCount);
-        end);
-        return;
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Show()
+        C_Timer.After(0.1, function()
+            GRM.GetSearchLog(isSearch, searchString, i, result, totalCount)
+        end)
+        return
     elseif isSearch and i == 0 and currentPosition ~= nil then
-        GRM.BuildLog("", true, true, result, totalCount);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Hide();
-        return;
+        GRM.BuildLog("", true, true, result, totalCount)
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Hide()
+        return
     end
 
-    return result, totalCount;
+    return result, totalCount
 end
 
 -- Method:          GRM.SetColoredLines()

@@ -40,6 +40,11 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.LogPrecheck = function()
+    -- Prevent running this listener if GRM is still configuring
+    if not GRM.S() then
+        return;
+    end
+    
     if GRM_G.LogCheckRestart == 0 then
         GRM_G.LogCheckRestart = time();
     end
@@ -67,6 +72,12 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.RosterPreCheck = function()
+
+    -- Prevent running this listener if GRM is still configuring
+    if not GRM.S() then
+        return;
+    end
+
     if GRM_G.RosterCheckRestart == 0 then
         GRM_G.RosterCheckRestart = time();
     end
@@ -878,7 +889,7 @@ end
 Scan.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
 
     if GRM_G.S.scanEnabled or GRM_G.OnFirstLoad or GRM_G.ManualScanEnabled then
-
+        
         guildData = guildData or GRM.GetGuild();
         local newPlayerFound;
         local player = {};
@@ -961,12 +972,10 @@ Scan.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
         -- Seeing if any upcoming notable events, like anniversaries/birthdays
         Scan.CheckPlayerEvents();
         Scan.ScanRecommendationsList_Async( true ); -- Ensure this is safe
-
     else
         -- Seeing if any upcoming notable events, like anniversaries/birthdays
         Scan.CheckPlayerEvents();
         Scan.ScanRecommendationsList_Async( true ); -- Ensure this is safe
-
     end
 end
 
@@ -3686,7 +3695,7 @@ Scan.ScanRecommendationsList_Async = function( scanCheck )
     C_Timer.After(0, function() Scan.ProcessNextMacroRuleChunk( scanCheck ) end)
 end
 
--- === Core chunk processing function ===
+-- Core chunk processing function
 -- Method:          Scan.ProcessNextMacroRuleChunk( bool )
 -- What it Does:    Used to handle the asynchronous scanning of all of the macro rule matches
 -- Purpose:         Since Lua is all run in the "main thread" and is not multi-threaded, this could cause
