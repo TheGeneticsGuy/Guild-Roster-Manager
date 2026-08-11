@@ -12,6 +12,8 @@
 
 * Fixed a bug where if in the middle of GRM being configured at loading in, it could happen where GRM hooks the guild change event message but if GRM was not yet fully configured, if something happened in the guild triggering it, it would try to scan for roster changes, except the addon was not fully loaded, triggering a lua error. This would self resolve once the addon configured, but the potential of this error triggering shortly after logging in will no longer happen.
 
+* Fixed a bug where the player name when logging off, if you had the Main tags disabled, if they were their own main, the system message might say something like "Arkaan (Arkaan) has gone offline." This double name issue will no longer occur.
+
 
 ## **VERSION 1.9941 - June 18th, 2026**
 

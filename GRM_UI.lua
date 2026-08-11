@@ -1404,7 +1404,7 @@ GRM_UI.CreateCharacterCountText = function( editFrame , editButton , editBox , x
             editFrame.Count:Hide();
             GRMsync.SendMessage ( "GRM_GCHAT" , "GINFOUPDATE?" , "GUILD" );     -- Send out to force others to update their permissions
             C_Timer.After (2, function()
-                GRM.UpdateGuildLeaderPermissions( false , true );
+                GRM.Global.UpdateGuildLeaderPermissions( false , true );
             end);
         end);
 
@@ -6559,7 +6559,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:Show();
                 local text, isRestricted = GRM.G_Util.GetGuildInfoText();
                 if not isRestricted then
-                    local rulesString = GRM.GetRulesString(text);
+                    local rulesString = GRM.Global.GetRulesString(text);
 
                     if CanEditGuildInfo() and not rulesString then
                         local msg = "";
@@ -6738,14 +6738,43 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     -- Auto Updating the profession details in player notes.
     GRM_UI.ProfRankAutoUpdate = function ( button )
+        local value = 4;
+
         if button:GetChecked() then
             GRM.S().ProfRankAutoUpdate = true;
+            value = GRM.S().ProfNoteDestination;
         else
             GRM.S().ProfRankAutoUpdate = false;
         end
+
+        GRM.Global.UpdateGuildInfoWithNewValue ( 10 , value , true );
     end
 
-    GRM_UI.CreateCheckBox ( "GRM_ProfAutoUpdateCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.ProfRankAutoUpdate , GRM.L ( "Auto Set and Update Profession Details to Player Notes" ) , "GameFontNormal" , 12 );
+    -- Option for Guiold Leader to enable or disable feature
+    GRM_UI.ProfFeatureToggle = function ( button )
+        local value = 0;
+
+        if button:GetChecked() then
+            GRM.S().ProfFullyDisabled = false;
+            GRM_UI.ConfigureClassicProfessionOptions( true );
+
+            if GRM.S().ProfRankAutoUpdate then
+                value = GRM.S().ProfNoteDestination;
+            else
+                value = 4;
+            end
+        else
+            GRM.S().ProfFullyDisabled = true;
+            GRM_UI.ConfigureClassicProfessionOptions( false );
+        end
+
+        GRM.Global.UpdateGuildInfoWithNewValue ( 10 , value , true );
+    end
+
+    GRM_UI.CreateCheckBox ( "GRM_ProfFeatureToggleCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsTitle , "BOTTOMLEFT" , -4 , -4 } , GRM_UI.ProfFeatureToggle , GRM.L ( "Unlock Profession Feature for Use" ) .. " |cff00ccff(" .. GRM.L ( "GC" ) .. ")|r" , "GameFontNormal" , 12 );
+
+
+    GRM_UI.CreateCheckBox ( "GRM_ProfAutoUpdateCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfFeatureToggleCheckbox , "BOTTOMRIGHT" , 0 , -6 } , GRM_UI.ProfRankAutoUpdate , GRM.L ( "Auto Set and Update Profession Details to Player Notes" ) .. " |cff00ccff(" .. GRM.L ( "GC" ) .. ")|r" , "GameFontNormal" , 12 );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetScript ( "OnEnter" , function( self )
         GRM_UI.SetTooltipScale();
@@ -6778,36 +6807,67 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             buttonNum = 3;
         end
         GRM.S().ProfNoteDestination = buttonNum;
-        GRM_UI.ConfigureProfRadial ( buttonNum );
+        GRM_UI.ConfigureProfRadial( buttonNum, true );
+
+        if GRM.S().ProfRankAutoUpdate then
+            GRM.Global.UpdateGuildInfoWithNewValue ( 10 , buttonNum , true );
+        end
     end
 
-    GRM_UI.ConfigureProfRadial = function ( buttonNum , disable )
+    GRM_UI.ConfigureProfRadial = function ( buttonNum , enable )
         for i = 1 , 3 do
             local button = _G["GRM_ProfNoteDestinationRadial" .. i];
-            local buttonText = button["GRM_ProfNoteDestinationRadial" .. i .. "Text"];
+            local buttonText = button[button:GetName() .. "Text"];
 
-            if i == buttonNum then
-                button:SetChecked ( true );
-            else
+            if i ~= buttonNum then
                 button:SetChecked ( false );
+            else
+                button:SetChecked ( true );
             end
-
-            if not disable then
+    
+            if not enable then
+                buttonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+                button:Disable();
+            else
                 if i == buttonNum then
                     buttonText:SetTextColor ( 1 , 0 , 0 );
                 else
-                    buttonText:SetTextColor ( 1 , 0.8 , 0 );
+                    buttonText:SetTextColor ( 1 , 0.82 , 0 );
                 end
-            else
-                buttonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
-                button:Disable();
+                button:Enable();              
             end
         end
     end
 
-    GRM_UI.CreateString ( "GRM_ProfessionsOptionsRadialTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "GameFontNormal" , GRM.L ( "Choose Destination:" ) , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox , "BOTTOMLEFT" , 8 , - 6 } , nil );
+    GRM_UI.CreateString ( "GRM_ProfessionsOptionsRadialTitle" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , "GameFontNormal" , GRM.L ( "Choose Destination:" ) .. " |cff00ccff(" .. GRM.L ( "GC" ) .. ")|r" , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox , "BOTTOMLEFT" , 8 , - 6 } , nil );
 
     GRM_UI.CreateRadialButtons ( "GRM_ProfNoteDestination" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , { GRM.L ( "Public Note" ) , GRM.L ( "Officer Note" ) , GRM.L ( "Custom Note" ) } , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle , "BOTTOMLEFT" , 5 , -6 } , false , true , 12 , nil , GRM_UI.ProfNoteDestination );
+
+    local professionRadialTT = function( button )
+        if GRM_G.BuildHasRestrictions then
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( button , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine( GRM.L ( "Addons are restricted from writing to the player note or officer note." ) );
+            GameTooltip:Show();
+        end
+    end
+
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfNoteDestinationRadial1:SetScript("OnEnter" , function(self)
+        professionRadialTT(self);
+    end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfNoteDestinationRadial1:SetScript("OnLeave" , GRM.RestoreTooltip);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfNoteDestinationRadial2:SetScript("OnEnter" , function(self)
+        professionRadialTT(self);
+    end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfNoteDestinationRadial2:SetScript("OnLeave" , GRM.RestoreTooltip);
+
+    local text = "";
+    if GRM_G.BuildVersion >= 50000 then
+        text = "|cffff0000(" .. GRM.L ( "Only Available in Classic Era") .. ")|r";
+    elseif not C_GuildInfo.IsGuildOfficer() then
+        text = "|cffff0000(" .. GRM.L ( "Only Available for Officers" ) .. ")|r";
+    end
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsTitle:SetText ( GRM.L ( "Classic Professions" ) .. " " .. text );
 
     -- Function
     GRM_UI.ProfessionNoteUpdate = function()
@@ -6849,34 +6909,35 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton.GRM_SetProfessionsToNoteButtonText:SetWordWrap ( true );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton.GRM_SetProfessionsToNoteButtonText:SetSpacing ( 1 );
 
-    GRM_UI.ConfigureClassicProfessionOptions = function()
+    GRM_UI.ConfigureClassicProfessionOptions = function( enable )
 
-        if GRM.S().ProfRankAutoUpdate then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetChecked ( true );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetChecked ( GRM.S().ProfRankAutoUpdate );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox:SetChecked ( GRM.S().ProfReportUpdatesToChat );
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfFeatureToggleCheckbox:SetChecked ( not GRM.S().ProfFullyDisabled );
+
+        if enable then
+            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination, enable );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:Enable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox.GRM_ProfAutoUpdateCheckboxText:SetTextColor ( 1, 0.82, 0 );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox:Enable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox.GRM_ProfReportUpdatesToChatCheckBoxText:SetTextColor ( 1, 0.82, 0 );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton:Enable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_SetProfessionsToNoteButton.GRM_SetProfessionsToNoteButtonText:SetTextColor ( 1, 0.82, 0 );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_RemoveProfNotesButton:Enable();
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_RemoveProfNotesButton.GRM_RemoveProfNotesButtonText:SetTextColor ( 1, 0.82, 0 );
+
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle:SetTextColor ( 1, 0.82, 0 );
         else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:SetChecked ( false );
-        end
+            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , enable );
 
-        if GRM.S().ProfReportUpdatesToChat then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox:SetChecked ( true );
-        else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfReportUpdatesToChatCheckBox:SetChecked ( false );
-        end
-
-
-        if GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
-            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination );
-        else
-            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , true );
-
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle:SetTextColor ( 0.5 , 0.5 , 0.5 );
-            local text = "";
-            if GRM_G.BuildVersion >= 50000 then
-                text = "|cffff0000(" .. GRM.L ( "Only Available in Classic Era") .. ")|r";
-            elseif not C_GuildInfo.IsGuildOfficer() then
-                text = "|cffff0000(" .. GRM.L ( "Only Available for Officers" ) .. ")|r";
+            if GRM_G.BuildVersion >= 100000 then
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfFeatureToggleCheckbox:Disable();
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfFeatureToggleCheckbox.GRM_ProfFeatureToggleCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
             end
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsTitle:SetText ( GRM.L ( "Classic Professions" ) .. " " .. text );
 
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox:Disable();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfAutoUpdateCheckbox.GRM_ProfAutoUpdateCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
@@ -6890,7 +6951,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_RemoveProfNotesButton:Disable();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_RemoveProfNotesButton.GRM_RemoveProfNotesButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
 
-            GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , true );
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle:SetTextColor ( 0.5 , 0.5 , 0.5 );
         end
     end
 
@@ -8993,7 +9054,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
                 if GRM.S().joinDateDestination == 0 then
                     GRM.S().joinDateDestination = 1;
-                    GRM.UpdateGuildInfoWithNewValue ( 5 , 1 , true );
+                    GRM.Global.UpdateGuildInfoWithNewValue ( 5 , 1 , true );
                 end
 
             else
@@ -9003,7 +9064,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.DisableNoteDestinationButtons();
                 if GRM.S().joinDateDestination > 0 then
                     GRM.S().joinDateDestination = 0;
-                    GRM.UpdateGuildInfoWithNewValue ( 5 , 0 , true );
+                    GRM.Global.UpdateGuildInfoWithNewValue ( 5 , 0 , true );
                 end
             end
             GRM_UI.ConfigureJoinDateLocation();
@@ -9023,7 +9084,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_G.IsRadialChecked = frame:GetChecked();
             end
 
-            local isRestricted , index = GRM.IsSyncRankGuildLeaderRestricted ( 5 );
+            local isRestricted , index = GRM.Global.IsSyncRankGuildLeaderRestricted ( 5 );
             local showTooltip = false;
 
             if isRestricted and not CanEditGuildInfo() then
@@ -9093,7 +9154,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 if not GRM.CanEditOfficerNote() then
                     GRM.Report ( GRM.L ( "Warning! Due to your rank you will be unable to add Join Date timestamps to the {name}" , GRM.L ( "Officer Note" ) ) );
                 end
-                GRM.UpdateGuildInfoWithNewValue ( 5 , 1 , true );
+                GRM.Global.UpdateGuildInfoWithNewValue ( 5 , 1 , true );
                 self:SetChecked ( true );
             elseif GRM_G.GlobalControl4 then
                 if GRM_G.IsRadialChecked then
@@ -9118,7 +9179,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 if not GRM.CanEditOfficerNote() then
                     GRM.Report ( GRM.L ( "Warning! Due to your rank you will be unable to add Join Date timestamps to the {name}" , GRM.L ( "Public Note" ) ) );
                 end
-                GRM.UpdateGuildInfoWithNewValue ( 5 , 2 , true );
+                GRM.Global.UpdateGuildInfoWithNewValue ( 5 , 2 , true );
                 self:SetChecked ( true );
             elseif GRM_G.GlobalControl4 then
                 if GRM_G.IsRadialChecked then
@@ -9139,7 +9200,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.AdjustTextColoring ( 3 );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton1:SetChecked ( false );
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterAddTimestampRadioButton2:SetChecked ( false );
-            GRM.UpdateGuildInfoWithNewValue ( 5 , 3 , true );
+            GRM.Global.UpdateGuildInfoWithNewValue ( 5 , 3 , true );
             self:SetChecked ( true );
         elseif GRM_G.GlobalControl4 then
             if GRM_G.IsRadialChecked then
@@ -9159,10 +9220,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if not GRM_G.GlobalControl4_5 and button == "LeftButton" then
             if self:GetChecked() then
                 GRM.S().includeTag = true;
-                GRM.UpdateGuildInfoWithNewValue ( 6 , "+" , true );
+                GRM.Global.UpdateGuildInfoWithNewValue ( 6 , "+" , true );
             else
                 GRM.S().includeTag = false;
-                GRM.UpdateGuildInfoWithNewValue ( 6 , "-" , true );
+                GRM.Global.UpdateGuildInfoWithNewValue ( 6 , "-" , true );
             end
 
             GRM.RestoreTooltip();
@@ -9176,7 +9237,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_AddJoinedTagButton:SetScript ( "OnEnter" , function ( self )
-        local isRestricted = GRM.IsSyncRankGuildLeaderRestricted ( 5 );
+        local isRestricted = GRM.Global.IsSyncRankGuildLeaderRestricted ( 5 );
         local formatJD = "";
 
         if GRM.S().includeTag then
@@ -9225,7 +9286,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
 
-            if GRM.IsCustomJoinRestricted() and not CanEditGuildInfo() then
+            if GRM.Global.IsCustomJoinRestricted() and not CanEditGuildInfo() then
                 GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
                 GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , GRM_G.customHeaderJoin .. " " .. GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) ) );
                 self:Disable();
@@ -9255,7 +9316,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if header == "" then
             header = "XX";
         end
-        GRM.UpdateGuildInfoWithNewValue ( 7 , header , true );
+        GRM.Global.UpdateGuildInfoWithNewValue ( 7 , header , true );
         GRM.SetJoinAndRejoinTags();
         self:ClearFocus();
     end);
@@ -9299,7 +9360,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
 
-            if GRM.IsCustomReJoinRestricted() and not CanEditGuildInfo() then
+            if GRM.Global.IsCustomReJoinRestricted() and not CanEditGuildInfo() then
                 GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
                 GameTooltip:AddLine ( GRM.L ( "Unable to Modify. Global setting is set to :   {name}" , GRM_G.customHeaderRejoin .. " " .. GRM.Time.FormatTimeStamp ( GRM.Time.GetTimestamp() , false , false , GRM.S().globalDateFormat ) ) );
                 self:Disable();
@@ -9329,7 +9390,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if header == "" then
             header = "XX";
         end
-        GRM.UpdateGuildInfoWithNewValue ( 8 , header , true );
+        GRM.Global.UpdateGuildInfoWithNewValue ( 8 , header , true );
         GRM.SetJoinAndRejoinTags();
         self:ClearFocus();
     end);
@@ -9809,13 +9870,13 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if not CanEditGuildInfo() then
                 GRM.Report ( GRM.L ( "Your rank cannot edit the Guild Info" ) );
             else
-                if GRM.AllGlobalsAreSet() then
+                if GRM.Global.AllGlobalsAreSet() then
                     GRM.Report ( GRM.L ( "All global controls are already set. You must Edit or Remove the settings manually in the guild Info." ))
                 else
 
                     -- Function on call
                     local exportLogic = function()
-                        GRM.SetGlobalControlsToGuildInfo();
+                        GRM.Global.SetGlobalControlsToGuildInfo();
                         if GameTooltip:IsVisible() then
                             GRM.RestoreTooltip();
                         end
@@ -9828,7 +9889,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_ExportGlobalControlButton:SetScript ( "OnEnter" , function ( self )
-        local globals = GRM.GetGlobalSettingsProgress();
+        local globals = GRM.Global.GetGlobalSettingsProgress();
         local tags = { GRM.L ( "Timestamp Format:" ) , GRM.L ( "General Sync" ) , GRM.L ( "Ban Sync" ) , GRM.L ( "Custom Sync" ) , GRM.L ( "Auto Join date" ) , GRM.L ( "Include Headers" ) , GRM.L ( "Join Header" ) , GRM.L ( "ReJoin Header" ) , GRM.L ( "!note Control" ) };
         local complete = { 0 , 0.77 , 0.063 };
         local incomplete = { 1 , 0 , 0 };
@@ -9842,13 +9903,13 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if not CanEditGuildInfo() then
             GameTooltip:AddLine ( GRM.L ( "Your rank cannot edit the Guild Info" ) , incomplete[1] , incomplete[2] , incomplete[3] );
         else
-            if GRM.AllGlobalsAreSet() then
+            if GRM.Global.AllGlobalsAreSet() then
                 GameTooltip:AddLine ( GRM.L ( "All Complete" ) , complete[1] , complete[2] , complete[3] );
             else
                 GameTooltip:AddLine ( GRM.L ( "Configure your settings. Click to set in Guild Info" ) , incomplete[1] , incomplete[2] , incomplete[3] );
             end
             GameTooltip:AddDoubleLine ( " " , " " );
-            GameTooltip:AddDoubleLine ( GRM.L ( "What tags look like:" ) , GRM.GetAllGlobalRulesAsString(true) , 1 , 0.82 , 0 , 1 , 0 , 0 );
+            GameTooltip:AddDoubleLine ( GRM.L ( "What tags look like:" ) , GRM.Global.GetAllGlobalRulesAsString(true) , 1 , 0.82 , 0 , 1 , 0 , 0 );
 
         end
 
@@ -10325,7 +10386,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:IsVisible() then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            local isRestricted , index = GRM.IsSyncRankGuildLeaderRestricted ( 2 );
+            local isRestricted , index = GRM.Global.IsSyncRankGuildLeaderRestricted ( 2 );
 
             if not isRestricted or CanEditGuildInfo() then
                 GRM_G.GlobalControl1 = false;
@@ -10334,7 +10395,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             else
                 GRM_G.GlobalControl1 = true;
                 GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
-                GameTooltip:AddLine ( GRM.GetRankRestrictionText ( index ) );
+                GameTooltip:AddLine ( GRM.Global.GetRankRestrictionText ( index ) );
             end
             GameTooltip:Show();
         end
@@ -10417,7 +10478,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:IsVisible() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:IsVisible() then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            local isRestricted , index = GRM.IsSyncRankGuildLeaderRestricted ( 3 );
+            local isRestricted , index = GRM.Global.IsSyncRankGuildLeaderRestricted ( 3 );
 
             if not isRestricted or CanEditGuildInfo() then
                 GRM_G.GlobalControl2 = false;
@@ -10426,7 +10487,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             else
                 GRM_G.GlobalControl2 = true;
                 GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
-                GameTooltip:AddLine ( GRM.GetRankRestrictionText ( index ) );
+                GameTooltip:AddLine ( GRM.Global.GetRankRestrictionText ( index ) );
             end
 
             GameTooltip:Show();
@@ -10530,7 +10591,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:IsVisible() and not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:IsVisible() then
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_TOP" );
-            local isRestricted , index = GRM.IsSyncRankGuildLeaderRestricted ( 4 );
+            local isRestricted , index = GRM.Global.IsSyncRankGuildLeaderRestricted ( 4 );
 
             if not isRestricted or CanEditGuildInfo() then
                 GRM_G.GlobalControl3 = false;
@@ -10538,7 +10599,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             else
                 GRM_G.GlobalControl3 = true;
                 GameTooltip:AddLine ( GameTooltip:AddLine ( "|CFF00CCFF" .. GRM.L ( "Warning - Global Controls:" ) ) );
-                GameTooltip:AddLine ( GRM.GetRankRestrictionText ( index ) );
+                GameTooltip:AddLine ( GRM.Global.GetRankRestrictionText ( index ) );
             end
 
             GameTooltip:Show();
@@ -11912,7 +11973,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:SetScript ( "OnEnter" , function ( self )
-        if GRM.IsSyncRankGuildLeaderRestricted ( 1 ) and not CanEditGuildInfo() then
+        if GRM.Global.IsSyncRankGuildLeaderRestricted ( 1 ) and not CanEditGuildInfo() then
             GRM_G.GlobalControl5 = true;
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
@@ -11946,10 +12007,10 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             if button == "LeftButton" and not GRM_G.GlobalControl7 then
                 if self:GetChecked() then
                     GRM.S().noteSetEnabled = true;
-                    GRM.UpdateGuildInfoWithNewValue ( 9 , 1 , true );
+                    GRM.Global.UpdateGuildInfoWithNewValue ( 9 , 1 , true );
                 else
                     GRM.S().noteSetEnabled = false;
-                    GRM.UpdateGuildInfoWithNewValue ( 9 , 2 , true );
+                    GRM.Global.UpdateGuildInfoWithNewValue ( 9 , 2 , true );
                 end
             elseif GRM_G.GlobalControl7 then
                 if GRM.S().noteSetEnabled then
@@ -11961,7 +12022,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         end);
 
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnEnter" , function( self )
-            local isRestricted = GRM.IsSyncRankGuildLeaderRestricted ( 9 );
+            local isRestricted = GRM.Global.IsSyncRankGuildLeaderRestricted ( 9 );
 
             if isRestricted and not CanEditGuildInfo() then
                 GRM_G.GlobalControl7 = true;
@@ -16122,8 +16183,8 @@ GRM_UI.BuildLogFrames = function()
     else
         GRM_UI.ConfigureHCOptions();
     end
-
-    GRM_UI.ConfigureClassicProfessionOptions();
+    
+    GRM_UI.ConfigureClassicProfessionOptions(GRM_G.BuildVersion < 100000 and not GRM.S().ProfFullyDisabled);
 
     -- LogExtras...
     GRM_UI.RefreshLogExtraOptions();

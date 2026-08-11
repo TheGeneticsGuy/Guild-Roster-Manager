@@ -2036,5 +2036,17 @@ GRML.English = function()
     -- R1.99389
     GRM_L["Analyzing Guild Event Log..."] = true
     GRM_L["Relevant Log Entries Added: {num}"] = true
+
+    -- R1.9942
+    GRM_L["Profession feature has been globally set to FULLY DISABLED."] = true
+    GRM_L["Profession auto-updating has been globally DISABLED."] = true
+    GRM_L["Profession auto-updating globally changed to be added to the {name}"] = true
+    GRM_L["Your Guild Leadership has globally set the Profession feature to FULLY DISABLED."] = true
+    GRM_L["Your Guild Leadership has globally DISABLED Profession auto-updating."] = true
+    GRM_L["Your Guild Leadership has globally set Profession auto-updating to the {name}"] = true
+    GRM_L["Unlock Profession Feature for Use"] = true
+    GRM_L["Addons are restricted from writing to the player note or officer note."] = true
+
+
 end
 

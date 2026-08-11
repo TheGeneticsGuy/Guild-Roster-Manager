@@ -19,6 +19,7 @@ GRM_Debug.lua
 GRM_WebApps.lua
 GRM_G_Util.lua
 GRM_Util.lua
+GRM_Global_Control.lua
 
 GRM_AltManagement.lua
 GRM_GuildSync.lua
