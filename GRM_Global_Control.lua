@@ -41,7 +41,7 @@ Global.UpdateGuildInfoWithNewValue = function(controlIndex, newValue, isMyEdit )
             end
 
             local rulesString = Global.GetRulesString(GRM.G_Util.GetGuildInfoText());
-
+            
             if rulesString ~= nil then
                 local first, last = string.find(guildInfoText, rulesString, 1, true);
 
@@ -357,7 +357,8 @@ Global.SetLeaderProfessionRestrictionSetting = function(profSync, isMyEdit)
 
         local needsRefresh = false;
         local isFullyDisabled = (profSync == 0);
-        local isAutoUpdate = (profSync >= 1 and profSync <= 4);
+        local isAutoUpdate = (profSync >= 1 and profSync < 4);
+        local autoDisabled = (profSync == 4);
         local destination = (profSync < 4 and profSync) or GRM.S().ProfNoteDestination; -- fallback in case malformed
 
         -- We check for a new variable ProfFullyDisabled
@@ -367,8 +368,11 @@ Global.SetLeaderProfessionRestrictionSetting = function(profSync, isMyEdit)
         end
 
         -- Auto Update state change
-        if GRM.S().ProfRankAutoUpdate ~= isAutoUpdate then
-            GRM.S().ProfRankAutoUpdate = isAutoUpdate;
+        if autoDisabled and GRM.S().ProfRankAutoUpdate ~= false then
+            GRM.S().ProfRankAutoUpdate = false;
+            needsRefresh = true;
+        elseif not autoDisabled and (profSync >= 1 and profSync < 4) and GRM.S().ProfRankAutoUpdate ~= true then
+            GRM.S().ProfRankAutoUpdate = true;
             needsRefresh = true;
         end
 
@@ -972,7 +976,7 @@ Global.GetAllGlobalRulesAsString = function( includeEnds )
     else
         -- In retail, preserving existing 11th value in case Classic GL set it, 
         -- otherwise we default to X.
-        local existingProf = Global.GetGlobalControlValue(11)
+        local existingProf = Global.GetGlobalControlValue(10)
         if existingProf and existingProf ~= "X" then
             profSetting = existingProf
         end

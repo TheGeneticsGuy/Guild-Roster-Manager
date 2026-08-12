@@ -204,6 +204,9 @@ GRM_G.GlobalControl4 = false; -- Join date note location set
 GRM_G.GlobalControl4_5 = false; -- Join date headers
 GRM_G.GlobalControl5 = false; -- Timestamp Format
 GRM_G.GlobalControl7 = false; -- !note trigger for public note indicating activation of global setting
+GRM_G.GlobalControl10 = false; -- Profession Auto Update Feature
+GRM_G.GlobalControl10_1 = false; -- Profession Toggle Feature
+GRM_G.GlobalControl10_2 = false; -- Classic Professions Destination
 
 -- Calendar Globals
 GRM_G.CalendarRegistered = false;
