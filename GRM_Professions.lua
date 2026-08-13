@@ -79,7 +79,7 @@ Prof.RemoveAllProfessionNotes = function()
     for i = 1, GRM.G_Util.GetNumGuildies() do
         -- For guild info
         local name = GetGuildRosterInfo(i);
-        count = count + Prof.RemoveProfessionNote ( GRM.GetPlayer ( name ) , i );
+        count = count + Prof.RemoveProfessionNote ( GRM.GetPlayer ( name ) , i , GRM.CanEditPublicNote() , GRM.CanEditOfficerNote() );
     end
 
     if count > 0 then
@@ -88,10 +88,10 @@ Prof.RemoveAllProfessionNotes = function()
     GRM.Report ( GRM.L ( "{num} notes have had profession details removed." , nil , nil , count ));
 end
 
--- Method:          Prof.RemoveProfessionNote ( playerTable , int )
+-- Method:          Prof.RemoveProfessionNote ( playerTable , int , bool, bool)
 -- What it Does:    Removes profession note from the given player
 -- Purpose:         Cleanup
-Prof.RemoveProfessionNote = function ( player , ind )
+Prof.RemoveProfessionNote = function ( player , ind , canEditPublicNote , canEditOfficerNote )
     local count = 0;
 
     if player then
@@ -108,7 +108,7 @@ Prof.RemoveProfessionNote = function ( player , ind )
 
         if not string.find ( noteToCheck , "%[" .. GRM.L("D") .. "%]" ) then
             if not GRM_G.BuildHasRestrictions then
-                if GRM.CanEditPublicNote() or player.name == GRM_G.addonUser then
+                if canEditPublicNote or player.name == GRM_G.addonUser then
                     for i = 1 , #patterns do
                         if string.match ( player.note , patterns[i] ) then
                             updatedNote = GRM.Trim(string.gsub ( player.note , patterns[i] , "" ));
@@ -120,7 +120,7 @@ Prof.RemoveProfessionNote = function ( player , ind )
                     end
                 end
 
-                if GRM.CanEditOfficerNote() then
+                if canEditOfficerNote then
                     for i = 1 , #patterns do
                         if string.match ( player.officerNote , patterns[i] ) then
                             updatedNote = GRM.Trim(string.gsub ( player.officerNote , patterns[i] , "" ));
@@ -387,7 +387,7 @@ end
 -- What it Does:    Acts as the gate for auto-starting the note update
 -- Purpose:         To only run this when designated to do so.
 Prof.AutoStartProfessionUpdate = function()
-    if GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
+    if not GRM.S().ProfFullyDisabled and GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
         Prof.InitiateProfessionUpdate( GRM.S().ProfReportUpdatesToChat );
     end
 end

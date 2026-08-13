@@ -186,7 +186,7 @@ Scan.HeartbeatCheck = function( stuckCounter )
         -- Cleanup Logic
         -- Check if there are reports pending from a partial scan and print them
         if Scan.AnyReportsRemaining() and IsInGuild() then
-            Scan.FullReportCheck();
+            Scan.FullReportCheck(true);
             Scan.ResetTempLogs();
         end
         
@@ -289,6 +289,8 @@ end
 -- What it Does:    Builds the roster using GetGuildRosterInfo, throttled.
 -- Purpose:         Avoid script timeouts during the initial roster build phase, particularly for large guilds
 Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, count , liveRosterSnapshot )
+    GRM_G.ScanTimer = time(); -- Keeping heartbeat alive
+
     -- Leave an exit if player quits guild in middle of scan
     if not IsInGuild() then
         GRM_G.CurrentlyScanning = false;
@@ -494,6 +496,8 @@ end
 -- What it Does:    Throttles the querying of the data by the Communities C_Club API. This server call seems much slower and can overload if too fast.
 -- Purpose:         Avoid stutter.
 Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , members , index )
+    GRM_G.ScanTimer = time(); -- Keeping heartbeat alive
+
     -- Leave an exit if player quits guild in middle of scan
     if not IsInGuild() then
         GRM_G.CurrentlyScanning= false;
@@ -887,6 +891,7 @@ end
 -- What it Does:    Scans through guild roster and re-checks for any  (Will only fire if guild is found!)
 -- Purpose:         Keep whoever uses the addon in the know instantly of what is going and changing in the guild.
 Scan.CheckPlayerChanges = function(roster, orderedRoster, ind, guildData)
+    GRM_G.ScanTimer = time(); -- Keeping heartbeat alive during async loads
 
     if GRM_G.S.scanEnabled or GRM_G.OnFirstLoad or GRM_G.ManualScanEnabled then
         
@@ -3512,7 +3517,7 @@ Scan.ScanKillSwitch = function()
     if GRM_G.changeHappenedExitScan or not IsInGuild() then
         -- Ensures any logged changes do get reported right away.
         if Scan.AnyReportsRemaining() then
-            Scan.FullReportCheck();
+            Scan.FullReportCheck(true);
             Scan.ResetTempLogs();
         end
 
@@ -3534,7 +3539,7 @@ end
 -- Purpose:         Ensure if early exit reports aren't wiped.
 Scan.UnfinishedReports = function()
     if Scan.AnyReportsRemaining() then
-        Scan.FullReportCheck();
+        Scan.FullReportCheck(true);
         Scan.ResetTempLogs();
     end
 end
@@ -3702,6 +3707,8 @@ end
 --                  stutter when processing a large amount of data, so instead it is better to process it
 --                  all in smaller "chunks." This functions helps control the flow of that processing.
 Scan.ProcessNextMacroRuleChunk = function( scanCheck )
+    GRM_G.ScanTimer = time(); -- Keeping heartbeat alive
+    
     local state = Scan.currentScanState
     -- Exit if no active scan or state is lost
     if not state or not state.isRunning then return end

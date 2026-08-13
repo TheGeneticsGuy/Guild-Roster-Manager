@@ -2046,6 +2046,11 @@ GRML.English = function()
     GRM_L["Your Guild Leadership has globally set Profession auto-updating to the {name}"] = true
     GRM_L["Unlock Profession Feature for Use"] = true
     GRM_L["Addons are restricted from writing to the player note or officer note."] = true
+    GRM_L["You do not have permission to edit the public note."] = true
+    GRM_L["You do not have permission to edit the officer note."] = true
+    GRM_L["This will remove the profession details from all player Custom Notes. Public and Officer Notes are restricted at your rank."] = true
+    GRM_L["This will remove the profession details from all player notes: public, and custom. Officer Notes are restricted at your rank."] = true
+    GRM_L["This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank." ] = true
 
 
 end

@@ -6975,6 +6975,15 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end
 
     GRM_UI.ExportProfessionConfirm = function()
+        if GRM.S().ProfNoteDestination == 1 and not GRM.CanEditPublicNote() then
+            GRM.Report ( GRM.L ( "You do not have permission to edit the public note." ) );
+            return;
+        end
+        if GRM.S().ProfNoteDestination == 2 and not GRM.CanEditOfficerNote() then
+            GRM.Report ( GRM.L ( "You do not have permission to edit the officer note." ) );
+            return;
+        end
+
         local noteEnum = { [1] = GRM.L ( "Public Note") , [2] = GRM.L ( "Officer Note" ) , [3] = GRM.L ( "Custom Note" ) };
 
         -- Optional function - only show it to give option to cancel tracking
@@ -6993,8 +7002,19 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM.SetConfirmationWindow( GRM_UI.ProfessionNoteUpdate , warning , cancel , { 350 , 165 } , GRM.L ( "Cancel Auto-Update" ) );
     end
 
-    GRM_UI.RemoveProfessionNotes = function()
-        local warning = GRM.L ( "This will remove the profession details from all player notes: public, officer, and custom." ) .. "\n\n" .. GRM.L("Do you wish to continue?");
+    GRM_UI.RemoveProfessionNotes = function() 
+        local warning = "";
+        if GRM.CanEditOfficerNote() and GRM.CanEditPublicNote() then
+            warning = GRM.L ( "This will remove the profession details from all player notes: public, officer, and custom." );
+        elseif not GRM.CanEditOfficerNote() and not GRM.CanEditPublicNote() then
+            warning = GRM.L ( "This will remove the profession details from all player Custom Notes. Public and Officer Notes are restricted at your rank." );
+        elseif not GRM.CanEditOfficerNote() then
+            warning = GRM.L ( "This will remove the profession details from all player notes: public, and custom. Officer Notes are restricted at your rank." )
+        elseif not GRM.CanEditPublicNote() then
+            -- This is weird, but technically pre-8.0 guild control revamp, you could configure officers to allow officer note editing but not public.
+            warning = GRM.L ( "This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank." );
+        end
+        local warning = warning .. "\n\n" .. GRM.L("Do you wish to continue?");
         GRM.SetConfirmationWindow( GRM.Prof.RemoveAllProfessionNotes , warning , nil , { 350 , 140 } );
     end
 
