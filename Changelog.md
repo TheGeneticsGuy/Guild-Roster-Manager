@@ -1,10 +1,29 @@
-## **VERSION 1.9942 - July 28th, 2026**
+## **VERSION 1.9942 - August 13th, 2026**
 
-*Compatibility update for 2 Versions*
+*Compatibility update for 3 Versions*
+
+* Retail - 12.1.0
 
 * Classic Era (SoD, HC, and Vanilla) - 1.15.9
 
 * TBC Anniversary - 2.5.6
+
+***NEW FEATURE***
+
+**Global Control for Classic Builds to Enable/Disable the profession skills added to notes**
+
+In the Global Control string, for those that use it, it is found inside the Guild Information, at the bottom, and looks something like `"GRM^1;3;3;3;3;+;XX;XX;2^g` - Or something like that. I had kept an empty value for future expansion, and I finally am using it, so no need to multi-parse different text structures. The new index, the final one will represent the ability to control these settings globally in your guild. Of course, these particular settings are strictly relegated to only officers. Here is the breakdown of what the final index represents:
+
+* 0 = Fully Disabled - Officers cannot even manually click the button to do a 1-time update.
+* 1 = Profession Skills - Public Note - Auto Update Enabled
+* 2 = Profession Skills - Officer Note - Auto Update Enabled
+* 3 = Profession Skills - Custom Note - Auto Update Enabled
+* 4 = Feature is Enabled, but it will not auto update. It allows any officer to manually update
+*All other values erroneously in this slot will default to 0 and disable the feature*
+
+As with all Global controls, once the control string has been added to the Guild Info, it is fully restricted and no officers can adjust the settings, only the Guild Leader. If the Guild Leader has delegated this work to an officer, all you need to do is just remove the global control string from the guild info and re-add the updated string manually. Of note, in Retail, the guild info has been 100% restricted from being able to be edited by any addons, so while any of the Classic builds will auto-update this text string when editing, in retail, you will instead get a popup box indicating a change in a Global Control setting, with the text string for you to copy and paste into the guild information window. Please let me know if you encounter any bugs. I think I covered everything, but there's always something!
+
+![Classic Professions Global Controls](assets/changelog_images/Classic_Professions.webp)
 
 ***BUG FIXES***
 
@@ -17,6 +36,8 @@ Here's the thing, when I cached the messages for reporting on the next scan, I c
 * Fixed a bug where if in the middle of GRM being configured at loading in, it could happen where GRM hooks the guild change event message but if GRM was not yet fully configured, if something happened in the guild triggering it, it would try to scan for roster changes, except the addon was not fully loaded, triggering a lua error. This would self resolve once the addon configured, but the potential of this error triggering shortly after logging in will no longer happen.
 
 * Fixed a bug where the player name when logging off, if you had the Main tags disabled, if they were their own main, the system message might say something like "Arkaan (Arkaan) has gone offline." This double name issue will no longer occur.
+
+* Fixed a bit of an edge case where GRM could spam you over and over the guild information if you reloaded in a mythic dungeon or rated PVP or some other restricted state. This was mostly resolved before but now it covers all the bases.
 
 
 ## **VERSION 1.9941 - June 18th, 2026**

@@ -1900,7 +1900,21 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
             return;
         end
     end
-    
+
+    -- 156
+    if numericV < 1.9942 and baseValue < 1.9942 then
+        local newSetting = false;
+        if GRM_G.BuildVersion >= 100000 then
+            newSetting = true;
+        end
+        
+        GRM_Patch.AddNewSetting ( "ProfFullyDisabled" , newSetting );
+
+        GRM_AddonSettings_Save.VERSION = "R1.9942";
+        if loopCheck ( 1.9942 ) then
+            return;
+        end
+    end
 
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end

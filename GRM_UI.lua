@@ -6915,18 +6915,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     GRM_UI.CreateRadialButtons ( "GRM_ProfNoteDestination" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , { GRM.L ( "Public Note" ) , GRM.L ( "Officer Note" ) , GRM.L ( "Custom Note" ) } , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfessionsOptionsRadialTitle , "BOTTOMLEFT" , 5 , -6 } , false , true , 12 , nil , GRM_UI.ProfNoteDestination );
 
-    -- To Handle Build Restriciton from Note/Officer Note editing restrictions
-    local professionRadialTT = function( button , buttonInd)
-        if GRM_G.BuildHasRestrictions then
-            GRM_UI.SetTooltipScale();
-            GameTooltip:SetOwner ( button , "ANCHOR_CURSOR" );
-            GameTooltip:AddLine( GRM.L ( "Addons are restricted from writing to the player note or officer note." ) );
-            GameTooltip:Show();
-        else
-            professionRadialTT2( button, buttonInd );
-        end
-    end
-    
     local professionRadialTT2 = function ( button, buttonInd )
         local isRestricted = GRM.Global.IsSyncRankGuildLeaderRestricted ( 10 );
         
@@ -6942,6 +6930,18 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
         else
             GRM_G.GlobalControl10_2 = false;
+        end
+    end
+
+    -- To Handle Build Restriciton from Note/Officer Note editing restrictions
+    local professionRadialTT = function( button , buttonInd)
+        if GRM_G.BuildHasRestrictions then
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner ( button , "ANCHOR_CURSOR" );
+            GameTooltip:AddLine( GRM.L ( "Addons are restricted from writing to the player note or officer note." ) );
+            GameTooltip:Show();
+        else
+            professionRadialTT2( button, buttonInd );
         end
     end
 

@@ -13,16 +13,16 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.9941";
+GRM_G.Version = "R1.9942";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1781850902";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1781850902;            -- In Epoch Time
+GRM_G.PatchDayString = "1786651938";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1786651938;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 120007;
+GRM_G.RetailBaseBuild = 120100;
 
 -- GroupInfo
-GRM_G.GroupInfoV = 1.64;
+GRM_G.GroupInfoV = 1.65;
 
 -- Initialization Useful Globals
 -- ADDON
@@ -3931,7 +3931,6 @@ end
 -- Purpose:         It is useful information to know how many unique acocunts are in the guild. This particularly is useful when comparing how many "mains" there
 --                  are on the audit window...
 GRM.SetGuildInfoDetails = function()
-    print("Setting Guild Info Details");
     GRM_G.MsgFilterDelay = true; -- Resets the 1 second timer upon calling this method for the chat spam blocking. This ensures player manual calls are visual, but code calls are filtered.
     GRM.ConfigureGuild();
 
@@ -22644,7 +22643,6 @@ GRM.DelayForGuildInfoCallback = function()
                 GRM_G.secretValueOnLoadDelay = true
                 GRM.SecretValueLoadDelayHandler();
             else
-                print("Recalling guild info")
                 GRM.SetGuildInfoDetails();
                 GRM.GuildRoster();
                 if GRM_G.RestrictionAnnounced then
@@ -22841,7 +22839,6 @@ GRM.ReactivateAddon = function()
     C_Timer.After(5, GRM.Util.RegisterGuildChatPermission);
 
     GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
-    print("Reactivating addon");
     GRM.SetGuildInfoDetails();
     QueryGuildEventLog();
 
