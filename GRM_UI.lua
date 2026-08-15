@@ -1236,9 +1236,6 @@ GRM_UI.ReloadAllFrames = function( isManualUpdate , defaultSettingsReset )
     if GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
         GRM.PopulateMemberDetails ( GRM_G.currentName );
     end
-    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and not defaultSettingsReset then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:Click();
-    end
 
     -- Hybrid ScrollFrame Reloads
     if isManualUpdate then

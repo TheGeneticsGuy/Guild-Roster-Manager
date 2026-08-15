@@ -1,3 +1,7 @@
+## **VERSION 1.99421 - August 15th, 2026**
+
+* Fixed a minor bug that could prevent a guild leader from adjusting the global control settings.
+
 ## **VERSION 1.9942 - August 13th, 2026**
 
 *Compatibility update for 3 Versions*
@@ -23,7 +27,7 @@ In the Global Control string, for those that use it, it is found inside the Guil
 
 As with all Global controls, once the control string has been added to the Guild Info, it is fully restricted and no officers can adjust the settings, only the Guild Leader. If the Guild Leader has delegated this work to an officer, all you need to do is just remove the global control string from the guild info and re-add the updated string manually. Of note, in Retail, the guild info has been 100% restricted from being able to be edited by any addons, so while any of the Classic builds will auto-update this text string when editing, in retail, you will instead get a popup box indicating a change in a Global Control setting, with the text string for you to copy and paste into the guild information window. Please let me know if you encounter any bugs. I think I covered everything, but there's always something!
 
-![Classic Professions Global Controls](assets/changelog_images/Classic_Professions.webp)
+![Classic Professions Global Controls](https://i.imgur.com/H325S8h.jpeg)
 
 ***BUG FIXES***
 
