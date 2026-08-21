@@ -1,3 +1,7 @@
+## **VERSION 1.99422 - August 20th, 2026**
+
+* Fixed a bug that made it so a new GRM user who had never used the macro tool was unable to configure the tool and use it properly. Existing GRM users we unaffected because the macro had already been set for use within the tool. So it really only affected new GRM users since 12.1. This will now function properly as the code has been updated to properly reflect Blizz's new Constants. Of note, this might mean many constants I was looking at are now broken so more errors might trigger in GRM that I haven't discored yet.
+
 ## **VERSION 1.99421 - August 15th, 2026**
 
 * Fixed a minor bug that could prevent a guild leader from adjusting the global control settings.

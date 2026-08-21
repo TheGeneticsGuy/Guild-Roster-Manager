@@ -13,10 +13,10 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99421";
+GRM_G.Version = "R1.99422";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1786810653";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1786810653;            -- In Epoch Time
+GRM_G.PatchDayString = "1787292341";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1787292341;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120100;
@@ -7372,7 +7372,8 @@ GRM.CreateMacro = function(macroText, name, icon, keyBind, isLogOff)
         local index = GetMacroIndexByName(name);
         local canBuild = false;
 
-        if index == 0 and GetNumMacros() < MAX_ACCOUNT_MACROS then
+        print("NUMBER OF MACROS: " .. GRM.Comp_API.GetMaxMacros() )
+        if index == 0 and GetNumMacros() < GRM.Comp_API.GetMaxMacros() then
             -- no macro yet created
             CreateMacro(name, icon, macroText);
             canBuild = true;
