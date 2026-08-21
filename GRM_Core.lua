@@ -7372,7 +7372,6 @@ GRM.CreateMacro = function(macroText, name, icon, keyBind, isLogOff)
         local index = GetMacroIndexByName(name);
         local canBuild = false;
 
-        print("NUMBER OF MACROS: " .. GRM.Comp_API.GetMaxMacros() )
         if index == 0 and GetNumMacros() < GRM.Comp_API.GetMaxMacros() then
             -- no macro yet created
             CreateMacro(name, icon, macroText);
