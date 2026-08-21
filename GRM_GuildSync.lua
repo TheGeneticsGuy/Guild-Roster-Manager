@@ -88,7 +88,7 @@ GRMsyncGlobals.senderCustRankReq = 0;
 
 -- Results
 GRMsyncGlobals.updateCount = 0;                             -- Number of items updated in this sync.
-GRMsyncGlobals.updatesEach = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }; -- JoinDates , promotionDates, alts, customNote, bday , Ban, unban, banEdits
+GRMsyncGlobals.updatesEach = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }; -- JoinDates , promotionDates, alts, customNote, bday , Ban, unban, banEdits, niknames
 
 -- Tables to hold data in array format, sorted - to maintain compatibility with sync system with new data structures
 GRMsyncGlobals.guildData = {};
@@ -479,6 +479,32 @@ GRMsync.ResetSyncTracker = function()
 
     GRMsync.InitializeTrackerData();    -- Resets the tracking
 
+end
+
+-- Method:          GRMsync.SetBit ( bool )
+-- What it Does:    If something is true it returns it as 1 and 0 if false
+-- Purpose:         Easy converion to num values for true or false which helps shave just a few chars on the sync data as well.
+GRMsync.SetBit = function ( bool )
+    local result;
+    local conv = { [true]=1 , [false]=0 };
+
+    if type ( bool ) == "boolean" then
+        result = tostring ( conv[bool] );
+    end
+
+    return result;
+end
+
+-- Method:          GRMsync.DecodeBit ( int or string )
+-- What it Does:    If something is true it returns it as 1 and 0 if false
+-- Purpose:         Easy converion to num values for true or false which helps shave just a few chars on the sync data as well.
+GRMsync.DecodeBit = function ( bitToDecode )
+    local result;
+    local conv = { ["1"]=true , ["0"]=false };
+
+    result = conv[tostring(bitToDecode)];
+
+    return result;
 end
 
 -- Method:          GRMsyncGlobals.ProgressControl ( string )
@@ -2578,6 +2604,66 @@ GRMsync.BanManagement = function ( msg , prefix )
         end
     end
 end
+
+---------------
+-- NICKNAMES --
+---------------
+
+
+GRMsync.AddNickNameSync = function ( msg , sender , prefix )
+    local isSyncUpdate = false;
+    if prefix == "GRM_NICK_ADD" then
+        isSyncUpdate = true;
+    end
+
+    GRM_G.MatchPattern6 = GRM_G.MatchPattern6 or GRM.BuildComPattern ( 6 , "?" , false );
+    local playerName, newNick, setterName, standardFormat, shareNickAmongAlts, epochStamp  = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern6 );
+    local day , month , year = GRM.Time.ParseStandardFormatDate ( standardDate );
+    shareNickAmongAlts = GRMsync.DecodeBit(shareNickAmongAlts);
+    epochStamp = tonumber(epochStamp);
+
+
+
+
+    local player = GRM.GetPlayer(playerName);
+
+    -- Report the updates!
+    if GRM.S().syncChatEnabled and not isSyncUpdate then
+        GRM.Report ( GRM.L ( "{name} updated {name2}'s Promotion Date." , GRM.GetClassifiedName ( sender , true ) , GRM.GetClassifiedName ( player.name , true ) ) );
+
+        local classColor = GRM.GetStringClassColorByName ( playerName );
+        local coloredPlayer = classColor .. GRM.FormatName(playerName) .. "|r";
+        local coloredNick = classColor .. newNick .. "|r";
+        local setter = GRM.GetClassifiedName ( setterName, false );
+
+        -- Report to Chat
+        if addingAltGroupNN then
+            GRM.Report ( GRM.L ( "{name} has added a shared nickname ({custom1}) for {name2}'s alt group." , setter , coloredPlayer , nil , coloredNick ) );
+        else
+            GRM.Report ( GRM.L ( "{name} has added {name2}'s nickname ({custom1})." , setter , coloredPlayer , nil , coloredNick) );
+        end
+    end
+
+    -- Updating count of changes
+    if isSyncUpdate then
+        GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
+        GRMsyncGlobals.updatesEach[9] = GRMsyncGlobals.updatesEach[9] + 1;
+    end
+    
+    if not isSyncUpdate then
+        GRM_UI.RefreshSelectFrames ( true , false , false , false , true , false, (GRM_G.currentName == player.name) );
+    end
+end
+
+GRMsync.RemNickNameSync = function ( msg , sender , prefix )
+    local isSyncUpdate = false;
+    if prefix == "GRM_NICK_REM" then
+        isSyncUpdate = true;
+    end
+
+end
+
+
 
 --------------------------------
 --- Default Mewsage Functions --

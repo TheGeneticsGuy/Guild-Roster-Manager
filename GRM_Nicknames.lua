@@ -7,17 +7,17 @@ local nicknameLimit = 20;
 ----- Nicknames Feature ------
 ------------------------------
 
--- Method:          NN.CreateNickObject( bool )
+-- Method:          NN.CreateNickObject()
 -- What it Does:    Returns a default nickname data object.
 -- Purpose:         To ensure consistent data structures.
-NN.CreateNickObject = function( includeBypassAltGroup )
-    includeBypassAltGroup = includeBypassAltGroup or nil;
-    return { 
+NN.CreateNickObject = function()
+    local nickInfo = { 
         nickname = "",
-        nickenabled = true,
-        editedDetails = { "" , { 0, 0, 0 } , 0}, -- day, month, year
-        bypassAltGroup = includeBypassAltGroup -- { bypassBool, nameWhoChanged, epoch }
+        editedDetails = { "" , { 0, 0, 0 } , 0}, -- editedBy, {day, month, year}, epochTime
+        shareNickAmongAlts = true
     };
+
+    return nickInfo;
 end
 
 -- Method:          NN.GetNickname ( string )
@@ -30,89 +30,86 @@ NN.GetNickname = function ( name )
         -- Check if sharing is enabled and player is in a group
         if GRM.S().shareNickToAlts and player.altGroup ~= "" then
             local group = GRM.GetAltGroup ( player.altGroup );
-            if group and group.nicknameDetails and group.nicknameDetails.nickname ~= "" then
-                return group.nicknameDetails.nickname;
+            if group and group.nickNameInfo and group.nickNameInfo.nickname ~= "" then
+                return group.nickNameInfo.nickname;
             end
         end
 
         -- Fallback to individual player nickname
-        if player.nicknameDetails and player.nicknameDetails.nickname ~= "" then
-            return player.nicknameDetails.nickname;
+        if player.nickNameInfo and player.nickNameInfo.nickname ~= "" then
+            return player.nickNameInfo.nickname;
         end
     end
 
     return "";
 end
 
--- Method:          NN.SetNickname ( string , string , string , int , bool )
+-- Method:          NN.SetNickname ( string , string , bool,  string , int , table, bool  )
 -- What it Does:    Sets the nickname to either the player or the group based on settings.
 -- Purpose:         To apply identity changes across the database.
-NN.SetNickname = function ( playerName , newNick , setterName , epochStamp , isSync )
+NN.SetNickname = function ( playerName , newNick , shareNickAmongAlts, setterName , epochStamp , timeStamp, isSync )
 
     if #newNick > nicknameLimit then
-        GRM.Report(GRM.L("Player Nicknames must be no longer than {num} letters in length" ) );
+        GRM.Report(GRM.L("Player Nicknames must be no longer than {num} letters in length", nil, nil, nicknameLimit ) );
         return;
     end
 
     local player = GRM.GetPlayer ( playerName );
     if player then
-
-        local timestamp = GRM.Time.GetTimestamp(); -- { day, month, year }
-        setterName = setterName or GRM_G.addonUser;
-        epochStamp = epochStamp or time();
         local addingAltGroupNN = false;
-
-        player.nicknameDetails.nickname = newNick
-        player.nicknameDetails.editedDetails = { setterName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
+        epochStamp = epochStamp or time();
+        timestamp = timeStamp or GRM.Time.GetTimestamp(); -- { day, month, year }
+        local editedDetails = { setterName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
         
-        if GRM.S().shareNickToAlts and player.altGroup ~= "" and not player.nicknameDetails.bypassAltGroup[1] then
+        -- Backup
+        if not player.nickNameInfo then 
+            player.nickNameInfo = NN.CreateNickObject()
+        end
+        
+        -- Apply to group if checked, player is in a group, and bypass is not active
+        if shareNickAmongAlts and player.altGroup ~= "" then
             local alts = GRM.GetAltGroup( player.altGroup )
             if alts then
                 if #alts > 1 then
                     addingAltGroupNN = true;
                 end
-                alts.nicknameDetails.nickname = newNick;
-                alts.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray(player.nicknameDetails.editedDetails);
 
-                -- Need to pass on the nickname to all in the alt group as well.
-                for i = 1 , #alts do
-                    if alts[i].name ~= player.name then
-                        local altPlayer = GRM.GetPlayer(alts[i].name);
-                        if altPlayer and not altPlayer.nicknameDetails.bypassAltGroup[1] then
-                            altPlayer.nicknameDetails.nickname = newNick;
-                            altPlayer.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray(player.nicknameDetails.editedDetails);
-                        end
-                    end
+                if not alts.nickNameInfo then
+                    alts.nickNameInfo = NN.CreateNickObject();
                 end
-            else
-                player.altGroup = "";
+                
+                alts.nickNameInfo.nickname = newNick;
+                alts.nickNameInfo.editedDetails = editedDetails;
+                alts.nickNameInfo.shareNickAmongAlts = shareNickAmongAlts;
             end
         else
-            -- Ensure individual structure exists
-            if not player.nicknameDetails then player.nicknameDetails = NN.CreateNickObject() end
-            dataLocation = player.nicknameDetails;
+            player.nickNameInfo.nickname = newNick
+            player.nickNameInfo.editedDetails = editedDetails;
+            player.nickNameInfo.shareNickAmongAlts = shareNickAmongAlts;
         end
 
-        if not isSync and GRM.S().syncEnabled then
-            local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
-            GRMsync.SendMessage ( "GRM_NICK_ADD" , playerName .. "?" .. newNick .. "?" .. setterName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
+        if not isSync then
+            
+            -- Sync the data
+            if GRM.S().syncEnabled then
+                local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
+                GRMsync.SendMessage ( "GRM_NICK_ADD" , playerName .. "?" .. newNick .. "?" .. GRMsync.SetBit(shareNickAmongAlts) .. "?" .. setterName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
+            end
 
             -- Add to Chat
             local classColor = GRM.GetStringClassColorByName ( playerName );
-            local coloredPlayer = classColor .. playerName .. "|r";
+            local coloredPlayer = classColor .. GRM.FormatName(playerName) .. "|r";
             local coloredNick = classColor .. newNick .. "|r";
-            local setter = GRM.GetClassifiedName ( setterName, false );
 
             -- Report to Chat
-            if addingAltGroupNN then
-                GRM.Report ( GRM.L ( "{name} has added the shared nickname for {name2} and all alts ({custom1})" , setter , coloredPlayer , nil , coloredNick ) );
+            if shareNickAmongAlts and GRM.PlayerHasAlts(player) then
+                GRM.Report ( GRM.L ( "A shared nickname ({name}) has been added to {name2}'s alt group." , coloredNick, coloredPlayer ) );
             else
-                GRM.Report ( GRM.L ( "{name} has added {name2}'s nickname ({custom1})" , setter , coloredPlayer , nil , coloredNick) );
+                GRM.Report ( GRM.L ( "A nickname ({name}) has been added to {name2}" , coloredNick, coloredPlayer) );
             end
 
             GRM_UI.RefreshSelectFrames ( true , true , false , false , true , false , true );
         end
-
     end
 end
 
@@ -126,28 +123,28 @@ NN.RemoveNickname = function ( playerName , removerName , timestamp, epochStamp 
         removerName = removerName or GRM_G.addonUser;
         timestamp = timestamp or GRM.Time.GetTimestamp(); -- { day, month, year }
         epochStamp = epochStamp or time();
-        local nickname = player.nicknameDetails.nickname;
+        local nickname = player.nickNameInfo.nickname;
         local removingAltGroupNN = false;
        
-        player.nicknameDetails.nickname = "";
-        player.nicknameDetails.editedDetails = { removerName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
+        player.nickNameInfo.nickname = "";
+        player.nickNameInfo.editedDetails = { removerName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
 
         -- Clear Group Nickname record (If sharing is enabled and not bypassed)
-        if GRM.S().shareNickToAlts and player.altGroup ~= "" and not player.nicknameDetails.bypassAltGroup[1] then
+        if GRM.S().shareNickToAlts and player.altGroup ~= "" and not player.nickNameInfo.bypassAltGroup[1] then
             local alts = GRM.GetAltGroup ( player.altGroup );
             if alts then
                 if #alts > 1 then
                     removingAltGroupNN = true
                 end
-                alts.nicknameDetails.nickname = "";
-                alts.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray ( player.nicknameDetails.editedDetails );
+                alts.nickNameInfo.nickname = "";
+                alts.nickNameInfo.editedDetails = GRM.Util.DeepCopyArray ( player.nickNameInfo.editedDetails );
 
                 for i = 1 , #alts do
                     if alts[i].name ~= player.name then
                         local altPlayer = GRM.GetPlayer(alts[i].name);
-                        if altPlayer and not altPlayer.nicknameDetails.bypassAltGroup[1] then
-                            altPlayer.nicknameDetails.nickname = "";
-                            altPlayer.nicknameDetails.editedDetails = GRM.Util.DeepCopyArray(player.nicknameDetails.editedDetails);
+                        if altPlayer and not altPlayer.nickNameInfo.bypassAltGroup[1] then
+                            altPlayer.nickNameInfo.nickname = "";
+                            altPlayer.nickNameInfo.editedDetails = GRM.Util.DeepCopyArray(player.nickNameInfo.editedDetails);
                         end
                     end
                 end

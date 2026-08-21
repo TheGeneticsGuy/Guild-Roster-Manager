@@ -2052,6 +2052,13 @@ GRML.English = function()
     GRM_L["This will remove the profession details from all player notes: public, and custom. Officer Notes are restricted at your rank."] = true
     GRM_L["This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank." ] = true
 
+    -- Nickname Update
+    GRM_L["Player Nicknames must be no longer than {num} letters in length"] = true
+    GRM_L["{name} has added a shared nickname ({custom1}) for {name2}'s alt group."] = true
+    GRM_L["{name} has added {name2}'s nickname ({custom1})."] = true
+    GRM_L["A shared nickname ({name}) has been added to {name2}'s alt group."] = true
+    GRM_L["A nickname ({name}) has been added to {name2}"] = true
+
 
 end
 

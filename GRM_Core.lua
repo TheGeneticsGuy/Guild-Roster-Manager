@@ -1324,7 +1324,6 @@ GRM.SetDefaultAddonSettings = function(player, page)
         player.showNickname = false;
         player.showNicknameNotMain = true;
         player.ShowNicknameToAll = true;
-        player.shareNickToAlts = true;
 
     end
 
@@ -7540,7 +7539,7 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
 
     member.customNote = {true, 0, "", ""}; -- 23 { syncEnabled , epochStampOfEdit , "NameOfPlayerWhoEdited" , "customNoteString" }
 
-    member.nicknameDetails = GRM.NN.CreateNickObject( { false , "" , 0 } );
+    member.nickNameInfo = NN.CreateNickObject();
 
     -- Additional server Data
     member.lastOnline = memberInfo.lastOnline;
