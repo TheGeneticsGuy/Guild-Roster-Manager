@@ -47,7 +47,7 @@ end
 -- Method:          NN.SetNickname ( string , string , bool,  string , int , table, bool  )
 -- What it Does:    Sets the nickname to either the player or the group based on settings.
 -- Purpose:         To apply identity changes across the database.
-NN.SetNickname = function ( playerName , newNick , shareNickAmongAlts, setterName , epochStamp , timeStamp, isSync )
+NN.SetNickname = function ( playerName , newNick , shareNickAmongAlts, setterName, epochStamp , timeStamp, isNonLiveSync )
 
     if #newNick > nicknameLimit then
         GRM.Report(GRM.L("Player Nicknames must be no longer than {num} letters in length", nil, nil, nicknameLimit ) );
@@ -88,12 +88,13 @@ NN.SetNickname = function ( playerName , newNick , shareNickAmongAlts, setterNam
             player.nickNameInfo.shareNickAmongAlts = shareNickAmongAlts;
         end
 
-        if not isSync then
+        if not isNonLiveSync then
             
             -- Sync the data
             if GRM.S().syncEnabled then
+                local isRemove = "0"; -- Represents false bit
                 local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
-                GRMsync.SendMessage ( "GRM_NICK_ADD" , playerName .. "?" .. newNick .. "?" .. GRMsync.SetBit(shareNickAmongAlts) .. "?" .. setterName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
+                GRMsync.SendMessage ( "GRM_NN" , playerName .. "?" .. newNick .. "?" .. setterName .. "?" .. isRemove .. "?" .. GRMsync.SetBit(shareNickAmongAlts) .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
             end
 
             -- Add to Chat
@@ -116,7 +117,7 @@ end
 -- Method:          NN.RemoveNickname ( string , string , array, int , bool )
 -- What it Does:    Clears the nickname from the player and/or the alt group based on settings.
 -- Purpose:         To provide a clean way to purge nicknames while maintaining history/sync integrity.
-NN.RemoveNickname = function ( playerName , removerName , timestamp, epochStamp , isSync )
+NN.RemoveNickname = function ( playerName , removerName , timestamp, epochStamp , isNonLiveSync )
     local player = GRM.GetPlayer ( playerName );
     
     if player then
@@ -253,3 +254,10 @@ end
 -- Name format: "RealName (Nickname): or just Nickname:"
 -- nick! can be enabled or disabled
 -- Blacklist for offensive nicknames -- maybe not necessary as officers will manage since I log who makes it
+
+-- Sync Comes
+GRM_NN          -- Live nickname add/remove -- COMPLETE
+GRM_RECNNPRE    -- Initiali Precheck Vals
+GRM_NNYNCF      -- Sending actual NN Data NON alt groups
+GRM_REQ_NNF     -- ResendMissingF
+GRM_REQNNFIN    -- ResendMissingAgain
