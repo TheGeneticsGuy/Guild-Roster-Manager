@@ -1319,11 +1319,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         local tempNote = "";
 
                         -- if details.destination == 1 and GRM.CanEditPublicNote() and not string.find ( player.note , details.note , 1 , true ) then
-                        --     tempNote = GRM.Trim ( player.note .. " " .. details.note );
+                        --     tempNote = GRM.Util.Trim ( player.note .. " " .. details.note );
 
-                        --     if GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize or details.forceOverwrite then
+                        --     if GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize or details.forceOverwrite then
 
-                        --         if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxPublicNoteSize then
+                        --         if details.forceOverwrite and GRM.Util.GetNumLetters(tempNote) > GRM_G.MaxPublicNoteSize then
                         --             tempNote = details.note;
                         --         end
 
@@ -1341,11 +1341,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         --     end
 
                         -- elseif details.destination == 2 and GRM.CanEditOfficerNote() and not string.find ( player.officerNote , details.note , 1 , true ) then
-                        --     tempNote = GRM.Trim ( player.officerNote .. " " .. details.note );
+                        --     tempNote = GRM.Util.Trim ( player.officerNote .. " " .. details.note );
 
-                        --     if GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize or details.forceOverwrite then
+                        --     if GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize or details.forceOverwrite then
 
-                        --         if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxOfficerNoteSize then
+                        --         if details.forceOverwrite and GRM.Util.GetNumLetters(tempNote) > GRM_G.MaxOfficerNoteSize then
                         --             tempNote = details.note;
                         --         end
 
@@ -1361,11 +1361,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         --     end
 
                         if details.destination == 1 and not string.find ( player.customNote[4] , details.note , 1 , true ) then    -- Custom note no server permission needed
-                            tempNote = GRM.Trim ( player.officerNote .. " " .. details.note );
+                            tempNote = GRM.Util.Trim ( player.officerNote .. " " .. details.note );
 
-                            if GRM.GetNumLetters(tempNote) <= GRM_G.MaxCustomNoteSize or details.forceOverwrite then
+                            if GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxCustomNoteSize or details.forceOverwrite then
 
-                                if details.forceOverwrite and GRM.GetNumLetters(tempNote) > GRM_G.MaxCustomNoteSize then
+                                if details.forceOverwrite and GRM.Util.GetNumLetters(tempNote) > GRM_G.MaxCustomNoteSize then
                                     tempNote = details.note;
                                 end
 
@@ -2769,7 +2769,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleNameEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+            self:SetText ( GRM.Util.Trim ( self:GetText() ) );
 
             if self:GetText() == "" then
                 GRM.Report ( GRM.L ( "Please Set a Name for this Rule. It can be 1 to 30 characters in length." ) );
@@ -2874,7 +2874,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            local number = tonumber ( GRM.Trim ( self:GetText() ) );
+            local number = tonumber ( GRM.Util.Trim ( self:GetText() ) );
             if not number or number == 0 then
                 number = 1;
             end
@@ -2889,7 +2889,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[1] = number;
 
             -- need to Adjust the 2nd if necessary as well.
-            local number2 = tonumber ( GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:GetText() ) );
+            local number2 = tonumber ( GRM.Util.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:GetText() ) );
             if not number2 then
                 number2 = GRM_G.LvlCap;
             elseif number2 == 0 then
@@ -2931,7 +2931,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            local number = tonumber ( GRM.Trim ( self:GetText() ) );
+            local number = tonumber ( GRM.Util.Trim ( self:GetText() ) );
             if number == 0 then
                 number = 1;
             elseif not number then
@@ -2948,7 +2948,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.levelRange[2] = number;
 
             -- need to Adjust the 2nd if necessary as well.
-            local number2 = tonumber ( GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:GetText() ) );
+            local number2 = tonumber ( GRM.Util.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:GetText() ) );
             if not number2 or number2 == 0 then
                 number2 =    1;
             end
@@ -2993,7 +2993,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            local number = tonumber ( GRM.Trim ( self:GetText() ) );
+            local number = tonumber ( GRM.Util.Trim ( self:GetText() ) );
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox.ratingLevel = tostring ( number );
 
@@ -5664,7 +5664,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+            self:SetText ( GRM.Util.Trim ( self:GetText() ) );
             local textResult = self:GetText();
 
             if textResult == "" then
@@ -5749,7 +5749,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_SafeTextSearchEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+            self:SetText ( GRM.Util.Trim ( self:GetText() ) );
             local textResult = self:GetText();
 
             if textResult == "" then
@@ -5884,7 +5884,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         end);
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetScript ( "OnEnterPressed" , function ( self )
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+            self:SetText ( GRM.Util.Trim ( self:GetText() ) );
 
             local textResult = self:GetText();
             if textResult == "" then
@@ -5900,7 +5900,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+            self:SetText ( GRM.Util.Trim ( self:GetText() ) );
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxCount:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBoxTip:Hide();
@@ -6043,7 +6043,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:Hide();
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetScript ( "OnEnterPressed" , function ( self )
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+            self:SetText ( GRM.Util.Trim ( self:GetText() ) );
 
             local textResult = self:GetText();
             if textResult == "" then
@@ -6059,7 +6059,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetScript ( "OnEditFocusLost" , function ( self )
             self:HighlightText ( 0 , 0 );
-            self:SetText ( GRM.Trim ( self:GetText() ) );
+            self:SetText ( GRM.Util.Trim ( self:GetText() ) );
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = self:GetText();
@@ -6960,7 +6960,7 @@ end
 -- What it Does:    Sets the tooltip for the Queued scrollframe in the GRM kick tool
 -- Purpose:         Make it clear the QoL controls.
 GRM.UpdateQueuedTooltip = function ( ind )
-    local taggedName = GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText() );
+    local taggedName = GRM.Util.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText() );
     if string.find ( taggedName , "|" ) then
         taggedName = string.match ( taggedName , "(.+)|CFF" );
     end
@@ -7234,7 +7234,7 @@ GRM.BuildKickQueuedScrollButtons = function ( ind , isResizeAction )
         end);
 
         coreButton:SetScript ( "OnMouseDown" , function ( _ , button )
-            local playerName = GRM.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText() );
+            local playerName = GRM.Util.Trim ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons[ind][2]:GetText() );
 
             if string.find ( playerName , "|" ) then
                 playerName = string.match ( playerName , "(.+)|CFF" );
@@ -10720,7 +10720,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                                                     local maxLetters = maxLettersTable[rule.AddNoteOnDemotion[3]];
 
                                                     local text = string.gsub ( GRM_G.PlayersWithNotesToAdd[player.name].note , GRM.L("{rank}") , player.rankName );
-                                                    if GRM.GetNumLetters(text) <= maxLetters then
+                                                    if GRM.Util.GetNumLetters(text) <= maxLetters then
                                                         GRM_G.PlayersWithNotesToAdd[player.name].note = text;
                                                     end
                                                 end

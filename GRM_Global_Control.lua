@@ -905,7 +905,7 @@ Global.SetGlobalControlsToGuildInfo = function()
         end
     else
         -- Just append to the end
-        result = GRM.Trim(notes) .. "\n" .. controlString;
+        result = GRM.Util.Trim(notes) .. "\n" .. controlString;
     end
 
     -- Ok, let's set the values

@@ -491,7 +491,7 @@ GRM_UI.CreateEditBox = function ( name , parentFrame , template , width , height
             self:HighlightText ( 0 , 0 );
 
             if trimWhiteSpace then
-                self:SetText ( GRM.Trim ( self:GetText() ) );
+                self:SetText ( GRM.Util.Trim ( self:GetText() ) );
             end
 
             if self:GetText() == "" and textChangedFunction then

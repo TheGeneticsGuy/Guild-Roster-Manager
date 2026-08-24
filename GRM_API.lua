@@ -519,9 +519,9 @@ GRM_API.EditCustomNote = function ( player_name , new_note , replace_existing , 
         local timestamp = time();
                 
         if replace_existing or currentNote == "" then
-            new_note = GRM.Trim(new_note);
+            new_note = GRM.Util.Trim(new_note);
         else
-            new_note = GRM.Trim(oldNote .. "\n" ..  new_note);
+            new_note = GRM.Util.Trim(oldNote .. "\n" ..  new_note);
         end
 
         if #new_note > GRM_G.MaxCustomNoteSize then

@@ -199,7 +199,7 @@ HC.HardCoreInitialize = function()
 
                         if finalNote ~= "" then
 
-                            finalNote = GRM.Trim(finalNote);
+                            finalNote = GRM.Util.Trim(finalNote);
 
                             local simpleName = GRM.GetStringClassColorByName ( player.name ) .. GRM.SlimName ( player.name ) .. "|r";
                             local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() );

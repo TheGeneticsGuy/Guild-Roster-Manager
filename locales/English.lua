@@ -2054,10 +2054,15 @@ GRML.English = function()
 
     -- Nickname Update
     GRM_L["Player Nicknames must be no longer than {num} letters in length"] = true
+    GRM_L["Player Nicknames must be at least {num} characters in length"] = true
     GRM_L["{name} has added a shared nickname ({custom1}) for {name2}'s alt group."] = true
     GRM_L["{name} has added {name2}'s nickname ({custom1})."] = true
     GRM_L["A shared nickname ({name}) has been added to {name2}'s alt group."] = true
     GRM_L["A nickname ({name}) has been added to {name2}"] = true
+    GRM_L["{name} has removed a shared nickname from {name2} and all their alts."] = true
+    GRM_L["{name} has removed {name2}'s nickname."] = true
+    GRM_L["Invalid Character: \"|\" is not allowed when making a nickname."] = true
+    GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
 
 
 end

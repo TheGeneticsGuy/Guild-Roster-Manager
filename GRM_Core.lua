@@ -2490,7 +2490,7 @@ end
 GRM.IsValidChannelName = function(name)
     local result = true;
 
-    if GRM.UTF8Len(name) > 31 then -- Length of Max Characters is 31
+    if GRM.Util.UTF8Len(name) > 31 then -- Length of Max Characters is 31
         result = false;
     end
 
@@ -2502,7 +2502,7 @@ end
 -- Purpose:         Particularly for managing multiple channels to send info to
 GRM.ParseMultiChannelString = function(channels)
 
-    channels = GRM.Trim(channels);
+    channels = GRM.Util.Trim(channels);
     local result = {};
     local ind = string.find(channels, ",", 1, true);
     local tableName = "";
@@ -2511,7 +2511,7 @@ GRM.ParseMultiChannelString = function(channels)
 
         while ind ~= nil and #channels > 0 do
 
-            tableName = GRM.Trim(string.sub(channels, 1, ind - 1));
+            tableName = GRM.Util.Trim(string.sub(channels, 1, ind - 1));
 
             -- Is Valid Name?
             if GRM.IsValidChannelName(tableName) then
@@ -2523,7 +2523,7 @@ GRM.ParseMultiChannelString = function(channels)
 
             -- No comma on the end
             if ind == nil and #channels > 0 then
-                tableName = GRM.Trim(channels);
+                tableName = GRM.Util.Trim(channels);
 
                 -- Is Valid Name?
                 if GRM.IsValidChannelName(tableName) then
@@ -2535,7 +2535,7 @@ GRM.ParseMultiChannelString = function(channels)
         end
 
         if #result == 0 and ind == nil then
-            table.insert(result, GRM.Trim(channels));
+            table.insert(result, GRM.Util.Trim(channels));
         end
 
     end
@@ -2598,17 +2598,6 @@ GRM.FormatName = function( name , normalize )
     end
 
     return name;
-end
-
--- Method:          GRM.Title ( string )
--- What it Does:    It capitalize the first letter of every word in a phrase.
--- Purpose:         Useful formatting tool. I was working in python and the string.title() implementation was really nice and wanted it in Lua, so I built it.
-GRM.Title = function(text)
-    local words = {}
-    for word in string.gmatch(text, "%w+") do
-        table.insert(words, word:sub(1, 1):upper() .. word:sub(2));
-    end
-    return table.concat(words, " ")
 end
 
 -- Method:          GRM.Use24HrBasedOnDefaultLanguage()
@@ -3332,7 +3321,7 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
                     string.find(GUILD_INFO_TEMPLATE, "%%") - 1);
             -- GUILD INFO FILTER (GuildInfo())
             if GRM_G.MsgFilterDelay and 
-                (string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil or string.find(msg, GRM.Trim(CHAT_GUILD_SEND)) ~=
+                (string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil or string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND)) ~=
                     nil) then -- These may need to be localized. I have not yet tested if other regions return same info. It IS system info.
                 if string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil and ((time() - GRM_G.SystemMsgThrottle) > 1) then
                     GRM_G.SystemMsgThrottle = time();
@@ -3469,7 +3458,7 @@ GRM.SystemMessageHandler = function(_, _, msg)
                 -- GUILD INFO FILTER (GuildInfo())
                 if GRM_G.MsgFilterDelay and
                     (string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil or
-                        string.find(msg, GRM.Trim(CHAT_GUILD_SEND)) ~= nil) then -- These may need to be localized. I have not yet tested if other regions return same info. It IS system info.
+                        string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND)) ~= nil) then -- These may need to be localized. I have not yet tested if other regions return same info. It IS system info.
                     if string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil and
                         ((time() - GRM_G.SystemMsgThrottle) > 1) then
                         GRM_G.SystemMsgThrottle = time();
@@ -4550,12 +4539,12 @@ GRM.GetAutoCompleteRealmMatches = function(list, key)
     if key == "" then
         return result;
     else
-        key = GRM.Trim(GRM.NormalizeRealmName(string.lower(key)));
+        key = GRM.Util.Trim(GRM.Util.NormalizeRealmName(string.lower(key)));
     end
 
     local key2 = "";
     for i = 1, #list do
-        key2 = GRM.Trim(GRM.NormalizeRealmName(string.lower(list[i])))
+        key2 = GRM.Util.Trim(GRM.Util.NormalizeRealmName(string.lower(list[i])))
 
         if string.find(GRM.RemoveSpecialCharacters(string.lower(key2)), key, 1, true) or
             string.find(string.lower(key2), key, 1, true) then
@@ -5397,7 +5386,7 @@ GRM.RemoveMainAltTags = function(text)
     if index ~= nil then
         text = string.sub(text, 1, index - 1);
     end
-    return GRM.Trim(text);
+    return GRM.Util.Trim(text);
 end
 
 -- Method:          GRM.RemoveHexCodeColoringFromString ( string )
@@ -5416,7 +5405,7 @@ GRM.RemoveHexCodeColoringFromString = function(text)
         ind = string.find(result, "||", 1, true);
     end
 
-    return GRM.Trim(result);
+    return GRM.Util.Trim(result);
 end
 
 -- Method:          GRM.RemoveStringColoring(string)
@@ -5773,274 +5762,6 @@ GRM.RegisterGuildAddonUsers = function()
     GRM.RegisterMessage();
     -- Request for their data.
     GRM.RegisterGuildAddonUsersRefresh();
-end
-
----------------------------
------- UTIL FUNCTIONS  ----
----------------------------
-
--- Method:          GRM.IsNumInString(string)
--- What it Does:    Returns true if a numerical value is found in the form of a string.
--- Purpose:         Useful for player name submission, to verify if valid formatting.
-GRM.IsNumInString = function(text)
-    local numFound = false;
-    for i = 1, #text do
-        if tonumber(string.sub(text, i, i)) ~= nil then
-            -- NUM FOUND!
-            numFound = true;
-            break
-        end
-    end
-    return numFound;
-end
-
--- STILL NEED TO COMPLETE OTHER REGIONS' FONTS!!!!!!!!!!
--- Method:          GRM.IsValidName(string)
--- What it Does:    Returns true if the name only contains valid characters in it... based on ASCII numeric values
--- Purpose:         When player is manually adding someone to the player data, we need ot ensure only proper characters are allowed.
-GRM.IsValidName = function(name)
-    local result = true;
-    name = GRM.Trim(name); -- In case any whitespace before or after...
-    for i = 1, #name do
-        -- As a stopgap until I scan for all fonts, let's check this.
-        local char = string.sub(name, i, i);
-        -- local byteValue = string.byte ( char );
-        if tonumber(char) ~= nil or char == " " or char == "\\" or char == "\n" or char == ":" or char == "(" or char ==
-            "$" or char == "%" or char == "/" then
-            return false;
-        end
-
-    end
-    return result;
-end
-
--- Method:          GRM.ByteRulesFollowed ( string , boolean , object [EditBox] )
--- What it Does:    It checks each char of the string for proper ASCII characters and if they are proper send messages and returns false if not, with optional error message
---                  in either the context of a string, or an editBox text
--- Purpose:         Certain characters if sent over Blizz's API can disconnect a character if not proper.
-GRM.ByteRulesFollowed = function(text, displayerErrorMessage, editBox)
-    local result = true;
-    local charValue;
-    local count = 0;
-    local warningGiven = false;
-
-    for i = 1, #text do
-        charValue = string.byte(text, i);
-        if charValue < 32 then
-            count = count + 1;
-            result = false;
-
-            if displayerErrorMessage and not warningGiven then
-                warningGiven = true;
-                if editBox then
-                    GRM.Report(GRM.L("The highlighted character is not valid for messages. Please remove."));
-                    editBox:HighlightText(i, i);
-                    editBox:SetCursorPosition(i + 1);
-                else
-                    GRM.Report(GRM.L("Not all characters are valid. Please remove any non-text characters."));
-                end
-            end
-        end
-    end
-    return result;
-end
-
--- Method:          GRM.UTF8char ( int , int )
--- What it Does:    Returns the number of bytes used by the UTF8 value
--- Purpose:         So as to maintain character count compatibility for all languages.
-GRM.UTF8char = function(s, i)
-    i = i or 1
-
-    local c = string.byte(s, i);
-
-    -- byte 1
-    if c > 0 and c <= 127 then
-        -- UTF8-1
-        return 1
-
-        -- byte 2
-    elseif c >= 194 and c <= 223 then
-        return 2
-
-        -- byte 3
-    elseif c >= 224 and c <= 239 then
-        return 3
-
-        -- byte 4
-    elseif c >= 240 and c <= 244 then
-        return 4
-    end
-
-end
-
--- Method:          GRM.UTF8Len ( string )
--- What it Does:    Returns the length of an input string.
--- Purpose:         So the addon can read the proper character length of text no matter the language.
-GRM.UTF8Len = function(s)
-
-    local pos = 1
-    local bytes = string.len(s)
-    local len = 0
-
-    while pos <= bytes do
-        len = len + 1
-        pos = pos + GRM.UTF8char(s, pos)
-    end
-
-    return len
-end
-
--- Method:          GRM.GetNumLetters ( text )
--- What it Does:    Returns the character count of the numLetters of a text string
--- Purpose:         Compatibility with ALL languages
-GRM.GetNumLetters = function(text)
-    local c = 0;
-
-    if text ~= nil then
-        c = GRM.UTF8Len(text);
-    end
-
-    return c;
-end
-
--- Method:          GRM.CapitalizeFirst ( string )
--- What it Does:    Formats the string properly to have the first letter of the word/name capitalized
--- Purpose:         Cleanup formatting of a name to prevent human error protection.
-GRM.CapitalizeFirst = function(text)
-    local count = 1;
-    local byteCount = text:byte(1);
-    if byteCount == 195 or byteCount == 165 or byteCount == 208 then -- Special cahracters some can be 2 bytes in length and they are given a value of 195 or 165 in Lua return
-        count = 2;
-    end
-
-    if GRM.S().selectedLang < 9 then
-        text = string.upper(string.sub(text, 1, count)) .. string.sub(text, count + 1);
-    end
-    return text;
-end
-
--- Method:          GRM.FormatInputName ( string )
--- What it Does:    Formats the name to proper pronoun form, but only if a non Asian character language
--- Purpose:         Huaman error protection on player input.
-GRM.FormatInputName = function(name)
-
-    if string.find(name, " ") ~= nil then
-        -- space found, multi word!!!
-        local tempName = string.lower(name);
-        local result = "";
-        local number = select(2, string.gsub(tempName, "%s", ""));
-
-        for i = 1, number do
-            result = result .. GRM.CapitalizeFirst(string.sub(tempName, 1, string.find(tempName, " ") - 1) .. " ");
-            tempName = string.sub(tempName, string.find(tempName, " ") + 1);
-            if i == number then
-                result = result .. GRM.CapitalizeFirst(tempName);
-            end
-        end
-        name = result;
-    else
-        name = GRM.CapitalizeFirst(name);
-    end
-    local byteCount = name:byte(1);
-    local count = 1;
-    if byteCount == 195 or byteCount == 165 or byteCount == 208 then -- Special cahracters some can be 2 bytes in length and they are given a value of 195 or 165 in Lua return
-        count = 2;
-    end
-    if GRM.S().selectedLang < 9 and not string.find(name, " ") then
-        name = string.sub(name, 1, count) .. string.lower(string.sub(name, count + 1));
-    end
-    return name;
-end
-
--- Method:          GRM.Capitalize ( string )
--- What it Does:    Takes the first letter of a word and capitalizes it, whilst lowercasing the rest
--- Purpose:         Proper formatting of names.
-GRM.Capitalize = function(word)
-    word = string.lower(word);
-    return (word:gsub("^%l", string.upper))
-end
-
--- Method:          GRM.Title ( string )
--- What it Does:    It capitalizes the first letter of every word
--- Purpose:         I really like how "Title()" works in python and wanted to replicate it in GRM for ease of use, particularly when custom typing realm names, to assist, when banning.
-GRM.Title = function(words)
-    local capitalized = {};
-    if not words then
-        return "" -- Return an empty string to avoid any weird UI errors
-    end
-
-    for word in words:gmatch("%S+") do
-        table.insert(capitalized, GRM.Capitalize(word));
-    end
-
-    return table.concat(capitalized, " ");
-end
-
--- Method           GRM.Trim ( string )
--- What it Does:    Removes the white space at front and at tail of string.
--- Purpose:         Cleanup strings for ease of logic control, as needed.
-GRM.Trim = function(str)
-    if str == nil then
-        return nil;
-    else
-        return (str:gsub("^%s*(.-)%s*$", "%1"));
-    end
-end
-
--- Method:          GRM.NormalizeRealmName ( string )
--- What it Does:    It removes any hyphens in names, or spaces. This is how all the realm names appear on players in the DB
--- Purpose:         Unfortunatelly the built-in API for normalized realms only returns the connected realms, which is not very helpful post 11.0 x-server guilds.
-GRM.NormalizeRealmName = function(realmName)
-    if realmName then
-        realmName = string.gsub(string.gsub(realmName, "-", ""), "%s+", "");
-    end
-    return realmName
-end
-
--- Method:          GRM.StringToCharArray ( string [, bool]);
--- What it Does:    Converts a string into a char array, and has the option to remove all indexes of a given char
--- Purpose:         More easily cleanup strings, especially when sending data back and forth using the '?' separator
-GRM.StringToCharArray = function(text, removeChar)
-    local result = {};
-    local temp = "";
-    for i = 1, #text do
-        temp = string.sub(text, i, i);
-        -- Remove the char by ignoring it
-        if not removeChar or (removeChar and removeChar ~= temp) then
-            table.insert(result, string.sub(text, i, i));
-        end
-    end
-    return result;
-end
-
--- Method:          GRM.GetWordArrayFromString ( string , string )
--- What it Does:    Returns an array of words or items that were divided by characters
--- Purpose:         Cleanup code for parsing back the sendAddonMessage strings.
-GRM.GetWordArrayFromString = function(text, divider)
-    local result = {};
-    while string.find(text, divider) ~= nil do
-        table.insert(result, string.sub(text, 1, string.find(text, divider) - 1));
-        text = string.sub(text, string.find(text, divider) + 1);
-    end
-    if #text > 0 then
-        table.insert(result, text);
-    end
-    return result;
-end
-
--- Method:          GRM.ConvertStringNumArrayToBoolArray ( array )
--- What it Does:    Sets an array corresponding index to booleans matching another array. 1 = true, 0 = false
--- Purpose:         Slim the sendaddonMessages a bit by converting bools to 1s and 0s and then converting back on the other end.
-GRM.ConvertStringNumArrayToBoolArray = function(listOfNum)
-    local result = {};
-    for i = 1, #listOfNum do
-        if listOfNum[i] == "1" then
-            result[i] = true;
-        else
-            result[i] = false;
-        end
-    end
-    return result;
 end
 
 ------ MYTHIC + TRACKING -----------
@@ -6411,8 +6132,8 @@ GRM.GetAllTooltipText = function()
             colors1 = {GRM_G.ToolTipTextLeft[i]:GetTextColor()};
             colors2 = {GRM_G.ToolTipTextLeft[i]:GetTextColor()};
             tempHolder = {{GRM_G.ToolTipTextLeft[i]:GetText(), 0, 0, 0}, {GRM_G.ToolTipTextRight[i]:GetText(), 0, 0, 0}};
-            if (tempHolder[1][1] ~= nil and GRM.Trim(tempHolder[1][1]) ~= "") or
-                (tempHolder[2][1] ~= nil and GRM.Trim(tempHolder[2][1]) ~= "") then
+            if (tempHolder[1][1] ~= nil and GRM.Util.Trim(tempHolder[1][1]) ~= "") or
+                (tempHolder[2][1] ~= nil and GRM.Util.Trim(tempHolder[2][1]) ~= "") then
 
                 if tempHolder[1][1] ~= nil and colors1 ~= nil then
                     tempHolder[1][2] = colors1[1];
@@ -7539,7 +7260,7 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
 
     member.customNote = {true, 0, "", ""}; -- 23 { syncEnabled , epochStampOfEdit , "NameOfPlayerWhoEdited" , "customNoteString" }
 
-    member.nickNameInfo = NN.CreateNickObject();
+    member.nickInfo = NN.CreateNickObject();
 
     -- Additional server Data
     member.lastOnline = memberInfo.lastOnline;
@@ -11376,13 +11097,13 @@ GRM.SetCustomNote = function()
     local player = GRM.GetPlayer(GRM_G.currentName);
     if player then
         -- The trim is so that just a white space doesn't somehow count as a new note.
-        if GRM.Trim(GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText()) ~=
+        if GRM.Util.Trim(GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText()) ~=
             player.customNote[4] then
             local oldNote = tostring ( player.customNote[4] );
             local timestamp = time();
             player.customNote[2] = timestamp;
             player.customNote[3] = GRM_G.addonUser;
-            player.customNote[4] = GRM.Trim(GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame
+            player.customNote[4] = GRM.Util.Trim(GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame
                                                 .GRM_CustomNoteEditBox:GetText());
             GRM_G.OriginalEditBoxValue = player.customNote[4]; -- This needs to be set to handle the OnEditFocusLost logic..
             -- Handle Log reporting logic here...
@@ -11428,7 +11149,7 @@ GRM.SetCustomNote = function()
             end
         end
 
-        if GRM.Trim(GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText()) == "" then
+        if GRM.Util.Trim(GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText()) == "" then
             GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetText(GRM.L(
                 "Click here to set Custom Notes"));
             GRM_G.OriginalEditBoxValue = GRM.L("Click here to set Custom Notes");
@@ -11468,7 +11189,7 @@ GRM.SetJoinDateToCustomNote = function(playerName, noteToSet)
                 oldNote = tempNote;
             end
             newNote = newNote .. "\n" .. oldNote;
-            if GRM.GetNumLetters(newNote) <= GRM_G.MaxCustomNoteSize then
+            if GRM.Util.GetNumLetters(newNote) <= GRM_G.MaxCustomNoteSize then
                 goodToSet = true;
             end
         end
@@ -12585,7 +12306,7 @@ GRM.GetOperatorsFromText = function(text)
         end
     end
 
-    return GRM.Trim(text), operators;
+    return GRM.Util.Trim(text), operators;
 end
 
 -- Helper to avoid re-creation on every recursion
@@ -17869,8 +17590,8 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
     if not banList then
 
         if textSearch == "" and
-            GRM.Trim(GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText()) ~= "" then
-            textSearch = GRM.Trim(
+            GRM.Util.Trim(GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText()) ~= "" then
+            textSearch = GRM.Util.Trim(
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText());
         end
 
@@ -18089,7 +17810,7 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
                         inGuild = false;
                     end
 
-                    playerName = GRM.Trim(string.sub(playerName, 1, string.find(playerName, " ") - 1));
+                    playerName = GRM.Util.Trim(string.sub(playerName, 1, string.find(playerName, " ") - 1));
                     playerWhoBanned = GRM.GetPlayerWhoBanned(playerName, inGuild);
 
                     if inGuild then
@@ -18848,7 +18569,7 @@ GRM.RemoveDateFromNote = function(note)
             firstPartOfNote = firstPartOfNote .. " ";
         end
 
-        result = GRM.Trim(firstPartOfNote .. lastPartOfNote);
+        result = GRM.Util.Trim(firstPartOfNote .. lastPartOfNote);
     end
 
     return result, success; -- Cleanup the result;
@@ -18871,7 +18592,7 @@ GRM.ClearJoinTag = function(note)
         end
     end
 
-    return GRM.Trim(note);
+    return GRM.Util.Trim(note);
 end
 
 -- Method:          GRM.ParseDateFormat ( string , int , string )
@@ -19178,7 +18899,7 @@ end
 -- What it Does:    Returns which separtor being use, the parsed values of the date, and the note with the date parsed out
 -- Purpose:         Easier editing of the player notes on the fly, particularly for the advanced join date tool
 GRM.GetParsedNoteDateNumbers = function(note)
-    note = GRM.Trim(note);
+    note = GRM.Util.Trim(note);
     local separators = {" ", "-", "/", "."};
     local first, middle, last;
     local result;
@@ -19923,16 +19644,16 @@ GRM.EditSavedNoteDateManually = function(member)
                         tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
                         if success then
                             -- yes, it was modified
-                            finalNote = (GRM.Trim(finalNote .. tempNote));
-                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
+                            finalNote = (GRM.Util.Trim(finalNote .. tempNote));
+                            if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                                 player.officerNote = finalNote;
                                 GRM.SetNote ( player.GUID, player.officerNote, false, i );
                             else
-                                finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
+                                finalNote = (GRM.Util.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                         player.joinDateHist[1][2],
                                                                         player.joinDateHist[1][3]}, false, false,
                                     GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
-                                if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
+                                if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                                     player.officerNote = finalNote;
                                     GRM.SetNote ( player.GUID, player.officerNote, false, i );
                                 end
@@ -19944,16 +19665,16 @@ GRM.EditSavedNoteDateManually = function(member)
                         tempNote, success = GRM.RemoveDateFromNote(player.note);
                         if success then
                             -- yes, it was modified
-                            finalNote = (GRM.Trim(finalNote .. tempNote));
-                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
+                            finalNote = (GRM.Util.Trim(finalNote .. tempNote));
+                            if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                                 player.note = finalNote;
                                 GRM.SetNote ( player.GUID, player.note, true, i );
                             else
-                                finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
+                                finalNote = (GRM.Util.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                         player.joinDateHist[1][2],
                                                                         player.joinDateHist[1][3]}, false, false,
                                     GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
-                                if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
+                                if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                                     player.note = finalNote;
                                     GRM.SetNote ( player.GUID, player.note, true, i );
                                 end
@@ -19966,8 +19687,8 @@ GRM.EditSavedNoteDateManually = function(member)
                         -- yes, it was modified
                         player.customNote[2] = time();
                         player.customNote[3] = GRM_G.addonUser;
-                        finalNote = (GRM.Trim(finalNote .. tempNote));
-                        if GRM.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
+                        finalNote = (GRM.Util.Trim(finalNote .. tempNote));
+                        if GRM.Util.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
                             finalNote = string.sub(finalNote, 1, GRM_G.MaxCustomNoteSize); -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
                         end
                         player.customNote[4] = (finalNote);
@@ -19979,16 +19700,16 @@ GRM.EditSavedNoteDateManually = function(member)
                     tempNote, success = GRM.RemoveDateFromNote(player.officerNote);
                     if success then
                         -- yes, it was modified
-                        finalNote = (GRM.Trim(finalNote .. tempNote));
-                        if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
+                        finalNote = (GRM.Util.Trim(finalNote .. tempNote));
+                        if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                             player.officerNote = finalNote;
                             GRM.SetNote ( player.GUID, player.officerNote, false, i );
                         else
-                            finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
+                            finalNote = (GRM.Util.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                        player.joinDateHist[1][2],
                                                                        player.joinDateHist[1][3]}, false, false,
                                 GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
-                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
+                            if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                                 player.officerNote = finalNote;
                                 GRM.SetNote ( player.GUID, player.officerNote, false, i );
                             end
@@ -19999,16 +19720,16 @@ GRM.EditSavedNoteDateManually = function(member)
                     tempNote, success = GRM.RemoveDateFromNote(player.note);
                     if success then
                         -- yes, it was modified
-                        finalNote = (GRM.Trim(finalNote .. tempNote));
-                        if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
+                        finalNote = (GRM.Util.Trim(finalNote .. tempNote));
+                        if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then -- To avoid errors need to add protections against trying to add > 31 chars.
                             player.note = finalNote;
                             RM.SetNote ( player.GUID, player.note, true, i );
                         else
-                            finalNote = (GRM.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
+                            finalNote = (GRM.Util.Trim(GRM.Time.FormatTimeStamp({player.joinDateHist[1][1],
                                                                        player.joinDateHist[1][2],
                                                                        player.joinDateHist[1][3]}, false, false,
                                 GRM.S().globalDateFormat)) .. " " .. tempNote); -- Remove header, try adding again.
-                            if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
+                            if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                                 player.note = finalNote;
                                 RM.SetNote ( player.GUID, player.note, true, i );
                             end
@@ -20021,8 +19742,8 @@ GRM.EditSavedNoteDateManually = function(member)
                         -- yes, it was modified
                         player.customNote[2] = time();
                         player.customNote[3] = GRM_G.addonUser;
-                        finalNote = (GRM.Trim(finalNote .. tempNote));
-                        if GRM.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
+                        finalNote = (GRM.Util.Trim(finalNote .. tempNote));
+                        if GRM.Util.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
                             finalNote = string.sub(finalNote, 1, GRM_G.MaxCustomNoteSize); -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
                         end
                         player.customNote[4] = (finalNote);
@@ -20083,8 +19804,8 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                 success = select(2, GRM.RemoveDateFromNote(player.officerNote)); -- If it successfully removes something we know we can stop here and don't need to continue further as it is not necessary to continue
                 if not success then
                     -- Nope, not modified, which means good to import
-                    finalNote = GRM.Trim(finalNote .. " " .. player.officerNote);
-                    if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
+                    finalNote = GRM.Util.Trim(finalNote .. " " .. player.officerNote);
+                    if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                         if not getCount then
                             player.officerNote = finalNote;
                             GRM.SetNote ( player.GUID, player.officerNote, false, index );
@@ -20095,7 +19816,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                         finalNote = GRM.Time.FormatTimeStamp({player.joinDateHist[1][1], player.joinDateHist[1][2],
                                                          player.joinDateHist[1][3]}, false, false,
                             GRM.S().globalDateFormat) .. " " .. player.officerNote; -- Remove the header and try again
-                        if GRM.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
+                        if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxOfficerNoteSize then
                             if not getCount then
                                 player.officerNote = finalNote;
                                 GRM.SetNote ( player.GUID, player.officerNote, false, index );
@@ -20110,8 +19831,8 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                 success = select(2, GRM.RemoveDateFromNote(player.note)); -- If it successfully removes something we know we can stop here and don't need to continue further as it is not necessary to continue
                 if not success then
                     -- Nope, not modified, which means good to import
-                    finalNote = GRM.Trim(finalNote .. " " .. player.note);
-                    if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
+                    finalNote = GRM.Util.Trim(finalNote .. " " .. player.note);
+                    if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                         if not getCount then
                             player.note = finalNote;
                             GRM.SetNote ( player.GUID, player.note, true, index );
@@ -20122,7 +19843,7 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                         finalNote = GRM.Time.FormatTimeStamp({player.joinDateHist[1][1], player.joinDateHist[1][2],
                                                          player.joinDateHist[1][3]}, false, false,
                             GRM.S().globalDateFormat) .. " " .. player.officerNote; -- Remove the header and try again
-                        if GRM.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
+                        if GRM.Util.GetNumLetters(finalNote) <= GRM_G.MaxPublicNoteSize then
                             if not getCount then
                                 player.note = finalNote;
                                 GRM.SetNote ( player.GUID, player.note, true, index );
@@ -20144,8 +19865,8 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
                 if not getCount then
                     player.customNote[2] = time();
                     player.customNote[3] = GRM_G.addonUser;
-                    finalNote = (GRM.Trim(finalNote .. "\n" .. player.customNote[4]));
-                    if GRM.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
+                    finalNote = (GRM.Util.Trim(finalNote .. "\n" .. player.customNote[4]));
+                    if GRM.Util.GetNumLetters(finalNote) > GRM_G.MaxCustomNoteSize then
                         finalNote = string.sub(finalNote, 1, GRM_G.MaxCustomNoteSize); -- Cheating a little here by just cutting off the end. Likely no one will ever notice with 150 chars to spare
                     end
                     player.customNote[4] = (finalNote);
@@ -20209,7 +19930,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                             oNote = tempNote;
                         end
                         tempNote = noteDate .. " " .. oNote;
-                        if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
+                        if oNote == "" or GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
                             GRM.SetNote ( GUID, tempNote, false, i );
 
                             if GRM_G.currentName == name then
@@ -20229,7 +19950,7 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                             note = tempNote;
                         end
                         tempNote = noteDate .. " " .. note;
-                        if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
+                        if note == "" or GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                             GRM.SetNote ( GUID, tempNote, true, i );
 
                             if GRM_G.currentName == name then
@@ -20272,7 +19993,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
                     if tempNote == nil then
                         tempNote = "";
                     end
-                    player.officerNote = GRM.Trim(tempNote);
+                    player.officerNote = GRM.Util.Trim(tempNote);
                     GRM.SetNote ( player.GUID, player.officerNote, false, i );
                     success = false;
                 end
@@ -20284,7 +20005,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
                     if tempNote == nil then
                         tempNote = "";
                     end
-                    player.note = GRM.Trim(tempNote);
+                    player.note = GRM.Util.Trim(tempNote);
                     GRM.SetNote ( player.GUID, player.note, true, i );
                     success = false;
                 end
@@ -20298,7 +20019,7 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
                     if tempNote == nil then
                         tempNote = "";
                     end
-                    player.customNote[4] = GRM.Trim(tempNote);
+                    player.customNote[4] = GRM.Util.Trim(tempNote);
                     success = false;
                 end
             end
@@ -20889,11 +20610,11 @@ end
 -- Purpose:         Mainly for use in Classic
 GRM.TriggerPlayerNote = function(player, msg)
     local caseFreeTxt = string.lower(msg);
-    local startIndex = string.find(GRM.Trim(caseFreeTxt), GRM.L("!note"));
+    local startIndex = string.find(GRM.Util.Trim(caseFreeTxt), GRM.L("!note"));
     local isEnglish = false;
 
     if startIndex == nil then
-        string.find(GRM.Trim(caseFreeTxt), "!note"); -- Always working in case of other language
+        string.find(GRM.Util.Trim(caseFreeTxt), "!note"); -- Always working in case of other language
         isEnglish = true;
     end
 
@@ -20907,9 +20628,9 @@ GRM.TriggerPlayerNote = function(player, msg)
             local note = "";
 
             if not isEnglish then
-                note = GRM.Trim(string.sub(msg, select(2, string.find(string.lower(msg), GRM.L("!note"))) + 1));
+                note = GRM.Util.Trim(string.sub(msg, select(2, string.find(string.lower(msg), GRM.L("!note"))) + 1));
             else
-                note = GRM.Trim(string.sub(msg, select(2, string.find(string.lower(msg), "!note")) + 1));
+                note = GRM.Util.Trim(string.sub(msg, select(2, string.find(string.lower(msg), "!note")) + 1));
             end
 
             if #note > 0 then
@@ -20969,7 +20690,7 @@ end
 GRM.UpdateNoteFromChat = function( playerName , note)
     local maxNoteSize = 31;
 
-    if GRM.GetNumLetters(note) > maxNoteSize then
+    if GRM.Util.GetNumLetters(note) > maxNoteSize then
         C_Timer.After(0.1, function()
             GRM.Report(
                 GRM.L("The note is too long. Only the first {num} characters will be set.", nil, nil, maxNoteSize));
@@ -21978,11 +21699,11 @@ GRM.SlashCommandSearch = function(text)
             if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
 
             elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText(GRM.Trim(searchName));
-                GRM.RefreshAuditFrames(false, false, GRM.Trim(searchName));
+                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText(GRM.Util.Trim(searchName));
+                GRM.RefreshAuditFrames(false, false, GRM.Util.Trim(searchName));
             else
                 GRM_R.LoadRosterFrame();
-                GRM_UI.GRM_RosterFrame.GRM_PlayerSearchRosterEditBox:SetText(GRM.Trim(searchName));
+                GRM_UI.GRM_RosterFrame.GRM_PlayerSearchRosterEditBox:SetText(GRM.Util.Trim(searchName));
             end
         end
     else

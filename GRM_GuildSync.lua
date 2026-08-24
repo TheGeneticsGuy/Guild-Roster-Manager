@@ -2206,7 +2206,7 @@ end
 -- What it Does:    Coordinates birthdate removal when signalled from another player
 -- Purpose:         Keep birthdates aligned and live sync'd when removing as well
 GRMsync.CheckBirthdayRemoveChange = function ( msg , sender )
-    local result = GRM.GetWordArrayFromString ( msg , "?" );
+    local result = GRM.Util.GetWordArrayFromString ( msg , "?" );
     local name = result[1];
     local timeStamp = tonumber ( result[2] );
 
@@ -8499,7 +8499,6 @@ end
 for prefix in pairs(comms.altSyncUp) do 
     SyncDispatch[prefix] = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectAltAddData(msg, prefix2) end end
 end
-
 
 -- Method:          GRMsync.RegisterCommunicationProtocols()
 -- What it Does:    Establishes the channel communication rules for sending and receiving

@@ -1,7 +1,8 @@
 local NN = {}
 GRM.NN = NN;
 
-local nicknameLimit = 20;
+local NICKNAME_LIMIT = 20;
+local NICKNAME_MIN = 2;
 
 ------------------------------
 ----- Nicknames Feature ------
@@ -21,27 +22,42 @@ NN.CreateNickObject = function()
 end
 
 -- Method:          NN.GetNickname ( string )
--- What it Does:    Returns the nickname based on the global share settings and alt group status.
--- Purpose:         Centralized getter to handle the logic of individual vs shared nicknames.
-NN.GetNickname = function ( name )
-    local player = GRM.GetPlayer ( name );
+-- What it Does:    Returns the player nickname
+NN.GetNickname = function ( playerName )
+    local player = GRM.GetPlayer ( playerName );
+    local nickname = "";
     if player then
 
-        -- Check if sharing is enabled and player is in a group
-        if GRM.S().shareNickToAlts and player.altGroup ~= "" then
-            local group = GRM.GetAltGroup ( player.altGroup );
-            if group and group.nickNameInfo and group.nickNameInfo.nickname ~= "" then
-                return group.nickNameInfo.nickname;
-            end
+        if not player.nickInfo then
+            player.nickInfo = NN.CreateNickObject();
         end
 
-        -- Fallback to individual player nickname
-        if player.nickNameInfo and player.nickNameInfo.nickname ~= "" then
-            return player.nickNameInfo.nickname;
-        end
+        nickname = player.nickInfo.nickname;
     end
 
-    return "";
+    return nickname;
+end
+
+-- Method:          NN.SyncNickChangeToAltGroup(string, table)
+-- What it Does:    Persists the player's nickname to the whole altGroup
+NN.SyncNickChangeToAltGroup = function( playerName, player )
+    player = player or GRM.GetPlayer ( playerName );
+    if player then
+
+        local group = GRM.GetAltGroup ( player.altGroup );
+        if group and #group > 1 then
+
+            for i = 1 , #group do
+                if group[i].name ~= player.name then
+                    local altPlayer = GRM.GetPlayer(group[i].name);
+                    if altPlayer then
+                        altPlayer.nickInfo = GRM.Util.DeepCopyArray(player.nickInfo);
+                    end
+                end
+            end
+
+        end
+    end
 end
 
 -- Method:          NN.SetNickname ( string , string , bool,  string , int , table, bool  )
@@ -49,8 +65,7 @@ end
 -- Purpose:         To apply identity changes across the database.
 NN.SetNickname = function ( playerName , newNick , shareNickAmongAlts, setterName, epochStamp , timeStamp, isNonLiveSync )
 
-    if #newNick > nicknameLimit then
-        GRM.Report(GRM.L("Player Nicknames must be no longer than {num} letters in length", nil, nil, nicknameLimit ) );
+    if not NN.IsNicknameFormatValid(newNick) then
         return;
     end
 
@@ -62,30 +77,17 @@ NN.SetNickname = function ( playerName , newNick , shareNickAmongAlts, setterNam
         local editedDetails = { setterName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
         
         -- Backup
-        if not player.nickNameInfo then 
-            player.nickNameInfo = NN.CreateNickObject()
+        if not player.nickInfo then 
+            player.nickInfo = NN.CreateNickObject()
         end
         
-        -- Apply to group if checked, player is in a group, and bypass is not active
-        if shareNickAmongAlts and player.altGroup ~= "" then
-            local alts = GRM.GetAltGroup( player.altGroup )
-            if alts then
-                if #alts > 1 then
-                    addingAltGroupNN = true;
-                end
+        player.nickInfo.nickname = newNick
+        player.nickInfo.editedDetails = editedDetails;
+        player.nickInfo.shareNickAmongAlts = shareNickAmongAlts;
 
-                if not alts.nickNameInfo then
-                    alts.nickNameInfo = NN.CreateNickObject();
-                end
-                
-                alts.nickNameInfo.nickname = newNick;
-                alts.nickNameInfo.editedDetails = editedDetails;
-                alts.nickNameInfo.shareNickAmongAlts = shareNickAmongAlts;
-            end
-        else
-            player.nickNameInfo.nickname = newNick
-            player.nickNameInfo.editedDetails = editedDetails;
-            player.nickNameInfo.shareNickAmongAlts = shareNickAmongAlts;
+        -- Spread the nicknames
+        if shareNickAmongAlts then
+            NN.SyncNickChangeToAltGroup(player.name , player);
         end
 
         if not isNonLiveSync then
@@ -117,107 +119,87 @@ end
 -- Method:          NN.RemoveNickname ( string , string , array, int , bool )
 -- What it Does:    Clears the nickname from the player and/or the alt group based on settings.
 -- Purpose:         To provide a clean way to purge nicknames while maintaining history/sync integrity.
-NN.RemoveNickname = function ( playerName , removerName , timestamp, epochStamp , isNonLiveSync )
+NN.RemoveNickname = function ( playerName , removerName , removeNickFromAlts , timestamp, epochStamp , isNonLiveSync )
     local player = GRM.GetPlayer ( playerName );
-    
     if player then
-        removerName = removerName or GRM_G.addonUser;
-        timestamp = timestamp or GRM.Time.GetTimestamp(); -- { day, month, year }
+        local addingAltGroupNN = false;
         epochStamp = epochStamp or time();
-        local nickname = player.nickNameInfo.nickname;
-        local removingAltGroupNN = false;
-       
-        player.nickNameInfo.nickname = "";
-        player.nickNameInfo.editedDetails = { removerName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
+        timestamp = timeStamp or GRM.Time.GetTimestamp(); -- { day, month, year }
+        local editedDetails = { removerName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
+        
+        -- Backup
+        if not player.nickInfo then 
+            player.nickInfo = NN.CreateNickObject()
+        end
+        local isShared = player.nickInfo.shareNickAmongAlts;
+        
+        player.nickInfo.nickname = ""
+        player.nickInfo.editedDetails = editedDetails;
+        player.nickInfo.shareNickAmongAlts = removeNickFromAlts;
 
-        -- Clear Group Nickname record (If sharing is enabled and not bypassed)
-        if GRM.S().shareNickToAlts and player.altGroup ~= "" and not player.nickNameInfo.bypassAltGroup[1] then
-            local alts = GRM.GetAltGroup ( player.altGroup );
-            if alts then
-                if #alts > 1 then
-                    removingAltGroupNN = true
-                end
-                alts.nickNameInfo.nickname = "";
-                alts.nickNameInfo.editedDetails = GRM.Util.DeepCopyArray ( player.nickNameInfo.editedDetails );
-
-                for i = 1 , #alts do
-                    if alts[i].name ~= player.name then
-                        local altPlayer = GRM.GetPlayer(alts[i].name);
-                        if altPlayer and not altPlayer.nickNameInfo.bypassAltGroup[1] then
-                            altPlayer.nickNameInfo.nickname = "";
-                            altPlayer.nickNameInfo.editedDetails = GRM.Util.DeepCopyArray(player.nickNameInfo.editedDetails);
-                        end
-                    end
-                end
-            else
-                player.altGroup = "";
-            end
+        -- Spread the nicknames
+        if removeNickFromAlts then
+            NN.SyncNickChangeToAltGroup(player.name , player);
         end
 
-        if not isSync and GRM.S().syncEnabled then
-            -- Sync the nickname change to others
-            local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
-            GRMsync.SendMessage ( "GRM_NICK_RM" , playerName .. "?" .. removerName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
-
-            local classColor = GRM.GetStringClassColorByName ( playerName );
-            local coloredPlayer = classColor .. playerName .. "|r";
-            local coloredNick = classColor .. nickname .. "|r";
-            local setter = GRM.GetClassifiedName ( removerName, false );
-
-            -- Report to Chat
-            if removingAltGroupNN then
-                GRM.Report ( GRM.L ( "{name} has removed the shared nickname for {name2} and all alts ({custom1})" , setter , coloredPlayer , nil , coloredNick ) );
-            else
-                GRM.Report ( GRM.L ( "{name} has removed {name2}'s nickname ({custom1})" , setter , coloredPlayer , nil , coloredNick) );
+        if not isNonLiveSync then
+            
+            -- Sync the data
+            if GRM.S().syncEnabled then
+                local isRemove = "1"; -- Represents true bit
+                local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
+                GRMsync.SendMessage ( "GRM_NN" , playerName .. "?" .. newNick .. "?" .. removerName .. "?" .. isRemove .. "?"
+                                    .. GRMsync.SetBit(removeNickFromAlts) .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
             end
 
-            -- Refresh frames
+            -- Add to Chat
+            local coloredPlayer = GRM.GetClassifiedName(player.name);
+            local coloredRemover = GRM.GetClassifiedName(removerName);
+
+            -- Report to Chat
+            if isShared and GRM.PlayerHasAlts(player) then
+                GRM.Report ( GRM.L ( "{name} has removed a shared nickname from {name2} and all their alts." , coloredRemover, coloredPlayer ) );
+            else
+                GRM.Report ( GRM.L ( "{name} has removed {name2}'s nickname." , coloredRemover, coloredPlayer) );
+            end
+
             GRM_UI.RefreshSelectFrames ( true , true , false , false , true , false , true );
         end
     end
 end
 
 -- Method:          NN.IsNicknameFormatValid ( string )
--- What it Does:    Validates the nickname for length (UTF-8 aware) and ensures no forbidden special characters that might mess up regex parsing.
--- Purpose:         To prevent UI injection (via pipe character) and ensure compatibility across all localized clients.
+-- What it Does:    Validates the nickname format properly.
 NN.IsNicknameFormatValid = function ( nickname )
     if not nickname or nickname == "" then
         return false; 
     end
-    -- Using GRM.UTF8Len ensures that a Chinese character or a Russian letter counts as 1, 
-    -- even though they take up 2-3 bytes.
-    local length = GRM.UTF8Len ( nickname );
+    -- GRM.Util.UTF8Len because certain chars, like Chinese/Russian can take up to 2 or 3 bytes.
+    local length = GRM.Util.UTF8Len ( nickname );
+
+    if #length > NICKNAME_LIMIT then
+        GRM.Report(GRM.L("Player Nicknames must be no longer than {num} letters in length", nil, nil, NICKNAME_LIMIT ) );
+        return;
+    end
+
+    if #length < NICKNAME_MIN then
+        GRM.Report(GRM.L("Player Nicknames must be at least {num} characters in length", nil, nil, NICKNAME_MIN ) );
+        return;
+    end
     
-    if length > 20 then
-        GRM.Report ( GRM.L ( "Nickname is too long. Max {num} letters.", nil, nil , nicknameLimit ) );
-        return false;
-    end
-
-    -- FORBIDDEN CHARACTER CHECK (The "Pipe" |)
-    -- In WOW, the pipe character is used for escape sequences (colors, textures, links) Should be avoided.
-    -- Allowing in nicknames could break UI - This gets it's own special check
+    -- FORBIDDEN CHARACTER CHECK
     if string.find ( nickname , "|" ) then
-        GRM.Report ( GRM.L ( "Invalid Character: \"|\" is not allowed." ) );
+        GRM.Report ( GRM.L ( "Invalid Character: \"|\" is not allowed when making a nickname." ) );
         return false;
     end
 
-    -- Due to the improbability of writing unique localization conditions for all languages, I am just blocking very specific symbols that
+    -- Due to the near impossibility of writing unique conditions for all languages, I am just blocking very specific symbols that
     -- can cause issues when trying to report, due to their special use status.
     local forbiddenSymbols = { "@", "#", "$", "%", "^", "&", "*", "(", ")", "+", "=", "{", "}", "[", "]", "<", ">", "/", "\\", "?", "~" };
     
     for i = 1 , #forbiddenSymbols do
         if string.find ( nickname , forbiddenSymbols[i] , 1 , true ) then
             GRM.Report ( GRM.L ( "Nicknames cannot contain special symbols like \'{name}\'" , forbiddenSymbols[i] ) );
-            return false;
-        end
-    end
-
-    -- CONTROL CHARACTERS
-    -- This prevents non-printable characters or "Alt-code" junk that messes up alignment.
-    for i = 1 , #nickname do
-        local c = string.byte ( nickname , i );
-        if ( c < 32 and c ~= 10 and c ~= 13 ) or c == 127 then -- EX 127 == DEL
-            GRM.Report ( GRM.L ( "Nickname contains invalid hidden characters." ) );
             return false;
         end
     end
@@ -264,3 +246,5 @@ end
 -- GRM_REQNNFIN    -- ResendMissingAgain -- GRMsync.CollectMissingMsgRequest(msg, prefix2)
 
 -- NOTES - Fixed a sync bug where alt data could bypass the sync restrictions entirely if someone made changes.
+
+-- Need to purge all altGroup.nicknameDetails from all alt groups  

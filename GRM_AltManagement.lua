@@ -301,15 +301,6 @@ GRM.CreateAltGroup = function ( playerName , setAsMain , timestamp )
             group.birthdayInfo.unknown = player.birthdayInfo.unknown;
         end
 
-        -- Nickname details:
-        group.nicknameDetails = GRM.NN.CreateNickObject();
-    
-        -- If the player already had an individual nickname, import it to the group
-        if player.nicknameDetails and player.nicknameDetails.nickname ~= "" and not player.nicknameDetails.bypassAltGroup then
-            group.nicknameDetails.nickname = player.nicknameDetails.nickname;
-            group.nicknameDetails.nickEnabled = player.nicknameDetails.nickEnabled;
-            group.nicknameDetails.editedDetails = player.nicknameDetails.editedDetails;
-        end
     end
     
 end
@@ -673,23 +664,6 @@ GRM.AddPlayerToAltGroup = function ( player , groupID , timestamp , setAsMain , 
                     player.birthdayInfo.announced = group.birthdayInfo.announced;
                     player.birthdayInfo.timeUpdated = group.birthdayInfo.timeUpdated;
                     player.birthdayInfo.unknown = group.birthdayInfo.unknown;
-                end
-
-                -- Merge the alt name with the group or with the player - group priority first
-                if not player.nicknameDetails.bypassAltGroup then
-                    if group.nicknameDetails.nickname == "" and player.nicknameDetails.nickname ~= "" then
-                        -- Group has no nick, but player does. Import it.
-                        group.nicknameDetails.nickname = player.nicknameDetails.nickname;
-                        group.nicknameDetails.nickEnabled = player.nicknameDetails.nickEnabled;
-                        group.nicknameDetails.editedDetails = player.nicknameDetails.editedDetails;
-
-                    elseif group.nicknameDetails.nickname ~= "" then
-                        -- Group has a nick, overwrite the player's individual one to match the group
-                        player.nicknameDetails.nickname = group.nicknameDetails.nickname;
-                        player.nicknameDetails.nickEnabled = group.nicknameDetails.nickEnabled;
-                        player.nicknameDetails.editedDetails = group.nicknameDetails.editedDetails;
-                        -- remember, bypassAltGroup remains unique to each player
-                    end
                 end
 
                 timestamp = timestamp or time();
@@ -1677,7 +1651,7 @@ GRM.KickAllAlts = function ( playerName , alts , banReason , epochTimeStamp )
                             if GRM_UI.GRM_MemberDetailPopupEditBox:IsVisible() then
                                 result = GRM_UI.GRM_MemberDetailPopupEditBox:GetText();
                             elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:IsVisible() then
-                                result = GRM.Trim ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:GetText() );
+                                result = GRM.Util.Trim ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:GetText() );
                             end
                         end
 

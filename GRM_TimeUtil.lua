@@ -548,7 +548,7 @@ Time.GetTimePassedUsingTableOrString = function(timestamp)
     if result[1] == 0 and result[2] == 0 and result[3] == 0 then
         result[4] = GRM.L("< 1 day");
     else
-        result[4] = GRM.Trim(result[4]);
+        result[4] = GRM.Util.Trim(result[4]);
     end
     return result;
 end
@@ -753,7 +753,7 @@ Time.ComplexHoursReport = function(hours)
 
         if months >= 1 then
             if years > 0 then
-                result = GRM.Trim(result) .. ", ";
+                result = GRM.Util.Trim(result) .. ", ";
             end
             if months > 1 then
                 result = result .. "" .. GRM.L("{num} mos", nil, nil, months) .. " ";
@@ -764,7 +764,7 @@ Time.ComplexHoursReport = function(hours)
 
         if days >= 1 then
             if months > 0 or ( years > 0 and not (months > 0) ) then
-                result = GRM.Trim(result) .. ", ";
+                result = GRM.Util.Trim(result) .. ", ";
             end
             if days > 1 then
                 result = result .. "" .. GRM.L("{num} days", nil, nil, days) .. " ";
@@ -775,7 +775,7 @@ Time.ComplexHoursReport = function(hours)
 
         if hrs >= 1 and years < 1 and months < 1 then -- No need to give exact hours on anything over than a month, just the day is good enough.
             if days > 0 then
-                result = GRM.Trim(result) .. ", ";
+                result = GRM.Util.Trim(result) .. ", ";
             end
             if hrs > 1 then
                 result = result .. "" .. GRM.L("{num} hrs", nil, nil, hrs) .. " ";
@@ -788,7 +788,7 @@ Time.ComplexHoursReport = function(hours)
     if result == "" or result == nil then
         result = GRM.L("< 1 hour");
     end
-    return GRM.Trim(result);
+    return GRM.Util.Trim(result);
 end
 
 -- Method:          Time.HoursReport( table )
@@ -813,7 +813,7 @@ Time.HoursReport = function( lastOnlineTime )
 
     if lastOnlineTime[2] >= 1 then
         if lastOnlineTime[1] > 0 then
-            result = GRM.Trim(result) .. ", ";
+            result = GRM.Util.Trim(result) .. ", ";
         end
         if lastOnlineTime[2] > 1 then
             result = result .. "" .. GRM.L("{num} mos", nil, nil, lastOnlineTime[2]) .. " ";
@@ -824,7 +824,7 @@ Time.HoursReport = function( lastOnlineTime )
 
     if lastOnlineTime[3] >= 1 then
         if lastOnlineTime[2] > 0 or ( lastOnlineTime[1] > 0 and not ( lastOnlineTime[2] > 0 ) ) then
-            result = GRM.Trim(result) .. ", ";
+            result = GRM.Util.Trim(result) .. ", ";
         end
         if lastOnlineTime[3] > 1 then
             result = result .. "" .. GRM.L("{num} days", nil, nil, lastOnlineTime[3]) .. " ";
@@ -835,7 +835,7 @@ Time.HoursReport = function( lastOnlineTime )
 
     if lastOnlineTime[4] >= 1 and lastOnlineTime[1] < 1 and lastOnlineTime[2] < 1 then -- No need to give exact hours on anything over than a month, just the day is good enough.
         if lastOnlineTime[3] > 0 then
-            result = GRM.Trim(result) .. ", ";
+            result = GRM.Util.Trim(result) .. ", ";
         end
         if lastOnlineTime[4] > 1 then
             result = result .. "" .. GRM.L("{num} hrs", nil, nil, lastOnlineTime[4]) .. " ";

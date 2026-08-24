@@ -1968,7 +1968,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 if not GRM_G.BuildHasRestrictions then
                     if GRM.CanEditPublicNote() then
                         local newNote = string.gsub ( noteToCheck:gsub ( "%[" .. GRM.L ( "D" ) .. "%]%-%d%d%d%d%d%d%d%d" , "" ) , "%[" .. GRM.L ( "D" ) .. "%]" , "" );
-                        newNote = GRM.Trim ( newNote );
+                        newNote = GRM.Util.Trim ( newNote );
 
                         if newNote ~= noteToCheck then
                             local i = GRM.GetRosterSelectionID ( player.name , player.GUID );
@@ -1996,7 +1996,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                     end
                 else
                     local newNote = string.gsub ( noteToCheck:gsub ( "%[" .. GRM.L ( "D" ) .. "%]%-%d%d%d%d%d%d%d%d" , "" ) , "%[" .. GRM.L ( "D" ) .. "%]" , "" );
-                    newNote = GRM.Trim ( newNote );
+                    newNote = GRM.Util.Trim ( newNote );
 
                     if newNote ~= noteToCheck then
                         
@@ -3997,7 +3997,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     GRM_UI.CustomNoteEditBoxOnFocusLost = function( isForced )
         -- Check if group invite button is necessary to come back.
         local player = GRM.GetPlayer ( GRM_G.currentName );
-        if isForced or ( not ( GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsVisible() and GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsMouseOver() and IsMouseButtonDown ( 1 ) ) or ( GRM.Trim ( GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText() ) == player.customNote[4] ) ) then
+        if isForced or ( not ( GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsVisible() and GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsMouseOver() and IsMouseButtonDown ( 1 ) ) or ( GRM.Util.Trim ( GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText() ) == player.customNote[4] ) ) then
 
             GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_CancelCustomNoteButton:Hide();
@@ -12973,7 +12973,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetScript ( "OnEditFocusLost" , function ( self )
         self:HighlightText ( 0 , 0 );
-        self:SetText ( GRM.Trim ( self:GetText() ) );
+        self:SetText ( GRM.Util.Trim ( self:GetText() ) );
 
         if self:GetText() == "" then
             GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
@@ -13749,7 +13749,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanConfirmButtonText:SetSpacing ( 1 );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetScript ( "OnEnterPressed" , function( self )
-        if self:GetText() == "" or not GRM.IsValidName( self:GetText() ) then
+        if self:GetText() == "" or not GRM.Util.IsValidName( self:GetText() ) then
             GRM.Report ( GRM.L ( "Please Enter a Valid Player Name" ) );
             return
         end
@@ -13758,7 +13758,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetScript ( "OnEscapePressed" , function( self )
-        if self:GetText() == "" or not GRM.IsValidName( self:GetText() ) then
+        if self:GetText() == "" or not GRM.Util.IsValidName( self:GetText() ) then
             GRM.Report ( GRM.L ( "Please Enter a Valid Player Name" ) );
         end
         self.EscapeControl = true;
@@ -13769,7 +13769,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetScript ( "OnTabPressed" , function( self )
-        if self:GetText() == "" or not GRM.IsValidName( self:GetText() ) then
+        if self:GetText() == "" or not GRM.Util.IsValidName( self:GetText() ) then
             GRM.Report ( GRM.L ( "Please Enter a Valid Player Name" ) );
             return
         end
@@ -13871,7 +13871,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:SetScript ( "OnEditFocusLost" , function ( self )
         self:HighlightText ( 0 , 0 );
-        self:SetText ( GRM.Trim ( self:GetText() ) );
+        self:SetText ( GRM.Util.Trim ( self:GetText() ) );
 
         if self:GetText() == "" then
             GRM.RefreshBanListFrames();
@@ -13906,13 +13906,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.CheckForBanPlayerAutoSelect = function( playerNameBoxExit , isServerSelection )
 
         local text = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText();
-        local name = GRM.FormatInputName ( GRM.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) );
+        local name = GRM.Util.FormatInputName ( GRM.Util.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) );
 
         if text ~= name then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox.EscapeControl = true;
         end
 
-        if #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() > 0 and GRM.IsValidName( name ) then
+        if #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() > 0 and GRM.Util.IsValidName( name ) then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( name );
             if isServerSelection then
                 name = name .. "-" .. GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText();
@@ -13988,7 +13988,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             elseif not isFound then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetFocus();
             end
-        elseif not ( #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() > 0 and GRM.IsValidName( name ) ) then
+        elseif not ( #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() > 0 and GRM.Util.IsValidName( name ) ) then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetFocus();
         end
     end
@@ -14038,7 +14038,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         local text = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText();
         if text ~= "" then
 
-            local text2 = GRM.Trim ( GRM.NormalizeRealmName( GRM.Title( text ) ) );
+            local text2 = GRM.Util.Trim ( GRM.Util.NormalizeRealmName( GRM.Util.Title( text ) ) );
             if text2 ~= text then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox.EscapeControl = true;
             end
@@ -14382,7 +14382,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             local server = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText();
             local needsToReEnter = false;
 
-            if #name <= 1 or not GRM.IsValidName( name ) then
+            if #name <= 1 or not GRM.Util.IsValidName( name ) then
                 GRM.Report ( GRM.L ( "Please Enter a Valid Player Name" ) );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetFocus();
                 needsToReEnter = true;
@@ -14393,7 +14393,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             end
 
             if not needsToReEnter then
-                local name = ( GRM.FormatInputName ( GRM.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) ) .. "-" .. GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() );
+                local name = ( GRM.Util.FormatInputName ( GRM.Util.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) ) .. "-" .. GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() );
 
                 -- Check if there are alts.
                 local isFound = false;
@@ -14523,8 +14523,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             -- This is where the actual logic for doling out the ban takes place!!!
 
             -- Required info to add the player...
-            local fullName = GRM.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) .. "-" .. string.gsub ( string.gsub ( GRM.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() ) , "-" , "" ) , "%s+" , "" );
-            local banReason = GRM.Trim ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:GetText() );
+            local fullName = GRM.Util.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) .. "-" .. string.gsub ( string.gsub ( GRM.Util.Trim( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() ) , "-" , "" ) , "%s+" , "" );
+            local banReason = GRM.Util.Trim ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:GetText() );
             if banReason == GRM.L ( "Reason Banned?" ) or banReason == nil then
                 banReason = "";
             end

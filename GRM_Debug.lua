@@ -14,7 +14,7 @@ Debug.DebugConfig = function(command)
         GRM.Report(GRM.L("GRM Debugging Disabled."));
     else
         if GRM_G.DebugEnabled then
-            local number = GRM.Trim(string.sub(command, string.find(command, " ") + 1));
+            local number = GRM.Util.Trim(string.sub(command, string.find(command, " ") + 1));
             if string.find(command, " ") ~= nil and tonumber(number) ~= nil then
                 Debug.DebugLog(tonumber(number));
             else

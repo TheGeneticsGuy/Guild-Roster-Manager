@@ -64,7 +64,7 @@ MinimapGRM.MinimapOnEnter = function ( tooltip )
 
         local MOTD = GRM.G_Util.GetGuildMOTD();
         if MOTD ~= "" and MOTD ~= nil then
-            MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
+            MOTD = GRM_UI.WrapText ( GRM.Util.Trim ( MOTD ) , 65 );
             tooltip:AddLine ( " " );
             tooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
             tooltip:AddLine ( MOTD );
@@ -287,7 +287,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
 
             local MOTD = GRM.G_Util.GetGuildMOTD();
             if MOTD ~= "" and MOTD ~= nil then
-                MOTD = GRM_UI.WrapText ( GRM.Trim ( MOTD ) , 65 );
+                MOTD = GRM_UI.WrapText ( GRM.Util.Trim ( MOTD ) , 65 );
                 GameTooltip:AddLine ( " " );
                 GameTooltip:AddLine ( "|CFFFF0000" .. GRM.L ( "MOTD:" ) );
                 GameTooltip:AddLine ( MOTD );

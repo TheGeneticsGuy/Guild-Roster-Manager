@@ -3461,7 +3461,7 @@ GRM_Patch.FixBanListNameGrammar = function()
             for j = 2 , #GRM_PlayersThatLeftHistory_Save[i] do                  -- The guilds in each faction
                 for r = 2 , #GRM_PlayersThatLeftHistory_Save[i][j] do           -- The players in each guild (starts at 2 as position 1 is the name of the guild).
                     local server = string.sub ( GRM_PlayersThatLeftHistory_Save[i][j][r][1] , string.find ( GRM_PlayersThatLeftHistory_Save[i][j][r][1] , "-" ) + 1 );
-                    GRM_PlayersThatLeftHistory_Save[i][j][r][1] = GRM.FormatInputName ( GRM.SlimName ( GRM_PlayersThatLeftHistory_Save[i][j][r][1] ) ) .. "-" .. server;
+                    GRM_PlayersThatLeftHistory_Save[i][j][r][1] = GRM.Util.FormatInputName ( GRM.SlimName ( GRM_PlayersThatLeftHistory_Save[i][j][r][1] ) ) .. "-" .. server;
                 end
             end
         end
@@ -3826,10 +3826,10 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
                             -- Remove it from note now!
                             if j == 1 then
                                 msg = string.gsub ( msg , sign .. "grm1" , "" );
-                                GRM.SetNote ( guid, GRM.Trim( msg ), true, i );
+                                GRM.SetNote ( guid, GRM.Util.Trim( msg ), true, i );
                             else
                                 msg = string.gsub ( msg , sign .. "grm1" , "" );
-                                GRM.SetNote ( guid, GRM.Trim( msg ), false, i );
+                                GRM.SetNote ( guid, GRM.Util.Trim( msg ), false, i );
                             end
                         end;
                     end
@@ -3849,10 +3849,10 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
                             -- Remove it from note now!
                             if j == 1 then
                                 msg = string.gsub ( msg , "g2^" .. sign , "" );
-                                GRM.SetNote ( guid, GRM.Trim( msg ), true, i );
+                                GRM.SetNote ( guid, GRM.Util.Trim( msg ), true, i );
                             else
                                 msg = string.gsub ( msg , "g2^" .. sign , "" );
-                                GRM.SetNote ( guid, GRM.Trim( msg ), false, i );
+                                GRM.SetNote ( guid, GRM.Util.Trim( msg ), false, i );
                             end
                         end;
                     end

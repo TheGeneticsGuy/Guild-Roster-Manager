@@ -1927,7 +1927,7 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
                             oNote = tempNote;
                         end
                         tempNote = finalTStamp .. " " .. oNote;
-                        if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
+                        if oNote == "" or GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
                             GRM.SetNote ( member.GUID, tempNote, false, rosterSelection );
                             officerNoteIsSet = true
                             if liveJoinDetected then
@@ -1942,7 +1942,7 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
                             note = tempNote;
                         end
                         tempNote = finalTStamp .. " " .. note;
-                        if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
+                        if note == "" or GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                             GRM.SetNote ( member.GUID, tempNote, true, rosterSelection );
                             noteIsSet = true;
                             if liveJoinDetected then
@@ -2354,7 +2354,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                     end
                                     tempNote = noteDate .. " " .. oNote;
 
-                                    if oNote == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
+                                    if oNote == "" or GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxOfficerNoteSize then
 
                                         officerNoteIsSet = true;
                                         GRM.SetNote ( member.GUID, tempNote, false, rosterSelection );
@@ -2378,7 +2378,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                         note = tempNote;
                                     end
                                     tempNote = noteDate .. " " .. note;
-                                    if note == "" or GRM.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
+                                    if note == "" or GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxPublicNoteSize then
                                         noteIsSet = true;
                                         GRM.SetNote ( member.GUID, tempNote, true, rosterSelection );
 

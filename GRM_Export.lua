@@ -665,7 +665,7 @@ Export.BuildExportDelimiterDropdownMenu = function()
             if button == "LeftButton" then
                 local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
 
-                GRM.S().exportDelimiter[2] = GRM.Trim(string.gsub(
+                GRM.S().exportDelimiter[2] = GRM.Util.Trim(string.gsub(
                     GRM_UI.GRM_ExportLogBorderFrame.GRM_DelimiterDropdownMenu.Buttons[parsedNumber][2]:GetText(),
                     "|cffffd600\"|r", ""));
 

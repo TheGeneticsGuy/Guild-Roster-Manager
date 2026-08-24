@@ -944,9 +944,9 @@ GRM_R.SortNote = function ( _ , keepType , reSizeButtons )
     local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 11 then
-        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) < string.lower ( GRM.Trim ( b.note ) ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.note ) ) < string.lower ( GRM.Util.Trim ( b.note ) ) end );
     else
-        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) > string.lower ( GRM.Trim ( b.note ) ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.note ) ) > string.lower ( GRM.Util.Trim ( b.note ) ) end );
     end
 
     if GRM.S().groupByMain then
@@ -954,9 +954,9 @@ GRM_R.SortNote = function ( _ , keepType , reSizeButtons )
         while i <= #members do
             if members[i].alts and #members[i].alts > 0 then
                 if GRM_UI.GRM_RosterFrame.SortType == 11 then
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) < string.lower ( GRM.Trim ( b.note ) ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.note ) ) < string.lower ( GRM.Util.Trim ( b.note ) ) end );
                 else
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.note ) ) > string.lower ( GRM.Trim ( b.note ) ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.note ) ) > string.lower ( GRM.Util.Trim ( b.note ) ) end );
                 end
                 -- Now, need need to insert into main entries table by merging
 
@@ -1003,9 +1003,9 @@ GRM_R.SortOfficerNote = function ( _ , keepType , reSizeButtons )
     local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 13 then
-        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) < string.lower ( GRM.Trim ( b.officerNote ) ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.officerNote ) ) < string.lower ( GRM.Util.Trim ( b.officerNote ) ) end );
     else
-        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) > string.lower ( GRM.Trim ( b.officerNote ) ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.officerNote ) ) > string.lower ( GRM.Util.Trim ( b.officerNote ) ) end );
     end
 
     if GRM.S().groupByMain then
@@ -1013,9 +1013,9 @@ GRM_R.SortOfficerNote = function ( _ , keepType , reSizeButtons )
         while i <= #members do
             if members[i].alts and #members[i].alts > 0 then
                 if GRM_UI.GRM_RosterFrame.SortType == 13 then
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) < string.lower ( GRM.Trim ( b.officerNote ) ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.officerNote ) ) < string.lower ( GRM.Util.Trim ( b.officerNote ) ) end );
                 else
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.officerNote ) ) > string.lower ( GRM.Trim ( b.officerNote ) ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.officerNote ) ) > string.lower ( GRM.Util.Trim ( b.officerNote ) ) end );
                 end
                 -- Now, need need to insert into main entries table by merging
 
@@ -1062,9 +1062,9 @@ GRM_R.SortCustomNote = function ( _ , keepType , reSizeButtons )
     local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 15 then
-        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) < string.lower ( GRM.Trim ( b.customNote ) ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.customNote ) ) < string.lower ( GRM.Util.Trim ( b.customNote ) ) end );
     else
-        sort ( members , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) > string.lower ( GRM.Trim ( b.customNote ) ) end );
+        sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.customNote ) ) > string.lower ( GRM.Util.Trim ( b.customNote ) ) end );
     end
 
     if GRM.S().groupByMain then
@@ -1072,9 +1072,9 @@ GRM_R.SortCustomNote = function ( _ , keepType , reSizeButtons )
         while i <= #members do
             if members[i].alts and #members[i].alts > 0 then
                 if GRM_UI.GRM_RosterFrame.SortType == 15 then
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) < string.lower ( GRM.Trim ( b.customNote ) ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.customNote ) ) < string.lower ( GRM.Util.Trim ( b.customNote ) ) end );
                 else
-                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Trim ( a.customNote ) ) > string.lower ( GRM.Trim ( b.customNote ) ) end );
+                    sort ( members[i].alts , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.customNote ) ) > string.lower ( GRM.Util.Trim ( b.customNote ) ) end );
                 end
                 -- Now, need need to insert into main entries table by merging
 
@@ -1348,9 +1348,9 @@ GRM_R.SortByNoteWithinRank = function ( members , sortType )
         -- rank group has changed, or we are on the final rank
         if members[i].rankIndex ~= currentRank or i == #members then
             if sortType == 11 then
-                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.note ) ) < string.lower ( GRM.Trim( b.note ) ) end );
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Util.Trim( a.note ) ) < string.lower ( GRM.Util.Trim( b.note ) ) end );
             elseif sortType == 12 then
-                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.note ) ) > string.lower ( GRM.Trim( b.note ) ) end );
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Util.Trim( a.note ) ) > string.lower ( GRM.Util.Trim( b.note ) ) end );
             end
             for j = 1 , #rankGrouping do
                 table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
@@ -1382,9 +1382,9 @@ GRM_R.SortByOfficerNoteWithinRank = function ( members , sortType )
         -- rank group has changed, or we are on the final rank
         if members[i].rankIndex ~= currentRank or i == #members then
             if sortType == 13 then
-                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.officerNote ) ) < string.lower ( GRM.Trim( b.officerNote ) ) end );
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Util.Trim( a.officerNote ) ) < string.lower ( GRM.Util.Trim( b.officerNote ) ) end );
             elseif sortType == 14 then
-                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.officerNote ) ) > string.lower ( GRM.Trim( b.officerNote ) ) end );
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Util.Trim( a.officerNote ) ) > string.lower ( GRM.Util.Trim( b.officerNote ) ) end );
             end
             for j = 1 , #rankGrouping do
                 table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );
@@ -1416,9 +1416,9 @@ GRM_R.SortByCustomNoteWithinRank = function ( members , sortType )
         -- rank group has changed, or we are on the final rank
         if members[i].rankIndex ~= currentRank or i == #members then
             if sortType == 15 then
-                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.customNote ) ) < string.lower ( GRM.Trim( b.customNote ) ) end );
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Util.Trim( a.customNote ) ) < string.lower ( GRM.Util.Trim( b.customNote ) ) end );
             elseif sortType == 16 then
-                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Trim( a.customNote ) ) > string.lower ( GRM.Trim( b.customNote ) ) end );
+                sort ( rankGrouping , function ( a , b ) return string.lower ( GRM.Util.Trim( a.customNote ) ) > string.lower ( GRM.Util.Trim( b.customNote ) ) end );
             end
             for j = 1 , #rankGrouping do
                 table.insert ( result , GRM.Util.DeepCopyArray ( rankGrouping[j] ) );

@@ -111,7 +111,7 @@ Prof.RemoveProfessionNote = function ( player , ind , canEditPublicNote , canEdi
                 if canEditPublicNote or player.name == GRM_G.addonUser then
                     for i = 1 , #patterns do
                         if string.match ( player.note , patterns[i] ) then
-                            updatedNote = GRM.Trim(string.gsub ( player.note , patterns[i] , "" ));
+                            updatedNote = GRM.Util.Trim(string.gsub ( player.note , patterns[i] , "" ));
                             player.note = updatedNote;
                             GRM.SetNote ( player.GUID, updatedNote, true, ind );
                             count = count + 1;
@@ -123,7 +123,7 @@ Prof.RemoveProfessionNote = function ( player , ind , canEditPublicNote , canEdi
                 if canEditOfficerNote then
                     for i = 1 , #patterns do
                         if string.match ( player.officerNote , patterns[i] ) then
-                            updatedNote = GRM.Trim(string.gsub ( player.officerNote , patterns[i] , "" ));
+                            updatedNote = GRM.Util.Trim(string.gsub ( player.officerNote , patterns[i] , "" ));
                             player.officerNote = updatedNote;
                             GRM.SetNote ( player.GUID, updatedNote, false, ind );
                             count = count + 1;
@@ -135,7 +135,7 @@ Prof.RemoveProfessionNote = function ( player , ind , canEditPublicNote , canEdi
 
             for i = 1 , #patterns do
                 if string.match ( player.customNote[4] , patterns[i] ) then
-                    updatedNote = GRM.Trim(string.gsub ( player.customNote[4] , patterns[i] , "" ));
+                    updatedNote = GRM.Util.Trim(string.gsub ( player.customNote[4] , patterns[i] , "" ));
                     Prof.SetCustomNoteDirectly ( player.name , updatedNote );
                     count = count + 1;
                     break;
