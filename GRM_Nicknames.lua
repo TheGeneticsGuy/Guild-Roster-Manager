@@ -256,8 +256,11 @@ end
 -- Blacklist for offensive nicknames -- maybe not necessary as officers will manage since I log who makes it
 
 -- Sync Comes
-GRM_NN          -- Live nickname add/remove -- COMPLETE
-GRM_RECNNPRE    -- Initiali Precheck Vals
-GRM_NNYNCF      -- Sending actual NN Data NON alt groups
-GRM_REQ_NNF     -- ResendMissingF
-GRM_REQNNFIN    -- ResendMissingAgain
+-- GRM_NN          -- Live nickname add/remove -- ALMOST COMPLETE
+-- GRM_NNSYNCUP     -- Final data send  -- GRMsync.CheckNickNameChanges
+-- GRM_RECNNPRE    -- Initiali Precheck Vals -- GRMsync.CollectPreCheckData
+-- GRM_NNSYNCF      -- Sending actual NN Data NON alt groups - GRMsync.CollectDataPacketsF
+-- GRM_REQ_NNF     -- ResendMissingF  -- GRMsync.CollectMissingMsgRequest(msg, prefix2)
+-- GRM_REQNNFIN    -- ResendMissingAgain -- GRMsync.CollectMissingMsgRequest(msg, prefix2)
+
+-- NOTES - Fixed a sync bug where alt data could bypass the sync restrictions entirely if someone made changes.

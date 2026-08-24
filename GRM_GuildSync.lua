@@ -2612,7 +2612,7 @@ end
 ---------------
 
 
-GRMsync.AddNickNameSync = function ( msg , sender , prefix )
+GRMsync.NickNameSync = function ( msg , sender , prefix )
     local isSyncUpdate = false;
     if prefix == "GRM_NICK_ADD" then
         isSyncUpdate = true;
@@ -2656,13 +2656,29 @@ GRMsync.AddNickNameSync = function ( msg , sender , prefix )
     end
 end
 
-GRMsync.RemNickNameSync = function ( msg , sender , prefix )
-    local isSyncUpdate = false;
-    if prefix == "GRM_NICK_REM" then
-        isSyncUpdate = true;
-    end
+
+GRMsync.CheckNickNameChanges = function()
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8282,24 +8298,60 @@ end
 ------ INITIALIZING -----------
 -------------------------------
 
+-- REQUEST SYNC -- Start or Queue
+GRMsync.RequestSync = function(sender)
+    if not GRMsyncGlobals.IsElectedLeader then
+        return
+    end
+
+    local isFound = false
+    for i = 1, #GRMsyncGlobals.SyncQue do
+        if GRMsyncGlobals.SyncQue[i] == sender then
+            isFound = true
+            break
+        end
+    end
+
+    if not isFound then
+        table.insert(GRMsyncGlobals.SyncQue, sender)
+    end
+
+    if not GRMsyncGlobals.currentlySyncing then
+        GRMsync.InitiateDataSync()
+
+    elseif ( #GRMsyncGlobals.SyncQue - 1 ) > 0 then
+        local busyMsg = "GRM_BUSY?" .. GRMsyncGlobals.syncRankFilter .. "?" .. tostring(#GRMsyncGlobals.SyncQue - 1);
+        GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #busyMsg
+        GRMsync.SendMessage("GRM_SYNC", busyMsg, sender);
+    end
+end
+
 local comms = {};
 
 -- Anything that bypasses the retro sync
 comms.commsLive = {             ["GRM_JD"] = true , ["GRM_PD"] = true , ["GRM_ADDALT"] = true , ["GRM_AC"] = true , ["GRM_RMVALT"] = true ,
-                                ["GRM_MAIN"] = true , ["GRM_RMVMAIN"] = true , ["GRM_CNOTE1"] = true, ["GRM_CNOTE2"] = true, ["GRM_CNOTE3"] = true, ["GRM_BDAY"] = true , ["GRM_BDAYREM"] = true , ["GRM_NN"] = true }
+                                ["GRM_MAIN"] = true , ["GRM_RMVMAIN"] = true , ["GRM_CNOTE1"] = true, ["GRM_CNOTE2"] = true, ["GRM_CNOTE3"] = true,
+                                ["GRM_BDAY"] = true , ["GRM_BDAYREM"] = true , ["GRM_NN"] = true }
+comms.commsLiveDispatch = {     ["GRM_CNOTE1"] = true, ["GRM_CNOTE2"] = true, ["GRM_CNOTE3"] = true } -- For dispatch, though it appears redundant
 
 -- Pre-check to analyze differences, consolidate data check
-comms.commsPreCheck = {         ["GRM_PREHASHALL"] = true , ["GRM_PREALLRESULT"] = true , ["GRM_PREALLRESULT2"] = true , ["GRM_RECJDPRE"] = true ,
+comms.commsPreCheckGrp1 = {     ["GRM_PREHASHALL"] = true , ["GRM_PREALLRESULT"] = true , ["GRM_PREALLRESULT2"] = true , ["GRM_RECJDPRE"] = true ,
                                 ["GRM_RECPDPRE"] = true , ["GRM_RECALTPRE"] = true , ["GRM_RECCUSTPRE"] = true , ["GRM_FINALPRE"] = true ,
                                 ["GRM_FINALPRE2"] = true , ["GRM_RECBDAYPRE"] = true , ["GRM_RECBANPRE"] = true , ["GRM_RECNNPRE"] = true }
 
+comms.commsPreCheckGrp2 = {     ["GRM_RECJDPRE"] = true , ["GRM_RECPDPRE"] = true , ["GRM_RECALTPRE"] = true , ["GRM_RECCUSTPRE"] = true ,
+                                ["GRM_RECBDAYPRE"] = true , ["GRM_RECBANPRE"] = true , ["GRM_RECNNPRE"] = true }
+
 -- Collecting Data
 comms.dataPackets = {           ["GRM_JDSYNCF"] = true , ["GRM_PDSYNCF"] = true , ["GRM_ALTSYNCF"] = true , ["GRM_CUSTSYNCF"] = true ,
-                                ["GRM_BDAYSYNCF"] = true, ["GRM_NNYNCF"] = true };
+                                ["GRM_BDAYSYNCF"] = true, ["GRM_NNSYNCF"] = true };
 
 -- Final Data Out send
-comms.commsSyncUp = {           ["GRM_JDSYNCUP"] = true , ["GRM_PDSYNCUP"] = true , ["GRM_BDSYNCUP"] = true };
-comms.altSyncUp = {             ["GRM_ALTSYNC1"] = true ,  ["GRM_ALTSYNC2"] = true ,  ["GRM_ALTSYNC3"] = true ,  ["GRM_ALTSYNC4"] = true };
+comms.commsSyncUp = {           ["GRM_JDSYNCUP"] = true , ["GRM_PDSYNCUP"] = true , ["GRM_BDSYNCUP"] = true, ["GRM_NNSYNCUP"] = true,
+                                ["GRM_ALTSYNCUP1"] = true, ["GRM_ALTSYNCUP2"] = true, ["GRM_ALTSYNCUP3"] = true, ["GRM_ALTSYNCUP4"] = true};
+comms.altSyncUp = {             ["GRM_ALTSYNC1"] = true , ["GRM_ALTSYNC2"] = true , ["GRM_ALTSYNC3"] = true , ["GRM_ALTSYNC4"] = true };
+comms.custNoteSync = {          ["GRM_CUSTSYNC1"] = true, ["GRM_CUSTSYNC2"] = true, ["GRM_CUSTSYNC3"] = true }
+comms.custNoteSyncUp = {        ["GRM_CUSTSYNCUP1"] = true, ["GRM_CUSTSYNCUP2"] = true, ["GRM_CUSTSYNCUP3"] = true }
 
 -- Ban logic is pretty complex, compartmentalize it.
 comms.bans = {};
@@ -8310,7 +8362,7 @@ comms.bans.banPackets = {       ["GRM_BANSYNC1"] = true , ["GRM_BANSYNC2"] = tru
                                 ["GRM_BANSYNC5"] = true , ["GRM_BANSYNC6"] = true };
 
 comms.commsLead = {             ["GRM_WHOISLEADER"] = true , ["GRM_IAMLEADER"] = true , ["GRM_ELECT"] = true , ["GRM_ELECTINFO"] = true ,
-                                ["GRM_NEWLEADER"] = true , ["GRM_STARTMSG"] = true };
+                                ["GRM_NEWLEADER"] = true };
 
 comms.commsMissing = {          ["GRM_REQMISJDF"] = true , ["GRM_REQMISJD"] = true , ["GRM_REQMISPDF"] = true , ["GRM_REQMISPD"] = true ,
                                 ["GRM_REQMISALTF"] = true , ["GRM_REQMISBDAY"] = true , ["GRM_REQMISCUSTF"] = true , ["GRM_REQMISCUST"] = true ,
@@ -8323,6 +8375,131 @@ comms.macroSync = {             ["GRM_MACRO_T"] = true , ["GRM_Macro_SK"] = true
                                 ["GRM_Macro_LP"] = true , ["GRM_Macro_LD"] = true , ["GRM_Macro_PQ"] = true , ["GRM_Macro_FN"] = true ,
                                 ["GRM_Macro_XX"] = true , ["GRM_Macro_MK"] = true , ["GRM_Macro_MP"] = true , ["GRM_Macro_MD"] = true ,
                                 ["GRM_MISSINGCHECK"] = true }; -- Received, sentKick , sentPromote , sentDemote , sentCustom
+
+---------------------------
+-- Master Dispatch table --
+---------------------------
+
+local SyncDispatch = {
+    -- Sync Leader Control
+    ["GRM_WHOISLEADER"]   = function(msg, sender, prefix2) GRMsync.LeaderRespond(msg) end,
+    ["GRM_IAMLEADER"]     = function(msg, sender, prefix2) GRMsync.SetLeader(sender, false, msg) end,
+    ["GRM_ELECT"]         = function() GRMsync.SendElectionInfo() end,
+    ["GRM_NEWLEADER"]     = function(msg) GRMsync.ElectedLeader(msg) end,
+    ["GRM_ELECTINFO"]     = function(msg) GRMsync.RegisterTimeStamps(msg) end,
+
+    -- Start Sync or Queue
+    ["GRM_REQUESTSYNC"]   = function(sender) GRMsync.RequestSync(sender) end,
+    ["GRM_BUSY"]          = function(msg) GRMsync.BusyMessage(tonumber(msg)) end,
+    ["GRM_REQJDDATA"]     = function(msg) if msg == GRM_G.addonUser and not GRMsyncGlobals.currentlySyncing then GRMsync.DataRequestStart() end end,
+
+    -- LIVE UPDATE TRACKING
+    ["GRM_JD"]            = function(msg, sender, prefix2) GRMsync.CheckJoinDateChange(msg, sender, prefix2) end,
+    ["GRM_PD"]            = function(msg, sender, prefix2) GRMsync.CheckPromotionDateChange(msg, sender, prefix2) end,
+    ["GRM_ADDALT"]        = function(msg, sender) GRMsync.CheckAddAltChange(msg, sender) end,
+    ["GRM_AC"]            = function(msg, sender) GRMsync.EventAddedToCalendarCheck(msg, sender) end,
+    ["GRM_RMVALT"]        = function(msg, sender) GRMsync.CheckRemoveAltChange(msg, sender) end,
+    ["GRM_MAIN"]          = function(msg, sender) GRMsync.CheckSetMainChange(msg, sender) end,
+    ["GRM_RMVMAIN"]       = function(msg, sender) GRMsync.CheckDemoteFromMainChange(msg, sender) end,
+    ["GRM_BDAY"]          = function(msg, sender) GRMsync.CheckBirthdayChange(msg, sender, false) end,
+    ["GRM_BDAYREM"]       = function(msg, sender) GRMsync.CheckBirthdayRemoveChange(msg, sender) end,
+    ["GRM_NN"]            = function(msg, sender, prefix2) GRMsync.NickNameSync(msg, sender, prefix2) end,
+
+    -- PRE-CHECKS
+    ["GRM_PREHASHALL"]    = function(msg) GRMsync.CompareOverallHashes(msg) end,
+    ["GRM_PREALLRESULT"]  = function(msg) GRMsync.SetSyncPathway(msg) end,
+    ["GRM_PREALLRESULT2"] = function(msg) GRMsync.UpdateSyncPathway(msg) end,
+    ["GRM_FINALPRE"]      = function() GRMsync.ProcessPreCheckDataAndBeginSync() end,
+    ["GRM_FINALPRE2"]     = function() GRMsync.ProcessBdayDataAndContinue() end,
+
+    -- BANS
+    ["GRM_BAN"]           = function(msg, sender) GRMsync.CheckBanListChange(msg, sender) end,
+    ["GRM_UNBAN"]         = function(msg, sender) GRMsync.CheckUnbanListChangeLive(msg, sender) end,
+    ["GRM_BANSYNCF"]      = function(msg, _, prefix2) GRMsync.CollectDataPacketsF(msg, prefix2) end,
+
+    -- STOPS & DELIVERY CHECKS
+    ["GRM_STOP"]          = function(msg, sender) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.MessageDeliveryCheck(msg) end end,
+    ["GRM_STOP2"]         = function(msg, sender) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.MessageDeliveryCheckBDAY(msg, true) end end,
+    ["GRM_FINALSTOP"]     = function(msg) GRMsync.MessageDeliveryCheckFINAL(msg) end,
+    ["GRM_FINALSTOP2"]    = function(msg) GRMsync.MessageDeliveryCheckBDAY(msg, false) end,
+    ["GRM_FINALSTOP3"]    = function() GRMsync.FinalSyncComplete() end,
+    ["GRM_COMPLETE"]      = function(msg) if msg == GRM_G.addonUser then
+                                GRMsyncGlobals.currentlySyncing = false;
+                                GRMsyncGlobals.dateSentComplete = true;
+                                GRMsync.ReportSyncCompletion(GRMsyncGlobals.DesignatedLeader, true) end
+                            end,
+    
+    -- DATA COLLECTIONS
+    ["GRM_JDSYNC"]        = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectData(msg, prefix2) end end,
+    ["GRM_PDSYNC"]        = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectData(msg, prefix2) end end,
+    ["GRM_BDSYNC"]        = function(msg, sender) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectBirthdayData(msg) end end,
+
+    -- DATA CHANGE RESULTS
+    ["GRM_JDSYNCUP"]      = function(msg, sender, prefix2) GRMsync.CheckJoinDateChange(msg, nil, prefix2); GRM.AuditRefreshTracker() end,
+    ["GRM_PDSYNCUP"]      = function(msg, sender, prefix2) GRMsync.CheckPromotionDateChange(msg, sender, prefix2); GRM.AuditRefreshTracker() end,
+    ["GRM_BDSYNCUP"]      = function(msg) GRMsync.CheckBirthdayForSync(msg); GRM.AuditRefreshTracker() end,
+    ["GRM_ALTSYNCUP1"]    = function(msg, sender, prefix2) GRMsync.CheckFinalAltMainAndNotGroupChanges(msg, prefix2, false) end,
+    ["GRM_ALTSYNCUP2"]    = function(msg, sender, prefix2) GRMsync.CheckFinalAltMainAndNotGroupChanges(msg, prefix2, false) end,
+    ["GRM_ALTSYNCUP3"]    = function(msg, sender, prefix2) GRMsync.CheckFinalAltFullGroupChanges(msg, prefix2, nil, false) end,
+    ["GRM_ALTSYNCUP4"]    = function(msg, sender, prefix2) GRMsync.CheckFinalAltFullGroupChanges(msg, prefix2, nil, false) end,
+    ["GRM_NNSYNCUP"]      = function(msg, sender, prefix2) GRMsync.CheckNickNameChanges(msg, sender, prefix2); end,
+
+    -- MISSING & ALT FINAL 
+    ["GRM_RMVERR"]        = function(msg) GRMsync.RemoveAltErrorFix(msg) end,
+    ["GRM_MISFIN"]        = function() GRMsync.SendMissingMessages(false) end,
+    ["GRM_MISFIN2"]       = function() GRMsync.SendMissingMessages(true) end,
+    ["GRM_MISFIN3"]       = function() GRMsync.SendMissingMessages(false, true) end,
+    ["GRM_MISFIN4"]       = function() GRMsync.SendMissingMessages(false, false, true) end,
+    ["GRM_MISSENT"]       = function() GRMsync.ValidateReSentMessages() end,
+    ["GRM_MISSENT2"]      = function() GRMsync.ValidateReSentMessagesFinal() end,
+    ["GRM_MISSENT3"]      = function() GRMsync.ValidateReSentMessagesBday(true) end,
+    ["GRM_MISSENT4"]      = function() GRMsync.ValidateReSentMessagesBday(false) end,
+    ["GRM_ALTPROCESSED"]  = function() GRMsync.SubmitFinalSyncData() end
+}
+
+-----------------------------------------------
+-- Prefix tables that point to same function --
+-----------------------------------------------
+
+-- LIVE UPDATE TRACKING
+for prefix in pairs(comms.commsLiveDispatch) do 
+    SyncDispatch[prefix] = function(msg, sender, prefix2) GRMsync.CheckCustomNoteChange(msg, sender, prefix2) end
+end
+
+-- PRE-CHECKS
+for prefix in pairs(comms.commsPreCheckGrp2) do 
+    SyncDispatch[prefix] = function(msg, _, prefix2) GRMsync.CollectPreCheckData(msg, prefix2) end
+end
+
+-- BANS
+for prefix in pairs(comms.bans.banSyncUp) do 
+    SyncDispatch[prefix] = function(msg, sender, prefix2) GRMsync.BanManagement(msg, prefix2, sender) end
+end
+for prefix in pairs(comms.bans.banPackets) do 
+    SyncDispatch[prefix] = function(msg, _, prefix2) GRMsync.CollectBanData(msg, prefix2) end
+end
+
+-- DATA COLLECTIONS
+for prefix in pairs(comms.custNoteSync) do 
+    SyncDispatch[prefix] = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectCustomNoteData(msg, prefix2) end end
+end
+for prefix in pairs(comms.dataPackets) do 
+    SyncDispatch[prefix] = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectDataPacketsF(msg, prefix2) end end
+end
+
+-- MISSING DATA RECHECK
+for prefix in pairs(comms.commsMissing) do 
+    SyncDispatch[prefix] = function(msg, _, prefix2) GRMsync.CollectMissingMsgRequest(msg, prefix2) end
+end
+
+-- DATA CHANGE RESULTS
+for prefix in pairs(comms.custNoteSyncUp) do 
+    SyncDispatch[prefix] = function(msg, sender, prefix2) GRMsync.CheckCustomNoteSyncChange(msg, prefix2, true) end
+end
+for prefix in pairs(comms.altSyncUp) do 
+    SyncDispatch[prefix] = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectAltAddData(msg, prefix2) end end
+end
+
 
 -- Method:          GRMsync.RegisterCommunicationProtocols()
 -- What it Does:    Establishes the channel communication rules for sending and receiving
@@ -8359,14 +8536,11 @@ GRMsync.RegisterCommunicationProtocols = function()
             end
 
             -- At this point forward is strictly Member data syncing and if disabled just return
-            -- This should exist AFTER the other checks
-            if not GRM.S().syncEnabled then
-                return;
-            end
+            if not GRM.S().syncEnabled then return end
 
             msg = GRM.Next ( msg );
 
-            -- To cleanup Lua errors from very old versions trying to communicate...
+            -- Extract rank req (and cleans up legacy error)
             local rankReqStr = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
             if not rankReqStr then return end
 
@@ -8383,16 +8557,24 @@ GRMsync.RegisterCommunicationProtocols = function()
             -- PERMISSIONS/RANK CHECKS --
             -----------------------------
 
-            -- Player rank is too low
-            if ( comms.commsLive[prefix2] or comms.commsSyncUp[prefix2] ) and ( senderRankRequirement < GRM_G.playerRankID or senderRankID > GRM.S().syncRank ) then
-                return
-
             -- Custom note restriction
-            elseif ( prefix2 == "GRM_CNOTE1" or prefix2 == "GRM_CNOTE2" or prefix2 == "GRM_CNOTE3" or prefix2 == "GRM_CUSTSYNCUP1" or prefix2 == "GRM_CUSTSYNCUP2" or prefix2 == "GRM_CUSTSYNCUP3" ) and ( senderRankID > GRM.S().syncRankCustom or senderRankRequirement < GRM_G.playerRankID ) then
+            if ( comms.commsLiveDispatch[prefix2] or comms.custNoteSyncUp[prefix2] ) and ( senderRankRequirement < GRM_G.playerRankID or senderRankID > GRM.S().syncRankCustom ) then
                 return
 
+            -- Player rank is too low
+            elseif ( comms.commsLive[prefix2] or comms.commsSyncUp[prefix2] ) and ( senderRankRequirement < GRM_G.playerRankID or senderRankID > GRM.S().syncRank ) then
+                return
+
+            -- Leader sync restriction
             elseif ( not GRMsyncGlobals.IsElectedLeader and not comms.commsLead[prefix2] and sender ~= GRMsyncGlobals.DesignatedLeader ) and ( senderRankID > GRM.S().syncRank or senderRankRequirement < GRM_G.playerRankID ) then        -- If player's rank is below settings threshold, ignore message.
                 return
+            end
+
+            -- Ban Logic specialized permissions - Abort if not proper rank
+            if ( comms.bans.banSync[prefix2] or comms.bans.banSyncUp[prefix2] or comms.bans.banPackets[prefix2] ) then
+                if not GRM.S().syncBanList or ( senderRankID > GRM.S().syncRankBanList or senderRankRequirement < GRM_G.playerRankID ) then
+                    return; 
+                end
             end
             
             -- parsing out the rank requirement and continue
@@ -8405,352 +8587,22 @@ GRMsync.RegisterCommunicationProtocols = function()
             -- Block non-live comms while in group
             if GRM_G.InGroup and not comms.commsLive[prefix2] then return end
 
-
-
-
-
-
-            ------------------------------------------
-            ----------- LIVE UPDATE TRACKING ---------
-            ------------------------------------------
-            -- Varuious Prefix Logic handling now...
-            if prefix2 == "GRM_JD" then
-                GRMsync.CheckJoinDateChange ( msg , sender , prefix2 );
-
-            -- On a Promotion Date Edit
-            elseif prefix2 == "GRM_PD" then
-                GRMsync.CheckPromotionDateChange ( msg , sender , prefix2 );
-
-            -- For adding an alt!
-            elseif prefix2 == "GRM_ADDALT" then
-                GRMsync.CheckAddAltChange ( msg , sender );
-
-            -- If person added to Calendar... this event occurs.
-            elseif prefix2 == "GRM_AC" then
-                GRMsync.EventAddedToCalendarCheck ( msg , sender );
-
-            -- For Removing an alt!
-            elseif prefix2 == "GRM_RMVALT" then
-                GRMsync.CheckRemoveAltChange ( msg , sender );
-
-            -- For declaring who is to be "main"
-            elseif prefix2 == "GRM_MAIN" then
-                GRMsync.CheckSetMainChange ( msg , sender );
-
-            -- For demoting from main -- basically to set as no mains.
-            elseif prefix2 == "GRM_RMVMAIN" then
-                GRMsync.CheckDemoteFromMainChange ( msg , sender );
-
-            elseif prefix2 == "GRM_CNOTE1" or prefix2 == "GRM_CNOTE2" or prefix2 == "GRM_CNOTE3" then
-                GRMsync.CheckCustomNoteChange ( msg , sender , prefix2 );
-
-            elseif prefix2 == "GRM_BDAY" then
-                GRMsync.CheckBirthdayChange ( msg , sender , false )
-
-            elseif prefix2 == "GRM_BDAYREM" then
-                GRMsync.CheckBirthdayRemoveChange ( msg , sender )
-            
-            elseif prefix2 == "GRM_NN" then
-                GRMsync.CheckBirthdayRemoveChange ( msg , sender )
-            
-            end
-
-            -- For ensuring ban information is controlled!
-            if ( comms.bans.banSync[prefix2] or comms.bans.banSyncUp[prefix2] or comms.bans.banPackets[prefix2] ) and GRM.S().syncBanList then
-
-                if ( senderRankID > GRM.S().syncRankBanList or senderRankRequirement < GRM_G.playerRankID ) then
-                    -- Abort
-                    return;
-                else
-                    GRMsyncGlobals.TimeSinceLastSyncAction = time();
-
-                    if prefix2 == "GRM_BAN" then
-                        GRMsync.CheckBanListChange ( msg , sender );                        -- For live ban occurences
-
-                    elseif prefix2 == "GRM_UNBAN" then
-                        GRMsync.CheckUnbanListChangeLive ( msg , sender );                  -- For live unban occurrences
-
-                    elseif prefix2 == "GRM_BANSYNCF" then
-                        GRMsync.CollectDataPacketsF ( msg , prefix2 );
-                                            -- For collecting sync data...
-
-                    elseif comms.bans.banSyncUp[prefix2] then
-                        GRMsync.BanManagement ( msg , prefix2 , sender );    -- For sync analysis final report changes!
-
-                    elseif comms.bans.banPackets[prefix2] then
-                        GRMsync.CollectBanData ( msg , prefix2 );
-
-                    end
-                end
-            --------------------------------------------
-            -------- RETROACTIVE SYNC TRACKING ---------
-            --------------------------------------------
-
-            -- In response to asking "Who is the leader" then ONLY THE LEADER will respond.
-            elseif prefix2 == "GRM_WHOISLEADER" then
-                GRMsync.LeaderRespond ( msg );
-
-            -- Updates who is the LEADER to sync with!
-            elseif prefix2 == "GRM_IAMLEADER" then
-                GRMsync.SetLeader ( sender , false , msg );
-
-            elseif prefix2 == "GRM_ELECT" then
-                GRMsync.SendElectionInfo();
-
-            -- For sending timestamps out!
-            elseif prefix2 == "GRM_ELECTINFO" and not GRMsyncGlobals.LeadershipEstablished then -- Only the person who sent the inquiry will bother reading these... flow control...
-                GRMsync.RegisterTimeStamps ( msg );
-
-            -- For establishing the new leader after an election
-            elseif prefix2 == "GRM_NEWLEADER" then
-                GRMsync.ElectedLeader ( msg )
-
-            -- LEADERSHIP ESTABLISHED, NOW LET'S SYNC COMMS!
-
-            -- Only the leader will hear this message!
-            elseif prefix2 == "GRM_REQUESTSYNC" and GRMsyncGlobals.IsElectedLeader then
-                -- Ensure it is not a double add...
-                -- Ensure not already requested -- shouldn't happen, but redundancy.
-                comms.isFound = false;
-                for i = 1 , #GRMsyncGlobals.SyncQue do
-                    if GRMsyncGlobals.SyncQue[i] == sender then
-                        comms.isFound = true;
-                        break;
-                    end
-                end
-                if not comms.isFound then
-                    table.insert ( GRMsyncGlobals.SyncQue , sender );
-                end
-
-                if not GRMsyncGlobals.currentlySyncing then
-                    GRMsync.InitiateDataSync();
-
-                elseif ( #GRMsyncGlobals.SyncQue - 1 ) > 0 then
-                    local msg = "GRM_BUSY?" .. GRMsyncGlobals.syncRankFilter .. "?" .. tostring ( #GRMsyncGlobals.SyncQue - 1 );
-                    GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg;
-                    GRMsync.SendMessage ( "GRM_SYNC" , msg , sender );
-                end
-
-            elseif prefix2 == "GRM_BUSY" then
-                GRMsync.BusyMessage ( tonumber ( msg ) );
-
-                -- PLAYER DATA REQ FROM LEADERS
-            -- Leader has requesated your Join Date Data!
-            elseif prefix2 == "GRM_REQJDDATA" and msg == GRM_G.addonUser and not GRMsyncGlobals.currentlySyncing then
-                GRMsync.DataRequestStart();
-
-            -- elseif prefix2 == "GRM_TRACKER" then
-            --     GRMsync.CollectTrackerCalculation ( msg );
-            --     GRM_API.TriggerProgressBar ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , 100 , GRMsyncGlobals.totalEstTime );
-            --     GRMsyncGlobals.progStart = time();
-
-            -- Pseudo Hash for comparison
-            elseif comms.commsPreCheck[prefix2] then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-
-                if prefix2 == "GRM_PREHASHALL" then
-                    GRMsync.CompareOverallHashes( msg )
-
-                elseif prefix2 == "GRM_PREALLRESULT" then
-                    GRMsync.SetSyncPathway( msg )
-
-                elseif prefix2 == "GRM_PREALLRESULT2" then
-                    GRMsync.UpdateSyncPathway( msg )
-
-                elseif prefix2 == "GRM_RECALTPRE" or prefix2 == "GRM_RECJDPRE" or prefix2 == "GRM_RECPDPRE" or prefix2 == "GRM_RECCUSTPRE" or prefix2 == "GRM_RECBDAYPRE" or prefix2 == "GRM_RECBANPRE" then
-                    GRMsync.CollectPreCheckData( msg , prefix2 );
-
-                elseif prefix2 == "GRM_FINALPRE" then
-                    GRMsync.ProcessPreCheckDataAndBeginSync();
-
-                elseif prefix2 == "GRM_FINALPRE2" then
-                    GRMsync.ProcessBdayDataAndContinue();
-                end
-
-            -- Final data sent, let's analyze now.
-            elseif prefix2 == "GRM_STOP" and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.MessageDeliveryCheck ( msg );
-
-            elseif prefix2 == "GRM_FINALSTOP" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.MessageDeliveryCheckFINAL ( msg );
-
-            elseif prefix2 == "GRM_FINALSTOP2" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.MessageDeliveryCheckBDAY ( msg , false );
-
-            elseif prefix2 == "GRM_FINALSTOP3" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.FinalSyncComplete();
-
-            elseif prefix2 == "GRM_STOP2" and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.MessageDeliveryCheckBDAY ( msg , true );
-                -- Check for missing Bday Messages??
-
-            -- Collect all data before checking for changes!
-            elseif ( prefix2 == "GRM_JDSYNC" or prefix2 == "GRM_PDSYNC" ) and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CollectData ( msg , prefix2 );
-
-            elseif comms.dataPackets[prefix2] and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CollectDataPacketsF ( msg , prefix2 );
-
-            -- For ALT ADD DATA
-            elseif comms.altSyncUp[prefix2] and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CollectAltAddData ( msg , prefix2 );
-
-            -- for CUSTOM NOTE Data
-            elseif ( prefix2 == "GRM_CUSTSYNC1" or prefix2 == "GRM_CUSTSYNC2" or prefix2 == "GRM_CUSTSYNC3" ) and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CollectCustomNoteData ( msg , prefix2 );
-
-            -- Birthday Data
-            elseif prefix2 == "GRM_BDSYNC" and sender == GRMsyncGlobals.CurrentSyncPlayer then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CollectBirthdayData ( msg )
-
-            -- AFTER DATA RECEIVED AND ANALYZED, SEND UPDATES!!!
-            -- THESE WILL HEAD TO THE SAME METHODS AS LIVE SYNC, WITH A COUPLE CHANGES BASED ON UNIQUE MESSAGE HEADER.
-            -- Sync the Join Dates!
-            elseif prefix2 == "GRM_JDSYNCUP" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-
-                -- if not GRMsyncGlobals.SyncTracker.finalJD then
-                --     GRMsyncGlobals.ProgressControl ( "FINALJD" );
-                --     if GRMsyncGlobals.TrackerData.JD[1] then
-                --         GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[3] );
-                --     end
-                -- end
-
-                GRMsync.CheckJoinDateChange ( msg , nil , prefix2 );
-                GRM.AuditRefreshTracker();
-
-            -- Sync the Promo Dates!
-            elseif prefix2 == "GRM_PDSYNCUP" then
-
-                -- if not GRMsyncGlobals.SyncTracker.finalPD then
-                --     GRMsyncGlobals.ProgressControl ( "FINALPD" );
-
-                --     if GRMsyncGlobals.TrackerData.PD[1] then
-                --         GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.PD[1] , GRMsyncGlobals.TrackerData.PD[3] );
-                --     end
-                -- end
-
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CheckPromotionDateChange ( msg , sender , prefix2 );
-                GRM.AuditRefreshTracker();
-
-            -- Final sync of ALT player info
-            elseif prefix2 == "GRM_ALTSYNCUP1" or prefix2 == "GRM_ALTSYNCUP2" then
-
-                -- if not GRMsyncGlobals.SyncTracker.finalAlts then
-                --     GRMsyncGlobals.ProgressControl ( "FINALALT" );
-                -- end
-
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CheckFinalAltMainAndNotGroupChanges ( msg , prefix2 , false );
-
-            elseif prefix2 == "GRM_ALTSYNCUP3" or prefix2 == "GRM_ALTSYNCUP4" then
-
-                -- if not GRMsyncGlobals.SyncTracker.finalAlts then
-                --     GRMsyncGlobals.ProgressControl ( "FINALALT" );
-                -- end
-
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CheckFinalAltFullGroupChanges ( msg , prefix2 , nil , false );
-
-            -- Final sync on Custom Note Changes
-            elseif prefix2 == "GRM_CUSTSYNCUP1" or prefix2 == "GRM_CUSTSYNCUP2" or prefix2 == "GRM_CUSTSYNCUP3" then
-
-                -- if not GRMsyncGlobals.SyncTracker.finalCustom then
-                --     GRMsyncGlobals.ProgressControl ( "FINALCUSTOM" );
-                --     if GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] then
-                --         GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.CUSTOMNOTE[1] , GRMsyncGlobals.TrackerData.CUSTOMNOTE[3] );
-                --     end
-                -- end
-
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CheckCustomNoteSyncChange ( msg , prefix2 , true );
-
-            -- Final sync on Birthdays
-            elseif prefix2 == "GRM_BDSYNCUP" then
-
-                -- if not GRMsyncGlobals.SyncTracker.finalBdays then
-                --     GRMsyncGlobals.ProgressControl ( "FINALBDAYS" );
-                --     if GRMsyncGlobals.TrackerData.BDAY[1] then
-                --         GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.BDAY[1] , GRMsyncGlobals.TrackerData.BDAY[3] );
-                --     end
-                -- end
-
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CheckBirthdayForSync ( msg );
-                GRM.AuditRefreshTracker();
-
-            -- Final Announce!!!
-            elseif prefix2 == "GRM_COMPLETE" then
-                if msg == GRM_G.addonUser then
-                    GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                    GRMsyncGlobals.currentlySyncing = false;
-                    GRMsyncGlobals.dateSentComplete = true;
-                    GRMsync.ReportSyncCompletion ( GRMsyncGlobals.DesignatedLeader , true );
-                end
-
-            -- ERROR PROTECTIONS!!
-            elseif prefix2 == "GRM_RMVERR" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.RemoveAltErrorFix( msg );
-
-            -- Collect request of missing info
-            elseif comms.commsMissing[prefix2] then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.CollectMissingMsgRequest ( msg , prefix2 );
-
-            elseif prefix2 == "GRM_MISFIN" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.SendMissingMessages( false );
-
-            elseif prefix2 == "GRM_MISFIN2" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.SendMissingMessages( true );
-
-            elseif prefix2 == "GRM_MISFIN3" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.SendMissingMessages( false , true );
-
-            elseif prefix2 == "GRM_MISFIN4" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.SendMissingMessages( false , false , true );
-
-            elseif prefix2 == "GRM_MISSENT" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.ValidateReSentMessages();
-
-            elseif prefix2 == "GRM_MISSENT2" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.ValidateReSentMessagesFinal();
-
-            elseif prefix2 == "GRM_MISSENT3" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.ValidateReSentMessagesBday( true );
-
-            elseif prefix2 == "GRM_MISSENT4" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.ValidateReSentMessagesBday( false );
-
-            elseif prefix2 == "GRM_ALTPROCESSED" then
-                GRMsyncGlobals.TimeSinceLastSyncAction = time();
-                GRMsync.SubmitFinalSyncData();
-
+            --------------------------------
+            -- Routing to Master Dispatch --
+            --------------------------------
+            local handler = SyncDispatch[prefix2]
+            if handler then
+                -- Trigger on any valid sync action
+                -- Note, any a recursive function this will need to be nested it the C_Timer also
+                GRMsyncGlobals.TimeSinceLastSyncAction = time()
                 
+                -- 0(1) time routing, baby!
+                handler(msg, sender, prefix2)
             end
         end
     end);
 
-    GRMsyncGlobals.RulesSet = true;
+    GRMsyncGlobals.RulesSet = true
 end
 
 -- Method:          GRMsync.BusyMessage ( int )
