@@ -1,8 +1,10 @@
 
 -- UPDATES AND BUG PATCHES
--- Total Patches: 155  2026-03-21
+-- Total Patches: 157  2026-03-21
 
 GRM_Patch = {};
+
+
 local patchNeeded = false;
 local DBGuildNames = {};
 local startTime = 0;
@@ -12,6 +14,184 @@ local oldDB = false;
 local delayTrigger = false;
 local reported = false;     -- Update reported to chat
 GRM_G.currentlyPatching = false;
+
+-- PATCHING ENGINE
+local patchIndex = 1
+local numActions = 0
+local startTime = 0
+local heartbeatTicker = nil
+local lastPatchActivity = 0
+
+-- Convert Version string to float
+local function GetNumericVersion(versionString)
+    if type(versionString) == "number" then 
+        return versionString 
+    end
+
+    return tonumber(versionString:match("R(.+)"))
+end
+
+-- Binary Search to find where to start patching
+local function GetStartingPatchIndex(currentNumericVersion)
+    local low, high = 1, #GRM_Patch.PatchHistory
+    local startIndex = high + 1 -- Default to end (no patches needed)
+    
+    while low <= high do
+        local mid = math.floor((low + high) / 2)
+        if GRM_Patch.PatchHistory[mid].version > currentNumericVersion then
+            startIndex = mid
+            high = mid - 1
+        else
+            low = mid + 1
+        end
+    end
+    return startIndex
+end
+
+-- Heartbeat function to watch for crashes on patching.
+local function CheckPatchHeartbeat()
+    print("Checking heartbeat...") -- Debug output
+    -- If we aren't patching, cancel the ticker
+    if not GRM_G.currentlyPatching and heartbeatTicker then
+        heartbeatTicker:Cancel() 
+        return
+    end
+
+    -- If more than 15 seconds have passed since the last patch applied... we crashed.
+    if GetTime() - lastPatchActivity > 15 then
+        GRM.Report("|cFFFF0000" .. GRM.L("GRM Error:") .. "|r " .. GRM.L("The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"))
+        GRM_G.currentlyPatching = false
+        if heartbeatTicker then 
+            heartbeatTicker:Cancel()
+        end
+    end
+end
+
+-- Recursive time budgeted loop
+local function ProcessPatchQueue()
+    local frameStartTime = debugprofilestop()
+
+    while patchIndex <= #GRM_Patch.PatchHistory do
+        local patch = GRM_Patch.PatchHistory[patchIndex]
+        lastPatchActivity = GetTime() -- For heartbeat
+
+        -- Evaluate condition (if it exists)
+        local shouldApplyPatch = true
+        if patch.condition then
+            shouldApplyPatch = patch.condition()
+        end
+
+        if shouldApplyPatch then
+            print("Patching: " .. patch.version) -- Debug output
+            patch.apply()
+            numActions = numActions + 1
+        end
+
+        -- If a crash happens on the NEXT patch, the DB already knows we finished this one.
+        GRM_AddonSettings_Save.VERSION = "R" .. tostring(patch.version)
+
+        -- Move to next patch
+        patchIndex = patchIndex + 1
+
+        -- If we spent more than 16ms (1 frame @ 60fps) on this batch, 
+        -- yield to the game client so WoW doesn't freeze or stutter, then resume next frame.
+        if (debugprofilestop() - frameStartTime) > 16 then
+            C_Timer.After(0, ProcessPatchQueue)
+            return -- Exit this loop, it will resume automatically instantly.
+        end
+    end
+
+    -- If the while loop finishes, patching is 100% complete!
+    GRM_G.currentlyPatching = false
+    if heartbeatTicker then
+        heartbeatTicker:Cancel()
+    end
+    
+    GRM_Patch.FinalizeReportPatches(numActions > 0, numActions, startTime)
+end
+
+-- The Main Trigger Function
+GRM_Patch.SettingsCheck = function(numericV)
+    numericV = GetNumericVersion(numericV)
+    
+    -- Setup FID/PID
+    FID = 2;
+    if UnitFactionGroup("PLAYER") == "Horde" then
+        FID = 1;
+    end
+
+    -- Legacy structure
+    if PID == 0 and GRM_AddonSettings_Save[FID] and GRM_AddonSettings_Save[FID][1] then
+        for k = 2, #GRM_AddonSettings_Save[FID] do
+            if GRM_AddonSettings_Save[FID][k][1] == GRM_G.addonUser then
+                PID = k
+                break
+            end
+        end
+    end
+
+    -- Edge case override handling
+    if GRM_AddonSettings_Save[1] == nil and GRM_AddonSettings_Save["H"] == nil and numericV < 1.961 then
+        numericV = 1.9605
+    end
+
+    -- Binary search to find where to start!
+    patchIndex = GetStartingPatchIndex(numericV)
+
+    -- Are there actually patches to run?
+    if patchIndex <= #GRM_Patch.PatchHistory then
+        GRM_G.currentlyPatching = true
+        startTime = time()
+        numActions = 0
+        lastPatchActivity = GetTime()
+
+        GRM.Report("|CFFFFD100" .. GRM.L("GRM:") .. " " .. GRM.L("Applying update patches... one moment."))
+        
+        
+        -- Start the heartbeat monitor every 5 seconds
+        heartbeatTicker = C_Timer.NewTicker(5, CheckPatchHeartbeat)
+
+        -- Kick off the engine
+        ProcessPatchQueue()
+    else
+        -- No patches needed, but ensure finalized configurations are run
+        GRM_Patch.FinalizeReportPatches(false, 0, time())
+    end
+end
+
+
+GRM_Patch.PatchHistory = {
+    {
+        version = 1.092,
+        -- The condition function is optional. Only runs if it exists.
+        condition = function() return #GRM_PlayerListOfAlts_Save == 0 end,
+        apply = function() GRM_Patch.SetupAltTracking() end
+    },
+    {
+        version = 1.100,
+        apply = function() GRM_Patch.UpdateRankControlSettingDefault() end
+    },
+    {
+        version = 1.111,
+        condition = function() return #GRM_AddonSettings_Save[FID][2][2] == 26 end,
+        apply = function() 
+            GRM_Patch.ExpandOptions()
+        end
+    },
+    {
+        version = 1.122,
+        apply = function() GRM_Patch.IntroduceUnknown() end
+    },
+    {
+        version = 1.125,
+        condition = function() return GRM_AddonSettings_Save[FID][2][2][24] == 0 end,
+        apply = function() 
+            GRM_Patch.RemoveRepeats()
+            GRM_Patch.EstablishThrottleSlider()
+        end
+    },
+}
+
 
 -- Method:          GRM_Patch.SettingsCheck ( float )
 -- What it Does:    Holds the patch logic for when people upgrade the addon
@@ -46,6 +226,8 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         numericV = 1.9605;
     end
 
+    
+
     -- Purpose of this function...
     -- Updates are not that computationally intensive on their own, but I'd imagine if a player has not updated GRM is a very very long time the process might cause the game to hang for several seconds and possible
     -- timeout. This prevents that and makes it more obvious to the player what is occurring.
@@ -71,56 +253,56 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         return true;
     end
 
-    patchNum = patchNum + 1; -- Iterate up each patch.
-    -- Introduced Patch R1.092
-    -- Alt tracking of the player - so it can auto-add the player's own alts to the guild info on use.
-    if numericV < 1.092 and baseValue < 1.092 and #GRM_PlayerListOfAlts_Save == 0 then
-        GRM_Patch.SetupAltTracking();
-        if loopCheck ( 1.092 ) then         -- this can be checked again, so can hold previous value
-            return;
-        end
-    end
+    -- patchNum = patchNum + 1; -- Iterate up each patch.
+    -- -- Introduced Patch R1.092
+    -- -- Alt tracking of the player - so it can auto-add the player's own alts to the guild info on use.
+    -- if numericV < 1.092 and baseValue < 1.092 and #GRM_PlayerListOfAlts_Save == 0 then
+    --     GRM_Patch.SetupAltTracking();
+    --     if loopCheck ( 1.092 ) then         -- this can be checked again, so can hold previous value
+    --         return;
+    --     end
+    -- end
 
-    patchNum = patchNum + 1;
-    -- Introduced Patch R1.100
-    -- Updating the version for ALL saved accounts.
-    if numericV < 1.100 and baseValue < 1.100 then
-        GRM_Patch.UpdateRankControlSettingDefault();
-        if loopCheck ( 1.100 ) then
-            return;
-        end
-    end
+    -- patchNum = patchNum + 1;
+    -- -- Introduced Patch R1.100
+    -- -- Updating the version for ALL saved accounts.
+    -- if numericV < 1.100 and baseValue < 1.100 then
+    --     GRM_Patch.UpdateRankControlSettingDefault();
+    --     if loopCheck ( 1.100 ) then
+    --         return;
+    --     end
+    -- end
 
-    patchNum = patchNum + 1;
-    -- Introduced Patch R1.111
-    -- Added some more booleans to the options for future growth.
-    if numericV < 1.111 and baseValue < 1.111 and #GRM_AddonSettings_Save[FID][2][2] == 26 then
-        GRM_Patch.ExpandOptions();
-        if loopCheck ( 1.111 ) then
-            return;
-        end
-    end
+    -- patchNum = patchNum + 1;
+    -- -- Introduced Patch R1.111
+    -- -- Added some more booleans to the options for future growth.
+    -- if numericV < 1.111 and baseValue < 1.111 and #GRM_AddonSettings_Save[FID][2][2] == 26 then
+    --     GRM_Patch.ExpandOptions();
+    --     if loopCheck ( 1.111 ) then
+    --         return;
+    --     end
+    -- end
 
     patchNum = patchNum + 1;
     -- Intoduced Patch R1.122
     -- Adds an additional point of logic for "Unknown" on join date...
-    if numericV < 1.122 and baseValue < 1.122 then
-        GRM_Patch.IntroduceUnknown();
-        if loopCheck ( 1.122 ) then
-            return;
-        end
-    end
+    -- if numericV < 1.122 and baseValue < 1.122 then
+    --     GRM_Patch.IntroduceUnknown();
+    --     if loopCheck ( 1.122 ) then
+    --         return;
+    --     end
+    -- end
 
     patchNum = patchNum + 1;
     -- Introduced Patch R1.125
     -- Bug fix... need to purge of repeats
-    if numericV < 1.125 and baseValue < 1.125 and GRM_AddonSettings_Save[FID][2][2][24] == 0 then
-        GRM_Patch.RemoveRepeats();
-        GRM_Patch.EstablishThrottleSlider();
-        if loopCheck ( 1.125 ) then
-            return;
-        end
-    end
+    -- if numericV < 1.125 and baseValue < 1.125 and GRM_AddonSettings_Save[FID][2][2][24] == 0 then
+    --     GRM_Patch.RemoveRepeats();
+    --     GRM_Patch.EstablishThrottleSlider();
+    --     if loopCheck ( 1.125 ) then
+    --         return;
+    --     end
+    -- end
 
     patchNum = patchNum + 1;
     -- Introduced Patch R.1.126
@@ -1298,7 +1480,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.972 and baseValue < 1.972 then
 
         if GRM_G.BuildVersion >= 80000 then
-            GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
+            GRM_Patch.AddOrEditMemberData ( "MythicScore" , 0 );
         end
         GRM_Patch.AddNewSetting ( "showLevel" , true );
         GRM_Patch.AddNewSetting ( "showMythicRating" , true );
@@ -1359,7 +1541,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
 
         GRM_Patch.DeleteLegacyMacro();
         if GRM_G.BuildVersion >= 80000 then
-            GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
+            GRM_Patch.AddOrEditMemberData ( "MythicScore" , 0 );
         end
 
         GRM_AddonSettings_Save.VERSION = "R1.979";
@@ -1410,7 +1592,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     patchNum = patchNum + 1;
     if numericV < 1.983 and baseValue < 1.983 then
 
-        GRM_Patch.AddMemberSpecificData ( "MythicScore" , 0 );
+        GRM_Patch.AddOrEditMemberData ( "MythicScore" , 0 );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixAltGroupModified , true , true , false , nil );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.ModifyJoinAndPromoteDates , true , true , false , nil );
         GRM_Patch.EditSetting ( "removedMacroRules" , GRM_Patch.UpdateRemovedMacro );
@@ -1461,7 +1643,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.AddNewSetting ( "includeDeathTime" , true );
         GRM_Patch.AddNewSetting ( "exportHardcoreSort" , 1 );
 
-        GRM_Patch.AddMemberSpecificData ( "alts" , nil );
+        GRM_Patch.AddOrEditMemberData ( "alts" , nil );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FixStandardFormatAndRankHistFormat , true , true , false , nil );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.FormatFixVerifiedTime , true , true , false , nil );
         GRM_Patch.AltGroupIntegrityCheck();
@@ -1550,7 +1732,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
     if numericV < 1.99061 and baseValue < 1.99061 then
 
         GRM_Patch.EditSetting ( "demoteRules" , GRM_Patch.MarcoRuleDataConsistencyFix );
-        GRM_Patch.AddMemberSpecificData ( "recommendSpecial" , true );
+        GRM_Patch.AddOrEditMemberData ( "recommendSpecial" , true );
 
         GRM_AddonSettings_Save.VERSION = "R1.99061";
         if loopCheck ( 1.99061 ) then
@@ -1598,7 +1780,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.PlayerPromotedToOfficerNoteUpdate , true , true , false , nil );
         GRM_Patch.BuildNewMainAltDB();
         GRM_Patch.EditSetting ( "banInfoReport" , nil );
-        GRM_Patch.AddMemberSpecificData ( "lastOnlineTime" , { 0 , 0 , 0 , 1 } );
+        GRM_Patch.AddOrEditMemberData ( "lastOnlineTime" , { 0 , 0 , 0 , 1 } );
         GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.ConvertHours , true , false , false , nil );
 
         GRM_AddonSettings_Save.VERSION = "R1.9910";
@@ -1841,9 +2023,7 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         else
             GRM_Patch.AddNewSetting ( "minimapType" , 1 );
         end
-
-        GRM_Patch.ModifyMemberSpecificData ( GRM_Patch.AddNickNamesToPlayer , true , true , false , nil );
-        GRM_Patch.AddNickNamesToAltGroups();
+;
         GRM_Patch.RestructureBackupDB();
         GRM_Patch.FixPotentialAltIssue();
         GRM_Patch.EditSetting ( "kickRules", GRM_Patch.FixMaxLevelMacroSetting );
@@ -1916,6 +2096,16 @@ GRM_Patch.SettingsCheck = function ( numericV , count , patch )
         end
     end
 
+    -- 157
+    if numericV < 1.995 and baseValue < 1.995 then
+        GRM_Patch.NicknameAndFormerMamberOverhaul();
+
+        GRM_AddonSettings_Save.VERSION = "R1.995";
+        if loopCheck ( 1.995 ) then
+            return;
+        end
+    end
+    
     GRM_Patch.FinalizeReportPatches( patchNeeded , numActions );
 end
 
@@ -1966,10 +2156,10 @@ end
 ---------------------------
 
 -- 1.97
--- Method:          GRM_Patch.AddMemberSpecificData ( string , anyVar )
+-- Method:          GRM_Patch.AddOrEditMemberData ( string , anyVar )
 -- What it Does:    Goes through the entire account wide database and adds the player's metadata a new setting
 -- Purpose:         Reusable function for error work and to avoid on code bloat spam.
-GRM_Patch.AddMemberSpecificData = function ( settingName , value )
+GRM_Patch.AddOrEditMemberData = function ( settingName , value )
     for guildName in pairs ( GRM_GuildMemberHistory_Save ) do                  -- The guilds in each faction
         for _ , player in pairs ( GRM_GuildMemberHistory_Save[guildName] ) do           -- The players in each guild (starts at 2 as position 1 is the name of the guild
             if type ( player ) == "table" then
@@ -10308,41 +10498,6 @@ GRM_Patch.AltGroupUpdateTweakNewDB = function()
 end
 
 -- 1.99374
--- Method:          GRM_Patch.AddNickNamesToPlayer ( playerTable )
--- What it Does:    Removes the old placeholder structure and replaces with updated
--- purpose:         New nickname system
-GRM_Patch.AddNickNamesToPlayer = function ( player )
-    player.nickname = nil;      -- Remove the old nickname structure
-    player.nicknameDetails = GRM.NN.CreateNickObject( { false , "" , 0 } ); -- { bypassBool, nameWhoChanged, epoch }
-    return player;
-end
-
--- 1.99374
--- Method:          GRM_Patch.AddNickNamesToAltGroups()
--- What it Does:    Adds the nicknameDetails to all the alt groups
--- Purpose:         New nickname feature
-GRM_Patch.AddNickNamesToAltGroups = function()
-    local data = {GRM_Alts , GRM_GuildDataBackup_Save};
-    local guildAlts = {};
-    
-    for i = 1 , #data do
-        for _,guildData in pairs(data[i]) do
-            if i == 1 then
-                guildAlts = guildData;
-            elseif i == 2 then
-                guildAlts = guildData.alts
-            end
-
-            for _,altGroup in pairs(guildAlts) do
-                if not altGroup.nicknameDetails then
-                    altGroup.nicknameDetails = GRM.NN.CreateNickObject();
-                end
-            end
-        end
-    end
-end
-
--- 1.99374
 -- Method:          GRM_Patch.FixPotentialAltIssue()
 -- What it Does:    Fixes potential alt group issues from prior updates that may have left
 -- Purpose:         Aggressive fix for a latent bug post 12.0 updates.
@@ -10557,4 +10712,37 @@ GRM_Patch.AdaptNoteFeatureRetail = function ( noteSetEnabled )
         noteSetEnabled = false;
     end
     return noteSetEnabled
+end
+
+-- R1.995
+GRM_Patch.NicknameAndFormerMamberOverhaul = function()
+
+    -- Purge old alt info add new table.
+    GRM_Patch.ModifyMemberSpecificData ( function(player)
+                                            player.nicknameDetails = nil;
+                                            player.nickInfo = GRM.NN.CreateNickObject();
+                                            return player;
+                                         end,
+                                         true , true , false , nil );
+
+    -- Only editing the former members on this one.
+    GRM_Patch.ModifyMemberSpecificData ( function(player)
+                                            return GRM.PurgeUnneededDataFormer(player);
+                                         end,
+                                         false , true , false , nil );
+    -- Now cleanup alt groups
+    for _, guildAlts in pairs(GRM_Alts) do
+        for _, group in pairs(guildAlts) do
+            group.nicknameDetails = nil;
+        end
+    end
+
+    -- Backup Alt groups too
+    for _, guildData in pairs(GRM_GuildDataBackup_Save) do
+        if guildData.alts then
+            for _, group in pairs(guildData.alts) do
+                group.nicknameDetails = nil;
+            end
+        end
+    end
 end

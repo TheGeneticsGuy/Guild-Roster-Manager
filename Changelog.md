@@ -1,3 +1,19 @@
+SetCVar and GetCVar needs to be protected...
+
+## **VERSION 1.995 - PENDING DATE**
+
+***QUALITY OF LIFE***
+
+**Patching System for GRM updates has been completely overhauled**
+
+  * If patching fails, a heartbeat check will inform you rather than the addon completely failing.
+
+  * Patching is now down far more efficiently. Previously, to prevent freezes, the patching strategically added time gaps between patches. Well, not all patches and databases are equal, so some patches might take far more processing time than others, and these time gaps were fixed. Now, it does an overall time delay on patching, to prevent stuttering, where if you have even 10 minor patches process through, if you haven't updated in a long time, compared to 1 long one. It doesn't matter. It only delays patching now if the elapsed timer is reached.
+
+  * The codebase for patching was significantly overhauled in that GRM in its lifespan had reached 157 total patches. That's a lot of If/Else statements to run through now. Instead, since the patches increment up, I created a large table of all the patches, which can quickly identified where your build needs to be patched with binary search, and then quickly processed forward. Far more quick and efficient than previously.
+
+
+
 ## **VERSION 1.99422 - August 20th, 2026**
 
 * Fixed a bug that made it so a new GRM user who had never used the macro tool was unable to configure the tool and use it properly. Existing GRM users we unaffected because the macro had already been set for use within the tool. So it really only affected new GRM users since 12.1. This will now function properly as the code has been updated to properly reflect Blizz's new Constants. Of note, this might mean many constants I was looking at are now broken so more errors might trigger in GRM that I haven't discored yet.

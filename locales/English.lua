@@ -2064,6 +2064,8 @@ GRML.English = function()
     GRM_L["Invalid Character: \"|\" is not allowed when making a nickname."] = true
     GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
 
+    -- Patching update
+    GRM_L["The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"] = true
 
 end
 

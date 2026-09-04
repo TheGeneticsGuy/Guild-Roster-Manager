@@ -1562,7 +1562,6 @@ GRM.FinalSettingsConfigurations = function( isManual )
     -- Classic Chat coloring
     -- Only initialize when in a guild or else it coluld overwrite ElvUI without a way to disable
     if IsInGuild() then
-        GRM.SetClassChatColoring()
         GRM.SetChatColoring();
     end
 
@@ -1738,45 +1737,6 @@ end
 ----- END OF BUILD COMPAT... ----------
 ---------------------------------------
 
--- Method:          SetClassChatColoring()
--- What it Does:    Initializes chat coloring controls for classic
--- Purpose:         Quality of life control
-GRM.SetClassChatColoring = function()
-    if GRM_G.BuildVersion < 10000 then
-        local num = "1";
-
-        if GRM.S() and not GRM.S().colorizeClassicRosterNames then
-            num = "1";
-            if GetCVar("chatClassColorOverride") == "2" then -- Integers are in string format from server for some reason.
-                num = "2";
-            end
-        end
-
-        SetCVar("chatClassColorOverride", num);
-
-        hooksecurefunc("GuildStatus_Update", function()
-            local button;
-            if IsInGuild() and GuildFrame and GuildFrame:IsVisible() then
-                for i = 1, 13 do
-
-                    if GuildStatusFrame and GuildStatusFrame:IsVisible() then
-                        button = _G["GuildFrameGuildStatusButton" .. i];
-                        if button and button:IsVisible() then
-                            GRM.RecolorText(button);
-                        end
-                    elseif GuildPlayerStatusFrame and GuildPlayerStatusFrame:IsVisible() then
-                        button = _G["GuildFrameButton" .. i];
-                        if button and button:IsVisible() then
-                            GRM.RecolorText(button);
-                        end
-                    end
-                end
-            end
-        end);
-
-    end
-end
-
 -- Method:          GRM.SetChatClassColoringInWrath ( bool )
 -- What it Does:    Enables or Disables chat class coloring
 -- Purpose:         Enable chat coloring controls in wrath
@@ -1812,25 +1772,7 @@ end
 -- Purpose:         To give the ability to colorize the names in chat and the roster on control - as the default interface in Classic did not have that.
 GRM.SetChatColoring = function()
     if GRM.S() and GRM.S().colorizeClassicRosterNames then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetChecked(
-            true);
-        if GRM_G.BuildVersion < 10000 then
-            SetCVar("chatClassColorOverride", 0);
-            if GRM_G.BuildVersion >= 30000 then
-                GRM.SetChatClassColoringInWrath(true);
-            else
-                GRM.SetChatClassColoringNew(true);
-            end
-        end
-    else
-        if GRM_G.BuildVersion < 10000 then
-            SetCVar("chatClassColorOverride", 1);
-            if GRM_G.BuildVersion >= 30000 then
-                GRM.SetChatClassColoringInWrath(false);
-            else
-                GRM.SetChatClassColoringNew(false);
-            end
-        end
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetChecked(true);
     end
 end
 
@@ -7260,7 +7202,7 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
 
     member.customNote = {true, 0, "", ""}; -- 23 { syncEnabled , epochStampOfEdit , "NameOfPlayerWhoEdited" , "customNoteString" }
 
-    member.nickInfo = NN.CreateNickObject();
+    member.nickInfo = GRM.NN.CreateNickObject();
 
     -- Additional server Data
     member.lastOnline = memberInfo.lastOnline;
@@ -7403,7 +7345,7 @@ GRM.AddMemberToLeftPlayers = function(memberInfo, timeArray, standardTime, epohc
         -- Adding to LeftGuild Player history library
         local oldMemberData = GRM.GetFormerMembers();
         oldMemberData[memberInfo.name] = {};
-        oldMemberData[memberInfo.name] = GRM.Util.DeepCopyArray(player);
+        oldMemberData[memberInfo.name] = GRM.PurgeUnneededDataFormer(GRM.Util.DeepCopyArray(player));
 
     end
 
@@ -7413,6 +7355,22 @@ GRM.AddMemberToLeftPlayers = function(memberInfo, timeArray, standardTime, epohc
 
     -- Now need to remove it
     GRM_GuildMemberHistory_Save[GRM_G.guildName][memberInfo.name] = nil;
+end
+
+-- Method:        GRM.PurgeUnneededDataFormer ( table )
+-- What it Does:  Cleans up the former player data to remove unneeded variables that are not used anymore, but may have been saved in the past.
+-- Purpose:       To save memory with redundant info being purged from former member info
+GRM.PurgeUnneededDataFormer = function(player)
+    if player then
+        local notNeeded =  { "recommendToKick", "recommendToDemote", "recommendToPromote", "recommendSpecial", "zone", "IsMobile", "anniversaryAnnounced",
+                             "timeEnteredZone", "isOnline", "status", "isUnknown", "lastOnline", "lastOnlineTime", "safeList", "zone", "anniversaryAnnounced" };
+
+        for i = 1 , #notNeeded do
+            player[notNeeded[i]] = nil;
+        end
+
+    end
+    return player;
 end
 
 -- Method:          GRM.JoinAndRankDataCleanup ( playerTable )
@@ -22576,7 +22534,6 @@ GRM.ReactivateAddon = function()
     end
 
     if IsInGuild() then
-        GRM.SetClassChatColoring()
         GRM.SetChatColoring();
         if GRM.IsHardcoreActive() then
             GRM_UI.VerifyIfHCChannelsEnabled();
