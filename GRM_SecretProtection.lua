@@ -28,8 +28,10 @@ local InitializeSecrets = function()
         GRM_G.Secrets[typeEnum[type]] = state;
 
         if Secrets.IsAddonRestricted() then
+            print("Restriction State is True")
             GRM_G.AddonRestricted = true;
         else
+            print("Restriction State is False")
             GRM_G.AddonRestricted = false;
         end
     end);

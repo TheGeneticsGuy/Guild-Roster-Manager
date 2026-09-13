@@ -1,4 +1,6 @@
-SetCVar and GetCVar needs to be protected...
+
+
+
 
 ## **VERSION 1.995 - PENDING DATE**
 
@@ -6,11 +8,21 @@ SetCVar and GetCVar needs to be protected...
 
 **Patching System for GRM updates has been completely overhauled**
 
-  * If patching fails, a heartbeat check will inform you rather than the addon completely failing.
+* If patching fails, a heartbeat check will inform you rather than the addon completely failing.
 
-  * Patching is now down far more efficiently. Previously, to prevent freezes, the patching strategically added time gaps between patches. Well, not all patches and databases are equal, so some patches might take far more processing time than others, and these time gaps were fixed. Now, it does an overall time delay on patching, to prevent stuttering, where if you have even 10 minor patches process through, if you haven't updated in a long time, compared to 1 long one. It doesn't matter. It only delays patching now if the elapsed timer is reached.
+* Patching is now down far more efficiently. Previously, to prevent freezes, the patching strategically added time gaps between patches. Well, not all patches and databases are equal, so some patches might take far more processing time than others, and these time gaps were fixed. Now, it does an overall time delay on patching, to prevent stuttering, where if you have even 10 minor patches process through, if you haven't updated in a long time, compared to 1 long one. It doesn't matter. It only delays patching now if the elapsed timer is reached.
 
-  * The codebase for patching was significantly overhauled in that GRM in its lifespan had reached 157 total patches. That's a lot of If/Else statements to run through now. Instead, since the patches increment up, I created a large table of all the patches, which can quickly identified where your build needs to be patched with binary search, and then quickly processed forward. Far more quick and efficient than previously.
+* The codebase for patching was significantly overhauled in that GRM in its lifespan had reached 157 total patches. That's a lot of If/Else statements to run through now. Instead, since the patches increment up, I created a large table of all the patches, which can quickly identified where your build needs to be patched with binary search, and then quickly processed forward. Far more quick and efficient than previously.
+
+*Example:* I took a 185Mb save file with over 113,000 log entries and it took only 18 seconds to patch 72 patches. Previously this would have taken over 2 minutes with my fixed delays. For most people the patching now will take less than 1 second. This larger one was due to massive overhauls over the last 4 years, and I have a save file I use for stress testing massive changes.
+
+***BUG FIXES***
+
+* SetCVar and GetCVar are now protected functions by Blizz. GRM does not use these heavily, but they are occasionally used with things like on configuring some settings within the addon. For example, GRM hooks into Blizz's profanity filter so that if you have the profanity filter enabled, it will apply it to GRM notes too so people can't bypass the game settings. Well, I need to check if this setting is enabled or not to use this feature. Well, I can't do that if you reload that when in an instance. So this is taken into account to prevent Lua errors. This will actually throw a strong force **taint** so it is fairly serious.
+
+* Cleaned up a lot of redundant and unused variables from the Former Players database. There are many variables that were stored on the former player references just because it was a pure copy of the member data to former member, and I just realized a lot of it is not necessary to store in the database, like what zone you are currently in, if you are safe from macro ignore, as that no longer applies, status, and several others. This is handled much cleaner now.
+
+
 
 
 

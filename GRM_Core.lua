@@ -5871,20 +5871,6 @@ GRM.GetRosterName = function(button, isMouseClick)
     return name , guid;
 end
 
-GRM.InitializeRosterButtons = function()
-    local classic_ui = GetCVar('useClassicGuildUI');
-    if classic_ui and classic_ui == "1" then
-        GRM.InitializeCommunitiesButtons();
-    else
-        if not GRM_G.CommunityInitialized then
-            GRM.InitializeCommunitiesButtons();
-            GRM_UI.MainRoster_OnShow ( false );
-            GRM_G.CommunityInitialized = true;
-        end
-    end
-end
-
-
 -- Method:          GRM.InitializeCommunitiesButtons()
 -- What it Does:    Initializes, one time, the script handlers for the roster frames
 -- Purpose:         So main player popup window appears properly
@@ -7220,10 +7206,6 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     member.status = memberInfo.status; -- 34 AFK, Active, Busy
     member.GUID = memberInfo.GUID; -- 42
     member.isUnknown = false; -- 43
-    member.safeList = {} -- Updated R1.92    - Kick , promote , demote
-    member.safeList.kick = {false, false, 0, 0}; -- Macro Tool monitoring protection
-    member.safeList.promote = {false, false, 0, 0};
-    member.safeList.demote = {false, false, 0, 0};
 
     if type (memberInfo.race) == "number" then
         local race = select ( 2 , C_CreatureInfo.GetRaceInfo ( memberInfo.race ) );
@@ -7363,7 +7345,7 @@ end
 GRM.PurgeUnneededDataFormer = function(player)
     if player then
         local notNeeded =  { "recommendToKick", "recommendToDemote", "recommendToPromote", "recommendSpecial", "zone", "IsMobile", "anniversaryAnnounced",
-                             "timeEnteredZone", "isOnline", "status", "isUnknown", "lastOnline", "lastOnlineTime", "safeList", "zone", "anniversaryAnnounced" };
+                             "timeEnteredZone", "isOnline", "status", "isUnknown", "safeList", "zone", "anniversaryAnnounced" };
 
         for i = 1 , #notNeeded do
             player[notNeeded[i]] = nil;
@@ -7371,6 +7353,17 @@ GRM.PurgeUnneededDataFormer = function(player)
 
     end
     return player;
+end
+
+-- Method:        GRM.GenerateSafeListForPlayer()
+-- What it Does:  Generates a safe list defaults for player
+-- Purpose:       No need to keep this empty table on players if not necessary.
+GRM.GenerateSafeListForPlayer = function()
+    local safeList = {};
+    safeList.kick = {false, false, 0, 0};
+    safeList.promote = {false, false, 0, 0};
+    safeList.demote = {false, false, 0, 0};
+    return safeList;
 end
 
 -- Method:          GRM.JoinAndRankDataCleanup ( playerTable )
@@ -21140,6 +21133,7 @@ GRM.ValidateIgnoreExpireDates = function(player)
     if player then
         local time = time();
 
+        -- Player will always have a safeList here 
         for safeType, safeListSetting in pairs(player.safeList) do
             if safeListSetting[4] ~= 0 and safeListSetting[4] <= time then
                 -- we know this is no longer valid and time has expired...

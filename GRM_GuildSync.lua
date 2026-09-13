@@ -8431,7 +8431,6 @@ local SyncDispatch = {
     ["GRM_RMVMAIN"]       = function(msg, sender) GRMsync.CheckDemoteFromMainChange(msg, sender) end,
     ["GRM_BDAY"]          = function(msg, sender) GRMsync.CheckBirthdayChange(msg, sender, false) end,
     ["GRM_BDAYREM"]       = function(msg, sender) GRMsync.CheckBirthdayRemoveChange(msg, sender) end,
-    ["GRM_NN"]            = function(msg, sender, prefix2) GRMsync.NickNameSync(msg, sender, prefix2) end,
 
     -- PRE-CHECKS
     ["GRM_PREHASHALL"]    = function(msg) GRMsync.CompareOverallHashes(msg) end,

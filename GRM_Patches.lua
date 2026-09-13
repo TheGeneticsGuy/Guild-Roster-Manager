@@ -57,7 +57,7 @@ local function CheckPatchHeartbeat()
 
     -- If more than 15 seconds have passed since the last patch applied... we crashed.
     if GetTime() - lastPatchActivity > 15 then
-        GRM.Report("|cFFFF0000" .. GRM.L("GRM Error:") .. "|r " .. GRM.L("The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"))
+        GRM.Report("|cFFFF0000" .. GRM.L("GRM ERROR:") .. "|r " .. GRM.L("The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"))
         GRM_G.currentlyPatching = false
         if heartbeatTicker then 
             heartbeatTicker:Cancel()
@@ -81,15 +81,34 @@ local function ProcessPatchQueue(numericV)
         end
 
         if shouldApply then
-            print("Patching: " .. patch.version) -- Debug output
+            print("Patching: " .. patch.version .. " - " .. GRM.Util.TableLength(GRM_GuildMemberHistory_Save)) -- Debug output
             local jumpToVersion = patch.apply(numericV, FID)
-            
+
             if type(jumpToVersion) == "number" then
                 patchIndex = GetStartingPatchIndex(jumpToVersion)
                 return ProcessPatchQueue(jumpToVersion)
             end
 
             numActions = numActions + 1
+        end
+
+        -- ASYNC issues for large database updating to deal with C_Timer
+        if delayTrigger then
+            
+            local function PollAsyncPatch()
+                if delayTrigger then
+                    C_Timer.After(0.1, PollAsyncPatch) 
+                else
+                    -- Async patch finished. Save version, resume engine
+                    GRM_AddonSettings_Save.VERSION = "R" .. tostring(patch.version)
+                    numericV = patch.version 
+                    patchIndex = patchIndex + 1
+                    ProcessPatchQueue(numericV)
+                end
+            end
+            
+            PollAsyncPatch()
+            return
         end
 
         -- If a crash happens on the NEXT patch, the DB already knows we finished this one.
@@ -173,7 +192,6 @@ GRM_Patch.SettingsCheck = function(numericV)
         GRM_Patch.FinalizeReportPatches(false, 0)
     end
 end
-
 
 GRM_Patch.PatchHistory = {
     {
@@ -1074,8 +1092,7 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
         end
     end
 
-
-    C_Timer.After ( 1 , GRM.FinalSettingsConfigurations );
+    C_Timer.After ( 0.5 , GRM.FinalSettingsConfigurations );
 end
 
 ---------------------------
@@ -1249,18 +1266,20 @@ end
 -- Purpose:         To be able to retroactively adapt and make changes to the database of macro rules
 GRM_Patch.ModifyOrAddMacroRuleSetting = function ( ruleType , setting , valueOrFunction )
     for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
-            if not GRM_AddonSettings_Save[F][p][ruleType] then
-                GRM_AddonSettings_Save[F][p][ruleType] = {};
-            end
-            for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
-
-                if type ( valueOrFunction ) == "function" then
-                    rule = valueOrFunction ( rule , setting );
-                else
-                    rule[setting] = valueOrFunction;
+        if type (GRM_AddonSettings_Save[F]) == "table" then
+            for p in pairs ( GRM_AddonSettings_Save[F] ) do
+                if not GRM_AddonSettings_Save[F][p][ruleType] then
+                    GRM_AddonSettings_Save[F][p][ruleType] = {};
                 end
+                for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
 
+                    if type ( valueOrFunction ) == "function" then
+                        rule = valueOrFunction ( rule , setting );
+                    else
+                        rule[setting] = valueOrFunction;
+                    end
+
+                end
             end
         end
     end
@@ -1392,22 +1411,24 @@ end
 -- Purpose:         To be able to retroactively adapt and make changes to the database.
 GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic , additionalSetting )
     for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
-            if type ( valueOrLogic ) == "function" then
-                if additionalSetting then
-                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
-                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+        if type (GRM_AddonSettings_Save[F]) == "table" then
+            for p in pairs ( GRM_AddonSettings_Save[F] ) do
+                if type ( valueOrLogic ) == "function" then
+                    if additionalSetting then
+                        if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
+                            GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
+                        end
+                    else
+                        GRM_AddonSettings_Save[F][p][setting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
                     end
                 else
-                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic ( GRM_AddonSettings_Save[F][p][setting] );
-                end
-            else
-                if additionalSetting then
-                    if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
-                        GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic;
+                    if additionalSetting then
+                        if GRM_AddonSettings_Save[F][p][setting][additionalSetting] ~= nil then
+                            GRM_AddonSettings_Save[F][p][setting][additionalSetting] = valueOrLogic;
+                        end
+                    else
+                        GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
                     end
-                else
-                    GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
                 end
             end
         end
@@ -1420,18 +1441,20 @@ end
 -- Purpose:         To be able to retroactively adapt and make changes to the database of macro rules
 GRM_Patch.ModifyOrAddMacroRuleSetting = function ( ruleType , setting , valueOrFunction )
     for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
-            if not GRM_AddonSettings_Save[F][p][ruleType] then
-                GRM_AddonSettings_Save[F][p][ruleType] = {};
-            end
-            for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
-
-                if type ( valueOrFunction ) == "function" then
-                    rule = valueOrFunction ( rule , setting );
-                else
-                    rule[setting] = valueOrFunction;
+        if type (GRM_AddonSettings_Save[F]) == "table" then
+            for p in pairs ( GRM_AddonSettings_Save[F] ) do
+                if not GRM_AddonSettings_Save[F][p][ruleType] then
+                    GRM_AddonSettings_Save[F][p][ruleType] = {};
                 end
+                for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
 
+                    if type ( valueOrFunction ) == "function" then
+                        rule = valueOrFunction ( rule , setting );
+                    else
+                        rule[setting] = valueOrFunction;
+                    end
+
+                end
             end
         end
     end
@@ -1443,11 +1466,13 @@ end
 -- Purpose:         To be able to retroactively adapt and make changes to the database.
 GRM_Patch.AddPlayerSetting = function ( nameOfNewSetting , value , additionalLogic )
     for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
-            if not additionalLogic then
-                GRM_AddonSettings_Save[F][p][nameOfNewSetting] = value;
-            else
-                GRM_AddonSettings_Save[F][p] = additionalLogic ( GRM_AddonSettings_Save[F][p] );
+        if type (GRM_AddonSettings_Save[F]) == "table" then
+            for p in pairs ( GRM_AddonSettings_Save[F] ) do
+                if not additionalLogic then
+                    GRM_AddonSettings_Save[F][p][nameOfNewSetting] = value;
+                else
+                    GRM_AddonSettings_Save[F][p] = additionalLogic ( GRM_AddonSettings_Save[F][p] );
+                end
             end
         end
     end
@@ -5610,16 +5635,18 @@ end
 -- Purpose:         Someone with a very old version of the addon could not load it with this error and it was just reported.
 GRM_Patch.VerifyMacroRuleIntegrity = function()
     for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+        if type (GRM_AddonSettings_Save[F]) == "table" then
+            for p in pairs ( GRM_AddonSettings_Save[F] ) do
 
-            if GRM_AddonSettings_Save[F][p].kickRules == nil then
-                GRM_AddonSettings_Save[F][p].kickRules = {};
-            end
-            if GRM_AddonSettings_Save[F][p].promoteRules == nil then
-                GRM_AddonSettings_Save[F][p].promoteRules = {};
-            end
-            if GRM_AddonSettings_Save[F][p].demoteRules == nil then
-                GRM_AddonSettings_Save[F][p].demoteRules = {};
+                if GRM_AddonSettings_Save[F][p].kickRules == nil then
+                    GRM_AddonSettings_Save[F][p].kickRules = {};
+                end
+                if GRM_AddonSettings_Save[F][p].promoteRules == nil then
+                    GRM_AddonSettings_Save[F][p].promoteRules = {};
+                end
+                if GRM_AddonSettings_Save[F][p].demoteRules == nil then
+                    GRM_AddonSettings_Save[F][p].demoteRules = {};
+                end
             end
         end
     end
@@ -6642,14 +6669,15 @@ end
 -- Purpose:         Adding a new timestamp setting so the global can be differentiated.
 GRM_Patch.ConfigureNewGlobalDateFormat = function()
     for F in pairs ( GRM_AddonSettings_Save ) do
-        for p in pairs ( GRM_AddonSettings_Save[F] ) do
+        if type (GRM_AddonSettings_Save[F]) == "table" then
+            for p in pairs ( GRM_AddonSettings_Save[F] ) do
 
-            if not GRM_AddonSettings_Save[F][p]["globalDateFormat"] then
-                GRM_AddonSettings_Save[F][p]["globalDateFormat"] = 1;
+                if not GRM_AddonSettings_Save[F][p]["globalDateFormat"] then
+                    GRM_AddonSettings_Save[F][p]["globalDateFormat"] = 1;
+                end
+
+                GRM_AddonSettings_Save[F][p]["globalDateFormat"] = tonumber ( GRM_AddonSettings_Save[F][p].dateFormat );
             end
-
-            GRM_AddonSettings_Save[F][p]["globalDateFormat"] = tonumber ( GRM_AddonSettings_Save[F][p].dateFormat );
-
         end
     end
 end
@@ -6815,11 +6843,10 @@ GRM_Patch.JoinAndRankDataFix = function ( player )
 end
 
 -- 1.97
--- Nethod:          GRM_Patch.ConvertSaveFiles( int )
+-- Method:          GRM_Patch.ConvertSaveFiles( int )
 -- What it Does:    Converts all the databases and removes the faction designation from them
 -- Purpose:         Patch 10.1 allows cross faction guilds. This needed to be done.
 GRM_Patch.ConvertSaveFiles = function( index )
-
     local data = { GRM_LogReport_Save , GRM_CalendarAddQue_Save , GRM_PlayerListOfAlts_Save , GRM_GuildMemberHistory_Save , GRM_PlayersThatLeftHistory_Save };
     local newDataTable = {};
     delayTrigger = true;
@@ -6872,7 +6899,8 @@ GRM_Patch.ConvertSaveFiles = function( index )
             end
 
             if i == 1 or i > 3 then
-                C_Timer.After ( 2 , function()
+                C_Timer.After ( 1 , function()
+                    lastPatchActivity = GetTime()
                     GRM_Patch.ConvertSaveFiles( i + 1 );
                 end);
                 return;
@@ -6891,12 +6919,11 @@ GRM_Patch.ConvertSettings = function()
     local newDataTable = {};
 
     if GRM_AddonSettings_Save["H"] then
-
         for F in pairs ( GRM_AddonSettings_Save ) do
-            for name in pairs ( GRM_AddonSettings_Save[F] ) do
-
-                newDataTable[name] = GRM.Util.DeepCopyArray ( GRM_AddonSettings_Save[F][name] );
-
+            if type (GRM_AddonSettings_Save[F]) == "table" then
+                for name in pairs ( GRM_AddonSettings_Save[F] ) do
+                    newDataTable[name] = GRM.Util.DeepCopyArray ( GRM_AddonSettings_Save[F][name] );
+                end
             end
         end
 
@@ -6960,6 +6987,7 @@ GRM_Patch.ConvertDatabase = function( backups )
                         end
 
                         C_Timer.After ( 2 , function()
+                            lastPatchActivity = GetTime()
                             GRM_Patch.ConvertDatabase ( newBackups );
                         end);
                         return;
@@ -9646,8 +9674,12 @@ GRM_Patch.NicknameAndFormerMamberOverhaul = function()
 
     -- Purge old alt info add new table.
     GRM_Patch.ModifyMemberSpecificData ( function(player)
-                                            player.nicknameDetails = nil;
-                                            player.nickInfo = GRM.NN.CreateNickObject();
+                                            if player.nicknameDetails then
+                                                player.nicknameDetails = nil;
+                                            end
+                                            if not player.nickInfo then
+                                                player.nickInfo = GRM.NN.CreateNickObject();
+                                            end
                                             return player;
                                          end,
                                          true , true , false , nil );

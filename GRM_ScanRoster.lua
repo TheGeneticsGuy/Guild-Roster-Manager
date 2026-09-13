@@ -1195,8 +1195,12 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         -- Let's first compare the notes... make sure they are not the same
         local isDifferent = true;
         local newNote, oldNote = "", "";
+        local profanityFilter = "0";
+        if not GRM_G.AddonRestricted then
+            profanityFilter = GetCVar("profanityFilter");
+        end
 
-        if GetCVar("profanityFilter") == "1" then -- The profanity filter is on!
+        if profanityFilter == "1" then -- The profanity filter is on!
             newNote = Scan.NormalizeMatureWords(updatedPlayer.note);
             oldNote = Scan.NormalizeMatureWords(player.note);
         else
@@ -1237,8 +1241,12 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
         else
             local isDifferent = true;
             local newNote, oldNote = "", "";
+            local profanityFilter = "0";
+            if not GRM_G.AddonRestricted then
+                profanityFilter = GetCVar("profanityFilter");
+            end
 
-            if GetCVar("profanityFilter") == "1" then -- The profanity filter is on!
+            if profanityFilter == "1" then -- The profanity filter is on!
                 newNote = Scan.NormalizeMatureWords(updatedPlayer.officerNote);
                 oldNote = Scan.NormalizeMatureWords(player.officerNote);
             else

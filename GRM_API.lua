@@ -487,7 +487,6 @@ end
 --------------------
 
 -- Help figure out the value of new interface rules
--- GetCVar('useClassicGuildUI') -- Need the string
 GRM_API.DetermineInterfaceRule = function( text_match )
     local settings = ConsoleGetAllCommands();
     for i = 1 , #settings do

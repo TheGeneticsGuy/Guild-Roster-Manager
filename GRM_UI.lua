@@ -3029,6 +3029,39 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         text:SetTextColor ( 0.5 , 0.5 , 0.5 );
         editBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
     end
+-- 
+    -- Smart handling of a clean safeList
+    GRM_UI.VerifySafeList = function(player)
+        player = player or GRM.GetPlayer ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.currentName );
+
+        -- We wan to purge safeList from player if it is just default.
+        if player then
+            local defaultList = GRM.GenerateSafeListForPlayer();
+            local playerList = player.safeList;
+            local list = { "kick" , "promote" , "demote" };
+            local purge = true;
+
+            for i = 1 , #list do
+                if playerList[list[i]] and defaultList[list[i]] and
+                    playerList[list[i]][1] ~= defaultList[list[i]][1] then -- Only need to check if enabled
+                        purge = false
+                        break;
+                else
+                    purge = true; -- Table format is messed up
+                    break;
+                end
+            end
+
+            if purge then
+                player.safeList = nil;
+                print("Purging safelist")
+            else
+                print("Not purging safelist")
+            end
+        end
+
+        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.currentName = "";
+    end
 
     -- Rebuild the checkbox frame here...
     GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow = function()
@@ -3037,6 +3070,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         local color1 , color2 , color3 = "" , "" , "";
         local baseHeight = 245;
         local player = GRM.GetPlayer ( GRM_G.currentName );
+        GRM_MacroToolIgnoreListSettingsFrame.currentName = GRM_G.currentName;
+
+        if not player.safeList then
+            player.safeList = GRM.GenerateSafeListForPlayer();
+        end
 
         GRM.ValidateIgnoreExpireDates ( player );
 
@@ -3097,7 +3135,6 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButtonTimeLeftText:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListFramePromoteCheckBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton , "BOTTOMLEFT" , 10 , -1 );
             end
-
 
         else
             GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.GRM_IgnoreListKickTimeExpireButton:SetChecked ( false );
@@ -3259,6 +3296,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetScript ( "OnUpdate" , GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate );
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetScript ( "OnHide" , function() GRM_UI.VerifySafeList() end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetSize ( 400 , 235 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData , "BOTTOMLEFT" , 0 , 2 );
@@ -9057,22 +9095,27 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButtonText2:Hide();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetScript ( "OnClick" , function( self , button )
             if button == "LeftButton" then
-                if self:GetChecked() then
-                    GRM.S().colorizeClassicRosterNames = true;
-                    SetCVar("chatClassColorOverride" , 0 );
-                    if GRM_G.BuildVersion >= 30000 then
-                        GRM.SetChatClassColoringInWrath ( true );
+                if not GRM_G.AddonRestricted then
+                    if self:GetChecked() then
+                        GRM.S().colorizeClassicRosterNames = true;
+                        SetCVar("chatClassColorOverride" , 0 );
+                        if GRM_G.BuildVersion >= 30000 then
+                            GRM.SetChatClassColoringInWrath ( true );
+                        else
+                            GRM.SetChatClassColoringNew ( true );
+                        end
                     else
-                        GRM.SetChatClassColoringNew ( true );
+                        GRM.S().colorizeClassicRosterNames = false;
+                        SetCVar("chatClassColorOverride" , 1 )
+                        if GRM_G.BuildVersion >= 30000 then
+                            GRM.SetChatClassColoringInWrath ( false );
+                        else
+                            GRM.SetChatClassColoringNew ( false );
+                        end
                     end
                 else
-                    GRM.S().colorizeClassicRosterNames = false;
-                    SetCVar("chatClassColorOverride" , 1 )
-                    if GRM_G.BuildVersion >= 30000 then
-                        GRM.SetChatClassColoringInWrath ( false );
-                    else
-                        GRM.SetChatClassColoringNew ( false );
-                    end
+                    self:SetChecked ( not self:GetChecked() ); -- Flip it back to what it was.
+                    GRM.Report ( GRM.L ("GRM:") .. " " .. GRM.L ( "Failed to enable Classic chat class. Addons are currently restricted. Please enable in the settings manually or reload to try again.") );
                 end
             end
         end);

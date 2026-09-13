@@ -8,15 +8,19 @@ GRM.UI_Pre = UI_Pre;
 UI_Pre.checkClassicUIRoster = function()
 
     if not GRM.S().classicUIInformed then
-        GRM.S().classicUIInformed = true;
-        local guild_interface = GetCVar("useClassicGuildUI");
+        if not GRM_G.AddonRestricted then
+            GRM.S().classicUIInformed = true;
+            local guild_interface = GetCVar("useClassicGuildUI");
 
-        if guild_interface and guild_interface == "1" then
-            -- We now have a problem, the old roster interface
+            if guild_interface and guild_interface == "1" then
+                -- We now have a problem, the old roster interface
 
-            local msg = '|CFFFF0000' .. GRM.L( "One Time Notice" ) .. "|r\n\n" .. GRM.L ( "Blizzard re-introduced the Classic roster, which you currently have enabled. GRM features will be limited. The communities roster will give you access to all of GRM's features.") .. "\n\n" .. GRM.L( "Would you like to enable the communities roster?" );
+                local msg = '|CFFFF0000' .. GRM.L( "One Time Notice" ) .. "|r\n\n" .. GRM.L ( "Blizzard re-introduced the Classic roster, which you currently have enabled. GRM features will be limited. The communities roster will give you access to all of GRM's features.") .. "\n\n" .. GRM.L( "Would you like to enable the communities roster?" );
 
-            GRM.SetConfirmationWindow(UI_Pre.EnableCommunities, msg , nil , {350 , 200 } );
+                GRM.SetConfirmationWindow(UI_Pre.EnableCommunities, msg , nil , {350 , 200 } );
+            end
+        else
+            GRM.Report ( GRM.L ("GRM:") .. " " .. GRM.L ( "Failed to enable Communities Roster. Addons are currently restricted. Please enable in the settings manually or reload to try again.") );   
         end
     end
 end

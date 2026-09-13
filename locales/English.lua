@@ -2067,5 +2067,9 @@ GRML.English = function()
     -- Patching update
     GRM_L["The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"] = true
 
+    -- Secret Protection warnings
+    GRM_L["Failed to enable Communities Roster. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
+    GRM_L["Failed to enable Classic chat class coloring. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
+
 end
 
