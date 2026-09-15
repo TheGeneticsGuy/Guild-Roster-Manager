@@ -22,6 +22,8 @@ GRM_MinimapPosition.hide = GRM_MinimapPosition.hide or false;
 
 -- Functions table
 GRM = {};
+-- Globals Table
+GRM_G = {};
 
 -- local ghostSettings;    -- In case a player leaves the guild abruptly.
 --------------------------

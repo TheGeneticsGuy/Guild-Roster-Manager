@@ -1987,8 +1987,6 @@ GRML.SpanishMX = function()
     GRM_L["Move Anywhere"] = true
 
     -- 1.99374
-    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = true
-    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
     GRM_L["Addons are no longer restricted. Continuing GRM initialization now."] = true
     GRM_L["Please specify a number limit after the altlimit command."] = true
     GRM_L["Nickname is too long. Max {num} letters."] = true
@@ -2023,7 +2021,6 @@ GRML.SpanishMX = function()
     GRM_L["Officer Note Locations:"] = true
     GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = true
     GRM_L["Disregard notes located in Public or Officer notes"] = true
-    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
     
     -- R1.99386
     GRM_L["Unable to Retrieve. Addons currently restricted."] = true

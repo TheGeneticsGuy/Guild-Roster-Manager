@@ -3,22 +3,33 @@
 
 GRM_M = {};
 
-GRM_M.CreateModule = function ( moduleName , createSettingsTab )
-    local name = moduleName:gsub ( "%s" , "" );
+-- GRM_M.CreateModule = function ( moduleName , createSettingsTab )
+--     local name = moduleName:gsub ( "%s" , "" );
 
-    -- Name must have no whiteSpace
-    GRM_G.Modules[name] = {};
+--     -- Name must have no whiteSpace
+--     GRM_G.Modules[name] = {};
 
-    if createSettingsTab then
-        GRM_G.Modules[name].SettingsTab = true;
-    else
-        GRM_G.Modules[name].SettingsTab = false;
+--     if createSettingsTab then
+--         GRM_G.Modules[name].SettingsTab = true;
+--     else
+--         GRM_G.Modules[name].SettingsTab = false;
+--     end
+
+-- end
+
+-- GRM_M.AddModuleSetting = function ( moduleName , type , settingsName , defaultSetting )
+
+
+-- end
+
+-- Method:          GRM_M.GetNumModules()
+-- What it Does:    Returns the int num of plugin modules for GRM that are enabled
+-- Purpose:         Useful information and to display the modules tab properly if necessary
+GRM_M.GetNumModules = function()
+    local num = 0;
+    for _ in pairs(GRM_G.Module) do
+        num = num + 1;
     end
 
+    return num;
 end
-
-GRM_M.AddModuleSetting = function ( moduleName , type , settingsName , defaultSetting )
-
-
-end
-

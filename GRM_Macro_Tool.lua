@@ -7994,9 +7994,11 @@ end
 GRM.HowManySafeListsIsPlayerOn = function ( player )
     local c = 0;
 
-    for _ , safeList in pairs ( player.safeList ) do
-        if safeList[1] then
-            c = c + 1;
+    if player.safeList then
+        for _ , safeList in pairs ( player.safeList ) do
+            if safeList[1] then
+                c = c + 1;
+            end
         end
     end
 
@@ -8109,8 +8111,9 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
             -- Now scan through the roster and update.
             player = guildData[ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries[i].name ];
 
-            if player then
+            if player and player.safeList then
                 player.safeList[rule][1] = false;
+                GRM_UI.VerifySafeList(player);
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , i );
 
                 -- Rebuild the mouseover frame in case it is open
@@ -8143,9 +8146,12 @@ GRM.ClearAllPlayersFromIgnoreList = function()
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList[rule][1] then
-                player.safeList[rule][1] = false;
-                count = count + 1;
+            if player.safeList then
+                if player.safeList[rule][1] then
+                    player.safeList[rule][1] = false;
+                    GRM_UI.VerifySafeList(player);
+                    count = count + 1;
+                end
             end
         end
     end
@@ -8183,7 +8189,7 @@ GRM.GetNumIgnored = function()
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList[rule][1] then
+            if player.safeList and player.safeList[rule][1] then
                 count = count + 1;
             end
         end
@@ -8202,7 +8208,7 @@ GRM.IsAnyIgnored = function()
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList[rule][1] then
+            if player.safeList and player.safeList[rule][1] then
                 result = true;
                 break;
             end
@@ -10407,6 +10413,7 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                     if ruleConfirmedCheck then
                         if rule.isEnabled then
                             if not player.safeList or not player.safeList.kick or not player.safeList.kick[1] then
+                                GRM_UI.VerifySafeList(player);
                                 if not isActionForHigherAltOnly then
                                     if not playerRecommendationEntry then
 
@@ -11179,7 +11186,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                         -- RULE IS GOOD - ADD PLAYER
                         -- Check safe list too
 
-                        if not player.safeList.kick[1] and not isHigherAlt and rule.isEnabled then      -- Ignore for scanning... but I still want a count of the ignored.
+                        if (not player.safeList or not player.safeList.kick[1]) and not isHigherAlt and rule.isEnabled then      -- Ignore for scanning... but I still want a count of the ignored.
 
                             local index = GRM.GetIndexOfPlayerOnList ( listOfPlayers , player.name );
 
@@ -11218,7 +11225,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                         elseif not rule.isEnabled then
                             ruleDisabledList[player.name] = true;
 
-                        elseif not player.safeList.kick[1] and isHigherAlt and rule.isEnabled then
+                        elseif (not player.safeList or not player.safeList.kick[1]) and isHigherAlt and rule.isEnabled then
                             higherAltCount = higherAltCount + 1;
                         end
                     end
@@ -11494,7 +11501,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
 
                             -- RULE IS GOOD - ADD PLAYER
 
-                            if not player.safeList[GRM_UI.ruleTypeEnum2[rule.ruleType]][1] then      -- Ignore for scanning... but I still want a count of the ignored.
+                            if (not player.safeList or not player.safeList[GRM_UI.ruleTypeEnum2[rule.ruleType]][1]) then      -- Ignore for scanning... but I still want a count of the ignored.
 
                                 playerMatch = false;
                                 if rule.ruleType == 1 then
@@ -11924,7 +11931,7 @@ GRM.GetSafePlayers = function( getCountAndPlayers )
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
         for _ , player in pairs ( guildData ) do
-            if type ( player ) == "table" and player.safeList[rule][1] and player.name ~= GRM_G.addonUser then
+            if type ( player ) == "table" and player.safeList and player.safeList[rule][1] and player.name ~= GRM_G.addonUser then
 
                 count = count + 1;
                 -- Default just gets the count - otherwise it returns the list of players as well.

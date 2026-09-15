@@ -2854,7 +2854,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                         publicNote = "";
                     end
 
-                    if publicNote ~= playerDetails.newNote and ( GRM.CanEditPublicNote() or GRM_G.currentName == GRM_G.addonUser ) then      -- No need to update old note if it is the same.
+                    if not GRM_G.BuildHasRestrictions and publicNote ~= playerDetails.newNote and ( GRM.CanEditPublicNote() or GRM_G.currentName == GRM_G.addonUser ) then      -- No need to update old note if it is the same.
 
                         -- Saving the changes!
                         player.note = playerDetails.newNote;                        -- Metadata
@@ -2961,7 +2961,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                         officerNote = "";
                     end
 
-                    if officerNote ~= playerDetails.newNote and GRM.CanEditOfficerNote() then      -- No need to update old note if it is the same.
+                    if not GRM_G.BuildHasRestrictions and officerNote ~= playerDetails.newNote and GRM.CanEditOfficerNote() then      -- No need to update old note if it is the same.
 
                         -- Saving the new note details!
                         player.officerNote = playerDetails.newNote;      -- to addon metadata
@@ -3054,9 +3054,6 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
             if purge then
                 player.safeList = nil;
-                print("Purging safelist")
-            else
-                print("Not purging safelist")
             end
         end
 
@@ -7335,7 +7332,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     -- LOAD MODULE UI HOUSING
     GRM_UI.LoadModulesFrameOnShow = function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
-        if GRM.GetNumModules() > 0 then
+        if GRM_M.GetNumModules() > 0 then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:Hide();
             -- Group Info Module
             if GRM_G.Module.GroupInfo ~= nil then

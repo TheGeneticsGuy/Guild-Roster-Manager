@@ -48,8 +48,8 @@ local InitializeSecrets = function()
 end
 
 -- Initialize
-if Secrets.BuildHasSecretRestrictions() then
-    GRM_G.BuildHasRestrictions = true;
+Secrets.InitializeSecretCheck = function()
+    GRM_G.BuildHasRestrictions = Secrets.BuildHasSecretRestrictions();
     InitializeSecrets();
 end
 

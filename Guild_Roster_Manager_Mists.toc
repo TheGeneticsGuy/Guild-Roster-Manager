@@ -13,9 +13,8 @@
 ## SavedVariablesPerCharacter: GRM_DebugLog_Save , GRM_MinimapPosition
 
 GRM_SaveVar_API.lua
-GRM_Core.lua
-
 Compatibility/GRM_Compatibility.lua
+GRM_Core.lua
 
 GRM_Debug.lua
 GRM_WebApps.lua
@@ -27,6 +26,7 @@ GRM_AltManagement.lua
 GRM_GuildSync.lua
 GRM_ScanRoster.lua
 GRM_Log.lua
+GRM_Modules.lua
 
 locales\German.lua
 locales\French.lua

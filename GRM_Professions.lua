@@ -199,7 +199,7 @@ Prof.AppendProfessionReportToNote = function ( name , destination )
         if notes and index then
 
             -- Public Note
-            if destination == 1 and ( GRM.CanEditPublicNote() or name == GRM_G.addonUser ) then
+            if destination == 1 and not GRM_G.BuildHasRestrictions and ( GRM.CanEditPublicNote() or name == GRM_G.addonUser ) then
 
                 if index then
                     note = select( 7, GetGuildRosterInfo(index) );
@@ -218,7 +218,7 @@ Prof.AppendProfessionReportToNote = function ( name , destination )
                 end
 
             -- Officer Note
-            elseif destination == 2 and GRM.CanEditOfficerNote() then
+            elseif destination == 2 and not GRM_G.BuildHasRestrictions and GRM.CanEditOfficerNote() then
 
                 if index then
                     officerNote = select( 8, GetGuildRosterInfo(index) );

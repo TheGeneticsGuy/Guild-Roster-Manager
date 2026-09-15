@@ -2966,12 +2966,14 @@ GRM_Patch.ConvertLeaderNoteControlFormatToGuildInfo = function()
                                 g1 = true;
                             end
                             -- Remove it from note now!
-                            if j == 1 then
-                                msg = string.gsub ( msg , sign .. "grm1" , "" );
-                                GRM.SetNote ( guid, GRM.Util.Trim( msg ), true, i );
-                            else
-                                msg = string.gsub ( msg , sign .. "grm1" , "" );
-                                GRM.SetNote ( guid, GRM.Util.Trim( msg ), false, i );
+                            if not GRM_G.BuildHasRestrictions then
+                                if j == 1 then
+                                    msg = string.gsub ( msg , sign .. "grm1" , "" );
+                                    GRM.SetNote ( guid, GRM.Util.Trim( msg ), true, i );
+                                else
+                                    msg = string.gsub ( msg , sign .. "grm1" , "" );
+                                    GRM.SetNote ( guid, GRM.Util.Trim( msg ), false, i );
+                                end
                             end
                         end;
                     end
