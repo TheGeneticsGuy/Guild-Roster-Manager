@@ -22,6 +22,7 @@
 
 * Cleaned up a lot of redundant and unused variables from the Former Players database. There are many variables that were stored on the former player references just because it was a pure copy of the member data to former member, and I just realized a lot of it is not necessary to store in the database, like what zone you are currently in, if you are safe from macro ignore, as that no longer applies, status, and several others. This is handled much cleaner now.
 
+* Made some of the player data bloat not to have empty placeholders needlessly as that took a LOT of data.
 
 
 
