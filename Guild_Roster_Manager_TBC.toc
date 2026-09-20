@@ -12,6 +12,7 @@
 ## SavedVariables: GRM_PlayersThatLeftHistory_Save , GRM_GuildMemberHistory_Save , GRM_CalendarAddQue_Save , GRM_LogReport_Save , GRM_AddonSettings_Save , GRM_PlayerListOfAlts_Save , GRM_GuildDataBackup_Save , GRM_Restore_Members , GRM_Restore_FormerMembers , GRM_Restore_Log , GRM_Misc , GRM_Alts , GRM_DailyAnnounce
 ## SavedVariablesPerCharacter: GRM_DebugLog_Save , GRM_MinimapPosition
 
+GRM_Types.lua
 GRM_SaveVar_API.lua
 Compatibility\GRM_Compatibility.lua
 GRM_Core.lua
@@ -49,6 +50,7 @@ GRM_Localization.lua
 GRM_UI_API.lua
 GRM_Roster.lua
 GRM_Minimap.lua
+GRM_UI_Dropdown.lua
 GRM_UI.lua
 
 Options\GRM_NamesSettingsTab.lua

@@ -310,6 +310,7 @@ GRM_UI.GRM_RosterChangeLogFrame:Hide();
 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame = CreateFrame ( "Frame" , "GRM_LogFrame" , GRM_UI.GRM_RosterChangeLogFrame );
 -- Options Frame
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame = CreateFrame ( "Frame" , "GRM_OptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame );
+GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.TabType = 0;
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame = CreateFrame ( "Frame" , "GRM_SyncOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame = CreateFrame ( "Frame" , "GRM_ScanningOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame );
 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame = CreateFrame ( "Frame" , "GRM_OfficerOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame );
@@ -2240,7 +2241,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             if GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:IsVisible() then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:Hide();
             else
-                GRM.InitializeDropDownDay();
+                GRM_UI.DD.InitializeDropDownDay();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:Show();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Hide();
@@ -2295,7 +2296,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             if GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:IsVisible() then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Hide();
             else
-                GRM.InitializeDropDownMonth();
+                GRM_UI.DD.InitializeDropDownMonth();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Show();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Hide();
@@ -2350,7 +2351,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             if GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:IsVisible() then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Hide();
             else
-                GRM.InitializeDropDownYear();
+                GRM_UI.DD.InitializeDropDownYear();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Show();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Hide();
                 GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:Hide();
@@ -5863,6 +5864,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame:SetScript ( "OnShow" , function()
+        GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.LOGTOOLS;
         GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsButton.GRM_LogExtraOptionsButtonText:SetText ( GRM.L ( "Hide Log Tools" ) );
         if GRM.S().showLineNumbers then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogShowLinesCheckButton:SetChecked ( true );
@@ -6611,23 +6613,30 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame:SetSize ( 600 , 480 );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:SetScript ( "OnShow" , function()
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
-    end);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:SetScript ( "OnShow" , function()
+        GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.SYNC;
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:SetScript ( "OnShow" , function()
+        GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.OFFICER;
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:SetScript ( "OnShow" , function()
+        GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.SCAN;
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame:SetScript ( "OnShow" , function()
+        GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.UI;
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
     end);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:SetScript ( "OnShow" , function()
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
     end);
+    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame:SetScript ( "OnShow" , function()
+        GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES;
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
+    end);
+
+    
 
     -- BUILD HARDCORE OPTIONS PAGE
     GRM_UI.CreateCoreFrame ( "GRM_ClassicOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , nil , 600 , 480 , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
@@ -6731,6 +6740,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.CreateCheckBox ( "GRM_HardcoreAddTimeCheckbox" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_HardcoreAddTagCheckbox , "BOTTOMLEFT" , 0 , -6 } , GRM_UI.HCtagTimeCheckBox , GRM.L ( "Include Date Player Died" ) , "GameFontNormal" , 12 );
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:SetScript ( "OnShow" , function()
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.TabType = GRM_ENUM.OPTIONS_TABS.CLASSIC;
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:Show();
 
@@ -7273,7 +7283,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 if  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:IsVisible() then
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
                 else
-                    GRM.PopulateMainTagDropdown();
+                    GRM_UI.DD.PopulateMainTagDropdown();
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Show();
                 end
             end
@@ -7306,6 +7316,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
 
     -- LOAD MODULE UI HOUSING
     GRM_UI.LoadModulesFrameOnShow = function()
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.TabType = GRM_ENUM.OPTIONS_TABS.MODULES;
         GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
         if GRM_M.GetNumModules() > 0 then
             GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:Hide();
@@ -7940,7 +7951,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:SetScript ( "OnShow" , function()
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
+        GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.GENERAL;
+        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
     end);
 
     -- Color window... let's make it moveable!
@@ -8290,7 +8302,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
 
         GRM_UI.ReportDestination ( self );
-        GRM.chattynator.CleanupChattynatorTabs();
+        if GRM_G.Compat.ChattynatorLoaded then
+            GRM.chattynator.CleanupChattynatorTabs();
+        end
     end)
 
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetScript ( "OnEditFocusGained" , function ( self )
@@ -8349,7 +8363,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
 
-                GRM.PopulateLanguageDropdown();
+                GRM_UI.DD.PopulateLanguageDropdown();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:Show();
             end
         end
@@ -8410,7 +8424,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
-                GRM.PopulateFontDropdown();
+                GRM_UI.DD.PopulateFontDropdown();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:Show();
             end
         end
@@ -8473,7 +8487,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
-                GRM.PopulateTimestampFormatDropDown ( true );
+                GRM_UI.DD.PopulateTimestampFormatDropDown ( true );
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelectedDropDownMenu:Show();
             end
         end
@@ -8522,7 +8536,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
-                GRM.Populate24HrDropDown();
+                GRM_UI.DD.Populate24HrDropDown();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Show();
             end
         end
@@ -8801,7 +8815,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
-                GRM.PopulateDefaultTabDropdown();
+                GRM_UI.DD.PopulateDefaultTabDropdown();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:Show();
             end
         end
@@ -10501,7 +10515,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:IsVisible() then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:Hide();
            else
-                GRM.PopulateOptionsRankDropDown();
+                GRM_UI.DD.PopulateOptionsRankDropDown();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:Show();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:Hide();
@@ -10593,7 +10607,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:IsVisible() then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:Hide();
            else
-                GRM.PopulateBanListOptionsDropDown();
+                GRM_UI.DD.PopulateBanListOptionsDropDown();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:Show();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:Hide();
@@ -10706,7 +10720,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:IsVisible() then
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:Hide();
             else
-                GRM.PopulateDefaultDropDownRankMenu();
+                GRM_UI.DD.PopulateDefaultDropDownRankMenu();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:Show();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:Hide();
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:Hide();
@@ -12092,7 +12106,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:Hide();
             else
                 if ( not GRM_G.GlobalControl5 or CanEditGuildInfo() ) then
-                    GRM.PopulateTimestampFormatDropDown();
+                    GRM_UI.DD.PopulateTimestampFormatDropDown();
                     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:Show();
                 end
             end
@@ -14283,7 +14297,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:Hide();
             GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:Hide();
         end
-        GRM.PopulateClassDropDownMenu();
+        GRM_UI.DD.PopulateClassDropDownMenu();
 
         -- Create the autocomplete list so it doesn't have to keep rebuilding it over and over.
         GRM_G.autoCompleteBanList = GRM.GetAllCurrentAndFormerGuildies( true , true );
@@ -16325,7 +16339,7 @@ GRM_UI.BuildLogFrames = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:SetText ( GRM_G.customHeaderRejoin );
 
     -- Get that Dropdown Menu Populated!
-    GRM.CreateOptionsRankDropDown();
+    GRM_UI.DD.CreateOptionsRankDropDown();
     -- Ok rebuild the log after changes
 end
 

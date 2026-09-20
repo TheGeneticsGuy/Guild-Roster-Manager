@@ -5305,7 +5305,9 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Show();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu , 14 , 11 , "THICKOUTLINE" , repOperatorsMythic ,  setMythicPlusSymbolSelection );
+
+                    GRM_UI.DD.CreateDD ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu , 14 , 11 , "THICKOUTLINE" , repOperatorsMythic ,  setMythicPlusSymbolSelection );
+                    
                     ConfigureMythicDropDownSymbols();
                 end
                 GRM.RestoreTooltip();
@@ -5424,7 +5426,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Show();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu , 14 , 11 , "THICKOUTLINE" , repOperators ,  SetRepSymbolSelection );
+                    GRM_UI.DD.CreateDD ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu , 14 , 11 , "THICKOUTLINE" , repOperators ,  SetRepSymbolSelection );
                     ConfigureDropDownSymbols();
                 end
                 GRM.RestoreTooltip();
@@ -5490,7 +5492,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Show();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolDropDownMenu:Hide();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu , 11 , 11 , "THICKOUTLINE" , repList ,  SetGuildRepSelection );
+                    GRM_UI.DD.CreateDD ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu , 11 , 11 , "THICKOUTLINE" , repList ,  SetGuildRepSelection );
                 end
                 GRM.RestoreTooltip();
             end
@@ -6196,7 +6198,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 else
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu:Show();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
-                    GRM.CreateDropDownMenu ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu , 12 , 12 , "THICKOUTLINE" , GRM.G_Util.GetListOfGuildRanks() ,  GRM_UI.SetDestinationSelection );
+                    GRM_UI.DD.CreateDD ( self , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankDropdownMenu , 12 , 12 , "THICKOUTLINE" , GRM.G_Util.GetListOfGuildRanks() ,  GRM_UI.SetDestinationSelection );
                     GRM_UI.AdjustColoringOfDestinationRanks();
                 end
                 GRM.RestoreTooltip();

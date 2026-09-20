@@ -1,6 +1,7 @@
 GRM_S = {};
 
 GRM_G.SettingsPages = 17;
+GRM_G.SettingsTabFocus = 0;
 
 -- Method:          GRM_S.SetDefaultAddonSettings( object , int )
 -- What it Does:    Establishes the default addon setttings for all of the options and some other misc. stored variables, like minimap position

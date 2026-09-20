@@ -761,6 +761,7 @@ end
 -- Purpose:         UX feature
 Export.SetExportTabHighlights = function()
 
+    GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.EXPORT;
     Export.SetExportFilters();
 
     if GRM_UI.GRM_ExportLogBorderFrame.TabPosition == 1 then

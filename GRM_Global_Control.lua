@@ -530,7 +530,7 @@ Global.SetLeaderRankRestrictionSetting = function(generalSyncIndex, isMyEdit)
 
             GRM.S().syncRank = generalSyncIndex;
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
-                GRM.CreateOptionsRankDropDown();
+                GRM_UI.DD.CreateOptionsRankDropDown();
             end
 
         end
@@ -583,7 +583,7 @@ Global.SetLeaderBanRestrictionSetting = function(banSync, isMyEdit)
                 GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
                 if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
-                    GRM.CreateOptionsRankDropDown();
+                    GRM_UI.DD.CreateOptionsRankDropDown();
                 end
             end
         end
@@ -625,7 +625,7 @@ Global.SetLeaderCustomNoteRestrictionSetting = function(customSyncIndex, isMyEdi
             GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
             if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
-                GRM.CreateOptionsRankDropDown();
+                GRM_UI.DD.CreateOptionsRankDropDown();
             end
         end
     else

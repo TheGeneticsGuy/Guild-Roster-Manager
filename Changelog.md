@@ -28,6 +28,7 @@
 
 * Made some of the player data bloat not to have empty placeholders needlessly as that took a LOT of data.
 
+* Fixed a Lua error that could occur if You didn't have Chattynator installed but you checked the setting of GRM messaging destinations. This shouldn't trigger UNLESS Chattynator was installed, but there was one gate that didn't check if you had the addon loaded before running a check, so it was saying "Chattynator" doesn't exist and threw an error. Woops!
 
 
 
