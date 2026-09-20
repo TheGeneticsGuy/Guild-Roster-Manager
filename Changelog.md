@@ -6,6 +6,19 @@
 
 ***QUALITY OF LIFE***
 
+***ONGOING OPTIMIZATION WORK***
+
+When I wrote GRM, I was not really a knowledgeable programmer. I had done some minor coding work in the Computational Biology world in college, but I was a biologist, not a coder. It did kind of spark my journey of interest into coding, however, and I started doing little fun personal side projects here and there. Eventually, as a long-time WOW player and Guild Leader, I got tired of waiting around for Blizz to enhance and update the guild interface, so I just thought to myself one day, "Maybe I can just write an addon to do a few things I want." And thus, GRM was born.
+
+But, it was messy. It started as journey where I told myself, "I'll just learn as I go." And so, over the years, I had many suggestions from people to use X library, or Y tool, and so on, and while those were definitely "smarter" choices, I said to myself that I wanted to learn, and I wanted to build every single line of code myself, no external depencies. It wasn't because that was better, or smarter, but purely because I was enjoying coding, it had become my main hobby, and I just wanted to learn how to do it myself.
+
+Well, here I am, nearly 10 years later. I have since went back to school and obtained a new degree, and now I work professionally as a software engineer. I am still just an average coder, but I have learned a lot, and as I revisit the mess of code that is GRM, I am able to look at it with new eyes and see all the work that needs to be done to rewrite much of the more amateurish work I had done before. Ultimately, GRM was brute forced out of sheer will in my coding ignorance, but it works. And so now, every major update I am slowly bringing in more appropriate coding standards and principles. I am making things more efficient. I am optimizing extensively. But, to not get overly bogged down by it, I cansider this a journey of baby steps. Every update recently has been taking steps towards this process. This update is no different. I've even gotten my super class core file below 20k lines of code now haha!
+
+Anyway, I just wanted to share that I look forward to continue optimizing until I am satisfied. So, if you see an extensive change to the file structure of the addon, that will explain why. At the end of the day, it will be better as a result. For most of you, this might not make too much of a difference and will largely be unnoticeable, but it does make the process of working with GRM all the more easier in the future.
+
+Thank you to all who have been great support and even coding mentors over the years in my journey here, and you may not realize it, but it was my direct community support of other software and tech people in discord that ultimately inspired me to take this late life career change that I should have done so many years ago. While I was comfortable in my former career, nothing could have prepared me for the whirlwind of opportunity in the software world. So thank you!
+
+**Example of a Major Optimization this Patch:**
 **Patching System for GRM updates has been completely overhauled**
 
 * If patching fails, a heartbeat check will inform you rather than the addon completely failing.

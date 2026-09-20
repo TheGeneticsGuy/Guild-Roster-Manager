@@ -163,7 +163,7 @@ Global.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
         end
         
         if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-            GRM_UI.BuildLogFrames()
+            GRM_UI.RefreshOptionsUI()
         end
     end
     if not forced then

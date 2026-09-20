@@ -3575,7 +3575,7 @@ Scan.AddonPlayerRankChange = function(newRankIndex)
     GRM.RegisterMessage(); -- Update everyone else's settings
 
     if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.BuildLogFrames();
+        GRM_UI.RefreshOptionsUI();
     end
 
     -- Determine if player has access to guild chat or is in restricted chat rank - need to recheck with rank change.
