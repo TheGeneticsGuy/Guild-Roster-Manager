@@ -16,7 +16,7 @@ GRM_Types.lua
 GRM_SaveVar_API.lua
 Compatibility\GRM_Compatibility.lua
 GRM_Core.lua
-Options\GRM_SettingsControl.lua
+Options\GRM_SettingsControls.lua
 
 GRM_Debug.lua
 GRM_WebApps.lua
