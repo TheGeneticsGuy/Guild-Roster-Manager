@@ -7209,6 +7209,36 @@ GRM.GenerateSafeListForPlayer = function()
     return safeList;
 end
 
+-- Smart handling of a clean safeList
+GRM.VerifySafeList = function(player)
+    player = player or GRM.GetPlayer ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.currentName );
+
+    -- We wan to purge safeList from player if it is just default.
+    if player then
+        local defaultList = GRM.GenerateSafeListForPlayer();
+        local playerList = player.safeList;
+        local list = { "kick" , "promote" , "demote" };
+        local purge = true;
+
+        if player.safeList then
+            for i = 1 , #list do
+                if playerList[list[i]] and defaultList[list[i]] and
+                    playerList[list[i]][1] ~= defaultList[list[i]][1] then -- Only need to check if enabled
+                        purge = false
+                        break;
+                else
+                    purge = true; -- Table format is messed up
+                    break;
+                end
+            end
+        end
+
+        if purge then
+            player.safeList = nil;
+        end
+    end
+end
+
 -- Method:          GRM.JoinAndRankDataCleanup ( playerTable )
 -- What it Does:    Cleans up a possible extra empty add bug due to some old legacy code errors.
 -- Purpose:         Prevent downstream errors.
@@ -21010,7 +21040,7 @@ GRM.ValidateIgnoreExpireDates = function(player)
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:IsVisible() then
                         GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
                 else
-                    GRM_UI.VerifySafeList(player);
+                    GRM.VerifySafeList(player);
                 end
             end
         end

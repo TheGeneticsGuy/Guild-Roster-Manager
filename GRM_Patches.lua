@@ -1051,7 +1051,7 @@ GRM_Patch.PatchHistory = {
             GRM_Patch.AddNewSetting("ProfFullyDisabled", (GRM_G.BuildVersion >= 100000))
         end
     },
-    { version = 1.995, apply = function() GRM_Patch.NicknameAndFormerMamberOverhaul() end }
+    { version = 1.995, apply = function() GRM_Patch.MemberDataCleanup() end }
 }
 
 -- Final report is good to go!
@@ -9672,7 +9672,7 @@ GRM_Patch.AdaptNoteFeatureRetail = function ( noteSetEnabled )
 end
 
 -- R1.995
-GRM_Patch.NicknameAndFormerMamberOverhaul = function()
+GRM_Patch.MemberDataCleanup = function()
 
     -- Purge old alt info add new table.
     GRM_Patch.ModifyMemberSpecificData ( function(player)
@@ -9681,6 +9681,9 @@ GRM_Patch.NicknameAndFormerMamberOverhaul = function()
                                             end
                                             if not player.nickInfo then
                                                 player.nickInfo = GRM.NN.CreateNickObject();
+                                            end
+                                            if player.safeList then
+                                                GRM.VerifySafeList(player);
                                             end
                                             return player;
                                          end,
@@ -9691,6 +9694,8 @@ GRM_Patch.NicknameAndFormerMamberOverhaul = function()
                                             return GRM.PurgeUnneededDataFormer(player);
                                          end,
                                          false , true , false , nil );
+
+    
     -- Now cleanup alt groups
     for _, guildAlts in pairs(GRM_Alts) do
         for _, group in pairs(guildAlts) do

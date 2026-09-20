@@ -8113,7 +8113,7 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
 
             if player and player.safeList and player.safeList[rule] then
                 player.safeList[rule][1] = false;
-                GRM_UI.VerifySafeList(player);
+                GRM.VerifySafeList(player);
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , i );
 
                 -- Rebuild the mouseover frame in case it is open
@@ -8149,7 +8149,7 @@ GRM.ClearAllPlayersFromIgnoreList = function()
             if player.safeList and player.safeList[rule] then
                 if player.safeList[rule][1] then
                     player.safeList[rule][1] = false;
-                    GRM_UI.VerifySafeList(player);
+                    GRM.VerifySafeList(player);
                     count = count + 1;
                 end
             end
@@ -10413,7 +10413,7 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                     if ruleConfirmedCheck then
                         if rule.isEnabled then
                             if not player.safeList or not player.safeList.kick or not player.safeList.kick[1] then
-                                GRM_UI.VerifySafeList(player);
+                                GRM.VerifySafeList(player);
                                 if not isActionForHigherAltOnly then
                                     if not playerRecommendationEntry then
 

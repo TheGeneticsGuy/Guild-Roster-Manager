@@ -3028,39 +3028,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         editBox:Disable();
         text:SetTextColor ( 0.5 , 0.5 , 0.5 );
         editBox:SetTextColor ( 0.5 , 0.5 , 0.5 );
-    end
--- 
-    -- Smart handling of a clean safeList
-    GRM_UI.VerifySafeList = function(player)
-        player = player or GRM.GetPlayer ( GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.currentName );
-
-        -- We wan to purge safeList from player if it is just default.
-        if player then
-            local defaultList = GRM.GenerateSafeListForPlayer();
-            local playerList = player.safeList;
-            local list = { "kick" , "promote" , "demote" };
-            local purge = true;
-
-            if player.safeList then
-                for i = 1 , #list do
-                    if playerList[list[i]] and defaultList[list[i]] and
-                        playerList[list[i]][1] ~= defaultList[list[i]][1] then -- Only need to check if enabled
-                            purge = false
-                            break;
-                    else
-                        purge = true; -- Table format is messed up
-                        break;
-                    end
-                end
-            end
-
-            if purge then
-                player.safeList = nil;
-            end
-        end
-
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.currentName = "";
-    end
+    end  
 
     -- Rebuild the checkbox frame here...
     GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow = function()
@@ -3295,7 +3263,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetScript ( "OnUpdate" , GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate );
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetScript ( "OnHide" , function() GRM_UI.VerifySafeList() end);
+    GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetScript ( "OnHide" , function() GRM.VerifySafeList();GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame.currentName = ""; end);
 
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetSize ( 400 , 235 );
     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_MemberDetailMetaData , "BOTTOMLEFT" , 0 , 2 );
@@ -3775,11 +3743,11 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                         -- No point in adding yourself.
                         local safeList = GRM.Util.DeepCopyArray ( player.safeList );
                         alt.safeList = safeList;
-                        GRM_UI.VerifySafeList(alt);
+                        GRM.VerifySafeList(alt);
                     end
                 end
             end
-            GRM_UI.VerifySafeList(player);
+            GRM.VerifySafeList(player);
         end
     end
 
