@@ -16,6 +16,10 @@
 
 *Example:* I took a 185Mb save file with over 113,000 log entries and it took only 18 seconds to patch 72 patches. Previously this would have taken over 2 minutes with my fixed delays. For most people the patching now will take less than 1 second. This larger one was due to massive overhauls over the last 4 years, and I have a save file I use for stress testing massive changes.
 
+* Some better messaging has been added to the addon confirm your actions. For example, if you Ctrl-Shift click the "restore defaults button, it informs you that you reset all addon settings. Before it just said nothing and you just had to flip through tabs to confirm it worked.
+
+
+
 ***BUG FIXES***
 
 * SetCVar and GetCVar are now protected functions by Blizz. GRM does not use these heavily, but they are occasionally used with things like on configuring some settings within the addon. For example, GRM hooks into Blizz's profanity filter so that if you have the profanity filter enabled, it will apply it to GRM notes too so people can't bypass the game settings. Well, I need to check if this setting is enabled or not to use this feature. Well, I can't do that if you reload that when in an instance. So this is taken into account to prevent Lua errors. This will actually throw a strong force **taint** so it is fairly serious.

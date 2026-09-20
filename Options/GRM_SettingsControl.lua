@@ -1,5 +1,7 @@
 GRM_S = {};
 
+GRM_G.SettingsPages = 17;
+
 -- Method:          GRM_S.SetDefaultAddonSettings( object , int )
 -- What it Does:    Establishes the default addon setttings for all of the options and some other misc. stored variables, like minimap position
 -- Purpose:         Easy access to settings on a default reset.
@@ -562,7 +564,7 @@ GRM_S.FinalSettingsConfigurations = function( isManual )
     -- One time processing, saves a bit of resources for an oft used string manipulation feature.
 
     if IsInGuild() then
-        GRM.GuildSpecificConfigurations()
+        GRM_S.GuildSpecificConfigurations()
     else
         GRM.SetReportWindow();
     end
@@ -715,6 +717,8 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
         for i = 0, GRM_G.SettingsPages do
             GRM_S.SetDefaultAddonSettings(settings, i);
         end
+
+        GRM.Report(GRM.L("All GRM Settings have been set to default."));
 
     elseif page then
 

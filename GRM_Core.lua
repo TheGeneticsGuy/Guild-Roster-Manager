@@ -315,7 +315,6 @@ GRM_G.MacroHotKey = "";
 
 -- Configuration
 GRM_G.AddonIsFullyConfigured = false;
-GRM_G.SettingsPages = 17;
 GRM_G.ForceAuto = false; -- Force auto backup this session? For patching purposes
 
 -- Unique Classic frame loads

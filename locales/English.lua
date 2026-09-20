@@ -2068,5 +2068,8 @@ GRML.English = function()
     GRM_L["Failed to enable Communities Roster. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
     GRM_L["Failed to enable Classic chat class coloring. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
 
+    -- Misc
+    GRM_L["All GRM Settings have been set to default."] = true
+
 end
 
