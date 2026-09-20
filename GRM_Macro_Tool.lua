@@ -8111,7 +8111,7 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
             -- Now scan through the roster and update.
             player = guildData[ GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries[i].name ];
 
-            if player and player.safeList then
+            if player and player.safeList and player.safeList[rule] then
                 player.safeList[rule][1] = false;
                 GRM_UI.VerifySafeList(player);
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , i );
@@ -8146,7 +8146,7 @@ GRM.ClearAllPlayersFromIgnoreList = function()
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList then
+            if player.safeList and player.safeList[rule] then
                 if player.safeList[rule][1] then
                     player.safeList[rule][1] = false;
                     GRM_UI.VerifySafeList(player);
@@ -8189,7 +8189,7 @@ GRM.GetNumIgnored = function()
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList and player.safeList[rule][1] then
+            if player.safeList and player.safeList[rule] and player.safeList[rule][1] then
                 count = count + 1;
             end
         end
@@ -8208,7 +8208,7 @@ GRM.IsAnyIgnored = function()
 
     for _ , player in pairs ( guildData ) do
         if type ( player ) == "table" then
-            if player.safeList and player.safeList[rule][1] then
+            if player.safeList and player.safeList[rule] and player.safeList[rule][1] then
                 result = true;
                 break;
             end
@@ -11931,7 +11931,7 @@ GRM.GetSafePlayers = function( getCountAndPlayers )
     local rule = GRM_UI.ruleTypeEnum2[GRM_UI.GRM_ToolCoreFrame.TabPosition];
 
         for _ , player in pairs ( guildData ) do
-            if type ( player ) == "table" and player.safeList and player.safeList[rule][1] and player.name ~= GRM_G.addonUser then
+            if type ( player ) == "table" and player.safeList and player.safeList[rule] and player.safeList[rule][1] and player.name ~= GRM_G.addonUser then
 
                 count = count + 1;
                 -- Default just gets the count - otherwise it returns the list of players as well.

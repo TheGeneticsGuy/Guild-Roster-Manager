@@ -20977,7 +20977,7 @@ end
 -- Purpose:         This is the check that will be done to ensure rules are being monitored.
 GRM.ValidateIgnoreExpireDates = function(player)
 
-    if player then
+    if player and player.safeList then
         local time = time();
 
         -- Player will always have a safeList here 
@@ -21008,7 +21008,9 @@ GRM.ValidateIgnoreExpireDates = function(player)
 
                 if player.name == GRM_G.currentName and
                     GRM_UI.GRM_MemberDetailMetaData.GRM_MacroToolIgnoreListSettingsFrame:IsVisible() then
-                    GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
+                        GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
+                else
+                    GRM_UI.VerifySafeList(player);
                 end
             end
         end

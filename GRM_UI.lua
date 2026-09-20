@@ -3041,14 +3041,16 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             local list = { "kick" , "promote" , "demote" };
             local purge = true;
 
-            for i = 1 , #list do
-                if playerList[list[i]] and defaultList[list[i]] and
-                    playerList[list[i]][1] ~= defaultList[list[i]][1] then -- Only need to check if enabled
-                        purge = false
+            if player.safeList then
+                for i = 1 , #list do
+                    if playerList[list[i]] and defaultList[list[i]] and
+                        playerList[list[i]][1] ~= defaultList[list[i]][1] then -- Only need to check if enabled
+                            purge = false
+                            break;
+                    else
+                        purge = true; -- Table format is messed up
                         break;
-                else
-                    purge = true; -- Table format is messed up
-                    break;
+                    end
                 end
             end
 
@@ -3689,6 +3691,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
         local player = GRM.GetPlayer ( GRM_G.currentName );
         if player and player.altGroup ~= nil then
 
+            local safeList = player.safeList or GRM.GenerateSafeListForPlayer();
+
             local ruleEnum = { [false] = "|CFF00CCFF" .. GRM.L ( "Monitoring" ) .. "|r" , [true] = "|CFFFF0000" .. GRM.L ( "Ignoring" ) .. "|r" }
             local numSafeLists = GRM.HowManySafeListsIsPlayerOn ( player );
             local disabled = "|CFFFF0000" .. GRM.L ( "Disabled at Current Rank" ) .. "|r";
@@ -3700,19 +3704,19 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             local kickMsg , promoteMsg, demoteMsg = "" , "" , "";
 
             if CanGuildRemove() then
-                kickMsg = ruleEnum [player.safeList.kick[1]];
+                kickMsg = ruleEnum [safeList.kick[1]];
             else
                 kickMsg = disabled;
             end
 
             if CanGuildPromote() then
-                promoteMsg = ruleEnum [player.safeList.promote[1]];
+                promoteMsg = ruleEnum [safeList.promote[1]];
             else
                 promoteMsg = disabled;
             end
 
             if CanGuildDemote() then
-                demoteMsg = ruleEnum [player.safeList.demote[1]];
+                demoteMsg = ruleEnum [safeList.demote[1]];
             else
                 demoteMsg = disabled;
             end
@@ -3749,6 +3753,8 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
     -- For use in the mosueover button above for auto-setting values
     GRM_UI.SetAllMacroIgnoreFilters = function ( player , isEnabled )
+
+        player.safeList = player.safeList or GRM.GenerateSafeListForPlayer();
         for list in pairs ( player.safeList ) do
             player.safeList[list][1] = isEnabled;
         end
@@ -3761,18 +3767,19 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
             local alt;
             local group = GRM.GetGuildAlts()[player.altGroup];
 
+            player.safeList =  player.safeList  or GRM.GenerateSafeListForPlayer();
             if group then
                 for i = 1 , #group do              -- Loop through all alts
                     alt = GRM.GetPlayer ( group[i].name );
                     if alt ~= nil then
                         -- No point in adding yourself.
                         local safeList = GRM.Util.DeepCopyArray ( player.safeList );
-                        alt.safeList.kick = safeList.kick;
-                        alt.safeList.promote = safeList.promote;
-                        alt.safeList.demote = safeList.demote;
+                        alt.safeList = safeList;
+                        GRM_UI.VerifySafeList(alt);
                     end
                 end
             end
+            GRM_UI.VerifySafeList(player);
         end
     end
 
