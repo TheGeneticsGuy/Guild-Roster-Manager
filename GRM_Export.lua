@@ -1744,7 +1744,7 @@ Export.LoadExportUI = function( isManualUpdate )
         GRM_UI.ScaleFontStringToObjectSize ( true , 130 , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButtonText , 2 );
         GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportResetOptionsButton:SetScript ( "OnClick" , function( _ , button )
             if button == "LeftButton" then
-                GRM.ResetDefaultSettings( 9 );
+                GRM_S.ResetDefaultSettings( 9 );
             end
         end);
 

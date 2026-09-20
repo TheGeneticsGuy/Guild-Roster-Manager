@@ -301,4 +301,87 @@ G_Util.GetGuildMOTD = function()
     return "";
 end
 
+-- Method:          G_Util.GetRankRestrictedDefaultRankIndex();
+-- What it Does:    Returns the index based on the rank restricted default of a guild, which is a number based on total number of ranks in the guild.
+-- Purpose:         For establishing default settings, it is important to know what the default rank is in the guild.
+G_Util.GetRankRestrictedDefaultRankIndex = function()
+    local rankRestrictedDefault;
+    if IsInGuild() then
+        rankRestrictedDefault = GuildControlGetNumRanks() - 1;
+    else
+        rankRestrictedDefault = 2;
+    end
+    return rankRestrictedDefault;
+end
 
+-- Method:          G_Util.Validate_Guild_DB()
+-- What it Does:    Reviews the payer alt groups and validates them
+-- Purpose:         Protection against data manipulation or bugs
+G_Util.Validate_Guild_DB = function()
+    local altGroups = GRM.GetGuildAlts();
+    local namesCollected = {};
+    local player = {};
+
+    if altGroups then
+        -- First, scan through every alt group, check every toon and ensure it corresponds to their player altGroup reference in playerTable.
+        for groupNum , group in pairs ( altGroups ) do
+            if #group > 0 then
+                for i = #group , 1, -1 do
+
+                    if group[i] then
+
+                        if group[i].name then
+                            player = GRM.GetPlayer ( group[i].name , false );
+
+                            if player then
+                                -- Ok, player exists, now let's ensure the alt group is properly matching.
+                                if player.altGroup ~= groupNum and not namesCollected[ group[i].name ] then
+                                    -- THEY DO NOT MATCH AND name has not been processed.
+                                    player.altGroup = groupNum;
+                                    namesCollected[ group[i].name ] = true;
+
+                                elseif player.altGroup ~= groupNum and namesCollected[ group[i].name ] then
+                                    -- THEY DO NOT MATCH AND NAME HAS BEEN PROCESSED
+                                    -- Since already processed, we are just going to purge the alt from the group, and assume player.altGroup is good.
+                                    table.remove ( group , i );
+                                    if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                        GRM_Alts[GRM_G.guildName][groupNum] = nil;
+                                        break;
+                                    elseif group.main == player.name then
+                                        group.main = "";
+                                    end
+
+                                elseif player.altGroup == groupNum and not namesCollected[ group[i].name ] then
+                                    -- THEY DO MATCH AND NAME NOT PROCESSED - LOOKS GOOD!
+                                    namesCollected[ group[i].name ] = true;
+                                end
+
+                            else
+                                -- Remove player from the alt group since it doesn't exist in guild.
+                                namesCollected[ group[i].name ] = true;
+                                if group[i].name == group.main then
+                                    group.main = "";
+                                end
+                                table.remove ( group , i );
+                                if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                    GRM_Alts[GRM_G.guildName][groupNum] = nil;
+                                    break;
+                                end
+                            end
+                        else
+                            table.remove ( group , i );
+                            if #group == 0 or ( #group == 1 and group.main == "" ) then -- After removing, no one is left.
+                                GRM_Alts[GRM_G.guildName][groupNum] = nil;
+                                break;
+                            end
+                        end
+                    else
+                        GRM_Alts[GRM_G.guildName][groupNum] = nil;    -- Missing index in alt array - purge the group
+                    end
+                end
+            else
+                GRM_Alts[GRM_G.guildName][groupNum] = nil;        -- This should never happen, but cleanup in case of older legacy issue
+            end
+        end
+    end
+end

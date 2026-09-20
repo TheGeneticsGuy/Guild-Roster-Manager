@@ -733,14 +733,14 @@ Scan.BuildNewGuildOrNameChange = function(roster)
 
             -- Load the Default Settings
             for i = 0, GRM_G.SettingsPages do
-                GRM.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.guildName], i);
+                GRM_S.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.guildName], i);
             end
 
             if GRM.IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
                 GRM.S().joinDateDestination = 2;
             end
 
-            GRM.GuildSpecificConfigurations();
+            GRM_S.GuildSpecificConfigurations();
 
             Scan.GenerateRetroactiveGuildEventReport();
 
@@ -2937,7 +2937,7 @@ Scan.FinalReportInformation = function(needToReport)
     if GRM_G.OnFirstLoad then
 
         if not GRM.S() then
-            GRM.LoadSettings( true );
+            GRM_S.LoadSettings( true );
         end
 
         if GRM.S() and GRM.S().viewOnLoad and not GRM_G.WindowLoadedOnce then

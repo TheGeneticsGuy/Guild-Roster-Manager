@@ -1088,11 +1088,11 @@ GRM_Patch.FinalizeReportPatches = function ( patchNeeded , numActions )
 
         -- Load the Default Settings
         for i = 0 , GRM_G.SettingsPages do
-            GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i );
+            GRM_S.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i );
         end
     end
 
-    C_Timer.After ( 0.5 , GRM.FinalSettingsConfigurations );
+    C_Timer.After ( 0.5 , GRM_S.FinalSettingsConfigurations );
 end
 
 ---------------------------
@@ -1336,7 +1336,7 @@ GRM_Patch.ManageOldSettingsDB = function()
             -- Add new player
             -- Load the Default Settings
             for i = 0 , GRM_G.SettingsPages do
-                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[F][GRM_G.addonUser] , i );
+                GRM_S.SetDefaultAddonSettings ( GRM_AddonSettings_Save[F][GRM_G.addonUser] , i );
             end
 
             GRM.ConfigureMiscForPlayer( GRM_G.addonUser );
@@ -4461,7 +4461,7 @@ GRM_Patch.GetDefaultAddonSettings = function()
         true,                                                                                                   -- 12) Announce Upcoming Events.
         { true , true , true , true , true , true , true , true , true , true , true , true , true , true },    -- 13) Checkbox for message frame announcing. Disable
         true,                                                                                                   -- 14) Allow Data sharing between guildies
-        GRM.GetRankRestrictedDefaultRankIndex(),                                                                -- 15) Rank Player must be to accept sync updates from them.
+        GRM.G_Util.GetRankRestrictedDefaultRankIndex(),                                                                -- 15) Rank Player must be to accept sync updates from them.
         true,                                                                                                   -- 16) Receive Notifications if others in the guild send updates!
         true,                                                                                                   -- 17) Only announce the anniversary of players set as the "main"
         true,                                                                                                   -- 18) Scan for changes
@@ -4569,7 +4569,7 @@ GRM_Patch.ConvertAddonSettings = function()
 
                 newUI[faction][ name ] = {};     -- Set each player name to the settings properly
                 for i = 0 , 14 do
-                    GRM.SetDefaultAddonSettings ( newUI[faction][ name ] , i );
+                    GRM_S.SetDefaultAddonSettings ( newUI[faction][ name ] , i );
                     if i == 10 then
                         newUI[faction][ name ]["kickRules"] = { { 1 , 1 , 1 , 12 , true } };
                     end
@@ -7540,7 +7540,7 @@ GRM_Patch.ConvertSettingsToNewFormat = function()
 
             -- Load the Default Settings
             for i = 0 , GRM_G.SettingsPages do
-                GRM.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i );
+                GRM_S.SetDefaultAddonSettings ( GRM_AddonSettings_Save[GRM_G.guildName] , i );
             end
 
             -- Forcing core log window/options frame to load on the first load ever as well

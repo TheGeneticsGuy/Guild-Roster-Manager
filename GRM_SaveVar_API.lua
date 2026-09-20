@@ -69,7 +69,7 @@ end
 -- local BuildGhostSettings = function()
 --     local player = {};
 --     for i = 0, GRM_G.SettingsPages do
---         GRM.SetDefaultAddonSettings (player, i);
+--         GRM_S.SetDefaultAddonSettings (player, i);
 --     end
 
 --     return player;
@@ -295,4 +295,64 @@ GRM.GetIndexOfPlayerOnList = function ( sortedTable , name )
     end
 
     return nil;
+end
+
+-- Method:          GRM.ClearPermData()
+-- What it Does:    Resets all the saved data back to nothing... and does not rebuid it.
+-- Purpose:         Mainly for use if ever there is a need to purge the data
+GRM.ClearPermData = function()
+
+    GRM_GuildMemberHistory_Save = nil;
+    GRM_GuildMemberHistory_Save = {};
+
+    GRM_PlayersThatLeftHistory_Save = nil;
+    GRM_PlayersThatLeftHistory_Save = {};
+
+    GRM_AddonSettings_Save = nil;
+    GRM_AddonSettings_Save = {};
+
+    GRM_LogReport_Save = nil;
+    GRM_LogReport_Save = {};
+
+    GRM_CalendarAddQue_Save = nil;
+    GRM_CalendarAddQue_Save = {};
+
+    GRM_GuildDataBackup_Save = nil;
+    GRM_GuildDataBackup_Save = {};
+
+    GRM_Restore_Members = nil;
+    GRM_Restore_Members = {};
+
+    GRM_Restore_FormerMembers = nil;
+    GRM_Restore_FormerMembers = {};
+
+    GRM_Restore_Log = nil;
+    GRM_Restore_Log = {};
+
+    GRM_PlayerListOfAlts_Save = nil;
+    GRM_PlayerListOfAlts_Save = {};
+
+    GRM_Alts = nil;
+    GRM_Alts = {};
+
+    GRM_MinimapPosition = nil;
+    GRM_MinimapPosition = {};
+
+    -- Player speicif save tables
+    GRM_DebugLog_Save = nil;
+    GRM_DebugLog_Save = {};
+    GRM_Misc = nil;
+    GRM_Misc = {};
+    GRM.ConfigureAnnounceOnLogin(true);
+
+    return GRM_GuildMemberHistory_Save, GRM_PlayersThatLeftHistory_Save, GRM_AddonSettings_Save, GRM_LogReport_Save, GRM_CalendarAddQue_Save, GRM_GuildDataBackup_Save, GRM_Restore_Members, GRM_Restore_FormerMembers, GRM_Restore_Log, GRM_PlayerListOfAlts_Save, GRM_Alts, GRM_MinimapPosition;
+end
+
+-- Method:          GRM.ConfigureMiscForPlayer( string );
+-- What it Does:    Builds a file for tracking active data that can be reference back to on a relog... so as to mark where to carry on from
+-- Purpose:         In case a player logs out in the middle of critical things, both front and backend, it has a marker stored on where to restart from.
+GRM.ConfigureMiscForPlayer = function(playerFullName)
+    GRM_Misc[playerFullName] =
+        {{false, {}} -- 1) To hold the details on Added Friends that might need to be removed from logging off
+        };
 end

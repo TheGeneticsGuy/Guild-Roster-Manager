@@ -65,13 +65,6 @@ NN.SyncNickChangeToAltGroup = function( player, onlyChangeShareSetting )
     end
 end
 
--- NN.Sync
--- /run GRM.NN.SetNickname(GRM.GetPlayer("Arkaan-Zul'jin"),"Noob2", true, "Arkaan-Zul'jin");
--- /dump GRM.GetPlayer("Arkaan-Zul'jin").nickInfo
--- /dump GRM.GetPlayer("Neutron-Zul'jin").nickInfo
--- /dump GRM.GetPlayer("Dezmonnd-Zul'jin").nickInfo
--- /dump GRM.GetPlayer("Willtraynor-Zul'jin").nickInfo
-
 -- Method:          NN.SetNickname ( table , string , bool,  string , int , table, bool  )
 -- What it Does:    Sets the nickname to either the player or the group based on settings.
 -- Purpose:         To apply identity changes across the database.

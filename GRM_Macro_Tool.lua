@@ -1939,7 +1939,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 then
                         index = 14;
                     end
-                    GRM.ResetDefaultSettings( index );
+                    GRM_S.ResetDefaultSettings( index );
                 end
 
                 if IsShiftKeyDown() and IsControlKeyDown() then

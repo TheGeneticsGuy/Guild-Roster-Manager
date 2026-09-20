@@ -292,7 +292,7 @@ GRM.ReactivateAddon = function()
         GRM_AddonSettings_Save[GRM_G.guildName] = {};
         -- Load the Default Settings
         for i = 0, GRM_G.SettingsPages do
-            GRM.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.guildName], i);
+            GRM_S.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.guildName], i);
         end
     end
 
@@ -426,7 +426,7 @@ GRM.DataLoadDelayProtection = function( isReady , count )
         -- Secret Protections - Let's check
         print("Secret Check");
         GRM.Secrets.InitializeSecretCheck();
-        GRM.LoadSettings();
+        GRM_S.LoadSettings();
     end
 end;
 

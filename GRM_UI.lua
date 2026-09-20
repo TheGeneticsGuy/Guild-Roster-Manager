@@ -6146,7 +6146,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.ScaleFontStringToObjectSize ( true , 130 , GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_RosterResetOptionsButtonText , 2 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_RosterResetOptionsButton:SetScript ( "OnClick" , function( _ , button )
         if button == "LeftButton" then
-            GRM.ResetDefaultSettings();
+            GRM_S.ResetDefaultSettings();
         end
     end);
 
@@ -9971,7 +9971,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.ScaleFontStringToObjectSize ( true , 130 , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButtonText , 2 );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ResetDefaultOptionsButton:SetScript ( "OnClick" , function( _ , button )
         if button == "LeftButton" then
-            GRM.ResetDefaultSettings();
+            GRM_S.ResetDefaultSettings();
         end
     end);
 

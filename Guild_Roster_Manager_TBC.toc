@@ -13,8 +13,9 @@
 ## SavedVariablesPerCharacter: GRM_DebugLog_Save , GRM_MinimapPosition
 
 GRM_SaveVar_API.lua
-Compatibility/GRM_Compatibility.lua
+Compatibility\GRM_Compatibility.lua
 GRM_Core.lua
+Options\GRM_SettingsControl.lua
 
 GRM_Debug.lua
 GRM_WebApps.lua
@@ -49,6 +50,9 @@ GRM_UI_API.lua
 GRM_Roster.lua
 GRM_Minimap.lua
 GRM_UI.lua
+
+Options\GRM_NamesSettingsTab.lua
+
 GRM_ClassicFrames.lua
 GRM_Macro_Tool.lua
 GRM_EE.lua
