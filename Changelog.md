@@ -43,6 +43,12 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 * Fixed a Lua error that could occur if You didn't have Chattynator installed but you checked the setting of GRM messaging destinations. This shouldn't trigger UNLESS Chattynator was installed, but there was one gate that didn't check if you had the addon loaded before running a check, so it was saying "Chattynator" doesn't exist and threw an error. Woops!
 
+* Fixed Lua error preventing the change of rank restrictions for guild leader ranked players in the Sync Options tab
+
+* Fixed a Lua error that would occur when resetting the sync restrictions of only the custom notes.
+
+
+
 
 
 ## **VERSION 1.99422 - August 20th, 2026**

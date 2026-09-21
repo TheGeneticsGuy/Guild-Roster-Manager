@@ -271,7 +271,7 @@ DD.PopulateOptionsRankDropDown = function()
                 local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
                                                           .GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelectedText:GetText(),
                     self);
-                local isRestricted, rankIndex = GRM.IsSyncRankGuildLeaderRestricted(2);
+                local isRestricted, rankIndex = GRM.Global.IsSyncRankGuildLeaderRestricted(2);
 
                 -- Now, are they different? If they are different, that is a problem!
                 if not isRestricted or CanEditGuildInfo() or (isRestricted and rankIndex == selectedRank) then
@@ -389,7 +389,7 @@ DD.PopulateBanListOptionsDropDown = function()
                 local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
                                                           .GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelectedText:GetText(),
                     self);
-                local isRestricted, rankIndex = GRM.IsSyncRankGuildLeaderRestricted(3);
+                local isRestricted, rankIndex = GRM.Global.IsSyncRankGuildLeaderRestricted(3);
 
                 -- Now, are they different? If they are different, that is a problem!
                 if not isRestricted or CanEditGuildInfo() or (isRestricted and rankIndex == selectedRank) then
@@ -500,7 +500,7 @@ DD.PopulateDefaultDropDownRankMenu = function()
                 local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
                                                           .GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:GetText(),
                     self);
-                local isRestricted, rankIndex = GRM.IsSyncRankGuildLeaderRestricted(4);
+                local isRestricted, rankIndex = GRM.Global.IsSyncRankGuildLeaderRestricted(4);
 
                 -- Now, are they different? If they are different, that is a problem!
                 if not isRestricted or CanEditGuildInfo() or (isRestricted and rankIndex == selectedRank) then
@@ -1067,7 +1067,7 @@ DD.PopulateTimestampFormatDropDown = function(nonGlobal)
                     local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
 
                     GRM.S().dateFormat = parsedNumber;
-                    -- if not GRM.IsSyncRankGuildLeaderRestricted then
+                    -- if not GRM.Global.IsSyncRankGuildLeaderRestricted then
                     --     GRM.S().globalDateFormat = parsedNumber;  -- Set global if not set.
 
                     -- end

@@ -12,23 +12,23 @@
 ## SavedVariables: GRM_PlayersThatLeftHistory_Save , GRM_GuildMemberHistory_Save , GRM_CalendarAddQue_Save , GRM_LogReport_Save , GRM_AddonSettings_Save , GRM_PlayerListOfAlts_Save , GRM_GuildDataBackup_Save , GRM_Restore_Members , GRM_Restore_FormerMembers , GRM_Restore_Log , GRM_Misc , GRM_Alts , GRM_DailyAnnounce
 ## SavedVariablesPerCharacter: GRM_DebugLog_Save , GRM_MinimapPosition
 
-GRM_Types.lua
-GRM_SaveVar_API.lua
+Core\GRM_Types.lua
+Core\GRM_SaveVar_API.lua
 Compatibility\GRM_Compatibility.lua
-GRM_Core.lua
-Options\GRM_SettingsControls.lua
+Core\GRM_Core.lua
+Core\GRM_Settings.lua
 
-GRM_Debug.lua
-GRM_WebApps.lua
-GRM_G_Util.lua
-GRM_Util.lua
-GRM_Global_Control.lua
+Utils\GRM_Debug.lua
+Modules\GRM_WebApps.lua
+Utils\GRM_G_Util.lua
+Utils\GRM_Util.lua
+Core\GRM_Global_Control.lua
 
-GRM_AltManagement.lua
-GRM_GuildSync.lua
-GRM_ScanRoster.lua
-GRM_Log.lua
-GRM_Modules.lua
+Modules\GRM_AltManagement.lua
+Modules\GRM_GuildSync.lua
+Modules\GRM_ScanRoster.lua
+Modules\GRM_Log.lua
+Core\GRM_Modules.lua
 
 locales\German.lua
 locales\French.lua
@@ -44,34 +44,32 @@ locales\SpanishMX.lua
 locales\English.lua
 locales\Dutch.lua
 locales\Danish.lua
+locales\GRM_Localization.lua
 
-GRM_Localization.lua
+UI\GRM_UI_API.lua
+Modules\GRM_Roster.lua
+UI\GRM_Minimap.lua
+UI\GRM_UI_Dropdown.lua
+UI\GRM_UI.lua
 
-GRM_UI_API.lua
-GRM_Roster.lua
-GRM_Minimap.lua
-GRM_UI_Dropdown.lua
-GRM_UI.lua
+UI\Options\GRM_OptionsCore.lua
+UI\Options\GRM_NamesTab.lua
+UI\Options\GRM_ScanTab.lua
 
-Options\GRM_NamesSettingsTab.lua
-
-GRM_ClassicFrames.lua
-GRM_Macro_Tool.lua
-GRM_EE.lua
-GRM_Patches.lua
-GRM_API.lua
-GRM_Stats.lua
-GRM_HC.lua
-GRM_Realms.lua
-GRM_Professions.lua
-GRM_Hyperlinks.lua
-GRM_Nicknames.lua
-
-GRM_TimeUtil.lua
-GRM_Export.lua
-GRM_UI_Precheck.lua
-GRM_SecretProtection.lua
-
+Compatibility\GRM_ClassicFrames.lua
+Modules\GRM_Macro_Tool.lua
+Utils\GRM_EE.lua
+Core\GRM_Patches.lua
+Core\GRM_API.lua
+Modules\GRM_Stats.lua
+Modules\GRM_HC.lua
+Utils\GRM_Realms.lua
+Modules\GRM_Professions.lua
+Utils\GRM_Hyperlinks.lua
+Modules\GRM_Nicknames.lua
+Utils\GRM_TimeUtil.lua
+Modules\GRM_Export.lua
+UI\GRM_UI_Precheck.lua
+Utils\GRM_SecretProtection.lua
 Compatibility\grm_chattynator.lua
-
-GRM_Config.lua
+Core\GRM_Config.lua

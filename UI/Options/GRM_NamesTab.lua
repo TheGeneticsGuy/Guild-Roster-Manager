@@ -2,7 +2,6 @@
 local NamesTab = {};
 GRM_UI.NamesTab = NamesTab;
 
-
 GRM_UI.BuildNamesTab = function()
     if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame then
 
