@@ -1335,7 +1335,7 @@ DD.PopulateMainTagDropdown = function()
 
                 GRM_G.mainTag = GRM.GetCurrentMainTag();
                 GRM_G.altTag = GRM.GetCurrentAltTag();
-                GRM_UI.UpdateTagOptionsText();
+                GRM_UI.NamesTab.UpdateTagOptionsText();
             end
         end);
         TagButton:Show();

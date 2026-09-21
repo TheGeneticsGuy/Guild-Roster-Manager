@@ -163,7 +163,7 @@ Global.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
         end
         
         if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-            GRM_UI.RefreshOptionsUI()
+            GRM_UI.OptionsCore.RefreshOptionsUI()
         end
     end
     if not forced then
@@ -704,7 +704,7 @@ Global.SetLeaderJoinDateRestrictionSetting = function(joinDateLocationIndex, isM
 
         if needsRefresh then
             if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                GRM_UI.ConfigureJoinDateLocation();
+                GRM_UI.OfficerTab.ConfigureJoinDateLocation();
             end
         end
 
@@ -741,7 +741,7 @@ Global.SetLeaderUsingJoinTagHeaders = function(headerControl, isMyEdit)
 
         if needsRefresh then
             if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                GRM_UI.ConfigureJoinDateLocation();
+                GRM_UI.OfficerTab.ConfigureJoinDateLocation();
             end
             Global.UpdateGuildInfoWithNewValue(6, headerControl, isMyEdit);
         end

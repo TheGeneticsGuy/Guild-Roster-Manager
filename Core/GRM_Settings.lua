@@ -744,7 +744,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
 
         -- Reset frames as needed
         if (resetAll or page < 9) and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then -- General options
-            GRM_UI.RefreshOptionsUI();
+            GRM_UI.OptionsCore.RefreshOptionsUI();
         end
 
         if page == 15 then

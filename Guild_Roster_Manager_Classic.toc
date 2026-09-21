@@ -53,8 +53,9 @@ UI\GRM_UI_Dropdown.lua
 UI\GRM_UI.lua
 
 UI\Options\GRM_OptionsCore.lua
-UI\Options\GRM_NamesTab.lua
+UI\Options\GRM_OfficerTab.lua
 UI\Options\GRM_ScanTab.lua
+UI\Options\GRM_NamesTab.lua
 
 Compatibility\GRM_ClassicFrames.lua
 Modules\GRM_Macro_Tool.lua
