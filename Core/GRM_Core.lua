@@ -384,7 +384,6 @@ GRM_G.UI_Events = CreateFrame("Frame");
 local VersionCheck = CreateFrame("Frame");
 local AddonUsersCheck = CreateFrame("Frame");
 local StatusChecking = CreateFrame("Frame");
-StatusChecking.Timer = 0;
 
 --------------------------------------------
 ----- COMPATIBILITY WITH CLASSIC BUILDS ----
