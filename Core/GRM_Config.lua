@@ -117,7 +117,7 @@ GRM.DelayForGuildInfoCallback = function()
         GRM_G.trackingTriggered = false;
         GRM.TrackingConfiguration(false);
     end
-end
+end 
 
 GRM_G.mainTagEvents = {
     CHAT_MSG_GUILD                 = true,

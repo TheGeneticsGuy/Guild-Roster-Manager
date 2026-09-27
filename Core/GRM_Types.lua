@@ -12,3 +12,8 @@ GRM_ENUM.OPTIONS_TABS = {
     LOGTOOLS = 9,
     EXPORT = 10
 }
+
+GRM_ENUM.OPTIONS_SIZE = {
+    W = 600.0,
+    H = 480.0
+}

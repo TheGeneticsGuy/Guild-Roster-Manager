@@ -46,13 +46,16 @@ locales\Dutch.lua
 locales\Danish.lua
 locales\GRM_Localization.lua
 
+UI\GRM_UI_Util.lua
 UI\GRM_UI_API.lua
+UI\GRM_UI_ColorPicker.lua
 Modules\GRM_Roster.lua
 UI\GRM_Minimap.lua
 UI\GRM_UI_Dropdown.lua
 UI\GRM_UI.lua
 
 UI\Options\GRM_OptionsCore.lua
+UI\Options\GRM_GeneralTab.lua
 UI\Options\GRM_OfficerTab.lua
 UI\Options\GRM_ScanTab.lua
 UI\Options\GRM_NamesTab.lua

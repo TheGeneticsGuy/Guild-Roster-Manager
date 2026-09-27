@@ -236,8 +236,6 @@ end
 -- Officer nickname approval queue?
 -- Add nicknames to export feature
 -- Alt overrides allowed
--- Options - show dedicated UI example of what the name will look like
--- Restrict same nickname?? If it already exists, cannot be used
 -- Analytics - % of guild with nicknames
 -- searchable nickname in the roster
 
@@ -253,6 +251,7 @@ end
 -- GRM_REQ_NNF     -- ResendMissingF  -- GRMsync.CollectMissingMsgRequest(msg, prefix2)
 -- GRM_REQNNFIN    -- ResendMissingAgain -- GRMsync.CollectMissingMsgRequest(msg, prefix2)
 
--- NOTES - Fixed a sync bug where alt data could bypass the sync restrictions entirely if someone made changes.
+-- So, it is broken down into two parts... main name/alt configuration and Nickname configuration. Rather than the checkboxes as you see them now what is actually going to be is a dropdown selection that shows the exact implementation and what it will look like in the chat. This will have I think 6 configurations to choose from. This will act completely independent and be displayed very similar to how you see it now.
 
--- Need to purge all altGroup.nicknameDetails from all alt groups  
+-- Next, you have the Nicknames Implementation. This will also have it's own dropdown selection of configurations to choose from that will show you what your nickname will look like in chat. It will be similar to the upper main/alt configuration dropdown, but it will not be the same as I think it needs it's own sort of custom styling choices that slightly vary. 
+-- The way it will work is, as long as you have nicknames enabled, will always default to your Nickname dropdown selection styling, as long as that player has a nickname configured. Otherwise, it defaults to the non-nickname styling dropdown selection. If no nickname, it just uses non nickname styling.

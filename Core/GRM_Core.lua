@@ -7986,7 +7986,7 @@ GRM.BuildBackupScrollFrame = function(showAll, fullRefresh)
             .AllBackupButtons[i][1]:Hide();
     end
 
-    GRM.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                                                  .GRM_CoreBackupScrollChildFrame, GRM_UI.GRM_RosterChangeLogFrame
         .GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollFrame,
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollFrameSlider,
@@ -8522,7 +8522,7 @@ GRM.RefreshAuditFrames = function(showAll, fullRefresh, searchString)
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1]:Hide();
     end
 
-    GRM.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame,
+    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame,
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollFrame, GRM_UI.GRM_RosterChangeLogFrame
             .GRM_AuditFrame.GRM_AuditScrollFrameSlider, buttonWidth, buttonHeight, scrollHeight, #GRM_G.AuditEntries,
         GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons,
@@ -11512,7 +11512,7 @@ GRM.BuildLog = function( searchString , fullRefresh , delayedSearch , fullLogMat
         return result;
     end
 
-    GRM.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
+    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
                                                  .GRM_RosterChangeLogScrollChildFrame, GRM_UI.GRM_RosterChangeLogFrame
         .GRM_LogFrame.GRM_RosterChangeLogScrollFrame, GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
         .GRM_RosterChangeLogScrollFrameSlider, buttonWidth, buttonHeight, buttonHeight * #log, #log,
@@ -16684,7 +16684,7 @@ GRM.RefreshJDAuditToolFrames = function(showAll, fullRefresh)
         GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame.AllButtons[i][1]:Hide();
     end
 
-    GRM.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame,
+    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame,
         GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollFrame, GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollFrameSlider, buttonWidth,
         buttonHeight, scrollHeight, #GRM_G.AuditToolGuildies,
         GRM_UI.GRM_AuditJDTool.GRM_JDToolScrollChildFrame.AllButtons, GRM.JDAuditToolHybridShiftDown,
@@ -17792,165 +17792,6 @@ GRM.GetNumMismatchedButton7 = function()
     end
     return count;
 end
-
---------------------------------------------
--------- HYBRID SCROLLFRAME TEMPLATES ------
---------------------------------------------
-
--- Method:          GRM.SetHybridScrollFrameSliderParameters ( frame , frame , frame , int , int , int , int , arrayOfButtons , function , function , int , function )
--- What it Does:    Acts as a template for all future hybrid scrollframe configuration of the slider logic on mousewheel scrolling and so on
--- Purpose:         Clean, repeatable code that can be used in conjunction with all other large scrollframes
-GRM.SetHybridScrollFrameSliderParameters = function(childFrame, HscrollFrame, HscrollFrameSlider, buttonW, buttonH,
-    scrollH, totalEntries, buttons, logicFunction1, logicFunction2, totalPotentialButtons, optionalLogic)
-
-    local maxButtons = #buttons;
-    if totalPotentialButtons < maxButtons then
-        maxButtons = totalPotentialButtons;
-    end
-
-    childFrame:SetSize(buttonW, HscrollFrame:GetHeight());
-
-    local scrollMax = (scrollH - HscrollFrame:GetHeight());
-    if scrollMax < 0 or totalEntries <= totalPotentialButtons then
-        scrollMax = 0;
-    else
-        scrollMax = scrollMax + buttonH;
-    end
-
-    if HscrollFrameSlider.Slider then
-        HscrollFrameSlider = HscrollFrameSlider.Slider;
-    end
-
-    HscrollFrameSlider:SetMinMaxValues(0, scrollMax);
-
-    if scrollMax > 0 then
-        HscrollFrame:EnableMouseWheel(true);
-    else
-        HscrollFrame:EnableMouseWheel(false);
-    end
-
-    if scrollMax > 0 then
-        HscrollFrame:SetScript("OnMouseWheel", function(_, delta)
-
-            if optionalLogic ~= nil then
-                if not optionalLogic() then
-                    return;
-                end
-            end
-
-            if totalEntries > 0 then
-                GRM.HybridControl(HscrollFrameSlider);
-                local current = HscrollFrameSlider:GetValue();
-
-                -- Scroll Down
-                if delta < 0 and current < scrollMax then
-                    if IsControlKeyDown() then
-                        HscrollFrameSlider.HybridControlBool = false;
-                        if IsShiftKeyDown() then
-                            HscrollFrameSlider:SetValue(current + (buttonH * 12));
-                        else
-                            HscrollFrameSlider:SetValue(current + (buttonH * 3));
-                        end
-                    elseif IsShiftKeyDown() then
-                        HscrollFrameSlider.HybridControlBool = false;
-                        HscrollFrameSlider:SetValue(select(2, HscrollFrameSlider:GetMinMaxValues()));
-                    else
-                        HscrollFrameSlider:SetValue(current + buttonH);
-                    end
-
-                    -- Scroll Up
-                elseif delta > 0 and current > 1 then
-                    if IsControlKeyDown() then
-                        HscrollFrameSlider.HybridControlBool = false;
-                        if IsShiftKeyDown() then
-                            HscrollFrameSlider:SetValue(current - (buttonH * 12));
-                        else
-                            HscrollFrameSlider:SetValue(current - (buttonH * 3));
-                        end
-                    elseif IsShiftKeyDown() then
-                        HscrollFrameSlider.HybridControlBool = false;
-                        HscrollFrameSlider:SetValue(0);
-                    else
-                        HscrollFrameSlider:SetValue(current - buttonH);
-                    end
-                end
-
-                if HscrollFrameSlider.HybridControlBool then
-                    -- Scroll Down
-                    if delta < 0 and childFrame.Offset < totalEntries then
-                        childFrame.Offset = childFrame.Offset + 1;
-                        logicFunction1();
-
-                        -- Scroll Up
-                    elseif delta > 0 and childFrame.Offset > maxButtons then
-                        childFrame.Offset = childFrame.Offset - 1;
-                        logicFunction2();
-                    end
-                end
-            end
-        end);
-    end
-end
-
--- Method:          GRM.HybridScrollOnValueChangedConfig ( slider , float , scrollchildframe , scrollframe , int , int , function , array )
--- What it Does:    In conjunction with the GRM.SetHybridScrollFrameSliderParameters() tool, manage the hybridscrollframe functionality of the given frames
--- Purpose:         Reusable framework for hybrid scrollframes in this addon's style.
-GRM.HybridScrollOnValueChangedConfig = function(HscrollFrameSlider, value, scrollChildFrame, scrollFrame, numButtons,
-    stepSize, refreshFunction, dataArray)
-    local maxSize = 0
-    local arraySize = #dataArray;
-
-    if value > HscrollFrameSlider.currentV then
-        if HscrollFrameSlider.HybridControlBool and scrollFrame:GetVerticalScroll() < maxSize then
-            scrollFrame:SetVerticalScroll(value);
-        else
-            if not HscrollFrameSlider.HybridControlBool then
-                if value >= maxSize and scrollFrame:GetVerticalScroll() < maxSize then
-                    scrollFrame:SetVerticalScroll(maxSize);
-                end
-                scrollChildFrame.Offset = math.floor((value / stepSize)) + numButtons;
-                -- Prevent overlap errors
-                if scrollChildFrame.Offset > arraySize then
-                    scrollChildFrame.Offset = arraySize;
-                end
-                refreshFunction(true, false);
-            end
-        end
-    else
-        if HscrollFrameSlider.HybridControlBool and scrollFrame:GetVerticalScroll() > 0 and value <= maxSize then
-            scrollFrame:SetVerticalScroll(value);
-        else
-            if not HscrollFrameSlider.HybridControlBool then
-
-                if value == 0 and scrollFrame:GetVerticalScroll() <= maxSize then
-                    scrollFrame:SetVerticalScroll(0);
-                end
-
-                scrollChildFrame.Offset = math.floor((value / stepSize)) + numButtons;
-                -- Prevent overlap errors
-                if scrollChildFrame.Offset > arraySize then
-                    scrollChildFrame.Offset = arraySize;
-                end
-                refreshFunction(true, false);
-            end
-        end
-    end
-    HscrollFrameSlider.currentV = value;
-end
-
--- Method:          GRM.HybridControl()
--- What it Does:    Sets a gate check that lasts for 0.1 seconds
--- Purpose:         So that when the slider value changes, it ignores double work when an "OnMouseWheel" handler is also activated.
-GRM.HybridControl = function(slider)
-    slider.HybridControlBool = true;
-    C_Timer.After(0.1, function()
-        slider.HybridControlBool = false;
-    end);
-end
-
--------------------------------------
------ END HYBRID SCROLLFRAMES -------
--------------------------------------
 
 -------------------------------------
 -- VARIOUS TOOLTIP CLICK PARAMETERS -
@@ -19255,7 +19096,7 @@ GRM.InitiateConfirmFrame = function(InfoText, buttonFunction, button1Text, butto
     if button1Text ~= nil and button1Text ~= "" then
         GRM_UI.GRM_RosterConfirmYesButtonText:SetText(button1Text);
         if scaleButton then
-            b1Width = GRM_UI.ScaleButtonToFontStringSize ( GRM_UI.GRM_RosterConfirmYesButton , GRM_UI.GRM_RosterConfirmYesButtonText , 4 );
+            b1Width = GRM_UI_Util.ScaleButtonToFontStringSize ( GRM_UI.GRM_RosterConfirmYesButton , GRM_UI.GRM_RosterConfirmYesButtonText , 4 );
         end
     else
         GRM_UI.GRM_RosterConfirmYesButtonText:SetText(GRM.L("Yes!"));
@@ -19265,7 +19106,7 @@ GRM.InitiateConfirmFrame = function(InfoText, buttonFunction, button1Text, butto
     if button2Text ~= nil and button2Text ~= "" then
         GRM_UI.GRM_RosterConfirmCancelButtonText:SetText(button2Text);
         if scaleButton then
-            b2Width = GRM_UI.ScaleButtonToFontStringSize ( GRM_UI.GRM_RosterConfirmCancelButton , GRM_UI.GRM_RosterConfirmCancelButtonText , 4 );
+            b2Width = GRM_UI_Util.ScaleButtonToFontStringSize ( GRM_UI.GRM_RosterConfirmCancelButton , GRM_UI.GRM_RosterConfirmCancelButtonText , 4 );
         end
     else
         GRM_UI.GRM_RosterConfirmCancelButtonText:SetText(GRM.L("Cancel"));

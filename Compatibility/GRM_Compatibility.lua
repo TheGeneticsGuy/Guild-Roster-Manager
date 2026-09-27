@@ -55,7 +55,7 @@ GRM.GuildRoster = function()
 end
 
 -- 10.2.5 change
-GRM.GetColorPickerFrame = function(type)
+GRM.ColorPickerFrame = function(type)
 
     if type == 1 then
         if ColorPickerOkayButton then

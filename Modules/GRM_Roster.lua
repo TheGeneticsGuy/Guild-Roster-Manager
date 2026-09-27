@@ -1646,7 +1646,7 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
         GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i][1]:Hide();
     end
 
-    GRM.SetHybridScrollFrameSliderParameters (
+    GRM_UI.SetHybridScrollFrameSliderParameters (
         GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider,
         buttonWidth , buttonHeight , scrollHeight , #GRM_UI.GRM_RosterFrame.Entries , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons ,
         GRM_R.RosterShiftDown , GRM_R.RosterShiftUp , hybridScrollFrameButtonCount
@@ -2464,7 +2464,7 @@ GRM_R.NumRowsSliderLogic = function ( value )
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetValueStep ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame:GetHeight() / GRM.S().numRosterRows );
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetStepsPerPage ( GRM.S().numRosterRows )
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetScript( "OnValueChanged" , function( self , value )
-        GRM.HybridScrollOnValueChangedConfig (
+        GRM_UI.HybridScrollOnValueChangedConfig (
             self , value , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame , GRM.S().numRosterRows , ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame:GetHeight() / GRM.S().numRosterRows ) , GRM_R.BuildGuildRoster , GRM_UI.GRM_RosterFrame.Entries
         );
     end);
@@ -2502,7 +2502,7 @@ GRM_R.ConfigureRosterOptions = function()
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetValueStep ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame:GetHeight() / GRM.S().numRosterRows );
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetStepsPerPage ( GRM.S().numRosterRows )
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider:SetScript( "OnValueChanged" , function( self , value )
-        GRM.HybridScrollOnValueChangedConfig (
+        GRM_UI.HybridScrollOnValueChangedConfig (
             self , value , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame , GRM.S().numRosterRows , ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrame:GetHeight() / GRM.S().numRosterRows ) , GRM_R.BuildGuildRoster , GRM_UI.GRM_RosterFrame.Entries
         );
     end);

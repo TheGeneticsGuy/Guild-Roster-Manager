@@ -186,10 +186,10 @@ GRM_UI.BuildSpcialRules = function()
             -- In case ranks change that session - rebuild em.
             if not ruleType then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:ClearAllPoints();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[GRM_UI.GetCheckboxPinNumber(#GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes , 3)][1] , "BOTTOMLEFT" , 0 , -5 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes[GRM_UI_Util.GetCheckboxPinNumber(#GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.customRankCheckBoxes , 3)][1] , "BOTTOMLEFT" , 0 , -5 );
             elseif ruleType == 4 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialOfflineCheckBox then
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialOfflineCheckBox:ClearAllPoints();
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialOfflineCheckBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes[GRM_UI.GetCheckboxPinNumber(#GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes , 3)][1] , "BOTTOMLEFT" , 5 , -10 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialOfflineCheckBox:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes[GRM_UI_Util.GetCheckboxPinNumber(#GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes , 3)][1] , "BOTTOMLEFT" , 5 , -10 );
             end
 
             GRM_UI.SetRankNamesToCustomRuleCheckButtons( ruleType , includeGM );
@@ -448,7 +448,7 @@ GRM_UI.BuildSpcialRules = function()
     GRM_UI.SpecialRadialButtonSyncMainOption();
 
     -- Inactivity
-    GRM_UI.CreateCheckBox ( "GRM_SpecialOfflineCheckBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , nil , { "TOPRIGHT" , GRM_UI.GetCheckboxPinNumber(#GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes , 3) , "BOTTOMLEFT" , 5 , -10 } , GRM_UI.SpecialRuleActivityFilter , GRM.L ( "Ignore if Offline for:" ) , "GameFontNormal" , 11 );
+    GRM_UI.CreateCheckBox ( "GRM_SpecialOfflineCheckBox" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame , nil , nil , { "TOPRIGHT" , GRM_UI_Util.GetCheckboxPinNumber(#GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.customRankCheckBoxes , 3) , "BOTTOMLEFT" , 5 , -10 } , GRM_UI.SpecialRuleActivityFilter , GRM.L ( "Ignore if Offline for:" ) , "GameFontNormal" , 11 );
 
     GRM_UI.SpecialRuleInactivityEditBox = function()
         if GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesFrame.GRM_SpecialInactivityEditBox:GetText() == "" then
@@ -2349,7 +2349,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrameSilder:SetStepsPerPage ( 13 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrameSilder.currentV = 0;
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrameSilder:SetScript ( "OnValueChanged" , function ( self , value )
-            GRM.HybridScrollOnValueChangedConfig (
+            GRM_UI.HybridScrollOnValueChangedConfig (
                 self , value , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrame ,
                 13 , 25 , GRM.BuildMacrodScrollFrame , GRM_UI.GRM_ToolCoreFrame.MacroEntries
             );
@@ -2373,7 +2373,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:SetStepsPerPage ( 13 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder.currentV = 0;
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder:SetScript ( "OnValueChanged" , function ( self , value )
-            GRM.HybridScrollOnValueChangedConfig (
+            GRM_UI.HybridScrollOnValueChangedConfig (
                 self , value , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame ,
                 13 , 25 , GRM.InitializeQuedScrollFrame , GRM_UI.GRM_ToolCoreFrame.QueuedEntries
             );
@@ -2396,7 +2396,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrameSilder:SetStepsPerPage ( 12 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrameSilder.currentV = 0;
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrameSilder:SetScript ( "OnValueChanged" , function ( self , value )
-            GRM.HybridScrollOnValueChangedConfig (
+            GRM_UI.HybridScrollOnValueChangedConfig (
                 self , value , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrame ,
                 12 , 25 , GRM.BuildIgnoredScrollFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries
             );
@@ -2420,7 +2420,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder:SetStepsPerPage ( 12 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder.currentV = 0;
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder:SetScript ( "OnValueChanged" , function ( self , value )
-            GRM.HybridScrollOnValueChangedConfig (
+            GRM_UI.HybridScrollOnValueChangedConfig (
                 self , value , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrame ,
                 8 , 22 , GRM.BuildRulesScrollFrame , GRM_UI.GRM_ToolCoreFrame.RuleEntries
             );
@@ -7150,7 +7150,7 @@ GRM.DoBuildScrollFrameWithEntries = function(queuedEntriesList)
     -- Calculate scrollHeight based on actual entries
     scrollHeight = #GRM_UI.GRM_ToolCoreFrame.QueuedEntries * buttonHeight;
 
-    GRM.SetHybridScrollFrameSliderParameters(
+    GRM_UI.SetHybridScrollFrameSliderParameters(
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame, GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrame, GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollFrameSilder,
         buttonWidth, buttonHeight, scrollHeight, #GRM_UI.GRM_ToolCoreFrame.QueuedEntries, GRM_UI.GRM_ToolCoreFrame.GRM_ToolQueuedScrollChildFrame.AllButtons,
         GRM.KickQueuedHybridShiftDown, GRM.KickQueuedHybridShiftUp, hybridScrollFrameButtonCount
@@ -7822,7 +7822,7 @@ GRM.BuildMacrodScrollFrame = function ( showAll , fullRefresh )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[i][1]:Hide();
     end
 
-    GRM.SetHybridScrollFrameSliderParameters (
+    GRM_UI.SetHybridScrollFrameSliderParameters (
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollFrameSilder,
         buttonWidth , buttonHeight , scrollHeight , #GRM_UI.GRM_ToolCoreFrame.MacroEntries , GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons ,
         GRM.KickMacrodHybridShiftDown , GRM.KickMacrodHybridShiftUp , hybridScrollFrameButtonCount
@@ -8506,7 +8506,7 @@ GRM.BuildIgnoredScrollFrame = function ( showAll , fullRefresh )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollChildFrame.AllButtons[i][1]:Hide();
     end
 
-    GRM.SetHybridScrollFrameSliderParameters (
+    GRM_UI.SetHybridScrollFrameSliderParameters (
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollFrameSilder,
         buttonWidth , buttonHeight , scrollHeight , #GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.GRM_ToolIgnoredScrollChildFrame.AllButtons ,
         GRM.IgnoredHybridShiftDown , GRM.IgnoredHybridShiftUp , hybridScrollFrameButtonCount
@@ -9525,7 +9525,7 @@ GRM.BuildRulesScrollFrame = function ( showAll , fullRefresh )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons[i][1]:Hide();
     end
 
-    GRM.SetHybridScrollFrameSliderParameters (
+    GRM_UI.SetHybridScrollFrameSliderParameters (
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrame , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollFrameSilder,
         buttonWidth , buttonHeight , scrollHeight , #GRM_UI.GRM_ToolCoreFrame.RuleEntries , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollChildFrame.AllButtons ,
         GRM.KickRulesHybridShiftDown , GRM.KickRulesHybridShiftUp , hybridScrollFrameButtonCount
