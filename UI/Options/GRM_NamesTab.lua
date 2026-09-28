@@ -34,7 +34,7 @@ local function AppendNickScript(self)
 end
 
 NamesTab.BuildNamesTab = function()
-    local optionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;
+    local optionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;  
 
     GRM_UI.CreateCoreFrame("GRM_NamesOptionsFrame", optionsFrame, nil, GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H, nil, false, {"BOTTOMLEFT", "BOTTOMLEFT", 0, 0}, nil, false, false)
     local namesOptionsFrame = optionsFrame.GRM_NamesOptionsFrame
@@ -53,7 +53,7 @@ NamesTab.BuildNamesTab = function()
     
     -- Live Preview & Color Picker
     GRM_UI.CreateString("GRM_MainLivePreview", namesOptionsFrame, "GameFontWhite", "", 12, {"LEFT", namesOptionsFrame.GRM_MainFormatDDSelected, "RIGHT", 15, 0})
-    GRM_UI.CreateColorPicker("GRM_MainColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_MainLivePreview, "mainTagColor")
+    GRM_UI.ColorPicker.CreateColorPicker("GRM_MainColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_MainLivePreview, "mainTagColor")
 
     -------------------------------------
     -- SECTION 2 - Nickname Formatting --
@@ -70,7 +70,7 @@ NamesTab.BuildNamesTab = function()
     
     -- Live Preview & Color Picker
     GRM_UI.CreateString("GRM_NickLivePreview", namesOptionsFrame, "GameFontWhite", "", 12, {"LEFT", namesOptionsFrame.GRM_NickFormatDDSelected, "RIGHT", 15, 0})
-    GRM_UI.CreateColorPicker("GRM_NickColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_NickLivePreview, "nicknameTagColor")
+    GRM_UI.ColorPicker.CreateColorPicker("GRM_NickColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_NickLivePreview, "nicknameTagColor")
 
     ------------------------------------
     -- SECTION 3 - Behavioral Setting --

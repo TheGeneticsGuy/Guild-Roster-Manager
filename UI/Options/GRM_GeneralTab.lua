@@ -1,15 +1,29 @@
 local GeneralTab = {};
 GRM_UI.GeneralTab = GeneralTab;
 
-GeneralTab.InitializeGeneralTab = function()
+GeneralTab.InitializeGeneralTab = function( isManualUpdate )
     local optionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;
 
     GRM_UI.CreateCoreFrame("GRM_GeneralOptionsFrame", optionsFrame, nil, GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H, nil, false, {"BOTTOMLEFT", "BOTTOMLEFT", 0, 0}, nil, false, false)
     local GRM_GeneralOptionsFrame = optionsFrame.GRM_GeneralOptionsFrame
 
+    if not isManualUpdate then
+        GRM_GeneralOptionsFrame:SetScript ( "OnHide" , function()
+            if GRM_G.MainTagColor then
+                GRM_UI.ColorPickerFrame:Hide();
+            end
+        end);
 
-    
+        GRM_GeneralOptionsFrame:SetScript ( "OnShow" , function()
+            GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.GENERAL;
+            GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
+        end);
 
+        
+    end
+
+
+    -- TODO - Adapt to new UI API
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonCheckButton = CreateFrame ( "CheckButton" , "GRM_RosterLoadOnLogonCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame , "InterfaceOptionsCheckButtonTemplate" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonCheckButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonChangesCheckButton = CreateFrame ( "CheckButton" , "GRM_RosterLoadOnLogonChangesCheckButton" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame , "InterfaceOptionsCheckButtonTemplate" );
@@ -613,7 +627,7 @@ GeneralTab.InitializeGeneralTab = function()
     end);
 
 
-    -- ONLY APPLIES TO CLASSIC
+    -- ONLY APPLIES TO CLASSIC WOTLK
     if GRM_G.BuildVersion < 40000 and GRM_G.BuildVersion >= 30000 then
 
         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_AchievementAnnounceButton:SetPoint ( "LEFT" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButtonText , "RIGHT" , 10 , 0 );

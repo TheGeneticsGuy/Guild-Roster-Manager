@@ -235,13 +235,6 @@ GRM_G.ChatFilterHooked = false
 GRM_G.ReaddingFilter = false
 GRM_G.ReaddingFilter2 = false
 
--- ColorPicker Controls
-GRM_G.MainTagColor = false;
-GRM_G.MainTagHexCode = "";
-GRM_G.mainTag = "";
-GRM_G.altTag = "";
-GRM_G.CurrentTagColorBox = 0;
-
 -- Main Tag Duplication protection
 GRM_G.MainTagDupeProtect = {};
 GRM_G.MainTagDupeProtect.time = 0;

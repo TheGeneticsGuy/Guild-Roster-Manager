@@ -46,6 +46,7 @@ locales\Dutch.lua
 locales\Danish.lua
 locales\GRM_Localization.lua
 
+UI\GRM_UI_Util.lua
 UI\GRM_UI_API.lua
 UI\GRM_UI_ColorPicker.lua
 Modules\GRM_Roster.lua

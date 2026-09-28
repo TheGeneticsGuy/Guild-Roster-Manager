@@ -5844,7 +5844,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                                 GRM_UI.UpdateLogFilterTextColor ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_G.CurrentTagColorBox );
                                 GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , 1 );
 
-                                GRM_UI.ColorPicker_OnShow();
+                                GRM_UI.ColorPicker.ColorPicker_OnShow();
                             end
                             C_Timer.After ( 0.5 , function()
                                 GRM_G.CurrentTagColorBox = i;
@@ -6497,7 +6497,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end);
 
     -- Options Frames
-    GRM_UI.GeneralTab.InitializeGeneralTab();
+    GRM_UI.GeneralTab.InitializeGeneralTab( isManualUpdate );
 
 
 
