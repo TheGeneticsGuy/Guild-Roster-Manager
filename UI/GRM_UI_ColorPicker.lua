@@ -75,7 +75,7 @@ ColorPicker.ShowCustomColorPicker = function ( r , g , b , a , setting )
             ColorPickerFrame:SetColorRGB ( r , g , b );
         end
         GRM_UI.ColorPickerFrame.previousValues = { r , g , b , a };
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
 
         if setting == 98 then
             GRM_G.MainTagColor = true
@@ -95,7 +95,7 @@ end
 
 -- Some addons have changed the frames completely, this removes GRM's extra frames.
 ColorPicker.ColorPicker_OnShow = function()
-    local OptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;
+    local OptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame;
 
     if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
 
@@ -136,12 +136,12 @@ local ColorPickHideScript = function()
     if GRM_G.MainTagColor or GRM_G.CurrentTagColorBox > 0 then
 
         if GRM_G.MainTagColor then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_UI.ColorPickerFrame.previousValues[4] );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_UI.ColorPickerFrame.previousValues[4] );
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ColorSelectOptionsFrame.GRM_OptionsTexture:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_UI.ColorPickerFrame.previousValues[4] );
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_UI.ColorPickerFrame.previousValues[4] );
 
         elseif GRM_G.CurrentTagColorBox > 0 then
             GRM_UI.UpdateLogFilterTextColor ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , GRM_G.CurrentTagColorBox );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , 1 );
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( GRM_UI.ColorPickerFrame.previousValues[1] , GRM_UI.ColorPickerFrame.previousValues[2] , GRM_UI.ColorPickerFrame.previousValues[3] , 1 );
         end
 
         GRM_G.MainTagColor = false;
@@ -158,7 +158,7 @@ end
 -- Purpose:         To establish the proper RGB coloring of the text in the General options tab
 local ColorSelectFrameTextureUpdate = function()
     local r , g , b = GRM_UI.ColorPickerFrame:GetColorRGB();
-    local OptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;
+    local OptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame;
 
     -- Texture Box
     if GRM_G.MainTagColor and OptionsFrame.GRM_GeneralOptionsFrame:IsVisible() then
@@ -167,7 +167,7 @@ local ColorSelectFrameTextureUpdate = function()
         OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );
 
     elseif GRM_G.CurrentTagColorBox > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
         GRM_UI.UpdateLogFilterTextColor ( r , g , b , GRM_G.CurrentTagColorBox );
 
     end
@@ -194,7 +194,7 @@ local ColorPickScript = function()
             GRM.RefreshMainTagHexCode();
             GRM_UI.NamesTab.UpdateTagOptionsText();
             -- Update the dropdown window color too
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor ( r , g , b , 1 );
 
         elseif GRM_G.CurrentTagColorBox > 0 then
             GRM.S().logColor[GRM_G.CurrentTagColorBox][1] = r;
@@ -206,7 +206,7 @@ local ColorPickScript = function()
             end
 
             GRM_UI.UpdateLogFilterTextColor ( r , g , b , GRM_G.CurrentTagColorBox );
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame[ "colorBoxTexture" .. GRM_G.CurrentTagColorBox ]:SetColorTexture ( r , g , b , 1 );
 
             GRM.BuildLogComplete ( true , true , true );
         end
@@ -217,7 +217,7 @@ end
 ColorPicker.InitializeColorPicker = function()
     -- Build the base frame out
     if not GRM_UI.ColorPickerFrame then
-        local OptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;
+        local OptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame;
 
         GRM_UI.ColorPickerFrame = ColorPickerFrame;
         GRM_UI.ColorPickerFrame.colorTimer = 0;
@@ -516,7 +516,7 @@ ColorPicker.InitializeColorPicker = function()
                           "GameFontNormal" , 13 , "CENTER" );
     GRM_UI.ColorPickerFrame.GRM_ColorPickerButtonCancel:SetFrameStrata("FULLSCREEN");
 
-    local OptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;
+    local OptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame;
     OptionsFrame.GRM_ColorPickerR.GRM_R_Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
     OptionsFrame.GRM_ColorPickerG.GRM_G_Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
     OptionsFrame.GRM_ColorPickerB.GRM_B_Text:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );

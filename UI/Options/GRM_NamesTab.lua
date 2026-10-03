@@ -35,7 +35,7 @@ end
 
 NamesTab.BuildNamesTab = function()
     print("BUILD NAMES TAB1")
-    local GRM_OptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;  
+    local GRM_OptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame;  
 
     GRM_UI.CreateCoreFrame("GRM_NamesOptionsFrame", GRM_OptionsFrame, nil, GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H, nil, false, {"BOTTOMLEFT", "BOTTOMLEFT", 0, 0}, nil, false, false)
     local namesOptionsFrame = GRM_OptionsFrame.GRM_NamesOptionsFrame
@@ -90,7 +90,7 @@ NamesTab.BuildNamesTab = function()
     if not isLoaded then
         namesOptionsFrame:SetScript("OnShow", function()
             GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show()
+            GRM_UI.GRM_CoreFrame.GRM_RosterChangeLogFrameReScale:Show()
         end)
 
         -------------
@@ -142,7 +142,7 @@ end
 -- UPDATE FUNCTION (Called on load and when dropdowns/colors change)
 -- =======================================================
 NamesTab.UpdateText = function()
-    local frame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainColorPicker
+    local frame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainColorPicker
     if not frame then return end
 
     -- Sync Checkboxes
@@ -204,7 +204,7 @@ NamesTab.InitializeTabSettings = function()
 end
 
 NamesTab.UpdateTagOptionsText = function()
-    local nameOpts = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame;
+    local nameOpts = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame;
 
     -- nameOpts.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText:SetText(GRM.L ( "Show both {name} and {name2} tags in Chat" , GRM.GetCurrentMainTag() , GRM.GetCurrentAltTag() ));
     -- GRM.NormalizeHitRects(nameOpts.GRM_ShowMainAltTagsButton, nameOpts.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText);
@@ -215,7 +215,7 @@ end
 -- GRM_UI.NamesTab = NamesTab;
 
 -- NamesTab.BuildNamesTab = function()
---     if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame then
+--     if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame then
 
 --         -- BUILD NAMES OPTIONS PAGE
 --         NamesTab.MainOrNicknameCheckButton = function(self)
@@ -278,7 +278,7 @@ end
 --         
 
 --         NamesTab.EnableNicknameOptions = function( enable )
---             local nameOpts = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
+--             local nameOpts = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
 --             if enable then
 --                 nameOpts.GRM_ShowNicknameInsteadButton:Enable();
 --                 nameOpts.GRM_ShowNicknameInsteadButton.GRM_ShowNicknameInsteadButtonText:SetTextColor(1,0.82,0);
@@ -294,8 +294,8 @@ end
         
 --     end
 
---     GRM_UI.CreateCoreFrame ( "GRM_NamesOptionsFrame" , GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame , nil , GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
---     local namesOptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
+--     GRM_UI.CreateCoreFrame ( "GRM_NamesOptionsFrame" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame , nil , GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
+--     local namesOptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
 
 --     GRM_UI.CreateString ( "GRM_NameOptionsTitle" , namesOptionsFrame , "GameFontNormal" , GRM.L ( "Main and Alt Formatting" ) .. ":" , 20 , { "TOPLEFT" , namesOptionsFrame , "TOPLEFT" , 18 , - 30 } , nil , { 0.0 , 0.8 , 1.0 } );
 
@@ -319,7 +319,7 @@ end
 --         namesOptionsFrame.configured = true;
 --         namesOptionsFrame:SetScript ( "OnShow" , function()
 --             GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES;
---             GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale:Show();
+--             GRM_UI.GRM_CoreFrame.GRM_RosterChangeLogFrameReScale:Show();
 --         end);
 --     end
 
@@ -442,7 +442,7 @@ end
 
 -- -- Efficient text loading and configuring
 -- NamesTab.UpdateText = function()
---     local namesOptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
+--     local namesOptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
 --     NamesTab.UpdateTagOptionsText();
 --     -- Set font and text
 --     namesOptionsFrame.GRM_MainTagFormatText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );

@@ -21,7 +21,7 @@ OptionsCore.ConfigureSelectAllCheckButtons = function()
         end
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterCheckAllLogButton:SetChecked ( count == GRM.GetNumKeyedEntries ( GRM.S().toLog ) );
+    GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( count == GRM.GetNumKeyedEntries ( GRM.S().toLog ) );
     GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_RosterCheckAllChatButton:SetChecked ( count2 == GRM.GetNumKeyedEntries ( GRM.S().toChat ) );
 end
 
@@ -31,7 +31,7 @@ end
 OptionsCore.BuildLogFilterSideFrame = function()
     local toLog = GRM.S().toLog
     local toChat = GRM.S().toChat
-    local LogFrame = GRM_UI.GRM_RosterChangeLogFrame
+    local LogFrame = GRM_UI.GRM_CoreFrame
     local ChatSideFrame = GRM_UI.GRM_RosterCheckBoxSideFrame
 
     -- Direct Assignments for Log (Left Side)
@@ -79,14 +79,14 @@ end
 -- Purpose:         Easy access. Useful to rebuild frames on the fly at times, particularly if a player rank changes, just in case he receives/loses various permissions.
 OptionsCore.RefreshOptionsUI = function()
     local S = GRM.S()
-    local OptionsFrame  = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+    local OptionsFrame  = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
     local GenOpts       = OptionsFrame.GRM_GeneralOptionsFrame
     local OfficerOpts   = OptionsFrame.GRM_OfficerOptionsFrame
     local UXOpts        = OptionsFrame.GRM_UXOptionsFrame
     local GRM_ScanningOptionsFrame      = OptionsFrame.GRM_ScanningOptionsFrame
     local SyncOpts      = OptionsFrame.GRM_SyncOptionsFrame
     local NamesOpts     = OptionsFrame.GRM_NamesOptionsFrame
-    local LogOpts       = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame
+    local LogOpts       = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame
 
     -- Helper function to handle Enable/Disable states and text coloring
     local function SetUIState(element, textElement, isEnabled, activeR, activeG, activeB)

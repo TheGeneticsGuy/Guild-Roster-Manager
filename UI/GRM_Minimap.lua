@@ -22,12 +22,12 @@ MinimapGRM.MainWindowOpenLogic = function()
         GRM.S().minimapEnabled = false;
         GRM_MinimapPosition.hide = true;
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton ~= nil and GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton:IsVisible() then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton:SetChecked ( false );
+        if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton ~= nil and GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton:IsVisible() then
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton:SetChecked ( false );
         end
     else
-        if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-            GRM_UI.GRM_RosterChangeLogFrame:Hide();
+        if GRM_UI.GRM_CoreFrame:IsVisible() then
+            GRM_UI.GRM_CoreFrame:Hide();
         else
 
             if IsInGuild() then

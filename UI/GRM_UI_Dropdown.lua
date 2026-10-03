@@ -219,29 +219,29 @@ DD.PopulateOptionsRankDropDown = function()
     -- populating the frames!
     local buffer = 3;
     local height = 0;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons or
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons or
             {};
 
     -- Resetting the buttons!
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu
         .Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i][1]:Hide();
     end
 
     local i = 1;
     for count = 1, GuildControlGetNumRanks() do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu
+        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu
             .Buttons[i] then
-            local tempButton = CreateFrame("Button", "rankIndex" .. i, GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+            local tempButton = CreateFrame("Button", "rankIndex" .. i, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                 .GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i] =
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu.Buttons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local RankButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+        local RankButtons = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                 .GRM_RosterSyncRankDropDownMenu.Buttons[i][1];
-        local RankButtonsText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+        local RankButtonsText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                     .GRM_RosterSyncRankDropDownMenu.Buttons[i][2];
         RankButtons:SetWidth(110);
         RankButtons:SetHeight(11);
@@ -255,27 +255,27 @@ DD.PopulateOptionsRankDropDown = function()
         RankButtonsText:SetTextColor(0, 0.8, 1, 1);
 
         if i == 1 then
-            RankButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+            RankButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                 .GRM_RosterSyncRankDropDownMenu, 0, -7);
             height = height + RankButtons:GetHeight();
         else
-            RankButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+            RankButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                 .GRM_RosterSyncRankDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + RankButtons:GetHeight() + buffer;
         end
 
         RankButtons:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
-                local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:Hide();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
+                local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                                                           .GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelectedText:GetText(),
                     self);
                 local isRestricted, rankIndex = GRM.Global.IsSyncRankGuildLeaderRestricted(2);
 
                 -- Now, are they different? If they are different, that is a problem!
                 if not isRestricted or CanEditGuildInfo() or (isRestricted and rankIndex == selectedRank) then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                         .GRM_RosterSyncRankDropDownSelectedText:SetText(RankButtonsText:GetText());
                     GRM.S().syncRank = selectedRank;
 
@@ -289,7 +289,7 @@ DD.PopulateOptionsRankDropDown = function()
 
                         -- Saving the data
                         GRM.S().syncRankBanList = GRM.S().syncRank;
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+                        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                             .GRM_RosterBanListDropDownSelectedText:SetText(RankButtonsText:GetText());
 
                         GRM.Global.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank, true);
@@ -297,7 +297,7 @@ DD.PopulateOptionsRankDropDown = function()
                     end
 
                     -- Retrigger active addon users... Very important to know permissions
-                    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
+                    if not GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:IsVisible() then
                         GRM.RegisterGuildAddonUsersRefresh();
                     end
 
@@ -319,7 +319,7 @@ DD.PopulateOptionsRankDropDown = function()
         RankButtons:Show();
         i = i + 1;
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:SetHeight(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownMenu:SetHeight(
         height + 15);
 end
 
@@ -333,29 +333,29 @@ DD.PopulateBanListOptionsDropDown = function()
     local color1 = {1, 0, 0};
     local color2 = {0, 0.8, 1};
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons or
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons or
             {};
 
     -- Resetting the buttons!
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu
         .Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i][1]:Hide();
     end
 
     local i = 1;
     for count = 1, GuildControlGetNumRanks() do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu
+        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu
             .Buttons[i] then
-            local tempButton = CreateFrame("Button", "rankIndex" .. i, GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+            local tempButton = CreateFrame("Button", "rankIndex" .. i, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                 .GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i] =
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu.Buttons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local RankButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+        local RankButtons = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                 .GRM_RosterBanListDropDownMenu.Buttons[i][1];
-        local RankButtonsText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+        local RankButtonsText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                     .GRM_RosterBanListDropDownMenu.Buttons[i][2];
         RankButtons:SetWidth(110);
         RankButtons:SetHeight(11);
@@ -373,20 +373,20 @@ DD.PopulateBanListOptionsDropDown = function()
         end
 
         if i == 1 then
-            RankButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+            RankButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                 .GRM_RosterBanListDropDownMenu, 0, -7);
             height = height + RankButtons:GetHeight();
         else
-            RankButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+            RankButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                 .GRM_RosterBanListDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + RankButtons:GetHeight() + buffer;
         end
 
         RankButtons:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
-                local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:Hide();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
+                local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                                                           .GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelectedText:GetText(),
                     self);
                 local isRestricted, rankIndex = GRM.Global.IsSyncRankGuildLeaderRestricted(3);
@@ -397,18 +397,18 @@ DD.PopulateBanListOptionsDropDown = function()
                     if GRM.S().syncRank < selectedRank then
 
                         GRM.S().syncRankBanList = GRM.S().syncRank;
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+                        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                             .GRM_RosterBanListDropDownSelectedText:SetText(
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+                            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                 .GRM_RosterSyncRankDropDownSelectedText:GetText());
                         GRM.Report(GRM.L("Warning! Unable to select a Ban List rank below \"{name}\"",
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+                            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                 .GRM_RosterSyncRankDropDownSelectedText:GetText()) .. "\n" ..
                                        GRM.L("Setting to match core filter rank"));
 
                         GRM.Global.UpdateGuildInfoWithNewValue(3, GRM.S().syncRank, true);
                     else
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+                        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                             .GRM_RosterBanListDropDownSelectedText:SetText(RankButtonsText:GetText());
                         GRM.S().syncRankBanList = selectedRank;
 
@@ -416,7 +416,7 @@ DD.PopulateBanListOptionsDropDown = function()
                     end
 
                     -- Re-trigger addon users permissions
-                    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
+                    if not GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:IsVisible() then
                         GRM.RegisterGuildAddonUsersRefresh();
                     end
 
@@ -436,7 +436,7 @@ DD.PopulateBanListOptionsDropDown = function()
         RankButtons:Show();
         i = i + 1;
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:SetHeight(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownMenu:SetHeight(
         height + 15);
 end
 
@@ -448,29 +448,29 @@ DD.PopulateDefaultDropDownRankMenu = function()
     local buffer = 3;
     local height = 0;
     local color2 = {0, 0.8, 1};
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons or
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons or
             {};
 
     -- Resetting the buttons!
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu
         .Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu.Buttons[i][1]:Hide();
     end
 
     local i = 1;
     for count = 1, GuildControlGetNumRanks() do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu
+        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu
             .Buttons[i] then
-            local tempButton = CreateFrame("Button", "rankIndex" .. i, GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+            local tempButton = CreateFrame("Button", "rankIndex" .. i, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                 .GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu
                 .Buttons[i] = {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local RankButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+        local RankButtons = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                 .GRM_DefaultCustomRankDropDownMenu.Buttons[i][1];
-        local RankButtonsText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+        local RankButtonsText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                                     .GRM_DefaultCustomRankDropDownMenu.Buttons[i][2];
         RankButtons:SetWidth(110);
         RankButtons:SetHeight(11);
@@ -484,20 +484,20 @@ DD.PopulateDefaultDropDownRankMenu = function()
         RankButtonsText:SetTextColor(color2[1], color2[2], color2[3], 1);
 
         if i == 1 then
-            RankButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+            RankButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                 .GRM_DefaultCustomRankDropDownMenu, 0, -7);
             height = height + RankButtons:GetHeight();
         else
-            RankButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
+            RankButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame
                 .GRM_DefaultCustomRankDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + RankButtons:GetHeight() + buffer;
         end
 
         RankButtons:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
-                local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:Hide();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
+                local selectedRank = GRM.GetRankIndex(GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                                                           .GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:GetText(),
                     self);
                 local isRestricted, rankIndex = GRM.Global.IsSyncRankGuildLeaderRestricted(4);
@@ -505,7 +505,7 @@ DD.PopulateDefaultDropDownRankMenu = function()
                 -- Now, are they different? If they are different, that is a problem!
                 if not isRestricted or CanEditGuildInfo() or (isRestricted and rankIndex == selectedRank) then
 
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:SetText(
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:SetText(
                         RankButtonsText:GetText());
                     GRM.S().syncRankCustom = selectedRank;
                     GRM.Global.UpdateGuildInfoWithNewValue(4, selectedRank, true);
@@ -519,7 +519,7 @@ DD.PopulateDefaultDropDownRankMenu = function()
         RankButtons:Show();
         i = i + 1;
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetHeight(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomRankDropDownMenu:SetHeight(
         height + 15);
 end
 
@@ -581,12 +581,12 @@ DD.PopulateClassDropDownMenu = function()
     -- populating the frames!
     local buffer = 3;
     local height = 0;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons or {};
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons or {};
 
     -- Resetting the buttons!
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[i][1]:Hide();
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons do
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[i][1]:Hide();
     end
 
     local j = 1;
@@ -606,22 +606,22 @@ DD.PopulateClassDropDownMenu = function()
 
                 local className = GRM.GetClassName(class);
 
-                if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu
+                if not GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu
                     .Buttons[i] then
-                    local tempButton = CreateFrame("Button", "ClassButton" .. j, GRM_UI.GRM_RosterChangeLogFrame
+                    local tempButton = CreateFrame("Button", "ClassButton" .. j, GRM_UI.GRM_CoreFrame
                         .GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu);
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[j] =
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu.Buttons[j] =
                         {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
                     if j == 1 then
                         GRM_G.DropDownHighlightLockIndex = 1;
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu
                             .Buttons[j][1]:LockHighlight();
                     end
                 end
 
-                local ClassButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                local ClassButtons = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                                          .GRM_AddBanDropDownMenu.Buttons[j][1];
-                local ClassButtonsText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                local ClassButtonsText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                                              .GRM_AddBanDropDownMenu.Buttons[j][2];
 
                 ClassButtons:SetWidth(110);
@@ -636,26 +636,26 @@ DD.PopulateClassDropDownMenu = function()
                 ClassButtonsText:SetJustifyH("CENTER");
 
                 if j == 1 then
-                    ClassButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    ClassButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanDropDownMenu, 0, -7);
                     height = height + ClassButtons:GetHeight();
                 else
-                    ClassButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    ClassButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanDropDownMenu.Buttons[j - 1][1], "BOTTOM", 0, -buffer);
                     height = height + ClassButtons:GetHeight() + buffer;
                 end
 
                 ClassButtons:SetScript("OnClick", function(_, button)
                     if button == "LeftButton" then
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                             .GRM_AddBanDropDownClassSelectedText:SetText(ClassButtonsText:GetText());
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                             .GRM_AddBanDropDownClassSelectedText:SetTextColor(classColor.r, classColor.g, classColor.b,
                             1);
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:Hide();
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:Hide();
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                             .GRM_AddBanDropDownClassSelected:Show();
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetFocus();
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetFocus();
                         GRM_G.tempAddBanClass = class;
                     end
                 end);
@@ -664,7 +664,7 @@ DD.PopulateClassDropDownMenu = function()
             end
         end
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetHeight(height + 15);
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetHeight(height + 15);
 end
 
 -- Method:          DD.PopulateDefaultTabDropdown()
@@ -677,24 +677,24 @@ DD.PopulateDefaultTabDropdown = function()
                         string.upper(GRM.L("Options")), GRM.L("AUDIT")};
 
     -- Initiate the buttons holder
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons or {};
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons or {};
 
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i][1]:Hide();
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons do
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i][1]:Hide();
     end
 
     for i = 1, #tabChoices do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] then
-            local tempButton = CreateFrame("Button", "DefaultTabButton" .. i, GRM_UI.GRM_RosterChangeLogFrame
+        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] then
+            local tempButton = CreateFrame("Button", "DefaultTabButton" .. i, GRM_UI.GRM_CoreFrame
                 .GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] =
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local TabButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu
+        local TabButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu
                               .Buttons[i][1];
-        local TabButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        local TabButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                                   .GRM_DefaultTabMenu.Buttons[i][2];
         TabButton:SetWidth(105);
         TabButton:SetHeight(11);
@@ -707,11 +707,11 @@ DD.PopulateDefaultTabDropdown = function()
         TabButtonText:SetJustifyH("CENTER");
 
         if i == 1 then
-            TabButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            TabButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_DefaultTabMenu, 0, -7);
             height = height + TabButton:GetHeight();
         else
-            TabButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            TabButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_DefaultTabMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + TabButton:GetHeight() + buffer;
         end
@@ -719,15 +719,15 @@ DD.PopulateDefaultTabDropdown = function()
         TabButton:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
                 GRM.S().defaultTabSelection[2] = tonumber(string.match(self:GetName(), "%d+"));
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
                     .GRM_DefaultTabSelectedText:SetText(TabButtonText:GetText());
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:Hide();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
             end
         end);
         TabButton:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:SetHeight(height + 15);
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:SetHeight(height + 15);
 end
 
 -- Method:          DD.PopulateLanguageDropdown()
@@ -736,25 +736,25 @@ end
 DD.PopulateLanguageDropdown = function()
     local buffer = 3;
     local height = 0;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons or {};
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons or {};
 
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu
         .Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i][1]:Hide();
     end
 
     for i = 1, #GRML.Languages do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] then
-            local tempButton = CreateFrame("Button", "GRM_Language_" .. i, GRM_UI.GRM_RosterChangeLogFrame
+        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] then
+            local tempButton = CreateFrame("Button", "GRM_Language_" .. i, GRM_UI.GRM_CoreFrame
                 .GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] =
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local LangButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        local LangButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                                .GRM_LanguageDropDownMenu.Buttons[i][1];
-        local LangButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        local LangButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                                    .GRM_LanguageDropDownMenu.Buttons[i][2];
         LangButton:SetWidth(110);
         LangButton:SetHeight(11);
@@ -767,11 +767,11 @@ DD.PopulateLanguageDropdown = function()
         LangButtonText:SetJustifyH("CENTER");
 
         if i == 1 then
-            LangButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            LangButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_LanguageDropDownMenu, 0, -7);
             height = height + LangButton:GetHeight();
         else
-            LangButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            LangButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_LanguageDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + LangButton:GetHeight() + buffer;
         end
@@ -788,23 +788,23 @@ DD.PopulateLanguageDropdown = function()
                 local tabChoices = {GRM.L("LOG"), GRM.L("EVENTS"), GRM.L("BAN LIST"), GRM.L("SYNC USERS"),
                                     string.upper(GRM.L("Options")), GRM.L("AUDIT")};
 
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected
                     .GRM_LanguageSelectedText:SetText(GRM.L(GRML.Languages[parsedNumber]));
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
                     .GRM_FontSelectedText:SetText(GRML.FontNames[GRM.S().selectedFont]);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
                     .GRM_FontSelectedText:SetFont(GRML.listOfFonts[GRM.S().selectedFont], GRM_G.FontModifier + 11);
                 local month, day, year = select(2, GRM.Time.GetTodaysDate());
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected
                     .GRM_NonGlobalTimestampSelectedText:SetText(
                     GRM.Time.FormatTimeStamp({day, month, year}, false, false, GRM.S().dateFormat));
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
                     .GRM_DefaultTabSelectedText:SetText(tabChoices[GRM.S().defaultTabSelection[2]]);
                 if GRM.S().twentyFourHrScale then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
                         .GRM_24HrSelectedText:SetText(HourFormat[1]);
                 else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
                         .GRM_24HrSelectedText:SetText(HourFormat[2]);
                 end
 
@@ -855,8 +855,8 @@ DD.PopulateLanguageDropdown = function()
                     end
                 end
 
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:Hide();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
                 GRM_UI.ElvUIReset = true;
                 GRM_UI.ElvUIReset2 = true;
                 -- Check the language count!
@@ -865,17 +865,17 @@ DD.PopulateLanguageDropdown = function()
                     count = count - 10;
                 end
                 if count > 0 and not GRML.TranslationStatusEnum[GRML.Languages[GRM.S().selectedLang]] then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:SetText(
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:SetText(
                         GRM.L("{num} phrases still need translation to {name}",
                             GRM.L(GRML.Languages[GRM.S().selectedLang]), nil, count));
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:Show();
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:Show();
                 else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:Hide();
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:Hide();
                 end
 
                 if GRM.IsAddOnLoaded("AddOnSkins") then
-                    GRM_UI.GRM_RosterChangeLogFrame:Hide();
-                    GRM_UI.GRM_RosterChangeLogFrame:Show();
+                    GRM_UI.GRM_CoreFrame:Hide();
+                    GRM_UI.GRM_CoreFrame:Show();
                     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                         GRM_UI.GRM_MemberDetailMetaData:Hide();
                         GRM_G.pause = true;
@@ -886,20 +886,20 @@ DD.PopulateLanguageDropdown = function()
                 if parsedNumber == GRM_G.LocalizedIndex then
                     GRM.Report(GRM.L("Font has been Reset to DEFAULT."));
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(
                     GRM.GetLevelRange());
 
                 -- Let's reprocess the language!
                 GRM.ReprocessAllLogEntriesToCurrentLanguage();
 
-                if #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons > 0 then
+                if #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons > 0 then
                     GRM.ResetLogStringPoints(GRM.S().showLineNumbers);
                 end
             end
         end);
         LangButton:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:SetHeight(height +
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:SetHeight(height +
                                                                                                                     15);
 end
 
@@ -909,24 +909,24 @@ end
 DD.PopulateFontDropdown = function()
     local buffer = 3;
     local height = 0;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons or {};
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons or {};
 
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i][1]:Hide();
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons do
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i][1]:Hide();
     end
 
     for i = 1, #GRML.FontNames do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] then
-            local tempButton = CreateFrame("Button", "GRM_Font" .. i, GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] then
+            local tempButton = CreateFrame("Button", "GRM_Font" .. i, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                 .GRM_GeneralOptionsFrame.GRM_FontDropDownMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] =
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local FontButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu
+        local FontButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu
                                .Buttons[i][1];
-        local FontButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        local FontButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                                    .GRM_FontDropDownMenu.Buttons[i][2];
         local additionalModifier = 0;
         if i == 4 then -- China
@@ -959,11 +959,11 @@ DD.PopulateFontDropdown = function()
         FontButtonText:SetJustifyH("CENTER");
 
         if i == 1 then
-            FontButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            FontButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_FontDropDownMenu, 0, -7);
             height = height + FontButton:GetHeight();
         else
-            FontButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            FontButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_FontDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + FontButton:GetHeight() + buffer;
         end
@@ -974,19 +974,19 @@ DD.PopulateFontDropdown = function()
 
                 GRM.S().selectedFont = parsedNumber;
                 GRML.SetNewFont(parsedNumber);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
                     .GRM_FontSelectedText:SetText(FontButtonText:GetText());
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
                     .GRM_FontSelectedText:SetFont(GRML.listOfFonts[parsedNumber], GRM_G.FontModifier + 11);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:Hide();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
 
                 -- Additional frame check...
                 GRM_UI.ElvUIReset = true;
                 GRM_UI.ElvUIReset2 = true;
                 if GRM.IsAddOnLoaded("AddOnSkins") then
-                    GRM_UI.GRM_RosterChangeLogFrame:Hide();
-                    GRM_UI.GRM_RosterChangeLogFrame:Show();
+                    GRM_UI.GRM_CoreFrame:Hide();
+                    GRM_UI.GRM_CoreFrame:Show();
                     if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
                         GRM_UI.GRM_MemberDetailMetaData:Hide();
                         GRM_G.pause = true;
@@ -997,7 +997,7 @@ DD.PopulateFontDropdown = function()
         end);
         FontButton:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:SetHeight(height + 15);
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:SetHeight(height + 15);
 end
 
 -- Method:          DD.PopulateTimestampFormatDropDown()
@@ -1012,18 +1012,18 @@ DD.PopulateTimestampFormatDropDown = function(nonGlobal)
     local nameText = "";
 
     if nonGlobal then
-        dropDownMenu = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        dropDownMenu = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                            .GRM_NonGlobalTimestampSelectedDropDownMenu;
-        selectedFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        selectedFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                             .GRM_NonGlobalTimestampSelected;
-        selectedText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        selectedText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                            .GRM_NonGlobalTimestampSelected.GRM_NonGlobalTimestampSelectedText;
         nameText = "GRM_timeStampNonGlobalButton"
     else
-        dropDownMenu = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
+        dropDownMenu = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
                            .GRM_TimestampSelectedDropDownMenu;
-        selectedFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected;
-        selectedText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
+        selectedFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected;
+        selectedText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
                            .GRM_TimestampSelectedText;
         nameText = "GRM_timeStampButton"
     end
@@ -1095,10 +1095,10 @@ DD.PopulateTimestampFormatDropDown = function(nonGlobal)
         timeStampButton:Show();
     end
     if nonGlobal then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
             .GRM_NonGlobalTimestampSelectedDropDownMenu:SetHeight(height + 15);
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:SetHeight(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:SetHeight(
             height + 15);
     end
 end
@@ -1109,28 +1109,28 @@ end
 DD.Populate24HrDropDown = function()
     local buffer = 4;
     local height = 0;
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons or
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons or
             {};
 
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
         .Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i][1]:Hide();
     end
 
     local HourFormat = {GRM.L("24 Hour"), GRM.L("12 Hour (am/pm)")};
 
     for i = 1, 2 do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
+        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
             .Buttons[i] then
-            local tempButton = CreateFrame("Button", "GRM_HrButton" .. i, GRM_UI.GRM_RosterChangeLogFrame
+            local tempButton = CreateFrame("Button", "GRM_HrButton" .. i, GRM_UI.GRM_CoreFrame
                 .GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
                 .Buttons[i] = {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
         end
-        local HrButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        local HrButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                              .GRM_24HrSelectedDropDownMenu.Buttons[i][1];
-        local HrButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+        local HrButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                                  .GRM_24HrSelectedDropDownMenu.Buttons[i][2];
         HrButton:SetWidth(110);
         HrButton:SetHeight(11);
@@ -1143,11 +1143,11 @@ DD.Populate24HrDropDown = function()
         HrButtonText:SetJustifyH("CENTER");
 
         if i == 1 then
-            HrButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            HrButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_24HrSelectedDropDownMenu, 0, -7);
             height = height + HrButton:GetHeight();
         else
-            HrButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+            HrButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
                 .GRM_24HrSelectedDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
             height = height + HrButton:GetHeight() + buffer;
         end
@@ -1161,16 +1161,16 @@ DD.Populate24HrDropDown = function()
                 else
                     GRM.S().twentyFourHrScale = false;
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
                     .GRM_24HrSelectedText:SetText(HrButtonText:GetText());
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Hide();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
                 GRM.ReprocessAllLogEntriesToCurrentLanguage();
             end
         end);
         HrButton:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:SetHeight(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:SetHeight(
         height + 15);
 end
 
@@ -1215,43 +1215,43 @@ DD.CreateOptionsRankDropDown = function()
         setRankNameBanList = GuildControlGetRankName(1) -- Default it to guild leader. This scenario could happen if the rank was removed or you change guild but still have old settings.
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelectedText:SetText(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelectedText:SetText(
         setRankName);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelectedText:SetText(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelectedText:SetText(
         setRankNameBanList);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:SetText(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:SetText(
         setCustomDefaultName);
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetFont(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetFont(
         GRM_G.FontChoice, GRM_G.FontModifier + 11);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetText(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetText(
         GRML.FontNames[GRM.S().selectedFont]);
     local month, day, year = select(2, GRM.Time.GetTodaysDate());
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
         .GRM_TimestampSelectedText:SetText(GRM.Time.FormatTimeStamp({day, month, year}, false, false,
         GRM.S().globalDateFormat));
     if GRM.S().twentyFourHrScale then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected.GRM_24HrSelectedText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected.GRM_24HrSelectedText:SetText(
             HourFormat[1]);
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected.GRM_24HrSelectedText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected.GRM_24HrSelectedText:SetText(
             HourFormat[2]);
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
         .GRM_DefaultTabSelectedText:SetText(tabChoices[GRM.S().defaultTabSelection[2]]);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected
         .GRM_NonGlobalTimestampSelectedText:SetText(GRM.Time.FormatTimeStamp({day, month, year}, false, false,
         GRM.S().dateFormat));
 
     -- Now that initial values set, let's display them!
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected:Show();
 end

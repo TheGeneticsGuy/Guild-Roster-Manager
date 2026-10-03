@@ -747,8 +747,8 @@ Scan.BuildNewGuildOrNameChange = function(roster)
             GRM_UI.ReloadAllFrames(true, false);
 
             if GRM_G.ChangesFoundOnLoad then
-                if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame and not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                    GRM_UI.GRM_RosterChangeLogFrame:Show()
+                if GRM_UI and GRM_UI.GRM_CoreFrame and not GRM_UI.GRM_CoreFrame:IsVisible() then
+                    GRM_UI.GRM_CoreFrame:Show()
                 end
             end
 
@@ -2942,9 +2942,9 @@ Scan.FinalReportInformation = function(needToReport)
 
         if GRM.S() and GRM.S().viewOnLoad and not GRM_G.WindowLoadedOnce then
             if (not GRM.S().onlyViewIfChanges) or GRM_G.ChangesFoundOnLoad then
-                if GRM_UI and GRM_UI.GRM_RosterChangeLogFrame and not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+                if GRM_UI and GRM_UI.GRM_CoreFrame and not GRM_UI.GRM_CoreFrame:IsVisible() then
                     GRM_G.WindowLoadedOnce = true;
-                    GRM_UI.GRM_RosterChangeLogFrame:Show()
+                    GRM_UI.GRM_CoreFrame:Show()
                 end
             end
         end
@@ -3574,7 +3574,7 @@ Scan.AddonPlayerRankChange = function(newRankIndex)
     GRM_G.playerRankID = newRankIndex;
     GRM.RegisterMessage(); -- Update everyone else's settings
 
-    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+    if GRM_UI.GRM_CoreFrame:IsVisible() then
         GRM_UI.OptionsCore.RefreshOptionsUI();
     end
 

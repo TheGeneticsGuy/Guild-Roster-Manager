@@ -250,7 +250,7 @@ HC.HardCoreInitialize = function()
             -- No need to report to chat since the chat already notifies everyone in guild.
             GRM.Log.AddLog ( { 24 , logReportWithTime , name , class , level , dateArray } );
 
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
                 GRM.BuildLogComplete( true , true );
             end
 
@@ -338,7 +338,7 @@ HC.HardCoreInitialize = function()
                     GRM.S().ignoreDeathChannel = true;
                     GRM.Report ( GRM.L ( "Please note, GRM will now track the deaths behind the scenes. If you wish to see the full server message, you will need to manually enable in the General Chat Settings." ) );
 
-                    if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:IsVisible() then
+                    if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:IsVisible() then
                         GRM_UI.ConfigureHCOptions();
                     end
                 end

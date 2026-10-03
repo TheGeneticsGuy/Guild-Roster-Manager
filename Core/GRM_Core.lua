@@ -534,8 +534,8 @@ GRM.FrameCombatHide = function()
         end
 
         -- Core GRM window
-        if GRM_UI.GRM_RosterChangeLogFrame and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-            GRM_UI.GRM_RosterChangeLogFrame:Hide();
+        if GRM_UI.GRM_CoreFrame and GRM_UI.GRM_CoreFrame:IsVisible() then
+            GRM_UI.GRM_CoreFrame:Hide();
             GRM_G.CoreFramesHidden[2] = true;
             GRM_G.CoreFramesHidden.hidden = true
         end
@@ -596,7 +596,7 @@ GRM.FrameCombatRestore = function()
             GRM_G.CoreFramesHidden[1] = false;
         end
         if GRM_G.CoreFramesHidden[2] then
-            GRM_UI.GRM_RosterChangeLogFrame:Show();
+            GRM_UI.GRM_CoreFrame:Show();
             GRM_G.CoreFramesHidden[2] = false;
         end
         if GRM_G.CoreFramesHidden[3] then
@@ -779,7 +779,7 @@ end
 -- Purpose:         To give the ability to colorize the names in chat and the roster on control - as the default interface in Classic did not have that.
 GRM.SetChatColoring = function()
     if GRM.S() and GRM.S().colorizeClassicRosterNames then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetChecked(true);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:SetChecked(true);
     end
 end
 
@@ -1029,7 +1029,7 @@ GRM.CreateChatTabs = function()
     end
 
     -- Update the options editbox
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
         GRM.BuildMultiChannelString());
 
     -- Helpful message to players
@@ -1179,10 +1179,10 @@ end
 -- Purpose:         UX quality control
 GRM.CancelChatTabCreation = function()
     if #GRM.S().reportChannel == 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
             DEFAULT_CHAT_FRAME.name);
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
             GRM.BuildMultiChannelString());
     end
     table.remove(GRM_G.UnconfirmedChatTabs, 1);
@@ -1269,7 +1269,7 @@ GRM.EstablishNewCustomReportWindow = function(channelNames)
                         end
                     end
                     GRM_G.UnconfirmedChatTabs = {};
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(GRM.BuildMultiChannelString());
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(GRM.BuildMultiChannelString());
 
                     if GRM_G.Compat.ChattynatorLoaded then
                         GRM.chattynator.CleanupChattynatorTabs();
@@ -1725,7 +1725,7 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
 
             -- need to purge the old backup
             GRM.RemoveGuildBackup(guildName, true);
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
                 GRM.BuildBackupScrollFrame(true, true);
             end
 
@@ -1765,8 +1765,8 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
             GRM.Export.SetExportTabHighlights();
         end
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText("");
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter")); -- By clearing it and restoring it, it triggers the build log action
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText("");
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter")); -- By clearing it and restoring it, it triggers the build log action
 
         GRM_G.changeHappenedExitScan = true;
     end
@@ -3941,9 +3941,9 @@ end
 -- Purpose:         Provide education to the player of the x-realm situation.
 GRM.BanInfo = function()
     local openBanWindow = function()
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanConfirmButtonText:SetText(GRM.L(
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanConfirmButtonText:SetText(GRM.L(
             "Submit Ban"));
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:Show();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:Show();
     end
     local confirm = function()
         GRM.S().banInfoReport = true;
@@ -3969,7 +3969,7 @@ GRM.DelayMinimapButtonOpen = function(messageDisplayed, message2Displayed)
         GRM_G.minmapButtonDelay = false;
         -- Set Window Scales
 
-        GRM_UI.GRM_RosterChangeLogFrame:Show();
+        GRM_UI.GRM_CoreFrame:Show();
     else
         if not message2Displayed and GRM.GetLog() == nil then
             GRM.Report(GRM.L("Database Still Loading. GRM will open automatically when finished."));
@@ -4369,7 +4369,7 @@ GRM.RegisterGuildAddonUsersRefresh =
             C_ChatInfo.SendAddonMessage("GRMUSER", "REQ?", GRMsyncGlobals.channelName);
 
             -- Updating the frames. Giving 2 seconds to receive responses!
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:IsVisible() then
                 C_Timer.After(2, function()
                     if GRM_G.guildName ~= "" then
                         GRM.BuildAddonUserScrollFrame();
@@ -5378,11 +5378,11 @@ GRM.GetLevelRange = function()
         else
             result = GRM.L("No Levels to Report to Log");
         end
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetTextColor(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetTextColor(
             0, 0.82, 1, 1);
     else
         result = GRM.L("No Levels to Report to Log");
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetTextColor(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetTextColor(
             1, 0, 0, 1);
     end
 
@@ -6579,34 +6579,34 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
     local scrollWidth = 561;
     local buffer = 13;
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons or {}; -- Create a table for the Buttons.
+    GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons =
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons or {}; -- Create a table for the Buttons.
     -- populating the window correctly.
     local tempHeight = 0;
     local calendarQ = GRM.GetEvents();
 
     for i = 1, #calendarQ do
         -- if font string is not created, do so.
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i] then
+        if not GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i] then
             local tempButton = CreateFrame("Button", "PlayerToAdd" .. i,
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame); -- Names each Button 1 increment up
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i] =
+                GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame); -- Names each Button 1 increment up
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
                  tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
                  tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
                  tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")};
         end
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i][1].timer = 0;
-        local EventButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i][1].timer = 0;
+        local EventButtons = GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
                                  .allFrameButtons[i][1];
-        local EventButtonsText = GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
+        local EventButtonsText = GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
                                      .allFrameButtons[i][2];
-        local EventButtonsDateText = GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
+        local EventButtonsDateText = GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
                                          .allFrameButtons[i][3];
-        local EventButtonsText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
+        local EventButtonsText2 = GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
                                       .allFrameButtons[i][4];
-        local EventButtonsText3 = GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
+        local EventButtonsText3 = GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
                                       .allFrameButtons[i][5];
         local classColorRGB = GRM.GetClassColorRGB(GRM.GetPlayerClass(calendarQ[i][1]), false);
 
@@ -6616,17 +6616,17 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
         end
 
         -- Set the values..
-        EventButtons:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame, 7,
+        EventButtons:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame, 7,
             -99);
         EventButtons:SetWidth(558);
         EventButtons:SetHeight(19);
         EventButtons:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
         EventButtons:RegisterForDrag("LeftButton");
         EventButtons:SetScript("OnDragStart", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StartMoving();
+            GRM_UI.GRM_CoreFrame:StartMoving();
         end);
         EventButtons:SetScript("OnDragStop", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StopMovingOrSizing()
+            GRM_UI.GRM_CoreFrame:StopMovingOrSizing()
             GRM_UI.SaveCorePosition();
         end);
 
@@ -6728,41 +6728,41 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
 
                 if IsShiftKeyDown() and IsControlKeyDown() then
                     GRM.RestoreTooltip();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(
+                    GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(
                         GRM.SlimName(calendarQ[index][1]));
                 elseif IsControlKeyDown() then
                     GRM.OpenPlayerWindow(calendarQ[index][1]);
                 else
 
                     -- Deal with the highlights
-                    for j = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
+                    for j = 1, #GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame
                         .allFrameButtons do
                         if EventButtons ~=
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[j][1] then
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[j][1]:UnlockHighlight();
+                            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[j][1] then
+                            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[j][1]:UnlockHighlight();
                         else
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[j][1]:LockHighlight();
+                            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[j][1]:LockHighlight();
                         end
                     end
 
-                    if (GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() == nil) or
-                        (GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() ~= nil and
-                            (GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() ~=
+                    if (GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() == nil) or
+                        (GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() ~= nil and
+                            (GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:GetText() ~=
                                 EventButtonsText2:GetText() or
-                                not GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:IsVisible())) then
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:SetText(
+                                not GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:IsVisible())) then
+                        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:SetText(
                             EventButtonsText2:GetText());
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddTitleText:SetText(
+                        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddTitleText:SetText(
                             EventButtonsText:GetText());
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:SetText(
+                        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:SetText(
                             GRM.Time.FormatTimeStamp({calendarQ[index][4], calendarQ[index][3], calendarQ[index][5]}, false,
                                 true));
 
-                        if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:IsVisible() then
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Hide();
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Show();
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Show();
+                        if GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:IsVisible() then
+                            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Hide();
+                            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Show();
+                            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Show();
                         end
                     end
                 end
@@ -6773,23 +6773,23 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
         -- Now let's pin it!
         if i == 1 then
             EventButtons:SetPoint("TOPLEFT",
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame, "TOPLEFT", 3, -12);
+                GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame, "TOPLEFT", 3, -12);
             EventButtonsText:SetPoint("TOPLEFT",
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame, "TOPLEFT", 3, -12);
+                GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame, "TOPLEFT", 3, -12);
             EventButtonsDateText:SetPoint("LEFT", EventButtonsText, "RIGHT", 3, 0);
             EventButtonsText2:SetPoint("LEFT", EventButtonsDateText, "RIGHT", 3, 0);
             EventButtonsText3:SetPoint("LEFT", EventButtonsText2, "RIGHT", 3, 0);
             scrollHeight = scrollHeight + EventButtons:GetHeight();
         else
-            EventButtons:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame
+            EventButtons:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_EventsFrame
                 .GRM_AddEventScrollChildFrame.allFrameButtons[i - 1][1], "BOTTOMLEFT", 0, -buffer);
-            EventButtonsText:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame
+            EventButtonsText:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_EventsFrame
                 .GRM_AddEventScrollChildFrame.allFrameButtons[i - 1][2], "BOTTOMLEFT", 0, -(buffer + tempHeight));
-            EventButtonsDateText:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame
+            EventButtonsDateText:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_EventsFrame
                 .GRM_AddEventScrollChildFrame.allFrameButtons[i - 1][3], "BOTTOMLEFT", 0, -(buffer + tempHeight));
-            EventButtonsText2:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame
+            EventButtonsText2:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_EventsFrame
                 .GRM_AddEventScrollChildFrame.allFrameButtons[i - 1][4], "BOTTOMLEFT", 0, -(buffer + tempHeight));
-            EventButtonsText3:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame
+            EventButtonsText3:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_EventsFrame
                 .GRM_AddEventScrollChildFrame.allFrameButtons[i - 1][5], "BOTTOMLEFT", 0, -(buffer + tempHeight));
             scrollHeight = scrollHeight + EventButtons:GetHeight() + buffer;
         end
@@ -6797,36 +6797,36 @@ GRM.BuildEventCalendarManagerScrollFrame = function()
         tempHeight = (EventButtons:GetHeight() - EventButtonsText2:GetHeight());
     end
     -- Update the size -- it either grows or it shrinks!
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame:SetSize(scrollWidth, scrollHeight);
+    GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame:SetSize(scrollWidth, scrollHeight);
 
     -- Set Slider Parameters ( has to be done after the above details are placed )
     local scrollMax = (scrollHeight -
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrame:GetHeight()) +
+                          GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrame:GetHeight()) +
                           (buffer * 1.5);
     if scrollMax < 0 then
         scrollMax = 0;
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetMinMaxValues(0, scrollMax);
+    GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetMinMaxValues(0, scrollMax);
     -- Mousewheel Scrolling Logic
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrame:EnableMouseWheel(true);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrame:SetScript("OnMouseWheel", function(_, delta)
-        local current = GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:GetValue();
+    GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrame:EnableMouseWheel(true);
+    GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrame:SetScript("OnMouseWheel", function(_, delta)
+        local current = GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:GetValue();
 
         if IsShiftKeyDown() and delta > 0 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(0);
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(0);
         elseif IsShiftKeyDown() and delta < 0 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(scrollMax);
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(scrollMax);
         elseif delta < 0 and current < scrollMax then
             if IsControlKeyDown() then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current + 60);
+                GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current + 60);
             else
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current + 20);
+                GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current + 20);
             end
         elseif delta > 0 and current > 1 then
             if IsControlKeyDown() then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current - 60);
+                GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current - 60);
             else
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current - 20);
+                GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollFrameSlider:SetValue(current - 20);
             end
         end
     end);
@@ -6841,37 +6841,37 @@ GRM.BuildAddonUserScrollFrame = function()
     local buffer = 15;
     local okWord = GRM.L("Ok!");
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings or {}; -- Create a table for the Buttons.
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings =
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings or {}; -- Create a table for the Buttons.
     -- Building all the fontstrings.
     for i = 1, #GRM_G.currentAddonUsers do
         -- We know there is at least one, so let's hide the warning string...
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
             .GRM_AddonUsersCoreFrameTitleText2:Hide();
         -- if font string is not created, do so.
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] =
-                {GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
+        if not GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] then
+            GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i] =
+                {GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
                     nil, "OVERLAY", "GameFontWhiteTiny"),
-                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
+                 GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
                     nil, "OVERLAY", "GameFontWhiteTiny"),
-                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
+                 GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
                     nil, "OVERLAY", "GameFontWhiteTiny"),
-                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
+                 GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
                     nil, "OVERLAY", "GameFontWhiteTiny"),
-                 GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
+                 GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:CreateFontString(
                     nil, "OVERLAY", "GameFontWhiteTiny")};
         end
 
-        local AddonUserText1 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        local AddonUserText1 = GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
                                    .AllFrameFontstrings[i][1];
-        local AddonUserText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        local AddonUserText2 = GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
                                    .AllFrameFontstrings[i][2];
-        local AddonUserText3 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        local AddonUserText3 = GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
                                    .AllFrameFontstrings[i][3];
-        local AddonUserText4 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        local AddonUserText4 = GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
                                    .AllFrameFontstrings[i][4];
-        local AddonUserText5 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        local AddonUserText5 = GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
                                    .AllFrameFontstrings[i][5];
         local classColorRGB = GRM.GetClassColorRGB(GRM.GetPlayerClass(GRM_G.currentAddonUsers[i][1]));
 
@@ -6947,10 +6947,10 @@ GRM.BuildAddonUserScrollFrame = function()
         -- Now let's pin it!
         if i == 1 then
             AddonUserText1:SetPoint("TOPLEFT",
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame, "TOPLEFT", 5, -15);
+                GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame, "TOPLEFT", 5, -15);
             scrollHeight = scrollHeight + stringHeight;
         else
-            AddonUserText1:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame
+            AddonUserText1:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame
                 .GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i - 1][1], "BOTTOMLEFT", 0, -buffer);
             scrollHeight = scrollHeight + stringHeight + buffer;
         end
@@ -6967,51 +6967,51 @@ GRM.BuildAddonUserScrollFrame = function()
     end
 
     -- Hides all the additional strings... if necessary ( necessary because some people may have logged off thus you need to hide those frames)
-    for i = #GRM_G.currentAddonUsers + 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame
+    for i = #GRM_G.currentAddonUsers + 1, #GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame
         .GRM_AddonUsersScrollChildFrame.AllFrameFontstrings do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1]:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][2]:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][3]:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][4]:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][5]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][2]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][3]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][4]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame.AllFrameFontstrings[i][5]:Hide();
     end
 
     -- Update the size -- it either grows or it shrinks!
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:SetSize(scrollWidth, scrollHeight);
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame:SetSize(scrollWidth, scrollHeight);
 
     -- Set Slider Parameters ( has to be done after the above details are placed )
     local scrollMax = (scrollHeight -
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrame:GetSize()) +
+                          GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrame:GetSize()) +
                           (buffer * .5); -- 18 comes from fontSize (11) + buffer (7);
     if scrollMax < 0 then
         scrollMax = 0;
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetMinMaxValues(0, scrollMax);
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetMinMaxValues(0, scrollMax);
     -- Mousewheel Scrolling Logic
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrame:EnableMouseWheel(true);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrame:SetScript("OnMouseWheel",
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrame:EnableMouseWheel(true);
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrame:SetScript("OnMouseWheel",
         function(_, delta)
             local current =
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:GetValue();
+                GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:GetValue();
 
             if IsShiftKeyDown() and delta > 0 then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(0);
+                GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(0);
             elseif IsShiftKeyDown() and delta < 0 then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(scrollMax);
+                GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(scrollMax);
             elseif delta < 0 and current < scrollMax then
                 if IsControlKeyDown() then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
                         current + 60);
                 else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
                         current + 20);
                 end
             elseif delta > 0 and current > 1 then
                 if IsControlKeyDown() then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
                         current - 60);
                 else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollFrameSlider:SetValue(
                         current - 20);
                 end
             end
@@ -7026,9 +7026,9 @@ GRM.BuildAddonUserScrollFrame = function()
         elseif numGuildiesOnline > 1 then
             result = result .. "\n" .. GRM.L("{num} others are Online! Recommend It!", nil, nil, numGuildiesOnline);
         end
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
             .GRM_AddonUsersCoreFrameTitleText2:SetText(result);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersScrollChildFrame
             .GRM_AddonUsersCoreFrameTitleText2:Show();
     end
 end
@@ -7330,23 +7330,23 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
 
     local scrollHeight = 0;
     local scrollWidth =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame:GetWidth() - 5;
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame:GetWidth() - 5;
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons or {}; -- Create a table for the Buttons.
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons =
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons or {}; -- Create a table for the Buttons.
     for i = 1, numButtons do -- The +1 is for the player so they can count themselves too...
         -- if font string is not created, do so.
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame
+        if not GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame
             .AllButtons[i] then
-            local tempButton = CreateFrame("Button", "BanButton" .. i, GRM_UI.GRM_RosterChangeLogFrame
+            local tempButton = CreateFrame("Button", "BanButton" .. i, GRM_UI.GRM_CoreFrame
                 .GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame); -- Names each Button 1 increment up
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i] =
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i] =
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")};
         end
 
-        local button = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame
+        local button = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame
                            .AllButtons[i][1];
-        local buttonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+        local buttonText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                                .GRM_AddBanScrollChildFrame.AllButtons[i][2];
 
         button:SetSize(112, 14);
@@ -7367,11 +7367,11 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
         buttonText:SetPoint("LEFT", button);
 
         if i == 1 then
-            button:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+            button:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                 .GRM_AddBanScrollChildFrame, "TOP", 0, 0);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame:Show();
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame:Show();
         else
-            button:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+            button:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                 .GRM_AddBanScrollChildFrame.AllButtons[i - 1][1], "BOTTOMLEFT", 0, 0);
         end
         -- Build height
@@ -7379,21 +7379,21 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
         -- Set button logic...
         button:SetScript("OnClick", function(_, key)
             if key == "LeftButton" then
-                local result = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                local result = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                                    .GRM_AddBanScrollChildFrame.AllButtons[i][2]:GetText();
-                if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
+                if GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
                     .current then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
                         .clickControl = true;
 
                     local realmName = string.match(result, "-(.+)");
 
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(
                         GRM.SlimName(result));
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanServerSelectionEditBox:SetText(realmName)
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetFocus();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:HighlightText(
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetFocus();
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:HighlightText(
                         0);
                     GRM_UI.RealmTextChanged();
 
@@ -7405,22 +7405,22 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
                     if player and player.class and player.class ~= "" then
                         local color = GRM.GetClassColorRGB(player.class, false);
 
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                             .GRM_AddBanDropDownClassSelectedText:SetText(C_CreatureInfo.GetClassInfo(
                                                                              GRM_G.classFileIDEnum[player.class])
                                                                              .className);
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                             .GRM_AddBanDropDownClassSelectedText:SetTextColor(color[1], color[2], color[3]);
 
                     end
 
-                elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                elseif GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                     .GRM_AddBanServerSelectionEditBox.current then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanServerSelectionEditBox:SetText(result);
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanServerSelectionEditBox:SetFocus();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanServerSelectionEditBox:HighlightText(0);
                     GRM_UI.RealmTextChanged();
                 end
@@ -7428,23 +7428,23 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
         end);
 
         button:SetScript("OnEnter", function()
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
                 .EscapeControl = true;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox
                 .EscapeControl = true;
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:HasFocus() then
-                local text = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+            if GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:HasFocus() then
+                local text = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                                  .GRM_AddBanScrollChildFrame.AllButtons[i][2]:GetText();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(
                     text);
 
-             elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:HasFocus() then
-                local text = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i][2]:GetText();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(GRM.SlimName(text));
+             elseif GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:HasFocus() then
+                local text = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i][2]:GetText();
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(GRM.SlimName(text));
 
                 if text and text ~= "" then
                     local server = string.match(text, "-(.+)")
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(server);
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(server);
                 end
 
                 local player = GRM.GetPlayer(text);
@@ -7455,47 +7455,47 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
                 if player and player.class and player.class ~= "" then
                     local color = GRM.GetClassColorRGB(player.class, false);
 
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanDropDownClassSelectedText:SetText(C_CreatureInfo.GetClassInfo(
                                                                          GRM_G.classFileIDEnum[player.class]).className);
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
                         .GRM_AddBanDropDownClassSelectedText:SetTextColor(color[1], color[2], color[3]);
                 end
             end
         end)
 
         button:SetScript("OnLeave", function()
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox
                 .EscapeControl = false;
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox
                 .EscapeControl = false;
         end);
 
         button:Show();
     end
     -- Hide unused buttons...
-    for i = numButtons + 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
+    for i = numButtons + 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame
         .GRM_AddBanScrollChildFrame.AllButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i][1]:Hide();
     end
-    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox.current then
+    if not GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox.current then
         if numButtons == 0 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
                 .GRM_BanFrameHelperText:SetText(GRM.L("No Matches Found. Add a Custom New Player or Match"));
         else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
                 .GRM_BanFrameHelperText:SetText(GRM.L("Former and Current Members"));
         end
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
             .GRM_BanFrameHelperText:SetText(GRM.L("All {name} Region Realms", GetCurrentRegionName()));
     end
     -- Reset the highlight...
 
     -- Configure Slider
-    GRM.ConfigureSlider(GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
+    GRM.ConfigureSlider(GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame,
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame,
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame
             .GRM_AddBanScrollFrameSlider, scrollWidth, scrollHeight, 98, true)
 end
 
@@ -7602,7 +7602,7 @@ end
 -- What it Does:    Shifts the values down by 1 when using the mousewheel
 -- Purpose:         Hybrid Scroll frame capabilities on the backup window.
 GRM.BackupHybridShiftDown = function()
-    local buttons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    local buttons = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                         .AllBackupButtons;
     local MouseOverButton = 0;
 
@@ -7676,7 +7676,7 @@ end
 -- What it Does:    Shifts the values up by 1 when using the mousewheel
 -- Purpose:         Hybrid Scroll frame capabilities on the backup window.
 GRM.BackupHybridShiftUp = function()
-    local buttons = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    local buttons = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                         .AllBackupButtons;
     local MouseOverButton = 0;
 
@@ -7748,8 +7748,8 @@ end
 -- What it Does:    Sets the last value of the hybridscrollframe backups at position 12
 -- Purpose:         Clean scrolling
 GRM.BackupSetLastValue = function()
-    GRM.SetBackupValues(#GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
-                            .GRM_CoreBackupScrollChildFrame.AllBackupButtons, GRM_UI.GRM_RosterChangeLogFrame
+    GRM.SetBackupValues(#GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+                            .GRM_CoreBackupScrollChildFrame.AllBackupButtons, GRM_UI.GRM_CoreFrame
         .GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset);
 end
 
@@ -7758,8 +7758,8 @@ end
 -- Purpose:         Clean scrolling
 GRM.BackupSetFirstValue = function()
     GRM.SetBackupValues(1,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset -
-            #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset -
+            #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                 .AllBackupButtons + 1);
 end
 
@@ -7767,34 +7767,34 @@ end
 -- What it Does:    Builds the tooltip for the backup window
 -- Purpose:         Quality of life feature
 GRM.UpdateBackupTooltip = function(ind)
-    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:IsVisible() and
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:IsVisible() and
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
             .AllBackupButtons[ind][2]:IsVisible() and
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
             .AllBackupButtons[ind][1]:IsMouseOver() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:SetOwner(
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:SetOwner(
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                 .AllBackupButtons[ind][1], "ANCHOR_CURSOR");
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine(
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine(
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                 .AllBackupButtons[ind][2]:GetText(), 0.64, 0.102, 0.102);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine(GRM.L(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine(GRM.L(
             "Right-Click for options to remove this guild from the addon database completely"), 1, 0.84, 0, true);
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
             .AllBackupButtons[ind][5]:GetText() == GRM.L("Unknown") and
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                 .AllBackupButtons[ind][6]:GetText() == GRM.L("Unknown") then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine(GRM.L(
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:AddLine(GRM.L(
                 "No player data found, recommend full removal."), 1, 0, 0, true);
         end
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Show();
-    elseif not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Show();
+    elseif not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
         .AllBackupButtons[ind][2]:IsVisible() or
-        not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
             .AllBackupButtons[ind][1]:IsMouseOver() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Hide();
     end
 end
 
@@ -7802,7 +7802,7 @@ end
 -- What it Does:    Builds the values of the hybrid scroll frame given button
 -- Purpose:         Establish the values for the backup window
 GRM.SetBackupValues = function(ind, ind2)
-    local line = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    local line = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                      .AllBackupButtons[ind];
 
     -- Main top Line
@@ -7870,13 +7870,13 @@ GRM.SetBackupValues = function(ind, ind2)
     end
 
     -- Update the tooltip if underlying data changes
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:IsVisible() and
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:IsVisible() and
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
             .AllBackupButtons[ind][1]:IsMouseOver() then
         GRM.UpdateBackupTooltip(ind);
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Hide();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Hide();
 end
 
 -- Method:          GRM.BuildBackupScrollFrame ( bool , bool )
@@ -7893,41 +7893,41 @@ GRM.BuildBackupScrollFrame = function(showAll, fullRefresh)
         -- Establish the memory use...
         UpdateAddOnMemoryUsage();
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_MemoryUsageText:SetText(GRM.L(
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_MemoryUsageText:SetText(GRM.L(
             "Memory Usage: {num} MB", nil, nil, GRM.Round(GetAddOnMemoryUsage(GRM_G.addonName) / 1000, 2)));
 
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Hide();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Hide();
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
             .AllBackupButtons or {};
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset or
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset or
             (hybridScrollFrameButtonCount);
 
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset <
+    if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset <
         hybridScrollFrameButtonCount then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset =
             hybridScrollFrameButtonCount;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset >
+    elseif GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset >
         hybridScrollFrameButtonCount and
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset >
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset >
         #GRM_G.BackupEntries then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset =
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset =
             #GRM_G.BackupEntries;
     end
 
     for i = 1, #GRM_G.BackupEntries do
         -- Build HybridScrollFrame Buttons
         if i <= hybridScrollFrameButtonCount then
-            if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+            if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                 .AllBackupButtons[i] then
 
-                local button = CreateFrame("Button", "GRMBackupCoreButton_" .. i, GRM_UI.GRM_RosterChangeLogFrame
+                local button = CreateFrame("Button", "GRMBackupCoreButton_" .. i, GRM_UI.GRM_CoreFrame
                     .GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                     .AllBackupButtons[i] = {button, button:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
                                             button:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
                                             button:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
@@ -7936,17 +7936,17 @@ GRM.BuildBackupScrollFrame = function(showAll, fullRefresh)
                                             CreateFrame("Button", "GuildBackup1_" .. i, button, "UIPanelButtonTemplate"),
                                             CreateFrame("Button", "GuildBackup2_" .. i, button, "UIPanelButtonTemplate")};
 
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                     .AllBackupButtons[i][8]:SetText(GRM.L("Remove")); -- all of these will be the same
 
-                button = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+                button = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                              .GRM_CoreBackupScrollChildFrame.AllBackupButtons[i][1];
                 if i == 1 then
-                    button:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+                    button:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                         .GRM_CoreBackupScrollChildFrame, "TOP", 12, 0);
                 else
                     button:SetPoint("TOPLEFT",
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+                        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                             .GRM_CoreBackupScrollChildFrame.AllBackupButtons[i - 1][1], "BOTTOMLEFT", 0, 0);
                 end
 
@@ -7957,15 +7957,15 @@ GRM.BuildBackupScrollFrame = function(showAll, fullRefresh)
         end
 
         if i >=
-            (GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset -
+            (GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset -
                 hybridScrollFrameButtonCount + 1) and i <=
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset then
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.Offset then
             GRM.SetBackupValues(i -
-                                    (GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+                                    (GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                                         .GRM_CoreBackupScrollChildFrame.Offset - hybridScrollFrameButtonCount), i);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                 .AllBackupButtons[i -
-                (GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+                (GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                     .Offset - hybridScrollFrameButtonCount)][1]:Show();
         end
 
@@ -7973,17 +7973,17 @@ GRM.BuildBackupScrollFrame = function(showAll, fullRefresh)
         scrollHeight = scrollHeight + buttonHeight;
     end
     -- Hide unused buttons...
-    for i = #GRM_G.BackupEntries + 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    for i = #GRM_G.BackupEntries + 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
         .GRM_CoreBackupScrollChildFrame.AllBackupButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
             .AllBackupButtons[i][1]:Hide();
     end
 
-    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
-                                                 .GRM_CoreBackupScrollChildFrame, GRM_UI.GRM_RosterChangeLogFrame
+    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+                                                 .GRM_CoreBackupScrollChildFrame, GRM_UI.GRM_CoreFrame
         .GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollFrame,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollFrameSlider,
-        buttonWidth, buttonHeight, scrollHeight, #GRM_G.BackupEntries, GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollFrameSlider,
+        buttonWidth, buttonHeight, scrollHeight, #GRM_G.BackupEntries, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
             .GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame.AllBackupButtons, GRM.BackupHybridShiftDown,
         GRM.BackupHybridShiftUp, hybridScrollFrameButtonCount);
 end
@@ -7993,21 +7993,21 @@ end
 -- Purpose:         Compartmentalize the code for easier call back to.
 GRM.BuildBackupHybridButtons = function(ind, isResizeAction)
 
-    local coreButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    local coreButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                            .GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][1];
-    local buttonText1 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    local buttonText1 = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                             .GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][2];
-    local buttonText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    local buttonText2 = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                             .GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][3];
-    local buttonText3 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    local buttonText3 = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                             .GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][4];
-    local buttonText4 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    local buttonText4 = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                             .GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][5];
-    local buttonText5 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
+    local buttonText5 = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame
                             .GRM_CoreBackupScrollChildFrame.AllBackupButtons[ind][6];
-    local button1 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    local button1 = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                         .AllBackupButtons[ind][7];
-    local button2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
+    local button2 = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_CoreBackupScrollChildFrame
                         .AllBackupButtons[ind][8];
 
     -- Guild Name
@@ -8063,10 +8063,10 @@ GRM.BuildBackupHybridButtons = function(ind, isResizeAction)
 
         -- Setup draggable conditions
         coreButton:SetScript("OnDragStart", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StartMoving();
+            GRM_UI.GRM_CoreFrame:StartMoving();
         end);
         coreButton:SetScript("OnDragStop", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StopMovingOrSizing();
+            GRM_UI.GRM_CoreFrame:StopMovingOrSizing();
             GRM_UI.SaveCorePosition();
         end);
 
@@ -8167,11 +8167,11 @@ GRM.BuildBackupHybridButtons = function(ind, isResizeAction)
                     local guildName = buttonText1:GetText();
 
                     GRM_G.BackupFrameSelectDetails = {guildName, buttonText4:GetText()};
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:ClearAllPoints();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:SetPoint(
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:ClearAllPoints();
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:SetPoint(
                         "TOPRIGHT", self, "TOPLEFT", -12, -5);
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Show();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Hide();
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_BackupPurgeGuildOption:Show();
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Hide();
                 end
             end
         end);
@@ -8180,7 +8180,7 @@ GRM.BuildBackupHybridButtons = function(ind, isResizeAction)
             GRM.UpdateBackupTooltip(tonumber(string.sub(self:GetName(), string.find(self:GetName(), "_") + 1)));
         end);
         coreButton:SetScript("OnLeave", function()
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Hide();
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame.GRM_GuildNameTooltip:Hide();
         end);
     end
 end
@@ -8247,7 +8247,7 @@ end
 -- What it Does:    Builds the values of the given line in the audit window
 -- Purpose:         Quality of life feature.
 GRM.SetAuditValues = function(ind, ind2)
-    local line = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind];
+    local line = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind];
     local ok = {0, 0.77, 0.063};
     local notOk = {0.64, 0.102, 0.102};
     local unknown = {1.0, 0.647, 0};
@@ -8292,7 +8292,7 @@ GRM.SetAuditValues = function(ind, ind2)
 
     -- Update the tooltip if underlying data changes
     if GameTooltip:IsVisible() and
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][1]:IsMouseOver() then
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][1]:IsMouseOver() then
         GRM.UpdateAuditTooltip(ind);
     end
 end
@@ -8302,7 +8302,7 @@ end
 -- Purpose:         Clean scrolling
 GRM.AuditHybridShiftDown = function()
     if #GRM_G.AuditEntries > 16 then
-        local buttons = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons;
+        local buttons = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons;
         local MouseOverButton = 0;
 
         -- Shift them down...
@@ -8337,7 +8337,7 @@ end
 -- Purpose:         Clean scrolling
 GRM.AuditHybridShiftUp = function()
     if #GRM_G.AuditEntries > 16 then
-        local buttons = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons;
+        local buttons = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons;
         local MouseOverButton = 0;
 
         for i = #buttons, 2, -1 do
@@ -8369,16 +8369,16 @@ end
 -- What it Does:    Sets the last value of the hybridscrollframe backups at position 16
 -- Purpose:         Clean scrolling
 GRM.AuditSetLastValue = function()
-    GRM.SetAuditValues(#GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset);
+    GRM.SetAuditValues(#GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons,
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset);
 end
 
 -- Method:          GRM.AuditSetFirstValue()
 -- What it Does:    Sets the first value of the hybridscrollframe backups at position 1
 -- Purpose:         Clean scrolling
 GRM.AuditSetFirstValue = function()
-    GRM.SetAuditValues(1, GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
-        #GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons + 1);
+    GRM.SetAuditValues(1, GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
+        #GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons + 1);
 end
 
 -- Method:          GRM.UpdateAuditTooltip()
@@ -8387,9 +8387,9 @@ end
 GRM.UpdateAuditTooltip = function(ind)
     GRM_UI.SetTooltipScale();
     GameTooltip:SetOwner(
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][1],
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][1],
         "ANCHOR_CURSOR");
-    GameTooltip:AddLine(GRM.GetClassifiedName(GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame
+    GameTooltip:AddLine(GRM.GetClassifiedName(GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame
                                                   .AllAuditButtons[ind][2]:GetText(), false));
 
     GameTooltip:AddLine(GRM.L("{custom1} to open Player Window", nil, nil, nil,
@@ -8401,10 +8401,10 @@ GRM.UpdateAuditTooltip = function(ind)
 
     -- Check for the tag
     if string.find(
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][3]:GetText(),
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][3]:GetText(),
         "!!", 1, true) ~= nil or
         string.find(
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][4]:GetText(),
+            GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][4]:GetText(),
             "!!", 1, true) ~= nil then
         GameTooltip:AddLine(" ");
         GameTooltip:AddLine(GRM.L("The {name} tag indicates a date must be verified to sync", "|CFFFF0000!!|r"));
@@ -8419,9 +8419,9 @@ end
 -- Purpose:         Audit frames are useful so the leader or player can do an easy visual check of the entire guild on what is needed.
 GRM.RefreshAuditFrames = function(showAll, fullRefresh, searchString)
     local hybridScrollFrameButtonCount = 17;
-    local buttonHeight = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollFrame:GetHeight() / 17;
+    local buttonHeight = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollFrame:GetHeight() / 17;
     local scrollHeight = 0;
-    local buttonWidth = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollFrame:GetWidth() - 5;
+    local buttonWidth = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollFrame:GetWidth() - 5;
 
     if showAll and fullRefresh then
         GRM_G.AuditEntries = GRM.GetAuditEntries();
@@ -8448,28 +8448,28 @@ GRM.RefreshAuditFrames = function(showAll, fullRefresh, searchString)
         GRM_G.AuditEntries = GRM.GetAutoCompleteNamesForAudit(searchString);
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons or {};
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset or
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons =
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons or {};
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset =
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset or
             (hybridScrollFrameButtonCount);
 
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset < hybridScrollFrameButtonCount then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset = hybridScrollFrameButtonCount;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset >
-        hybridScrollFrameButtonCount and GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset >
+    if GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset < hybridScrollFrameButtonCount then
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset = hybridScrollFrameButtonCount;
+    elseif GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset >
+        hybridScrollFrameButtonCount and GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset >
         #GRM_G.AuditEntries then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset = #GRM_G.AuditEntries;
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset = #GRM_G.AuditEntries;
     end
 
     for i = 1, #GRM_G.AuditEntries do
         -- Build HybridScrollFrame Buttons
         if i <= hybridScrollFrameButtonCount then
-            if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i] then
+            if not GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i] then
 
                 local button = CreateFrame("Button", "GRMAuditCoreButton_" .. i,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i] = {button,
+                    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame);
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i] = {button,
                                                                                                                button:CreateFontString(
                     nil, "OVERLAY", "GameFontWhiteTiny"), button:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
                                                                                                                button:CreateFontString(
@@ -8477,12 +8477,12 @@ GRM.RefreshAuditFrames = function(showAll, fullRefresh, searchString)
                                                                                                                button:CreateFontString(
                     nil, "OVERLAY", "GameFontWhiteTiny")};
 
-                button = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1];
+                button = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1];
                 if i == 1 then
-                    button:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame,
+                    button:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame,
                         "TOP", 0, 0);
                 else
-                    button:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame
+                    button:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame
                         .AllAuditButtons[i - 1][1], "BOTTOMLEFT", 0, 0);
                 end
 
@@ -8494,14 +8494,14 @@ GRM.RefreshAuditFrames = function(showAll, fullRefresh, searchString)
         end
 
         if i >=
-            (GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
+            (GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
                 hybridScrollFrameButtonCount + 1) and i <=
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset then
+            GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset then
             GRM.SetAuditValues(i -
-                                   (GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
+                                   (GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
                                        hybridScrollFrameButtonCount), i);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i -
-                (GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
+            GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i -
+                (GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.Offset -
                     hybridScrollFrameButtonCount)][1]:Show();
         end
 
@@ -8510,85 +8510,85 @@ GRM.RefreshAuditFrames = function(showAll, fullRefresh, searchString)
     end
 
     -- Hide unused buttons...
-    for i = #GRM_G.AuditEntries + 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame
+    for i = #GRM_G.AuditEntries + 1, #GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame
         .AllAuditButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1]:Hide();
     end
 
-    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollFrame, GRM_UI.GRM_RosterChangeLogFrame
+    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame,
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollFrame, GRM_UI.GRM_CoreFrame
             .GRM_AuditFrame.GRM_AuditScrollFrameSlider, buttonWidth, buttonHeight, scrollHeight, #GRM_G.AuditEntries,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons,
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons,
         GRM.AuditHybridShiftDown, GRM.AuditHybridShiftUp, hybridScrollFrameButtonCount);
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameText5:SetText(GRM.L(
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameText5:SetText(GRM.L(
         "Total Incomplete: {num} / {custom1}", nil, nil, GRM_G.AuditEntryTotals[5], GRM.G_Util.GetNumGuildies()));
-    GRM_UI.ScaleFontStringToObjectSize(true, 190, GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameText5, 2);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameText5:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameText8:SetText(
+    GRM_UI.ScaleFontStringToObjectSize(true, 190, GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameText5, 2);
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameText5:Show();
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameText8:SetText(
         GRM.L("Mains:\n{num}", nil, nil, GRM.GetNumMains()));
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameText8:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameText7:SetText(
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameText8:Show();
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameText7:SetText(
         GRM.L("Unique Accounts:\n{num}", nil, nil, GRM_G.numAccounts));
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditFrameText7:Show();
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameText7:Show();
     if (GRM_G.AuditEntryTotals[1] + GRM_G.AuditEntryTotals[2]) == 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
             GRM.L("All Complete"));
     elseif GRM_G.AuditEntryTotals[2] > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
             GRM.L("Set Incomplete to Unknown"));
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
             GRM.L("Clear All Unknown"));
     end
 
     if (GRM_G.AuditEntryTotals[3] + GRM_G.AuditEntryTotals[4]) == 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
             GRM.L("All Complete"));
     elseif GRM_G.AuditEntryTotals[4] > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
             GRM.L("Set Incomplete to Unknown"));
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
             GRM.L("Clear All Unknown"));
     end
 
     if (GRM_G.AuditEntryTotals[7] + GRM_G.AuditEntryTotals[8]) == 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
             GRM.L("All Complete"));
     elseif GRM_G.AuditEntryTotals[8] > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
             GRM.L("Set Incomplete to Unknown"));
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
             GRM.L("Clear All Unknown"));
     end
 
     if GRM.S().includeBirthdaysInAudit then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButton:SetChecked(true);
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButton:SetChecked(true);
     end
 
     if GRM.GetNumUnverifiedJoinDates() > 0 and GRM.CanEditOfficerNote() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:Show();
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:Show();
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_VerifyAllJoinButton:Hide();
     end
 
     if GRM.GetNumUnverifiedPromoDates() > 0 and GRM.CanEditOfficerNote() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:Show();
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:Show();
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_VerifyAllRankButton:Hide();
     end
 
-    GRM_UI.RefreshAuditTab(GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab);
+    GRM_UI.RefreshAuditTab(GRM_UI.GRM_CoreFrame.GRM_GuildAuditTab);
 end
 
 -- Method:          GRM.UnlockAuditButtonHighlights ( object )
 -- What it Does:    Unlocks all button highlights not clicked
 -- Purpose:         UX
 GRM.UnlockAuditButtonHighlights = function()
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1]:UnlockHighlight();
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons do
+        GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[i][1]:UnlockHighlight();
     end
 end
 
@@ -8596,12 +8596,12 @@ end
 -- What it Does:    Initiates the buttons and their values for each line of the audit hybridscrollframe
 -- Purpose:         Create a smooth scrolling experience in the audit window
 GRM.BuildAuditScrollButtons = function(ind, isResizeAction)
-    local coreButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][1];
-    local buttonText1 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][2];
-    local buttonText2 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][3];
-    local buttonText3 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][4];
-    local buttonText4 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][5];
-    local buttonText5 = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][6];
+    local coreButton = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][1];
+    local buttonText1 = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][2];
+    local buttonText2 = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][3];
+    local buttonText3 = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][4];
+    local buttonText4 = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][5];
+    local buttonText5 = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][6];
 
     -- 566 width
 
@@ -8647,30 +8647,30 @@ GRM.BuildAuditScrollButtons = function(ind, isResizeAction)
 
         -- Setup draggable conditions
         coreButton:SetScript("OnDragStart", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StartMoving();
+            GRM_UI.GRM_CoreFrame:StartMoving();
         end);
         coreButton:SetScript("OnDragStop", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StopMovingOrSizing();
+            GRM_UI.GRM_CoreFrame:StopMovingOrSizing();
             GRM_UI.SaveCorePosition();
         end);
 
         coreButton:SetScript("OnMouseDown", function(self, button)
             local playerName =
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][2]:GetText();
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditScrollChildFrame.AllAuditButtons[ind][2]:GetText();
 
             if button == "LeftButton" then
                 if IsControlKeyDown() then
                     if IsShiftKeyDown() then
                         GRM.RestoreTooltip();
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.SlimName(playerName));
+                        GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+                        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.SlimName(playerName));
                     else
                         GRM.OpenPlayerWindow(playerName);
                     end
                 end
 
             elseif button == "RightButton" then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name = playerName;
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name = playerName;
                 GRM.RestoreTooltip();
 
                 local buttonMsg = "";
@@ -8684,33 +8684,33 @@ GRM.BuildAuditScrollButtons = function(ind, isResizeAction)
                     end
                 end
 
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
                     .GRM_AuditWindowDropDownFrameText:SetText(GRM.GetClassifiedName(playerName, false));
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
                     .GRM_AuditWindowDropDownAltMainButton.GRM_AuditWindowDropDownAltMainButtonText:SetText(buttonMsg);
-                local size = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
+                local size = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
                                  .GRM_AuditWindowDropDownFrameText:GetWidth() + 25;
 
                 if size < 110 then
                     size = 110;
                 end
 
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:SetWidth(size);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:ClearAllPoints();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:SetPoint("LEFT", self,
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:SetWidth(size);
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:ClearAllPoints();
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:SetPoint("LEFT", self,
                     "RIGHT", -15, 0);
 
-                size = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:GetWidth();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
+                size = GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:GetWidth();
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
                     .GRM_AuditWindowDropDownAltMainButton:SetWidth(
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:GetWidth() - 15);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
+                    GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:GetWidth() - 15);
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame
                     .GRM_AuditWindowDropDownCancelButton:SetWidth(size - 5);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:Show();
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:Show();
 
                 GRM.UnlockAuditButtonHighlights();
                 self:LockHighlight();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:SetScript("OnHide",
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:SetScript("OnHide",
                     function()
                         self:UnlockHighlight();
                     end);
@@ -8810,13 +8810,13 @@ end
 -- Purpose:         Purely quality of life information.
 GRM.RefreshAddonUserFrames = function()
     -- To prevent double spam...
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.Timer = 0;
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.Timer = 0;
 
     -- Notification that player has sync disabled themselves.
     if GRM.S().syncEnabled then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersSyncEnabledText:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersSyncEnabledText:Hide();
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame.GRM_AddonUsersSyncEnabledText:Show();
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersSyncEnabledText:Show();
     end
 
     -- Now, let's load and refresh the data!
@@ -8832,45 +8832,45 @@ GRM.RefreshAddEventFrame = function()
     GRM.CleanupEventsFromplayers(); -- This is in case someone has left the guild right before eventFrame is refreshed
 
     -- Clear the buttons first
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons ~= nil then
-        for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons do
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i][1]:Hide();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
+    if GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons ~= nil then
+        for i = 1, #GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons do
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i][1]:Hide();
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_AddEventScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
         end
     end
     -- Status Notification logic
     -- remember, position 1 is the guild name, so players start at index 2
     if #GRM.GetEvents() > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:SetText(GRM.L(
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:SetText(GRM.L(
             "Please Select Event to Add to Calendar"));
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Show();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Show();
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Hide();
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:SetText(GRM.L(
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:SetText(GRM.L(
             "No Calendar Events to Add"));
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Show();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText:Show();
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Hide();
     end
 
     if GRM_G.BuildVersion >= 30000 and CanEditGuildEvent() then
         if not GRM.S().allowEventsToCalendar then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "You Currently Have Disabled Adding Events to Calendar"));
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Show();
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Show();
         else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Hide();
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Hide();
         end
     else
         if GRM_G.BuildVersion >= 30000 then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "You Do Not Have Permission to Add Events to Calendar"));
         else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
+            GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "Limited Features. There is no Calendar in Classic"));
         end
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Show();
+        GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Show();
     end
     -- Ok Building Frame!
     GRM.BuildEventCalendarManagerScrollFrame();
@@ -9964,7 +9964,7 @@ GRM.RecordCustomNoteChanges = function(newNote, oldNote, whoEdited, editedName, 
 
     GRM.Log.AddLog({19, logReportWithTime, nNote, oNote, GRM.GetClassifiedName(whoEdited, true),
                 GRM.GetClassifiedName(editedName, true), GRM.Time.GetTimestamp()});
-    if rebuildLog and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and GRM.S().toLog.customNote then
+    if rebuildLog and GRM_UI.GRM_CoreFrame:IsVisible() and GRM.S().toLog.customNote then
         GRM_G.LogNumbersColorUpdate = true;
         GRM.BuildLogComplete(true, true);
     end
@@ -10876,7 +10876,7 @@ end
 -- Method:          GRM.AddAnnouncementToCalendar ( string , int , int , int , string )
 -- What it Does:    Adds the announcement to the in-game calendar, if player has permissions to do so.
 -- Purpose:         CalendarAddEvent() is a protected function thus it needs to be triggered by a player in-game action, so it will
---                  be linked to a button on the "GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame" window. Again, this cannot be activated, it WILL NOT WORK without
+--                  be linked to a button on the "GRM_UI.GRM_CoreFrame.GRM_EventsFrame" window. Again, this cannot be activated, it WILL NOT WORK without
 --                  in-game action to remove protection on function
 GRM.AddAnnouncementToCalendar = function(title, eventMonthIndex, eventDay, year, description)
     C_Calendar.CloseEvent() -- Just in case previous event was never closed, either by other addons or by player
@@ -10956,7 +10956,7 @@ GRM.RemoveItemFromLog = function(index, buildLog, buildComplete)
         end
     end
 
-    if buildLog and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
+    if buildLog and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
         GRM_G.LogNumbersColorUpdate = true;
         GRM.BuildLogComplete(true, buildComplete);
     end
@@ -10989,7 +10989,7 @@ GRM.ClearAllLogLinesWithinRange = function(start, stop)
 
     GRM_G.CurrentTotalCount = GRM_G.CurrentTotalCount - totalCount;
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText:SetText(GRM.L(
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText:SetText(GRM.L(
         "Total Entries: {num}", nil, nil, GRM_G.CurrentTotalCount));
 
     if totalCount == 1 then
@@ -11011,8 +11011,8 @@ GRM.ResetLogReport = function()
         GRM.Report(GRM.L("Guild Log has been RESET!"));
         GRM_LogReport_Save[GRM_G.guildName] = {};
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter"));
-        if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then -- if frame is open, let's rebuild it!
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter"));
+        if GRM_UI.GRM_CoreFrame:IsVisible() then -- if frame is open, let's rebuild it!
             GRM.BuildLogComplete(true, true);
         end
     end
@@ -11022,16 +11022,16 @@ end
 -- What it Does:    Triggers the setting fo all values at index 40 of the core log
 -- Purpose:         On the single line shift, you end up with 1 on the edge that needs to be built
 GRM.LogSetLastValue = function()
-    GRM.SetLogValues(#GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset);
+    GRM.SetLogValues(#GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons,
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset);
 end
 
 -- Method:          GRM.LogSetFirstValue()
 -- What it Does:    Triggers the setting fo all values at index 1 of the core Log
 -- Purpose:         On the single line shift, you end up with 1 on the edge that needs to be built
 GRM.LogSetFirstValue = function()
-    GRM.SetLogValues(1, GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset -
-        #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons + 1);
+    GRM.SetLogValues(1, GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset -
+        #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons + 1);
 end
 
 -- Method:          GRM.LogToolHybridShiftDown()
@@ -11039,7 +11039,7 @@ end
 -- Purpose:         Clean scrolling
 GRM.LogToolHybridShiftDown = function()
     if #GRM_G.fullLogMatch > 25 then
-        local fontStrings = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
+        local fontStrings = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
         local MouseOverButton = 0;
         -- Shift them down...
         for i = 1, #fontStrings - 1 do
@@ -11065,7 +11065,7 @@ end
 -- Purpose:         Clean scrolling
 GRM.LogToolHybridShiftUP = function()
     if #GRM_G.fullLogMatch > 25 then
-        local fontStrings = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
+        local fontStrings = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
         local MouseOverButton = 0;
         -- Shift them down...
         for i = #fontStrings, 2, -1 do
@@ -11095,26 +11095,26 @@ GRM.ConfigureChangesHeader = function()
     if GRM_G.FirstTimeViewed and GRM_G.IndexOfLastLogEntry ~= #GRM.GetLog() and #GRM.GetLog() > 0 then
         neededToAddChanges = true
         -- Fontstring rules
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetJustifyH(
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetJustifyH(
             "LEFT");
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetWidth(561);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetSpacing(7);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetWordWrap(
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetWidth(561);
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetSpacing(7);
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetWordWrap(
             false);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetFont(
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetFont(
             GRM_G.FontChoice, GRM_G.FontModifier + 10.79);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetText(
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetText(
             GRM.AddNewChangesHeader());
 
         -- Set Point to the top
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetPoint(
-            "TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame, 0, -5);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[1][1]:SetPoint(
-            "TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame, 0,
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:SetPoint(
+            "TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame, 0, -5);
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[1][1]:SetPoint(
+            "TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame, 0,
             -5 - math.floor(
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:GetHeight()) -
+                GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:GetHeight()) -
                 7);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:Show();
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.GRM_ChangesHeader:Show();
     end
     return neededToAddChanges;
 end
@@ -11123,15 +11123,15 @@ end
 -- What it Does:    Sets the fontstring values for the lineNumber count and the actual strings for display
 -- Purpose:         So we have a functioning hybrid scrollframe on the core log.
 GRM.SetLogValues = function(indString, indLog)
-    if indString <= #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons then
+    if indString <= #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons then
 
-        local logFontString = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
+        local logFontString = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
                                   .AllButtons[indString][2];
         local logCount =
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][3];
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][3];
         local logEntry = GRM_G.fullLogMatch[indLog][2];
         local r, g, b = GRM.GetMessageRGB(GRM_G.fullLogMatch[indLog][1]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][4] =
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][4] =
             indLog;
 
         -- Reset the sizing based on settings
@@ -11167,11 +11167,11 @@ GRM.SetLogValues = function(indString, indLog)
         logFontString:SetText(logEntry);
         logFontString:Show();
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][1]:Show();
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][1]:Show();
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:IsVisible() and
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][1]:IsMouseOver() then
-            GRM.RefreshLogTooltip(GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
+        if GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:IsVisible() and
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][1]:IsMouseOver() then
+            GRM.RefreshLogTooltip(GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
                                       .AllButtons[indString][1]);
         end
     end
@@ -11345,14 +11345,14 @@ GRM.GetSearchLog = function(isSearch, searchString, currentPosition, finalResult
     end
 
     if isSearch and i > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Show()
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Show()
         C_Timer.After(0.1, function()
             GRM.GetSearchLog(isSearch, searchString, i, result, totalCount)
         end)
         return
     elseif isSearch and i == 0 and currentPosition ~= nil then
         GRM.BuildLog("", true, true, result, totalCount)
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Hide()
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox.GRM_LogSearchPendingText:Hide()
         return
     end
 
@@ -11364,9 +11364,9 @@ end
 -- Purpose:         Line coloring!!!
 GRM.SetColoredLines = function()
     local number = tonumber(
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:GetText());
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:GetText());
     local number2 = tonumber(
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:GetText());
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:GetText());
     local clearAll = false;
 
     if (number2 < number) then
@@ -11388,21 +11388,21 @@ end
 -- What it Does:    Checks the editbox and sees whether to build the log normal, or to auto-rebuild the log based on the custom text filter.
 -- Purpose:         The Call to rebuild the log is done about 50 times. This cleans up the code bloat.
 GRM.BuildLogComplete = function(UIControl, fullRefresh , logByPass )
-    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() and ( ( GRM_G.logBypass or logByPass ) or GRM_G.logUpdatedCount ~= #GRM.GetLog() ) then
+    if GRM_UI.GRM_CoreFrame:IsVisible() and ( ( GRM_G.logBypass or logByPass ) or GRM_G.logUpdatedCount ~= #GRM.GetLog() ) then
         GRM_G.logUpdatedCount = #GRM.GetLog();  -- No need to refresh if log hasn't changed...
         GRM_G.logBypass = false;
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:GetText() ~= "" and
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:GetText() ~= GRM.L("Search Filter") then
-            GRM.BuildLog(GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:GetText(), fullRefresh);
+        if GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:GetText() ~= "" and
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:GetText() ~= GRM.L("Search Filter") then
+            GRM.BuildLog(GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:GetText(), fullRefresh);
         else
             GRM.BuildLog(nil, fullRefresh);
         end
 
         -- Set Focus on the bar automatically...
         if GRM.S().autoFocusSearch and not GRM_G.OnFirstLoad and not UIControl and not GRM_G.SearchFocusControl then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetFocus();
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText("");
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetFocus();
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText("");
         end
     end
 end
@@ -11414,7 +11414,7 @@ GRM.BuildLog = function( searchString , fullRefresh , delayedSearch , fullLogMat
     local isSearch = false;
     local hybridScrollFrameButtonCount = 29; -- Exactly 25 buttons
     local buttonHeight = 17.138
-    local buttonWidth = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 5;
+    local buttonWidth = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 5;
 
     if not delayedSearch then
         if searchString ~= nil and type(searchString) == "string" then
@@ -11437,37 +11437,37 @@ GRM.BuildLog = function( searchString , fullRefresh , delayedSearch , fullLogMat
 
     local log = GRM_G.fullLogMatch;
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset or
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset =
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset or
             hybridScrollFrameButtonCount;
 
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset <
+    if GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset <
         hybridScrollFrameButtonCount then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset =
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset =
             hybridScrollFrameButtonCount;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset >
+    elseif GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset >
         hybridScrollFrameButtonCount and
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset > #log then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset = #log;
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset > #log then
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset = #log;
     end
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons or {};
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons =
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons or {};
 
     for i = 1, #log do
         -- Build HybridScrollFrame Buttons
         if i <= hybridScrollFrameButtonCount then
-            if not GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i] then
-                local button = CreateFrame("Button", "LogButton" .. i, GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
+            if not GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i] then
+                local button = CreateFrame("Button", "LogButton" .. i, GRM_UI.GRM_CoreFrame.GRM_LogFrame
                     .GRM_RosterChangeLogScrollChildFrame);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i] =
+                GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i] =
                     { button, button:CreateFontString(nil), button:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),0 };
 
                 if i == 1 then
                     button:SetPoint("TOP",
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame, "TOP", -1, 0);
+                        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame, "TOP", -1, 0);
                 else
-                    button:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
+                    button:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_LogFrame
                         .GRM_RosterChangeLogScrollChildFrame.AllButtons[i - 1][1], "BOTTOMLEFT", 0, 0);
                 end
 
@@ -11476,22 +11476,22 @@ GRM.BuildLog = function( searchString , fullRefresh , delayedSearch , fullLogMat
         end
 
         if (i >=
-            (GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset -
+            (GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset -
                 hybridScrollFrameButtonCount + 1) and i <=
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset) then
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset) then
             GRM.SetLogValues(i -
-                                 (GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
+                                 (GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
                                      .Offset - hybridScrollFrameButtonCount), i);
         end
     end
 
     -- Remove the buffer on one of them due to the top not needing it.
     -- Hide unused buttons...
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
         if i > #log then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1]:Hide();
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1]:Hide();
         else
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1]:Show();
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1]:Show();
         end
     end
 
@@ -11505,14 +11505,14 @@ GRM.BuildLog = function( searchString , fullRefresh , delayedSearch , fullLogMat
         return result;
     end
 
-    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
-                                                 .GRM_RosterChangeLogScrollChildFrame, GRM_UI.GRM_RosterChangeLogFrame
-        .GRM_LogFrame.GRM_RosterChangeLogScrollFrame, GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
+    GRM_UI.SetHybridScrollFrameSliderParameters(GRM_UI.GRM_CoreFrame.GRM_LogFrame
+                                                 .GRM_RosterChangeLogScrollChildFrame, GRM_UI.GRM_CoreFrame
+        .GRM_LogFrame.GRM_RosterChangeLogScrollFrame, GRM_UI.GRM_CoreFrame.GRM_LogFrame
         .GRM_RosterChangeLogScrollFrameSlider, buttonWidth, buttonHeight, buttonHeight * #log, #log,
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons,
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons,
         GRM.LogToolHybridShiftDown, GRM.LogToolHybridShiftUP, hybridScrollFrameButtonCount, DatabaseAvailable);
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText:SetText(GRM.L(
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText:SetText(GRM.L(
         "Total Entries: {num}", nil, nil, GRM_G.CurrentTotalCount));
 end
 
@@ -11520,10 +11520,10 @@ end
 -- What it Does:    Initiates the fontstring values for the Core Log
 -- Purpose:         Compartmentalize the code for easier call back to.
 GRM.BuildCoreLogFontstrings = function(ind, size, buttonWidth, isResizeAction)
-    local button = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[ind][1];
+    local button = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[ind][1];
     local logFontString =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[ind][2];
-    local logCount = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[ind][3];
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[ind][2];
+    local logCount = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[ind][3];
     local modifier = 7;
     local stringWidth = buttonWidth - 5
     if GRM.S().showLineNumbers then
@@ -11547,7 +11547,7 @@ GRM.BuildCoreLogFontstrings = function(ind, size, buttonWidth, isResizeAction)
 
     logFontString:SetFont(GRM_G.FontChoice, GRM.S().logFontSize + size - modifier);
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetFont(GRM_G.FontChoice, GRM.S()
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetFont(GRM_G.FontChoice, GRM.S()
         .logFontSize + size - modifier);
 
     if not isResizeAction then
@@ -11559,13 +11559,13 @@ GRM.BuildCoreLogFontstrings = function(ind, size, buttonWidth, isResizeAction)
             GRM.RefreshLogTooltip(self);
         end);
         button:SetScript("OnLeave", function()
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:Hide();
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:Hide();
         end);
         button:SetScript("OnDragStart", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StartMoving();
+            GRM_UI.GRM_CoreFrame:StartMoving();
         end);
         button:SetScript("OnDragStop", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StopMovingOrSizing();
+            GRM_UI.GRM_CoreFrame:StopMovingOrSizing();
             GRM_UI.SaveCorePosition();
         end);
 
@@ -11574,13 +11574,13 @@ GRM.BuildCoreLogFontstrings = function(ind, size, buttonWidth, isResizeAction)
             if buttonClicked == "LeftButton" then
                 if IsControlKeyDown() and IsShiftKeyDown() and GRM.S().shiftClickRemove and
                     not GRM_UI.GRM_RosterConfirmFrame:IsVisible() then
-                    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
+                    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
                         .AllButtons do
-                        if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1] ==
+                        if GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1] ==
                             self then
-                            if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
+                            if GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
                                 .AllButtons[i][1]:IsMouseOver() then
-                                GRM.RemoveItemFromLog(GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
+                                GRM.RemoveItemFromLog(GRM_UI.GRM_CoreFrame.GRM_LogFrame
                                                           .GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4], true,
                                     true);
                             end
@@ -11635,38 +11635,38 @@ end
 -- Purpose:         Enhanced log features
 GRM.RefreshLogTooltip = function(button)
     if GRM.S().showTooltip then
-        for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
+        for i = 1, #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
             if GRM_G.fullLogMatch == nil then
                 break
             else
-                if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1] ==
+                if GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1] ==
                     button then
-                    local text = GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][6];
+                    local text = GRM_G.fullLogMatch[GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][6];
 
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetText(text);
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetText(text);
                     local width =
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:GetWidth();
+                        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:GetWidth();
 
-                    local r, g, b = GRM.GetMessageRGB(GRM_G.fullLogMatch[GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame
+                    local r, g, b = GRM.GetMessageRGB(GRM_G.fullLogMatch[GRM_UI.GRM_CoreFrame.GRM_LogFrame
                                                           .GRM_RosterChangeLogScrollChildFrame.AllButtons[i][4]][1]);
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:SetOwner(button, "ANCHOR_CURSOR");
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine("|CFFE6CC7F" ..
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:SetOwner(button, "ANCHOR_CURSOR");
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:AddLine("|CFFE6CC7F" ..
                                                                                             GRM.L("Full Log Message:"));
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(" ");
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(" ");
 
                     if width >
-                        (GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:GetWidth() +
+                        (GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:GetWidth() +
                             200) then
                         local index = string.find(text, "%s", math.floor(#text / 2));
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(string.sub(text, 1, index),
+                        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(string.sub(text, 1, index),
                             r, g, b);
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(string.sub(text, index + 1),
+                        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(string.sub(text, index + 1),
                             r, g, b);
                     else
-                        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(text, r, g, b);
+                        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:AddLine(text, r, g, b);
                     end
 
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip:Show();
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip:Show();
                     break
                 end
             end
@@ -11683,22 +11683,22 @@ GRM.ResetLogStringPoints = function(countEnabled)
     if GRM.S().showLineNumbers then
         modifier = 8.5;
     end
-    local width = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 10;
+    local width = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 10;
     if countEnabled then
         position = 36;
-        width = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 50;
+        width = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 50;
     end
 
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:SetPoint(
-            "LEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1],
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:SetPoint(
+            "LEFT", GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][1],
             "LEFT", position, 0);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:SetWidth(width);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:SetFont(
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:SetWidth(width);
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][2]:SetFont(
             GRM_G.FontChoice, GRM.S().logFontSize + 17.08 - modifier);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][3]:SetFont(
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[i][3]:SetFont(
             GRM_G.FontChoice, GRM.S().logFontSize + 17.08 - modifier);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetFont(GRM_G.FontChoice,
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogTooltip.GRM_LogTooltipText1:SetFont(GRM_G.FontChoice,
             GRM.S().logFontSize + 17.08 - modifier);
     end
 end
@@ -12048,11 +12048,11 @@ end
 -- What it Does:    Sets the join date of every player in the guild who does not have it yet set as "unknown"
 -- Purpose:         More just quality of life information and UI feature. Useful than manually going to them all to set as unknown...
 GRM.SetAllIncompleteJoinUnknown = function()
-    if not (GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:GetText() ==
+    if not (GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:GetText() ==
         GRM.L("All Complete")) then
-        if time() - GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.timer >= 2 then
+        if time() - GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.timer >= 2 then
 
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:GetText() ==
+            if GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:GetText() ==
                 GRM.L("Set Incomplete to Unknown") then
                 -- Ok, let's go through ALL guildies and clear it!
                 local guildData = GRM.GetGuild();
@@ -12075,7 +12075,7 @@ GRM.SetAllIncompleteJoinUnknown = function()
                         end
                     end
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
                     GRM.L("Clear All Unknown"));
             else
                 local guildData = GRM.GetGuild();
@@ -12098,14 +12098,14 @@ GRM.SetAllIncompleteJoinUnknown = function()
                         end
                     end
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.GRM_SetJoinUnkownButtonText:SetText(
                     GRM.L("Set Incomplete to Unknown"));
             end
             GRM_UI.RefreshSelectFrames(false, true, false, false, false, false);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.timer = time();
+            GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.timer = time();
         else
             GRM.Report(GRM.L("Please Wait {num} more Seconds", nil, nil, math.floor(
-                2 - (time() - GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.timer))));
+                2 - (time() - GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetJoinUnkownButton.timer))));
         end
     end
 end
@@ -12114,11 +12114,11 @@ end
 -- What it Does:    Sets the promo date of every player in the guild who does not have it yet set to an unknown value
 -- Purpose:         More just quality of life information and UI feature. Useful than manually going to them all...
 GRM.SetAllIncompletePromoUnknown = function()
-    if not (GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:GetText() ==
+    if not (GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:GetText() ==
         GRM.L("All Complete")) then
-        if time() - GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.timer >= 2 then
+        if time() - GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.timer >= 2 then
 
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:GetText() ==
+            if GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:GetText() ==
                 GRM.L("Set Incomplete to Unknown") then
                 local guildData = GRM.GetGuild();
                 for _, player in pairs(guildData) do
@@ -12131,7 +12131,7 @@ GRM.SetAllIncompletePromoUnknown = function()
                         end
                     end
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
                     GRM.L("Clear All Unknown"));
             else
                 local guildData = GRM.GetGuild();
@@ -12144,14 +12144,14 @@ GRM.SetAllIncompletePromoUnknown = function()
                         end
                     end
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.GRM_SetPromoUnkownButtonText:SetText(
                     GRM.L("Set Incomplete to Unknown"));
             end
             GRM_UI.RefreshSelectFrames(false, true, false, false, false, false);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.timer = time();
+            GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.timer = time();
         else
             GRM.Report(GRM.L("Please Wait {num} more Seconds", nil, nil, math.floor(
-                2 - (time() - GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.timer))));
+                2 - (time() - GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetPromoUnkownButton.timer))));
         end
     end
 end
@@ -12160,11 +12160,11 @@ end
 -- What it Does:    Sets the Birth date of every player in the guild who does not have it yet set to an unknown value
 -- Purpose:         More just quality of life information and UI feature. Useful than manually going to them all...
 GRM.SetAllIncompleteBdayUnknown = function()
-    if not (GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:GetText() ==
+    if not (GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:GetText() ==
         GRM.L("All Complete")) then
-        if time() - GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.timer >= 3 then
+        if time() - GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.timer >= 3 then
 
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:GetText() ==
+            if GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:GetText() ==
                 GRM.L("Set Incomplete to Unknown") then
                 local guildData = GRM.GetGuild();
                 for _, player in pairs(guildData) do
@@ -12188,7 +12188,7 @@ GRM.SetAllIncompleteBdayUnknown = function()
                         end
                     end
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
                     GRM.L("Clear All Unknown"));
             else
                 local guildData = GRM.GetGuild();
@@ -12208,14 +12208,14 @@ GRM.SetAllIncompleteBdayUnknown = function()
                         end
                     end
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.GRM_SetBdayUnkownButtonText:SetText(
                     GRM.L("Set Incomplete to Unknown"));
             end
             GRM_UI.RefreshSelectFrames(false, true, false, false, false, false);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.timer = time();
+            GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.timer = time();
         else
             GRM.Report(GRM.L("Please Wait {num} more Seconds", nil, nil, math.floor(
-                2 - (time() - GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.timer))));
+                2 - (time() - GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_SetBdayUnkownButton.timer))));
         end
     end
 end
@@ -12980,8 +12980,8 @@ GRM.ResetAllSavedData = function()
         GRM.Scan.BuildNewRoster(true);
     end
     -- Update the logFrame if it was open at the time too
-    if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter"));
+    if GRM_UI.GRM_CoreFrame:IsVisible() then
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter"));
         GRM.BuildLog();
     end
 
@@ -13044,14 +13044,14 @@ GRM.ResetGuildSavedData = function(guildName)
         GRM.Global.UpdateGuildLeaderPermissions(false, true);
 
         -- Update the logFrame if it was open at the time too
-        if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter"));
+        if GRM_UI.GRM_CoreFrame:IsVisible() then
+            GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.L("Search Filter"));
             GRM.BuildLog();
         end
 
         GRM_UI.RefreshSelectFrames(false, true, true, true, true, true);
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
+        if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:IsVisible() then
             GRM_G.BackupLoadedOnce = true;
             GRM.BuildBackupScrollFrame();
         end
@@ -13991,13 +13991,13 @@ GRM.RemoveBan = function(name, onPopulate, personWhoRemovedIt, epochTimeStamp)
         GRM_UI.GRM_MemberDetailMetaData.GRM_MemberDetailBannedIgnoreButton:Hide();
 
         -- On populate is referring to the check for when it is on mouseover... no need to check this if not.
-        if onPopulate and GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:IsVisible() then
+        if onPopulate and GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:IsVisible() then
             -- Refresh the frames:
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons ~=
+            if GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons ~=
                 nil then
-                for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                for i = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                     .allFrameButtons do
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
                 end
             end
             GRM_UI.RefreshSelectFrames(false, false, true, false, false, false);
@@ -14032,9 +14032,9 @@ GRM.BanListUnban = function(name, personWhoRemovedIt, epochTimeStamp)
     end
 
     -- Refresh the frames:
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons ~= nil then
-        for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
+    if GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons ~= nil then
+        for i = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
         end
     end
     GRM_UI.RefreshSelectFrames(false, false, true, false, false, false);
@@ -14833,10 +14833,10 @@ GRM.GetNumberOfPlayerSBannedCurrentlyInGuild = function()
     end
 
     if result == 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_BanListRemoveAllCurrentButton:Hide();
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:IsVisible() and
-        not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_BanListRemoveAllCurrentButton:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_BanListRemoveAllCurrentButton:Show();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_BanListRemoveAllCurrentButton:Hide();
+    elseif GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:IsVisible() and
+        not GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_BanListRemoveAllCurrentButton:IsVisible() then
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_BanListRemoveAllCurrentButton:Show();
     end
 
     return result, names;
@@ -15024,8 +15024,8 @@ end
 GRM.IsAnyBanHighlighted = function()
     local result = false;
 
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] then
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
+        if GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] then
             result = true;
             break
         end
@@ -15039,9 +15039,9 @@ end
 -- What it Does:    Clears all the highlights of any selected name in the ban window
 -- Purpose:         UX
 GRM.ClearAllBanHighlights = function()
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] =
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:UnlockHighlight();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] =
             false
     end
 end
@@ -15073,8 +15073,8 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
     local buffer = 20;
     textSearch = textSearch or "";
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons or {}; -- Create a table for the Buttons.
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons =
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons or {}; -- Create a table for the Buttons.
 
     -- populating the window correctly.
     local tempHeight = 0;
@@ -15082,9 +15082,9 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
     if not banList then
 
         if textSearch == "" and
-            GRM.Util.Trim(GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText()) ~= "" then
+            GRM.Util.Trim(GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText()) ~= "" then
             textSearch = GRM.Util.Trim(
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText());
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_PlayerSearchBanEditBox:GetText());
         end
 
         banList, count = GRM.GetSortedBanListNamesWithDetails(textSearch);
@@ -15093,10 +15093,10 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
     -- Populating the window based on the Current Players PLayers
     for i = 1, #banList do
         -- if font string is not created, do so.
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i] then
-            local tempButton = CreateFrame("Button", "BannedPlayer" .. i, GRM_UI.GRM_RosterChangeLogFrame
+        if not GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i] then
+            local tempButton = CreateFrame("Button", "BannedPlayer" .. i, GRM_UI.GRM_CoreFrame
                 .GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame); -- Names each Button 1 increment up
-            table.insert(GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+            table.insert(GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                              .allFrameButtons,
                 {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
                  tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
@@ -15104,17 +15104,17 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
                  tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"), false});
         end
 
-        local BanButtons = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+        local BanButtons = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                .allFrameButtons[i][1];
-        local BanNameText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+        local BanNameText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[i][2];
-        local BanRankText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+        local BanRankText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[i][3];
-        local BanDateText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+        local BanDateText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[i][4];
-        local BanReasonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+        local BanReasonText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                   .allFrameButtons[i][5];
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] =
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] =
             false; -- Reset the highlights.
 
         local classColor = GRM.GetClassColorRGB(banList[i][2]);
@@ -15156,10 +15156,10 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
         end
         BanButtons:RegisterForDrag("LeftButton");
         BanButtons:SetScript("OnDragStart", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StartMoving();
+            GRM_UI.GRM_CoreFrame:StartMoving();
         end);
         BanButtons:SetScript("OnDragStop", function()
-            GRM_UI.GRM_RosterChangeLogFrame:StopMovingOrSizing();
+            GRM_UI.GRM_CoreFrame:StopMovingOrSizing();
             GRM_UI.SaveCorePosition();
         end);
 
@@ -15205,8 +15205,8 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
 
                 if IsShiftKeyDown() and IsControlKeyDown() then
                     GRM.RestoreTooltip();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.SlimName(fullName));
+                    GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.SlimName(fullName));
                 elseif IsControlKeyDown() then
                     if self.stillInGuild then
                         GRM.OpenPlayerWindow(fullName);
@@ -15214,21 +15214,21 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
                 else
 
                     -- For highlighting purposes
-                    for j = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                    for j = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                         .allFrameButtons do
                         if self ~=
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[j][1] then
 
                             -- Selected button differs from this, so we can
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[j][1]:UnlockHighlight();
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[j][6] = false;
                         else
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[j][1]:LockHighlight();
-                            GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                 .allFrameButtons[j][6] = true;
                         end
 
@@ -15245,22 +15245,22 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
 
         if i == 1 then
             BanButtons:SetPoint("TOPLEFT",
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOPLEFT", 5, -12);
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOPLEFT", 5, -12);
             BanNameText:SetPoint("TOPLEFT",
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOPLEFT", 5, -12);
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOPLEFT", 5, -12);
             BanRankText:SetPoint("TOP",
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOP", 64, -12);
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOP", 64, -12);
             BanDateText:SetPoint("TOP",
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOP", 211, -12);
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame, "TOP", 211, -12);
             scrollHeight = scrollHeight + BanButtons:GetHeight() + BanReasonText:GetHeight();
         else
-            BanButtons:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame
+            BanButtons:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame
                 .GRM_CoreBanListScrollChildFrame.allFrameButtons[i - 1][5], "BOTTOMLEFT", 0, -buffer);
-            BanNameText:SetPoint("TOPLEFT", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame
+            BanNameText:SetPoint("TOPLEFT", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame
                 .GRM_CoreBanListScrollChildFrame.allFrameButtons[i - 1][5], "BOTTOMLEFT", 0, -buffer);
-            BanRankText:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame
+            BanRankText:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame
                 .GRM_CoreBanListScrollChildFrame.allFrameButtons[i - 1][3], "BOTTOM", 0, -(tempHeight + buffer));
-            BanDateText:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame
+            BanDateText:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame
                 .GRM_CoreBanListScrollChildFrame.allFrameButtons[i - 1][4], "BOTTOM", 0, -(tempHeight + buffer));
             scrollHeight = scrollHeight + BanButtons:GetHeight() + BanReasonText:GetHeight() + buffer;
         end
@@ -15270,27 +15270,27 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
 
     -- Ok, let's add a count to how many banned
     if count > 0 then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetText("(" ..
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetText("(" ..
                                                                                                            GRM.L(
                 "Total Banned:") .. " " .. count .. ")");
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Show();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameAllOfflineText:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Show();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameAllOfflineText:Hide();
     else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Hide();
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameAllOfflineText:Show();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameAllOfflineText:Show();
     end
 
     -- Hides all the additional buttons... if necessary ( necessary because once initialized, the buttons are there. This avoids bloated code and too much purging and rebuilding and purging. Just hide for future use.
-    for i = count + 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+    for i = count + 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
         .allFrameButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:Hide();
     end
 
     -- Set Button Logic
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript(
+    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript(
             "OnEnter", function(self)
-                local playerName = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                local playerName = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
                                        .allFrameButtons[i][2]:GetText();
                 local playerWhoBanned = "";
                 local stillInGuild = false;
@@ -15331,7 +15331,7 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
                 GameTooltip:Show();
             end);
 
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript(
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript(
             "OnLeave", function()
                 GRM.RestoreTooltip();
             end);
@@ -15341,42 +15341,42 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
     GRM_UI.UpdateBanTabCurrentlyInGuild();
 
     -- Update the size -- it either grows or it shrinks!
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame:SetSize(scrollWidth,
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame:SetSize(scrollWidth,
         scrollHeight);
 
     -- Set Slider Parameters ( has to be done after the above details are placed )
     local scrollMax = (scrollHeight -
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrame:GetHeight()) +
+                          GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrame:GetHeight()) +
                           (buffer * .5) + tempHeight;
     if scrollMax < 0 then
         scrollMax = 0;
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetMinMaxValues(0, scrollMax);
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetMinMaxValues(0, scrollMax);
     -- Mousewheel Scrolling Logic
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrame:EnableMouseWheel(true);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrame:SetScript("OnMouseWheel",
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrame:EnableMouseWheel(true);
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrame:SetScript("OnMouseWheel",
         function(_, delta)
             local current =
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:GetValue();
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:GetValue();
 
             if IsShiftKeyDown() and delta > 0 then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(0);
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(0);
             elseif IsShiftKeyDown() and delta < 0 then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(scrollMax);
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(scrollMax);
             elseif delta < 0 and current < scrollMax then
                 if IsControlKeyDown() then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
                         current + 60);
                 else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
                         current + 20);
                 end
             elseif delta > 0 and current > 1 then
                 if IsControlKeyDown() then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
                         current - 60);
                 else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollFrameSlider:SetValue(
                         current - 20);
                 end
             end
@@ -17795,9 +17795,9 @@ end
 -- Purpose:         For repeat use actions from other frames
 GRM.SearchPlayerInLog = function(playerName)
     GRM.RestoreTooltip()
-    GRM_UI.GRM_RosterChangeLogFrame:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.SlimName(playerName));
+    GRM_UI.GRM_CoreFrame:Show();
+    GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText(GRM.SlimName(playerName));
 end
 
 -- Method:          GRM.OpenPlayerWindow ( string )
@@ -18163,18 +18163,18 @@ end
 -- Purpose:         To save on resources, rather than reuse this code over and over. I could potentially just make a global holder, but I want it to be flixible.
 GRM.GetTransitionFrameToFade = function()
     local fadeFrame;
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:GetAlpha() == 1 then
-        fadeFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame:GetAlpha() == 1 then
-        fadeFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:GetAlpha() == 1 then
-        fadeFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame:GetAlpha() == 1 then
-        fadeFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame:GetAlpha() == 1 then
-        fadeFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame;
-    elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:GetAlpha() == 1 then
-        fadeFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame;
+    if GRM_UI.GRM_CoreFrame.GRM_LogFrame:GetAlpha() == 1 then
+        fadeFrame = GRM_UI.GRM_CoreFrame.GRM_LogFrame;
+    elseif GRM_UI.GRM_CoreFrame.GRM_OptionsFrame:GetAlpha() == 1 then
+        fadeFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame;
+    elseif GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:GetAlpha() == 1 then
+        fadeFrame = GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame;
+    elseif GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:GetAlpha() == 1 then
+        fadeFrame = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame;
+    elseif GRM_UI.GRM_CoreFrame.GRM_EventsFrame:GetAlpha() == 1 then
+        fadeFrame = GRM_UI.GRM_CoreFrame.GRM_EventsFrame;
+    elseif GRM_UI.GRM_CoreFrame.GRM_AuditFrame:GetAlpha() == 1 then
+        fadeFrame = GRM_UI.GRM_CoreFrame.GRM_AuditFrame;
     end
     return fadeFrame;
 end
@@ -18242,26 +18242,26 @@ end
 -- Purpose:         Options are plentiful. Need sub-tabs to keep it clean. This helps control UI display logic on the tabs.
 GRM.OptionTabFrameControl = function(tabNotToUnlock)
     GRM.DisableSubTabButtons(true);
-    local tabs = {GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab,
-                  GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab};
-    local frames = {GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UIOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame,
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame};
+    local tabs = {GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UITab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HardcoreTab,
+                  GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesTab};
+    local frames = {GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame,
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame};
     local fadeFrame;
     local fadeInFrame;
 
@@ -18292,28 +18292,28 @@ local tempTabScript = {};
 GRM.DisableTabButtons = function(toDisable)
     if toDisable then
         -- Storing the scripts
-        tempTabScript = {GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:GetScript("OnClick"),
-                         GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:GetScript("OnClick"),
-                         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersTab:GetScript("OnClick"),
-                         GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:GetScript("OnClick"),
-                         GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:GetScript("OnClick"),
-                         GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:GetScript("OnClick")};
+        tempTabScript = {GRM_UI.GRM_CoreFrame.GRM_LogTab:GetScript("OnClick"),
+                         GRM_UI.GRM_CoreFrame.GRM_OptionsTab:GetScript("OnClick"),
+                         GRM_UI.GRM_CoreFrame.GRM_AddonUsersTab:GetScript("OnClick"),
+                         GRM_UI.GRM_CoreFrame.GRM_AddEventTab:GetScript("OnClick"),
+                         GRM_UI.GRM_CoreFrame.GRM_BanListTab:GetScript("OnClick"),
+                         GRM_UI.GRM_CoreFrame.GRM_GuildAuditTab:GetScript("OnClick")};
 
         -- removing the script
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_LogTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_AddEventTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_BanListTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_GuildAuditTab:SetScript("OnClick", nil);
     else
         -- restoring the script
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:SetScript("OnClick", tempTabScript[1]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:SetScript("OnClick", tempTabScript[2]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersTab:SetScript("OnClick", tempTabScript[3]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:SetScript("OnClick", tempTabScript[4]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:SetScript("OnClick", tempTabScript[5]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:SetScript("OnClick", tempTabScript[6]);
+        GRM_UI.GRM_CoreFrame.GRM_LogTab:SetScript("OnClick", tempTabScript[1]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsTab:SetScript("OnClick", tempTabScript[2]);
+        GRM_UI.GRM_CoreFrame.GRM_AddonUsersTab:SetScript("OnClick", tempTabScript[3]);
+        GRM_UI.GRM_CoreFrame.GRM_AddEventTab:SetScript("OnClick", tempTabScript[4]);
+        GRM_UI.GRM_CoreFrame.GRM_BanListTab:SetScript("OnClick", tempTabScript[5]);
+        GRM_UI.GRM_CoreFrame.GRM_GuildAuditTab:SetScript("OnClick", tempTabScript[6]);
     end
 end
 
@@ -18324,41 +18324,41 @@ local tempTabScript2 = {};
 GRM.DisableSubTabButtons = function(toDisable)
     if toDisable then
         -- Storing the scripts
-        tempTabScript2 = {GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:GetScript("OnClick"),
-                          GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab:GetScript("OnClick")};
+        tempTabScript2 = {GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UITab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HardcoreTab:GetScript("OnClick"),
+                          GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesTab:GetScript("OnClick")};
 
         -- removing the script
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:SetScript("OnClick", nil);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UITab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HardcoreTab:SetScript("OnClick", nil);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesTab:SetScript("OnClick", nil);
 
     else
         -- restoring the script
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralTab:SetScript("OnClick", tempTabScript2[1]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanTab:SetScript("OnClick", tempTabScript2[2]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncTab:SetScript("OnClick", tempTabScript2[3]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HelpTab:SetScript("OnClick", tempTabScript2[4]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UITab:SetScript("OnClick", tempTabScript2[5]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerTab:SetScript("OnClick", tempTabScript2[6]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXTab:SetScript("OnClick", tempTabScript2[7]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab:SetScript("OnClick", tempTabScript2[8]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_HardcoreTab:SetScript("OnClick", tempTabScript2[9]);
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesTab:SetScript("OnClick", tempTabScript2[10]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralTab:SetScript("OnClick", tempTabScript2[1]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanTab:SetScript("OnClick", tempTabScript2[2]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncTab:SetScript("OnClick", tempTabScript2[3]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpTab:SetScript("OnClick", tempTabScript2[4]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UITab:SetScript("OnClick", tempTabScript2[5]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerTab:SetScript("OnClick", tempTabScript2[6]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXTab:SetScript("OnClick", tempTabScript2[7]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesTab:SetScript("OnClick", tempTabScript2[8]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HardcoreTab:SetScript("OnClick", tempTabScript2[9]);
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesTab:SetScript("OnClick", tempTabScript2[10]);
     end
 end
 
@@ -18377,11 +18377,11 @@ GRM.GR_Roster_Click = function(name)
                 GRM_UI.RestoreTooltipScale();
                 GameTooltip:Hide();
                 -- If Core GRM window is not open, let's open it!
-                if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                    GRM_UI.GRM_RosterChangeLogFrame:Show();
+                if not GRM_UI.GRM_CoreFrame:IsVisible() then
+                    GRM_UI.GRM_CoreFrame:Show();
                 end
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( name ) );
+                GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+                GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( name ) );
             else
 
                 if GetCurrentKeyBoardFocus() ~= nil then
@@ -18618,7 +18618,7 @@ GRM.SlashCommandSync = function(count)
 
                     GRM.Report(GRM.L("Initializing Sync Action. One Moment..."));
 
-                    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersFrame:IsVisible() then
+                    if not GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:IsVisible() then
                         GRM.RegisterGuildAddonUsersRefresh();
                     end
 
@@ -18721,12 +18721,12 @@ end
 -- What it Does:    It Centers all of the windows, in case the player dragged them off the screen
 -- Purpose:         Help keep frames organized. Just a necessary feature as someone is eventually going to say they tossed the frame off screen.
 GRM.SlashCommandCenter = function()
-    GRM_UI.GRM_RosterChangeLogFrame:ClearAllPoints();
-    GRM_UI.GRM_RosterChangeLogFrame:SetPoint("CENTER", UIParent);
+    GRM_UI.GRM_CoreFrame:ClearAllPoints();
+    GRM_UI.GRM_CoreFrame:SetPoint("CENTER", UIParent);
     GRM.S().CoreWindowPos = {"", "", 0, 0};
 
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:ClearAllPoints();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:SetPoint("CENTER", UIParent);
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:ClearAllPoints();
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:SetPoint("CENTER", UIParent);
 
     GRM_UI.GRM_AuditJDTool:ClearAllPoints();
     GRM_UI.GRM_AuditJDTool:SetPoint("CENTER", UIParent);
@@ -18801,8 +18801,8 @@ end
 -- What it Does:    Resets all data account wide, as if the addon was just installed, on the click of the button.
 -- Purpose:         Useful to purge data in case of corruption or trolling or other misc. reasons.
 GRM.SlashCommandClearAll = function()
-    GRM_UI.GRM_RosterChangeLogFrame:EnableMouse(false);
-    GRM_UI.GRM_RosterChangeLogFrame:SetMovable(false);
+    GRM_UI.GRM_CoreFrame:EnableMouse(false);
+    GRM_UI.GRM_CoreFrame:SetMovable(false);
     GRM_UI.GRM_RosterConfirmFrameText:SetText(GRM.L("Really Clear All Account-Wide Saved Data?"));
     GRM_UI.GRM_RosterConfirmYesButtonText:SetText(GRM.L("Yes!"));
     GRM_UI.GRM_RosterConfirmYesButton:SetScript("OnClick", function(_, button)
@@ -18819,8 +18819,8 @@ end
 -- Purpose:         Useful to purge the data if someone trolled the guild and made a mess of the data,
 -- or if there is a major error corrupting the data, but you don't want to wipe all account wide
 GRM.SlashCommandClearGuild = function()
-    GRM_UI.GRM_RosterChangeLogFrame:EnableMouse(false);
-    GRM_UI.GRM_RosterChangeLogFrame:SetMovable(false);
+    GRM_UI.GRM_CoreFrame:EnableMouse(false);
+    GRM_UI.GRM_CoreFrame:SetMovable(false);
     GRM_UI.GRM_RosterConfirmFrameText:SetText(GRM.L("Really Clear All Guild Saved Data?"));
     GRM_UI.GRM_RosterConfirmYesButtonText:SetText(GRM.L("Yes!"));
     GRM_UI.GRM_RosterConfirmYesButton:SetScript("OnClick", function(_, button)
@@ -18895,60 +18895,60 @@ end
 -- What it Does:    Opens the Ban window by slash command
 -- Purpose:         Expanded slash command controls.
 GRM.SlashCommandBan = function()
-    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame:Show();
+    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+        GRM_UI.GRM_CoreFrame:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_BanListTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_BanListTab:Click();
 end
 
 -- Method:          GRM.SlashCommandAudit()
 -- What it Does:    Opens the Audit window by slash command
 -- Purpose:         Expanded slash command controls.
 GRM.SlashCommandAudit = function()
-    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame:Show();
+    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+        GRM_UI.GRM_CoreFrame:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_GuildAuditTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_GuildAuditTab:Click();
 end
 
 -- Method:          GRM.SlashCommandLog()
 -- What it Does:    Opens the Log window by slash command
 -- Purpose:         Expanded slash command controls.
 GRM.SlashCommandLog = function()
-    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame:Show();
+    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+        GRM_UI.GRM_CoreFrame:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
 end
 
 -- Method:          GRM.SlashCommandUsers()
 -- What it Does:    Opens the Sync Users window by slash command
 -- Purpose:         Expanded slash command controls.
 GRM.SlashCommandUsers = function()
-    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame:Show();
+    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+        GRM_UI.GRM_CoreFrame:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddonUsersTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersTab:Click();
 end
 
 -- Method:          GRM.SlashCommandEvents()
 -- What it Does:    Opens the Events window by slash command
 -- Purpose:         Expanded slash command controls.
 GRM.SlashCommandEvents = function()
-    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame:Show();
+    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+        GRM_UI.GRM_CoreFrame:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_AddEventTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_AddEventTab:Click();
 end
 
 -- Method:          GRM.SlashCommandOptions()
 -- What it Does:    Opens the Options window by slash command
 -- Purpose:         Expanded slash command controls.
 GRM.SlashCommandOptions = function()
-    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-        GRM_UI.GRM_RosterChangeLogFrame:Show();
+    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+        GRM_UI.GRM_CoreFrame:Show();
     end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsTab:Click();
 end
 
 
@@ -18984,7 +18984,7 @@ end
 -- Purpose:         Easy slash command control to get here.
 GRM.SlashCommandModulesOptions = function()
     GRM.SlashCommandOptions();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesTab:Click();
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesTab:Click();
 end
 
 -- Method:          GRM.SlashCommandGUID()
@@ -19038,8 +19038,8 @@ GRM.SlashCommandSearch = function(text)
 
             if GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
 
-            elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame:IsVisible() then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText(GRM.Util.Trim(searchName));
+            elseif GRM_UI.GRM_CoreFrame.GRM_AuditFrame:IsVisible() then
+                GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText(GRM.Util.Trim(searchName));
                 GRM.RefreshAuditFrames(false, false, GRM.Util.Trim(searchName));
             else
                 GRM_R.LoadRosterFrame();
@@ -19602,7 +19602,7 @@ GRM.TrackingConfiguration = function(forced)
 
         -- Open the core addon frame...
         -- if GRM.S().viewOnLoad and not GRM.S().onlyViewIfChanges then
-        --     GRM_UI.GRM_RosterChangeLogFrame:Show();
+        --     GRM_UI.GRM_CoreFrame:Show();
         -- end
 
         -- Establish Message Sharing as well!

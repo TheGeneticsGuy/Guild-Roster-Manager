@@ -1585,7 +1585,7 @@ GRMsync.EventAddedToCalendarCheck = function ( msg , sender )
         GRM.RemoveFromCalendarQue ( name , index , title );
 
         -- Refresh the frame!
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_EventsFrame:IsVisible() then
+        if GRM_UI.GRM_CoreFrame.GRM_EventsFrame:IsVisible() then
             GRM.RefreshAddEventFrame();
         end
         -- Send chat update info.

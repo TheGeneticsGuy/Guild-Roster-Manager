@@ -2,10 +2,10 @@ local ScanTab = {}
 GRM_UI.ScanTab = ScanTab
 
 ScanTab.BuildScanTab = function()
-    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.Configured then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.Configured = true
+    if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.Configured then
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.Configured = true
 
-        local GRM_ScanningOptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame;
+        local GRM_ScanningOptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame;
 
         GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButton:SetPoint ( "TOPLEFT" , GRM_ScanningOptionsFrame.OptionsScanDetailsText , "BOTTOMLEFT" , -4 , -4 );
         GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButtonText:SetPoint ( "LEFT" , GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButton , "RIGHT" , 2 , 0 );
@@ -237,8 +237,8 @@ ScanTab.BuildScanTab = function()
         GRM_ScanningOptionsFrame.GRM_RosterReportUpcomingEventsCheckButton:SetScript ( "OnClick", function( self )
             if self:GetChecked() then
                 GRM.S().calendarAnnouncements = true;
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButton:Enable();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButton:Enable();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
 
                 GRM_ScanningOptionsFrame.GRM_RosterMainOnlyCheckButton:Enable();
                 GRM_ScanningOptionsFrame.GRM_RosterMainOnlyCheckButtonText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
@@ -251,8 +251,8 @@ ScanTab.BuildScanTab = function()
 
             else
                 GRM.S().calendarAnnouncements = false;
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButton:Enable();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButton:Enable();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetTextColor ( 1.0 , 0.82 , 0.0 , 1.0 );
 
                 GRM_ScanningOptionsFrame.GRM_RosterMainOnlyCheckButton:Disable();
                 GRM_ScanningOptionsFrame.GRM_RosterMainOnlyCheckButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 , 1.0 );
@@ -579,7 +579,7 @@ ScanTab.BuildScanTab = function()
 end
 
 ScanTab.UpdateText = function()
-    local GRM_ScanningOptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame;
+    local GRM_ScanningOptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame;
 
     GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_ScanningOptionsFrame.GRM_RosterTimeIntervalCheckButtonText:SetText ( GRM.L ( "Before Scan Timer" ) );

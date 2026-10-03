@@ -5,7 +5,7 @@ GRM_UI.OfficerTab = OfficerTab
 -- What it Does:    Configures the front-end UI in the options, including enabling/disabling if you have officer permissions, and basing the selection properly
 -- Purpose:         UI Configuration on load.
 OfficerTab.ConfigureJoinDateLocation = function()
-    local officerOpts = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
+    local officerOpts = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
 
     if GRM.S().joinDateDestination < 2 then
         officerOpts.GRM_RosterAddTimestampRadioButton1:SetChecked ( true );

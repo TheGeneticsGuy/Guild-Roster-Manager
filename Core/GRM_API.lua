@@ -465,7 +465,7 @@ end
 --     GRM.Log.AddLog
 
 --     -- Only refresh log if directed to do so, and it is visible
---     if refresh_log and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
+--     if refresh_log and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
 --         GRM.BuildLogComplete( true , true );
 --     end
 -- end
@@ -478,7 +478,7 @@ GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoine
 
     GRM.Log.AddLog ( { 7 , rejoinText , true , player_who_invited, player_who_rejoined, date_rejoined_table, true, player_level, optional_previous_name, times_in_guild, false, "", date_left_table , how_long_ago, first_ever_join_table, orig_rank, "", false })
 
-    if GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
+    if GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
         GRM.BuildLogComplete( true , true );
     end
 end

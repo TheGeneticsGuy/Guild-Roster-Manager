@@ -296,7 +296,7 @@ GRM.ReactivateAddon = function()
         end
     end
 
-    if not GRM_UI.GRM_RosterChangeLogFrame.GRM_RosterChangeLogFrameReScale then
+    if not GRM_UI.GRM_CoreFrame.GRM_RosterChangeLogFrameReScale then
         -- Let's set window scales now...
         GRM_UI.SetAllWindowScales(true);
     end
@@ -365,7 +365,7 @@ GRM.ManageGuildStatus = function()
                 end
                 GRM.Scan.ResetTempLogs();
                 GRMsync.ResetDefaultValuesOnSyncReEnable(); -- Need to reset sync algorithm too!
-                GRM_UI.GRM_RosterChangeLogFrame:Hide();
+                GRM_UI.GRM_CoreFrame:Hide();
 
                 GRM_G.guildStatusChecked = false;
             end

@@ -686,15 +686,15 @@ end
 -- Purpose:         To coordinate in resetting default settings based on the specific frame the player is on.
 GRM_S.GetPageIndex = function()
     local allFrames = {
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame] = 1,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame] = 2,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame] = 3,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame] = 4,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_UXOptionsFrame] = 7,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame] = 8,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ModulesFrame] = 15,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame] = 16,
-        [GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame] = 17
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame] = 1,
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame] = 2,
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame] = 3,
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame] = 4,
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame] = 7,
+        [GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame] = 8,
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame] = 15,
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame] = 16,
+        [GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame] = 17
     };
     local result;
 
@@ -740,7 +740,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
     end
 
     if needsRefresh then
-        if (resetAll or page == 1) and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+        if (resetAll or page == 1) and GRM_UI.GRM_CoreFrame:IsVisible() then
             GRML.SetNewLanguage(GRM_G.LocalizedIndex, false, true);
         end
 
@@ -748,7 +748,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
         GRM.Global.UpdateGuildLeaderPermissions(false, true);
 
         -- Reset frames as needed
-        if (resetAll or page < 9) and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then -- General options
+        if (resetAll or page < 9) and GRM_UI.GRM_CoreFrame:IsVisible() then -- General options
             GRM_UI.OptionsCore.RefreshOptionsUI();
         end
 
@@ -757,7 +757,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
         end
 
         -- refresh the log as settings might be changed.
-        if (resetAll or page == 8) and GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame:IsVisible() then
+        if (resetAll or page == 8) and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
             GRM_UI.RefreshLogExtraOptions();
             GRM_UI.RefreshLogColorOptions();
             GRM.ResetLogStringPoints(true);

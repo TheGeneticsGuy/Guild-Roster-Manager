@@ -1634,14 +1634,14 @@ GRM.KickAllAlts = function ( playerName , alts , banReason , epochTimeStamp )
         local instructionNote = GRM.L ( "Reason Banned?" ) .. "\n" .. GRM.L ( "Click \"YES\" When Done" );
         local result = banReason or "";
 
-        if GRM_G.isChecked2 or GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() then
+        if GRM_G.isChecked2 or GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() then
 
             for i = 1 , #alts do
                 if alts[i][1] ~= playerName and alts[i][1] ~= GRM_G.addonUser then   -- Can't include themselves to kick
                     tempAlt = GRM.GetPlayer ( alts[i][1] );
 
                     -- The banning...
-                    if GRM_G.isChecked or GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() then
+                    if GRM_G.isChecked or GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_BanAllAltsCheckbox:GetChecked() then
                         tempAlt.bannedInfo[1] = true;
                         tempAlt.bannedInfo[2] = epochTimeStamp;
                         tempAlt.bannedInfo[3] = false;
@@ -1650,8 +1650,8 @@ GRM.KickAllAlts = function ( playerName , alts , banReason , epochTimeStamp )
                         if result == "" then
                             if GRM_UI.GRM_MemberDetailPopupEditBox:IsVisible() then
                                 result = GRM_UI.GRM_MemberDetailPopupEditBox:GetText();
-                            elseif GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:IsVisible() then
-                                result = GRM.Util.Trim ( GRM_UI.GRM_RosterChangeLogFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:GetText() );
+                            elseif GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:IsVisible() then
+                                result = GRM.Util.Trim ( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:GetText() );
                             end
                         end
 

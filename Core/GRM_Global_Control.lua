@@ -162,7 +162,7 @@ Global.UpdateGuildLeaderPermissions = function(isMyEdit, forced)
             GRM_G.GuildInfo = notes;
         end
         
-        if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+        if GRM_UI.GRM_CoreFrame:IsVisible() then
             GRM_UI.OptionsCore.RefreshOptionsUI()
         end
     end
@@ -197,11 +197,11 @@ Global.SetJoinTagCustomFormat = function(customJoin, customRejoin, isMyEdit)
 
         -- Cannot be greater than Max Characters (16) characters
         if #customJoin >
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:GetMaxLetters() then
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:GetMaxLetters() then
             if isMyEdit then
                 GRM.Report(GRM.L(
                     "Custom Join Date Tag \"{name}\" cannot be set as it is {num} characters. The max is {custom1}.",
-                    customJoin, nil, #customJoin, GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+                    customJoin, nil, #customJoin, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                         .GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:GetMaxLetters()));
             end
         else
@@ -225,8 +225,8 @@ Global.SetJoinTagCustomFormat = function(customJoin, customRejoin, isMyEdit)
             GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
             GRM.S().customTags[1] = customJoin;
 
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:IsVisible() then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:SetText(
+            if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:IsVisible() then
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:SetText(
                     GRM.S().customTags[1]);
             end
             needsRefresh = true;
@@ -238,11 +238,11 @@ Global.SetJoinTagCustomFormat = function(customJoin, customRejoin, isMyEdit)
 
         -- Cannot be greater than Max Characters (16) characters
         if #customRejoin >
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:GetMaxLetters() then
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:GetMaxLetters() then
             if isMyEdit then
                 GRM.Report(GRM.L(
                     "Custom Rejoin Date Tag \"{name}\" cannot be set as it is {num} characters. The max is {custom1}.",
-                    customRejoin, nil, #customRejoin, GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame
+                    customRejoin, nil, #customRejoin, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
                         .GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:GetMaxLetters()));
             end
         else
@@ -266,8 +266,8 @@ Global.SetJoinTagCustomFormat = function(customJoin, customRejoin, isMyEdit)
             GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
             GRM.S().customTags[2] = customRejoin;
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:IsVisible() then
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:SetText(
+            if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:IsVisible() then
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:SetText(
                     customRejoin);
             end
             needsRefresh = true;
@@ -317,12 +317,12 @@ Global.SetNoteTriggerRestrictions = function(noteTrigger)
 
         if needsRefresh then
             -- Update the frames if necessary
-            if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame:IsVisible() then
                 if GRM.S().noteSetEnabled then
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
                         .GRM_NoteTagFeatureCheckButton:SetChecked(true);
                 else
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
                         .GRM_NoteTagFeatureCheckButton:SetChecked(false);
                 end
             end
@@ -408,7 +408,7 @@ Global.SetLeaderProfessionRestrictionSetting = function(profSync, isMyEdit)
             
             GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
-            if GRM_UI.GRM_RosterChangeLogFrame and GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame and GRM_UI.GRM_CoreFrame:IsVisible() then
                 GRM_UI.ConfigureClassicProfessionOptions( not GRM.S().ProfFullyDisabled );
             end
         end
@@ -428,7 +428,7 @@ Global.IsCustomJoinRestricted = function()
 
     if customJoin ~= nil then
         if customJoin == "XX" or #customJoin <=
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:GetMaxLetters() then
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagJoinEditBox:GetMaxLetters() then
             result = true;
         end
     end
@@ -446,7 +446,7 @@ Global.IsCustomReJoinRestricted = function()
     if customReJoin ~= nil then
 
         if customReJoin == "XX" or #customReJoin <=
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:GetMaxLetters() then
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_CustomTagREJoinEditBox:GetMaxLetters() then
             result = true;
         end
     end
@@ -492,8 +492,8 @@ Global.SetTimestampRestriction = function(timeFormatIndex, isMyEdit)
         end
         GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
-        if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:IsVisible() then
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
+        if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame:IsVisible() then
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
                 .GRM_TimestampSelectedText:SetText(timestamp);
         end
     end
@@ -529,7 +529,7 @@ Global.SetLeaderRankRestrictionSetting = function(generalSyncIndex, isMyEdit)
             GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
             GRM.S().syncRank = generalSyncIndex;
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
                 GRM_UI.DD.CreateOptionsRankDropDown();
             end
 
@@ -582,7 +582,7 @@ Global.SetLeaderBanRestrictionSetting = function(banSync, isMyEdit)
                 end
                 GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
-                if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
+                if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
                     GRM_UI.DD.CreateOptionsRankDropDown();
                 end
             end
@@ -624,7 +624,7 @@ Global.SetLeaderCustomNoteRestrictionSetting = function(customSyncIndex, isMyEdi
             end
             GRM.Report(GRM.L("GRM:") .. " " .. finalReport);
 
-            if GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:IsVisible() then
                 GRM_UI.DD.CreateOptionsRankDropDown();
             end
         end
@@ -703,7 +703,7 @@ Global.SetLeaderJoinDateRestrictionSetting = function(joinDateLocationIndex, isM
         end
 
         if needsRefresh then
-            if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame:IsVisible() then
                 GRM_UI.OfficerTab.ConfigureJoinDateLocation();
             end
         end
@@ -740,7 +740,7 @@ Global.SetLeaderUsingJoinTagHeaders = function(headerControl, isMyEdit)
         end
 
         if needsRefresh then
-            if GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
+            if GRM_UI.GRM_CoreFrame:IsVisible() then
                 GRM_UI.OfficerTab.ConfigureJoinDateLocation();
             end
             Global.UpdateGuildInfoWithNewValue(6, headerControl, isMyEdit);

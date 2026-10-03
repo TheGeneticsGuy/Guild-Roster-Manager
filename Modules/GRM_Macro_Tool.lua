@@ -7247,11 +7247,11 @@ GRM.BuildKickQueuedScrollButtons = function ( ind , isResizeAction )
                     GRM_UI.RestoreTooltipScale();
                     GameTooltip:Hide();
                     -- If Core GRM window is not open, let's open it!
-                    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                        GRM_UI.GRM_RosterChangeLogFrame:Show();
+                    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+                        GRM_UI.GRM_CoreFrame:Show();
                     end
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( playerName ) );
+                    GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( playerName ) );
                 elseif IsControlKeyDown() then
                     GRM.OpenPlayerWindow( playerName );
                 end
@@ -7946,11 +7946,11 @@ GRM.BuildKickMacrodScrollButtons = function ( ind , isResizeAction )
                     GRM_UI.RestoreTooltipScale();
                     GameTooltip:Hide();
                     -- If Core GRM window is not open, let's open it!
-                    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                        GRM_UI.GRM_RosterChangeLogFrame:Show();
+                    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+                        GRM_UI.GRM_CoreFrame:Show();
                     end
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( playerName ) );
+                    GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( playerName ) );
                 elseif IsControlKeyDown() then
                     GRM.OpenPlayerWindow( playerName );
                 else
@@ -8563,11 +8563,11 @@ GRM.BuildIgnoredScrollButtons = function ( ind , isResizeAction )
                     GRM_UI.RestoreTooltipScale();
                     GameTooltip:Hide();
                     -- If Core GRM window is not open, let's open it!
-                    if not GRM_UI.GRM_RosterChangeLogFrame:IsVisible() then
-                        GRM_UI.GRM_RosterChangeLogFrame:Show();
+                    if not GRM_UI.GRM_CoreFrame:IsVisible() then
+                        GRM_UI.GRM_CoreFrame:Show();
                     end
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogTab:Click();
-                    GRM_UI.GRM_RosterChangeLogFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( playerName ) );
+                    GRM_UI.GRM_CoreFrame.GRM_LogTab:Click();
+                    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetText( GRM.SlimName ( playerName ) );
                 elseif IsControlKeyDown() then
                     GRM.OpenPlayerWindow( playerName );
                 else
