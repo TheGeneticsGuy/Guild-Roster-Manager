@@ -1178,6 +1178,7 @@ end
 -- What it Does:    Builds the final rank drop down product for options panel
 -- Purpose:         UI Feature for options to be able to filter who you will accept shared data from.
 DD.CreateOptionsRankDropDown = function()
+    print("Building UI Dropdown menus")
     DD.PopulateOptionsRankDropDown();
     DD.PopulateBanListOptionsDropDown();
     DD.PopulateDefaultDropDownRankMenu();
@@ -1221,22 +1222,6 @@ DD.CreateOptionsRankDropDown = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:SetText(
         setCustomDefaultName);
 
-    local TagText = GRM.GetMainTags(false, GRM.S().mainTagIndex);
-    if TagText == "" then
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetText(
-            GRM.L("No Tag"));
-    else
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetText(
-            TagText);
-    end
-
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected.GRM_TagText:SetTextColor(
-        GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected
-        .GRM_LanguageSelectedText:SetText(GRM.L(GRML.Languages[GRM.S().selectedLang]));
-
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_ColorSelectOptionsFrame
-        .GRM_OptionsTexture:SetColorTexture(GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetFont(
         GRM_G.FontChoice, GRM_G.FontModifier + 11);
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetText(
@@ -1263,82 +1248,10 @@ DD.CreateOptionsRankDropDown = function()
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
     GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected:Show();
-end
-
--- Method:          DD.PopulateMainTagDropdown()
--- What it Does:    Creates a dropdown menu including options to choose from for main tag formatting in guild chat
--- Purpose:         Options, options, options! Customization to make it pleasing for all players in the formatting.
-DD.PopulateMainTagDropdown = function()
-    local buffer = 3;
-    local height = 0;
-    local tagChoices = GRM.GetMainTags(true);
-    -- Initiate the buttons holder
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons =
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons or {};
-
-    for i = 1, #GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons do
-        GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i][1]:Hide();
-    end
-
-    for i = 1, #tagChoices do
-        if not GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] then
-            local tempButton = CreateFrame("Button", "MainTagOption" .. i, GRM_UI.GRM_RosterChangeLogFrame
-                .GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu);
-            GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i] =
-                {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
-        end
-
-        local TagButton = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu
-                              .Buttons[i][1];
-        local TagButtonText = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i][2];
-        TagButton:SetWidth(85);
-        TagButton:SetHeight(11);
-        TagButton:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
-        if i == 7 then
-            TagButtonText:SetText(GRM.L("No Tag"));
-        else
-            TagButtonText:SetText(tagChoices[i]);
-        end
-        TagButtonText:SetTextColor(GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
-        TagButtonText:SetWidth(85);
-        TagButtonText:SetWordWrap(false);
-        TagButtonText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 10);
-        TagButtonText:SetPoint("CENTER", TagButton);
-        TagButtonText:SetJustifyH("CENTER");
-
-        if i == 1 then
-            TagButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu, 0, -7);
-            height = height + TagButton:GetHeight();
-        else
-            TagButton:SetPoint("TOP", GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
-            height = height + TagButton:GetHeight() + buffer;
-        end
-
-        TagButton:SetScript("OnClick", function(self, button)
-            if button == "LeftButton" then
-                local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
-
-                GRM.S().mainTagIndex = parsedNumber;
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected
-                    .GRM_TagText:SetText(TagButtonText:GetText());
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected
-                    .GRM_TagText:SetTextColor(GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, 1);
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:Hide();
-                GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatSelected:Show();
-
-                GRM_G.mainTag = GRM.GetCurrentMainTag();
-                GRM_G.altTag = GRM.GetCurrentAltTag();
-                GRM_UI.NamesTab.UpdateTagOptionsText();
-            end
-        end);
-        TagButton:Show();
-    end
-    GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainTagFormatMenu:SetHeight(height + 15);
 end

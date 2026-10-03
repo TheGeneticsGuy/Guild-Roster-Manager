@@ -13,6 +13,57 @@
 
 GRM_UI = {};    -- Global Access
 
+-----------------------
+-- UI API HELPERS -----
+-----------------------
+
+-- Method:          CreateTooltipFromTable ( table )
+-- What it Does:    Creates a tooltip either single or double line
+-- Purpose:         Ease of creating tooltips
+-- Usage:           CreateTooltipFromTable ( { 1 , "Test" } )
+--                  CreateTooltipFromTable ( { 1 , "Test" } , { 1 , Ghost } )
+--                  CreateTooltipFromTable ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
+local CreateTooltipFromTable = function ( self , ... )
+    local lines = {...};
+
+    if #lines > 0 then
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+
+        for i = 1 , #lines do
+            if lines[i][1] == 1 then
+                for i = 1 , #lines do
+                    if lines[i][3] then
+                        GameTooltip:AddLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] );
+                    else
+                        GameTooltip:AddLine( lines[i][2] );
+                    end
+                end
+            -- 2 = Double line
+            elseif lines[i][1] == 2 then
+                for i = 1 , #lines do
+                    -- Coloring for both lines
+                    if lines[i][4] and lines[i][7] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] , lines[i][7] , lines[i][8] , lines[i][9] );
+                    -- Only coloring for first line
+                    elseif lines[i][4] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] );
+                    -- only coloring for second line
+                    elseif lines[i][7] then
+                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][7] , lines[i][8] , lines[i][9] );
+                    -- No specific coloring.
+                    else
+                        GameTooltip:AddLine( lines[i][2] , lines[i][3] );
+                    end
+                end
+            end
+
+        end
+
+        GameTooltip:Show();
+    end
+end
+
 ---------------------------------------
 ------ FRAME CREATION AND INIT --------
 ---------------------------------------
@@ -859,57 +910,6 @@ GRM.InitiateEditBoxPopup = function( editBoxText , TitleText, optionalOnCloseFun
         end
         
         GRM_UI.GRM_CustomPopupFrame:Show();
-    end
-end
-
------------------------
--- UI API HELPERS -----
------------------------
-
--- Method:          CreateTooltipFromTable ( table )
--- What it Does:    Creates a tooltip either single or double line
--- Purpose:         Ease of creating tooltips
--- Usage:           CreateTooltipFromTable ( { 1 , "Test" } )
---                  CreateTooltipFromTable ( { 1 , "Test" } , { 1 , Ghost } )
---                  CreateTooltipFromTable ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
-local CreateTooltipFromTable = function ( self , ... )
-    local lines = {...};
-
-    if #lines > 0 then
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-
-        for i = 1 , #lines do
-            if lines[i][1] == 1 then
-                for i = 1 , #lines do
-                    if lines[i][3] then
-                        GameTooltip:AddLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] );
-                    else
-                        GameTooltip:AddLine( lines[i][2] );
-                    end
-                end
-            -- 2 = Double line
-            elseif lines[i][1] == 2 then
-                for i = 1 , #lines do
-                    -- Coloring for both lines
-                    if lines[i][4] and lines[i][7] then
-                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] , lines[i][7] , lines[i][8] , lines[i][9] );
-                    -- Only coloring for first line
-                    elseif lines[i][4] then
-                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][4] , lines[i][5] , lines[i][6] );
-                    -- only coloring for second line
-                    elseif lines[i][7] then
-                        GameTooltip:AddDoubleLine( lines[i][2] , lines[i][3] , lines[i][7] , lines[i][8] , lines[i][9] );
-                    -- No specific coloring.
-                    else
-                        GameTooltip:AddLine( lines[i][2] , lines[i][3] );
-                    end
-                end
-            end
-
-        end
-
-        GameTooltip:Show();
     end
 end
 

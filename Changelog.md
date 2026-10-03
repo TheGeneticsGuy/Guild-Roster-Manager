@@ -1,5 +1,37 @@
 
+I should probably figure that out - I don't have it documented since I never needed to, until I broke it lol - Sec I can write it out.
 
+In order:
+
+* Timestamp format (General Tab)
+* Sync changes with guildies at Rank X (Officer Tab)
+* Sync BAN list with guildies at Rank X (Officer Tab)
+* Default Custom Note Rank Minimum X (Officer Tab)
+* Join Date (Officer Tab)
+  - 0 = Disabled from adding to any note
+  - 1 = Sent to Officer Note
+  - 2 = Sent to Public Note
+  - 3 = Sent to Custom Note
+* Joined/Rejoined Tags (Officer Tab)
+ - `+` = They will be prepended to dates (Joined May 5th, 2020)
+ - `-` = The Joined and Rejoined tags are DISABLED and only Date is added (May 5th, 2020)
+* Joined Date to note format (Officer Tab)
+ - `XX` = Default ("Joined: <Date>")
+ - `Custom:` = `Custom: <Date>`
+* Rejoined Date to note format (Officer Tab)
+  - `XX` = Default ("Rejoined: <Date")
+ - `Custom:` = `Custom: <Date>`
+* !Note Feature (Officer Tab)
+  - 1 = Enabled
+  - 2 = Disabled
+* Professions Feature (Classic Tab)
+  - 0 = Fully Disabled 
+  - 1 = Auto update enabled and destination PUBLIC Note
+  - 2 = Auto update enabled and destination OFFICER Note
+  - 3 = Auto update enabled and destination CUSTOM Note
+
+TO DO: - Timestamp doesn't have Global Control tag
+TO DO: - Use only 1 color picker window  - Add text title b ased on what it is connected to.
 
 
 ## **VERSION 1.995 - PENDING DATE**

@@ -150,14 +150,6 @@ OptionsCore.RefreshOptionsUI = function()
     GRM_ScanningOptionsFrame.GRM_LevelRecordButton:SetChecked(S.recordLevelUp)
     GRM_ScanningOptionsFrame.GRM_ShowNotesOnLeavingPlayerButton:SetChecked(S.addNotesToLeft)
 
-    -- Names Options
-    NamesOpts.GRM_ShowMainAltTagsButton:SetChecked(S.useMainTag)
-    NamesOpts.GRM_ShowMainNameCheckButton:SetChecked(S.showMainName)
-    NamesOpts.GRM_ShowNicknameButton:SetChecked(S.showNickname)
-    NamesOpts.GRM_ShowNicknameInsteadButton:SetChecked(S.showNicknameNotMain)
-    NamesOpts.GRM_ShowNicknameToAll:SetChecked(S.ShowNicknameToAll)
-    NamesOpts.GRM_ShareNicknamesButton:SetChecked(S.shareNickToAlts)
-
     -- ================
     -- DEPENDENCY LOGIC
     -- ================
@@ -220,7 +212,8 @@ OptionsCore.RefreshOptionsUI = function()
     end
 
     -- Nicknames
-    GRM_UI.NamesTab.EnableNicknameOptions(S.showNickname)
+    GRM_UI.NamesTab.InitializeTabSettings();
+    
 
     -- Add Events To Calendar permission check
     local canAddCalendar = GRM_G.BuildVersion >= 30000 and CanEditGuildEvent()
@@ -306,7 +299,6 @@ OptionsCore.RefreshOptionsUI = function()
     end
 
     GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM.GetLevelRange())
-    GRM_UI.NamesTab.UpdateTagOptionsText()
 
     -- ====================
     -- SLIDERS & EDIT BOXES

@@ -12,6 +12,56 @@ GRM_G.NicknameTagColor = false;
 GRM_G.NickTagHexCode = "";
 GRM_G.nickTag = "";
 
+ColorPicker.CreateColorPicker = function(name, parent, anchorFrame, colorTableKey)
+    local picker = CreateFrame("Frame", name, parent, BackdropTemplateMixin and "BackdropTemplate")
+    picker:SetSize(18, 18)
+    picker:SetPoint("LEFT", anchorFrame, "RIGHT", 10, 0)
+    picker:SetBackdrop(GRM_UI_Util.GetBackdrop(3))
+    picker.ConnectedTo = "";
+
+    GRM.CreateTexture(picker, "GRM_OptionsTexture", "ARTWORK", true)
+    
+    picker:SetScript("OnShow", function(self)
+        self.GRM_OptionsTexture:SetPoint("CENTER", self)
+        self.GRM_OptionsTexture:SetSize(15, 15)
+        local c = GRM.S()[self.ConnectedTo]
+        self.GRM_OptionsTexture:SetColorTexture(c.r, c.g, c.b, 1.0)
+    end)
+
+    picker:SetScript("OnHide", function(self)
+        self.ConnectedTo = "";
+    end)
+
+    picker:SetScript("OnMouseDown", function(_, button)
+        if button == "LeftButton" then
+            GRM.RestoreTooltip()
+            local c = GRM.S()[self.ConnectedTo]
+            GRM_UI.ShowCustomColorPicker(c.r, c.g, c.b, 1.0, (colorTableKey == "mainTagColor" and 98 or 99)) -- 98 for Main, 99 for Nickname
+            
+            -- Standard sizing logic
+            if GRM.IsAddOnLoaded("ColorPickerPlus") then
+                GRM_UI.ColorPickerFrame:SetSize(380, 380)
+            elseif GRM.IsAddOnLoaded("ColorPickerAdvanced") then
+                GRM_UI.ColorPickerFrame.hasOpacity = true;
+                GRM_UI.ColorPickerFrame.opacity = 1
+            elseif GRM.IsAddOnLoaded("ElvUI") then
+                GRM_UI.ColorPickerFrame:SetSize(345, 240)
+            else
+                GRM_UI.ColorPickerFrame:SetSize(305, 230)
+            end
+        end
+    end)
+
+    picker:SetScript("OnEnter", function(self)
+        GRM_UI.SetTooltipScale()
+        GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+        GameTooltip:AddLine("|CFFE6CC7F" .. GRM.L("Click") .. "|r - " .. GRM.L("Customize Color"))
+        GameTooltip:Show()
+    end)
+
+    picker:SetScript("OnLeave", GRM.RestoreTooltip)
+end
+
 -- Method:          ColorPicker.ShowCustomColorPicker ( float , float , float , float , int , function )
 -- What it Does:    Established some default values for the colorpicker frame, and then shows it
 -- Purpose:         One, to configure the color picker frames, and /grmtwo, to create a universally recyclable function for all potential future colorpicker options as well.
@@ -41,51 +91,6 @@ ColorPicker.ShowCustomColorPicker = function ( r , g , b , a , setting )
     else
         GRM.SetConfirmationWindow ( ReloadUI , GRM.L ( "To access the color wheel, due to a compatibility issue that began in 10.2.5, you will need to reload the UI. Do you wish to reload now?" ) , nil , { 350 , 120 } );
     end
-end
-
-ColorPicker.CreateColorPicker = function(name, parent, anchorFrame, colorTableKey)
-    local picker = CreateFrame("Frame", name, parent, BackdropTemplateMixin and "BackdropTemplate")
-    picker:SetSize(18, 18)
-    picker:SetPoint("LEFT", anchorFrame, "RIGHT", 10, 0)
-    picker:SetBackdrop(GRM_UI_Util.GetBackdrop(3))
-
-    GRM.CreateTexture(picker, "GRM_OptionsTexture", "ARTWORK", true)
-    
-    picker:SetScript("OnShow", function(self)
-        self.GRM_OptionsTexture:SetPoint("CENTER", self)
-        self.GRM_OptionsTexture:SetSize(15, 15)
-        local c = GRM.S()[colorTableKey]
-        self.GRM_OptionsTexture:SetColorTexture(c.r, c.g, c.b, 1.0)
-    end)
-
-    picker:SetScript("OnMouseDown", function(_, button)
-        if button == "LeftButton" then
-            GRM.RestoreTooltip()
-            local c = GRM.S()[colorTableKey]
-            GRM_UI.ShowCustomColorPicker(c.r, c.g, c.b, 1.0, (colorTableKey == "mainTagColor" and 98 or 99)) -- 98 for Main, 99 for Nickname
-            
-            -- Standard sizing logic
-            if GRM.IsAddOnLoaded("ColorPickerPlus") then
-                GRM_UI.ColorPickerFrame:SetSize(380, 380)
-            elseif GRM.IsAddOnLoaded("ColorPickerAdvanced") then
-                GRM_UI.ColorPickerFrame.hasOpacity = true;
-                GRM_UI.ColorPickerFrame.opacity = 1
-            elseif GRM.IsAddOnLoaded("ElvUI") then
-                GRM_UI.ColorPickerFrame:SetSize(345, 240)
-            else
-                GRM_UI.ColorPickerFrame:SetSize(305, 230)
-            end
-        end
-    end)
-
-    picker:SetScript("OnEnter", function(self)
-        GRM_UI.SetTooltipScale()
-        GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-        GameTooltip:AddLine("|CFFE6CC7F" .. GRM.L("Click") .. "|r - " .. GRM.L("Customize Color"))
-        GameTooltip:Show()
-    end)
-
-    picker:SetScript("OnLeave", GRM.RestoreTooltip)
 end
 
 -- Some addons have changed the frames completely, this removes GRM's extra frames.

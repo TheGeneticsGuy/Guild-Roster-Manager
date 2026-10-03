@@ -34,10 +34,11 @@ local function AppendNickScript(self)
 end
 
 NamesTab.BuildNamesTab = function()
-    local optionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;  
+    print("BUILD NAMES TAB1")
+    local GRM_OptionsFrame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame;  
 
-    GRM_UI.CreateCoreFrame("GRM_NamesOptionsFrame", optionsFrame, nil, GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H, nil, false, {"BOTTOMLEFT", "BOTTOMLEFT", 0, 0}, nil, false, false)
-    local namesOptionsFrame = optionsFrame.GRM_NamesOptionsFrame
+    GRM_UI.CreateCoreFrame("GRM_NamesOptionsFrame", GRM_OptionsFrame, nil, GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H, nil, false, {"BOTTOMLEFT", "BOTTOMLEFT", 0, 0}, nil, false, false)
+    local namesOptionsFrame = GRM_OptionsFrame.GRM_NamesOptionsFrame
 
     ---------------------------------------
     -- SECTION 1 - MAIN / ALT FORMATTING --
@@ -53,7 +54,10 @@ NamesTab.BuildNamesTab = function()
     
     -- Live Preview & Color Picker
     GRM_UI.CreateString("GRM_MainLivePreview", namesOptionsFrame, "GameFontWhite", "", 12, {"LEFT", namesOptionsFrame.GRM_MainFormatDDSelected, "RIGHT", 15, 0})
-    GRM_UI.ColorPicker.CreateColorPicker("GRM_MainColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_MainLivePreview, "mainTagColor")
+    GRM_UI.ColorPicker.CreateColorPicker("GRM_NamesColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_MainLivePreview, "mainTagColor")
+    if GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainColorPicker then
+        print("SUCCESS")
+    end
 
     -------------------------------------
     -- SECTION 2 - Nickname Formatting --
@@ -62,7 +66,7 @@ NamesTab.BuildNamesTab = function()
     -- Title & Description
     GRM_UI.CreateString("GRM_NickOptionsTitle", namesOptionsFrame, "GameFontNormal", GRM.L("Nickname Formatting") .. ":", 20,
                        {"TOPLEFT", namesOptionsFrame.GRM_MainFormatDDSelected, "BOTTOMLEFT", -5, -40}, nil, {0.0, 0.8, 1.0})
-    GRM_UI.CreateString("GRM_NickOptionsDesc", namesOptionsFrame, "GameFontWhite",
+    GRM_UI.CreateString("GRM_NickOptionsDesc", namesOptionsFrame, "GameFontWhite",      
                         GRM.L("If a player has a Nickname, how should they appear in chat? (Overrides Main/Alt format)"), 12,
                        {"TOPLEFT", namesOptionsFrame.GRM_NickOptionsTitle, "BOTTOMLEFT", 5, -10})
     GRM_UI.CreateDropDownMenu("GRM_NickFormatDD", namesOptionsFrame, nil, {"TOPLEFT", namesOptionsFrame.GRM_NickOptionsDesc, "BOTTOMLEFT", 0, -15},
@@ -100,8 +104,8 @@ NamesTab.BuildNamesTab = function()
             local altTag = GRM.GetCurrentAltTag()
             local mainTag = GRM.GetCurrentMainTag()
             
-            local c1 = GRM.Core.RGBToHex(GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b)
-            local c2 = GRM.Core.RGBToHex(GRM.S().nicknameTagColor.r, GRM.S().nicknameTagColor.g, GRM.S().nicknameTagColor.b)
+            local c1 = GRM.rgbToHex({GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b})
+            local c2 = GRM.rgbToHex({GRM.S().nicknameTagColor.r, GRM.S().nicknameTagColor.g, GRM.S().nicknameTagColor.b})
             local reset = "|r"
 
             if type == "MAIN" then
@@ -138,7 +142,7 @@ end
 -- UPDATE FUNCTION (Called on load and when dropdowns/colors change)
 -- =======================================================
 NamesTab.UpdateText = function()
-    local frame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
+    local frame = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainColorPicker
     if not frame then return end
 
     -- Sync Checkboxes
@@ -156,6 +160,7 @@ NamesTab.UpdateText = function()
     frame.GRM_MainLivePreview:SetText(NamesTab.GetPreviewString("MAIN", GRM.S().nameFormat))
     frame.GRM_NickLivePreview:SetText(NamesTab.GetPreviewString("NICK", GRM.S().nicknameFormat))
     
+    print("Checking Color Picker")
     -- Ensure Color Pickers update if colors changed
     if frame.GRM_MainColorPicker:IsVisible() then
         frame.GRM_MainColorPicker:GetScript("OnShow")(frame.GRM_MainColorPicker)
@@ -173,8 +178,8 @@ NamesTab.GetPreviewString = function(type, index)
     local altTag = GRM.GetCurrentAltTag()
     local mainTag = GRM.GetCurrentMainTag()
     
-    local c1 = GRM.Core.RGBToHex(GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b)
-    local c2 = GRM.Core.RGBToHex(GRM.S().nicknameTagColor.r, GRM.S().nicknameTagColor.g, GRM.S().nicknameTagColor.b)
+    local c1 = GRM.rgbToHex({GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b})
+    local c2 = GRM.rgbToHex({GRM.S().nicknameTagColor.r, GRM.S().nicknameTagColor.g, GRM.S().nicknameTagColor.b})
     local reset = "|r"
 
     if type == "MAIN" then
@@ -192,6 +197,18 @@ NamesTab.GetPreviewString = function(type, index)
     return ""
 end
 
+NamesTab.InitializeTabSettings = function()
+    -- For all the SetChecked type logic for checkboxes
+
+    NamesTab.UpdateTagOptionsText()
+end
+
+NamesTab.UpdateTagOptionsText = function()
+    local nameOpts = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame;
+
+    -- nameOpts.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText:SetText(GRM.L ( "Show both {name} and {name2} tags in Chat" , GRM.GetCurrentMainTag() , GRM.GetCurrentAltTag() ));
+    -- GRM.NormalizeHitRects(nameOpts.GRM_ShowMainAltTagsButton, nameOpts.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText);
+end
 
 
 -- local NamesTab = {};
@@ -258,12 +275,7 @@ end
 --             end
 --         end
 
---         NamesTab.UpdateTagOptionsText = function()
---             local nameOpts = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame;
-
---             nameOpts.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText:SetText(GRM.L ( "Show both {name} and {name2} tags in Chat" , GRM.GetCurrentMainTag() , GRM.GetCurrentAltTag() ));
---             GRM.NormalizeHitRects(nameOpts.GRM_ShowMainAltTagsButton, nameOpts.GRM_ShowMainAltTagsButton.GRM_ShowMainAltTagsButtonText);
---         end
+--         
 
 --         NamesTab.EnableNicknameOptions = function( enable )
 --             local nameOpts = GRM_UI.GRM_RosterChangeLogFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame

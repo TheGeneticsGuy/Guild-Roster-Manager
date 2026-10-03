@@ -351,7 +351,7 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
 
 
         player.nameFormat = 2; -- replace mainTagIndex
-        player.mainTagColor = { r = 1,0, g = 1.0, b = 1.0 }
+        player.mainTagColor = { r = 1.0, g = 1.0, b = 1.0 }
 
         player.nicknameFormat = 1; -- 1: ~Nick~, 2: <Nick>, 3: (Nick), 4: *Nick*
         player.nicknameTagColor = { r = 0.0, g = 0.8, b = 1.0 }
