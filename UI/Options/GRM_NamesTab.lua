@@ -54,7 +54,6 @@ NamesTab.BuildNamesTab = function()
     
     -- Live Preview & Color Picker
     GRM_UI.CreateString("GRM_MainLivePreview", namesOptionsFrame, "GameFontWhite", "", 12, {"LEFT", namesOptionsFrame.GRM_MainFormatDDSelected, "RIGHT", 15, 0})
-    GRM_UI.ColorPicker.CreateColorPicker("GRM_NamesColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_MainLivePreview, "mainTagColor")
     if GRM_OptionsFrame.GRM_NamesOptionsFrame.GRM_MainColorPicker then
         print("SUCCESS")
     end
@@ -74,7 +73,6 @@ NamesTab.BuildNamesTab = function()
     
     -- Live Preview & Color Picker
     GRM_UI.CreateString("GRM_NickLivePreview", namesOptionsFrame, "GameFontWhite", "", 12, {"LEFT", namesOptionsFrame.GRM_NickFormatDDSelected, "RIGHT", 15, 0})
-    GRM_UI.ColorPicker.CreateColorPicker("GRM_NickColorPicker", namesOptionsFrame, namesOptionsFrame.GRM_NickLivePreview, "nicknameTagColor")
 
     ------------------------------------
     -- SECTION 3 - Behavioral Setting --
@@ -90,7 +88,7 @@ NamesTab.BuildNamesTab = function()
     if not isLoaded then
         namesOptionsFrame:SetScript("OnShow", function()
             GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES
-            GRM_UI.GRM_CoreFrame.GRM_RosterChangeLogFrameReScale:Show()
+            GRM_UI.GRM_CoreFrame.GRM_CoreFrameReScale:Show()
         end)
 
         -------------
@@ -319,7 +317,7 @@ end
 --         namesOptionsFrame.configured = true;
 --         namesOptionsFrame:SetScript ( "OnShow" , function()
 --             GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES;
---             GRM_UI.GRM_CoreFrame.GRM_RosterChangeLogFrameReScale:Show();
+--             GRM_UI.GRM_CoreFrame.GRM_CoreFrameReScale:Show();
 --         end);
 --     end
 

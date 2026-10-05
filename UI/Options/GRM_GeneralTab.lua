@@ -8,15 +8,9 @@ GeneralTab.InitializeGeneralTab = function( isManualUpdate )
     local GRM_GeneralOptionsFrame = optionsFrame.GRM_GeneralOptionsFrame
 
     if not isManualUpdate then
-        GRM_GeneralOptionsFrame:SetScript ( "OnHide" , function()
-            if GRM_G.MainTagColor then
-                GRM_UI.ColorPickerFrame:Hide();
-            end
-        end);
-
         GRM_GeneralOptionsFrame:SetScript ( "OnShow" , function()
             GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.GENERAL;
-            GRM_UI.GRM_CoreFrame.GRM_RosterChangeLogFrameReScale:Show();
+            GRM_UI.GRM_CoreFrame.GRM_CoreFrameReScale:Show();
         end);
 
         

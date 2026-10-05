@@ -296,7 +296,7 @@ GRM.ReactivateAddon = function()
         end
     end
 
-    if not GRM_UI.GRM_CoreFrame.GRM_RosterChangeLogFrameReScale then
+    if not GRM_UI.GRM_CoreFrame.GRM_CoreFrameReScale then
         -- Let's set window scales now...
         GRM_UI.SetAllWindowScales(true);
     end

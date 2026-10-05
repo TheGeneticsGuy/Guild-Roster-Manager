@@ -759,7 +759,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
         -- refresh the log as settings might be changed.
         if (resetAll or page == 8) and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
             GRM_UI.RefreshLogExtraOptions();
-            GRM_UI.RefreshLogColorOptions();
+            GRM_UI.ColorPicker.RefreshLogColorOptions();
             GRM.ResetLogStringPoints(true);
             GRM.BuildLogComplete(true, false, true);
         end

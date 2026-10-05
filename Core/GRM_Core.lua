@@ -10989,7 +10989,7 @@ GRM.ClearAllLogLinesWithinRange = function(start, stop)
 
     GRM_G.CurrentTotalCount = GRM_G.CurrentTotalCount - totalCount;
 
-    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText:SetText(GRM.L(
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_NumEntriesText:SetText(GRM.L(
         "Total Entries: {num}", nil, nil, GRM_G.CurrentTotalCount));
 
     if totalCount == 1 then
@@ -11512,7 +11512,7 @@ GRM.BuildLog = function( searchString , fullRefresh , delayedSearch , fullLogMat
         GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons,
         GRM.LogToolHybridShiftDown, GRM.LogToolHybridShiftUP, hybridScrollFrameButtonCount, DatabaseAvailable);
 
-    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogFrameNumEntriesText:SetText(GRM.L(
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_NumEntriesText:SetText(GRM.L(
         "Total Entries: {num}", nil, nil, GRM_G.CurrentTotalCount));
 end
 
@@ -19161,7 +19161,7 @@ GRM.OpenCoreWindow = function(isGeneric)
 
     if IsInGuild() then
 
-        if not isGeneric and GRM_RosterChangeLogFrame:IsVisible() then
+        if not isGeneric and GRM_UI.GRM_CoreFrame:IsVisible() then
             openExport = true; -- Window is visible, we are going to open the export window
 
         else

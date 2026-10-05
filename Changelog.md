@@ -63,6 +63,8 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 * Some better messaging has been added to the addon confirm your actions. For example, if you Ctrl-Shift click the "restore defaults button, it informs you that you reset all addon settings. Before it just said nothing and you just had to flip through tabs to confirm it worked.
 
+* Color Picker (colorwheel window) has been more smartly implemented with universal compatibility of any other color picker modification addon, like Color Picker Plus, Color Picker Advanced, or even ElvUI. Before I had modified things significantly which requried me to build carve-out compatibility specifically. Now, that is no longer necessary. I now hook the baseline actions, allowing GRM to instead enjoy the colorpicker modifications
+
 
 
 ***BUG FIXES***

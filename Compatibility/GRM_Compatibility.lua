@@ -54,35 +54,35 @@ GRM.GuildRoster = function()
     end
 end
 
--- 10.2.5 change
-GRM.ColorPickerFrame = function(type)
+-- -- 10.2.5 change
+-- GRM.ColorPickerFrame = function(type)
 
-    if type == 1 then
-        if ColorPickerOkayButton then
-            return ColorPickerOkayButton;
-        else
-            return GRM_UI.ColorPickerFrame.Footer.OkayButton;
-        end
-    elseif type == 2 then
-        if ColorPickerWheel then
-            return ColorPickerWheel;
-        else
-            return GRM_UI.ColorPickerFrame.Content.ColorPicker.Wheel;
-        end
-    elseif type == 3 then
-        if GRM_UI.ColorPickerFrame.Header then
-            return GRM_UI.ColorPickerFrame.Header;
-        else
-            return ColorPickerFrameHeader;
-        end
-    elseif type == 4 then
-        if ColorPickerCancelButton then
-            return ColorPickerCancelButton;
-        else
-            return GRM_UI.ColorPickerFrame.Footer.CancelButton;
-        end
-    end
-end
+--     if type == 1 then
+--         if ColorPickerOkayButton then
+--             return ColorPickerOkayButton;
+--         else
+--             return GRM_UI.ColorPickerFrame.Footer.OkayButton;
+--         end
+--     elseif type == 2 then
+--         if ColorPickerWheel then
+--             return ColorPickerWheel;
+--         else
+--             return GRM_UI.ColorPickerFrame.Content.ColorPicker.Wheel;
+--         end
+--     elseif type == 3 then
+--         if GRM_UI.ColorPickerFrame.Header then
+--             return GRM_UI.ColorPickerFrame.Header;
+--         else
+--             return ColorPickerFrameHeader;
+--         end
+--     elseif type == 4 then
+--         if ColorPickerCancelButton then
+--             return ColorPickerCancelButton;
+--         else
+--             return GRM_UI.ColorPickerFrame.Footer.CancelButton;
+--         end
+--     end
+-- end
 
 -- 10.2 Change
 GRM.IsAddOnLoaded = function(addonName)
