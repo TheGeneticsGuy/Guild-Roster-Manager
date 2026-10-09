@@ -344,16 +344,15 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
         player.useMainTag = true;
         player.mainTagIndex = 2;
 
-
         player.showNickname = false;
         player.showNicknameNotMain = true;
-        player.ShowNicknameToAll = true;
+        -- player.ShowNicknameToAll = true; -- TO DELETE
 
-
-        player.nameFormat = 2; -- replace mainTagIndex
+        player.nameFormatMain = 1
+        player.nameFormatAlt = 2
+        player.nicknameFormatMain = 1
+        player.nicknameFormatAlt = 1
         player.mainTagColor = { r = 1.0, g = 1.0, b = 1.0 }
-
-        player.nicknameFormat = 1; -- 1: ~Nick~, 2: <Nick>, 3: (Nick), 4: *Nick*
         player.nicknameTagColor = { r = 0.0, g = 0.8, b = 1.0 }
 
     end

@@ -211,10 +211,6 @@ OptionsCore.RefreshOptionsUI = function()
         GenOpts.GRM_MinimapTypeButtonRadial2:SetChecked(S.minimapType == 2)
     end
 
-    -- Nicknames
-    GRM_UI.NamesTab.InitializeTabSettings();
-    
-
     -- Add Events To Calendar permission check
     local canAddCalendar = GRM_G.BuildVersion >= 30000 and CanEditGuildEvent()
     if not canAddCalendar then 

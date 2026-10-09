@@ -4085,88 +4085,62 @@ GRM.GetNameWithMainTags = function(name, slimName, includeMainOnAlts, includeAlt
 end
 
 -- Method:          GRM.AddMainToChat ( ... )
--- What it Does:    It adds either a Main tag to the player, or if they are on an alt, includes the name of the main.
--- Purpose:         Easy to see player name in guild chat, for achievments and so on...
+-- What it Does:    Injects formatted Main/Alt and Nickname tags into guild chat.
+-- Purpose:         This is a quality of life feature to help identify players in guild chat, especially if they have alts or nicknames.
 GRM.AddMainToChat = function(chatFrame, event, msg, sender, ...)
-    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg)then
-        local placeHolderMsg = msg;
-        local tableString = tostring(chatFrame);
+    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg) then
+        local tableString = tostring(chatFrame)
 
-        -- Dupe protection for universal addon compatibility as an addon like Prat will reprocess the string twice.
-        if tableString == GRM_G.MainTagDupeProtect.tableString and time() == GRM_G.MainTagDupeProtect.time and sender == GRM_G.MainTagDupeProtect.name and string.find( msg , GRM_G.MainTagDupeProtect.msg, 1 , true) then
-            return false, msg, sender, ...;
+        -- Dupe protection
+        if tableString == GRM_G.MainTagDupeProtect.tableString and 
+              time() == GRM_G.MainTagDupeProtect.time and
+              sender == GRM_G.MainTagDupeProtect.name and
+              string.find(msg, GRM_G.MainTagDupeProtect.msg, 1, true) then
+                return false, msg, sender, ...
         else
-            GRM_G.MainTagDupeProtect.time = time();
-            GRM_G.MainTagDupeProtect.name = sender;
+            GRM_G.MainTagDupeProtect.time = time()
+            GRM_G.MainTagDupeProtect.name = sender
             GRM_G.MainTagDupeProtect.msg = msg
-            GRM_G.MainTagDupeProtect.tableString = tableString;
+            GRM_G.MainTagDupeProtect.tableString = tableString
         end
 
         if sender ~= GRM_G.addonUser then
-            local player = GRM.GetPlayer(sender);
+            local player = GRM.GetPlayer(sender)
 
             if player then
-                local mainTag = GRM.GetMainTags(false, GRM.S().mainTagIndex);
-                local altTag = GRM.GetAltTags(false, GRM.S().mainTagIndex);
-                local channelName = channelEnum[event];
-                local tempName = "";
+                local toonName = GRM.FormatName(sender)
+                local isMain = GRM.IsMain(sender)
+                local mainName = isMain and toonName or GRM.GetFormattedMainName(sender, false)
+                
+                -- Replace this with however you fetch a player's nickname from the DB!
+                local nickname = GRM.NN.GetNickname(sender);
 
-                if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+                -- Format the name using our universal helper
+                local formattedName = GRM_Name.GetFormattedNameString(toonName, mainName, nickname, isMain)
+                
+                -- Add class coloring if enabled
+                if GRM.S().colorizeNames then
+                    local classColor = GRM.GetStringClassColorByName(sender)
+                    formattedName = classColor .. formattedName .. "|r"
+                end
 
-                    if GRM.IsMain ( sender ) then
-
-                        tempName = GRM_G.MainTagHexCode .. mainTag .. "|r " .. msg;
-
-                    elseif GRM.PlayerIsAnAlt(player) and not GRM.S().showMainName then -- Only show tag if NOT showing main
-                        -- Has alts, but is not the main.
-                        tempName = GRM_G.MainTagHexCode .. altTag .. "|r " .. msg;
-
+                -- Replace the message header
+                if formattedName ~= toonName then
+                    if channelEnum[event] ~= "Achievement" then
+                        msg = formattedName .. ": " .. msg
+                    else
+                        msg = formattedName .. " " .. msg
                     end
                 end
-
-                if GRM.S().showMainName and GRM.PlayerIsAnAlt(player) then
-                    local mainName = GRM.GetFormattedMainName(sender, false);
-
-                    if mainName ~= "" then
-                        local mainColoring = GRM.GetStringClassColorByName(mainName);
-                        mainName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
-
-                        if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
-                            mainName = mainName .. " " .. GRM_G.MainTagHexCode .. mainTag .. "|r";
-                        end
-
-                        if tempName ~= "" then
-                            tempName = tempName .. " " .. mainName;
-                        else
-                            tempName = mainName;
-                        end
-
-                        if channelName ~= "Achievement" then
-                            tempName = tempName .. ": " .. msg;
-                        else
-                            tempName = tempName .. " " .. msg;
-                        end
-                    end
-                end
-
-                if tempName == "" then
-                    tempName = msg;
-                end
-
-                if tempName ~= "" then
-                    msg = tempName;
-                end
-
             end
         end
 
-        -- This will check if public note needs to be set.
-        if GRM.S().noteSetEnabled and event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
+        -- Public note hook
+        if GRM.S().noteSetEnabled and (event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER") then
             if not GRM_G.BuildHasRestrictions then
-                GRM.TriggerPlayerNote(sender, placeHolderMsg);
+                GRM.TriggerPlayerNote(sender, msg)
             end
         end
-
     end
     return false, msg, sender, ...
 end

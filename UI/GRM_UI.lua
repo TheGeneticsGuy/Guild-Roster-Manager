@@ -6856,8 +6856,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
     end
 
-    GRM_UI.NamesTab.BuildNamesTab();
-
     -- Modules Frame logic
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:SetPoint ( "CENTER" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame );
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame.GRM_ModulesFrameStatusText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 18 );
@@ -6890,29 +6888,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     end
 
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame:SetScript ( "OnShow" , GRM_UI.LoadModulesFrameOnShow );
-
-    -- no need to reset the frames if the UI is already loaded.
-    if not GRM_G.UIIsLoaded then
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralTab:LockHighlight();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:Hide();
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame:SetAlpha ( 0 );
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame:Hide();
-    end
 
     -- OPTIONS TEXT INFO
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.OptionsHeaderText:SetPoint ( "TOP" , GRM_UI.GRM_CoreFrame , 0 , - 30 );
@@ -7218,7 +7193,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
   
 
     -- LOG FONT SLIDER
-    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_ConfirmClearButton , "TOPRIGHT" , -5 , 15 );
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_ConfirmClearButton , "TOPRIGHT" , -40, 15 );
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText:SetText ( GRM.L ( "Font Scale:" ) );
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText:SetWordWrap ( true );
@@ -8814,6 +8789,30 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.PopulateMemberDetails ( GRM_G.currentName );
         end
     end);
+
+    -- no need to reset the frames if the UI is already loaded.
+    if not GRM_G.UIIsLoaded then
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralTab:LockHighlight();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UIOptionsFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ModulesFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame:Hide();
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame:SetAlpha ( 0 );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame:Hide();
+    end
+    
 end
 
 
