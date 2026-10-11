@@ -1,59 +1,140 @@
 local NamesTab = {};
 GRM_UI.NamesTab = NamesTab;
 
--- Dropdown Arrays
-local ddMainFormat = { "Smashy (Do not modify chat)", "Smashy <M>", "Smashy <Smashy>" }
-local ddAltFormat = { "Smashy (Do not modify chat)", "Smashy <A> (Arkaan <M>)", "Smashy <A>", "Smashy (Arkaan)", "Smashy <Arkaan>" }
-local ddNickMainFormat = { "Smashy (Boss)", "Smashy <Boss>", "Smashy ~Boss~", "*Boss* (Replace Name)" }
-local ddNickAltFormat = { "Smashy (Boss)", "Smashy <Boss>", "*Boss* (Replace Name)", "Smashy (Boss) <Arkaan>", "*Boss* <Arkaan>" }
+local playerClass = select(2,UnitClass("player"));
+local altClass = "HUNTER" ~= playerClass and "HUNTER" or "MAGE" -- Adjust classes if the same
+local nickClass = "WARRIOR" ~= playerClass and "WARRIOR" or "ROGUE"
+local mainName = GRM.GetClassColorRGB(playerClass, true) .. GRM.L("MainName") .. "|r";
+local altName = GRM.GetClassColorRGB(altClass, true) .. GRM.L("AltName") .. "|r";
+local nickName = GRM.GetClassColorRGB(nickClass, true) .. GRM.L("Nickname") .. "|r";
 
-NamesTab.BuildNamesTab = function()
-    GRM_UI.CreateCoreFrame("GRM_NamesOptionsFrame", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame, nil, GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H, nil, false, {"BOTTOMLEFT", "BOTTOMLEFT", 0, 0}, nil, false, false)
+-- Helper to grab the base dummy text for UI dropdown options
+NamesTab.GetPreview = function(type, index)
+    if type == "MAIN" then
+        return GRM.GetFormattedNameString(mainName, mainName, "", true, index)
+    elseif type == "ALT" then 
+        return GRM.GetFormattedNameString(altName, mainName, "", false, index)
+    elseif type == "NICKMAIN" then
+        return GRM.GetFormattedNameString(mainName, mainName, nickName, true, index)
+    elseif type == "NICKALT" then
+        return GRM.GetFormattedNameString(altName, mainName, nickName, false, index)
+    end
+    return ""
+end
+
+local GetPreviewList = function(type, index)
+    local l={}
+    for i = 1, index do
+        l[i] = NamesTab.GetPreview(type, i)
+    end
+    return l
+end
+
+local CloseOtherDropdowns = function(ind)
     local f = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
 
-    ---------------------------------------
-    -- SECTION 1 - STANDARD FORMATTING   --
-    ---------------------------------------
-    GRM_UI.CreateString("GRM_NameOptionsTitle", f, "GameFontNormal", GRM.L("Standard Name Formatting") .. ":", 20, {"TOPLEFT", f, "TOPLEFT", 18, -25}, nil, {0.0, 0.8, 1.0})
-    
-    -- Main 
-    GRM_UI.CreateString("GRM_MainFmtLbl", f, "GameFontWhite", GRM.L("Format for Mains:"), 12, {"TOPLEFT", f.GRM_NameOptionsTitle, "BOTTOMLEFT", 5, -15})
-    GRM_UI.CreateDropDownMenu("GRM_MainFormatDD", f, nil, {"TOPLEFT", f.GRM_MainFmtLbl, "BOTTOMLEFT", -5, -5}, {200, 25}, ddMainFormat, 12, {1,1,1}, nil, nil, function(idx) GRM.S().nameFormatMain = idx; NamesTab.UpdateText() end, nil, nil, true)
-    GRM_UI.CreateString("GRM_MainLivePreview", f, "GameFontWhite", "", 12, {"LEFT", f.GRM_MainFormatDDSelected, "RIGHT", 15, 0})
+    if not ind or ind ~= 1 then
+        f.GRM_MainTagDDMenu:Hide()
+    end
 
-    -- Alt 
-    GRM_UI.CreateString("GRM_AltFmtLbl", f, "GameFontWhite", GRM.L("Format for Alts:"), 12, {"TOPLEFT", f.GRM_MainFormatDDSelected, "BOTTOMLEFT", 5, -15})
-    GRM_UI.CreateDropDownMenu("GRM_AltFormatDD", f, nil, {"TOPLEFT", f.GRM_AltFmtLbl, "BOTTOMLEFT", -5, -5}, {200, 25}, ddAltFormat, 12, {1,1,1}, nil, nil, function(idx) GRM.S().nameFormatAlt = idx; NamesTab.UpdateText() end, nil, nil, true)
-    GRM_UI.CreateString("GRM_AltLivePreview", f, "GameFontWhite", "", 12, {"LEFT", f.GRM_AltFormatDDSelected, "RIGHT", 15, 0})
+    if not ind or ind ~= 2 then
+        f.GRM_AltTagDDMenu:Hide()
+    end
 
-    -- Color Picker for Standard Tags
-    GRM_UI.CreateString("GRM_StdColorLbl", f, "GameFontWhite", GRM.L("Standard Tag Color:"), 12, {"LEFT", f.GRM_AltLivePreview, "RIGHT", 25, 0})
-    GRM_UI.ColorPicker.CreateColorBox("GRM_MainColorPicker", f, 18, {"LEFT", f.GRM_StdColorLbl, "RIGHT", 10, 0}, GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b, function(r,g,b)
+    if not ind or ind ~= 3 then
+        f.GRM_MainFormatDDMenu:Hide()
+    end
+
+    if not ind or ind ~= 4 then
+        f.GRM_AltFormatDDMenu:Hide()
+    end
+
+    if not ind or ind ~= 5 then
+        f.GRM_NickMainFormatDDMenu:Hide()
+    end
+
+    if not ind or ind ~= 6 then
+        f.GRM_NickAltFormatDDMenu:Hide()
+    end
+end
+
+NamesTab.BuildNamesTab = function()
+    local OptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
+    GRM_UI.CreateCoreFrame("GRM_NamesOptionsFrame", OptionsFrame, nil, GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H, nil, false, {"BOTTOMLEFT", "BOTTOMLEFT", 0, 0}, nil, false, false)
+
+    local f = OptionsFrame.GRM_NamesOptionsFrame
+
+    ---------------------------------------
+    -- SECTION 1 - TAG FORMATTING        --
+    ---------------------------------------
+    GRM_UI.CreateString("GRM_TagOptionsTitle", f, "GameFontNormal", GRM.L("Tag Formatting") .. ":", 20, {"TOPLEFT", f, "TOPLEFT", 18, -30}, nil, {0.0, 0.8, 1.0})
+
+    -- Main & Alt Tag Dropdowns
+    GRM_UI.CreateString("GRM_MainTagLbl", f, "GameFontNormal", GRM.L("Main Tag") .. ":", 12, {"TOPLEFT", f.GRM_TagOptionsTitle, "BOTTOMLEFT", 5, -15})
+    GRM_UI.CreateDropDownMenu("GRM_MainTagDD", f, nil, {"LEFT", f.GRM_MainTagLbl, "RIGHT", 5, -2}, {60, 25}, GRM.GetMainTags(true), 12, {1,1,1}, nil, nil, function(idx) GRM.S().mainTagIndex = idx; NamesTab.UpdateText() end, nil, nil, true, function() CloseOtherDropdowns(1) end, 4)
+
+    GRM_UI.CreateString("GRM_AltTagLbl", f, "GameFontNormal", GRM.L("Alt Tag") .. ":", 12, {"LEFT", f.GRM_MainTagDDSelected, "RIGHT", 15, 2})
+    GRM_UI.CreateDropDownMenu("GRM_AltTagDD", f, nil, {"LEFT", f.GRM_AltTagLbl, "RIGHT", 5, -2}, {60, 25}, GRM.GetAltTags(true), 12, {1,1,1}, nil, nil, function(idx) GRM.S().altTagIndex = idx; NamesTab.UpdateText() end, nil, nil, true, function() CloseOtherDropdowns(2) end, 4)
+
+    -- Tag Color Picker
+    GRM_UI.CreateString("GRM_TagColorLbl", f, "GameFontNormal", GRM.L("Tag Color") .. ":", 12, {"LEFT", f.GRM_AltTagDDSelected, "RIGHT", 25, 2})
+    GRM_UI.ColorPicker.CreateColorBox("GRM_MainColorPicker", f, 18, {"LEFT", f.GRM_TagColorLbl, "RIGHT", 10, 0}, GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b,
+    function(r,g,b)
         GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b = r, g, b
+        if GRM.RefreshTagHexCode then
+            GRM.RefreshTagHexCode()
+        end
+        NamesTab.UpdateText()
+    end,
+    function()
+        CloseOtherDropdowns()
+    end
+    )
+
+    ---------------------------------------
+    -- SECTION 2 - STANDARD FORMATTING   --
+    ---------------------------------------
+    GRM_UI.CreateString("GRM_NameOptionsTitle", f, "GameFontNormal", GRM.L("Standard Name Formatting") .. ":", 20, {"TOPLEFT", f.GRM_MainTagLbl, "BOTTOMLEFT", -5, -20}, nil, {0.0, 0.8, 1.0})
+
+    -- Main 
+    GRM_UI.CreateString("GRM_MainFmtLbl", f, "GameFontNormal", GRM.L("Format for Mains") .. ":", 12, {"TOPLEFT", f.GRM_NameOptionsTitle, "BOTTOMLEFT", 5, -10})
+    GRM_UI.CreateDropDownMenu("GRM_MainFormatDD", f, nil, {"TOPLEFT", f.GRM_MainFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("MAIN", 2), 14, {1,1,1}, nil, nil, function(idx) GRM.S().nameFormatMain = idx; NamesTab.UpdateText() end, function() return GetPreviewList("MAIN", 2) end, nil, true, function() CloseOtherDropdowns(3) end, 4)
+    
+    -- Alt 
+    GRM_UI.CreateString("GRM_AltFmtLbl", f, "GameFontNormal", GRM.L("Format for Alts") .. ":", 12, {"TOPLEFT", f.GRM_MainFormatDDSelected, "BOTTOMLEFT", 5, -10})
+    GRM_UI.CreateDropDownMenu("GRM_AltFormatDD", f, nil, {"TOPLEFT", f.GRM_AltFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("ALT", 5), 14, {1,1,1}, nil, nil, function(idx) GRM.S().nameFormatAlt = idx; NamesTab.UpdateText() end, function() return GetPreviewList("ALT", 5) end, nil, true, function() CloseOtherDropdowns(4) end, 4)
+    
+    ---------------------------------------
+    -- SECTION 3 - NICKNAME FORMATTING   --
+    ---------------------------------------
+    GRM_UI.CreateString("GRM_NickOptionsTitle", f, "GameFontNormal", GRM.L("Nickname Formatting") .. ":", 20, {"TOPLEFT", f.GRM_AltFormatDDSelected, "BOTTOMLEFT", 0, -15}, nil, {0.0, 0.8, 1.0})
+
+    GRM_UI.CreateString("GRM_NickColorTitle", f, "GameFontNormal", GRM.L("Nickname Tag Color") .. ":", 12, {"TOPLEFT", f.GRM_NickOptionsTitle, "BOTTOMLEFT", 5, -15})
+    
+    local nickColorRadials = { GRM.L("Use Class Color"), GRM.L("Use Custom Color") }
+    GRM_UI.CreateRadialButtons("GRM_NickColor", f, nil, nickColorRadials, {"TOPLEFT", f.GRM_NickColorTitle, "BOTTOMLEFT", 0, -6}, false, true, 12, {1,0.82,0.0}, function(idx)
+        GRM.S().nicknameMatchClassColor = (idx == 1)
         NamesTab.UpdateText()
     end)
 
-    ---------------------------------------
-    -- SECTION 2 - NICKNAME FORMATTING   --
-    ---------------------------------------
-    GRM_UI.CreateString("GRM_NickOptionsTitle", f, "GameFontNormal", GRM.L("Nickname Formatting") .. ":", 20, {"TOPLEFT", f.GRM_AltFormatDDSelected, "BOTTOMLEFT", -5, -35}, nil, {0.0, 0.8, 1.0})
-
-    -- Nickname on Main 
-    GRM_UI.CreateString("GRM_NickMainFmtLbl", f, "GameFontWhite", GRM.L("Format for Mains with Nicknames:"), 12, {"TOPLEFT", f.GRM_NickOptionsTitle, "BOTTOMLEFT", 5, -15})
-    GRM_UI.CreateDropDownMenu("GRM_NickMainFormatDD", f, nil, {"TOPLEFT", f.GRM_NickMainFmtLbl, "BOTTOMLEFT", -5, -5}, {200, 25}, ddNickMainFormat, 12, {1,1,1}, nil, nil, function(idx) GRM.S().nicknameFormatMain = idx; NamesTab.UpdateText() end, nil, nil, true)
-    GRM_UI.CreateString("GRM_NickMainLivePreview", f, "GameFontWhite", "", 12, {"LEFT", f.GRM_NickMainFormatDDSelected, "RIGHT", 15, 0})
-
-    -- Nickname on Alt
-    GRM_UI.CreateString("GRM_NickAltFmtLbl", f, "GameFontWhite", GRM.L("Format for Alts with Nicknames:"), 12, {"TOPLEFT", f.GRM_NickMainFormatDDSelected, "BOTTOMLEFT", 5, -15})
-    GRM_UI.CreateDropDownMenu("GRM_NickAltFormatDD", f, nil, {"TOPLEFT", f.GRM_NickAltFmtLbl, "BOTTOMLEFT", -5, -5}, {200, 25}, ddNickAltFormat, 12, {1,1,1}, nil, nil, function(idx) GRM.S().nicknameFormatAlt = idx; NamesTab.UpdateText() end, nil, nil, true)
-    GRM_UI.CreateString("GRM_NickAltLivePreview", f, "GameFontWhite", "", 12, {"LEFT", f.GRM_NickAltFormatDDSelected, "RIGHT", 15, 0})
-
-    -- Color Picker for Nickname Tags
-    GRM_UI.CreateString("GRM_NickColorLbl", f, "GameFontWhite", GRM.L("Nickname Tag Color:"), 12, {"LEFT", f.GRM_NickAltLivePreview, "RIGHT", 25, 0})
-    GRM_UI.ColorPicker.CreateColorBox("GRM_NickColorPicker", f, 18, {"LEFT", f.GRM_NickColorLbl, "RIGHT", 10, 0}, GRM.S().nicknameTagColor.r, GRM.S().nicknameTagColor.g, GRM.S().nicknameTagColor.b, function(r,g,b)
+    -- Color Box Anchored to Radial 2
+    GRM_UI.ColorPicker.CreateColorBox("GRM_NickColorPicker", f, 18, {"LEFT", f.GRM_NickColorRadial2.GRM_NickColorRadial2Text, "RIGHT", 10, 0}, GRM.S().nicknameTagColor.r, GRM.S().nicknameTagColor.g, GRM.S().nicknameTagColor.b, function(r,g,b)
         GRM.S().nicknameTagColor.r, GRM.S().nicknameTagColor.g, GRM.S().nicknameTagColor.b = r, g, b
         NamesTab.UpdateText()
-    end)
+    end,
+    function()
+        CloseOtherDropdowns()
+    end
+    )
+
+    -- Nickname on Main 
+    GRM_UI.CreateString("GRM_NickMainFmtLbl", f, "GameFontNormal", GRM.L("Format for Mains with Nicknames") .. ":", 12, {"TOPLEFT", f.GRM_NickColorRadial2, "BOTTOMLEFT", 0, -15})
+    GRM_UI.CreateDropDownMenu("GRM_NickMainFormatDD", f, nil, {"TOPLEFT", f.GRM_NickMainFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("NICKMAIN", 6), 12, {1,1,1}, nil, nil, function(idx) GRM.S().nicknameFormatMain = idx; NamesTab.UpdateText(); end, function() return GetPreviewList("NICKMAIN", 7) end, nil, true, function() CloseOtherDropdowns(5) end, 4)
+    
+    -- Nickname on Alt
+    GRM_UI.CreateString("GRM_NickAltFmtLbl", f, "GameFontNormal", GRM.L("Format for Alts with Nicknames") .. ":", 12, {"TOPLEFT", f.GRM_NickMainFormatDDSelected, "BOTTOMLEFT", 5, -10})
+    GRM_UI.CreateDropDownMenu("GRM_NickAltFormatDD", f, nil, {"TOPLEFT", f.GRM_NickAltFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("NICKALT", 7), 12, {1,1,1}, nil, nil, function(idx) GRM.S().nicknameFormatAlt = idx; NamesTab.UpdateText(); end, function() return GetPreviewList("NICKALT", 8) end, nil, true, function() CloseOtherDropdowns(6) end, 4)
+
 
     f:SetScript("OnShow", function()
         GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES
@@ -66,15 +147,31 @@ end
 NamesTab.UpdateText = function()
     local f = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_NamesOptionsFrame
 
-    -- Dropdown Texts
-    f.GRM_MainFormatDDSelected.GRM_MainFormatDDSelectedText:SetText(ddMainFormat[GRM.S().nameFormatMain] or ddMainFormat[1])
-    f.GRM_AltFormatDDSelected.GRM_AltFormatDDSelectedText:SetText(ddAltFormat[GRM.S().nameFormatAlt] or ddAltFormat[2])
-    f.GRM_NickMainFormatDDSelected.GRM_NickMainFormatDDSelectedText:SetText(ddNickMainFormat[GRM.S().nicknameFormatMain] or ddNickMainFormat[1])
-    f.GRM_NickAltFormatDDSelected.GRM_NickAltFormatDDSelectedText:SetText(ddNickAltFormat[GRM.S().nicknameFormatAlt] or ddNickAltFormat[1])
+    -- Sync Radials & UI states
+    f.GRM_NickColorRadial1:SetChecked(GRM.S().nicknameMatchClassColor)
+    f.GRM_NickColorRadial2:SetChecked(not GRM.S().nicknameMatchClassColor)
+    
+    if GRM.S().nicknameMatchClassColor then
+        f.GRM_NickColorPicker:Hide()
+    else
+        f.GRM_NickColorPicker:Show()
+    end
 
-    -- Live Previews
-    f.GRM_MainLivePreview:SetText("[Guild] [" .. GRM_Name.GetFormattedNameString("Smashy", "Smashy", "", true) .. "]: Hello!")
-    f.GRM_AltLivePreview:SetText("[Guild] [" .. GRM_Name.GetFormattedNameString("Smashy", "Arkaan", "", false) .. "]: Hello!")
-    f.GRM_NickMainLivePreview:SetText("[Guild] [" .. GRM_Name.GetFormattedNameString("Smashy", "Smashy", "Boss", true) .. "]: Hello!")
-    f.GRM_NickAltLivePreview:SetText("[Guild] [" .. GRM_Name.GetFormattedNameString("Smashy", "Arkaan", "Boss", false) .. "]: Hello!")
+    f.GRM_MainTagDDSelected.GRM_MainTagDDSelectedText:SetText(GRM.GetMainTags(false, GRM.S().mainTagIndex))
+    f.GRM_AltTagDDSelected.GRM_AltTagDDSelectedText:SetText(GRM.GetAltTags(false, GRM.S().altTagIndex))
+    
+    -- We pass the original names, but the GetPreview helper applies the wrappers!
+    f.GRM_MainFormatDDSelected.GRM_MainFormatDDSelectedText:SetText(NamesTab.GetPreview("MAIN", GRM.S().nameFormatMain))
+    f.GRM_AltFormatDDSelected.GRM_AltFormatDDSelectedText:SetText(NamesTab.GetPreview("ALT", GRM.S().nameFormatAlt))
+    f.GRM_NickMainFormatDDSelected.GRM_NickMainFormatDDSelectedText:SetText(NamesTab.GetPreview("NICKMAIN", GRM.S().nicknameFormatMain))
+    f.GRM_NickAltFormatDDSelected.GRM_NickAltFormatDDSelectedText:SetText(NamesTab.GetPreview("NICKALT", GRM.S().nicknameFormatAlt))
+
+    -- Update the Color Picker Textures directly! (Just like the Log color boxes)
+    local c1 = GRM.S().mainTagColor
+    f.GRM_MainColorPicker.texture:SetColorTexture(c1.r, c1.g, c1.b, 1.0)
+    f.GRM_MainTagDDSelected.GRM_MainTagDDSelectedText:SetTextColor(c1.r, c1.g, c1.b);
+    f.GRM_AltTagDDSelected.GRM_AltTagDDSelectedText:SetTextColor(c1.r, c1.g, c1.b);
+    
+    local c2 = GRM.S().nicknameTagColor
+    f.GRM_NickColorPicker.texture:SetColorTexture(c2.r, c2.g, c2.b, 1.0)
 end

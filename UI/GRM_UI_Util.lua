@@ -39,6 +39,16 @@ GRM_UI_Util.GetBackdrop = function ( index )
             insets = { left = -2 , right = -2 , top = -3 , bottom = -2 }
         }
 
+    elseif index == 4 then
+        return {
+            bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+            edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+            tile = true,
+            tileSize = 32,
+            edgeSize = 9,
+            insets = { left = 2 , right = 2 , top = 3 , bottom = 2 }
+        }
+
     end
 
     -- Default return if you get here (notebackdrop1)

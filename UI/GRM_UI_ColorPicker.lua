@@ -41,23 +41,12 @@ ColorPicker.Open = function(r, g, b, onColorChangeCallback)
         ColorPickerFrame:Show()
     end
 
-    -- -- Compatibility resizing
-    -- if GRM.IsAddOnLoaded("ColorPickerPlus") then
-    --     ColorPickerFrame:SetSize(380, 380)
-    -- elseif GRM.IsAddOnLoaded("ColorPickerAdvanced") then
-    --     ColorPickerFrame.hasOpacity = true;
-    --     ColorPickerFrame.opacity = 1
-    -- elseif GRM.IsAddOnLoaded("ElvUI") then
-    --     ColorPickerFrame:SetSize(345, 240)
-    -- else
-    --     ColorPickerFrame:SetSize(305, 230)
-    -- end
 end
 
--- Method:          ColorPicker.CreateColorBox(string, frame, int, table, float, float, float, function)
+-- Method:          ColorPicker.CreateColorBox(string, frame, int, table, float, float, float, function, function)
 -- What it Does:    Creates a universal, clickable color swatch box.
 -- Purpose:         Instantly generates a color picker box without needing custom tracking variables. Hooks Blizz default color box
-ColorPicker.CreateColorBox = function(name, parentFrame, size, points, initialR, initialG, initialB, onColorUpdateCallback)
+ColorPicker.CreateColorBox = function(name, parentFrame, size, points, initialR, initialG, initialB, onColorUpdateCallback, OnClickFunction )
     if not parentFrame[name] then
         parentFrame[name] = CreateFrame("Frame", name, parentFrame, BackdropTemplateMixin and "BackdropTemplate")
         parentFrame[name]:SetSize(size, size)
@@ -94,9 +83,18 @@ ColorPicker.CreateColorBox = function(name, parentFrame, size, points, initialR,
                     if onColorUpdateCallback then
                         onColorUpdateCallback(newR, newG, newB)
                     end 
+
+                    if OnClickFunction then
+                        OnClickFunction()
+                    end
+
                 end)
             end
         end)
+
+        if OnClickFunction then
+            
+        end
     end
 
     -- Set the initial color
@@ -133,7 +131,7 @@ ColorPicker.BuildAllSideFrameColorBoxes = function()
                 
                 -- Hardcore hex specific
                 if i == 15 and GRM_G.HardcoreActive then
-                    GRM_G.HardcoreHexCode = GRM.rgbToHex({GRM.ConvertRGBScale(r, true), GRM.ConvertRGBScale(g, true), GRM.ConvertRGBScale(b, true)})
+                    GRM_G.HardcoreHexCode = GRM.Util.rgbToHex({r, g, b})
                 end
 
                 -- Update the text label visually

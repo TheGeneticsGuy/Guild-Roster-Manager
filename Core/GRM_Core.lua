@@ -2246,7 +2246,7 @@ GRM.SetSystemMessageFilter = function(_, _, msg, ...)
                 -- Normal System message... Let's add the main tags...
             elseif not GRM_G.MainNameSystemMsgControl then -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
                 if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() and
-                    ((GRM_G.MainTagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
+                    ((GRM_G.TagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
                     if string.find(msg, GRM.L("has come online.")) ~= nil then
                         GRM.GuildRoster();
                         msg = GRM.AddMainTagToComeOnlineSystemMessage(msg);
@@ -2369,7 +2369,7 @@ GRM.SystemMessageHandler = function(_, _, msg)
                     -- Normal System message... Let's add the main tags...
                 elseif not GRM_G.MainNameSystemMsgControl then -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
                     if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() and
-                        ((GRM_G.MainTagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
+                        ((GRM_G.TagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
                         if string.find(msg, GRM.L("has come online.")) ~= nil then
                             GRM.GuildRoster();
                             msg = GRM.AddMainTagToComeOnlineSystemMessage(msg);
@@ -2648,16 +2648,16 @@ GRM.AddMainTagToComeOnlineSystemMessage = function(msg)
                 classColor = GRM.GetStringClassColorByName(fullName);
             end
 
-            if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+            if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
 
                 if GRM.IsMain ( fullName ) then
 
-                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.MainTagHexCode .. mainTag .. "|r " .. GRM.L("has come online.");
+                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. mainTag .. "|r " .. GRM.L("has come online.");
 
                 elseif GRM.PlayerIsAnAlt(player) and not GRM.S().showMainName then -- Only show tag if NOT showing main
                     -- Has alts, but is not the main.
 
-                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.MainTagHexCode .. altTag .. "|r " .. GRM.L("has come online.");
+                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. altTag .. "|r " .. GRM.L("has come online.");
 
                 end
             end
@@ -2669,8 +2669,8 @@ GRM.AddMainTagToComeOnlineSystemMessage = function(msg)
                     local mainColoring = GRM.GetStringClassColorByName(mainName);
                     mainName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
 
-                    if ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
-                        mainName = mainName .. " " .. GRM_G.MainTagHexCode .. mainTag .. "|r";
+                    if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
+                        mainName = mainName .. " " .. GRM_G.TagHexCode .. mainTag .. "|r";
                     end
 
                     if tempName ~= "" then
@@ -2715,7 +2715,7 @@ GRM.AddMainTagToGoneOfflineSystemMessage = function(msg)
 
         fullName = GRM.AppendServerName(string.sub(msg, 1, breakIndex - 1));
 
-        if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+        if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
             local mainName = GRM.GetFormattedMainName(fullName, false);
 
             if mainName ~= "" then
@@ -2727,7 +2727,7 @@ GRM.AddMainTagToGoneOfflineSystemMessage = function(msg)
                 end
             end
 
-        elseif ( GRM.S().useMainTag and GRM_G.MainTagHexCode ~= "" ) then
+        elseif ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
             local showAltTag = false;
             local player = GRM.GetPlayer(fullName);
 
@@ -4037,8 +4037,8 @@ GRM.GetNameWithMainTags = function(name, slimName, includeMainOnAlts, includeAlt
 
     if player then
         name = GRM.GetClassifiedName(name , slimName)
-        if GRM_G.MainTagHexCode ~= "" then
-            local hexCode = GRM_G.MainTagHexCode;
+        if GRM_G.TagHexCode ~= "" then
+            local hexCode = GRM_G.TagHexCode;
             local mainDisplay = GRM.GetMainTags(false, GRM.S().mainTagIndex);
             local altDisplay = GRM.GetAltTags(false, GRM.S().mainTagIndex);
 
@@ -4143,70 +4143,6 @@ GRM.AddMainToChat = function(chatFrame, event, msg, sender, ...)
         end
     end
     return false, msg, sender, ...
-end
-
--- Method:          GRM.RefreshMainTagHexCode()
--- What it Does:    Reconverts the RGB values, scales then, then converts to hexcode
--- Purpose:         So, this only needs to be configured one time on load, or when the player updates the settings.
-GRM.RefreshMainTagHexCode = function()
-
-    GRM_G.MainTagHexCode = GRM.rgbToHex({GRM.ConvertRGBScale(GRM.S().mainTagColor.r, true),
-                                         GRM.ConvertRGBScale(GRM.S().mainTagColor.g, true),
-                                         GRM.ConvertRGBScale(GRM.S().mainTagColor.b, true)});
-
-    GRM_G.mainTag = GRM.GetCurrentMainTag();
-    GRM_G.altTag = GRM.GetCurrentAltTag();
-end
-
--- Method:          GRM.GetMainTags();
--- What it Does:    Returns the table of potential main tags
--- Purpose:         For easy marking of alts/mains in gchat.
-GRM.GetMainTags = function(returnTable, index)
-    local tags = {"<" .. GRM.L("M") .. ">", "(" .. GRM.L("M") .. ")", "<" .. GRM.L("Main") .. ">",
-                  "(" .. GRM.L("Main") .. ")", "[" .. GRM.L("Main") .. "]", "[" .. GRM.L("M") .. "]", ""};
-    if returnTable then
-        return tags;
-    else
-        return tags[index];
-    end
-end
-
--- Method:          GRM.GetAltTags();
--- What it Does:    Returns the table of potential main tags
--- Purpose:         For easy marking of alts/mains in gchat.
-GRM.GetAltTags = function(returnTable, index)
-    local tags = {"<" .. GRM.L("A") .. ">", "(" .. GRM.L("A") .. ")", "<" .. GRM.L("Alt") .. ">",
-                  "(" .. GRM.L("Alt") .. ")", "[" .. GRM.L("Alt") .. "]", "[" .. GRM.L("A") .. "]", ""};
-    if returnTable then
-        return tags;
-    else
-        return tags[index];
-    end
-end
-
--- Method:          GRM.GetCurrentMainTag()
--- What it Does:    Returns the string, properly colored, of current main tag
--- Purpose:         Quality of life UI feature showing main tags.
-GRM.GetCurrentMainTag = function()
-    return GRM_G.MainTagHexCode .. GRM.GetMainTags(false, GRM.S().mainTagIndex) .. "|r";
-end
-
--- Method:          GRM.GetCurrentAltTag()
--- What it Does:    Returns the string, properly colored, of current alt tag
--- Purpose:         Quality of life UI feature showing alt tags.
-GRM.GetCurrentAltTag = function()
-    return GRM_G.MainTagHexCode .. GRM.GetAltTags(false, GRM.S().mainTagIndex) .. "|r";
-end
-
--- Method:          GRM.RemoveMainAltTags ( string )
--- What it Does:    takes the name, and parses out both the string coloring and the main tag. There is ALWAYS hexcode, so "|" can be found.
--- Purpose:         Add Alt window has the tags added, this just retroactively removes them.
-GRM.RemoveMainAltTags = function(text)
-    local index = string.find(text, "|")
-    if index ~= nil then
-        text = string.sub(text, 1, index - 1);
-    end
-    return GRM.Util.Trim(text);
 end
 
 -- Method:          GRM.RemoveHexCodeColoringFromString ( string )
@@ -5659,46 +5595,6 @@ GRM.GetClassifiedName = function(playerFullName, removeServer)
         end
     end
     return result
-end
-
--- Method:          GRM.rgbToHex ( array )
--- What it Does:    Returns the hexadecimal code in modified string format for WOW addons to display the string that given rgb color
--- Purpose:         UI feature for easy fontstring coloring management.
-GRM.rgbToHex = function(rgbTable)
-    local hexadec = ""
-    for i = 1, #rgbTable do
-        local hex = "";
-
-        -- Hexadecimal algorithm
-        while (rgbTable[i] > 0) do
-            local index = math.fmod(rgbTable[i], 16) + 1;
-            rgbTable[i] = math.floor(rgbTable[i] / 16);
-            hex = string.sub("0123456789ABCDEF", index, index) .. hex;
-        end
-
-        if #hex == 0 then
-            hex = "00";
-        elseif #hex == 1 then
-            hex = "0" .. hex;
-        end
-
-        hexadec = hexadec .. hex
-    end
-    -- add the |CFF so the warcraft game knows to acknowledge the hex code
-    return "|CFF" .. hexadec;
-end
-
--- Method:          ConvertRGBScale ( float , boolean )
--- What it Does:    Converts any RGB values on 1.0 scale to 255 scale, or the other way around
--- Purpose:         255 is standard RGB scaling, which I am personally comfortable with, but Blizz's internal system uses 1.0 scale. This is just QoL
-GRM.ConvertRGBScale = function(value, to255)
-    -- 1.0 scale to 255 scale
-    if to255 then
-        value = math.floor((value * 255) + 0.5);
-    else
-        value = value / 255;
-    end
-    return value
 end
 
 -----------------------------------
@@ -8929,12 +8825,12 @@ GRM.GetLeveledString = function(simpleName, milestoneLevel, level, numGained, da
 
             local mainDisplay = GRM.GetMainTags(false, GRM.S().mainTagIndex);
             if GRM.IsMain(player.name) then
-                simpleName = simpleName .. " " .. GRM_G.MainTagHexCode .. mainDisplay .. "|r";
+                simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r";
             else
 
                 local altGroup = GRM.GetAltGroup(player.altGroup);
                 if GRM.PlayerHasAlts(player) and altGroup.main ~= "" then
-                    simpleName = simpleName .. " " .. GRM_G.MainTagHexCode .. mainDisplay .. "|r (" ..
+                    simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r (" ..
                                      GRM.GetStringClassColorByName(altGroup.main) .. GRM.SlimName(altGroup.main) ..
                                      "|r)";
                 end
@@ -9265,7 +9161,7 @@ GRM.GetLeftOrKickString = function(unitName, playerWasKicked, timePassed, logEnt
         end
 
         result = result .. "\n|CFFFFFFFF" .. GRM.L("{name} is listed as the Main",
-            name .. " " .. GRM_G.MainTagHexCode .. GRM.GetMainTags(false, GRM.S().mainTagIndex) .. "|r");
+            name .. " " .. GRM_G.TagHexCode .. GRM.GetMainTags(false, GRM.S().mainTagIndex) .. "|r");
     end
 
     if timePassed ~= "" then
@@ -15208,9 +15104,7 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
 
                     end
 
-                    GRM_G.TempBanTarget = {fullName,
-                                           {GRM.ConvertRGBScale(R, true), GRM.ConvertRGBScale(G, true),
-                                            GRM.ConvertRGBScale(B, true)}}; -- Need to parse out the "(Still in Guild)"
+                    GRM_G.TempBanTarget = {fullName, {R, G, B}}; -- Need to parse out the "(Still in Guild)"
                 end
             end
         end);

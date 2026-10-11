@@ -1551,7 +1551,7 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
     end
 
     if GRM_G.HardcoreActive then
-        GRM_G.HardcoreHexCode = GRM.rgbToHex ( { GRM.ConvertRGBScale ( GRM.S().logColor[15][1] , true ) , GRM.ConvertRGBScale ( GRM.S().logColor[15][2] , true ) , GRM.ConvertRGBScale ( GRM.S().logColor[15][3] , true ) } );
+        GRM_G.HardcoreHexCode = GRM.Util.rgbToHex ( { GRM.S().logColor[15][1], GRM.S().logColor[15][2] , GRM.S().logColor[15][3] } );
     end
 
     if showAll and fullRefresh then

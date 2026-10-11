@@ -342,18 +342,20 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
     elseif page == 17 then
         player.showMainName = true;
         player.useMainTag = true;
-        player.mainTagIndex = 2;
 
-        player.showNickname = false;
-        player.showNicknameNotMain = true;
-        -- player.ShowNicknameToAll = true; -- TO DELETE
+        -- player.showNickname = false;         -- TO DELETE
+        -- player.showNicknameNotMain = true;   -- TO DELETE
+        -- player.ShowNicknameToAll = true;     -- TO DELETE
 
-        player.nameFormatMain = 1
-        player.nameFormatAlt = 2
+        player.mainTagIndex = 1
+        player.altTagIndex = 1
+        player.nameFormatMain = 2
+        player.nameFormatAlt = 4
         player.nicknameFormatMain = 1
         player.nicknameFormatAlt = 1
-        player.mainTagColor = { r = 1.0, g = 1.0, b = 1.0 }
+        player.mainTagColor = { r = 1.0, g = 0.0, b = 0.0 }  -- RESET TO DEFAULT
         player.nicknameTagColor = { r = 0.0, g = 0.8, b = 1.0 }
+        player.nicknameMatchClassColor = true
 
     end
 
@@ -547,7 +549,7 @@ GRM_S.GuildSpecificConfigurations = function()
         -- GRM_UI.CoreSyncTrackerInit();
         -- Register window to save data to.
         GRM.SetReportWindow();
-        GRM.RefreshMainTagHexCode();
+        GRM.RefreshTagHexCode();
         -- The Tag Headers
         GRM.SetJoinAndRejoinTags();
         -- General one-time configurations
@@ -781,7 +783,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
 
         GRM_UI.CorePositionInit();
         GRM_UI.CoreToolPositionInit();
-        GRM.RefreshMainTagHexCode();
+        GRM.RefreshTagHexCode();
         GRM.SetReportWindow();
         GRM.Scan.RefreshNumberOfHoursTilRecommend();
     end

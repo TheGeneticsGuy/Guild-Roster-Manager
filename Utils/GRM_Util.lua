@@ -355,3 +355,33 @@ Util.GetWordArrayFromString = function(text, divider)
     end
     return result;
 end
+
+-- Method:          Util.rgbToHex ( array )
+-- What it Does:    Returns the hexadecimal code in modified string format for WOW addons to display the string that given rgb color
+-- Purpose:         UI feature for easy fontstring coloring management.
+Util.rgbToHex = function(rgbTable)
+    local hexadec = ""
+
+    for i = 1, #rgbTable do
+        local hex = "";
+        -- Need to convert WOW 1.0 scale to 255 scale for hex conversion
+        rgbTable[i] = math.floor((rgbTable[i] * 255) + 0.5)
+
+        -- Hexadecimal algorithm
+        while (rgbTable[i] > 0) do
+            local index = math.fmod(rgbTable[i], 16) + 1;
+            rgbTable[i] = math.floor(rgbTable[i] / 16);
+            hex = string.sub("0123456789ABCDEF", index, index) .. hex;
+        end
+
+        if #hex == 0 then
+            hex = "00";
+        elseif #hex == 1 then
+            hex = "0" .. hex;
+        end
+
+        hexadec = hexadec .. hex
+    end
+    -- add the |CFF so the warcraft game knows to acknowledge the hex code
+    return "|CFF" .. hexadec;
+end

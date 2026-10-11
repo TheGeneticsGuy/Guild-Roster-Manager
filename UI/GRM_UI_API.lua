@@ -761,7 +761,8 @@ end
 -- Purpose:         To create a generic, reusable dropdown menus
 GRM_UI.CreateDropDownMenu = function ( name, parentFrame, template, point, size, list, fontSize ,
                                        textColor, toolTipScript, toolTipClearScript, optionalSelectFunction,
-                                       optionalListUpdateFunction, optionalTextFilteringFunction, includeEscapeAction )
+                                       optionalListUpdateFunction, optionalTextFilteringFunction, includeEscapeAction,
+                                       OnClickSelectedFunction, backdropVersion )
 
     local selectedFrame = name .. "Selected";
     local selectedFrameText = selectedFrame .. "Text";
@@ -771,6 +772,7 @@ GRM_UI.CreateDropDownMenu = function ( name, parentFrame, template, point, size,
         local template = template or "BackdropTemplate"
         local menuFrame = name .. "Menu";
         local textColor = textColor or { 1 , 1 , 1 };
+        backdropVersion = backdropVersion or 1;
 
         local BuildDropDown = function()
             BuildDropDownOptions( list , parentFrame[menuFrame], parentFrame[selectedFrame], parentFrame[selectedFrame][selectedFrameText],
@@ -796,12 +798,12 @@ GRM_UI.CreateDropDownMenu = function ( name, parentFrame, template, point, size,
         end
 
         parentFrame[selectedFrame]:SetFrameStrata ( "DIALOG" );
-        parentFrame[selectedFrame]:SetBackdrop ( GRM_UI_Util.GetBackdrop(1) );
+        parentFrame[selectedFrame]:SetBackdrop ( GRM_UI_Util.GetBackdrop(backdropVersion) );
         parentFrame[selectedFrame][selectedFrameText]:SetPoint ( "CENTER" , parentFrame[selectedFrame] );
         parentFrame[selectedFrame][selectedFrameText]:SetTextColor ( textColor[1] , textColor[2] , textColor[3] );
         parentFrame[menuFrame]:SetFrameStrata ( "DIALOG" );
         parentFrame[menuFrame]:SetPoint ( "TOP" , parentFrame[selectedFrame] , "BOTTOM" );
-        parentFrame[menuFrame]:SetBackdrop ( GRM_UI_Util.GetBackdrop(1) );
+        parentFrame[menuFrame]:SetBackdrop ( GRM_UI_Util.GetBackdrop(backdropVersion) );
 
         -- Function and logic
         if toolTipScript then
@@ -852,6 +854,9 @@ GRM_UI.CreateDropDownMenu = function ( name, parentFrame, template, point, size,
                 else
                     BuildDropDown();
                     parentFrame[menuFrame]:Show();
+                    if OnClickSelectedFunction then
+                        OnClickSelectedFunction();
+                    end
                 end
             end
         end);
