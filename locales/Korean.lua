@@ -335,7 +335,6 @@ GRML.Korean = function()
     GRM_L["{name}'s saved data has been wiped!"] = true
     GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = true
     GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = true
-    GRM_L["There are No Log Entries to Delete, silly {name}!"] = true
     GRM_L["Guild Log has been RESET!"] = true
     GRM_L["{name} is now set as \"main\""] = true
     GRM_L["{name} is no longer set as \"main\""] = true

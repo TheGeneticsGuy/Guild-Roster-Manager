@@ -893,7 +893,7 @@ DD.PopulateLanguageDropdown = function()
                 GRM.ReprocessAllLogEntriesToCurrentLanguage();
 
                 if #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons > 0 then
-                    GRM.ResetLogStringPoints(GRM.S().showLineNumbers);
+                    GRM.Log.ResetLogStringPoints(GRM.S().showLineNumbers);
                 end
             end
         end);
@@ -1178,7 +1178,6 @@ end
 -- What it Does:    Builds the final rank drop down product for options panel
 -- Purpose:         UI Feature for options to be able to filter who you will accept shared data from.
 DD.CreateOptionsRankDropDown = function()
-    print("Building UI Dropdown menus")
     DD.PopulateOptionsRankDropDown();
     DD.PopulateBanListOptionsDropDown();
     DD.PopulateDefaultDropDownRankMenu();

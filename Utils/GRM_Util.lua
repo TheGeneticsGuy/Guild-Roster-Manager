@@ -385,3 +385,55 @@ Util.rgbToHex = function(rgbTable)
     -- add the |CFF so the warcraft game knows to acknowledge the hex code
     return "|CFF" .. hexadec;
 end
+
+-- Method:          Util.AllignTwoColumns ( array , int )
+-- What it Does:    Takes the array of strings and then alligns them by fontsize and width...
+-- Purpose:         For UI aesthetics and allignment purposes
+Util.AllignTwoColumns = function(listOfStrings, spacing)
+    -- First, determine longest string width of headers
+    local result = "\n";
+    local modifier = 7;
+    local size = 17.08;
+    local longest_ind = 2;
+
+    if GRM.S().showLineNumbers then
+        modifier = 8.5;
+    end
+
+    GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetFont(GRM_G.FontChoice, GRM.S().logFontSize + size - modifier); -- Reset it in case it has changed.
+    GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetText(listOfStrings[1][1]); -- need to set string to measurable value
+    local longestW = GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetWidth();
+    for i = 2, #listOfStrings do
+        GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetText(listOfStrings[i][1]);
+        local tempW = GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetWidth();
+        if tempW > longestW then
+            longestW = tempW;
+            longest_ind = i;
+        end
+    end
+
+    -- Now, establish the total necessary width - We are setting spacing at 5.
+    longestW = longestW + spacing;
+    for i = 1, #listOfStrings do
+        GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetText(listOfStrings[i][1]);
+        while GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetWidth() < longestW do
+            GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetText(
+                GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetText() .. " "); -- Keep adding spaces until it matches
+        end
+
+        if longest_ind == i then
+            GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:SetText(
+                GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetText() .. "   "); -- Longest needs some white space added to compensate the fuzzy width comparisons
+        end
+
+        if listOfStrings[i][2] ~= nil then
+            result = result .. GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetText() .. listOfStrings[i][2];
+        else
+            result = result .. GRM_UI.GRM_GroupInfo.InvisFontStringWidthCheck:GetText() .. GRM.L("Unknown"); -- Error protection if importing nil value
+        end
+        if i ~= #listOfStrings then
+            result = result .. "\n";
+        end
+    end
+    return result;
+end

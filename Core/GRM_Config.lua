@@ -89,7 +89,7 @@ GRM.DelayForGuildInfoCallback = function()
                 GRM_G.secretValueOnLoadDelay = true
                 GRM.SecretValueLoadDelayHandler();
             else
-                GRM.SetGuildInfoDetails();
+                GRM_Sys.SetGuildInfoDetails();
                 GRM.GuildRoster();
                 if GRM_G.RestrictionAnnounced then
                     GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
@@ -118,44 +118,6 @@ GRM.DelayForGuildInfoCallback = function()
         GRM.TrackingConfiguration(false);
     end
 end 
-
-GRM_G.mainTagEvents = {
-    CHAT_MSG_GUILD                 = true,
-    CHAT_MSG_WHISPER               = true,
-    CHAT_MSG_GUILD_ACHIEVEMENT     = true,
-    CHAT_MSG_PARTY                 = true,
-    CHAT_MSG_PARTY_LEADER          = true,
-    CHAT_MSG_RAID                  = true,
-    CHAT_MSG_RAID_LEADER           = true,
-    CHAT_MSG_INSTANCE_CHAT         = true,
-    CHAT_MSG_INSTANCE_CHAT_LEADER  = true,
-    CHAT_MSG_OFFICER               = true,
-}
-
--- Method:          GRM.MessageHookControl()
--- What it Does:    Handles some communications issues with the chat so that the main tags can be hooked into and edited
--- Purpose:         Message editing of GRM tags
-GRM.MessageHookControl = function()
-
-    if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
-        for chat_event in pairs(GRM_G.mainTagEvents) do
-            ChatFrame_AddMessageEventFilter(chat_event, GRM.AddMainToChat);
-        end
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
-        GRM_G.MainHookConfigured = true;
-    end
-
-end
-
--- Method:          GRM.SystemMessageHookControl()
--- What it Does:    Checks to ensure script modification happens at the end of the sequential table to ensure all addon compatibility
--- Purpose:         Quality of life - prevent frustration for other addon devs
-GRM.SystemMessageHookControl = function()
-    if (time() - GRMsyncGlobals.timeAtLogin) < 30 then
-        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM.SetSystemMessageFilter);
-    end
-end
 
 -- Method:          GRM.LoadAddon()
 -- What it Does:    Enables tracking of when a player joins the guild or leaves the guild. Also fires upon login.
@@ -191,7 +153,7 @@ GRM.LoadAddon = function()
 
     -- Speecial handler in case system messages disabled, so instead of filtering, we just listen
     SystemMessageChecking:RegisterEvent("CHAT_MSG_SYSTEM");
-    SystemMessageChecking:SetScript("OnEvent", GRM.SystemMessageHandler);
+    SystemMessageChecking:SetScript("OnEvent", GRM_Sys.SystemMessageHandler);
 
     if GRM_G.BuildVersion < 40000 and GRM_G.BuildVersion >= 30000 then
         -- Achievements are broken in WotLK classic - so don't announce for modern versions or it'll duplicate
@@ -215,7 +177,7 @@ GRM.LoadAddon = function()
 
     -- Initialize chat tagging
     if IsInGuild() then
-        GRM.MessageHookControl();
+        GRM_Sys.MessageHookControl();
     end
 
     -- Quick Version Check
@@ -285,7 +247,7 @@ GRM.ReactivateAddon = function()
     C_Timer.After(5, GRM.Util.RegisterGuildChatPermission);
 
     GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
-    GRM.SetGuildInfoDetails();
+    GRM_Sys.SetGuildInfoDetails();
     QueryGuildEventLog();
 
     if not GRM.S() then

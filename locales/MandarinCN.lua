@@ -335,7 +335,6 @@ GRML.MandarinCN = function()
     GRM_L["{name}'s saved data has been wiped!"] = "{name}的数据已被清除!"
     GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "正在清除账号的所有成员信息! 重新建立数据库..."
     GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "正在清除所有公会信息! 重新建立数据库..."
-    GRM_L["There are No Log Entries to Delete, silly {name}!"] = "没有日志项可以删除, {name}好笨哦!"
     GRM_L["Guild Log has been RESET!"] = "公会日志已重置!"
     GRM_L["{name} is now set as \"main\""] = "{name}已被设为\"主号\""
     GRM_L["{name} is no longer set as \"main\""] = "{name}不再是\"主号\""

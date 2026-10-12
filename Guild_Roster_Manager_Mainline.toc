@@ -23,6 +23,7 @@ Modules\GRM_WebApps.lua
 Utils\GRM_G_Util.lua
 Utils\GRM_Util.lua
 Utils\GRM_Name.lua
+Utils\GRM_SysMsgHandler.lua
 Core\GRM_Global_Control.lua
 
 Modules\GRM_AltManagement.lua

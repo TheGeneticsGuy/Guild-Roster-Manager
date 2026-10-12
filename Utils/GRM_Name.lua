@@ -4,9 +4,35 @@ local IsNameColorized = function(name)
     return name:find("^|cff") ~= nil
 end
 
--- Method:          GRM.GetFormattedNameString
+-- Helper to grab the bracket wrapper
+local WrapByTag = function(text, index)
+    if index == 1 then return "<" .. text .. ">" end
+    if index == 2 then return "(" .. text .. ")" end
+    if index == 3 then return "[" .. text .. "]" end
+    return text
+end
+
+-- Wrapping nickname with the proper tag
+local WrapByNickTag = function(text, index)
+    if index == 1 then return "~" .. text .. "~" end
+    if index == 2 then return "**" .. text .. "**" end
+    if index == 3 then return "*" .. text .. "*" end
+    return text
+end
+
+-- Helper on main tag
+local GetCurrentMainTag = function()
+    return GRM_G.TagHexCode .. GRM_Name.GetMainTags(false, GRM.S().mainTagIndex) .. "|r";
+end
+
+-- Herlper on alt tag
+local GetCurrentAltTag = function()
+    return GRM_G.TagHexCode .. GRM_Name.GetAltTags(false, GRM.S().mainTagIndex) .. "|r";
+end
+
+-- Method:          GRM_Name.GetFormattedNameString
 -- What it Does:    Builds the chat string dynamically based on the 4 dropdown settings.
-GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, index)
+GRM_Name.GetFormattedNameString = function(toonName, mainName, nickname, isMain, index)
     local s = GRM.S()
 
     toonName = IsNameColorized(toonName) and toonName or GRM.GetClassifiedName(toonName,false)
@@ -19,8 +45,8 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
     local c2 = GRM.Util.rgbToHex({s.nicknameTagColor.r, s.nicknameTagColor.g, s.nicknameTagColor.b})
     local reset = "|r"
 
-    local M = GRM.GetMainTags(false, s.mainTagIndex)
-    local A = GRM.GetAltTags(false, s.altTagIndex)
+    local M = GRM_Name.GetMainTags(false, s.mainTagIndex)
+    local A = GRM_Name.GetAltTags(false, s.altTagIndex)
     
     local colM = M ~= "" and (c1 .. M .. reset) or ""
     local colA = A ~= "" and (c1 .. A .. reset) or ""
@@ -31,8 +57,8 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
 
     -- 1. NICKNAME FORMATTING
     if nickname and nickname ~= "" then
-        local nickStr = c2 .. GRM.WrapByNickTag(nickname, s.nickTagIndex) .. reset
-        local wrapMain = c1 .. GRM.WrapByTag(mainName, s.mainTagIndex) .. reset
+        local nickStr = c2 .. WrapByNickTag(nickname, s.nickTagIndex) .. reset
+        local wrapMain = c1 .. WrapByTag(mainName, s.mainTagIndex) .. reset
 
         if isMain then
             local f = index or s.nicknameFormatMain
@@ -40,10 +66,11 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
             if f == 1 then result = nickStr .. " " .. wrapMain
             elseif f == 2 then result = nickStr .. " " .. c1 .. mainName .. " " .. M .. reset
             elseif f == 3 then result = mainName .. " " .. nickStr
-            elseif f == 4 then result = mainName .. " " .. colM .. " " .. nickStr
-            elseif f == 5 then result = nickStr .. " " .. colM
-            elseif f == 6 then result = nickStr
-            elseif f == 7 then result = toonName .. noNickname end
+            elseif f == 4 then result = wrapMain .. " " .. nickStr
+            elseif f == 5 then result = mainName .. " " .. colM .. " " .. nickStr
+            elseif f == 6 then result = nickStr .. " " .. colM
+            elseif f == 7 then result = nickStr
+            elseif f == 8 then result = toonName .. noNickname end
         else
             local f = index or s.nicknameFormatAlt
             if f == 1 then result = nickStr .. " " .. c1 .. toonName .. " " .. A .. reset
@@ -60,14 +87,14 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
     else
         if isMain then
             local f = index or s.nameFormatMain
-            local wrapMain = c1 .. GRM.WrapByTag(toonName, s.mainTagIndex) .. reset
+            local wrapMain = c1 .. WrapByTag(toonName, s.mainTagIndex) .. reset
 
             if f == 1 then result = toonName .. " " .. colM
             elseif f == 2 then result = wrapMain
             elseif f == 3 then result = toonName .. nochange end
         else
             local f = index or s.nameFormatAlt
-            local wrapMain = c1 .. GRM.WrapByTag(mainName, s.mainTagIndex) .. reset
+            local wrapMain = c1 .. WrapByTag(mainName, s.mainTagIndex) .. reset
 
             if f == 1 then result = toonName .. " " .. wrapMain
             elseif f == 2 then result = toonName .. " " .. c1 .. mainName .. " " .. M .. reset
@@ -81,44 +108,27 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
     return GRM.Util.Trim(string.gsub(result, "  ", " "))
 end
 
--- Method:          GRM.RefreshTagHexCode()
+-- Method:          GRM_Name.RefreshTagHexCode()
 -- What it Does:    Reconverts the RGB values, scales then, then converts to hexcode
 -- Purpose:         So, this only needs to be configured one time on load, or when the player updates the settings.
-GRM.RefreshTagHexCode = function()
-
+GRM_Name.RefreshTagHexCode = function()
     GRM_G.TagHexCode = GRM.Util.rgbToHex({GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b});
-
-    GRM_G.mainTag = GRM.GetCurrentMainTag();
-    GRM_G.altTag = GRM.GetCurrentAltTag();
-end
-
--- Helper to grab the bracket wrapper
-GRM.WrapByTag = function(text, index)
-    if index == 1 then return "<" .. text .. ">" end
-    if index == 2 then return "(" .. text .. ")" end
-    if index == 3 then return "[" .. text .. "]" end
-    return text
-end
-
-GRM.WrapByNickTag = function(text, index)
-    if index == 1 then return "~" .. text .. "~" end
-    if index == 2 then return "**" .. text .. "**" end
-    if index == 3 then return "*" .. text .. "*" end
-    return text
+    GRM_G.mainTag = GetCurrentMainTag();
+    GRM_G.altTag = GetCurrentAltTag();
 end
 
 -- Helper for fetching the pure tag
-GRM.GetMainTags = function(returnTable, index)
+GRM_Name.GetMainTags = function(returnTable, index)
     local tags = { "<" .. GRM.L("M") .. ">", "(" .. GRM.L("M") .. ")", "[" .. GRM.L("M") .. "]" }
     return returnTable and tags or tags[index]
 end
 
-GRM.GetAltTags = function(returnTable, index)
+GRM_Name.GetAltTags = function(returnTable, index)
     local tags = { "<" .. GRM.L("A") .. ">", "(" .. GRM.L("A") .. ")", "[" .. GRM.L("A") .. "]" }
     return returnTable and tags or tags[index]
 end
 
-GRM.GetNickTags = function(returnTable, index)
+GRM_Name.GetNickTags = function(returnTable, index)
     local s = GRM.S()
     local playerClass = select(2,UnitClass("player"));
     local nickHex = GRM.Util.rgbToHex({s.nicknameTagColor.r, s.nicknameTagColor.g, s.nicknameTagColor.b})
@@ -129,20 +139,6 @@ GRM.GetNickTags = function(returnTable, index)
                     nickHex .. "*" .. nickName .. "*" .. reset
                  }
     return returnTable and tags or tags[index]
-end
-
--- Method:          GRM.GetCurrentMainTag()
--- What it Does:    Returns the string, properly colored, of current main tag
--- Purpose:         Quality of life UI feature showing main tags.
-GRM.GetCurrentMainTag = function()
-    return GRM_G.TagHexCode .. GRM.GetMainTags(false, GRM.S().mainTagIndex) .. "|r";
-end
-
--- Method:          GRM.GetCurrentAltTag()
--- What it Does:    Returns the string, properly colored, of current alt tag
--- Purpose:         Quality of life UI feature showing alt tags.
-GRM.GetCurrentAltTag = function()
-    return GRM_G.TagHexCode .. GRM.GetAltTags(false, GRM.S().mainTagIndex) .. "|r";
 end
 
 -- Method:          GRM.RemoveMainAltTags ( string )

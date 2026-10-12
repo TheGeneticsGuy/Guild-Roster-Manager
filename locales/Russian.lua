@@ -337,7 +337,6 @@ GRML.Russian = function()
     GRM_L["{name}'s saved data has been wiped!"] = "Данные пользователя {name} удалены!"
     GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Полная очистка всей учетной записи сохраненных данных реестра! Восстановление с нуля..."
     GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Удаление всех сохраненных данных гильдии! Восстановление с нуля..."
-    GRM_L["There are No Log Entries to Delete, silly {name}!"] = "Нет записей журнала для удаления, глупыш {name} :P"
     GRM_L["Guild Log has been RESET!"] = "Журнал гильдии был сброшен!"
     GRM_L["{name} is now set as \"main\""] = "Игрок {name} назначен \"Мейном\""
     GRM_L["{name} is no longer set as \"main\""] = "{name} больше не является \"Мейном\""

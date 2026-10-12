@@ -338,7 +338,6 @@ GRML.French = function()
     GRM_L["{name}'s saved data has been wiped!"] = "Les données sauvegardées de {name} ont été effacées !"
     GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Effacement de toutes les données sauvegardées du compte ! Remise à zéro..."
     GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Effacement de toutes les données de guilde sauvegardées! Remise à zéro..."
-    GRM_L["There are No Log Entries to Delete, silly {name}!"] = "Il n'y a aucune entrée de journal à effacer, idiot de {name} !"
     GRM_L["Guild Log has been RESET!"] = "Journal de guilde RÉINITIALISÉ !"
     GRM_L["{name} is now set as \"main\""] = "{name} est défini comme \"main\""
     GRM_L["{name} is no longer set as \"main\""] = "{name} n'est plus défini comme \"main\""

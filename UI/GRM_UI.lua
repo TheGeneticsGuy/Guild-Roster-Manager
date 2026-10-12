@@ -1152,7 +1152,7 @@ GRM_UI.ReloadAllFrames = function( isManualUpdate , defaultSettingsReset )
         if GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons ~= nil then
             local buttonWidth = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame:GetWidth() - 5;
             for i = 1 , #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons do
-                GRM.BuildCoreLogFontstrings ( i , 17.08 , buttonWidth , true );
+                GRM.Log.BuildCoreLogFontstrings ( i , 17.08 , buttonWidth , true );
             end
         end
 
@@ -1888,7 +1888,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                                 local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , noteToCheck , newNote , GRM.Time.GetTimestamp() );
 
                                 if GRM.S().toChat.note then
-                                    GRM.PrintLog ( { 4 , logReport } );
+                                    GRM.Log.PrintLog ( { 4 , logReport } );
                                 end
                                 -- Also adding it to the log!
                                 GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , noteToCheck , newNote , GRM.Time.GetTimestamp() } );
@@ -2777,7 +2777,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                         local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
 
                         if GRM.S().toChat.note then
-                            GRM.PrintLog ( { 4 , logReport } );
+                            GRM.Log.PrintLog ( { 4 , logReport } );
                         end
                         -- Also adding it to the log!
                         GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , publicNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
@@ -2883,7 +2883,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
                         local logReportWithTime , logReport = GRM.GetOfficerNoteChangeString ( simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() );
 
                         if GRM.S().toChat.officerNote then
-                            GRM.PrintLog ( { 5 , logReport } );
+                            GRM.Log.PrintLog ( { 5 , logReport } );
                         end
                         -- Also adding it to the log!
                         GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , officerNote , playerDetails.newNote , GRM.Time.GetTimestamp() } );
@@ -5235,7 +5235,7 @@ GRM_UI.PreAddonLoadUI = function()
     end);
 
     GRM_UI.GRM_CoreFrame.GRM_LogFrame:SetScript ( "OnShow" , function()
-        GRM.BuildLogComplete( false , true );
+        GRM.Log.BuildLogComplete( false , true );
         GRM_G.SearchFocusControl = true;
     end);
 
@@ -5653,7 +5653,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM_G.logBypass = true;
             GRM_UI.HybridScrollOnValueChangedConfig (
                 self , value , GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame , GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollFrame ,
-                25 , 17.08 , GRM.BuildLogComplete , GRM_G.fullLogMatch
+                25 , 17.08 , GRM.Log.BuildLogComplete , GRM_G.fullLogMatch
             );
             GRM_G.logBypass = false;
         end
@@ -5679,7 +5679,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnEscapePressed" , function( self )
         self:ClearFocus();
         self:SetText ( GRM.L ( "Search Filter" ) );
-        GRM.BuildLogComplete( true , false , true );
+        GRM.Log.BuildLogComplete( true , false , true );
     end);
 
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnEditFocusGained" , function( self )
@@ -5700,7 +5700,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox:SetScript ( "OnEnterPressed" , function( self )
         if self:GetText() == "" then
             self:SetText ( GRM.L ( "Search Filter" ) );
-            GRM.BuildLogComplete( true , true );
+            GRM.Log.BuildLogComplete( true , true );
         end
         self:ClearFocus();
     end);
@@ -5712,7 +5712,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if GetTime() - GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogEditBox.ChangeTime >= 0.5 then
             GRM_G.logSearch = false;
             GRM_G.logBypass = true;
-            GRM.BuildLogComplete( true , true );
+            GRM.Log.BuildLogComplete( true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         else
             GRM_G.logSearch = true;
@@ -5804,12 +5804,12 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         if button == "LeftButton" then
             if self:GetChecked() then
                 GRM.S().showLineNumbers = true;
-                GRM.ResetLogStringPoints ( true );
+                GRM.Log.ResetLogStringPoints ( true );
             else
                 GRM.S().showLineNumbers = false;
-                GRM.ResetLogStringPoints ( false );
+                GRM.Log.ResetLogStringPoints ( false );
             end
-            GRM.BuildLogComplete( true , false, true );
+            GRM.Log.BuildLogComplete( true , false, true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -5884,10 +5884,10 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 
                 GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
                     if button == "LeftButton" then
-                        GRM.ClearAllLogLinesWithinRange ( 1 , GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] );
+                        GRM.Log.ClearAllLogLinesWithinRange ( 1 , GRM_G.fullLogMatch[#GRM_G.fullLogMatch][5] );
                         GRM_UI.GRM_RosterConfirmFrame:Hide();
                         if GRM_UI.GRM_CoreFrame:IsVisible() then -- if frame is open, let's rebuild it!
-                            GRM.BuildLogComplete(true, true);
+                            GRM.Log.BuildLogComplete(true, true);
                         end
                     end
                 end);
@@ -6011,8 +6011,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                         GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogShowLinesCheckButton:SetChecked ( true );
                         GRM.Report ( GRM.L ( "Enabling Line Numbers... Please choose within the given range" ) );
                         GRM.S().showLineNumbers = true;
-                        GRM.ResetLogStringPoints ( true )
-                        GRM.BuildLogComplete( true , false, true );
+                        GRM.Log.ResetLogStringPoints ( true )
+                        GRM.Log.BuildLogComplete( true , false, true );
                     end
 
                 else
@@ -6031,11 +6031,11 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     GRM_UI.GRM_RosterConfirmYesButtonText:SetText ( GRM.L ( "Yes!" ) );
                     GRM_UI.GRM_RosterConfirmYesButton:SetScript ( "OnClick" , function( _ , button )
                         if button == "LeftButton" then
-                            GRM.ClearAllLogLinesWithinRange ( numBox1 , numBox2 );
+                            GRM.Log.ClearAllLogLinesWithinRange ( numBox1 , numBox2 );
                             GRM_UI.GRM_RosterConfirmFrame:Hide();
                             GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetText ( "0" );
                             GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetText ( "0" );
-                            GRM.BuildLogComplete( true , true );
+                            GRM.Log.BuildLogComplete( true , true );
                         end
                     end);
                     GRM_UI.GRM_RosterConfirmFrame:Show();
@@ -6073,16 +6073,16 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             self:SetText ( "0" );
         end
         GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetFocus();
-        GRM.SetColoredLines();
-        GRM.BuildLogComplete( true , false , true );
+        GRM.Log.SetColoredLines();
+        GRM.Log.BuildLogComplete( true , false , true );
     end);
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetScript ( "OnEnterPressed" , function( self )
         self:ClearFocus();
         if self:GetText() == "" then
             self:SetText ( "0" );
         end
-        GRM.SetColoredLines();
-        GRM.BuildLogComplete( true , false , true );
+        GRM.Log.SetColoredLines();
+        GRM.Log.BuildLogComplete( true , false , true );
     end);
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox2:SetScript ( "OnEscapePressed" , function( self )
         if self:GetText() == "" then
@@ -6102,8 +6102,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if self:GetText() == "" then
                 self:SetText ( "0" );
             end
-            GRM.SetColoredLines();
-            GRM.BuildLogComplete( true , false , true );
+            GRM.Log.SetColoredLines();
+            GRM.Log.BuildLogComplete( true , false , true );
         else
             self:SetText(0);
             GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogExtraEditBox1:SetText(0);
@@ -7223,7 +7223,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             GRM.S().logFontSize = ( GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.Slider:GetValue() - 100 ) / 10;
         end
         if #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons > 0 then
-            GRM.ResetLogStringPoints ( GRM.S().showLineNumbers );
+            GRM.Log.ResetLogStringPoints ( GRM.S().showLineNumbers );
         end
     end);
 
@@ -8846,7 +8846,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.joined = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -8886,7 +8886,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.leveled = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -8927,7 +8927,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.inactiveReturn = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -8967,7 +8967,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.promotion = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9007,7 +9007,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.demotion = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9047,7 +9047,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.note = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9087,7 +9087,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.officerNote = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9127,7 +9127,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.customNote = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9167,7 +9167,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.nameChange = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9207,7 +9207,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.rankRename = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9247,7 +9247,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.eventAnnounce = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9287,7 +9287,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.left = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9327,7 +9327,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.recommend = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9367,7 +9367,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.banned = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
             GRM.Export.ResetExportLogSettingsOnChange();
         end
     end);
@@ -9392,7 +9392,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toLog.death = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
         end
 
         GRM_UI.DeathsToChatButton = function ( button )
@@ -9402,7 +9402,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM.S().toChat.death = false;
                 GRM_UI.GRM_CoreFrame.GRM_RosterCheckAllLogButton:SetChecked ( false );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
         end
 
         GRM_UI.CreateCheckBox ( "GRM_HardcoreToLogCheckbox" , GRM_UI.GRM_RosterCheckBoxSideFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_CoreFrame.GRM_RosterBannedPlayersButton , "BOTTOMLEFT" , 0 , 2} , GRM_UI.DeathsToLogButton , GRM.L ( "Hardcore Deaths" ) , "GameFontNormal" , 12 );
@@ -9478,7 +9478,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             end
 
         end
-        GRM.BuildLogComplete( true , true , true );
+        GRM.Log.BuildLogComplete( true , true , true );
         GRM.Export.ResetExportLogSettingsOnChange();
     end);
 
@@ -10208,7 +10208,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButton:Disable();
                 GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditBirthdayToggleButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 , 1 );
             end
-            GRM.SetGuildInfoDetails();
+            GRM_Sys.SetGuildInfoDetails();
             GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
         end
     end);
@@ -10229,7 +10229,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             else
                 GRM.S().unknownIsComplete = false;
             end
-            GRM.SetGuildInfoDetails();
+            GRM_Sys.SetGuildInfoDetails();
             GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
         end
     end);
@@ -10251,7 +10251,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             else
                 GRM.S().includeBirthdaysInAudit = false;
             end
-            GRM.SetGuildInfoDetails();
+            GRM_Sys.SetGuildInfoDetails();
             GRM_UI.RefreshSelectFrames ( false , true , false , false , false , false );
         end
     end);
@@ -10559,7 +10559,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         if GRM.S().unknownIsComplete then
             GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditFrameIncludeUnknownCheckBox:SetChecked ( true );
         end
-        GRM.SetGuildInfoDetails();
+        GRM_Sys.SetGuildInfoDetails();
         C_Timer.After ( 1.1 , function()
             GRM.RefreshAuditFrames ( true , false );
         end);
@@ -12173,7 +12173,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             if GRM.S().toChat.banned then
                 GRM.Report ( logReport );
             end
-            GRM.BuildLogComplete( true , true , true );
+            GRM.Log.BuildLogComplete( true , true , true );
 
             if not needsDelayedRefresh then
                 GRM_UI.SendBannedSyncMessage( fullName , epochTimeStamp , banReason , GRM_G.CurrentBanSelectedName[2] , guid , GRM_G.isChecked2 )
@@ -13530,7 +13530,7 @@ end
 -- NOTE             ASYNC function on the macro tool - please use to establish refr
 GRM_UI.RefreshSelectFrames = function ( log , audit , ban , macroTool , customRoster , events , mouseover )
     if log and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
-        GRM.BuildLogComplete( true , true );
+        GRM.Log.BuildLogComplete( true , true );
     end
 
     --Refresh Audit Frames

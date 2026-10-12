@@ -549,7 +549,7 @@ GRM_S.GuildSpecificConfigurations = function()
         -- GRM_UI.CoreSyncTrackerInit();
         -- Register window to save data to.
         GRM.SetReportWindow();
-        GRM.RefreshTagHexCode();
+        GRM_Name.RefreshTagHexCode();
         -- The Tag Headers
         GRM.SetJoinAndRejoinTags();
         -- General one-time configurations
@@ -761,8 +761,8 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
         if (resetAll or page == 8) and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
             GRM_UI.RefreshLogExtraOptions();
             GRM_UI.ColorPicker.RefreshLogColorOptions();
-            GRM.ResetLogStringPoints(true);
-            GRM.BuildLogComplete(true, false, true);
+            GRM.Log.ResetLogStringPoints(true);
+            GRM.Log.BuildLogComplete(true, false, true);
         end
 
         if (resetAll or page == 9) and GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
@@ -783,7 +783,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
 
         GRM_UI.CorePositionInit();
         GRM_UI.CoreToolPositionInit();
-        GRM.RefreshTagHexCode();
+        GRM_Name.RefreshTagHexCode();
         GRM.SetReportWindow();
         GRM.Scan.RefreshNumberOfHoursTilRecommend();
     end

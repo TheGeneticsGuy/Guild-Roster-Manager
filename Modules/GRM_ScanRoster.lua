@@ -753,7 +753,7 @@ Scan.BuildNewGuildOrNameChange = function(roster)
             end
 
             if not GRM_G.MainHookConfigured then
-                GRM.MessageHookControl();
+                GRM_Sys.MessageHookControl();
             end
 
         end
@@ -813,7 +813,7 @@ Scan.ProcessGuildNameChange = function(currentGuildName, oldGuildName)
     local logEntryWithTime, logEntry = GRM.GetGuildNameChangeString(tempName, GRM.SlimName(currentGuildName),
         GRM.Time.GetTimestamp());
 
-    GRM.PrintLog({15, logEntry});
+    GRM.Log.PrintLog({15, logEntry});
     GRM.Log.AddLog({15, logEntryWithTime, tempName, GRM.SlimName(currentGuildName), GRM.Time.GetTimestamp()},
         currentGuildName);
 end
@@ -1981,7 +1981,7 @@ Scan.RecordJoinChanges = function(member, simpleName, liveJoinDetected, dateArra
         else
 
             if GRM.S().toChat.joined then
-                GRM.PrintLog({8,
+                GRM.Log.PrintLog({8,
                               select(2,
                     GRM.GetJoinOrRejoinString(tempJoinStorage[1], tempJoinStorage[2], tempJoinStorage[3],
                         tempJoinStorage[4], tempJoinStorage[5], tempJoinStorage[6]))});
@@ -2295,7 +2295,7 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                 -- Needs to be reported immediately rather than waiting.
                 if liveJoinDetected then
                     if GRM.S().toChat.joined then
-                        GRM.PrintLog({index,
+                        GRM.Log.PrintLog({index,
                                       select(2,
                             GRM.GetJoinOrRejoinString(tempJoinStorage[1], tempJoinStorage[2], tempJoinStorage[3],
                                 tempJoinStorage[4], tempJoinStorage[5], tempJoinStorage[6], tempJoinStorage[7],
@@ -3318,7 +3318,7 @@ Scan.FullReportCheck = function( specialReport )
             if GRM.S().toChat.joined then
 
                 for i = 1, #GRM_G.TempBannedRejoin do
-                    GRM.PrintLog(GRM_G.TempBannedRejoin[i]);
+                    GRM.Log.PrintLog(GRM_G.TempBannedRejoin[i]);
                 end
             end
             GRM_G.TempBannedRejoin = {};
@@ -3327,7 +3327,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempNameChanged > 0 then
             if GRM.S().toChat.nameChange then
                 for i = 1, #GRM_G.TempNameChanged do
-                    GRM.PrintLog(GRM_G.TempNameChanged[i]);
+                    GRM.Log.PrintLog(GRM_G.TempNameChanged[i]);
                 end
             end
             GRM_G.TempNameChanged = {};
@@ -3336,7 +3336,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempLogPromotion > 0 then
             if GRM.S().toChat.promotion then
                 for i = 1, #GRM_G.TempLogPromotion do
-                    GRM.PrintLog(GRM_G.TempLogPromotion[i]);
+                    GRM.Log.PrintLog(GRM_G.TempLogPromotion[i]);
                 end
             end
             GRM_G.TempLogPromotion = {};
@@ -3345,7 +3345,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempLogDemotion > 0 then
             if GRM.S().toChat.demotion then
                 for i = 1, #GRM_G.TempLogDemotion do
-                    GRM.PrintLog(GRM_G.TempLogDemotion[i]);
+                    GRM.Log.PrintLog(GRM_G.TempLogDemotion[i]);
                 end
             end
             GRM_G.TempLogDemotion = {};
@@ -3354,7 +3354,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempRejoin > 0 then
             if GRM.S().toChat.joined then
                 for i = 1, #GRM_G.TempRejoin do
-                    GRM.PrintLog(GRM_G.TempRejoin[i]); -- Same Comments on down
+                    GRM.Log.PrintLog(GRM_G.TempRejoin[i]); -- Same Comments on down
                 end
             end
             GRM_G.TempRejoin = {};
@@ -3363,7 +3363,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempNewMember > 0 then
             if GRM.S().toChat.joined then
                 for i = 1, #GRM_G.TempNewMember do
-                    GRM.PrintLog(GRM_G.TempNewMember[i]); -- Send to print to chat window
+                    GRM.Log.PrintLog(GRM_G.TempNewMember[i]); -- Send to print to chat window
                 end
             end
             GRM_G.TempNewMember = {};
@@ -3372,7 +3372,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempInactiveReturnedLog > 0 then
             if GRM.S().toChat.inactiveReturn then
                 for i = 1, #GRM_G.TempInactiveReturnedLog do
-                    GRM.PrintLog(GRM_G.TempInactiveReturnedLog[i]);
+                    GRM.Log.PrintLog(GRM_G.TempInactiveReturnedLog[i]);
                 end
             end
             GRM_G.TempInactiveReturnedLog = {};
@@ -3381,7 +3381,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempRankRename > 0 then
             if GRM.S().toChat.rankRename then
                 for i = 1, #GRM_G.TempRankRename do
-                    GRM.PrintLog(GRM_G.TempRankRename[i]);
+                    GRM.Log.PrintLog(GRM_G.TempRankRename[i]);
                 end
             end
             GRM_G.TempRankRename = {};
@@ -3389,7 +3389,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempLogLeveled > 0 then
             if GRM.S().toChat.leveled then
                 for i = 1, #GRM_G.TempLogLeveled do
-                    GRM.PrintLog(GRM_G.TempLogLeveled[i]);
+                    GRM.Log.PrintLog(GRM_G.TempLogLeveled[i]);
                 end
             end
             GRM_G.TempLogLeveled = {};
@@ -3398,7 +3398,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempLogNote > 0 then
             if GRM.S().toChat.note then
                 for i = 1, #GRM_G.TempLogNote do
-                    GRM.PrintLog(GRM_G.TempLogNote[i]);
+                    GRM.Log.PrintLog(GRM_G.TempLogNote[i]);
                 end
             end
             GRM_G.TempLogNote = {};
@@ -3407,7 +3407,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempLogONote > 0 then
             if not GRM_G.silenceOfficerNoteReporting and  GRM.S().toChat.officerNote then
                 for i = 1, #GRM_G.TempLogONote do
-                    GRM.PrintLog(GRM_G.TempLogONote[i]);
+                    GRM.Log.PrintLog(GRM_G.TempLogONote[i]);
                 end
             end
             GRM_G.TempLogONote = {};
@@ -3416,7 +3416,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempEventReport > 0 then
             if GRM.S().toChat.eventAnnounce then
                 for i = 1, #GRM_G.TempEventReport do
-                    GRM.PrintLog(GRM_G.TempEventReport[i]);
+                    GRM.Log.PrintLog(GRM_G.TempEventReport[i]);
                 end
             end
             GRM_G.TempEventReport = {};
@@ -3425,7 +3425,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempEventRecommendKickReport > 0 then
             if GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
                 for i = 1, #GRM_G.TempEventRecommendKickReport do
-                    GRM.PrintLog(GRM_G.TempEventRecommendKickReport[i]);
+                    GRM.Log.PrintLog(GRM_G.TempEventRecommendKickReport[i]);
                 end
             end
             GRM_G.TempEventRecommendKickReport = {};
@@ -3434,7 +3434,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempEventRecommendPromotionReport > 0 then
             if GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
                 for i = 1, #GRM_G.TempEventRecommendPromotionReport do
-                    GRM.PrintLog(GRM_G.TempEventRecommendPromotionReport[i]);
+                    GRM.Log.PrintLog(GRM_G.TempEventRecommendPromotionReport[i]);
                 end
             end
             GRM_G.TempEventRecommendPromotionReport = {};
@@ -3443,7 +3443,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempEventRecommendDemotionReport > 0 then
             if GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
                 for i = 1, #GRM_G.TempEventRecommendDemotionReport do
-                    GRM.PrintLog(GRM_G.TempEventRecommendDemotionReport[i]);
+                    GRM.Log.PrintLog(GRM_G.TempEventRecommendDemotionReport[i]);
                 end
             end
             GRM_G.TempEventRecommendDemotionReport = {};
@@ -3452,7 +3452,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempEventRecommendSpecialReport > 0 then
             if GRM.S().toChat.recommend and ( not GRM_UI.GRM_ToolCoreFrame:IsVisible() or (GRM_UI.GRM_ToolCoreFrame:IsVisible() and not GRM.S().disableMacroToolLogSpam ) ) then
                 for i = 1, #GRM_G.TempEventRecommendSpecialReport do
-                    GRM.PrintLog(GRM_G.TempEventRecommendSpecialReport[i]);
+                    GRM.Log.PrintLog(GRM_G.TempEventRecommendSpecialReport[i]);
                 end
             end
             GRM_G.TempEventRecommendSpecialReport = {};
@@ -3461,7 +3461,7 @@ Scan.FullReportCheck = function( specialReport )
         if #GRM_G.TempDeathReport > 0 then
             if GRM.S().toChat.death then
                 for i = 1, #GRM_G.TempDeathReport do
-                    GRM.PrintLog(GRM_G.TempDeathReport[i]);
+                    GRM.Log.PrintLog(GRM_G.TempDeathReport[i]);
                 end
             end
             GRM_G.TempDeathReport = {};

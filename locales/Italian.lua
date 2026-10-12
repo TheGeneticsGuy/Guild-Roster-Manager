@@ -337,7 +337,6 @@ GRML.Italian = function()
 	GRM_L["{name}'s saved data has been wiped!"] = "I dati di {name} sono stati cancellati!"
 	GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Cancellazione di tutti i dati dell'account! Ricostruzione da zero..." --WIP
 	GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Cancellazione di tutti i dati della gilda! Ricostruzione da zero..." --WIP
-	GRM_L["There are No Log Entries to Delete, silly {name}!"] = "Non ci sono Voci del Registro da cancellare"
 	GRM_L["Guild Log has been RESET!"] = "Il Registro di Gilda è stato RESETTATO!"
 	GRM_L["{name} is now set as \"main\""] = "{name} è stato impostato come \"main\""
 	GRM_L["{name} is no longer set as \"main\""] = "{name} non è più impostato come \"main\""

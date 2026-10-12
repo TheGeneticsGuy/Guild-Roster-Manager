@@ -143,7 +143,7 @@ ScanTab.BuildScanTab = function()
                 end
                 self:Hide();
                 GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNote:Show();
-                GRM.BuildLogComplete( true , true , true );
+                GRM.Log.BuildLogComplete( true , true , true );
             else
                 GRM.Report ( GRM.L ( "Please enter a valid level between 1 and {num}" , nil , nil , GRM_G.LvlCap  ) );
             end

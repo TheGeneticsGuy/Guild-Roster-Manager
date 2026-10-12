@@ -205,7 +205,7 @@ HC.HardCoreInitialize = function()
                             local logReportWithTime , logReport = GRM.GetNoteChangeString ( simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() );
 
                             if GRM.S().toChat.note then
-                                GRM.PrintLog ( { 4 , logReport } );
+                                GRM.Log.PrintLog ( { 4 , logReport } );
                             end
                             -- Also adding it to the log!
                             GRM.Log.AddLog ( { 4 , logReportWithTime , simpleName , memberNote , finalNote , GRM.Time.GetTimestamp() } );
@@ -251,7 +251,7 @@ HC.HardCoreInitialize = function()
             GRM.Log.AddLog ( { 24 , logReportWithTime , name , class , level , dateArray } );
 
             if GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
-                GRM.BuildLogComplete( true , true );
+                GRM.Log.BuildLogComplete( true , true );
             end
 
             if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then

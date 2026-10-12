@@ -1260,7 +1260,6 @@ GRM.PopulateAltFrames = function ( playerName )
         AltButtonsText:SetPoint ( "CENTER" , AltButtons );
         AltButtonsText:SetJustifyH ( "CENTER" );
 
-        -- LogicGRM.RemoveMainAltTags
         AltButtons:SetScript ( "OnClick" , function ( self , button )
             if button == "RightButton" then
                 -- Parse the button number, so the alt position can be identified...
@@ -1536,9 +1535,9 @@ end
 -- Purpose:         For taggin the autocomplete names to make it easier to see who is and isn't and alt/main
 GRM.GetAltTag = function ( value )
     if value == 1 then
-        return ( "|cffab0000 " .. GRM.GetMainTags ( false , GRM.S().mainTagIndex ) );
+        return ( "|cffab0000 " .. GRM_Name.GetMainTags ( false , GRM.S().mainTagIndex ) );
     elseif value == 2 then
-        return ( "|cffab0000 " .. GRM.GetAltTags ( false , GRM.S().mainTagIndex ) );
+        return ( "|cffab0000 " .. GRM_Name.GetAltTags ( false , GRM.S().mainTagIndex ) );
     end
     return "";
 end
