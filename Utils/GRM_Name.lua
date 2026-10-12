@@ -16,7 +16,7 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
     local nickHex = GRM.GetStringClassColorByName(nickname)
     
     local c1 = GRM.Util.rgbToHex({s.mainTagColor.r, s.mainTagColor.g, s.mainTagColor.b})
-    local c2 = s.nicknameMatchClassColor and nickHex or GRM.Util.rgbToHex({s.nicknameTagColor.r, s.nicknameTagColor.g, s.nicknameTagColor.b})
+    local c2 = GRM.Util.rgbToHex({s.nicknameTagColor.r, s.nicknameTagColor.g, s.nicknameTagColor.b})
     local reset = "|r"
 
     local M = GRM.GetMainTags(false, s.mainTagIndex)
@@ -31,23 +31,26 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
 
     -- 1. NICKNAME FORMATTING
     if nickname and nickname ~= "" then
-        local nickStr = c2 .. "~" .. nickname .. "~" .. reset
+        local nickStr = c2 .. GRM.WrapByNickTag(nickname, s.nickTagIndex) .. reset
+        local wrapMain = c1 .. GRM.WrapByTag(mainName, s.mainTagIndex) .. reset
+
         if isMain then
             local f = index or s.nicknameFormatMain
-            if f == 1 then result = nickStr .. " " .. c1 .. "(" .. mainName .. " " .. M .. ")" .. reset
-            elseif f == 2 then result = nickStr .. " " .. c1 .. "(" .. mainName .. ")" .. reset
-            elseif f == 3 then result = mainName .. " (" .. nickStr .. ")"
-            elseif f == 4 then result = mainName .. " " .. colM .. " (" .. nickStr .. ")"
+            
+            if f == 1 then result = nickStr .. " " .. wrapMain
+            elseif f == 2 then result = nickStr .. " " .. c1 .. mainName .. " " .. M .. reset
+            elseif f == 3 then result = mainName .. " " .. nickStr
+            elseif f == 4 then result = mainName .. " " .. colM .. " " .. nickStr
             elseif f == 5 then result = nickStr .. " " .. colM
             elseif f == 6 then result = nickStr
             elseif f == 7 then result = toonName .. noNickname end
         else
             local f = index or s.nicknameFormatAlt
-            if f == 1 then result = nickStr .. " " .. c1 .. "(" .. toonName .. " " .. A .. ")" .. reset
-            elseif f == 2 then result = nickStr .. " " .. c1 .. "(" .. toonName .. ")" .. reset
-            elseif f == 3 then result = toonName .. " (" .. nickStr .. ")"
-            elseif f == 4 then result = toonName .. " " .. colA .. " (" .. nickStr .. ")"
-            elseif f == 5 then result = nickStr .. " " .. c1 .. "(" .. mainName .. " " .. M .. ")" .. reset
+            if f == 1 then result = nickStr .. " " .. c1 .. toonName .. " " .. A .. reset
+            elseif f == 2 then result = toonName .. " " .. nickStr
+            elseif f == 3 then result = toonName .. " " .. colA .. " " .. nickStr
+            elseif f == 4 then result = nickStr .. " " .. wrapMain
+            elseif f == 5 then result = nickStr .. " " .. c1 .. mainName .. " " .. M .. reset
             elseif f == 6 then result = nickStr .. " " .. colA
             elseif f == 7 then result = nickStr
             elseif f == 8 then result = toonName .. noNickname end
@@ -57,16 +60,18 @@ GRM.GetFormattedNameString = function(toonName, mainName, nickname, isMain, inde
     else
         if isMain then
             local f = index or s.nameFormatMain
+            local wrapMain = c1 .. GRM.WrapByTag(toonName, s.mainTagIndex) .. reset
+
             if f == 1 then result = toonName .. " " .. colM
-            elseif f == 2 then result = toonName .. nochange end
+            elseif f == 2 then result = wrapMain
+            elseif f == 3 then result = toonName .. nochange end
         else
             local f = index or s.nameFormatAlt
             local wrapMain = c1 .. GRM.WrapByTag(mainName, s.mainTagIndex) .. reset
 
-            
             if f == 1 then result = toonName .. " " .. wrapMain
-            elseif f == 2 then result = toonName .. " " .. c1 .. "(" .. mainName .. " " .. M .. ")" .. reset
-            elseif f == 3 then result = toonName .. " " .. colA .. " " .. c1 .. "(" .. mainName .. " " .. M .. ")" .. reset
+            elseif f == 2 then result = toonName .. " " .. c1 .. mainName .. " " .. M .. reset
+            elseif f == 3 then result = toonName .. " " .. colA .. " " .. c1 .. mainName .. " " .. M .. reset
             elseif f == 4 then result = toonName .. " " .. colA
             elseif f == 5 then result = toonName .. nochange end
         end
@@ -95,6 +100,13 @@ GRM.WrapByTag = function(text, index)
     return text
 end
 
+GRM.WrapByNickTag = function(text, index)
+    if index == 1 then return "~" .. text .. "~" end
+    if index == 2 then return "**" .. text .. "**" end
+    if index == 3 then return "*" .. text .. "*" end
+    return text
+end
+
 -- Helper for fetching the pure tag
 GRM.GetMainTags = function(returnTable, index)
     local tags = { "<" .. GRM.L("M") .. ">", "(" .. GRM.L("M") .. ")", "[" .. GRM.L("M") .. "]" }
@@ -103,6 +115,19 @@ end
 
 GRM.GetAltTags = function(returnTable, index)
     local tags = { "<" .. GRM.L("A") .. ">", "(" .. GRM.L("A") .. ")", "[" .. GRM.L("A") .. "]" }
+    return returnTable and tags or tags[index]
+end
+
+GRM.GetNickTags = function(returnTable, index)
+    local s = GRM.S()
+    local playerClass = select(2,UnitClass("player"));
+    local nickHex = GRM.Util.rgbToHex({s.nicknameTagColor.r, s.nicknameTagColor.g, s.nicknameTagColor.b})
+    local reset = "|r"
+    local nickName = GRM.GetClassColorRGB("WARRIOR" ~= playerClass and "WARRIOR" or "HUNTER", true) .. GRM.L("Nickname") .. reset
+    local tags = {  nickHex .. "~" .. nickName .. "~" .. reset,
+                    nickHex .. "**" .. nickName .. "**" .. reset,
+                    nickHex .. "*" .. nickName .. "*" .. reset
+                 }
     return returnTable and tags or tags[index]
 end
 

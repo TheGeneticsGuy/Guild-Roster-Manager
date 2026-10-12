@@ -2072,12 +2072,9 @@ GRML.English = function()
     GRM_L["All GRM Settings have been set to default."] = true
 
     -- NamesTab in options
-    GRM_L["Tag Formatting"] = true
     GRM_L["Tag Color"] = true
     GRM_L["Nickname Tag Color"] = true
-    GRM_L["Use Class Color"] = true
-    GRM_L["Use Custom Color"] = true
-    GRM_L["Standard Name Formatting"] = true
+    GRM_L["Name Formatting (No Nickname)"] = true
     GRM_L["Format for Mains"] = true
     GRM_L["Format for Alts"] = true
     GRM_L["Nickname Formatting"] = true
@@ -2088,6 +2085,7 @@ GRML.English = function()
     GRM_L["MainName"] = true
     GRM_L["Main Tag"] = true
     GRM_L["Alt Tag"] = true
+    GRM_L["Nick Tag"] = true
     GRM_L["Tagging Disabled"] = true
     GRM_L["Nickname Disabled"] = true
 

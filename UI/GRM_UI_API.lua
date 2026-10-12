@@ -689,7 +689,7 @@ end
 -- What it Does:    Builds the logic and text of the actual popout dropdown menu.
 -- Puropose:        Compartmentalize some of the code. Rather than keep it all in the CreateDropDowm function
 local BuildDropDownOptions = function( list, dropDownMenu, dropDownMenuSelected, dropDownMenuSelectedText, textColor,
-                                        fontSize, optionalSelectFunction, optionalListUpdateFunction, optionalTextFilteringFunction )
+                                        fontSize, optionalSelectFunction, optionalListUpdateFunction, optionalTextFilteringFunction , alignment )
     local buffer = 6;
     local height = 0;
     local name = dropDownMenu:GetName();
@@ -723,7 +723,7 @@ local BuildDropDownOptions = function( list, dropDownMenu, dropDownMenuSelected,
         buttonText:SetWordWrap ( false );
         buttonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
         buttonText:SetPoint ( "CENTER" , button );
-        buttonText:SetJustifyH ( "CENTER" );
+        buttonText:SetJustifyH ( alignment or "CENTER" );
 
         if i == 1 then
             button:SetPoint ( "TOP" , dropDownMenu , 0 , -7 );
@@ -762,7 +762,7 @@ end
 GRM_UI.CreateDropDownMenu = function ( name, parentFrame, template, point, size, list, fontSize ,
                                        textColor, toolTipScript, toolTipClearScript, optionalSelectFunction,
                                        optionalListUpdateFunction, optionalTextFilteringFunction, includeEscapeAction,
-                                       OnClickSelectedFunction, backdropVersion )
+                                       OnClickSelectedFunction, backdropVersion, alignment )
 
     local selectedFrame = name .. "Selected";
     local selectedFrameText = selectedFrame .. "Text";
@@ -776,7 +776,8 @@ GRM_UI.CreateDropDownMenu = function ( name, parentFrame, template, point, size,
 
         local BuildDropDown = function()
             BuildDropDownOptions( list , parentFrame[menuFrame], parentFrame[selectedFrame], parentFrame[selectedFrame][selectedFrameText],
-                                         textColor, fontSize, optionalSelectFunction, optionalListUpdateFunction, optionalTextFilteringFunction );
+                                         textColor, fontSize, optionalSelectFunction, optionalListUpdateFunction, optionalTextFilteringFunction,
+                                         alignment );
         end
 
         -- Delimiter Dropdown for Export
