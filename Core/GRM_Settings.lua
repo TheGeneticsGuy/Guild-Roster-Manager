@@ -354,6 +354,7 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
         player.nameFormatAlt = 4
         player.nicknameFormatMain = 1
         player.nicknameFormatAlt = 1
+        player.nnFormatUnassigned = 1
         player.mainTagColor = { r = 1.0, g = 0.0, b = 0.0 }  -- RESET TO DEFAULT
         player.nicknameTagColor = { r = 0.0, g = 0.8, b = 1.0 }
 

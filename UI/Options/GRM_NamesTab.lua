@@ -4,20 +4,24 @@ GRM_UI.NamesTab = NamesTab;
 local playerClass = select(2,UnitClass("player"));
 local altClass = "MAGE" ~= playerClass and "MAGE" or "ROGUE" -- Adjust classes if the same
 local nickClass = "WARRIOR" ~= playerClass and "WARRIOR" or "HUNTER"
+local toonClass = "DRUID" ~= playerClass and "DRUID" or "PALADIN"
 local mainName = GRM.GetClassColorRGB(playerClass, true) .. GRM.L("MainName") .. "|r";
 local altName = GRM.GetClassColorRGB(altClass, true) .. GRM.L("AltName") .. "|r";
 local nickName = GRM.GetClassColorRGB(nickClass, true) .. GRM.L("Nickname") .. "|r";
+local toonName = GRM.GetClassColorRGB(toonClass, true) .. GRM.L("ToonName") .. "|r";
 
 -- Helper to grab the base dummy text for UI dropdown options
 local GetPreview = function(type, index)
     if type == "MAIN" then
-        return GRM_Name.GetFormattedNameString(mainName, mainName, "", true, index)
+        return GRM_Name.GetFormattedNameString(mainName, mainName, "", true, false, index, true)
     elseif type == "ALT" then 
-        return GRM_Name.GetFormattedNameString(altName, mainName, "", false, index)
+        return GRM_Name.GetFormattedNameString(altName, mainName, "", false, false, index, true)
     elseif type == "NICKMAIN" then
-        return GRM_Name.GetFormattedNameString(mainName, mainName, nickName, true, index)
+        return GRM_Name.GetFormattedNameString(mainName, mainName, nickName, true, false, index, true)
     elseif type == "NICKALT" then
-        return GRM_Name.GetFormattedNameString(altName, mainName, nickName, false, index)
+        return GRM_Name.GetFormattedNameString(altName, mainName, nickName, false, false, index, true)
+    elseif type == "NICKUNASSIGNED" then
+        return GRM_Name.GetFormattedNameString(toonName, mainName, nickName, false, true, index, true)
     end
     return ""
 end
@@ -60,6 +64,9 @@ local CloseOtherDropdowns = function(ind)
     if not ind or ind ~= 7 then
         f.GRM_NickTagDDMenu:Hide()
     end
+    if not ind or ind ~= 8 then
+        f.GRM_NickUnassignedFormatDDMenu:Hide();
+    end
 end
 
 -- For instant updating as changes made in Options > Names Tab
@@ -75,6 +82,7 @@ local UpdateText = function()
     f.GRM_AltFormatDDSelected.GRM_AltFormatDDSelectedText:SetText(GetPreview("ALT", GRM.S().nameFormatAlt))
     f.GRM_NickMainFormatDDSelected.GRM_NickMainFormatDDSelectedText:SetText(GetPreview("NICKMAIN", GRM.S().nicknameFormatMain))
     f.GRM_NickAltFormatDDSelected.GRM_NickAltFormatDDSelectedText:SetText(GetPreview("NICKALT", GRM.S().nicknameFormatAlt))
+    f.GRM_NickUnassignedFormatDDSelected.GRM_NickUnassignedFormatDDSelectedText:SetText(GetPreview("NICKUNASSIGNED", GRM.S().nnFormatUnassigned))
 
     -- Update the Color Picker Textures directly! (Just like the Log color boxes)
     local c1 = GRM.S().mainTagColor
@@ -126,7 +134,7 @@ NamesTab.BuildNamesTab = function()
     GRM_UI.CreateDropDownMenu("GRM_AltFormatDD", f, nil, {"TOPLEFT", f.GRM_AltFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("ALT", 5), 14, {1,1,1}, nil, nil, function(idx) GRM.S().nameFormatAlt = idx; UpdateText() end, function() return GetPreviewList("ALT", 5) end, nil, true, function() CloseOtherDropdowns(4) end, 4)
     
     ---------------------------------------
-    -- SECTION 3 - NICKNAME FORMATTING   --
+    -- SECTION 2 - NICKNAME FORMATTING   --
     ---------------------------------------
     GRM_UI.CreateString("GRM_NickOptionsTitle", f, "GameFontNormal", GRM.L("Nickname Formatting") .. ":", 20, {"TOPLEFT", f.GRM_AltFormatDDSelected, "BOTTOMLEFT", 0, -20}, nil, {0.0, 0.8, 1.0})
 
@@ -152,6 +160,10 @@ NamesTab.BuildNamesTab = function()
     -- Nickname on Alt
     GRM_UI.CreateString("GRM_NickAltFmtLbl", f, "GameFontNormal", GRM.L("Format for Alts with Nicknames") .. ":", 12, {"TOPLEFT", f.GRM_NickMainFormatDDSelected, "BOTTOMLEFT", 5, -10})
     GRM_UI.CreateDropDownMenu("GRM_NickAltFormatDD", f, nil, {"TOPLEFT", f.GRM_NickAltFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("NICKALT", 8), 12, {1,1,1}, nil, nil, function(idx) GRM.S().nicknameFormatAlt = idx; UpdateText(); end, function() return GetPreviewList("NICKALT", 8) end, nil, true, function() CloseOtherDropdowns(6) end, 4)
+
+    -- Nickname on Unconfigured Toon
+    GRM_UI.CreateString("GRM_NickUnassignedFmtLbl", f, "GameFontNormal", GRM.L("Format for Unassigned with Nicknames") .. ":", 12, {"TOPLEFT", f.GRM_NickAltFormatDDSelected, "BOTTOMLEFT", 5, -10})
+    GRM_UI.CreateDropDownMenu("GRM_NickUnassignedFormatDD", f, nil, {"TOPLEFT", f.GRM_NickUnassignedFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("NICKUNASSIGNED", 3), 12, {1,1,1}, nil, nil, function(idx) GRM.S().nnFormatUnassigned = idx; UpdateText(); end, function() return GetPreviewList("NICKUNASSIGNED", 3) end, nil, true, function() CloseOtherDropdowns(8) end, 4)
 
     f:SetScript("OnShow", function()
         GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES

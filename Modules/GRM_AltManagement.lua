@@ -138,8 +138,8 @@ end
 -- Method:          GRM.GetPlayerMain ( string )
 -- What it Does:    Returns the full player of the toon's main, or himself if he is main, or an empty string if no main.
 -- Purpose:         Useful lookup for many purposes...
-GRM.GetPlayerMain = function ( playerName )
-    local player = GRM.GetPlayer ( playerName);
+GRM.GetPlayerMain = function ( playerName, player )
+     player = player or GRM.GetPlayer ( playerName);
 
     if player then
 
@@ -610,6 +610,20 @@ GRM.PlayerHasAlts = function ( player )
         end
     end
     return false;
+end
+
+-- Method:          GRM.PlayerIsUnassignedInGroup( playerTable )
+-- What it Does:    Returns true if the player is in an alt group, but they are not main, and no main is set
+-- Purpose:         Player is considered unassigned alt or main in audit, even if in an alt group. Main needs designation
+GRM.PlayerIsUnassignedInGroup = function( player )
+    if player and player.altGroup ~= "" then
+        local altGroup = GRM.GetAltGroup ( player.altGroup );
+
+        if altGroup and #altGroup > 1 and altGroup.main ~= "" and altGroup.main ~= player.name then
+            return false
+        end
+    end
+    return true;
 end
 
 -- Method:          GRM.LeftPlayerHasAlts ( playerTable )

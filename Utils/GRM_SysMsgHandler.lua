@@ -178,391 +178,404 @@ local AnnounceIfMacroReady = function(msg)
     end
 end
 
--- Method:          AddMainTagToComeOnlineSystemMessage ( string )
--- What it Does:    Adds the main/alt tags to the system messages for coming online.
--- Purpose:         Alt management feature!
-local AddMainTagToComeOnlineSystemMessage = function(msg)
-    local name = select(3, msg:find("|Hplayer:([^:]*)(.-)|h%[.-%]|h"));
-    local fullName = GRM.AppendServerName(name);
-    local result = msg;
+local IsDisabled
 
-    if GRM.GetGuild() and GRM_G.guildName ~= "" and IsInGuild() then
+GRM.IsValidToAddTags = function( player )
+    -- Nickname first
+    local nickname = GRM.NN.GetNickname(player.name)
+    local result = false
+    local isUnassigned = false
+    local isMain = GRM.IsMain(player.name)
 
-        local player = GRM.GetPlayer(fullName);
-        if IsInGuild() and player then
+    if nickname and nickname ~= "" then
+        -- Player has nickname, let's check nickname settings for main
+        local nickMainDisabled = GRM_Name.IsTagDisabled("NICKMAIN", GRM.S().nicknameFormatMain)
+        local nickAltDisabled = GRM_Name.IsTagDisabled("NICKKALT", GRM.S().nicknameFormatAlt)
+        local nickUnassignedDisabled = GRM_Name.IsTagDisabled("NICKUNASSIGNED", GRM.S().nnFormatUnassigned)
 
-            local systemMsgHex = "|CFFFFFF00";
-            local mainTag = GRM_Name.GetMainTags(false, GRM.S().mainTagIndex);
-            local altTag = GRM_Name.GetAltTags(false, GRM.S().mainTagIndex);
-            local tempName = "";
-            local classColor = "";
-            if GRM.S().colorizeNames then
-                classColor = GRM.GetStringClassColorByName(fullName);
+        if isMain then
+            if not nickMainDisabled then
+                result = true;
             end
-
-            if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
-
-                if GRM.IsMain ( fullName ) then
-
-                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. mainTag .. "|r " .. GRM.L("has come online.");
-
-                elseif GRM.PlayerIsAnAlt(player) and not GRM.S().showMainName then -- Only show tag if NOT showing main
-                    -- Has alts, but is not the main.
-
-                    tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. altTag .. "|r " .. GRM.L("has come online.");
-
-                end
-            end
-
-            if GRM.S().showMainName and GRM.PlayerIsAnAlt(player) then
-                local mainName = GRM.GetFormattedMainName(fullName, false);
-
-                if mainName ~= "" then
-                    local mainColoring = GRM.GetStringClassColorByName(mainName);
-                    mainName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
-
-                    if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
-                        mainName = mainName .. " " .. GRM_G.TagHexCode .. mainTag .. "|r";
+        else
+            -- In a group
+            if GRM.PlayerHasAlts(player) then
+                -- Player is an Alt or unassigned
+                if not GRM.PlayerIsUnassignedInGroup(player) then
+                    -- Player is an Alt and IS assigned
+                    if not nickAltDisabled then
+                        result = true
                     end
-
-                    if tempName ~= "" then
-                        tempName = tempName .. " " .. mainName;
-                    else
-                        tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. mainName .. " " .. GRM.L("has come online.");
+                else
+                    isUnassigned = true
+                    -- player is unassigned
+                    if not nickUnassignedDisabled then 
+                        result = true
                     end
                 end
+            else
+                -- player is unassigned
+                isUnassigned = true
+                if not nickUnassignedDisabled then 
+                    result = true
+                end
             end
-
-            if tempName == "" then
-                tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. GRM.L("has come online.");
-            end
-
-            if tempName ~= "" then
-                result = tempName;
+        end
+    
+    else
+        -- No nickname - alt/main only
+        if GRM.PlayerHasAlts(player) then
+            if not GRM.PlayerIsUnassignedInGroup(player) then
+                local mainDisabled = GRM_Name.IsTagDisabled("NICKMAIN", GRM.S().nicknameFormatMain)
+                local altDisabled = GRM_Name.IsTagDisabled("NICKKALT", GRM.S().nicknameFormatAlt)
+                if isMain then
+                    if not mainDisabled then
+                        result = true;
+                    end
+                else
+                    if not altDisabled then
+                        result = true;
+                    end
+                end
+            else
+                isUnassigned = true
             end
         end
     end
 
-    return result;
+    return result, isMain, isUnassigned
+end
+
+-- Method:          AddMainTagToComeOnlineSystemMessage ( string )
+-- What it Does:    Adds the formatted main/alt/nickname tags to the come online message
+local AddMainTagToComeOnlineSystemMessage = function(msg)
+    -- We use gsub to safely reconstruct the clickable player link!
+    return string.gsub(msg, "(|Hplayer:([^:]*).-|h)%[.-%](|h)", function(prefix, name, suffix)
+        local fullName = GRM.AppendServerName(name)
+        local player = GRM.GetPlayer(fullName)
+
+        if player and GRM.GetGuild() then
+            local addTag, isMain, isUnassigned = IsValidToAddTags(player);
+
+            if addTag then
+                -- Fetch the core details
+                local mainName = ""
+                if isMain then
+                    print("PLAYER IS MAIN")
+                    mainName = fullName
+                else
+                    mainName = GRM.GetPlayerMain(fullName)
+                end
+                
+                local nickname = GRM.NN.GetNickname(fullName)
+                
+                -- Route it through your new universal formatter!
+                local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
+                
+                -- Colorize
+                if GRM.S().colorizeNames then
+                    local classColor = GRM.GetStringClassColorByName(fullName)
+                    formattedName = classColor .. formattedName .. "|r"
+                end
+                
+                -- Reconstruct the chat link with the newly formatted name
+                return prefix .. "[" .. formattedName .. "]" .. suffix
+            end
+        end
+        
+        -- Fallback if not a guild member
+        return prefix .. "[" .. name .. "]" .. suffix
+    end, 1)
 end
 
 -- Method:          AddMainTagToGoneOfflineSystemMessage ( string )
--- What it Does:    Adds the main tag to the system message announce when a player goes offline and colorizes their names
--- Purpose:         Quality of life information.
+-- What it Does:    Adds the formatted main/alt/nickname tags to the gone offline message
 local AddMainTagToGoneOfflineSystemMessage = function(msg)
-    
-    local breakIndex = string.find(msg, " "); -- This format fits almost all
+    local breakIndex = string.find(msg, " ")
     if not breakIndex then
-        breakIndex = string.find(msg, "下線了。"); -- Taiwanese
-        if not breakIndex then
-            breakIndex = string.find(msg, "下线了。"); -- Mandarin
+        breakIndex = string.find(msg, "下線了。") or string.find(msg, "下线了。")
+    end
+
+    if not breakIndex then return msg end
+
+    local name = string.sub(msg, 1, breakIndex - 1)
+    local fullName = GRM.AppendServerName(name)
+    local player = GRM.GetPlayer(fullName)
+
+    if player and GRM.GetGuild() then
+        local addTag, isMain, isUnassigned = IsValidToAddTags(player);
+
+        if addTag then
+            -- Fetch the core details
+            local mainName = ""
+            if isMain then
+                print("PLAYER IS MAIN")
+                mainName = fullName
+            else
+                mainName = GRM.GetPlayerMain(fullName)
+            end
+            
+            local nickname = GRM.NN.GetNickname(fullName)
+
+            -- Route it through your new universal formatter!
+            local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
+            
+            -- Colorize
+            if GRM.S().colorizeNames then
+                local classColor = GRM.GetStringClassColorByName(fullName)
+                formattedName = classColor .. formattedName .. "|r"
+            end
+            
+            -- Since going offline we don't need brackets as we can't click to msg
+            return formattedName .. string.sub(msg, breakIndex)
         end
     end
 
-    local finalNameFormat = "";
-    local tempName = "";
-    local fullName = "";
-
-    if GRM.GetGuild() then
-
-        fullName = GRM.AppendServerName(string.sub(msg, 1, breakIndex - 1));
-
-        if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
-            local mainName = GRM.GetFormattedMainName(fullName, false);
-
-            if mainName ~= "" then
-                local formattedMainName = GRM.FormatName(mainName);
-
-                if formattedMainName ~= GRM.FormatName(fullName) then
-                    local mainColoring = GRM.GetStringClassColorByName(mainName);
-                    tempName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
-                end
-            end
-
-        elseif ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
-            local showAltTag = false;
-            local player = GRM.GetPlayer(fullName);
-
-            if player and not GRM.PlayerHasAlts(player) or not GRM.S().showMainName then
-                showAltTag = true;
-            end
-
-            finalNameFormat = GRM.GetNameWithMainTags(fullName, true, GRM.S().showMainName, showAltTag, true);
-        end
-
-        if GRM.S().colorizeNames then
-            if finalNameFormat == "" then
-                local hexCode = GRM.GetStringClassColorByName(fullName);
-                fullName = hexCode .. GRM.FormatName(fullName) .. "|r";
-            end
-        else
-            fullName = GRM.FormatName(fullName);
-        end
-    end
-
-    if finalNameFormat == "" then
-        if tempName ~= "" then
-            finalNameFormat = fullName .. " " .. tempName;
-        else
-            finalNameFormat = fullName;
-        end
-    end
-
-    return finalNameFormat .. string.sub(msg, breakIndex);
+    return msg
 end
 
--- Method:          GRM_Sys.SetSystemMessageFilter ( self , string , string )
--- What it Does:    Starts tracking the system messages for filtering. This is only triggered on the audit frame initialization or if a player has left the guild
--- Purpose:         To control system message spam when doing server inquiries
+-- -- Method:          AddMainTagToComeOnlineSystemMessage ( string )
+-- -- What it Does:    Adds the main/alt tags to the system messages for coming online.
+-- -- Purpose:         Alt management feature!
+-- local AddMainTagToComeOnlineSystemMessage = function(msg)
+--     local name = select(3, msg:find("|Hplayer:([^:]*)(.-)|h%[.-%]|h"));
+--     local fullName = GRM.AppendServerName(name);
+--     local result = msg;
+
+--     if GRM.GetGuild() and GRM_G.guildName ~= "" and IsInGuild() then
+
+--         local player = GRM.GetPlayer(fullName);
+--         if IsInGuild() and player then
+
+--             local systemMsgHex = "|CFFFFFF00";
+--             local mainTag = GRM_Name.GetMainTags(false, GRM.S().mainTagIndex);
+--             local altTag = GRM_Name.GetAltTags(false, GRM.S().mainTagIndex);
+--             local tempName = "";
+--             local classColor = "";
+--             if GRM.S().colorizeNames then
+--                 classColor = GRM.GetStringClassColorByName(fullName);
+--             end
+
+--             if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
+
+--                 if GRM.IsMain ( fullName ) then
+
+--                     tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. mainTag .. "|r " .. GRM.L("has come online.");
+
+--                 elseif GRM.PlayerIsAnAlt(player) and not GRM.S().showMainName then -- Only show tag if NOT showing main
+--                     -- Has alts, but is not the main.
+
+--                     tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. altTag .. "|r " .. GRM.L("has come online.");
+
+--                 end
+--             end
+
+--             if GRM.S().showMainName and GRM.PlayerIsAnAlt(player) then
+--                 local mainName = GRM.GetFormattedMainName(fullName, false);
+
+--                 if mainName ~= "" then
+--                     local mainColoring = GRM.GetStringClassColorByName(mainName);
+--                     mainName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
+
+--                     if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
+--                         mainName = mainName .. " " .. GRM_G.TagHexCode .. mainTag .. "|r";
+--                     end
+
+--                     if tempName ~= "" then
+--                         tempName = tempName .. " " .. mainName;
+--                     else
+--                         tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. mainName .. " " .. GRM.L("has come online.");
+--                     end
+--                 end
+--             end
+
+--             if tempName == "" then
+--                 tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. GRM.L("has come online.");
+--             end
+
+--             if tempName ~= "" then
+--                 result = tempName;
+--             end
+--         end
+--     end
+
+--     return result;
+-- end
+
+-- -- Method:          AddMainTagToGoneOfflineSystemMessage ( string )
+-- -- What it Does:    Adds the main tag to the system message announce when a player goes offline and colorizes their names
+-- -- Purpose:         Quality of life information.
+-- local AddMainTagToGoneOfflineSystemMessage = function(msg)
+    
+--     local breakIndex = string.find(msg, " "); -- This format fits almost all
+--     if not breakIndex then
+--         breakIndex = string.find(msg, "下線了。"); -- Taiwanese
+--         if not breakIndex then
+--             breakIndex = string.find(msg, "下线了。"); -- Mandarin
+--         end
+--     end
+
+--     local finalNameFormat = "";
+--     local tempName = "";
+--     local fullName = "";
+
+--     if GRM.GetGuild() then
+
+--         fullName = GRM.AppendServerName(string.sub(msg, 1, breakIndex - 1));
+
+--         if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
+--             local mainName = GRM.GetFormattedMainName(fullName, false);
+
+--             if mainName ~= "" then
+--                 local formattedMainName = GRM.FormatName(mainName);
+
+--                 if formattedMainName ~= GRM.FormatName(fullName) then
+--                     local mainColoring = GRM.GetStringClassColorByName(mainName);
+--                     tempName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
+--                 end
+--             end
+
+--         elseif ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
+--             local showAltTag = false;
+--             local player = GRM.GetPlayer(fullName);
+
+--             if player and not GRM.PlayerHasAlts(player) or not GRM.S().showMainName then
+--                 showAltTag = true;
+--             end
+
+--             finalNameFormat = GRM.GetNameWithMainTags(fullName, true, GRM.S().showMainName, showAltTag, true);
+--         end
+
+--         if GRM.S().colorizeNames then
+--             if finalNameFormat == "" then
+--                 local hexCode = GRM.GetStringClassColorByName(fullName);
+--                 fullName = hexCode .. GRM.FormatName(fullName) .. "|r";
+--             end
+--         else
+--             fullName = GRM.FormatName(fullName);
+--         end
+--     end
+
+--     if finalNameFormat == "" then
+--         if tempName ~= "" then
+--             finalNameFormat = fullName .. " " .. tempName;
+--         else
+--             finalNameFormat = fullName;
+--         end
+--     end
+
+--     return finalNameFormat .. string.sub(msg, breakIndex);
+-- end
+
+-- Method:          ProcessSystemMessage ( string )
+-- What it Does:    The core routing logic for all system messages.
+-- Returns:         boolean (shouldFilter), string (modifiedMsg)
+local ProcessSystemMessage = function(msg)
+    local shouldFilter = false
+
+    GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or string.sub(GUILD_INFO_TEMPLATE, 1, string.find(GUILD_INFO_TEMPLATE, "%%") - 1)
+
+    -- 1. GUILD INFO FILTER (GuildInfo())
+    if GRM_G.MsgFilterDelay and (string.find(msg, GRM_G.guildInfoSystemMessage) or string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND))) then
+        if string.find(msg, GRM_G.guildInfoSystemMessage) and ((time() - GRM_G.SystemMsgThrottle) > 1) then
+            GRM_G.SystemMsgThrottle = time()
+            GRM_G.CreationDatePattern = GRM_G.CreationDatePattern or CreateGuildCreationDatePattern()
+
+            local a, b, c, _, numUniqueAccounts = string.match(msg, GRM_G.CreationDatePattern)
+            if a and b and c then
+                local month, day, year
+                if GRM_G.Region == "deDE" or GRM_G.Region == "esES" or GRM_G.Region == "esMX" or GRM_G.Region == "frFR" then
+                    day, month, year = a, b, c
+                elseif GRM_G.Region == "koKR" then
+                    day, month, year = c, b, a
+                else
+                    day, month, year = b, a, c
+                end
+
+                if day ~= "0" then
+                    numUniqueAccounts = tonumber(numUniqueAccounts)
+                    if numUniqueAccounts > GRM_G.numAccounts and GRM_G.numAccounts ~= 0 then
+                        GRM_G.DesignateMain = true
+                        C_Timer.After(10.1, function() GRM_G.DesignateMain = false end)
+                    end
+                    GRM_G.numAccounts = numUniqueAccounts
+                    local date = day .. "-" .. month .. "-" .. year
+                    if GRM_G.guildCreationDate == "" or GRM_G.guildCreationDate ~= date then
+                        GRM_G.guildCreationDate = date
+                    end
+                end
+            end
+        end
+        shouldFilter = true
+
+    -- 2. Player Not Found / Friend List Spam
+    elseif (GRM_G.MsgFilterDelay or GRM_G.MsgFilterDelay2) and (msg == GRM.L("Player not found.") or string.find(msg, GRM.L("added to friends")) or string.find(msg, GRM.L("is already your friend"))) then
+        shouldFilter = true
+
+    -- 3. Sync Player Disconnects
+    elseif GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and SystemMessagePatternMatchCheck(1, msg, GRMsyncGlobals.CurrentSyncPlayer) then
+        if GRMsyncGlobals.currentlySyncing then GRMsync.EndSync(false) end
+        shouldFilter = true
+
+    -- 4. Guild Event Spam Control (Promoted, Demoted, Kicked, etc.)
+    elseif string.find(msg, GRM.L("has promoted")) or string.find(msg, GRM.L("has demoted")) or string.find(msg, GRM.L("joined the guild.")) or string.find(msg, GRM.L("left the guild.")) or string.find(msg, GRM.L("has been kicked")) then
+        shouldFilter = GRM.SystemMessageLiveDetectionControl(msg)
+        if string.find(msg, GRM.L("has been kicked")) and (GRM_UI.GRM_ToolCoreFrame:IsVisible() and GRM.S().disableMacroToolLogSpam) then
+            shouldFilter = true
+        end
+
+    -- 5. Logon / Logoff Name Replacements
+    elseif not GRM_G.MainNameSystemMsgControl then
+        if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() then
+            if string.find(msg, GRM.L("has come online.")) then
+                GRM.GuildRoster()
+                msg = AddMainTagToComeOnlineSystemMessage(msg)
+                GRM.Scan.AnnounceIfBirthday(msg)
+                C_Timer.After(1.5, function() AnnounceIfMacroReady(msg) end)
+
+            elseif string.find(msg, GRM.L("has gone offline.")) then
+                if GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
+                    GRMsync.EndSync(false)
+                end
+                GRM.GuildRoster()
+                msg = AddMainTagToGoneOfflineSystemMessage(msg)
+            end
+        end
+        
+    -- 6. Fallback Sync Disconnect Check
+    elseif GRM_G.MainNameSystemMsgControl and string.find(msg, GRM.L("has gone offline.")) and GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
+        GRMsync.EndSync(false)
+    end
+
+    return shouldFilter, msg
+end
+
+-- Method:          GRM_Sys.SetSystemMessageFilter
+-- Purpose:         Filters chat spam during server inquiries and injects tags.
 GRM_Sys.SetSystemMessageFilter = function(_, _, msg, ...)
-    local result = false;
-    GRM_G.SystemMessagesEnabled = true;
+    local shouldFilter = false
+    GRM_G.SystemMessagesEnabled = true
 
-    -- Error protection to not break chat
-    if GRM.S() then
-        if msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage and not GRM.issecretvalue(msg)  then
-            GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or
-                                            string.sub(GUILD_INFO_TEMPLATE, 1,
-                    string.find(GUILD_INFO_TEMPLATE, "%%") - 1);
-            -- GUILD INFO FILTER (GuildInfo())
-            if GRM_G.MsgFilterDelay and 
-                (string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil or string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND)) ~=
-                    nil) then -- These may need to be localized. I have not yet tested if other regions return same info. It IS system info.
-                if string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil and ((time() - GRM_G.SystemMsgThrottle) > 1) then
-                    GRM_G.SystemMsgThrottle = time();
-                    GRM_G.CreationDatePattern = GRM_G.CreationDatePattern or CreateGuildCreationDatePattern();
-
-                    local a, b, c, _, numUniqueAccounts = string.match(msg, GRM_G.CreationDatePattern);
-                    local month, day, year;
-                    -- a , b , c can be either day, month, or year, depending on the Region formatting for the note.
-                    if GRM_G.Region == "deDE" or GRM_G.Region == "esES" or GRM_G.Region == "esMX" or GRM_G.Region ==
-                        "frFR" then
-                        day = a;
-                        month = b;
-                        year = c;
-                    elseif GRM_G.Region == "enUS" or GRM_G.Region == "itIT" or GRM_G.Region == "ptBR" or GRM_G.Region ==
-                        "ruRU" or GRM_G.Region == "zhCN" or GRM_G.Region == "zhTW" then
-                        day = b;
-                        month = a;
-                        year = c;
-                    elseif GRM_G.Region == "koKR" then
-                        day = c;
-                        month = b;
-                        year = a;
-                    end
-
-                    -- On first logging in, there can be an error and not be able to load.
-                    if day ~= "0" then
-
-                        numUniqueAccounts = tonumber(numUniqueAccounts);
-
-                        -- For auto-main tagging... detect the change here!
-                        if numUniqueAccounts > GRM_G.numAccounts and GRM_G.numAccounts ~= 0 then
-                            GRM_G.DesignateMain = true;
-                            C_Timer.After(10.1, function()
-                                GRM_G.DesignateMain = false;
-                            end);
-                        end
-
-                        GRM_G.numAccounts = numUniqueAccounts;
-                        local date = day .. "-" .. month .. "-" .. year;
-
-                        if GRM_G.guildCreationDate == "" or GRM_G.guildCreationDate ~= date then
-                            GRM_G.guildCreationDate = date;
-                        end
-
-                    end
-                end
-                result = true;
-
-                -- Player Not Found when trying to add to friends list message
-            elseif (GRM_G.MsgFilterDelay or GRM_G.MsgFilterDelay2) and
-                (msg == GRM.L("Player not found.") or string.find(msg, GRM.L("added to friends")) ~= nil or
-                    string.find(msg, GRM.L("is already your friend")) ~= nil) then
-                result = true;
-
-            elseif GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and
-                SystemMessagePatternMatchCheck(1, msg, GRMsyncGlobals.CurrentSyncPlayer) then
-
-                if GRMsyncGlobals.currentlySyncing then
-                    GRMsync.EndSync(false);
-                end
-
-                result = true;
-
-            elseif string.find(msg, GRM.L("has promoted")) ~= nil or string.find(msg, GRM.L("has demoted")) ~= nil or
-                string.find(msg, GRM.L("joined the guild.")) ~= nil or string.find(msg, GRM.L("left the guild.")) ~= nil or
-                string.find(msg, GRM.L("has been kicked")) ~= nil then
-                -- Silence messages the log
-                result = GRM.SystemMessageLiveDetectionControl(msg);
-
-                -- Force filter the message
-                if string.find(msg, GRM.L("has been kicked")) ~= nil and
-                    (GRM_UI.GRM_ToolCoreFrame:IsVisible() and GRM.S().disableMacroToolLogSpam) then
-                    result = true;
-                end
-
-                -- Normal System message... Let's add the main tags...
-            elseif not GRM_G.MainNameSystemMsgControl then -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
-                if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() and
-                    ((GRM_G.TagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
-                    if string.find(msg, GRM.L("has come online.")) ~= nil then
-                        GRM.GuildRoster();
-                        msg = AddMainTagToComeOnlineSystemMessage(msg);
-
-                        -- Check if it is their birthday.
-                        GRM.Scan.AnnounceIfBirthday(msg);
-
-                        C_Timer.After(1.5,
-                            function() -- Giving a delay as I found instantly the "IsOnline" to not be accurate from server always. Need a second or so to register.
-                                AnnounceIfMacroReady(msg);
-                            end);
-
-                    elseif string.find(msg, GRM.L("has gone offline.")) ~= nil then
-                        if GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
-                            GRMsync.EndSync(false);
-                        end
-                        GRM.GuildRoster();
-                        msg = AddMainTagToGoneOfflineSystemMessage(msg);
-                    end
-
-                elseif (time() - GRMsyncGlobals.timeAtLogin) > 5 then
-                    if string.find(msg, GRM.L("has come online.")) ~= nil or
-                        string.find(msg, GRM.L("has gone offline.")) ~= nil then
-                        GRM.GuildRoster();
-                    end
-                end
-            elseif GRM_G.MainNameSystemMsgControl and string.find(msg, GRM.L("has gone offline.")) ~= nil and
-                GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
-                GRMsync.EndSync(false);
-            end
-        else
-            result = true;
-        end
+    if GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage and not GRM.issecretvalue(msg) then
+        shouldFilter, msg = ProcessSystemMessage(msg)
+    else
+        shouldFilter = true
     end
 
-    SystemMessageHookControl();
-
-    return result, msg, ...;
+    SystemMessageHookControl()
+    return shouldFilter, msg, ...
 end
 
--- Method:          GRM_Sys.SystemMessageHandler ( self , string , string )
--- What it Does:    Starts tracking the system messages. This only runs if system messages are disabled, thus this prioritizes over the filtering function
--- Purpose:         For faster response to LIVE events rather than waiting for server query updates.
+-- Method:          GRM_Sys.SystemMessageHandler
+-- Purpose:         Tracks events when filtering is OFF, while still injecting name tags.
 GRM_Sys.SystemMessageHandler = function(_, _, msg)
     if not GRM_G.SystemMessagesEnabled and not GRM.issecretvalue(msg) then
-
-        -- Error protection to not break chat
-        if GRM.S() and GRM.GetGuild() ~= nil then
-            if msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
-
-                GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or
-                                                   string.sub(GUILD_INFO_TEMPLATE, 1,
-                        string.find(GUILD_INFO_TEMPLATE, "%%") - 1);
-
-                -- GUILD INFO FILTER (GuildInfo())
-                if GRM_G.MsgFilterDelay and
-                    (string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil or
-                        string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND)) ~= nil) then -- These may need to be localized. I have not yet tested if other regions return same info. It IS system info.
-                    if string.find(msg, GRM_G.guildInfoSystemMessage) ~= nil and
-                        ((time() - GRM_G.SystemMsgThrottle) > 1) then
-                        GRM_G.SystemMsgThrottle = time();
-                        GRM_G.CreationDatePattern = GRM_G.CreationDatePattern or CreateGuildCreationDatePattern();
-
-                        local a, b, c, _, numUniqueAccounts = string.match(msg, GRM_G.CreationDatePattern);
-                        local month, day, year;
-                        -- a , b , c can be either day, month, or year, depending on the Region formatting for the note.
-                        if GRM_G.Region == "deDE" or GRM_G.Region == "esES" or GRM_G.Region == "esMX" or GRM_G.Region ==
-                            "frFR" then
-                            day = a;
-                            month = b;
-                            year = c;
-                        elseif GRM_G.Region == "enUS" or GRM_G.Region == "itIT" or GRM_G.Region == "ptBR" or
-                            GRM_G.Region == "ruRU" or GRM_G.Region == "zhCN" or GRM_G.Region == "zhTW" then
-                            day = b;
-                            month = a;
-                            year = c;
-                        elseif GRM_G.Region == "koKR" then
-                            day = c;
-                            month = b;
-                            year = a;
-                        end
-
-                        -- On first logging in, there can be an error and not be able to load.
-                        if day ~= "0" then
-
-                            numUniqueAccounts = tonumber(numUniqueAccounts);
-
-                            -- For auto-main tagging... detect the change here!
-                            if numUniqueAccounts > GRM_G.numAccounts and GRM_G.numAccounts ~= 0 then
-                                GRM_G.DesignateMain = true;
-                                C_Timer.After(10.1, function()
-                                    GRM_G.DesignateMain = false;
-                                end);
-                            end
-
-                            GRM_G.numAccounts = numUniqueAccounts;
-
-                            local date = day .. "-" .. month .. "-" .. year;
-
-                            if GRM_G.guildCreationDate == "" or GRM_G.guildCreationDate ~= date then
-                                GRM_G.guildCreationDate = date;
-                            end
-
-                        end
-                    end
-
-                elseif GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and
-                    SystemMessagePatternMatchCheck(1, msg, GRMsyncGlobals.CurrentSyncPlayer) then
-
-                    if GRMsyncGlobals.currentlySyncing then
-                        GRMsync.EndSync(false);
-                    end
-
-                elseif string.find(msg, GRM.L("has promoted")) ~= nil or string.find(msg, GRM.L("has demoted")) ~= nil or
-                    string.find(msg, GRM.L("joined the guild.")) ~= nil or string.find(msg, GRM.L("left the guild.")) ~=
-                    nil or string.find(msg, GRM.L("has been kicked")) ~= nil then
-                    -- Silence messages the log
-                    GRM.SystemMessageLiveDetectionControl(msg);
-
-                    -- Normal System message... Let's add the main tags...
-                elseif not GRM_G.MainNameSystemMsgControl then -- No need to add a tag if they just joined... as they have no tag, and their profile is not yet generated. Addon will see them as a non-guildie the first instant.
-                    if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() and
-                        ((GRM_G.TagHexCode ~= "" and (GRM.S().showMainName or GRM.S().useMainTag)) or GRM.S().colorizeNames) then
-                        if string.find(msg, GRM.L("has come online.")) ~= nil then
-                            GRM.GuildRoster();
-                            msg = AddMainTagToComeOnlineSystemMessage(msg);
-
-                            -- Check if it is their birthday.
-                            GRM.Scan.AnnounceIfBirthday(msg);
-
-                            C_Timer.After(1.5,
-                                function() -- Giving a delay as I found instantly the "IsOnline" to not be accurate from server always. Need a second or so to register.
-                                    AnnounceIfMacroReady(msg);
-                                end);
-
-                        elseif string.find(msg, GRM.L("has gone offline.")) ~= nil then
-                            if GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
-                                GRMsync.EndSync(false);
-                            end
-                            GRM.GuildRoster();
-                            msg = AddMainTagToGoneOfflineSystemMessage(msg);
-                        end
-
-                    elseif (time() - GRMsyncGlobals.timeAtLogin) > 5 then
-                        if string.find(msg, GRM.L("has come online.")) ~= nil or
-                            string.find(msg, GRM.L("has gone offline.")) ~= nil then
-                            GRM.GuildRoster();
-                        end
-                    end
-                elseif GRM_G.MainNameSystemMsgControl and string.find(msg, GRM.L("has gone offline.")) ~= nil and
-                    GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
-                    GRMsync.EndSync(false);
-                end
-            end
+        if GRM.S() and GRM.GetGuild() ~= nil and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
+            
+            -- We don't care about the boolean return here, we just want to run the logic and modify the string!
+            _, msg = ProcessSystemMessage(msg)
         end
-        -- Re-evaluate message controls
-        SystemMessageHookControl();
+        SystemMessageHookControl()
     end
 end
 

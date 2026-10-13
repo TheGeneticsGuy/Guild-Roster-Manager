@@ -38,6 +38,13 @@ NN.GetNickname = function ( playerName )
     return nickname;
 end
 
+-- Method:          NN.PlayerHasNickname ( string )
+-- What it Does:    Returns boolean if the player has a custom nickname set
+NN.PlayerHasNickname = function(playerName)
+    local nick = NN.GetNickname(playerName)
+    return (nick and nick ~= "")
+end
+
 -- Method:          NN.SyncNickChangeToAltGroup(table, bool)
 -- What it Does:    Persists the player's nickname to the whole altGroup
 NN.SyncNickChangeToAltGroup = function( player, onlyChangeShareSetting )
@@ -50,11 +57,11 @@ NN.SyncNickChangeToAltGroup = function( player, onlyChangeShareSetting )
                 if group[i].name ~= player.name then
                     local altPlayer = GRM.GetPlayer(group[i].name);
                     if altPlayer then
-                        if onlyChangeShareSetting then
+                        if not onlyChangeShareSetting then
                             altPlayer.nickInfo = GRM.Util.DeepCopyArray(player.nickInfo);
                         else
                             altPlayer.nickInfo.editedDetails = GRM.Util.DeepCopyArray(player.nickInfo.editedDetails);
-                            altPlayer.nickInfo.shareNickAmongAlts = false;
+                            altPlayer.nickInfo.shareNickAmongAlts = player.nickInfo.shareNickAmongAlts;
                         end
                         
                     end
@@ -64,6 +71,11 @@ NN.SyncNickChangeToAltGroup = function( player, onlyChangeShareSetting )
         end
     end
 end
+
+-- /run GRM.NN.SetNickname(GRM.GetPlayer("Arkaan-Zul'jin",false), "TestNick2", true, "Arkaan-Zul'jin", time(), {12,10,2026},false)
+-- /run GRM.NN.SetNickname(GRM.GetPlayer("Enrigg-Zul'jin",false), "EnriggBOSS", true, "Arkaan-Zul'jin", time(), {12,10,2026},false)
+-- /run GRM.NN.SetNickname(GRM.GetPlayer("Enrigg-Zul'jin",false), "LOL Master", true, "Arkaan-Zul'jin", time(), {12,10,2026},false)
+-- /dump GRM.NN.GetNickname("Enrigg-Zul'jin")
 
 -- Method:          NN.SetNickname ( table , string , bool,  string , int , table, bool  )
 -- What it Does:    Sets the nickname to either the player or the group based on settings.

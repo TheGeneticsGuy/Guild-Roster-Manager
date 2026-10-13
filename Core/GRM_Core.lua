@@ -3556,7 +3556,7 @@ GRM.AddMainToChat = function(chatFrame, event, msg, sender, ...)
                 local nickname = GRM.NN.GetNickname(sender);
 
                 -- Format the name using our universal helper
-                local formattedName = GRM_Name.GetFormattedNameString(toonName, mainName, nickname, isMain)
+                local formattedName = GRM_Name.GetFormattedNameString(toonName, mainName, nickname, isMain, false, nil, false)
                 
                 -- Add class coloring if enabled
                 if GRM.S().colorizeNames then
