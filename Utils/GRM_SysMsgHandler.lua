@@ -180,7 +180,7 @@ end
 
 local IsDisabled
 
-GRM.IsValidToAddTags = function( player )
+local IsValidToAddTags = function( player )
     -- Nickname first
     local nickname = GRM.NN.GetNickname(player.name)
     local result = false

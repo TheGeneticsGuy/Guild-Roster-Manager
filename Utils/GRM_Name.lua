@@ -71,18 +71,12 @@ GRM_Name.GetFormattedNameString = function(playerName, mainName, nickname, isMai
     -- Nicname Formatting
     if nickname and nickname ~= "" then      
         local classHex = toonName:match("^(|[cC]%x%x%x%x%x%x%x%x)")
-        if not forDropdown then
-            print("NNickname: " .. toonName .. " - " .. nickname .. " - " .. mainName .. " - " .. tostring(isMain) )
-        end
         nickname = IsNameColorized(nickname) and nickname or (classHex .. nickname .. "|r") -- Use toon name coloring
         
         local nickStr = c2 .. WrapByNickTag(nickname, s.nickTagIndex) .. reset
         local wrapMain = c1 .. WrapByTag(mainName, s.mainTagIndex) .. reset
 
         if isMain then
-            if not forDropdown then
-                print("THIS IS A MAIN")
-            end
             local f = index or s.nicknameFormatMain
             if f == 1 then result = nickStr .. " " .. wrapMain
             elseif f == 2 then result = nickStr .. " " .. c1 .. mainName .. " " .. M .. reset
@@ -94,9 +88,6 @@ GRM_Name.GetFormattedNameString = function(playerName, mainName, nickname, isMai
             elseif f == 8 then result = toonName .. noNickname end
         else
             if not unassigned then
-                if not forDropdown then
-                    print("THIS IS NOT MAIN")
-                end
                 local f = index or s.nicknameFormatAlt
                 if f == 1 then result = nickStr .. " " .. c1 .. toonName .. " " .. A .. reset
                 elseif f == 2 then result = toonName .. " " .. nickStr

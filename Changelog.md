@@ -31,8 +31,8 @@ In order:
   - 3 = Auto update enabled and destination CUSTOM Note
 
 TO DO: - Timestamp doesn't have Global Control tag
-TO DO: - Use only 1 color picker window  - Add text title b ased on what it is connected to.
-
+TO DO: - Remove GRM.S().useFullName
+TO DO: - Implement FormatName settings somehow 
 
 ## **VERSION 1.995 - PENDING DATE**
 
