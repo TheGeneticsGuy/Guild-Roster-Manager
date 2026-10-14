@@ -2,16 +2,22 @@ GRM_Sys = {};
 
 local MainTagEvents = {
     CHAT_MSG_GUILD                 = true,
+    CHAT_MSG_OFFICER               = true,
     CHAT_MSG_WHISPER               = true,
-    CHAT_MSG_GUILD_ACHIEVEMENT     = true,
     CHAT_MSG_PARTY                 = true,
     CHAT_MSG_PARTY_LEADER          = true,
     CHAT_MSG_RAID                  = true,
     CHAT_MSG_RAID_LEADER           = true,
     CHAT_MSG_INSTANCE_CHAT         = true,
     CHAT_MSG_INSTANCE_CHAT_LEADER  = true,
-    CHAT_MSG_OFFICER               = true,
 }
+
+-- Main Tag Duplication protection
+local FormattingDupeProtect = {};
+FormattingDupeProtect.time = 0;
+FormattingDupeProtect.name = "";
+FormattingDupeProtect.msg = "";
+FormattingDupeProtect.tableString = "";
 
 -- Method:          CreateGuildCreationDatePattern()
 -- What it Does:    Creates the guild Creation Date Pattern
@@ -41,17 +47,37 @@ local SystemMessageHookControl = function()
 end
 
 -- Method:          GRM_Sys.MessageHookControl()
--- What it Does:    Handles some communications issues with the chat so that the main tags can be hooked into and edited
--- Purpose:         Message editing of GRM tags
+-- What it Does:    Initializes all chat interceptions
 GRM_Sys.MessageHookControl = function()
     if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
+        
+        -- Hook the System Messages (Logons, logoffs, guild info)
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
+
+        -- Hook all the chat messages, like Guild, Officer, Party, Raid, Instance, etc..
         for chat_event in pairs(MainTagEvents) do
-            ChatFrame_AddMessageEventFilter(chat_event, GRM.AddMainToChat);
+            ChatFrame_AddMessageEventFilter(chat_event, GRM_Sys.AddFormattedNameToChat);
         end
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter);
-        GRM_G.MainHookConfigured = true;
+        
+        -- Initialize the Visual Name Formatting
+        GRM_Sys.HookChatFrames()
+        
+        GRM_G.MainHookConfigured = true
     end
 end
+
+-- -- Method:          GRM_Sys.MessageHookControl()
+-- -- What it Does:    Handles some communications issues with the chat so that the main tags can be hooked into and edited
+-- -- Purpose:         Message editing of GRM tags
+-- GRM_Sys.MessageHookControl = function()
+--     if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
+--         for chat_event in pairs(MainTagEvents) do
+--             ChatFrame_AddMessageEventFilter(chat_event, GRM_Sys.ParseChatForNote);
+--         end
+--         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter);
+--         GRM_G.MainHookConfigured = true;
+--     end
+-- end
 
 -- Method:          SyncPlayerGoneOffline ( string )
 -- What it Does:    Reports back if player you are syncing with has gone offline.
@@ -178,9 +204,9 @@ local AnnounceIfMacroReady = function(msg)
     end
 end
 
-local IsDisabled
-
-local IsValidToAddTags = function( player )
+-- Method:          GRM_Sys.IsValidToAddTags( playerTable )
+-- What it Does:    Evaluates if a player should receive tags based on dropdown settings
+GRM_Sys.IsValidToAddTags = function(player)
     -- Nickname first
     local nickname = GRM.NN.GetNickname(player.name)
     local result = false
@@ -190,35 +216,27 @@ local IsValidToAddTags = function( player )
     if nickname and nickname ~= "" then
         -- Player has nickname, let's check nickname settings for main
         local nickMainDisabled = GRM_Name.IsTagDisabled("NICKMAIN", GRM.S().nicknameFormatMain)
-        local nickAltDisabled = GRM_Name.IsTagDisabled("NICKKALT", GRM.S().nicknameFormatAlt)
+        local nickAltDisabled = GRM_Name.IsTagDisabled("NICKALT", GRM.S().nicknameFormatAlt)
         local nickUnassignedDisabled = GRM_Name.IsTagDisabled("NICKUNASSIGNED", GRM.S().nnFormatUnassigned)
 
         if isMain then
-            if not nickMainDisabled then
-                result = true;
-            end
+            result = not nickMainDisabled
         else
             -- In a group
             if GRM.PlayerHasAlts(player) then
                 -- Player is an Alt or unassigned
                 if not GRM.PlayerIsUnassignedInGroup(player) then
                     -- Player is an Alt and IS assigned
-                    if not nickAltDisabled then
-                        result = true
-                    end
+                    result = not nickAltDisabled
                 else
                     isUnassigned = true
                     -- player is unassigned
-                    if not nickUnassignedDisabled then 
-                        result = true
-                    end
+                    result = not nickUnassignedDisabled
                 end
             else
                 -- player is unassigned
                 isUnassigned = true
-                if not nickUnassignedDisabled then 
-                    result = true
-                end
+                result = not nickUnassignedDisabled
             end
         end
     
@@ -229,13 +247,9 @@ local IsValidToAddTags = function( player )
                 local mainDisabled = GRM_Name.IsTagDisabled("NICKMAIN", GRM.S().nicknameFormatMain)
                 local altDisabled = GRM_Name.IsTagDisabled("NICKKALT", GRM.S().nicknameFormatAlt)
                 if isMain then
-                    if not mainDisabled then
-                        result = true;
-                    end
+                    result = not mainDisabled
                 else
-                    if not altDisabled then
-                        result = true;
-                    end
+                    result = not altDisabled
                 end
             else
                 isUnassigned = true
@@ -255,18 +269,11 @@ local AddMainTagToComeOnlineSystemMessage = function(msg)
         local player = GRM.GetPlayer(fullName)
 
         if player and GRM.GetGuild() then
-            local addTag, isMain, isUnassigned = IsValidToAddTags(player);
+            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player);
 
             if addTag then
                 -- Fetch the core details
-                local mainName = ""
-                if isMain then
-                    print("PLAYER IS MAIN")
-                    mainName = fullName
-                else
-                    mainName = GRM.GetPlayerMain(fullName)
-                end
-                
+                local mainName = isMain and fullName or GRM.GetPlayerMain(fullName)
                 local nickname = GRM.NN.GetNickname(fullName)
                 
                 -- Route it through your new universal formatter!
@@ -303,18 +310,11 @@ local AddMainTagToGoneOfflineSystemMessage = function(msg)
     local player = GRM.GetPlayer(fullName)
 
     if player and GRM.GetGuild() then
-        local addTag, isMain, isUnassigned = IsValidToAddTags(player);
+        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player);
 
         if addTag then
             -- Fetch the core details
-            local mainName = ""
-            if isMain then
-                print("PLAYER IS MAIN")
-                mainName = fullName
-            else
-                mainName = GRM.GetPlayerMain(fullName)
-            end
-            
+            local mainName = isMain and fullName or GRM.GetPlayerMain(fullName)
             local nickname = GRM.NN.GetNickname(fullName)
 
             -- Route it through your new universal formatter!
@@ -333,139 +333,6 @@ local AddMainTagToGoneOfflineSystemMessage = function(msg)
 
     return msg
 end
-
--- -- Method:          AddMainTagToComeOnlineSystemMessage ( string )
--- -- What it Does:    Adds the main/alt tags to the system messages for coming online.
--- -- Purpose:         Alt management feature!
--- local AddMainTagToComeOnlineSystemMessage = function(msg)
---     local name = select(3, msg:find("|Hplayer:([^:]*)(.-)|h%[.-%]|h"));
---     local fullName = GRM.AppendServerName(name);
---     local result = msg;
-
---     if GRM.GetGuild() and GRM_G.guildName ~= "" and IsInGuild() then
-
---         local player = GRM.GetPlayer(fullName);
---         if IsInGuild() and player then
-
---             local systemMsgHex = "|CFFFFFF00";
---             local mainTag = GRM_Name.GetMainTags(false, GRM.S().mainTagIndex);
---             local altTag = GRM_Name.GetAltTags(false, GRM.S().mainTagIndex);
---             local tempName = "";
---             local classColor = "";
---             if GRM.S().colorizeNames then
---                 classColor = GRM.GetStringClassColorByName(fullName);
---             end
-
---             if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
-
---                 if GRM.IsMain ( fullName ) then
-
---                     tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. mainTag .. "|r " .. GRM.L("has come online.");
-
---                 elseif GRM.PlayerIsAnAlt(player) and not GRM.S().showMainName then -- Only show tag if NOT showing main
---                     -- Has alts, but is not the main.
-
---                     tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. GRM_G.TagHexCode .. altTag .. "|r " .. GRM.L("has come online.");
-
---                 end
---             end
-
---             if GRM.S().showMainName and GRM.PlayerIsAnAlt(player) then
---                 local mainName = GRM.GetFormattedMainName(fullName, false);
-
---                 if mainName ~= "" then
---                     local mainColoring = GRM.GetStringClassColorByName(mainName);
---                     mainName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
-
---                     if ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
---                         mainName = mainName .. " " .. GRM_G.TagHexCode .. mainTag .. "|r";
---                     end
-
---                     if tempName ~= "" then
---                         tempName = tempName .. " " .. mainName;
---                     else
---                         tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. mainName .. " " .. GRM.L("has come online.");
---                     end
---                 end
---             end
-
---             if tempName == "" then
---                 tempName = systemMsgHex .. string.format("%s|Hplayer:%s|h[%s]|h|r", classColor, name, name) .. " " .. GRM.L("has come online.");
---             end
-
---             if tempName ~= "" then
---                 result = tempName;
---             end
---         end
---     end
-
---     return result;
--- end
-
--- -- Method:          AddMainTagToGoneOfflineSystemMessage ( string )
--- -- What it Does:    Adds the main tag to the system message announce when a player goes offline and colorizes their names
--- -- Purpose:         Quality of life information.
--- local AddMainTagToGoneOfflineSystemMessage = function(msg)
-    
---     local breakIndex = string.find(msg, " "); -- This format fits almost all
---     if not breakIndex then
---         breakIndex = string.find(msg, "下線了。"); -- Taiwanese
---         if not breakIndex then
---             breakIndex = string.find(msg, "下线了。"); -- Mandarin
---         end
---     end
-
---     local finalNameFormat = "";
---     local tempName = "";
---     local fullName = "";
-
---     if GRM.GetGuild() then
-
---         fullName = GRM.AppendServerName(string.sub(msg, 1, breakIndex - 1));
-
---         if GRM.S().showMainName and not ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
---             local mainName = GRM.GetFormattedMainName(fullName, false);
-
---             if mainName ~= "" then
---                 local formattedMainName = GRM.FormatName(mainName);
-
---                 if formattedMainName ~= GRM.FormatName(fullName) then
---                     local mainColoring = GRM.GetStringClassColorByName(mainName);
---                     tempName = mainColoring .. "(" .. GRM.FormatName(mainName) .. ")|r"
---                 end
---             end
-
---         elseif ( GRM.S().useMainTag and GRM_G.TagHexCode ~= "" ) then
---             local showAltTag = false;
---             local player = GRM.GetPlayer(fullName);
-
---             if player and not GRM.PlayerHasAlts(player) or not GRM.S().showMainName then
---                 showAltTag = true;
---             end
-
---             finalNameFormat = GRM.GetNameWithMainTags(fullName, true, GRM.S().showMainName, showAltTag, true);
---         end
-
---         if GRM.S().colorizeNames then
---             if finalNameFormat == "" then
---                 local hexCode = GRM.GetStringClassColorByName(fullName);
---                 fullName = hexCode .. GRM.FormatName(fullName) .. "|r";
---             end
---         else
---             fullName = GRM.FormatName(fullName);
---         end
---     end
-
---     if finalNameFormat == "" then
---         if tempName ~= "" then
---             finalNameFormat = fullName .. " " .. tempName;
---         else
---             finalNameFormat = fullName;
---         end
---     end
-
---     return finalNameFormat .. string.sub(msg, breakIndex);
--- end
 
 -- Method:          ProcessSystemMessage ( string )
 -- What it Does:    The core routing logic for all system messages.
@@ -571,19 +438,19 @@ end
 GRM_Sys.SystemMessageHandler = function(_, _, msg)
     if not GRM_G.SystemMessagesEnabled and not GRM.issecretvalue(msg) then
         if GRM.S() and GRM.GetGuild() ~= nil and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
-            
-            -- We don't care about the boolean return here, we just want to run the logic and modify the string!
-            _, msg = ProcessSystemMessage(msg)
+            -- Ignoring return, just processing
+            ProcessSystemMessage(msg)
         end
         SystemMessageHookControl()
     end
 end
 
 -- Method:          GRM_Sys.SetGuildInfoDetails()
--- Purpose:         Calls the server info on the guild and parses out the number of exact unique accounts are in the guild. It also filters the chat msg to avoid chat spam, then unfilters it immediately after
+-- Purpose:         Calls the server info on the guild and parses out the number of exact unique accounts are in the guild.
+--                  It also filters the chat msg to avoid chat spam, then unfilters it immediately after
 --                  as a Quality of Life feature so the user can manually continue to call as needed.
--- Purpose:         It is useful information to know how many unique acocunts are in the guild. This particularly is useful when comparing how many "mains" there
---                  are on the audit window...
+-- Purpose:         It is useful information to know how many unique acocunts are in the guild. This particularly is useful 
+--                  comparing how many "mains" there are on the audit window...
 GRM_Sys.SetGuildInfoDetails = function()
     GRM_G.MsgFilterDelay = true; -- Resets the 1 second timer upon calling this method for the chat spam blocking. This ensures player manual calls are visual, but code calls are filtered.
     GRM.ConfigureGuild();
@@ -597,4 +464,352 @@ GRM_Sys.SetGuildInfoDetails = function()
     C_Timer.After(2, function()
         GRM_G.MsgFilterDelay = false;
     end);
+end
+
+
+
+-- Method:          GRM_Sys.AddFormattedNameToChat ( ... )
+-- What it Does:    Calculates the formatted name and injects a hidden marker for the AddMessage hook.
+GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
+    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg) then
+        local tableString = tostring(chatFrame)
+        local placeHolderMsg = msg -- Save raw message for the !note trigger
+
+        -- Dupe protection
+        if tableString == FormattingDupeProtect.tableString and 
+           time() == FormattingDupeProtect.time and
+           sender == FormattingDupeProtect.name and
+           string.find(msg, FormattingDupeProtect.msg, 1, true) then
+             return false, msg, sender, ...
+        end
+
+        FormattingDupeProtect.time = time()
+        FormattingDupeProtect.name = sender
+        FormattingDupeProtect.msg = msg
+        FormattingDupeProtect.tableString = tableString
+
+        if sender ~= GRM_G.addonUser then
+            local player = GRM.GetPlayer(sender)
+            if player then
+                local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+
+                if addTag then
+                    local toonName = GRM.FormatName(sender)
+                    local mainName = isMain and toonName or GRM.GetPlayerMain(player)
+                    
+                    local nickname = GRM.NN.GetNickname(sender)
+
+                    -- Format the name using our universal helper
+                    local formattedName = GRM_Name.GetFormattedNameString(toonName, mainName, nickname, isMain, isUnassigned, nil, false)
+                    
+                    -- Add class coloring if enabled
+                    if GRM.S().colorizeNames then
+                        local classColor = GRM.GetStringClassColorByName(sender)
+                        formattedName = classColor .. formattedName .. "|r"
+                    end
+
+                    -- INJECT THE HIDDEN MARKER! 
+                    -- \001 and \002 are invisible ASCII control characters that players cannot type.
+                    if formattedName ~= toonName then
+                        msg = "\001GRM\001" .. formattedName .. "\002" .. msg
+                    end
+                end
+            end
+        end
+
+        -- Public note hook (using the RAW message)
+        if GRM.S().noteSetEnabled and (event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER") then
+            if not GRM_G.BuildHasRestrictions then
+                GRM.TriggerPlayerNote(sender, placeHolderMsg)
+            end
+        end
+    end
+    
+    return false, msg, sender, ...
+end
+
+-- Method:          GetNameWithMainTags( string)
+-- What it Does:    Retrieves the fully formatted string for UI elements and Achievements
+-- Purpose:         Global accessibility for formatting strings according to dropdown settings.
+local GetNameWithMainTags = function(name)
+    local player = GRM.GetPlayer(name)
+
+    if player then
+        if GRM.PlayerHasAlts(player) then
+            GRM_G.IsAltGrouping = true
+        end
+
+        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(name)
+
+        if addTag then
+            local mainName = isMain and name or GRM.GetPlayerMain(name)
+            local nickname = GRM.NN.GetNickname(name)
+            
+            name = GRM_Name.GetFormattedNameString(name, mainName, nickname, isMain, isUnassigned, nil, false)
+        end
+    end
+
+    return name
+end
+
+-- Method:          GRM_Sys.AnnounceAchievement( string, string )
+-- What it Does:    Announced earned achievements from the guild in classic
+GRM_Sys.AnnounceAchievement = function(source, link)
+    local formattedName = GetNameWithMainTags(source)
+    local message = string.gsub(string.gsub(BROADCAST_ACHIEVEMENT, "%%s", formattedName), "$a", link)
+    local color = ChatTypeInfo["GUILD"]
+    GRM.Report("|cff00c8ff" .. GRM.L("GRM:") .. "|r " .. message, color.r, color.g, color.b)
+end
+
+
+-- Need to work with the built-in sync system to ensure only 1 leader reports to chat...
+C_ChatInfo.RegisterAddonMessagePrefix("GRM_GCHAT");
+GRM.GRM_FrameChatTest = CreateFrame("Frame", "GRM_FrameChatTest");
+GRM.GRM_FrameChatTest:RegisterEvent("CHAT_MSG_ADDON");
+GRM.GRM_FrameChatTest.IsInLoop = false;
+
+GRM.GRM_FrameChatTest:SetScript("OnEvent", function(_, event, prefix, msg, _, sender)
+    -- Only acknowledge if you are sending it to yourself, as this is just a check to see if you have access
+    if event == "CHAT_MSG_ADDON" and prefix == "GRM_GCHAT" and sender ~= GRM_G.addonUser then
+        local prefix2 = string.sub(msg, 1, string.find(msg, "?") - 1);
+
+        -- Force global controls update check
+        if prefix2 == "GINFOUPDATE" and not GRM.GRM_FrameChatTest.IsInLoop then
+            GRM.GRM_FrameChatTest.IsInLoop = true;
+            local needsLoopCheck = false;
+
+            if GRM_G.BuildVersion >= 10000 then
+                needsLoopCheck = true;
+                -- if GuildRoster then
+                --     GuildInfoFrame_UpdateText();
+                -- end
+                CommunitiesGuildInfoFrame_UpdateText(CommunitiesFrameGuildDetailsFrameInfo);
+            else
+                if GRM_UI.MemberDetailFrame ~= nil and not GRM_UI.MemberDetailFrame:IsVisible() and
+                    (GetCurrentKeyBoardFocus() == nil or (GetCurrentKeyBoardFocus():GetObjectType() == nil) or
+                        (GetCurrentKeyBoardFocus():GetObjectType() ~= "EditBox")) then
+                    needsLoopCheck = true;
+                    local isVisible = GuildInfoFrame:IsVisible();
+                    ToggleGuildInfoFrame();
+                    if not isVisible and GuildInfoFrame:IsVisible() then
+                        GuildInfoFrame:Hide();
+                    elseif isVisible then
+                        ToggleGuildInfoFrame();
+                    end
+                end
+            end
+            if needsLoopCheck then
+                GRM_Sys.GlobalSettingsLoopCheck(nil, true);
+            else
+                GRM.GRM_FrameChatTest.IsInLoop = false;
+            end
+        end
+    end
+end);
+
+-- Method:          GRM_Sys.GlobalSettingsLoopCheck ( int )
+-- What it Does:    Controls the recheck on the guildInfo as when the window is closed it doesn't refresh immediately.
+-- Purpose:         Quality control to keep the settings check as fast as possible on global control changes
+GRM_Sys.GlobalSettingsLoopCheck = function(epochTime, first)
+    local timer = epochTime or time();
+    local reCheck = function()
+        local canExit = false;
+        local text, isRestricted = GRM.G_Util.GetGuildInfoText();
+        if isRestricted or (GRM_G.GuildInfo ~= text and not first) then
+            canExit = true;
+        end
+
+        return canExit;
+    end
+
+    if (time() - timer) <= 10 then
+        if reCheck() then
+            GRM.Global.UpdateGuildLeaderPermissions(false, true);
+            GRM.GRM_FrameChatTest.IsInLoop = false;
+        else
+            GRM.GuildRoster();
+            C_Timer.After(1, function()
+                GRM_Sys.GlobalSettingsLoopCheck(timer, false);
+                return;
+            end);
+        end
+    else
+        GRM.GRM_FrameChatTest.IsInLoop = false;
+    end
+end
+
+-- Method:          SpecialAddonAltTagCleanup ( string , int )
+-- What it Does:    If the player is using one of those alt name/main guild message addons this parses it out
+-- Purpose:         So it is compatible with guild chat manipulated addons...
+local function SpecialAddonAltTagCleanup(note, startIndex)
+    local tags = {":", "]", ")", "-", ">"};
+    local isSpecial = false;
+    if startIndex > 1 then
+        for i = startIndex - 1, 1, -1 do
+            local tag = string.sub(note, i, i)
+            for j = 1, #tags do
+                if tag == tags[j] then
+                    note = string.sub(note, startIndex);
+                    startIndex = 1; -- Need to update it!
+                    isSpecial = true;
+                    break
+                end
+            end
+            if isSpecial or (i == startIndex - 2) then
+                break
+            end
+        end
+    end
+    return note, startIndex;
+end
+
+-- Method:          UpdateNoteFromChat ( string , string )
+-- What it Does:    Updates the player note if you are an officer to do it, and the player typed !note in chat
+-- Purpose:         Help with adding public notes for guildies who it is restricted due to officer changes.
+local function UpdateNoteFromChat( playerName , note)
+    local maxNoteSize = 31;
+
+    if GRM.Util.GetNumLetters(note) > maxNoteSize then
+        C_Timer.After(0.1, function()
+            GRM.Report(
+                GRM.L("The note is too long. Only the first {num} characters will be set.", nil, nil, maxNoteSize));
+        end);
+    end
+    -- Let's find the player
+    local player = GRM.GetPlayer ( playerName );
+    if player then
+        local i = GRM.GetRosterSelectionID( playerName , player.GUID );
+        if i then
+            GRM.SetNote ( player.GUID, note, true, i );
+
+            if GRM.S().toChat.note then
+                C_Timer.After(1, function()
+                    GRM_G.ReportedNoOfficerOnly = false;
+                    if not GRM_G.noteUpdateSpamProtection then
+                        GRM_G.noteUpdateSpamProtection = true
+                        GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(playerName)));
+
+                        C_Timer.After(2,function()
+                            GRM_G.noteUpdateSpamProtection = false;
+                        end);
+                    end
+                end);
+            end
+        end
+    end
+end
+
+-- Method:          GRM_Sys.TriggerPlayerNote ( string , string )
+-- What it Does:    Parses every comment in the guild frame and looks for the !note tag - and adds anything after it, up to 31 characters, to player note
+-- Purpose:         Mainly for use in Classic
+GRM_Sys.TriggerPlayerNote = function(player, msg)
+    if GRM_G.BuildHasRestrictions then
+        return;
+    end
+    
+    local caseFreeTxt = string.lower(msg);
+    local startIndex = string.find(GRM.Util.Trim(caseFreeTxt), GRM.L("!note"));
+    local isEnglish = false;
+
+    if startIndex == nil then
+        string.find(GRM.Util.Trim(caseFreeTxt), "!note"); -- Always working in case of other language
+        isEnglish = true;
+    end
+
+    -- No need to continue on if it is not found at start... No need to do extra attempt processing
+    if startIndex ~= nil then
+        msg, startIndex = SpecialAddonAltTagCleanup(GRM.Export.RemoveStringColoring(msg), startIndex); -- Cleaning it up!!!
+        if startIndex == 1 then
+
+            -- Success!
+            -- Let's check what we have... No point in carrying on if there is no note to set...
+            local note = "";
+
+            if not isEnglish then
+                note = GRM.Util.Trim(string.sub(msg, select(2, string.find(string.lower(msg), GRM.L("!note"))) + 1));
+            else
+                note = GRM.Util.Trim(string.sub(msg, select(2, string.find(string.lower(msg), "!note")) + 1));
+            end
+
+            if #note > 0 then
+                -- Note is good, let's trigger the boolean...
+                if (GRM_G.BuildVersion >= 10000 and GRM.CanEditPublicNote() and
+                    (GRM.CanEditOfficerNote() or GRM_G.addonUser == player)) or
+                    (GRM_G.BuildVersion < 10000 and GRM.CanEditPublicNote()) then -- Don't need to write your own public note.
+                    UpdateNoteFromChat(player, note);
+                else
+
+                    if GRM.S().toChat.note then
+                        -- Do an officer check of addon users online...
+                        GRM.RegisterGuildAddonUsersRefresh();
+                        C_Timer.After(2.1, function()
+                            local addonUsers = GRM_G.currentAddonUsers;
+                            local officerFoundOnlineWithAddon = false;
+                            for i = 1, #addonUsers do
+                                if GRM.IsGuildieAnOfficer(addonUsers[i][1]) then
+                                    officerFoundOnlineWithAddon = true;
+                                    break
+                                end
+                            end
+
+                            if not officerFoundOnlineWithAddon and not GRM_G.ReportedNoOfficerOnly then
+                                GRM_G.ReportedNoOfficerOnly = true;
+                                if player ~= GRM_G.addonUser then
+                                    GRM.Report(GRM.L("GRM:") .. " " ..
+                                                   GRM.L("No officer online to set {name}'s note", GRM.SlimName(player)));
+                                else
+                                    GRM.Report(GRM.L("GRM:") .. " " ..
+                                                   GRM.L("No officer is currently online to update your note"));
+                                end
+                            elseif officerFoundOnlineWithAddon then
+                                C_Timer.After(1, function()
+                                    GRM_G.ReportedNoOfficerOnly = false;
+                                    if not GRM_G.noteUpdateSpamProtection then
+                                        GRM_G.noteUpdateSpamProtection = true;
+                                        GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(player)));
+
+                                        C_Timer.After(2,function()
+                                            GRM_G.noteUpdateSpamProtection = false;
+                                        end);
+                                    end
+                                end);
+                            end
+                        end);
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Method:          GRM_Sys.HookChatFrames()
+-- What it Does:    Catches the hidden GRM markers and safely swaps the name inside the hyperlink brackets.
+GRM_Sys.HookChatFrames = function()
+    if GRM_G.ChatFramesHooked then return end
+
+    for i = 1, NUM_CHAT_WINDOWS do
+        local chatFrame = _G["ChatFrame" .. i]
+        if chatFrame then
+            local originalAddMessage = chatFrame.AddMessage
+            
+            chatFrame.AddMessage = function(self, text, ...)
+                if text and type(text) == "string" and string.find(text, "\001GRM\001", 1, true) then
+                    
+                    -- 1. Extract the perfectly formatted name from between our invisible markers
+                    local formattedName = string.match(text, "\001GRM\001(.-)\002")
+                    
+                    if formattedName then
+                        text = string.gsub(text, "\001GRM\001.-\002", "")
+                        text = string.gsub(text, "(|Hplayer:([^:]*).-|h)%[([^%]]+)%](|h)", function(prefix, name, displayedName, suffix)
+                            return prefix .. "[" .. formattedName .. "]" .. suffix
+                        end, 1)
+                    end
+                end
+                
+                -- Pass the modified string back to WoW
+                return originalAddMessage(self, text, ...)
+            end
+        end
+    end
+    GRM_G.ChatFramesHooked = true
 end

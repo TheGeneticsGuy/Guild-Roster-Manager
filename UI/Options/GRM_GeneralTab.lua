@@ -16,7 +16,6 @@ GeneralTab.InitializeGeneralTab = function( isManualUpdate )
         
     end
 
-
     -- TODO - Adapt to new UI API
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonCheckButton = CreateFrame ( "CheckButton" , "GRM_RosterLoadOnLogonCheckButton" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame , "InterfaceOptionsCheckButtonTemplate" );
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonCheckButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
@@ -242,7 +241,7 @@ GeneralTab.InitializeGeneralTab = function( isManualUpdate )
 
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetScript ( "OnEnterPressed" , function ( self )
         local text = self:GetText();
-        GRM.EstablishNewCustomReportWindow ( text );
+        GRM_Chat.EstablishNewCustomReportWindow ( text );
         if GRM_G.Compat.ChattynatorLoaded then
             GRM.chattynator.InitializeTabsForGRM();
         end
@@ -254,7 +253,7 @@ GeneralTab.InitializeGeneralTab = function( isManualUpdate )
 
         if self:IsVisible() then
             local text = self:GetText();
-            GRM.EstablishNewCustomReportWindow ( text );
+            GRM_Chat.EstablishNewCustomReportWindow ( text );
             if GRM_G.Compat.ChattynatorLoaded then
                 GRM.chattynator.InitializeTabsForGRM();
             end
@@ -744,4 +743,26 @@ GeneralTab.InitializeGeneralTab = function( isManualUpdate )
         GRM.RestoreTooltip()
     end);
 
+end
+
+-- Method:          GRM.BuildMultiChannelString()
+-- What it Does:    Builds a string with comma delimiters of all the channel names
+-- Purpose:         Give the player the option to send messages to multiple channels
+GRM.BuildMultiChannelString = function()
+    local result = "";
+
+    if #GRM.S().reportChannel == 0 then
+        result = DEFAULT_CHAT_FRAME.name
+    else
+
+        for i = 1, #GRM.S().reportChannel do
+            if i == 1 then
+                result = GRM.S().reportChannel[i];
+            else
+                result = result .. "," .. GRM.S().reportChannel[i];
+            end
+        end
+    end
+
+    return result;
 end

@@ -194,7 +194,7 @@ chattynator.CreateChattynatorTab = function( customName )
             isTemporary = false
         }
         table.insert(CHATTYNATOR_CONFIG.Profiles[profileName].windows[1].tabs, newTab)
-        GRM.AddReportChannel(customName, nil, false)
+        GRM_Chat.AddReportChannel(customName, nil, false)
         chattynator.RefreshChattynatorTabs();
         chattynator.EnableChannel(customName);
     end

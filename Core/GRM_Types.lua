@@ -17,3 +17,15 @@ GRM_ENUM.OPTIONS_SIZE = {
     W = 600.0,
     H = 480.0
 }
+
+GRM_ENUM.CHANNEL_ENUM = {
+    ["CHAT_MSG_GUILD"] = "Guild",
+    ["CHAT_MSG_OFFICER"] = "Officer",
+    ["CHAT_MSG_PARTY"] = "Party",
+    ["CHAT_MSG_PARTY_LEADER"] = "Party Leader",
+    ["CHAT_MSG_RAID"] = "Raid",
+    ["CHAT_MSG_RAID_LEADER"] = "Raid Leader",
+    ["CHAT_MSG_INSTANCE_CHAT"] = "Instance",
+    ["CHAT_MSG_INSTANCE_CHAT_LEADER"] = "Instance Leader",
+    ["CHAT_MSG_ACHIEVEMENT"] = "Achievement"
+}

@@ -33,6 +33,8 @@ In order:
 TO DO: - Timestamp doesn't have Global Control tag
 TO DO: - Remove GRM.S().useFullName
 TO DO: - Implement FormatName settings somehow 
+TO DO: - Deal with Export.RemoveStringColoring() - this is going to complicate things with the new formatting possibly
+TO DO: - Request to implement custom note on the Promotions in macro tool
 
 ## **VERSION 1.995 - PENDING DATE**
 

@@ -163,7 +163,7 @@ NamesTab.BuildNamesTab = function()
 
     -- Nickname on Unconfigured Toon
     GRM_UI.CreateString("GRM_NickUnassignedFmtLbl", f, "GameFontNormal", GRM.L("Format for Unassigned with Nicknames") .. ":", 12, {"TOPLEFT", f.GRM_NickAltFormatDDSelected, "BOTTOMLEFT", 5, -10})
-    GRM_UI.CreateDropDownMenu("GRM_NickUnassignedFormatDD", f, nil, {"TOPLEFT", f.GRM_NickUnassignedFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("NICKUNASSIGNED", 3), 12, {1,1,1}, nil, nil, function(idx) GRM.S().nnFormatUnassigned = idx; UpdateText(); end, function() return GetPreviewList("NICKUNASSIGNED", 3) end, nil, true, function() CloseOtherDropdowns(8) end, 4)
+    GRM_UI.CreateDropDownMenu("GRM_NickUnassignedFormatDD", f, nil, {"TOPLEFT", f.GRM_NickUnassignedFmtLbl, "BOTTOMLEFT", -5, -5}, {350, 25}, GetPreviewList("NICKUNASSIGNED", 4), 12, {1,1,1}, nil, nil, function(idx) GRM.S().nnFormatUnassigned = idx; UpdateText(); end, function() return GetPreviewList("NICKUNASSIGNED", 4) end, nil, true, function() CloseOtherDropdowns(8) end, 4)
 
     f:SetScript("OnShow", function()
         GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.NAMES

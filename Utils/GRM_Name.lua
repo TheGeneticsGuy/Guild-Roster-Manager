@@ -6,7 +6,7 @@ local DISABLED_IND = {
     ["ALT"]             = 5,
     ["NICKMAIN"]        = 8,
     ["NICKALT"]         = 8,
-    ["NICKUNASSIGNED"]  = 3
+    ["NICKUNASSIGNED"]  = 4
 }
 
 local IsNameColorized = function(name)
@@ -101,7 +101,8 @@ GRM_Name.GetFormattedNameString = function(playerName, mainName, nickname, isMai
                 local f = index or s.nnFormatUnassigned
                 if f == 1 then result = nickStr .. " " .. toonName
                 elseif f == 2 then result = toonName .. " " .. nickStr
-                elseif f == 3 then result = toonName .. noNickname
+                elseif f == 3 then result = nickStr
+                elseif f == 4 then result = toonName .. noNickname
                 end
             end
         end

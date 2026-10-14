@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 
 ## Author: Arkaan
 ## Version: 1.99422
@@ -18,6 +18,7 @@ Compatibility\GRM_Compatibility.lua
 Core\GRM_Core.lua
 Core\GRM_Settings.lua
 
+Utils\GRM_Chat.lua
 Utils\GRM_Debug.lua
 Modules\GRM_WebApps.lua
 Utils\GRM_G_Util.lua

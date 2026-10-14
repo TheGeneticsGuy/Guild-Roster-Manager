@@ -165,7 +165,7 @@ GRM.LoadAddon = function()
                 if event == "CHAT_MSG_ADDON" and prefix == "GRMACHIEV" and channel == "GUILD" and sender ~=
                     GRM_G.addonUser then
                     if GRM.S() and GRM.S().achievements then
-                        GRM.AnnounceAchievement(sender, msg);
+                        GRM_Sys.AnnounceAchievement(sender, msg);
                     end
                 elseif event == "ACHIEVEMENT_EARNED" and GRM.S() and GRM.S().achievements then
                     GRM.OnAchievementEarned(prefix)

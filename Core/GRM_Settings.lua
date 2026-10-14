@@ -549,7 +549,7 @@ GRM_S.GuildSpecificConfigurations = function()
         GRM_UI.CoreToolPositionInit();
         -- GRM_UI.CoreSyncTrackerInit();
         -- Register window to save data to.
-        GRM.SetReportWindow();
+        GRM_Chat.SetReportWindow();
         GRM_Name.RefreshTagHexCode();
         -- The Tag Headers
         GRM.SetJoinAndRejoinTags();
@@ -574,7 +574,7 @@ GRM_S.FinalSettingsConfigurations = function( isManual )
     if IsInGuild() then
         GRM_S.GuildSpecificConfigurations()
     else
-        GRM.SetReportWindow();
+        GRM_Chat.SetReportWindow();
     end
 
     -- Initialize the race Ids just once
@@ -785,7 +785,7 @@ GRM_S.ResetDefaultSettings = function(pageIndex)
         GRM_UI.CorePositionInit();
         GRM_UI.CoreToolPositionInit();
         GRM_Name.RefreshTagHexCode();
-        GRM.SetReportWindow();
+        GRM_Chat.SetReportWindow();
         GRM.Scan.RefreshNumberOfHoursTilRecommend();
     end
 

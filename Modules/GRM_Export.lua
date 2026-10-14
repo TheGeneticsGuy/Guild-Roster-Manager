@@ -545,13 +545,13 @@ Export.BuildExportLogFrame = function()
                                 if additionalNotes or
                                     (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then -- Don't want to delimit breakup the custom note
                                     additionalNotes = true;
-                                    completeString = completeString .. i .. ") " .. GRM.RemoveStringColoring(entry);
+                                    completeString = completeString .. i .. ") " .. Export.RemoveStringColoring(entry);
                                 else
-                                    completeString = completeString .. i .. ") " .. GRM.RemoveStringColoring(entry) ..
+                                    completeString = completeString .. i .. ") " .. Export.RemoveStringColoring(entry) ..
                                                         delimiter;
                                 end
                             else
-                                completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
+                                completeString = completeString .. Export.RemoveStringColoring(entry) .. delimiter;
                             end
                         else
                             if GRM.S().showLineNumbers then
@@ -559,13 +559,13 @@ Export.BuildExportLogFrame = function()
                                 if additionalNotes or
                                     (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then -- Don't want to delimit breakup the custom note
                                     additionalNotes = true;
-                                    completeString = completeString .. "\n" .. i .. ") " .. GRM.RemoveStringColoring(entry);
+                                    completeString = completeString .. "\n" .. i .. ") " .. Export.RemoveStringColoring(entry);
                                 else
                                     completeString =
-                                        completeString .. "\n" .. i .. ") " .. GRM.RemoveStringColoring(entry) .. delimiter;
+                                        completeString .. "\n" .. i .. ") " .. Export.RemoveStringColoring(entry) .. delimiter;
                                 end
                             else
-                                completeString = completeString .. "\n" .. GRM.RemoveStringColoring(entry) .. delimiter;
+                                completeString = completeString .. "\n" .. Export.RemoveStringColoring(entry) .. delimiter;
                             end
                         end
                     else
@@ -576,12 +576,12 @@ Export.BuildExportLogFrame = function()
                                 (not additionalNotes and string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil) then
                                 additionalNotes = true;
                                 if string.find(entry, GRM.L("Additional Notes:"), 1, true) ~= nil then
-                                    completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
+                                    completeString = completeString .. Export.RemoveStringColoring(entry) .. delimiter;
                                 else
-                                    completeString = completeString .. GRM.RemoveStringColoring(entry);
+                                    completeString = completeString .. Export.RemoveStringColoring(entry);
                                 end
                             else
-                                completeString = completeString .. GRM.RemoveStringColoring(entry) .. delimiter;
+                                completeString = completeString .. Export.RemoveStringColoring(entry) .. delimiter;
                             end
                         end
                     end
@@ -1585,6 +1585,24 @@ Export.SetExportButtonText = function()
         end
     end
 
+end
+
+-- Method:          Export.RemoveStringColoring(string)
+-- What it Does:    Removes the HexTag Blizz uses to identify and color the text. Anything that starts with |cffxxxxxx
+-- Purpose:         Clean up the texts for export so it is just plain text.
+Export.RemoveStringColoring = function(text)
+    local start = string.find(text, "\000");
+    if start ~= nil then
+        text = string.sub(text, 1, start - 1);
+    end
+    while (string.find(string.lower(text), string.char(124) .. "cff") ~= nil) do
+        local index = string.find(string.lower(text), string.char(124) .. "cff");
+        text = string.sub(text, 1, index - 1) .. string.sub(text, index + 10);
+    end
+    text = string.gsub(text, string.char(124) .. "r", ""); -- if I use string.lower, it returns a full lower string. don't want that.
+    text = string.gsub(text, string.char(124) .. "R", "");
+
+    return text;
 end
 
 --------------------------
