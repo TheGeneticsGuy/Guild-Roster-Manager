@@ -66,19 +66,6 @@ GRM_Sys.MessageHookControl = function()
     end
 end
 
--- -- Method:          GRM_Sys.MessageHookControl()
--- -- What it Does:    Handles some communications issues with the chat so that the main tags can be hooked into and edited
--- -- Purpose:         Message editing of GRM tags
--- GRM_Sys.MessageHookControl = function()
---     if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
---         for chat_event in pairs(MainTagEvents) do
---             ChatFrame_AddMessageEventFilter(chat_event, GRM_Sys.ParseChatForNote);
---         end
---         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter);
---         GRM_G.MainHookConfigured = true;
---     end
--- end
-
 -- Method:          SyncPlayerGoneOffline ( string )
 -- What it Does:    Reports back if player you are syncing with has gone offline.
 -- Purpose:         Will need to break sync if players has gone offline.
@@ -200,7 +187,6 @@ local AnnounceIfMacroReady = function(msg)
                 end
             end
         end
-        -- SPECIAL RULES? No need atm as no need for alts to be given any special preference.
     end
 end
 
@@ -342,7 +328,7 @@ local ProcessSystemMessage = function(msg)
 
     GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or string.sub(GUILD_INFO_TEMPLATE, 1, string.find(GUILD_INFO_TEMPLATE, "%%") - 1)
 
-    -- 1. GUILD INFO FILTER (GuildInfo())
+    -- GuildInfo filter (GuildInfo())
     if GRM_G.MsgFilterDelay and (string.find(msg, GRM_G.guildInfoSystemMessage) or string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND))) then
         if string.find(msg, GRM_G.guildInfoSystemMessage) and ((time() - GRM_G.SystemMsgThrottle) > 1) then
             GRM_G.SystemMsgThrottle = time()
@@ -375,23 +361,23 @@ local ProcessSystemMessage = function(msg)
         end
         shouldFilter = true
 
-    -- 2. Player Not Found / Friend List Spam
+    -- Player Not Found / Friend List Spam, etc
     elseif (GRM_G.MsgFilterDelay or GRM_G.MsgFilterDelay2) and (msg == GRM.L("Player not found.") or string.find(msg, GRM.L("added to friends")) or string.find(msg, GRM.L("is already your friend"))) then
         shouldFilter = true
 
-    -- 3. Sync Player Disconnects
+    -- Sync Player Disconnects
     elseif GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and SystemMessagePatternMatchCheck(1, msg, GRMsyncGlobals.CurrentSyncPlayer) then
         if GRMsyncGlobals.currentlySyncing then GRMsync.EndSync(false) end
         shouldFilter = true
 
-    -- 4. Guild Event Spam Control (Promoted, Demoted, Kicked, etc.)
+    -- Guild Event Spam Control (Promoted, Demoted, Kicked, etc.)
     elseif string.find(msg, GRM.L("has promoted")) or string.find(msg, GRM.L("has demoted")) or string.find(msg, GRM.L("joined the guild.")) or string.find(msg, GRM.L("left the guild.")) or string.find(msg, GRM.L("has been kicked")) then
         shouldFilter = GRM.SystemMessageLiveDetectionControl(msg)
         if string.find(msg, GRM.L("has been kicked")) and (GRM_UI.GRM_ToolCoreFrame:IsVisible() and GRM.S().disableMacroToolLogSpam) then
             shouldFilter = true
         end
 
-    -- 5. Logon / Logoff Name Replacements
+    -- Logon / Logoff Name injection
     elseif not GRM_G.MainNameSystemMsgControl then
         if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() then
             if string.find(msg, GRM.L("has come online.")) then
@@ -409,7 +395,7 @@ local ProcessSystemMessage = function(msg)
             end
         end
         
-    -- 6. Fallback Sync Disconnect Check
+    -- Fallback Sync Disconnect Check
     elseif GRM_G.MainNameSystemMsgControl and string.find(msg, GRM.L("has gone offline.")) and GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
         GRMsync.EndSync(false)
     end
@@ -452,10 +438,10 @@ end
 -- Purpose:         It is useful information to know how many unique acocunts are in the guild. This particularly is useful 
 --                  comparing how many "mains" there are on the audit window...
 GRM_Sys.SetGuildInfoDetails = function()
-    GRM_G.MsgFilterDelay = true; -- Resets the 1 second timer upon calling this method for the chat spam blocking. This ensures player manual calls are visual, but code calls are filtered.
+    GRM_G.MsgFilterDelay = true; -- Resets the 1 second timer upon calling this method for the chat spam blocking.
     GRM.ConfigureGuild();
 
-    if not GRM_G.MsgFilterEnabled then -- Gate to ensure this only is registered one time. This is also controlled here so as to not waste resources by being called needlessly if player never checks audit window
+    if not GRM_G.MsgFilterEnabled then -- Gate to ensure this only is registered one time.
         GRM_G.MsgFilterEnabled = true; -- Establishing boolean gate so it is only registered once.
         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter);
     end
@@ -466,14 +452,11 @@ GRM_Sys.SetGuildInfoDetails = function()
     end);
 end
 
-
-
 -- Method:          GRM_Sys.AddFormattedNameToChat ( ... )
 -- What it Does:    Calculates the formatted name and injects a hidden marker for the AddMessage hook.
 GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
     if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg) then
         local tableString = tostring(chatFrame)
-        local placeHolderMsg = msg -- Save raw message for the !note trigger
 
         -- Dupe protection
         if tableString == FormattingDupeProtect.tableString and 
@@ -487,6 +470,8 @@ GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
         FormattingDupeProtect.name = sender
         FormattingDupeProtect.msg = msg
         FormattingDupeProtect.tableString = tableString
+
+        local placeHolderMsg = msg -- Save raw message for the !note trigger if needed
 
         if sender ~= GRM_G.addonUser then
             local player = GRM.GetPlayer(sender)
@@ -576,33 +561,8 @@ GRM.GRM_FrameChatTest:SetScript("OnEvent", function(_, event, prefix, msg, _, se
         -- Force global controls update check
         if prefix2 == "GINFOUPDATE" and not GRM.GRM_FrameChatTest.IsInLoop then
             GRM.GRM_FrameChatTest.IsInLoop = true;
-            local needsLoopCheck = false;
-
-            if GRM_G.BuildVersion >= 10000 then
-                needsLoopCheck = true;
-                -- if GuildRoster then
-                --     GuildInfoFrame_UpdateText();
-                -- end
-                CommunitiesGuildInfoFrame_UpdateText(CommunitiesFrameGuildDetailsFrameInfo);
-            else
-                if GRM_UI.MemberDetailFrame ~= nil and not GRM_UI.MemberDetailFrame:IsVisible() and
-                    (GetCurrentKeyBoardFocus() == nil or (GetCurrentKeyBoardFocus():GetObjectType() == nil) or
-                        (GetCurrentKeyBoardFocus():GetObjectType() ~= "EditBox")) then
-                    needsLoopCheck = true;
-                    local isVisible = GuildInfoFrame:IsVisible();
-                    ToggleGuildInfoFrame();
-                    if not isVisible and GuildInfoFrame:IsVisible() then
-                        GuildInfoFrame:Hide();
-                    elseif isVisible then
-                        ToggleGuildInfoFrame();
-                    end
-                end
-            end
-            if needsLoopCheck then
-                GRM_Sys.GlobalSettingsLoopCheck(nil, true);
-            else
-                GRM.GRM_FrameChatTest.IsInLoop = false;
-            end
+            CommunitiesGuildInfoFrame_UpdateText(CommunitiesFrameGuildDetailsFrameInfo);
+            GRM_Sys.GlobalSettingsLoopCheck(nil, true);
         end
     end
 end);
@@ -700,20 +660,19 @@ local function UpdateNoteFromChat( playerName , note)
 end
 
 -- Method:          GRM_Sys.TriggerPlayerNote ( string , string )
--- What it Does:    Parses every comment in the guild frame and looks for the !note tag - and adds anything after it, up to 31 characters, to player note
+-- What it Does:    Parses every comment in the guild frame and looks for the !note tag
+--                  and adds anything after it, up to 31 characters, to player note
 -- Purpose:         Mainly for use in Classic
-GRM_Sys.TriggerPlayerNote = function(player, msg)
+GRM_Sys.TriggerPlayerNote = function(playerName, msg)
     if GRM_G.BuildHasRestrictions then
         return;
     end
     
     local caseFreeTxt = string.lower(msg);
     local startIndex = string.find(GRM.Util.Trim(caseFreeTxt), GRM.L("!note"));
-    local isEnglish = false;
 
     if startIndex == nil then
         string.find(GRM.Util.Trim(caseFreeTxt), "!note"); -- Always working in case of other language
-        isEnglish = true;
     end
 
     -- No need to continue on if it is not found at start... No need to do extra attempt processing
@@ -723,20 +682,13 @@ GRM_Sys.TriggerPlayerNote = function(player, msg)
 
             -- Success!
             -- Let's check what we have... No point in carrying on if there is no note to set...
-            local note = "";
-
-            if not isEnglish then
-                note = GRM.Util.Trim(string.sub(msg, select(2, string.find(string.lower(msg), GRM.L("!note"))) + 1));
-            else
-                note = GRM.Util.Trim(string.sub(msg, select(2, string.find(string.lower(msg), "!note")) + 1));
-            end
+            local note = GRM.Util.Trim(string.sub(msg, select(2, string.find(string.lower(msg), GRM.L("!note"))) + 1));
 
             if #note > 0 then
                 -- Note is good, let's trigger the boolean...
-                if (GRM_G.BuildVersion >= 10000 and GRM.CanEditPublicNote() and
-                    (GRM.CanEditOfficerNote() or GRM_G.addonUser == player)) or
+                if (GRM_G.BuildVersion >= 10000 and GRM.CanEditPublicNote() and (GRM.CanEditOfficerNote() or GRM_G.addonUser == playerName)) or
                     (GRM_G.BuildVersion < 10000 and GRM.CanEditPublicNote()) then -- Don't need to write your own public note.
-                    UpdateNoteFromChat(player, note);
+                    UpdateNoteFromChat(playerName, note);
                 else
 
                     if GRM.S().toChat.note then
@@ -754,9 +706,9 @@ GRM_Sys.TriggerPlayerNote = function(player, msg)
 
                             if not officerFoundOnlineWithAddon and not GRM_G.ReportedNoOfficerOnly then
                                 GRM_G.ReportedNoOfficerOnly = true;
-                                if player ~= GRM_G.addonUser then
+                                if playerName ~= GRM_G.addonUser then
                                     GRM.Report(GRM.L("GRM:") .. " " ..
-                                                   GRM.L("No officer online to set {name}'s note", GRM.SlimName(player)));
+                                                   GRM.L("No officer online to set {name}'s note", GRM.SlimName(playerName)));
                                 else
                                     GRM.Report(GRM.L("GRM:") .. " " ..
                                                    GRM.L("No officer is currently online to update your note"));
@@ -766,7 +718,7 @@ GRM_Sys.TriggerPlayerNote = function(player, msg)
                                     GRM_G.ReportedNoOfficerOnly = false;
                                     if not GRM_G.noteUpdateSpamProtection then
                                         GRM_G.noteUpdateSpamProtection = true;
-                                        GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(player)));
+                                        GRM.Report(GRM.L("{name}'s note has been updated!", GRM.SlimName(playerName)));
 
                                         C_Timer.After(2,function()
                                             GRM_G.noteUpdateSpamProtection = false;
@@ -795,7 +747,7 @@ GRM_Sys.HookChatFrames = function()
             chatFrame.AddMessage = function(self, text, ...)
                 if text and type(text) == "string" and string.find(text, "\001GRM\001", 1, true) then
                     
-                    -- 1. Extract the perfectly formatted name from between our invisible markers
+                    -- Extract the  formatted name from between the  invisible markers
                     local formattedName = string.match(text, "\001GRM\001(.-)\002")
                     
                     if formattedName then

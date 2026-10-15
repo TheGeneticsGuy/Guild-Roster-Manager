@@ -340,7 +340,7 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
 
         -- Names Tab
     elseif page == 17 then
-        player.showMainName = true;
+        -- player.showMainName = true; -- DELETE
         player.useMainTag = true;
 
         -- player.showNickname = false;         -- TO DELETE

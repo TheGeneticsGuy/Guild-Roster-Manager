@@ -2897,21 +2897,6 @@ GRM.DelayMinimapButtonOpen = function(messageDisplayed, message2Displayed)
     end
 end
 
--- Method:          GRM.GetChannelType ( string )
--- What it Does:    Returns the type of channel, be it guild, be it anniversary, be it whatever. This returns all social chat channel types
--- Purpose:         A helper to identify new events in relation to chat monitoring.
-GRM.GetChannelType = function(channelName)
-    local result = "";
-    for key, y in pairs(GRM_ENUM.CHANNEL_ENUM) do
-        if y == channelName then
-            result = key;
-            result = string.gsub(result, "CHAT_MSG_", ""); -- Parses out the CHAT_MSG_ and leaves the title.
-            break
-        end
-    end
-    return result;
-end
-
 -- Method:          GRM.GetChatRGB ( string )
 -- What it Does:    Returns the RGB color code for the given chat channel
 -- Purpose:         Being able to create custom channels and match them to the player's settings is extremely useful for downstream plans.

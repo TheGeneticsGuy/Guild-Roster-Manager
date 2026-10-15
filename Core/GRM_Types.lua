@@ -1,3 +1,5 @@
+-- Global Types0
+
 GRM_ENUM = {};
 
 GRM_ENUM.OPTIONS_TABS = {
@@ -18,14 +20,18 @@ GRM_ENUM.OPTIONS_SIZE = {
     H = 480.0
 }
 
-GRM_ENUM.CHANNEL_ENUM = {
-    ["CHAT_MSG_GUILD"] = "Guild",
-    ["CHAT_MSG_OFFICER"] = "Officer",
-    ["CHAT_MSG_PARTY"] = "Party",
-    ["CHAT_MSG_PARTY_LEADER"] = "Party Leader",
-    ["CHAT_MSG_RAID"] = "Raid",
-    ["CHAT_MSG_RAID_LEADER"] = "Raid Leader",
-    ["CHAT_MSG_INSTANCE_CHAT"] = "Instance",
-    ["CHAT_MSG_INSTANCE_CHAT_LEADER"] = "Instance Leader",
-    ["CHAT_MSG_ACHIEVEMENT"] = "Achievement"
+GRM_ENUM.BUILD = {
+    ["CLASSICERA"]  = 10000,
+    ["TBC"]         = 20000,
+    ["WOTLK"]       = 30000,    -- Calendar, LFG, achievements
+    ["CATA"]        = 40000,
+    ["MOP"]         = 50000,
+    ["WOD"]         = 60000,
+    ["LEGION"]      = 70000,
+    ["BFA"]         = 80000,    -- Can only edit your own note for non officers, finally!
+    ["SL"]          = 90000,
+    ["DF"]          = 100000,   -- Profession system overhaul
+    ["TWW"]         = 110000,
+    ["MIDNIGHT"]    = 120000,
+    ["TLT"]         = 130000
 }
