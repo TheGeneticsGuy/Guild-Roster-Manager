@@ -2834,7 +2834,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetSize ( 50 , 20 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelRangeText , "RIGHT" , 10 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetNumeric ( true );
-        if GRM_G.BuildVersion < 60000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.WOD then
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetMaxLetters ( 2 ); -- 60000+ is Warlords of Draenor on, where level cap could be > 100
         else
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStartEditBox:SetMaxLetters ( 3 );
@@ -2852,7 +2852,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetSize ( 50 , 20 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolCustomRulesLevelText , "RIGHT" , 10 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetNumeric ( true );
-        if GRM_G.BuildVersion < 60000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.WOD then
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetMaxLetters ( 2 ); -- 60000+ is Warlords of Draenor on, where level cap could be > 100
         else
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomRuleLevelStopEditBox:SetMaxLetters ( 3 );
@@ -3524,7 +3524,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:Show();
 
-                if GRM_G.BuildVersion >= 40000 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repFilter then
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repFilter then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetChecked ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:EnableMouse ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
@@ -3543,7 +3543,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
 
-                if GRM_G.BuildVersion >= 80000 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter then
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
@@ -4106,7 +4106,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksDropDownMenu:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected:Show();
 
-                if GRM_G.BuildVersion >= 40000 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repFilter then
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repFilter then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetChecked ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected:EnableMouse ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepSymbolSelected.GRM_GuildRepSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
@@ -4125,7 +4125,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolDropDownMenu:Hide();
 
-                if GRM_G.BuildVersion >= 80000 and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter then
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.mythicPlusFilter then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( true );
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 1 , 1 , 1 );
@@ -5200,7 +5200,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicPlusRatingEditBox , "RIGHT" , 4 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:SetTextColor ( 1 , 0 , 0 );
 
-        if GRM_G.BuildVersion >= 80000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButtonDisableText:Hide();
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetScript ( "OnClick" , function ( self , button )
@@ -5328,7 +5328,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton , "RIGHT" , 2 , 0 );
 
 
-        if GRM_G.BuildVersion >= 40000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButtonTextRetailOnlyText:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRuleCheckButton:SetScript ( "OnClick" , function ( self , button )
                 if button == "LeftButton" then
@@ -9845,7 +9845,7 @@ GRM.UpdateRulesTooltip = function ( ind )
         GameTooltip:AddDoubleLine ( GRM.L ( "Level Range:" ) , GRM.L ( "1 to {num}" , nil , nil , GRM_G.LvlCap ) , 1 , 0.82 , 0 , 1 , 1 , 1 );
     end
 
-    if GRM_G.BuildVersion >= 40000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then
 
         if rule.repFilter then
             local msg = "";
@@ -9863,7 +9863,7 @@ GRM.UpdateRulesTooltip = function ( ind )
         end
     end
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
 
         if rule.mythicPlusFilter then
             local msg = "";
@@ -10328,7 +10328,7 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                         end
                     end
                     -- Reputation Filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and rule.repFilter then
                         ruleConfirmedCheck = false; local msg = "";
                         if rule.repOperator == 1 and player.guildRep < rule.rep then
                             msg = GRM.L("Guild Rep lower than {name}", GRM.GetReputationTextLevel(rule.rep, true));
@@ -10342,7 +10342,7 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                         end
                     end
                     -- Mythic+ filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and rule.mythicPlusFilter then
                         ruleConfirmedCheck = false; local msg = "";
                         if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
                             msg = GRM.L("Mythic+ Rating greater or equal to {num}", nil, nil, rule.mythicRating);
@@ -10610,7 +10610,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                     end
 
                     -- Reputation Filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and rule.repFilter then
                         ruleConfirmedCheck = false; local msg = "";
                         if rule.repOperator == 1 and player.guildRep < rule.rep then
                             msg = GRM.L("Guild Rep lower than {name}", GRM.GetReputationTextLevel(rule.rep, true));
@@ -10624,7 +10624,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                         end
                     end
                     -- Mythic+ filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and rule.mythicPlusFilter then
                         ruleConfirmedCheck = false; local msg = "";
                         if rule.mythicPlusOperator == 1 and player.MythicScore >= rule.mythicRating then
                             msg = GRM.L("Mythic+ Rating greater or equal to {num}", nil, nil, rule.mythicRating);
@@ -11057,7 +11057,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                     end
 
                     -- Reputation Filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and rule.repFilter then
                         ruleConfirmedCheck = false;
                         local msg = "";
                         -- Less than Operator
@@ -11076,7 +11076,7 @@ GRM.GetKickNamesByFilterRules = function( includeHigherAlt , highest )
                     end
 
                     -- Mythic+ filter
-                    if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                    if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and rule.mythicPlusFilter then
                         ruleConfirmedCheck = false;
                         local msg = "";
 
@@ -11372,7 +11372,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
                         end
 
                         -- Reputation Filter
-                        if ruleConfirmedCheck and GRM_G.BuildVersion >= 40000 and rule.repFilter then
+                        if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and rule.repFilter then
                             ruleConfirmedCheck = false;
                             local msg = "";
                             -- Less than Operator
@@ -11391,7 +11391,7 @@ GRM.GetPromoteAndDemoteNamesByFilterRules = function( ruleTypeIndex , includeHig
                         end
 
                         -- Mythic+ filter
-                        if ruleConfirmedCheck and GRM_G.BuildVersion >= 80000 and rule.mythicPlusFilter then
+                        if ruleConfirmedCheck and GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and rule.mythicPlusFilter then
                             ruleConfirmedCheck = false;
                             local msg = "";
 

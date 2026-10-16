@@ -1849,7 +1849,6 @@ GRML.Danish = function()
     GRM_L["Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."] = true
     GRM_L["Auto-update is disabled. This will only update your notes a single time"] = true
     GRM_L["Cancel Auto-Update"] = true
-    GRM_L["Only Available in Classic Era"] = true
     GRM_L["Only Available for Officers"] = true
     GRM_L["One moment. Processing profession data..."] = true
     GRM_L["Update profession ranks (Classic Era Only)"] = true

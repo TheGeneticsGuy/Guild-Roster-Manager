@@ -1841,7 +1841,6 @@ GRML.German = function()
     GRM_L["Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."] = "Auto-Update erfolgt einmal pro Sitzung nach dem Login. Du musst diesen Knopf nicht erneut klicken."
     GRM_L["Auto-update is disabled. This will only update your notes a single time"] = "Auto-Update ist deaktiviert. Dies aktualisiert deine Notizen nur einmalig."
     GRM_L["Cancel Auto-Update"] = "Auto-Update abbrechen"
-    GRM_L["Only Available in Classic Era"] = "Nur in Classic Ära verfügbar"
     GRM_L["Only Available for Officers"] = "Nur für Offiziere verfügbar"
     GRM_L["One moment. Processing profession data..."] = "Einen Moment. Verarbeite Berufsdaten..."
     GRM_L["Update profession ranks (Classic Era Only)"] = "Berufs-Ränge aktualisieren (nur Classic Ära)"

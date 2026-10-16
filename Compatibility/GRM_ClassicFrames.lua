@@ -4,17 +4,14 @@
 
 GRM_UI.EstablishClassicFrames = function()
 
-    if GRM_G.BuildVersion >= 10000 then
+    -- Modern API support only for now
+    GRM_UI.MemberDetailFrame = CommunitiesFrame.GuildMemberDetailFrame;
 
-        GRM_UI.MemberDetailFrame = CommunitiesFrame.GuildMemberDetailFrame;
-
-        -- MOTD and GuildInfo Window
-        GRM_UI.CommunitiesGuildTextEditFrame = CommunitiesGuildTextEditFrame;
-        GRM_UI.MOTDEditBox = CommunitiesGuildTextEditFrame.Container.ScrollFrame.EditBox;
-        GRM_UI.GuildInfoEditBox = CommunitiesGuildTextEditFrame.Container.ScrollFrame.EditBox;
-        GRM_UI.GuildDetailsFrameEditMOTDButton = CommunitiesFrameGuildDetailsFrameInfo.EditMOTDButton;
-        GRM_UI.GuildDetailsGuildInformationButton = CommunitiesFrameGuildDetailsFrameInfo.EditDetailsButton;
-
-    end
+    -- MOTD and GuildInfo Window
+    GRM_UI.CommunitiesGuildTextEditFrame = CommunitiesGuildTextEditFrame;
+    GRM_UI.MOTDEditBox = CommunitiesGuildTextEditFrame.Container.ScrollFrame.EditBox;
+    GRM_UI.GuildInfoEditBox = CommunitiesGuildTextEditFrame.Container.ScrollFrame.EditBox;
+    GRM_UI.GuildDetailsFrameEditMOTDButton = CommunitiesFrameGuildDetailsFrameInfo.EditMOTDButton;
+    GRM_UI.GuildDetailsGuildInformationButton = CommunitiesFrameGuildDetailsFrameInfo.EditDetailsButton;
 
 end

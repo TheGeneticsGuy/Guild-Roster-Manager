@@ -594,10 +594,10 @@ DD.PopulateClassDropDownMenu = function()
     for i = 1, #AllClasses do
 
         if (AllClasses[i] ~= "Deathknight" and AllClasses[i] ~= "Monk" and AllClasses[i] ~= "Demonhunter" and
-            AllClasses[i] ~= "Evoker") or ((AllClasses[i] == "Deathknight" and GRM_G.BuildVersion >= 30000) or
-            (AllClasses[i] == "Monk" and GRM_G.BuildVersion >= 50000) or
-            (AllClasses[i] == "Demonhunter" and GRM_G.BuildVersion >= 70000) or
-            (AllClasses[i] == "Evoker" and GRM_G.BuildVersion >= 100000)) then
+            AllClasses[i] ~= "Evoker") or ((AllClasses[i] == "Deathknight" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK) or
+            (AllClasses[i] == "Monk" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.MOP) or
+            (AllClasses[i] == "Demonhunter" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.LEGION) or
+            (AllClasses[i] == "Evoker" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF)) then
 
             local class = string.upper(AllClasses[i]);
             local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class];

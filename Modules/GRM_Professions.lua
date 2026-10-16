@@ -387,7 +387,7 @@ end
 -- What it Does:    Acts as the gate for auto-starting the note update
 -- Purpose:         To only run this when designated to do so.
 Prof.AutoStartProfessionUpdate = function()
-    if not GRM.S().ProfFullyDisabled and GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
+    if not GRM.S().ProfFullyDisabled and GRM.S().ProfRankAutoUpdate and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA and C_GuildInfo.IsGuildOfficer() then
         Prof.InitiateProfessionUpdate( GRM.S().ProfReportUpdatesToChat );
     end
 end

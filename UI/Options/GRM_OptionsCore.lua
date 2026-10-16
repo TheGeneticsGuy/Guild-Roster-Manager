@@ -190,7 +190,7 @@ OptionsCore.RefreshOptionsUI = function()
     -- ====================
 
     -- Mythic Rating (M+ didn't occur until BFA)
-    local isBFA_OrLater = GRM_G.BuildVersion >= 80000
+    local isBFA_OrLater = GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA
     if not isBFA_OrLater then
         UXOpts.GRM_ShowMythicRatingButton:SetChecked(false)
     end
@@ -212,7 +212,7 @@ OptionsCore.RefreshOptionsUI = function()
     end
 
     -- Add Events To Calendar permission check
-    local canAddCalendar = GRM_G.BuildVersion >= 30000 and CanEditGuildEvent()
+    local canAddCalendar = GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent()
     if not canAddCalendar then 
         OfficerOpts.GRM_RosterReportAddEventsToCalendarButton:SetChecked(false)
     end
@@ -285,11 +285,11 @@ OptionsCore.RefreshOptionsUI = function()
             en = false 
         end
         
-        if i == 7 then vis = (GRM_G.BuildVersion >= 20000 and GRM_G.BuildVersion < 90000) or GRM_G.BuildVersion >= 100000 end
-        if i == 8 then vis = (GRM_G.BuildVersion >= 30000 and GRM_G.BuildVersion < 90000) or GRM_G.BuildVersion >= 110000 end
+        if i == 7 then vis = (GRM_G.BuildVersion >= GRM_ENUM.BUILD.TBC and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) or GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF end
+        if i == 8 then vis = (GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) or GRM_G.BuildVersion >= GRM_ENUM.BUILD.TWW end
         if i == 9 then vis = (GRM_G.SOD and GRM_G.LvlCap == 25) end
-        if i == 10 then vis = (GRM_G.BuildVersion >= 40000 and GRM_G.BuildVersion < 90000) end
-        if i == 11 then vis = (GRM_G.BuildVersion >= 50000 and GRM_G.BuildVersion < 90000) or GRM_G.BuildVersion >= 120000 end
+        if i == 10 then vis = (GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) end
+        if i == 11 then vis = (GRM_G.BuildVersion >= GRM_ENUM.BUILD.MOP and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) or GRM_G.BuildVersion >= GRM_ENUM.BUILD.MIDNIGHT end
         
         ConfigLvlFilter(fData, vis, en)
     end
@@ -364,7 +364,7 @@ OptionsCore.RefreshOptionsUI = function()
         GRM_UI.ConfigureHCOptions()
     end
     
-    GRM_UI.ConfigureClassicProfessionOptions((GRM_G.BuildVersion < 100000 and not S.ProfFullyDisabled))
+    GRM_UI.ConfigureClassicProfessionOptions((GRM_G.BuildVersion < GRM_ENUM.BUILD.DF and not S.ProfFullyDisabled))
     GRM_UI.RefreshLogExtraOptions()
     GRM_UI.ReportDestination(GenOpts.GRM_ReportDestinationEditBox)
     GRM_UI.DD.CreateOptionsRankDropDown()

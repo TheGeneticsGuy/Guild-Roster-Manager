@@ -10,7 +10,7 @@ GRM_R.BuildRosterFrames = function ()
     local coreHybridSize = 980;
     local anchorFrame1;
 
-    if GRM_G.BuildVersion >= 80000 then     -- Account for Mythic Rating which only existed in 8.0+
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then     -- Account for Mythic Rating which only existed in 8.0+
         coreSize = coreSize + 90;
         coreHybridSize = coreHybridSize + 90;
     end
@@ -74,7 +74,7 @@ GRM_R.BuildRosterFrames = function ()
     -- Rank
     GRM_UI.CreateButton ( "GRM_RosterColumnRank" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "Rank" ) , 125 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnLastOnline, "RIGHT" , -1.5 , 0 } , GRM_R.SortRank , "GameFontWhite" , 13 , "LEFT" , 10 , -3  );
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
         -- M+
         GRM_UI.CreateButton ( "GRM_RosterColumnMythicPlus" , GRM_UI.GRM_RosterFrame , "ColumnDisplayButtonTemplate" , GRM.L ( "M+ Score" ) , 90 , 22 , { "LEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterColumnRank, "RIGHT" , -1.5 , 0 } , GRM_R.SortMythicScore , "GameFontWhite" , 13 , "LEFT" , 10 , -3  );
         anchorFrame1 = GRM_UI.GRM_RosterFrame.GRM_RosterColumnMythicPlus;
@@ -325,7 +325,7 @@ GRM_R.ResetColumnTextColors = function()
     -- Set back to white all default column text
     for _ , entry in ipairs ( columnHeaders ) do
 
-        if entry.column ~= sortFrame1 and entry.column ~= sortFrame2 and ( entry.column ~= "GRM_RosterColumnMythicPlus" or GRM_G.BuildVersion >= 80000 ) then
+        if entry.column ~= sortFrame1 and entry.column ~= sortFrame2 and ( entry.column ~= "GRM_RosterColumnMythicPlus" or GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA ) then
             GRM_UI.GRM_RosterFrame[entry.column][entry.column.. "Text" ]:SetTextColor ( 1 , 1 , 1 );
         end
 
@@ -688,7 +688,7 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
                     else
                         tempPlayer.officerNote = "";
                     end
-                    if GRM_G.BuildVersion >= 80000 then
+                    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
                         tempPlayer.MythicScore = player.MythicScore;
                     end
 
@@ -1710,7 +1710,7 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
         buttonText4:SetWordWrap ( false );
 
         -- Mythic+
-        if GRM_G.BuildVersion >= 80000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
             buttonText5:SetPoint ( "LEFT" , buttonText4 , "RIGHT" , 9 , 0 );
             buttonText5:SetJustifyH ( "LEFT" );
             buttonText5:SetWidth ( 80 )
@@ -2062,7 +2062,7 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
         end
         line[5]:SetText ( GRM_UI.GRM_RosterFrame.Entries[ind2].rankName );
 
-        if GRM_G.BuildVersion >= 80000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
             line[6]:SetText ( GRM.GetMythicRatingToMatchRaiderIO ( GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore ) .. GRM_UI.GRM_RosterFrame.Entries[ind2].MythicScore );
         end
 
@@ -2108,7 +2108,7 @@ GRM_R.RosterShiftDown = function()
             buttons[i][5]:SetText( buttons[i+1][5]:GetText() );
             buttons[i][5]:SetTextColor ( buttons[i+1][5]:GetTextColor ( buttons[i+1][5]:GetText() ) );
 
-            if GRM_G.BuildVersion >= 80000 then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
                 buttons[i][6]:SetText( buttons[i+1][6]:GetText() );
                 buttons[i][6]:SetTextColor ( buttons[i+1][6]:GetTextColor ( buttons[i+1][6]:GetText() ) );
             end
@@ -2163,7 +2163,7 @@ GRM_R.RosterShiftUp = function()
             buttons[i][5]:SetText( buttons[i-1][5]:GetText() );
             buttons[i][5]:SetTextColor ( buttons[i-1][5]:GetTextColor ( buttons[i-1][5]:GetText() ) );
 
-            if GRM_G.BuildVersion >= 80000 then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
                 buttons[i][6]:SetText( buttons[i-1][6]:GetText() );
                 buttons[i][6]:SetTextColor ( buttons[i-1][6]:GetTextColor ( buttons[i-1][6]:GetText() ) );
             end
@@ -2277,12 +2277,7 @@ GRM_R.InitializeRosterLoadButton = function ( parentFrame , points , size , text
 
     parentFrame.GRM_RosterTab:SetSize ( size[1] , size[2] );
     parentFrame.GRM_RosterTab:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
-
-    if GRM_G.BuildVersion >= 10000 then
-        parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 2.5 , -1.5 );
-    else
-        parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 0 , 0 );
-    end
+    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 2.5 , -1.5 );
 
     parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\GRM_Logo.blp" );
     parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetWidth ( textureSize[1] );

@@ -1,14 +1,9 @@
 -- Author: Arkaan - "The Genetics Guy" (Github) - RL Name: Aaron Topping
 -- Addon Name: "Guild Roster Manager"
 
--- Global Table to hold all global variables made by GRM.
-GRM_L = {};
--- Localaztion array for all language initialization functions.
-GRML = {};
-
 -- slash commands (You can create custom one localized to your language in the localization folder)
-SLASH_ROSTER1 = '/roster';
-SLASH_GRM1 = '/grm';
+-- SLASH_ROSTER1 = '/roster';
+-- SLASH_GRM1 = '/grm';
 
 -- Addon Details:
 GRM_G.Version = "R1.99422";
@@ -17,7 +12,8 @@ GRM_G.PatchDayString = "1787292341";    -- 2 Versions saves on conversion comput
 GRM_G.PatchDay = 1787292341;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.RetailBaseBuild = 120100;
+GRM_G.RetailBaseBuild = 120105;
+GRM_G.ForeverBaseBuild = 10000; -- Placeholder
 
 -- GroupInfo
 GRM_G.GroupInfoV = 1.65;
@@ -573,8 +569,7 @@ GRM.FrameCombatRestore = function()
 
     if GRM_G.CoreFramesHidden.hidden then
         if GRM_G.CoreFramesHidden[1] then
-            if (CommunitiesFrame and CommunitiesFrame:IsVisible()) or
-                (GRM_G.BuildVersion < 10000 and FriendsFrame and FriendsFrame:IsVisible()) then
+            if (CommunitiesFrame and CommunitiesFrame:IsVisible()) then
                 GRM_UI.GRM_MemberDetailMetaData:Show();
             end
             GRM_G.CoreFramesHidden[1] = false;
@@ -927,10 +922,6 @@ GRM.Use24HrBasedOnDefaultLanguage = function()
     return result;
 end
 
---------------------------------------
------- LOCALIZATION LOGIC ------------
---------------------------------------
-
 -- Method:          GRM.L ( string , string , int (or casted int to string) , string , string )
 -- What it Does:    Returns the localized string based on the hash table using the key, or the key itself if the value is set to true (meaning no localization necessary or does not exist yet)
 -- Purpose:         For ease of localization so people from any region can enjoy the addon in their native tongue!!!
@@ -990,24 +981,6 @@ GRM.L = function(key, playerName, playerName2, num, custom1, custom2)
         end
         return key;
     end
-end
-
--- Method:          GRM.OrigL ( string )
--- What it Does:    Takes a hash result and returns the key. It's essentially a dictionary lookup in reverse
--- Purpose:         Some of the code needs to be localized only on the front end, but the backend code is based on some English variables
---                  This allows the localized data to be presented to the user, but on the backend to cycle back to the hash key for parse analysis.
-GRM.OrigL = function(localizedString)
-    local result = localizedString;
-    -- if it is not nil, then we know we already have the OrigL
-    if GRM_L[localizedString] == nil then
-        for key, y in pairs(GRM_L) do
-            if y == localizedString then
-                result = key;
-                break
-            end
-        end
-    end
-    return result;
 end
 
 -- Method:          GRM.NormalizeHitRects ( button , fontstring , int , bool )
@@ -3688,27 +3661,21 @@ GRM.RosterFrame = function()
         end
 
         -- Ensure pinned to correct window.
-        if not GRM_G.pause and
-            ((GRM_G.BuildVersion >= 10000 and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver(4, -20, -4, 30)) or
-                (GRM.S().showMouseoverOld and GRM_G.BuildVersion < 10000 and
-                    not GRM_UI.GuildRosterContainer:IsMouseOver(4, -20, -4, 30))) then
+        if not GRM_G.pause and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver(4, -20, -4, 30)then
 
             if not GRM_UI.GRM_MemberDetailMetaData:IsVisible() or
-                (((GRM_G.BuildVersion >= 10000 and CommunitiesFrame and
-                    not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver(4, -20, -4, 30)) or
-                    (GRM.S().showMouseoverOld and GRM_G.BuildVersion < 10000 and
-                        not GRM_UI.GuildRosterContainer:IsMouseOver(4, -20, -4, 30))) and
+                (
+                    GRM_UI.GRM_MemberDetailMetaData:IsVisible() and
+                    CommunitiesFrame and
+                    not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver(4, -20, -4, 30) and
                     not DropDownList1MenuBackdrop:IsMouseOver(2, -2, -2, 2) and
                     not StaticPopup1:IsMouseOver(2, -2, -2, 2) and
                     not GRM_UI.GRM_MemberDetailMetaData:IsMouseOver(1, -1, -30, 1) and
                     not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame:IsMouseOver(5, 5, 5, 35) and
                     not GRM_UI.GRM_MemberDetailMetaData.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:IsMouseOver(1, 1,
-                        1, 3)) then -- If player is moused over side window, it will not hide it!
-
-                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                    GRM.ClearAllFrames(true);
-
-                end
+                        1, 3)
+                ) then 
+                    GRM.ClearAllFrames(true); -- If player is moused over side window, it will not hide it!
             end
         end
 
@@ -4081,7 +4048,7 @@ GRM.GetPlayerClassByGUID = function(guid)
     end
 
     -- There was a weird bug in Wrath Classic that some GUIDs were kicking out Evoker. This should resolve that.
-    if GRM_G.BuildVersion < 100000 and class == "EVOKER" then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF and class == "EVOKER" then
         class = "HUNTER"
     end
 
@@ -4593,7 +4560,7 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     member.sex = memberInfo.sex;
     member.faction = memberInfo.faction;
 
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
         member.MythicScore = 0;
     end
 
@@ -4837,9 +4804,6 @@ end
 ----------------------------------
 ------ LOG FUNCTIONS -------------
 ----------------------------------
-
-
-
 
 -- Method:          GRM.Report ( string )
 -- What it Does:    Sends to the main chat window messages on various events as deemed necessary to report on by addon creator.
@@ -7175,7 +7139,7 @@ GRM.RefreshAddEventFrame = function()
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Hide();
     end
 
-    if GRM_G.BuildVersion >= 30000 and CanEditGuildEvent() then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent() then
         if not GRM.S().allowEventsToCalendar then
             GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "You Currently Have Disabled Adding Events to Calendar"));
@@ -7184,7 +7148,7 @@ GRM.RefreshAddEventFrame = function()
             GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Hide();
         end
     else
-        if GRM_G.BuildVersion >= 30000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
             GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "You Do Not Have Permission to Add Events to Calendar"));
         else
@@ -9042,7 +9006,7 @@ GRM.RemoveAllFromEventQue = function()
 
     if num > 0 then
 
-        if GRM_G.BuildVersion >= 30000 and CanEditGuildEvent() then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent() then
             if num == 1 then
                 msg = GRM.L("This event has not yet been added to the calender. Are you sure?");
             else
@@ -9063,7 +9027,7 @@ end
 -- What it Does:    It checks the Add Que list, if the event is already on the calendar, then it removes it from the addque list.
 -- Purpose:         In case other players add items to the calendar, this keeps it clean.
 GRM.CalendarQueCheck = function()
-    if GRM_G.BuildVersion >= 30000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
         local calendarQ = GRM.GetEvents();
 
         for i = #calendarQ, 1, -1 do
@@ -10410,7 +10374,7 @@ GRM.ResetPlayerMetaData = function(playerName)
             member.sex = sex;
             member.rosterSelection = GRM.GetRosterSelectionID(member.name,member.GUID);
 
-            if GRM_G.BuildVersion > 80000 then
+            if GRM_G.BuildVersion > GRM_ENUM.BUILD.BFA then
                 member.MythicScore = 0;
                 if player.overallDungeonScore then
                     member.MythicScore = player.overallDungeonScore;
@@ -10418,7 +10382,7 @@ GRM.ResetPlayerMetaData = function(playerName)
             end
 
             
-            if GRM_G.BuildVersion >= 100000 then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
                 if not member.faction then
                     if member.race then
                         local factionName = C_CreatureInfo.GetFactionInfo(GRM_G.raceIDEnum[player.race]).groupTag;
@@ -10641,7 +10605,7 @@ GRM.CheckForNewPlayer = function( name )
                 memberInfoToAdd.rosterSelection = i;
                 memberInfoToAdd.faction = GRM_G.faction;
 
-                if GRM_G.BuildVersion >= 80000 then
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
                     memberInfoToAdd.MythicScore = 0;
                 end
 
@@ -11465,7 +11429,7 @@ GRM.GetParsedKickPlayerNames = function(text)
         playerThatKicked = string.sub(text, start, #text - 1);
 
     elseif GRM_G.Region == "koKR" then
-        if GRM_G.BuildVersion < 80000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
             playerThatKicked = string.sub(text, 1, string.find(text, "|1이", 1, true) - 1);
             local start = string.find(text, " ") + 1;
             playerThatWasKicked = string.sub(text, start, string.find(text, "|1을", 1, true) - 1);
@@ -11680,7 +11644,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
             end
 
             -- MYTHINC+ SCORE
-            if GRM_G.BuildVersion >= 80000 and GRM.S().showMythicRating and level == GRM_G.LvlCap then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and GRM.S().showMythicRating and level == GRM_G.LvlCap then
 
                 local mythicScore;
                 if memberInfo and memberInfo.overallDungeonScore then
@@ -11839,7 +11803,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
                     officerNote = memberInfo.officerNote;
 
                     -- Accomodating for an error in Classic era build where officer note not showing.
-                    if not officerNote and GRM_G.BuildVersion < 20000 then
+                    if not officerNote and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
                         officerNote = select ( 8 , GRM.GetGuildRosterInfo_ClassicMethod(player.name , false , player.GUID ) );
                     end
                 else
@@ -11915,7 +11879,7 @@ GRM.PopulateMemberDetails = function( handle, memberInfo , doubleCopy )
             end
 
             -- Reputation
-            if not doubleCopy and GRM.S().viewGuildRep and GRM_G.BuildVersion >= 40000 then -- Cataclysm feature added
+            if not doubleCopy and GRM.S().viewGuildRep and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then -- Cataclysm feature added
                 GRM_UI.GRM_MemberDetailMetaData.GRM_ReputationLevelText:SetText(GRM.GetReputationTextLevel(
                     player.guildRep, true));
                 GRM_UI.GRM_MemberDetailMetaData.GRM_ReputationLevelText:Show();
@@ -12040,7 +12004,7 @@ GRM.FactionIcon = function(index)
 
     -- If server isn't returning the faction...
     if not index then
-        if GRM_G.BuildVersion >= 100000 then -- DragonFlight allowed x-faction guilds in 10.1
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then -- DragonFlight allowed x-faction guilds in 10.1
             GRM_UI.GRM_MemberDetailMetaData.GRM_AllianceIconTexture:Hide();
             GRM_UI.GRM_MemberDetailMetaData.GRM_HordeIconTexture:Hide();
             return;
@@ -12443,7 +12407,7 @@ GRM.GetSortedBanListNamesWithDetails = function(textSearch)
                     end
 
                     -- Redundancy from a weird bug that popped up when 10.0 launched with classic where evoker was false-positive on a GUID call for a hunter sometimes.
-                    if GRM_G.BuildVersion < 100000 and player.class == "EVOKER" then
+                    if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF and player.class == "EVOKER" then
                         player.class = "HUNTER";
                     end
 
@@ -15694,7 +15658,7 @@ end
 -- What it Does:    Helps regulate some resource and timed efficient server queries,
 -- Purpose:         to keep from spamming or double+ looping functions.
 GRM.TriggerTrackingCheck = function()
-    if GRM_G.BuildVersion >= 30000 and GRM.IsCalendarEventEditOpen() then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and GRM.IsCalendarEventEditOpen() then
 
         if not GRM_G.ScanningDelay then
             GRM_G.ScanningDelay = true;
@@ -16028,7 +15992,7 @@ GRM.SlashCommandCenter = function()
     GRM_UI.ResetScalingForAll();
     local rosterFrameDefault = 885;
 
-    if GRM_G.BuildVersion >= 80000 then -- Mythic Rating Frame Size
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then -- Mythic Rating Frame Size
         rosterFrameDefault = rosterFrameDefault + 90;
     end
 
@@ -16282,11 +16246,11 @@ end
 -- What it Does:    Triggers the profession note update to run with a slash command
 -- Purpose:         Allow the quick updating of professions.
 GRM.SlashCommandProf = function()
-    if GRM_G.BuildVersion < 80000 and C_GuildInfo.IsGuildOfficer() then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA and C_GuildInfo.IsGuildOfficer() then
         GRM_UI.ExportProfessionConfirm();
     else
-        if GRM_G.BuildVersion >= 50000 then
-            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Only Available in Classic Era" ) );
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOD then
+            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Only Available in Classic or Forever" ) );
         elseif not C_GuildInfo.IsGuildOfficer() then
             GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Only Available for Officers" ) );
         end
@@ -16905,7 +16869,7 @@ GRM.TrackingConfiguration = function(forced)
             GRM_G.UI_Events:SetScript("OnEvent", function(_, event)
                 if time() - GRM_G.UI_Events.Timer > 1 then
                     GRM_G.UI_Events.Timer = time();
-                    if (event == "GUILD_EVENT_LOG_UPDATE" and GRM_G.BuildVersion >= 10000) then
+                    if event == "GUILD_EVENT_LOG_UPDATE" then
                         GRM.Scan.LogPrecheck();
                     elseif event == "GUILD_ROSTER_UPDATE" then
                         GRM.Scan.RosterPreCheck();

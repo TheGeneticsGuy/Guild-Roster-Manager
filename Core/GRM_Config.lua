@@ -125,7 +125,7 @@ end
 GRM.LoadAddon = function()
     GeneralEventTracking:RegisterEvent("PLAYER_GUILD_UPDATE"); -- If player leaves or joins a guild, this should fire.
     GRM_G.SystemMessagesEnabled = IsListeningForMessageType("SYSTEM")
-    if GRM_G.BuildVersion < 100000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
         GeneralEventTracking:SetScript("OnEvent", function(_, event)
             if event == "PLAYER_GUILD_UPDATE" then
                 C_Timer.After(10, function()
@@ -155,7 +155,7 @@ GRM.LoadAddon = function()
     SystemMessageChecking:RegisterEvent("CHAT_MSG_SYSTEM");
     SystemMessageChecking:SetScript("OnEvent", GRM_Sys.SystemMessageHandler);
 
-    if GRM_G.BuildVersion < 40000 and GRM_G.BuildVersion >= 30000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
         -- Achievements are broken in WotLK classic - so don't announce for modern versions or it'll duplicate
         C_ChatInfo.RegisterAddonMessagePrefix("GRMACHIEV");
         AchievementsChecking:RegisterEvent("CHAT_MSG_ADDON");

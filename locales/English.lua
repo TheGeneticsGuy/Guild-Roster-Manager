@@ -22,9 +22,8 @@
     ---------------------------------
     -- BEGIN TRANSLATION WORK HERE --
     ---------------------------------
-
+print("SUCCESS")
 GRML.English = function()
-
     -- Auto Localized (Only use this on Client languages)
     GRM_L["Friend"] = FRIEND;
 
@@ -1844,7 +1843,6 @@ GRML.English = function()
     GRM_L["Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."] = true
     GRM_L["Auto-update is disabled. This will only update your notes a single time"] = true
     GRM_L["Cancel Auto-Update"] = true
-    GRM_L["Only Available in Classic Era"] = true
     GRM_L["Only Available for Officers"] = true
     GRM_L["One moment. Processing profession data..."] = true
     GRM_L["Update profession ranks (Classic Era Only)"] = true
@@ -2089,6 +2087,10 @@ GRML.English = function()
     GRM_L["Nick Tag"] = true
     GRM_L["Tagging Disabled"] = true
     GRM_L["Nickname Disabled"] = true
+
+    -- Forever labeling
+    GRM_L["(Forever)"] = true
+    GRM_L["Only Available in Classic or Forever"] = true
 
 end
 

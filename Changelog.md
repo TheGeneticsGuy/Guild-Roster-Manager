@@ -31,10 +31,26 @@ In order:
   - 3 = Auto update enabled and destination CUSTOM Note
 
 TO DO: - Timestamp doesn't have Global Control tag
-TO DO: - Remove GRM.S().useFullName
+TO DO: - Remove settings:
+          * useFullName
+          * showMouseoverOld
+          * INVESTIGATE FIRST - useMainTag
+          * showNickname
+          * showNicknameNotMain
+          * ShowNicknameToAll
+          * showMainName
+
+TO DO: - Fix Default Settings button on Names Tab, maybe others?
+    
 TO DO: - Implement FormatName settings somehow 
 TO DO: - Deal with Export.RemoveStringColoring() - this is going to complicate things with the new formatting possibly
 TO DO: - Request to implement custom note on the Promotions in macro tool
+
+-- Possible Compatibility changes in WOW Forever
+TO DO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
+TO DO: - GRM.LoadAddon function - look at build restrictions
+TO DO: - GRM.GetParsedKickPlayerNames -- Check Korean changes in early builds now or WOW Forever
+TO DO: - Instead of checking for BFA build for mythic score, see if there is an API available
 
 ## **VERSION 1.995 - PENDING DATE**
 

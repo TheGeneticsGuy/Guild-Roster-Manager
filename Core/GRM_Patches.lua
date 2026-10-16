@@ -469,14 +469,14 @@ GRM_Patch.PatchHistory = {
     },
     {
         version = 1.69,
-        condition = function() return GRM_G.BuildVersion < 80000 end,
+        condition = function() return GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA end,
         apply = function() GRM_Patch.FixClassIncompatibilityBuild() end
     },
     {
         version = 1.70,
         apply = function()
-            if GRM_G.BuildVersion < 80000 then GRM_Patch.RemoveMacroInClassic() end
-            if GRM_G.BuildVersion < 40000 then GRM_Patch.ModifyNewDefaultSetting(53, false) end
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then GRM_Patch.RemoveMacroInClassic() end
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then GRM_Patch.ModifyNewDefaultSetting(53, false) end
             GRM_Patch.PlayerMetaDataDatabaseWideEdit(GRM_Patch.CleanupPromotionDateMouseOverError, true, true, false)
             GRM_Patch.FixMonthDateRecommendationError()
             GRM_Patch.ClearExtraBackups()
@@ -491,7 +491,7 @@ GRM_Patch.PatchHistory = {
         apply = function()
             GRM_Patch.ExpandOptionsType(3, 2, 78)
             GRM_Patch.ModifyNewDefaultSetting(79, {true, ";"})
-            if GRM_G.BuildVersion < 40000 then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
                 GRM_Patch.ModifyNewDefaultSetting(80, {true, true, true, true, true, true, true, true, true, false, true, true, true, true})
             else
                 GRM_Patch.ModifyNewDefaultSetting(80, {true, true, true, true, true, true, true, true, true, true, true, true, true, true})
@@ -506,7 +506,7 @@ GRM_Patch.PatchHistory = {
     {
         version = 1.812,
         apply = function()
-            if GRM_G.BuildVersion < 40000 then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
                 GRM_Patch.FixOptionsSetting(80, {true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true}, GRM_Patch.ExpandExportFilters)
             else
                 GRM_Patch.FixOptionsSetting(80, {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}, GRM_Patch.ExpandExportFilters)
@@ -521,7 +521,7 @@ GRM_Patch.PatchHistory = {
             GRM_Patch.FixDoubleCopiesInLeftPLayers()
             GRM_Patch.FixDoubleCopiesInBackup()
             GRM_Patch.RealignDatabaseDueToMisSort()
-            if GRM_G.BuildVersion < 80000 then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
                 GRM_Patch.ModifyNewDefaultSetting(71, true)
             end
         end
@@ -595,7 +595,7 @@ GRM_Patch.PatchHistory = {
             GRM_Patch.ModifyPlayerSetting("exportFilters", GRM_Patch.AddExportOptions)
             GRM_Patch.ModifyPlayerSetting("kickRules", GRM_Patch.AddKickRule)
             GRM_Patch.AddPlayerSetting("defaultTabSelection", {false, 1})
-            if GRM_G.BuildVersion < 20000 then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.TBC then
                 SetCVar("chatClassColorOverride", 0)
             end
         end
@@ -711,7 +711,7 @@ GRM_Patch.PatchHistory = {
     {
         version = 1.933,
         apply = function()
-            if GRM_G.BuildVersion < 80000 and GRM_G.BuildVersion >= 30000 then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
                 GRM_Patch.AddPlayerSetting("achievements", true)
             end
         end
@@ -798,7 +798,7 @@ GRM_Patch.PatchHistory = {
     {
         version = 1.972,
         apply = function()
-            if GRM_G.BuildVersion >= 80000 then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
                 GRM_Patch.AddOrEditMemberData("MythicScore", 0)
             end
             GRM_Patch.AddNewSetting("showLevel", true)
@@ -811,7 +811,7 @@ GRM_Patch.PatchHistory = {
         version = 1.973,
         apply = function()
             GRM_Patch.AddNewSetting("exportFilters", 23, GRM_Patch.AddExportEntry)
-            if GRM_G.BuildVersion < 100000 then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
                 GRM_Patch.AddNewSetting("showFaction", false)
             else
                 GRM_Patch.AddNewSetting("showFaction", true)
@@ -826,7 +826,7 @@ GRM_Patch.PatchHistory = {
         version = 1.979,
         apply = function()
             GRM_Patch.DeleteLegacyMacro()
-            if GRM_G.BuildVersion >= 80000 then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
                 GRM_Patch.AddOrEditMemberData("MythicScore", 0)
             end
         end
@@ -1048,7 +1048,7 @@ GRM_Patch.PatchHistory = {
     {
         version = 1.9942,
         apply = function()
-            GRM_Patch.AddNewSetting("ProfFullyDisabled", (GRM_G.BuildVersion >= 100000))
+            GRM_Patch.AddNewSetting("ProfFullyDisabled", (GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF))
         end
     },
     { version = 1.995, apply = function() GRM_Patch.MemberDataCleanup() end }
@@ -4533,7 +4533,7 @@ GRM_Patch.GetDefaultAddonSettings = function()
     }
 
     -- Classic Values adjusted
-    if GRM_G.BuildVersion < 40000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
         defaults[53] = false;       -- Guild Rep not added until Cataclysm
         defaults[80][10] = false;   -- Disabled Guild Rep Export
     end
@@ -7340,7 +7340,7 @@ GRM_Patch.AddExportEntry = function ( settings , entryCap )
 
     for i = 1 , entryCap do
         if settings.exportFilters[i] == nil then
-            if i == 23 and GRM_G.BuildVersion < 100000 then
+            if i == 23 and GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
                 settings.exportFilters[i] = false;
             else
                 settings.exportFilters[i] = true;
@@ -7595,11 +7595,11 @@ GRM_Patch.ConvertExportFilters = function( exportFilters )
         newFilters.MainOrAlt = exportFilters[17];
         newFilters.mainOnly = exportFilters[19];
 
-        if GRM_G.BuildVersion < 40000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
             newFilters.rep = false;
         end
 
-        if GRM_G.BuildVersion < 80000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
             newFilters.mythicScore = false;
         end
 
@@ -7629,11 +7629,11 @@ GRM_Patch.ConvertExportFilters = function( exportFilters )
         exportFilters.MainOrAlt = false;
         exportFilters.mainOnly = true;
 
-        if GRM_G.BuildVersion < 40000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
             newFilters.rep = false;
         end
 
-        if GRM_G.BuildVersion < 80000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
             newFilters.mythicScore = false;
         end
 
@@ -7649,7 +7649,7 @@ end
 -- Purpose:         Ability to scale the new roster frame.
 GRM_Patch.UpdateUIScaling = function ( UIScaling )
     local rosterFrameDefault = 885;
-    if GRM_G.BuildVersion >= 80000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
         rosterFrameDefault = rosterFrameDefault + 90;
     end
     UIScaling[4] = { 1075 , 540 , 1 };                      -- Export log has been updated
@@ -9571,7 +9571,7 @@ end
 -- What it Does:    Adjusts the minimapRadius to be where it should be
 -- Purpose:         Fix an issue with the minimap icon custom note access change.
 GRM_Patch.AdjustMinimapRad = function( minimapRad )
-    if GRM_G.BuildVersion >= 100000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
         if minimapRad < 105 then    -- 10.0 DF increased size of minimap slightly
             minimapRad = 105;
         end

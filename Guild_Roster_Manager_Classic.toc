@@ -33,6 +33,7 @@ Modules\GRM_ScanRoster.lua
 Modules\GRM_Log.lua
 Core\GRM_Modules.lua
 
+locales\GRM_Localization.lua
 locales\German.lua
 locales\French.lua
 locales\Italian.lua
@@ -47,7 +48,7 @@ locales\SpanishMX.lua
 locales\English.lua
 locales\Dutch.lua
 locales\Danish.lua
-locales\GRM_Localization.lua
+locales\GRM_LocDefaults.lua
 
 UI\GRM_UI_Util.lua
 UI\GRM_UI_API.lua

@@ -339,7 +339,7 @@ end
 -- Purpose:         Conformity and unification of addon settings.
 Global.SetLeaderProfessionRestrictionSetting = function(profSync, isMyEdit)
     -- This feature does not apply to retail (Build 10.0+ / 100000+)
-    -- if GRM_G.BuildVersion >= 100000 then
+    -- if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
     --     return
     -- end
 
@@ -960,7 +960,7 @@ Global.GetAllGlobalRulesAsString = function( includeEnds )
     end
 
     local profSetting = "X"
-    if GRM_G.BuildVersion < 100000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
         -- We are in Classic, read actual addon states
         if GRM.S().ProfFullyDisabled then
             profSetting = "4"

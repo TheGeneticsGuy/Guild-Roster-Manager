@@ -24,6 +24,8 @@ GRM_MinimapPosition.hide = GRM_MinimapPosition.hide or false;
 GRM = {};
 -- Globals Table
 GRM_G = {};
+GRML = {}   -- All Localization
+GRM_L = {}  -- Actual Localization Strings
 
 -- local ghostSettings;    -- In case a player leaves the guild abruptly.
 --------------------------

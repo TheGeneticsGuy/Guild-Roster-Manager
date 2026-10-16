@@ -411,10 +411,10 @@ ScanTab.BuildScanTab = function()
             { idx = 4,  lvl = 40, btnName = "GRM_LevelFilter4Button", condition = function() return not (GRM_G.SOD and GRM_G.LvlCap < 40) end },
             { idx = 5,  lvl = 50, btnName = "GRM_LevelFilter5Button", condition = function() return not (GRM_G.SOD and GRM_G.LvlCap < 50) end },
             { idx = 6,  lvl = 60, btnName = "GRM_LevelFilter6Button", condition = function() return not (GRM_G.SOD and GRM_G.LvlCap < 60) end },
-            { idx = 7,  lvl = 70, btnName = "GRM_LevelFilter7Button", condition = function() return (GRM_G.BuildVersion >= 20000 and GRM_G.BuildVersion < 90000) or GRM_G.BuildVersion >= 100000 end },
-            { idx = 8,  lvl = 80, btnName = "GRM_LevelFilter8Button", condition = function() return (GRM_G.BuildVersion >= 30000 and GRM_G.BuildVersion < 90000) or GRM_G.BuildVersion >= 110000 end },
-            { idx = 10, lvl = 85, btnName = "GRM_LevelFilter85Button",condition = function() return (GRM_G.BuildVersion >= 40000 and GRM_G.BuildVersion < 90000) end },
-            { idx = 11, lvl = 90, btnName = "GRM_LevelFilter90Button",condition = function() return (GRM_G.BuildVersion >= 50000 and GRM_G.BuildVersion < 90000) or GRM_G.BuildVersion >= 120000 end }
+            { idx = 7,  lvl = 70, btnName = "GRM_LevelFilter7Button", condition = function() return (GRM_G.BuildVersion >= GRM_ENUM.BUILD.TBC and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) or GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF end },
+            { idx = 8,  lvl = 80, btnName = "GRM_LevelFilter8Button", condition = function() return (GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) or GRM_G.BuildVersion >= GRM_ENUM.BUILD.TWW end },
+            { idx = 10, lvl = 85, btnName = "GRM_LevelFilter85Button",condition = function() return (GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) end },
+            { idx = 11, lvl = 90, btnName = "GRM_LevelFilter90Button",condition = function() return (GRM_G.BuildVersion >= GRM_ENUM.BUILD.MOP and GRM_G.BuildVersion < GRM_ENUM.BUILD.SL) or GRM_G.BuildVersion >= GRM_ENUM.BUILD.MIDNIGHT end }
         }
 
         ScanTab.LevelFiltersData = {}

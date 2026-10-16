@@ -25,7 +25,7 @@ FormattingDupeProtect.tableString = "";
 local CreateGuildCreationDatePattern = function()
     local pattern = GUILD_INFO_TEMPLATE;
 
-    if GRM_G.BuildVersion >= 30000 or GRM_G.Region == "deDE" or GRM_G.Region == "frFR" or GRM_G.Region == "koKR" then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK or GRM_G.Region == "deDE" or GRM_G.Region == "frFR" or GRM_G.Region == "koKR" then
         for i = 1, 5 do
             pattern = string.gsub(pattern, "%%" .. i .. "$d", "(%%d+)");
         end
@@ -104,7 +104,7 @@ local SystemMessagePatternMatchCheck = function(pattern, msg, name)
                 toMatch = "%%s";
 
             elseif GRM_G.Region == "zhCN" then
-                if GRM_G.BuildVersion < 40000 then -- Not known exact expansion it changed
+                if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then -- Not known exact expansion it changed
                     toMatch = "\"%%s\""
                 else
                     toMatch = "“%%s”";
@@ -686,8 +686,8 @@ GRM_Sys.TriggerPlayerNote = function(playerName, msg)
 
             if #note > 0 then
                 -- Note is good, let's trigger the boolean...
-                if (GRM_G.BuildVersion >= 10000 and GRM.CanEditPublicNote() and (GRM.CanEditOfficerNote() or GRM_G.addonUser == playerName)) or
-                    (GRM_G.BuildVersion < 10000 and GRM.CanEditPublicNote()) then -- Don't need to write your own public note.
+                if (GRM_G.BuildVersion >= GRM_ENUM.BUILD.CLASSICERA and GRM.CanEditPublicNote() and (GRM.CanEditOfficerNote() or GRM_G.addonUser == playerName)) or
+                    (GRM_G.BuildVersion < GRM_ENUM.BUILD.CLASSICERA and GRM.CanEditPublicNote()) then -- Don't need to write your own public note.
                     UpdateNoteFromChat(playerName, note);
                 else
 

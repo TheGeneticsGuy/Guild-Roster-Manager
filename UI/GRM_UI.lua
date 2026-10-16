@@ -1338,11 +1338,7 @@ end
 -- Purpose:         To prevent mouseover from working whilst the side details window is still open
 GRM_UI.Unpause = function()
     if GRM_G.pause then
-        if GRM_G.BuildVersion >= 10000 then
-            if GRM_UI.MemberDetailFrame:IsVisible() then
-                GRM_G.pause = false;
-            end
-        elseif not GRM_UI.MemberDetailFrame:IsVisible() then
+        if GRM_UI.MemberDetailFrame:IsVisible() then
             GRM_G.pause = false;
         end
     end
@@ -2658,7 +2654,7 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
         -- Script handlers on Note Frames
         GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteWindow:SetScript ( "OnMouseDown" , function ( self , button )
-            if button == "LeftButton" and GRM.CanEditPublicNote() or ( GRM_G.BuildVersion >= 10000 and GRM_G.currentName == GRM_G.addonUser ) then
+            if button == "LeftButton" and GRM.CanEditPublicNote() or GRM_G.currentName == GRM_G.addonUser then
                 GRM_UI.GRM_MemberDetailMetaData.GRM_NoteCount:SetPoint ("TOPRIGHT" , self , -6 , 8 );
                 GRM_G.pause = true;
                 GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:Hide();
@@ -2796,17 +2792,9 @@ GRM_UI.GR_MetaDataInitializeUIFirst = function( isManualUpdate )
 
                         -- If the memberdetailframe is open, set it as well...
                         if GRM.SlimName ( CommunitiesFrame.GuildMemberDetailFrame.Name:GetText() ) == GRM.SlimName ( GRM_G.currentName ) then
-
-                            if GRM_G.BuildVersion >= 10000 then
-                                if CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:IsVisible() then
-                                    CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:SetText ( theNote );
-                                end
-
-                                -- Classic era < 8.0
-                            elseif PersonalNoteText and PersonalNoteText:IsVisible() then
-                                PersonalNoteText:SetText ( theNote );
+                            if CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText and CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:IsVisible() then
+                                CommunitiesFrame.GuildMemberDetailFrame.NoteBackground.PersonalNoteText:SetText ( theNote );
                             end
-
                         end
 
                         if GRM_UI.GRM_AuditJDTool:IsVisible() then
@@ -5327,11 +5315,13 @@ GRM_UI.PreAddonLoadUI = function()
     GRM_UI.GRM_CoreFrame.GRM_AddEventTab:SetScript ( "OnEnter" , function( self )
         GRM_UI.SetTooltipScale();
         GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        if GRM_G.BuildVersion >= 30000 and CanEditGuildEvent() then
-            GameTooltip:AddLine( GRM.L ( "Add Upcoming Events to the Calendar" ) );
-        elseif GRM_G.BuildVersion >= 30000 then
-            GameTooltip:AddLine( GRM.L ( "Player rank unable to add events to calendar" ) , 1 , 0 , 0 );
-            GameTooltip:AddLine( GRM.L ( "Anniversaries, Birthdays, and Other Events can be added with permission" ) );
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then 
+            if CanEditGuildEvent() then
+                GameTooltip:AddLine( GRM.L ( "Add Upcoming Events to the Calendar" ) );
+            else
+                GameTooltip:AddLine( GRM.L ( "Player rank unable to add events to calendar" ) , 1 , 0 , 0 );
+                GameTooltip:AddLine( GRM.L ( "Anniversaries, Birthdays, and Other Events can be added with permission" ) );
+            end
         else
             GameTooltip:AddLine( GRM.L ( "Limited Features. There is no Calendar in Classic" ) );
             GameTooltip:AddLine( GRM.L ( "Anniversaries, Birthdays, and Other Events can be viewed." ) );
@@ -6743,8 +6733,8 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfNoteDestinationRadial3:SetScript("OnLeave" , GRM.RestoreTooltip);
 
     local text = "";
-    if GRM_G.BuildVersion >= 50000 then
-        text = "|cffff0000(" .. GRM.L ( "Only Available in Classic Era") .. ")|r";
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.MOP then
+        text = "|cffff0000(" .. GRM.L ( "Only Available in Classic or Forever") .. ")|r";
     elseif not C_GuildInfo.IsGuildOfficer() then
         text = "|cffff0000(" .. GRM.L ( "Only Available for Officers" ) .. ")|r";
     end
@@ -6835,7 +6825,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         else
             GRM_UI.ConfigureProfRadial( GRM.S().ProfNoteDestination , enable );
 
-            if GRM_G.BuildVersion >= 100000 then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
                 GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfFeatureToggleCheckbox:Disable();
                 GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ClassicOptionsFrame.GRM_ProfFeatureToggleCheckbox.GRM_ProfFeatureToggleCheckboxText:SetTextColor ( 0.5 , 0.5 , 0.5 );
             end
@@ -7286,7 +7276,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ShowMythicRatingButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
 
     local buttonText = GRM.L ( "Show Mythic+ Rating" );
-    if GRM_G.BuildVersion < 80000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
         buttonText = buttonText .. " |CFFFF0000" .. GRM.L ( "(Disabled in Classic)"  );
     end
 
@@ -7371,7 +7361,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end
     end);
 
-    if GRM_G.BuildVersion < 40000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ReputationToggleButton:Disable();
     end
 
@@ -7380,7 +7370,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ReputationToggleButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
 
     tempString = GRM.L ( "Show Character Guild Reputation" );
-    if GRM_G.BuildVersion < 40000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
         tempString = tempString .. " |CFFFF0000" .. GRM.L ( "(Disabled in Classic)" );
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ReputationToggleButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
     end
@@ -7479,7 +7469,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButtonText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButtonText2:SetText ( GRM.L ( "(Applies Only to Classic)" ) );
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButtonText2:SetTextColor ( 1 , 0 , 0 );
-    if GRM_G.BuildVersion >= 40000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then
         -- From Cata onward the names were class colorized in the roster window
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButton:Disable();
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNamesButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
@@ -7492,7 +7482,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     if self:GetChecked() then
                         GRM.S().colorizeClassicRosterNames = true;
                         SetCVar("chatClassColorOverride" , 0 );
-                        if GRM_G.BuildVersion >= 30000 then
+                        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
                             GRM.SetChatClassColoringInWrath ( true );
                         else
                             GRM.SetChatClassColoringNew ( true );
@@ -7500,7 +7490,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     else
                         GRM.S().colorizeClassicRosterNames = false;
                         SetCVar("chatClassColorOverride" , 1 )
-                        if GRM_G.BuildVersion >= 30000 then
+                        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
                             GRM.SetChatClassColoringInWrath ( false );
                         else
                             GRM.SetChatClassColoringNew ( false );
@@ -8189,7 +8179,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
 
     tempString = GRM.L ( "Add Events to Calendar" );
-    if GRM_G.BuildVersion < 30000 then  -- Calendar addin in 3.0 WOTLK
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK then  -- Calendar addin in 3.0 WOTLK
         tempString = tempString .. " |CFFFF0000" .. GRM.L ( "(Disabled in Classic)" );
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
     end
@@ -9789,7 +9779,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_ShowOnChatSideFrameText:SetPoint ( "TOPRIGHT" , GRM_UI.GRM_RosterCheckBoxSideFrame , -14 , -28 );
     GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_ShowOnChatSideFrameText:SetText ( GRM.L ( "To Chat:" ) );
     GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_ShowOnLogSideFrameText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_RosterCheckBoxSideFrame , 14 , -28 );
-    GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_ShowOnLogSideFrameText:SetText ( GRM.L  ( "To Log:" ) );
+    GRM_UI.GRM_RosterCheckBoxSideFrame.GRM_ShowOnLogSideFrameText:SetText ( GRM.L ( "To Log:" ) );
 
     -- User with addon installed...
     GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.GRM_AddonUsersCoreFrameText:SetPoint ( "TOP" , GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame , 0 , - 3.8 );
@@ -11758,7 +11748,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetFocus();
             GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( "" );
             GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( GRM_G.realmName );
-            if GRM_G.BuildVersion >= 30000 then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
                 GRM_G.tempAddBanClass = "DEATHKNIGHT";
             else
                 GRM_G.tempAddBanClass = "DRUID";
@@ -12556,7 +12546,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetPoint ( "TOP" , GRM_UI.GRM_CoreFrame.GRM_EventsFrame , 0 , 65 );
     end
     GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
-    if GRM_G.BuildVersion >= 30000 then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText ( GRM.L ( "You Do Not Have Permission to Add Events to Calendar" ) );
     else
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText ( GRM.L ( "Limited Features. There is no Calendar in Classic" ) );
@@ -12609,7 +12599,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameSetAnnounceButton:SetScript ( "OnClick" , function ( self , button )
         if button == "LeftButton" then
 
-            if GRM_G.BuildVersion >= 30000 and CanEditGuildEvent() then
+            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent() then
                 if not GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:IsVisible() then
                     GRM.Report ( GRM.L ( "No Player Event Has Been Selected" ) );
                 else
@@ -12687,10 +12677,10 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     end
                 end
             else
-                if GRM_G.BuildVersion >= 30000 then
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
                     GRM.Report ( GRM.L ( "You Do Not Have Permission to Add Events to Calendar" ) );
                 else
-                    if GRM_G.BuildVersion < 20000 then
+                    if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
                         GRM.Report ( GRM.L ( "Feature is disabled in WoW Classic" ) );
                     else
                         GRM.Report ( GRM.L ( "Feature is disabled in TBC Classic" ) );
@@ -12700,11 +12690,11 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         end
     end);
 
-    if GRM_G.BuildVersion < 30000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK then
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameSetAnnounceButton:SetScript ( "OnEnter" , function ( self )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            if GRM_G.BuildVersion < 20000 then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
                 GameTooltip:AddLine ( GRM.L ( "Feature is disabled in WoW Classic" ) );
             else
                 GameTooltip:AddLine ( GRM.L ( "Feature is disabled in TBC Classic" ) );
@@ -13135,26 +13125,15 @@ GRM_UI.MainRoster_OnShow = function( isManual )
         rosterFrame.GRM_EnableMouseOver:SetScript ( "OnClick", function( self )
 
             if self:GetChecked() then
-                if GRM_G.BuildVersion >= 10000 then
-                    GRM.S().showMouseoverRetail = true;
-                else
-                    GRM.S().showMouseoverOld = true;
-                end
+                GRM.S().showMouseoverRetail = true;
                 rosterFrame.GRM_EnableMouseOverText:SetTextColor ( 1 , 0.82 , 0 , 1 );
                 if GRM_UI.MemberDetailFrame:IsVisible() then
                     GRM_UI.MemberDetailFrame:Hide();
                 end
             else
-                if GRM_G.BuildVersion >= 10000 then
-                    GRM.S().showMouseoverRetail = false;
-                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
-                    end
-                else
-                    GRM.S().showMouseoverOld = false;
-                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
-                    end
+                GRM.S().showMouseoverRetail = false;
+                if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                    GRM_UI.GRM_MemberDetailMetaData:Hide();
                 end
                 rosterFrame.GRM_EnableMouseOverText:SetTextColor ( 1 , 0 , 0 , 1 );
             end
@@ -13162,29 +13141,25 @@ GRM_UI.MainRoster_OnShow = function( isManual )
 
         end);
 
-        if GRM_G.BuildVersion >= 10000 then
-            rosterFrame.GRM_EnableMouseOver:SetPoint ( "RIGHT" , nextToButton , "LEFT" , -14 , 0 );
-            -- Creating an OnUpdate timer
-            GRM_UI.GRM_LoadLogButton.timer = 0;
+        rosterFrame.GRM_EnableMouseOver:SetPoint ( "RIGHT" , nextToButton , "LEFT" , -14 , 0 );
+        -- Creating an OnUpdate timer
+        GRM_UI.GRM_LoadLogButton.timer = 0;
 
-            -- On Uodate logic
-            GRM_UI.GRM_LoadLogButton:SetScript ( "OnUpdate" , function ( _ , elapsed )
-                GRM_UI.GRM_LoadLogButton.timer = GRM_UI.GRM_LoadLogButton.timer + elapsed;
-                if GRM_UI.GRM_LoadLogButton.timer >= 1 then
+        -- On Uodate logic
+        GRM_UI.GRM_LoadLogButton:SetScript ( "OnUpdate" , function ( _ , elapsed )
+            GRM_UI.GRM_LoadLogButton.timer = GRM_UI.GRM_LoadLogButton.timer + elapsed;
+            if GRM_UI.GRM_LoadLogButton.timer >= 1 then
 
-                    -- If the button is not visible... you know the window has shrunk. You need to hide the checkbox.
-                    if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID and nextToButton:IsVisible() and not rosterFrame.GRM_EnableMouseOver:IsVisible() then
-                        rosterFrame.GRM_EnableMouseOver:Show();
-                    elseif CommunitiesFrame:GetSelectedClubId() ~= GRM_G.gClubID or ( not nextToButton:IsVisible() and rosterFrame.GRM_EnableMouseOver:IsVisible() ) then
-                        rosterFrame.GRM_EnableMouseOver:Hide();
-                    end
-
-                    GRM_UI.GRM_LoadLogButton.timer = 0;
+                -- If the button is not visible... you know the window has shrunk. You need to hide the checkbox.
+                if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID and nextToButton:IsVisible() and not rosterFrame.GRM_EnableMouseOver:IsVisible() then
+                    rosterFrame.GRM_EnableMouseOver:Show();
+                elseif CommunitiesFrame:GetSelectedClubId() ~= GRM_G.gClubID or ( not nextToButton:IsVisible() and rosterFrame.GRM_EnableMouseOver:IsVisible() ) then
+                    rosterFrame.GRM_EnableMouseOver:Hide();
                 end
-            end);
-        else
-            rosterFrame.GRM_EnableMouseOver:SetPoint ( "BOTTOMRIGHT" , nextToButton , "TOPRIGHT" , -1 , -3 );
-        end
+
+                GRM_UI.GRM_LoadLogButton.timer = 0;
+            end
+        end);
 
         local timer = 0;
         if not rosterFrame.GRM_EnableMouseOver.Configured and GRM.IsAddOnLoaded("AddOnSkins") then
@@ -13572,7 +13547,7 @@ GRM_UI.GetDefaultFrameSize = function ( frameName )
 
     local rosterFrameDefault = 885;
 
-    if GRM_G.BuildVersion >= 80000 then     -- Larger for Mythic Scores which didn't come in until 8.0
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then     -- Larger for Mythic Scores which didn't come in until 8.0
         rosterFrameDefault = rosterFrameDefault + 90;
     end
 

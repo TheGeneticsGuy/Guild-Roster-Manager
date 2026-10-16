@@ -33,8 +33,8 @@ Export.ExportMemberDetailsHeaders = function(returnString)
 
         if GRM.S().exportFilters[headerOrder[i]] then
             if ((headerOrder[i] ~= "rep" and headerOrder[i] ~= "mythicScore") or
-                ((headerOrder[i] == "rep" and GRM_G.BuildVersion >= 40000) or
-                    (headerOrder[i] == "mythicScore" and GRM_G.BuildVersion >= 80000))) then
+                ((headerOrder[i] == "rep" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA) or
+                    (headerOrder[i] == "mythicScore" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA))) then
                 completeString = completeString .. headers[i] .. delimiter;
             end
         end
@@ -352,7 +352,7 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
                         end
                     end
                 end -- Rep
-                if GRM.S().exportFilters.rep and GRM_G.BuildVersion >= 40000 then
+                if GRM.S().exportFilters.rep and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then
                     playerDetails = playerDetails .. GRM.GetReputationTextLevel(roster[i].guildRep, false) .. delimiter;
                 end
                 if GRM.S().exportFilters.note then -- Public Note
@@ -378,7 +378,7 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
                         playerDetails = playerDetails .. delimiter;
                     end
                 end
-                if GRM.S().exportFilters.mythicScore and GRM_G.BuildVersion >= 80000 then -- Mythic+ Score
+                if GRM.S().exportFilters.mythicScore and GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then -- Mythic+ Score
                     if roster[i].MythicScore then
                         playerDetails = playerDetails .. roster[i].MythicScore .. delimiter;
                     else
@@ -388,7 +388,7 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
                 if GRM.S().exportFilters.faction then -- faction, Alliance or Horde
 
                     -- Due to old conversion placeholder of -1 was added in a patch.
-                    if roster[i].faction == -1 and GRM_G.BuildVersion < 100000 then
+                    if roster[i].faction == -1 and GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
                         roster[i].faction = GRM_G.faction;
                     end
 
@@ -954,7 +954,7 @@ Export.CheckButtonsAllChecked = function()
     for x in pairs ( GRM.S().exportFilters ) do
         if not GRM.S().exportFilters[x] then
 
-            if ( x == "rep" and GRM_G.BuildVersion < 40000 ) or ( x == "mythicScore" and GRM_G.BuildVersion < 80000 ) then
+            if ( x == "rep" and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA ) or ( x == "mythicScore" and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA ) then
                 result = true;
             else
                 result = false;
@@ -2107,7 +2107,7 @@ Export.LoadExportUI = function( isManualUpdate )
             end
         end);
 
-        if GRM_G.BuildVersion < 80000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter22:Disable();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter22.GRM_ExportFilter22Text2:SetPoint ( "TOP" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter22.GRM_ExportFilter22Text , "BOTTOM" , 0 , -1 );
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter22.GRM_ExportFilter22Text2:SetWidth ( 105 );
@@ -2327,7 +2327,7 @@ Export.LoadExportUI = function( isManualUpdate )
             end
         end);
 
-        if GRM_G.BuildVersion < 40000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:Disable();
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text , "BOTTOMLEFT" , 0 , -1 );
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text2:SetWidth ( 105 );
@@ -2530,7 +2530,7 @@ Export.LoadExportUI = function( isManualUpdate )
                 for x in pairs ( GRM.S().exportFilters ) do
 
                     if x == "rep" then
-                        if GRM_G.BuildVersion >= 40000 then
+                        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then
                             GRM.S().exportFilters.rep = true;
                             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetChecked ( true );
                         else
@@ -2538,7 +2538,7 @@ Export.LoadExportUI = function( isManualUpdate )
                             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10:SetChecked ( false );
                         end
                     elseif x == "mythicScore" then
-                        if GRM_G.BuildVersion >= 80000 then
+                        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
                             GRM.S().exportFilters.mythicScore = true;
                             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter22:SetChecked ( true );
                         else
@@ -2555,7 +2555,7 @@ Export.LoadExportUI = function( isManualUpdate )
                 for i = 1 , 23 do
                     if i ~= 19 and i ~= 21 then
 
-                        if ( ( i ~= 10 and i ~= 22 ) or ( i == 10 and GRM_G.BuildVersion >= 40000 ) or ( i == 22 and GRM_G.BuildVersion >= 80000 ) ) then
+                        if ( ( i ~= 10 and i ~= 22 ) or ( i == 10 and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA ) or ( i == 22 and GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA ) ) then
                             _G[ "GRM_ExportFilter" .. i ]:SetChecked ( true );
                         end
                     end
@@ -2995,13 +2995,13 @@ Export.BuildExportStrings = function()
         end
 
         -- GUild Rep - Disabled in all  Classic builds prior to Cataclysm
-        if GRM_G.BuildVersion < 40000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 9 );
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter10.GRM_ExportFilter10Text2:SetText ( GRM.L ( "(Disabled in Classic)" ) );
         end
 
         -- Disabled in All Classic Builds
-        if GRM_G.BuildVersion < 80000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter22.GRM_ExportFilter22Text2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 9 );
             GRM_UI.GRM_ExportLogBorderFrame.GRM_ExportFilter22.GRM_ExportFilter22Text2:SetText ( GRM.L ( "(Disabled in Classic)" ) );
         end

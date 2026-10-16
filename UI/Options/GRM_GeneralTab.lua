@@ -12,8 +12,6 @@ GeneralTab.InitializeGeneralTab = function( isManualUpdate )
             GRM_G.SettingsTabFocus = GRM_ENUM.OPTIONS_TABS.GENERAL;
             GRM_UI.GRM_CoreFrame.GRM_CoreFrameReScale:Show();
         end);
-
-        
     end
 
     -- TODO - Adapt to new UI API
@@ -621,7 +619,7 @@ GeneralTab.InitializeGeneralTab = function( isManualUpdate )
 
 
     -- ONLY APPLIES TO CLASSIC WOTLK
-    if GRM_G.BuildVersion < 40000 and GRM_G.BuildVersion >= 30000 then
+    if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
 
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_AchievementAnnounceButton:SetPoint ( "LEFT" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButtonText , "RIGHT" , 10 , 0 );
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_AchievementAnnounceButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_AchievementAnnounceButton , "RIGHT" , 2 , 0 );

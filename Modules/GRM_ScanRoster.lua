@@ -535,7 +535,7 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
             player = roster[memberInfo.name];
             if player and player.GUID == memberInfo.guid then
                 -- Add Mythic Score if applicable
-                if GRM_G.BuildVersion >= 80000 and memberInfo.overallDungeonScore then
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and memberInfo.overallDungeonScore then
                     player.MythicScore = memberInfo.overallDungeonScore;
                 end
 
@@ -1331,7 +1331,7 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
     end
 
     -- Add Mythic Score if applicable
-    if GRM_G.BuildVersion >= 80000 and updatedPlayer.MythicScore and player.MythicScore ~= updatedPlayer.MythicScore then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and updatedPlayer.MythicScore and player.MythicScore ~= updatedPlayer.MythicScore then
         player.MythicScore = updatedPlayer.MythicScore;
     elseif not player.MythicScore then
         player.MythicScore = 0;
@@ -2654,7 +2654,7 @@ Scan.CheckPlayerAnniversary = function( player , day , month , year , count )
                                     finalYear = finalYear + 1;
                                 end
 
-                                if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 1 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
+                                if (GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK or ( GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 1 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
 
                                     GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
                                         description, 1);
@@ -2743,7 +2743,7 @@ Scan.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappe
                                     finalYear = finalYear + 1;
                                 end
 
-                                if (GRM_G.BuildVersion < 30000 or ( GRM_G.BuildVersion >= 30000 and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 2 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 2 , title) then
+                                if (GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK or ( GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 2 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 2 , title) then
 
 
                                     GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,

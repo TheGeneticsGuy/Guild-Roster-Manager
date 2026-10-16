@@ -7,9 +7,9 @@
 
 local MinimapGRM = {};
 local blizzMinimap = _G.Minimap;
-GRM_MinimapPosition.hide = GRM_MinimapPosition.hide or false;
-
 GRM.MinimapGRM = MinimapGRM;
+
+GRM_MinimapPosition.hide = GRM_MinimapPosition.hide or false;
 
 -- Method:          MinimapGRM.MainWindowOpenLogic()
 -- What it Does:    Logic to open GRM's main window from minimap button click
@@ -54,7 +54,7 @@ MinimapGRM.MinimapOnEnter = function ( tooltip )
         local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
 
         if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
-            versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
+            versionLine = versionLine .. " " .. (GRM_G.BuildVersion == GRM_G.ForeverBaseBuild and GRM.L("(Forever)") or GRM.L("(Classic)"))
         end
 
         tooltip:AddLine( versionLine );
@@ -163,7 +163,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
             if GRM.S().minimapRad then
                 radius = GRM.S().minimapRad
             else
-                if GRM_G.BuildVersion >= 100000 then 
+                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then 
                     radius = 105;
                 else
                     radius = 80;
@@ -190,7 +190,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
     -- Purpose:         In case player drags the minimap off screen...
     MinimapGRM.ResetMinimapPositionToDefault = function()
 
-        if GRM_G.BuildVersion >= 100000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
             GRM.S().minimapRad = 105;
         else
             GRM.S().minimapRad = 80;
@@ -276,7 +276,7 @@ MinimapGRM.CreateCustomMinimapButton = function()
         if IsInGuild() then
             local versionLine = "|CFF00CCFF" .. GRM.L ( "GRM" ) .. " " .. GRM_G.Version:match ( "R(.+)" ) .. ( GRM_G.Beta and " - Beta" or "" );
             if GRM_G.BuildVersion < GRM_G.RetailBaseBuild then
-                versionLine = versionLine .. " " .. GRM.L ( "(Classic)" );
+                versionLine = versionLine .. " " .. (GRM_G.BuildVersion == GRM_G.ForeverBaseBuild and GRM.L("(Forever)") or GRM.L("(Classic)"))
             end
             GameTooltip:AddLine ( versionLine );
             GameTooltip:AddLine ( GRM.L ( "|CFFE6CC7FClick|r to open GRM" ) );

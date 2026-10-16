@@ -18,10 +18,9 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
     -- Page 0 = misc stuff unrelated to specific settings
     if page == 0 then
         player.showMouseoverRetail = true;
-        player.showMouseoverOld = true;
         player.minimapPos = 345;
 
-        if GRM_G.BuildVersion >= 100000 then    -- 10.0 DF increased size of minimap slightly
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then    -- 10.0 DF increased size of minimap slightly
             player.minimapRad = 105;
         else
             player.minimapRad = 80;
@@ -52,7 +51,7 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
         player.banInfoReport = false;
 
         local rosterFrameDefault = 885;
-        if GRM_G.BuildVersion >= 80000 then -- Mythic+ Size Diff
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then -- Mythic+ Size Diff
             rosterFrameDefault = rosterFrameDefault + 90;
         end
 
@@ -150,13 +149,13 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
         player.showFaction = true;
 
         -- No cross-faction guilds prior to Dragonflight expansion
-        if GRM_G.BuildVersion < 100000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
             player.showFaction = false;
         end
         player.useFade = false;
 
         -- No guild rep pre-Cataclysm expansion.
-        if GRM_G.BuildVersion < 40000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
             player.viewGuildRep = false;
         else
             player.viewGuildRep = true;
@@ -263,11 +262,11 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
             player.exportHardcoreSort = 1;
         end
 
-        if GRM_G.BuildVersion < 40000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
             player.exportFilters.rep = false;
         end
 
-        if GRM_G.BuildVersion < 80000 then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
             player.exportFilters.mythicScore = false; 
         end
 
@@ -334,18 +333,13 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
         if GRM_G.BuildHasRestrictions then
             player.ProfNoteDestination = 3;
         end
-        if GRM_G.BuildVersion >= 100000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
             player.ProfFullyDisabled = true;
         end
 
         -- Names Tab
     elseif page == 17 then
-        -- player.showMainName = true; -- DELETE
-        player.useMainTag = true;
-
-        -- player.showNickname = false;         -- TO DELETE
-        -- player.showNicknameNotMain = true;   -- TO DELETE
-        -- player.ShowNicknameToAll = true;     -- TO DELETE
+        player.useMainTag = true; -- Can we remove
 
         player.mainTagIndex = 1
         player.altTagIndex = 1

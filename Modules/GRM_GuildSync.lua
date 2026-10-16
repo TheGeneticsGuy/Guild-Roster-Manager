@@ -2319,7 +2319,7 @@ GRMsync.CheckBanListChange = function ( msg , sender )
         memberInfoToAdd.rosterSelection = 0;                                    -- 18]
         memberInfoToAdd.faction = GRM_G.faction;
 
-        if GRM_G.BuildVersion >= 80000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
             memberInfoToAdd.MythicScore = 0;
         end
 
@@ -6606,7 +6606,7 @@ GRMsync.UpdateLeftPlayerInfo = function ( playerData )
         memberInfoToAdd.rosterSelection = 0;                                    -- 18
         memberInfoToAdd.faction = GRM_G.faction;
 
-        if GRM_G.BuildVersion >= 80000 then
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
             memberInfoToAdd.MythicScore = 0;
         end
 
