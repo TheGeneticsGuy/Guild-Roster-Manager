@@ -622,9 +622,9 @@ GRML.French = function()
     -- R1.1482
     GRM_L["Shift-Click Name On Roster Also Works"] = "Maj-Clic sur un nom dans la liste fonctionne également"
     GRM_L["Tooltip Scale:"] = "Échelle de l'infobulle :"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Language"] = "|CFFE6CC7FClic-gauche|r pour modifier la langue"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change Display Format"] = "|CFFE6CC7FClic-gauche|r pour modifier le format horaire"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = "|CFFE6CC7FClic-gauche|r pour modifier la police"
+    GRM_L["{custom1} to Change the Language"] = "{custom1} pour modifier la langue"
+    GRM_L["{custom1} to Change Display Format"] = "{custom1} pour modifier le format horaire"
+    GRM_L["{custom1} to Change the Font"] = "{custom1} pour modifier la police"
 
     -- R1.1490
     GRM_L["Unable to properly locate guild for backup"] = "Impossible de localiser correctement la guilde pour restaurer"
@@ -1378,6 +1378,7 @@ GRML.French = function()
     GRM_L["Ctrl-Shift-Click"] = true
     GRM_L["Alt-Shiift-Click"] = true
     GRM_L["Right-Click"] = "Clic-Droit"
+    GRM_L["Left-Click"] = true
     GRM_L["Ctrl-Left-Click"] = true
 
     GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action

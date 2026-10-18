@@ -419,6 +419,8 @@ GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizePlayerNames
 -- Auto Hide GRM Frames
 GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_AutoHideFramesInCombatCheckButton = CreateFrame ( "CheckButton" , "GRM_AutoHideFramesInCombatCheckButton" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame , "InterfaceOptionsCheckButtonTemplate" );
 GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_AutoHideFramesInCombatCheckButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_AutoHideFramesInCombatCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
+GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButton = CreateFrame ( "CheckButton" , "GRM_ColorizeSystemMessagesCheckButton" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame , "InterfaceOptionsCheckButtonTemplate" );
+GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
 -- Display options
 GRM_UI.GRM_CoreFrame.GRM_RosterPromotionChangeCheckButton = CreateFrame ( "CheckButton" , "GRM_RosterPromotionChangeCheckButton" , GRM_UI.GRM_RosterCheckBoxSideFrame , "InterfaceOptionsCheckButtonTemplate" );
@@ -6355,10 +6357,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         GRM.RestoreTooltip()
     end);
 
-    -- Options Frames
-    GRM_UI.GeneralTab.InitializeGeneralTab( isManualUpdate );
-
-
+    -- Rest of other tabs
 
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame , "BOTTOMLEFT" );
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame:SetSize ( GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H );
@@ -6394,6 +6393,9 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_HelpOptionsFrame:SetScript ( "OnShow" , function()
         GRM_UI.GRM_CoreFrame.GRM_CoreFrameReScale:Show();
     end);
+
+    -- Options Frames
+    GRM_UI.GeneralTab.InitializeGeneralTab( isManualUpdate );
 
     -- BUILD HARDCORE OPTIONS PAGE
     GRM_UI.CreateCoreFrame ( "GRM_ClassicOptionsFrame" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame , nil , GRM_ENUM.OPTIONS_SIZE.W, GRM_ENUM.OPTIONS_SIZE.H , nil , false , { "BOTTOMLEFT" ,  "BOTTOMLEFT" , 0 , 0 } , nil , false , false );
@@ -7159,28 +7161,6 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
         end);
 
     end
-
-    -- CORE OPTIONS
-
-    
-
-    -- Colorize System Messages CheckButton
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButton:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterLoadOnLogonCheckButton , "BOTTOMLEFT" , 0 , -6 );
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButton , "RIGHT" , 2 , 0 );
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButtonText:SetText ( GRM.L ( "Class Colorize Names in Guild Member Alerts" ) );
-    GRM.NormalizeHitRects ( GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButton , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButtonText );
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_UXOptionsFrame.GRM_ColorizeSystemMessagesCheckButton:SetScript ( "OnClick" , function( self , button )
-        if button == "LeftButton" then
-            if self:GetChecked() then
-                GRM.S().colorizeNames = true;
-            else
-                GRM.S().colorizeNames = false;
-            end
-        end
-    end);
-
-  
 
     -- LOG FONT SLIDER
     GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame.GRM_ConfirmClearButton , "TOPRIGHT" , -40, 15 );
@@ -8404,11 +8384,11 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if key == "ESCAPE" then
                 self:SetPropagateKeyboardInput ( false );
                 self:Hide();
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
             end
         elseif key == "ESCAPE" then
             self:Hide();
-            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
         end
     end);
 
@@ -8496,11 +8476,11 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             if key == "ESCAPE" then
                 self:SetPropagateKeyboardInput ( false );
                 self:Hide();
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
+                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
             end
         elseif key == "ESCAPE" then
             self:Hide();
-            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
+            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
         end
     end);
 

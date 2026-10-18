@@ -17,13 +17,13 @@ GRM_UI = {};    -- Global Access
 -- UI API HELPERS -----
 -----------------------
 
--- Method:          CreateTooltipFromTable ( table )
+-- Method:          GRM_UI.CreateTooltipFromTable ( table )
 -- What it Does:    Creates a tooltip either single or double line
 -- Purpose:         Ease of creating tooltips
--- Usage:           CreateTooltipFromTable ( { 1 , "Test" } )
---                  CreateTooltipFromTable ( { 1 , "Test" } , { 1 , Ghost } )
---                  CreateTooltipFromTable ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
-local CreateTooltipFromTable = function ( self , ... )
+-- Usage:           GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } )
+--                  GRM_UI.CreateTooltipFromTable ( { 1 , "Test" } , { 1 , Ghost } )
+--                  GRM_UI.CreateTooltipFromTable ( { 2 , "Double" , "Line" , 1 , 0.8 , 0 , 1 , 0 , 0 } )
+GRM_UI.CreateTooltipFromTable = function ( self , ... )
     local lines = {...};
 
     if #lines > 0 then
@@ -246,7 +246,7 @@ GRM_UI.CreateButton = function ( name, parentFrame, template, text, width, heigh
                 end);
             else
                 parentFrame[name]:SetScript ( "OnEnter" , function ( self )
-                    CreateTooltipFromTable ( self , toolTipScript )
+                    GRM_UI.CreateTooltipFromTable ( self , toolTipScript )
                 end);
             end
 
@@ -565,7 +565,7 @@ GRM_UI.CreateEditBox = function ( name, parentFrame, template, width, height, po
         end
 
         if enterPressedLogic then
-            enterPressedLogic()
+            enterPressedLogic(self)
         end
 
         parentFrame[name].tempText = self:GetText();
@@ -661,7 +661,7 @@ GRM_UI.CreateOptionsSlider = function ( name, parentFrame, template, points, min
                 end);
             else
                 parentFrame[name].Slider:SetScript ( "OnEnter" , function ( self )
-                    CreateTooltipFromTable ( self , toolTipScript );
+                    GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
                 end);
             end
 
@@ -815,7 +815,7 @@ GRM_UI.CreateDropDownMenu = function ( name, parentFrame, template, point, size,
                 end);
             else
                 parentFrame[selectedFrame]:SetScript ( "OnEnter" , function ( self )
-                    CreateTooltipFromTable ( self , toolTipScript );
+                    GRM_UI.CreateTooltipFromTable ( self , toolTipScript );
                 end);
             end
 

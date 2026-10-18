@@ -621,9 +621,9 @@ GRML.MandarinCN = function()
     -- R1.1482
     GRM_L["Shift-Click Name On Roster Also Works"] = "也可以Shift点击名单中的名字"
     GRM_L["Tooltip Scale:"] = "鼠标提示尺寸:"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Language"] = "|CFFE6CC7F左键点击|r修改语言"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change Display Format"] = "|CFFE6CC7F左键点击|r修改显示格式"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = "|CFFE6CC7F左键点击|r修改字体"
+    GRM_L["{custom1} to Change the Language"] = "{custom1}修改语言"
+    GRM_L["{custom1} to Change Display Format"] = "{custom1}修改显示格式"
+    GRM_L["{custom1} to Change the Font"] = "{custom1}修改字体"
 
     -- R1.1490
     GRM_L["Unable to properly locate guild for backup"] = "无法正确定位公会以备份"
@@ -1384,6 +1384,7 @@ GRML.MandarinCN = function()
     GRM_L["Ctrl-Shift-Click"] = true
     GRM_L["Alt-Shiift-Click"] = true
     GRM_L["Right-Click"] = true
+    GRM_L["Left-Click"] = true
     GRM_L["Ctrl-Left-Click"] = true
 
     GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action

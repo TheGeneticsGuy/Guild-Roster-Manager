@@ -101,7 +101,11 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 
 
+## **VERSION 1.99423 - October 15th, 2026**
 
+*12.1.5 Compatibility Update*
+
+*Please note, major update coming soon and it will coincide with a compatible WOW Forever build*
 
 ## **VERSION 1.99422 - August 20th, 2026**
 

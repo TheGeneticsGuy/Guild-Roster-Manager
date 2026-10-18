@@ -622,9 +622,9 @@ GRML.Danish = function()
     -- R1.1482
     GRM_L["Shift-Click Name On Roster Also Works"] = true
     GRM_L["Tooltip Scale:"] = true
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Language"] = true
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change Display Format"] = true
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = true
+    GRM_L["{custom1} to Change the Language"] = true
+    GRM_L["{custom1} to Change Display Format"] = true
+    GRM_L["{custom1} to Change the Font"] = true
 
     -- R1.1490
     GRM_L["Unable to properly locate guild for backup"] = true
@@ -1382,6 +1382,7 @@ GRML.Danish = function()
     GRM_L["Ctrl-Shift-Click"] = true
     GRM_L["Alt-Shiift-Click"] = true
     GRM_L["Right-Click"] = true
+    GRM_L["Left-Click"] = true
     GRM_L["Ctrl-Left-Click"] = true
 
     GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action

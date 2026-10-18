@@ -626,9 +626,9 @@ GRML.German = function()
     -- R1.1482
     GRM_L["Shift-Click Name On Roster Also Works"] = "Shift-Klick auf einen Namen in der Liste geht auch"
     GRM_L["Tooltip Scale:"] = "Tooltip Skalierung"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Language"] = "|CFFE6CC7FKlicken|r, um die Sprache zu ändern"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change Display Format"] = "|CFFE6CC7FKlicken|r, um Anzeigeformat zu ändern"
-    GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = "|CFFE6CC7FKlicken|r, um die Schriftart zu ändern"
+    GRM_L["{custom1} to Change the Language"] = "{custom1}, um die Sprache zu ändern"
+    GRM_L["{custom1} to Change Display Format"] = "{custom1}, um Anzeigeformat zu ändern"
+    GRM_L["{custom1} to Change the Font"] = "{custom1}, um die Schriftart zu ändern"
 
     -- R1.1490
     GRM_L["Unable to properly locate guild for backup"] = "Kann keine Gilde für Backup finden"

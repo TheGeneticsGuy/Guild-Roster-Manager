@@ -667,343 +667,10 @@ DD.PopulateClassDropDownMenu = function()
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownMenu:SetHeight(height + 15);
 end
 
--- Method:          DD.PopulateDefaultTabDropdown()
--- What it Does:    Creates a dropdown menu including options to choose from the GRM tabs as to which is default
--- Purpose:         Quality of Life preference control option
-DD.PopulateDefaultTabDropdown = function()
-    local buffer = 3;
-    local height = 0;
-    local tabChoices = {GRM.L("LOG"), GRM.L("EVENTS"), GRM.L("BAN LIST"), GRM.L("SYNC USERS"),
-                        string.upper(GRM.L("Options")), GRM.L("AUDIT")};
-
-    -- Initiate the buttons holder
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons =
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons or {};
-
-    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons do
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i][1]:Hide();
-    end
-
-    for i = 1, #tabChoices do
-        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] then
-            local tempButton = CreateFrame("Button", "DefaultTabButton" .. i, GRM_UI.GRM_CoreFrame
-                .GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu);
-            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu.Buttons[i] =
-                {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
-        end
-
-        local TabButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu
-                              .Buttons[i][1];
-        local TabButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                                  .GRM_DefaultTabMenu.Buttons[i][2];
-        TabButton:SetWidth(105);
-        TabButton:SetHeight(11);
-        TabButton:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
-        TabButtonText:SetText(tabChoices[i]);
-        TabButtonText:SetWidth(105);
-        TabButtonText:SetWordWrap(false);
-        TabButtonText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9.5);
-        TabButtonText:SetPoint("CENTER", TabButton);
-        TabButtonText:SetJustifyH("CENTER");
-
-        if i == 1 then
-            TabButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_DefaultTabMenu, 0, -7);
-            height = height + TabButton:GetHeight();
-        else
-            TabButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_DefaultTabMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
-            height = height + TabButton:GetHeight() + buffer;
-        end
-
-        TabButton:SetScript("OnClick", function(self, button)
-            if button == "LeftButton" then
-                GRM.S().defaultTabSelection[2] = tonumber(string.match(self:GetName(), "%d+"));
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
-                    .GRM_DefaultTabSelectedText:SetText(TabButtonText:GetText());
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:Hide();
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
-            end
-        end);
-        TabButton:Show();
-    end
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabMenu:SetHeight(height + 15);
-end
-
--- Method:          DD.PopulateLanguageDropdown()
--- What it Does:    Populates a dropdown select menu with all of the available languages to choose from...
--- Purpose:         To give the player the option to manually select and change which language the addon is using.
-DD.PopulateLanguageDropdown = function()
-    local buffer = 3;
-    local height = 0;
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons =
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons or {};
-
-    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu
-        .Buttons do
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i][1]:Hide();
-    end
-
-    for i = 1, #GRML.Languages do
-        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] then
-            local tempButton = CreateFrame("Button", "GRM_Language_" .. i, GRM_UI.GRM_CoreFrame
-                .GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu);
-            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu.Buttons[i] =
-                {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
-        end
-
-        local LangButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                               .GRM_LanguageDropDownMenu.Buttons[i][1];
-        local LangButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                                   .GRM_LanguageDropDownMenu.Buttons[i][2];
-        LangButton:SetWidth(110);
-        LangButton:SetHeight(11);
-        LangButton:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
-        LangButtonText:SetText(GRM.L(GRML.Languages[i]));
-        LangButtonText:SetWidth(105);
-        LangButtonText:SetWordWrap(false);
-        LangButtonText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 10);
-        LangButtonText:SetPoint("CENTER", LangButton);
-        LangButtonText:SetJustifyH("CENTER");
-
-        if i == 1 then
-            LangButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_LanguageDropDownMenu, 0, -7);
-            height = height + LangButton:GetHeight();
-        else
-            LangButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_LanguageDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
-            height = height + LangButton:GetHeight() + buffer;
-        end
-
-        LangButton:SetScript("OnClick", function(self, button)
-            if button == "LeftButton" then
-                local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
-                GRM.S().selectedLang = parsedNumber;
-                GRM_G.LocalizedIndex = parsedNumber;
-                GRM.S().selectedFont = GRML.GetFontChoiceIndex(parsedNumber);
-                GRML.SetNewLanguage(GRM.S().selectedLang, false, false);
-
-                local HourFormat = {GRM.L("24 Hour"), GRM.L("12 Hour (am/pm)")};
-                local tabChoices = {GRM.L("LOG"), GRM.L("EVENTS"), GRM.L("BAN LIST"), GRM.L("SYNC USERS"),
-                                    string.upper(GRM.L("Options")), GRM.L("AUDIT")};
-
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected
-                    .GRM_LanguageSelectedText:SetText(GRM.L(GRML.Languages[parsedNumber]));
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
-                    .GRM_FontSelectedText:SetText(GRML.FontNames[GRM.S().selectedFont]);
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
-                    .GRM_FontSelectedText:SetFont(GRML.listOfFonts[GRM.S().selectedFont], GRM_G.FontModifier + 11);
-                local month, day, year = select(2, GRM.Time.GetTodaysDate());
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected
-                    .GRM_NonGlobalTimestampSelectedText:SetText(
-                    GRM.Time.FormatTimeStamp({day, month, year}, false, false, GRM.S().dateFormat));
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
-                    .GRM_DefaultTabSelectedText:SetText(tabChoices[GRM.S().defaultTabSelection[2]]);
-                if GRM.S().twentyFourHrScale then
-                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
-                        .GRM_24HrSelectedText:SetText(HourFormat[1]);
-                else
-                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
-                        .GRM_24HrSelectedText:SetText(HourFormat[2]);
-                end
-
-                -- Macro Tool open
-                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:IsVisible() then
-                    local matchString = GRM.L("Click to Set");
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLog and
-                        #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLogMsg > 0 then
-                        matchString = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.customLogMsg;
-                    end
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox:SetText(matchString);
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_CustomLogMessageEditBox.stringPattern =
-                        matchString;
-
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.isMonths then
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected
-                            .GRM_TimeScaleSelectedText:SetText(GRM.L("Months"));
-                    else
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_TimeScaleSelected
-                            .GRM_TimeScaleSelectedText:SetText(GRM.L("Days"));
-                    end
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rankSpecialIsMonths then
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected
-                            .GRM_KickEvenIfActiveTimeSelectedText:SetText(GRM.L("Months"));
-                    else
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveTimeSelected
-                            .GRM_KickEvenIfActiveTimeSelectedText:SetText(GRM.L("Days"));
-                    end
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.repFilter then
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected
-                            .GRM_GuildRepRanksSelectedText:SetText(
-                            GRM.GetReputationTextLevel(GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep, true));
-                    else
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildRepRanksSelected
-                            .GRM_GuildRepRanksSelectedText:SetText(
-                            GRM.GetReputationTextLevel(GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.rep, false));
-                    end
-                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.noteMatch then
-                        if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.matchingString == "" then
-                            matchString = GRM.L("Click to Set");
-                        else
-                            matchString = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.matchingString;
-                        end
-
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox:SetText(matchString);
-                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_NoteSearchEditBox.stringPattern =
-                            matchString;
-                    end
-                end
-
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:Hide();
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
-                GRM_UI.ElvUIReset = true;
-                GRM_UI.ElvUIReset2 = true;
-                -- Check the language count!
-                local count = GRML.GetNumberUntranslatedLines(GRM.S().selectedLang);
-                if GRM_G.Region == "enUS" then
-                    count = count - 10;
-                end
-                if count > 0 and not GRML.TranslationStatusEnum[GRML.Languages[GRM.S().selectedLang]] then
-                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:SetText(
-                        GRM.L("{num} phrases still need translation to {name}",
-                            GRM.L(GRML.Languages[GRM.S().selectedLang]), nil, count));
-                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:Show();
-                else
-                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageCountText:Hide();
-                end
-
-                if GRM.IsAddOnLoaded("AddOnSkins") then
-                    GRM_UI.GRM_CoreFrame:Hide();
-                    GRM_UI.GRM_CoreFrame:Show();
-                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
-                        GRM_G.pause = true;
-                        GRM_UI.GRM_MemberDetailMetaData:Show();
-                    end
-                end
-
-                if parsedNumber == GRM_G.LocalizedIndex then
-                    GRM.Report(GRM.L("Font has been Reset to DEFAULT."));
-                end
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(
-                    GRM.GetLevelRange());
-
-                -- Let's reprocess the language!
-                GRM.ReprocessAllLogEntriesToCurrentLanguage();
-
-                if #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons > 0 then
-                    GRM.Log.ResetLogStringPoints(GRM.S().showLineNumbers);
-                end
-            end
-        end);
-        LangButton:Show();
-    end
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageDropDownMenu:SetHeight(height +
-                                                                                                                    15);
-end
-
--- Method:          DD.PopulateFontDropdown()
--- What it Does:    Builds the font dropdown box
--- Purpose:         Give the user more customizability over the addon.
-DD.PopulateFontDropdown = function()
-    local buffer = 3;
-    local height = 0;
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons =
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons or {};
-
-    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons do
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i][1]:Hide();
-    end
-
-    for i = 1, #GRML.FontNames do
-        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] then
-            local tempButton = CreateFrame("Button", "GRM_Font" .. i, GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
-                .GRM_GeneralOptionsFrame.GRM_FontDropDownMenu);
-            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu.Buttons[i] =
-                {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
-        end
-
-        local FontButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu
-                               .Buttons[i][1];
-        local FontButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                                   .GRM_FontDropDownMenu.Buttons[i][2];
-        local additionalModifier = 0;
-        if i == 4 then -- China
-            additionalModifier = 0.5;
-        elseif i == 5 then -- Taiwan
-            additionalModifier = 2;
-        elseif i == 6 then -- Action Man
-            additionalModifier = 1;
-        elseif i == 7 then -- Ancient
-            additionalModifier = 2;
-        elseif i == 9 then -- Cardinal
-            additionalModifier = 2;
-        elseif i == 10 then -- Continuum
-            additionalModifier = 1;
-        elseif i == 11 then -- Espressway
-            additionalModifier = 1;
-        elseif i == 13 then -- PT Sans
-            additionalModifier = 2;
-        elseif i == 14 then -- Roboto
-            additionalModifier = 1;
-        end
-        FontButton:SetWidth(110);
-        FontButton:SetHeight(11);
-        FontButton:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
-        FontButtonText:SetText(GRML.FontNames[i]);
-        FontButtonText:SetWidth(105);
-        FontButtonText:SetWordWrap(false);
-        FontButtonText:SetFont(GRML.listOfFonts[i], GRM_G.FontModifier + additionalModifier + 10);
-        FontButtonText:SetPoint("CENTER", FontButton);
-        FontButtonText:SetJustifyH("CENTER");
-
-        if i == 1 then
-            FontButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_FontDropDownMenu, 0, -7);
-            height = height + FontButton:GetHeight();
-        else
-            FontButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_FontDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
-            height = height + FontButton:GetHeight() + buffer;
-        end
-
-        FontButton:SetScript("OnClick", function(self, button)
-            if button == "LeftButton" then
-                local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
-
-                GRM.S().selectedFont = parsedNumber;
-                GRML.SetNewFont(parsedNumber);
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
-                    .GRM_FontSelectedText:SetText(FontButtonText:GetText());
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected
-                    .GRM_FontSelectedText:SetFont(GRML.listOfFonts[parsedNumber], GRM_G.FontModifier + 11);
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:Hide();
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
-
-                -- Additional frame check...
-                GRM_UI.ElvUIReset = true;
-                GRM_UI.ElvUIReset2 = true;
-                if GRM.IsAddOnLoaded("AddOnSkins") then
-                    GRM_UI.GRM_CoreFrame:Hide();
-                    GRM_UI.GRM_CoreFrame:Show();
-                    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-                        GRM_UI.GRM_MemberDetailMetaData:Hide();
-                        GRM_G.pause = true;
-                        GRM_UI.GRM_MemberDetailMetaData:Show();
-                    end
-                end
-            end
-        end);
-        FontButton:Show();
-    end
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontDropDownMenu:SetHeight(height + 15);
-end
-
 -- Method:          DD.PopulateTimestampFormatDropDown()
 -- What it Does:    Builds a dropdown menu displaying the various format options
 -- Purpose:         To give the player the ability to adjust timestamp formats
-DD.PopulateTimestampFormatDropDown = function(nonGlobal)
+DD.PopulateTimestampFormatDropDown = function()
     local buffer = 4;
     local height = 0;
     local dropDownMenu;
@@ -1011,22 +678,10 @@ DD.PopulateTimestampFormatDropDown = function(nonGlobal)
     local selectedText;
     local nameText = "";
 
-    if nonGlobal then
-        dropDownMenu = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                           .GRM_NonGlobalTimestampSelectedDropDownMenu;
-        selectedFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                            .GRM_NonGlobalTimestampSelected;
-        selectedText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                           .GRM_NonGlobalTimestampSelected.GRM_NonGlobalTimestampSelectedText;
-        nameText = "GRM_timeStampNonGlobalButton"
-    else
-        dropDownMenu = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame
-                           .GRM_TimestampSelectedDropDownMenu;
-        selectedFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected;
-        selectedText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
-                           .GRM_TimestampSelectedText;
-        nameText = "GRM_timeStampButton"
-    end
+    dropDownMenu = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu;
+    selectedFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected;
+    selectedText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected.GRM_TimestampSelectedText;
+    nameText = "GRM_timeStampButton"
 
     dropDownMenu.Buttons = dropDownMenu.Buttons or {};
 
@@ -1061,117 +716,22 @@ DD.PopulateTimestampFormatDropDown = function(nonGlobal)
             height = height + timeStampButton:GetHeight() + buffer;
         end
 
-        if nonGlobal then
-            timeStampButton:SetScript("OnClick", function(self, button)
-                if button == "LeftButton" then
-                    local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
-
-                    GRM.S().dateFormat = parsedNumber;
-                    -- if not GRM.Global.IsSyncRankGuildLeaderRestricted then
-                    --     GRM.S().globalDateFormat = parsedNumber;  -- Set global if not set.
-
-                    -- end
-                    GRM.ReprocessAllLogEntriesToCurrentLanguage();
-                    selectedText:SetText(timeStampButtonText:GetText());
-                    dropDownMenu:Hide();
-                    selectedFrame:Show();
-                end
-            end);
-        else
-            timeStampButton:SetScript("OnClick", function(self, button)
-                if button == "LeftButton" then
-                    local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
-
-                    GRM.S().globalDateFormat = parsedNumber;
-                    GRM.Global.UpdateGuildInfoWithNewValue(1, parsedNumber, true);
-                    GRM.ReprocessAllLogEntriesToCurrentLanguage();
-
-                    selectedText:SetText(timeStampButtonText:GetText());
-                    dropDownMenu:Hide();
-                    selectedFrame:Show();
-                end
-            end);
-        end
-        timeStampButton:Show();
-    end
-    if nonGlobal then
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-            .GRM_NonGlobalTimestampSelectedDropDownMenu:SetHeight(height + 15);
-    else
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:SetHeight(
-            height + 15);
-    end
-end
-
--- Method:          DD.Populate24HrDropDown()
--- What it Does:    Builds the 2 options in 24 hr timescale vs 12 hr
--- Purpose:         To give the player the option to set it to a 12hr scale or 24hr scale.
-DD.Populate24HrDropDown = function()
-    local buffer = 4;
-    local height = 0;
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons =
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons or
-            {};
-
-    for i = 1, #GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
-        .Buttons do
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu.Buttons[i][1]:Hide();
-    end
-
-    local HourFormat = {GRM.L("24 Hour"), GRM.L("12 Hour (am/pm)")};
-
-    for i = 1, 2 do
-        if not GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
-            .Buttons[i] then
-            local tempButton = CreateFrame("Button", "GRM_HrButton" .. i, GRM_UI.GRM_CoreFrame
-                .GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu);
-            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu
-                .Buttons[i] = {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
-        end
-        local HrButton = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                             .GRM_24HrSelectedDropDownMenu.Buttons[i][1];
-        local HrButtonText = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                                 .GRM_24HrSelectedDropDownMenu.Buttons[i][2];
-        HrButton:SetWidth(110);
-        HrButton:SetHeight(11);
-        HrButton:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
-        HrButtonText:SetText(HourFormat[i]);
-        HrButtonText:SetWidth(105);
-        HrButtonText:SetWordWrap(false);
-        HrButtonText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 11);
-        HrButtonText:SetPoint("CENTER", HrButton);
-        HrButtonText:SetJustifyH("CENTER");
-
-        if i == 1 then
-            HrButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_24HrSelectedDropDownMenu, 0, -7);
-            height = height + HrButton:GetHeight();
-        else
-            HrButton:SetPoint("TOP", GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-                .GRM_24HrSelectedDropDownMenu.Buttons[i - 1][1], "BOTTOM", 0, -buffer);
-            height = height + HrButton:GetHeight() + buffer;
-        end
-
-        HrButton:SetScript("OnClick", function(self, button)
+        timeStampButton:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
                 local parsedNumber = tonumber(string.match(self:GetName(), "(%d+)"));
 
-                if parsedNumber == 1 then
-                    GRM.S().twentyFourHrScale = true;
-                else
-                    GRM.S().twentyFourHrScale = false;
-                end
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected
-                    .GRM_24HrSelectedText:SetText(HrButtonText:GetText());
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:Hide();
-                GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
+                GRM.S().globalDateFormat = parsedNumber;
+                GRM.Global.UpdateGuildInfoWithNewValue(1, parsedNumber, true);
                 GRM.ReprocessAllLogEntriesToCurrentLanguage();
+
+                selectedText:SetText(timeStampButtonText:GetText());
+                dropDownMenu:Hide();
+                selectedFrame:Show();
             end
         end);
-        HrButton:Show();
+        timeStampButton:Show();
     end
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelectedDropDownMenu:SetHeight(
-        height + 15);
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelectedDropDownMenu:SetHeight(height + 15);
 end
 
 -- Method:          DD.CreateOptionsRankDropDown()
@@ -1221,36 +781,14 @@ DD.CreateOptionsRankDropDown = function()
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelectedText:SetText(
         setCustomDefaultName);
 
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetFont(
-        GRM_G.FontChoice, GRM_G.FontModifier + 11);
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected.GRM_FontSelectedText:SetText(
-        GRML.FontNames[GRM.S().selectedFont]);
     local month, day, year = select(2, GRM.Time.GetTodaysDate());
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected
         .GRM_TimestampSelectedText:SetText(GRM.Time.FormatTimeStamp({day, month, year}, false, false,
         GRM.S().globalDateFormat));
-    if GRM.S().twentyFourHrScale then
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected.GRM_24HrSelectedText:SetText(
-            HourFormat[1]);
-    else
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected.GRM_24HrSelectedText:SetText(
-            HourFormat[2]);
-    end
-
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected
-        .GRM_DefaultTabSelectedText:SetText(tabChoices[GRM.S().defaultTabSelection[2]]);
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected
-        .GRM_NonGlobalTimestampSelectedText:SetText(GRM.Time.FormatTimeStamp({day, month, year}, false, false,
-        GRM.S().dateFormat));
 
     -- Now that initial values set, let's display them!
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterSyncRankDropDownSelected:Show();
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_RosterBanListDropDownSelected:Show();
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_SyncOptionsFrame.GRM_DefaultCustomSelected:Show();
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_LanguageSelected:Show();
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_FontSelected:Show();
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_TimestampSelected:Show();
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_24HrSelected:Show();
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_DefaultTabSelected:Show();
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_NonGlobalTimestampSelected:Show();
 end

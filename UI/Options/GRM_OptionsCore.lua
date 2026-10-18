@@ -109,8 +109,10 @@ OptionsCore.RefreshOptionsUI = function()
     GenOpts.GRM_SyncCompatibilityMessageButton:SetChecked(S.syncCompatibilityMsg)
     GenOpts.GRM_SyncAllSettingsCheckButton:SetChecked(S.syncSettings)
     GenOpts.GRM_ShowMinimapButton:SetChecked(S.minimapEnabled)
-    GenOpts.GRM_AchievementAnnounceButton:SetChecked(S.achievements)
     GenOpts.GRM_DefaultTabSelectionButton:SetChecked(S.defaultTabSelection[1])
+    if GenOpts.GRM_AchievementAnnounceButton then   -- Only exists in WOTLK so guild members can see achievements.
+        GenOpts.GRM_AchievementAnnounceButton:SetChecked(S.achievements)
+    end
 
     -- Officer Options
     OfficerOpts.GRM_RosterAddTimestampCheckButton:SetChecked(S.addTimestampToNote)
@@ -301,15 +303,15 @@ OptionsCore.RefreshOptionsUI = function()
     -- ====================
     
     GenOpts.GRM_FontSizeSlider.Slider:SetValue((S.fontModifier * 10) + 100)
-    GenOpts.GRM_FontSizeSliderText2:SetText(math.floor(GenOpts.GRM_FontSizeSlider.Slider:GetValue() + 0.5) .. "%")
-    GenOpts.GRM_FontSizeSliderText3:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14)
+    GenOpts.GRM_FontSizeSlider.Slider.GRM_FontSizeSliderText2:SetText(math.floor(GenOpts.GRM_FontSizeSlider.Slider:GetValue() + 0.5) .. "%")
+    GenOpts.GRM_FontSizeSlider.Slider.GRM_FontSizeSliderText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14)
     
     if not GameTooltip:IsVisible() then
         GRM_G.toolTipScale = GameTooltip:GetScale()
     end
     
     GenOpts.GRM_TooltipScaleSlider.Slider:SetValue((((S.tooltipSize - 0.8) / 0.02) * 5) + 50)
-    GenOpts.GRM_TooltipScaleSliderText2:SetText(math.floor(GenOpts.GRM_TooltipScaleSlider.Slider:GetValue() + 0.5) .. "%")
+    GenOpts.GRM_TooltipScaleSlider.Slider.GRM_TooltipScaleSliderText2:SetText(math.floor(GenOpts.GRM_TooltipScaleSlider.Slider:GetValue() + 0.5) .. "%")
     
     LogOpts.GRM_LogFontSizeSlider.Slider:SetValue((S.logFontSize * 10) + 100)
     LogOpts.GRM_LogFontSizeSlider.GRM_LogFontSizeSliderText2:SetText(math.floor(LogOpts.GRM_LogFontSizeSlider.Slider:GetValue() + 0.5) .. "%")
@@ -368,4 +370,6 @@ OptionsCore.RefreshOptionsUI = function()
     GRM_UI.RefreshLogExtraOptions()
     GRM_UI.ReportDestination(GenOpts.GRM_ReportDestinationEditBox)
     GRM_UI.DD.CreateOptionsRankDropDown()
+
+    GRM_UI.GeneralTab.UpdateText()
 end

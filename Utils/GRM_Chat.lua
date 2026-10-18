@@ -244,7 +244,7 @@ GRM_Chat.CreateChatTabs = function()
 
     -- Update the options editbox
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
-        GRM.BuildMultiChannelString());
+        GRM_UI.GeneralTab.BuildMultiChannelString());
 
     -- Helpful message to players
     if #GRM.S().reportChannel == 1 and #UnconfirmedChatTabs == 1 then
@@ -278,7 +278,7 @@ GRM_Chat.CancelChatTabCreation = function()
             DEFAULT_CHAT_FRAME.name);
     else
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(
-            GRM.BuildMultiChannelString());
+            GRM_UI.GeneralTab.BuildMultiChannelString());
     end
     table.remove(UnconfirmedChatTabs, 1);
     if #UnconfirmedChatTabs > 0 then
@@ -475,7 +475,7 @@ GRM_Chat.EstablishNewCustomReportWindow = function(channelNames)
                         end
                     end
                     UnconfirmedChatTabs = {};
-                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(GRM.BuildMultiChannelString());
+                    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ReportDestinationEditBox:SetText(GRM_UI.GeneralTab.BuildMultiChannelString());
 
                     if GRM_G.Compat.ChattynatorLoaded then
                         GRM.chattynator.CleanupChattynatorTabs();

@@ -621,9 +621,9 @@ GRML.Italian = function()
 	-- R1.1482
 	GRM_L["Shift-Click Name On Roster Also Works"] = "Oppure fai Shift-Click sul nome nell'elenco "
 	GRM_L["Tooltip Scale:"] = "Dimensione Tooltip:"
-	GRM_L["|CFFE6CC7FLeft-Click|r to Change the Language"] = "|CFFE6CC7FClicca|r per cambiare la Lingua"
-	GRM_L["|CFFE6CC7FLeft-Click|r to Change Display Format"] = "|CFFE6CC7FClicca|r per cambiare il Formato"
-	GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = "|CFFE6CC7FClicca|r per cambiare il Carattere"
+	GRM_L["{custom1} to Change the Language"] = "{custom1} per cambiare la Lingua"
+    GRM_L["{custom1} to Change Display Format"] = "{custom1} per cambiare il Formato"
+    GRM_L["{custom1} to Change the Font"] = "{custom1} per cambiare il Carattere"
 
 	-- R1.1490
 	GRM_L["Unable to properly locate guild for backup"] = "Impossibile trovare una gilda per il backup" --WIP
