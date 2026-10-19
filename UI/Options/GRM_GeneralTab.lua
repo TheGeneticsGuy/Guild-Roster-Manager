@@ -361,7 +361,7 @@ GeneralTab.InitializeGeneralTab = function(isManualUpdate)
                             GRM.L("Show Minimap Button"), "GameFontNormalSmall", 12)
 
     if LibStub and LibStub("LibDataBroker-1.1", true) and LibStub("LibDBIcon-1.0", true) then
-        GRM_UI.CreateRadialButtons("GRM_MinimapTypeButton", f, nil, {GRM.L("Standard"), GRM.L("Move Anywhere")}, {"LEFT", f.GRM_ShowMinimapButtonText, "RIGHT", 10, 0},
+        GRM_UI.CreateRadialButtons("GRM_MinimapTypeButton", f, nil, {GRM.L("Standard"), GRM.L("Move Anywhere")}, {"LEFT", f.GRM_ShowMinimapButton.GRM_ShowMinimapButtonText, "RIGHT", 10, 0},
                                     true, true, 12, nil, GRM.MinimapGRM.SetSelectedMinimap)
     end
 
@@ -369,7 +369,7 @@ GeneralTab.InitializeGeneralTab = function(isManualUpdate)
                             GRM.L("Sync Addon Settings on All Alts in Same Guild"), "GameFontNormalSmall", 12, syncTooltip, GRM.RestoreTooltip)
     GRM_UI.CreateCheckBox("GRM_RosterLoadOnLogonCheckButton", f, nil, nil, {"TOPLEFT", f.GRM_SyncAllSettingsCheckButton, "BOTTOMLEFT", 0, -6},
                             ToggleShowOnLogon, GRM.L("Show at Logon"), "GameFontNormalSmall", 12)
-    GRM_UI.CreateCheckBox("GRM_RosterLoadOnLogonChangesCheckButton", f, nil, nil, {"LEFT", f.GRM_RosterLoadOnLogonCheckButtonText, "RIGHT", 6, 0},
+    GRM_UI.CreateCheckBox("GRM_RosterLoadOnLogonChangesCheckButton", f, nil, nil, {"LEFT", f.GRM_RosterLoadOnLogonCheckButton.GRM_RosterLoadOnLogonCheckButtonText, "RIGHT", 6, 0},
                           ToggleOnlyChanges, GRM.L("Only Show if Log Changes"), "GameFontNormalSmall", 12)
     GRM_UI.CreateCheckBox("GRM_SyncCompatibilityMessageButton", f, nil, nil, {"TOPLEFT", f.GRM_RosterLoadOnLogonCheckButton, "BOTTOMLEFT", 0, -6},
                           ToggleCompat, GRM.L("Be Informed When GRM is out of date."), "GameFontNormalSmall", 12, compatTooltip, GRM.RestoreTooltip)
