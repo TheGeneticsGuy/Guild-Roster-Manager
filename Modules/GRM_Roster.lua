@@ -28,7 +28,7 @@ GRM_R.BuildRosterFrames = function ()
     GRM_UI.RosterFrameSetScript = function()
         GRM_R.RefreshRosterName();
         GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider.ThumbTexture:Show()
-        GRM_UI.GRM_MemberDetailMetaData:Hide();
+        GRM_UI.GRM_Mouseover:Hide();
 
         GRM_R.ConfigureRosterOptions();
     end

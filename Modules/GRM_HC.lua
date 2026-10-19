@@ -149,7 +149,7 @@ HC.HardCoreInitialize = function()
 
                     if not memberNote:find ( "%[" .. GRM.L ( "D" ) .. "%]" ) then
                         local tagToAdd = "[" .. GRM.L ( "D" ) .. "]";
-                        local maxLetters = GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:GetMaxLetters();
+                        local maxLetters = GRM_UI.GRM_Mouseover.GRM_PlayerNoteEditBox:GetMaxLetters();
 
                         local day , month;
                         if dateArray[1] < 10 then

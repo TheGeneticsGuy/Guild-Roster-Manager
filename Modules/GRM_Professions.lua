@@ -253,7 +253,7 @@ Prof.AppendProfessionReportToNote = function ( name , destination )
 
         end
 
-        if success and player.name == GRM_G.currentName and GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+        if success and player.name == GRM_G.currentName and GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() then
             GRM.PopulateMemberDetails ( GRM_G.currentName );
         end
 

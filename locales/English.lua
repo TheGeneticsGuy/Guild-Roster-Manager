@@ -22,7 +22,6 @@
     ---------------------------------
     -- BEGIN TRANSLATION WORK HERE --
     ---------------------------------
-print("SUCCESS")
 GRML.English = function()
     -- Auto Localized (Only use this on Client languages)
     GRM_L["Friend"] = FRIEND;

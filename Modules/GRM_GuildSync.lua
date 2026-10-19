@@ -1489,7 +1489,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
             end
 
             -- Live update if any frames visible so player does not need to close and reopen for updates.
-            if GRM_UI.GRM_MemberDetailMetaData and GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == playerName then
+            if GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == playerName then
                 GRM.PopulateMemberDetails ( GRM_G.currentName );
             end
 
@@ -1558,7 +1558,7 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
             end
 
             -- If the player is on the same frames, update them too!
-            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == player.name then
+            if GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == player.name then
                 GRM.PopulateMemberDetails ( GRM_G.currentName );
             end
 
@@ -1886,7 +1886,7 @@ GRMsync.CheckRemoveAltChange = function ( msg , sender )
             end
             GRM.RemovePlayerFromAltGroup ( altName , altChangeTimeStamp , false , false , false )
 
-            if GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_G.currentName == altName then       -- If the alt being removed is being dumped from the list of alts, but the Sync person is on that frame..
+            if GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == altName then       -- If the alt being removed is being dumped from the list of alts, but the Sync person is on that frame..
                 GRM.PopulateMemberDetails ( GRM_G.currentName );
             end
             GRM_UI.RefreshSelectFrames ( false , true , false , false , true , true , true );
@@ -2049,7 +2049,7 @@ GRMsync.CheckCustomNoteSyncChange = function ( msg , prefix , isReceived )
                             player.customNote[3] = whoEdited;
 
                             -- Update the UI proper
-                            if name == GRM_G.currentName  and GRM_UI.GRM_MemberDetailMetaData:IsVisible() and GRM_UI.GRM_MemberDetailMetaData.GRM_ConfirmCustomNoteButton:IsVisible() then
+                            if name == GRM_G.currentName  and GRM_UI.GRM_Mouseover:IsVisible() and GRM_UI.GRM_Mouseover.GRM_ConfirmCustomNoteButton:IsVisible() then
                                 GRM_UI.RefreshSelectFrames ( false , false , false , false , false , false , true );
                             end
 
@@ -2138,8 +2138,8 @@ GRMsync.CheckCustomNoteChange = function ( msg , sender , prefix )
                         end
 
                         GRM.BuildCustomNoteScrollFrame ( player.customNote[4] );
-                        if GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
-                            GRM_UI.GRM_MemberDetailMetaData.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
+                        if GRM_UI.GRM_Mouseover.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
+                            GRM_UI.GRM_Mouseover.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
                         end
                     end
                     -- doing this because even though the note might not have been changed, I want to update the timestamp and who edited.

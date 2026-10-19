@@ -8119,7 +8119,7 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
                 table.remove ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame.AllIgnoredEntries , i );
 
                 -- Rebuild the mouseover frame in case it is open
-                if GRM_G.currentName == player.name and GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+                if GRM_G.currentName == player.name and GRM_UI.GRM_Mouseover:IsVisible() then
                     GRM.PopulateMemberDetails ( GRM_G.currentName );
                 end
             end
@@ -8175,8 +8175,8 @@ GRM.ClearAllPlayersFromIgnoreList = function()
             GRM.Report ( GRM.L ( "{num} players removed from the Ignored List" , nil , nil , count ) );
         end
 
-        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-            GRM_UI.GRM_MemberDetailMetaData.GRM_SafeFromRulesButton:SetChecked ( false );
+        if GRM_UI.GRM_Mouseover:IsVisible() then
+            GRM_UI.GRM_Mouseover.GRM_SafeFromRulesButton:SetChecked ( false );
         end
     end
 end

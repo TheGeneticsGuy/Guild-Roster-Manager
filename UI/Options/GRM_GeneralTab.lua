@@ -78,10 +78,10 @@ local function SelectFont(parsedNumber)
     if GRM.IsAddOnLoaded("AddOnSkins") then
         GRM_UI.GRM_CoreFrame:Hide();
         GRM_UI.GRM_CoreFrame:Show();
-        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-            GRM_UI.GRM_MemberDetailMetaData:Hide();
+        if GRM_UI.GRM_Mouseover:IsVisible() then
+            GRM_UI.GRM_Mouseover:Hide();
             GRM_G.pause = true;
-            GRM_UI.GRM_MemberDetailMetaData:Show();
+            GRM_UI.GRM_Mouseover:Show();
         end
     end
     
@@ -118,10 +118,10 @@ local function SelectLanguage(parsedNumber)
     if GRM.IsAddOnLoaded("AddOnSkins") then
         GRM_UI.GRM_CoreFrame:Hide();
         GRM_UI.GRM_CoreFrame:Show();
-        if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
-            GRM_UI.GRM_MemberDetailMetaData:Hide();
+        if GRM_UI.GRM_Mouseover:IsVisible() then
+            GRM_UI.GRM_Mouseover:Hide();
             GRM_G.pause = true;
-            GRM_UI.GRM_MemberDetailMetaData:Show();
+            GRM_UI.GRM_Mouseover:Show();
         end
     end
 

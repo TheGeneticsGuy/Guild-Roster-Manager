@@ -99,6 +99,8 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 * Fixed a Lua error that would occur when resetting the sync restrictions of only the custom notes.
 
+* Fixed a bug where right-clicking and resetting the player data on a single player from the mouseover would not fully reset the data and also requried a re-scan to add them.
+
 
 
 ## **VERSION 1.99423 - October 15th, 2026**

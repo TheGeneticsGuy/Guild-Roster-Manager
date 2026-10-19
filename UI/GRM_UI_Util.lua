@@ -246,3 +246,12 @@ GRM_UI_Util.BuildSliderTextures = function ( slider )
         end
     end)
 end
+
+-- Method:          GRM_UI_Util.RemoveLineBreaks ( string , string/char )
+-- What it Does:    Removes Line breaks with a given char
+-- Purpose:         Presentation in the log.
+GRM_UI_Util.RemoveLineBreaks = function(text, replacementChar)
+    replacementChar = replacementChar or "-";
+
+    return string.gsub(text, "\n", replacementChar);
+end

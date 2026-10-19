@@ -2368,8 +2368,8 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                         GRM.SetNote ( member.GUID, tempNote, false, rosterSelection );
 
                                         if GRM_G.currentName == member.name then
-                                            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString2:SetText(tempNote);
-                                            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerOfficerNoteEditBox:SetText(
+                                            GRM_UI.GRM_Mouseover.GRM_noteFontString2:SetText(tempNote);
+                                            GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteEditBox:SetText(
                                                 tempNote);
                                         end
 
@@ -2391,8 +2391,8 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                         GRM.SetNote ( member.GUID, tempNote, true, rosterSelection );
 
                                         if GRM_G.currentName == player.name then
-                                            GRM_UI.GRM_MemberDetailMetaData.GRM_noteFontString1:SetText(tempNote);
-                                            GRM_UI.GRM_MemberDetailMetaData.GRM_PlayerNoteEditBox:SetText(tempNote);
+                                            GRM_UI.GRM_Mouseover.GRM_noteFontString1:SetText(tempNote);
+                                            GRM_UI.GRM_Mouseover.GRM_PlayerNoteEditBox:SetText(tempNote);
                                         end
 
                                         if liveJoinDetected then
@@ -2957,7 +2957,7 @@ Scan.FinalReportInformation = function(needToReport)
 
     GRM_UI.RefreshSelectFrames(needToReport, true, false, false, true, (#GRM_G.TempEventReport > 0));
 
-    if GRM_UI.GRM_MemberDetailMetaData:IsVisible() then
+    if GRM_UI.GRM_Mouseover:IsVisible() then
         GRM.PopulateMemberDetails(GRM_G.currentName);
     end
 

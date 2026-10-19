@@ -29,25 +29,25 @@ DD.InitializeDropDownDay = function()
     -- populating the frames!
     local buffer = 3;
     local height = 0;
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons =
-        GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons or {};
+    GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons =
+        GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons or {};
 
     -- Resetting the buttons!
-    for i = 1, #GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons do
-        GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i][1]:Hide();
+    for i = 1, #GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons do
+        GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons[i][1]:Hide();
     end
 
     for i = 1, numDays do
-        if not GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i] then
+        if not GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame("Button", "DayOfTheMonth" .. i,
-                GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu);
-            GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i] = {tempButton,
+                GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu);
+            GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons[i] = {tempButton,
                                                                               tempButton:CreateFontString(nil,
                 "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local DayButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i][1];
-        local DayButtonsText = GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i][2];
+        local DayButtons = GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons[i][1];
+        local DayButtonsText = GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons[i][2];
         DayButtons:SetWidth(24);
         DayButtons:SetHeight(10);
         DayButtons:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
@@ -59,10 +59,10 @@ DD.InitializeDropDownDay = function()
         DayButtonsText:SetJustifyH("CENTER");
 
         if i == 1 then
-            DayButtons:SetPoint("TOP", GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu, 0, -7);
+            DayButtons:SetPoint("TOP", GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu, 0, -7);
             height = height + DayButtons:GetHeight();
         else
-            DayButtons:SetPoint("TOP", GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu.Buttons[i - 1][1], "BOTTOM",
+            DayButtons:SetPoint("TOP", GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu.Buttons[i - 1][1], "BOTTOM",
                 0, -buffer);
             height = height + DayButtons:GetHeight() + buffer;
         end
@@ -70,15 +70,15 @@ DD.InitializeDropDownDay = function()
         DayButtons:SetScript("OnClick", function(_, button)
             if button == "LeftButton" then
                 GRM_G.dayIndex = i;
-                GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected.GRM_DayText:SetText(DayButtonsText:GetText());
-                GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenuSelected:Show();
+                GRM_UI.GRM_Mouseover.GRM_DayDropDownMenuSelected.GRM_DayText:SetText(DayButtonsText:GetText());
+                GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu:Hide();
+                GRM_UI.GRM_Mouseover.GRM_DayDropDownMenuSelected:Show();
             end
         end);
 
         DayButtons:Show();
     end
-    GRM_UI.GRM_MemberDetailMetaData.GRM_DayDropDownMenu:SetHeight(height + 15);
+    GRM_UI.GRM_Mouseover.GRM_DayDropDownMenu:SetHeight(height + 15);
 end
 
 -- Method:          DD.InitializeDropDownYear()
@@ -92,26 +92,26 @@ DD.InitializeDropDownYear = function()
     -- populating the frames!
     local buffer = 2;
     local height = 0;
-    GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons =
-        GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons or {};
+    GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons =
+        GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons or {};
 
     -- Resetting the buttons!
-    for i = 1, #GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons do
-        GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i][1]:Hide();
+    for i = 1, #GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons do
+        GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons[i][1]:Hide();
     end
 
     -- Game wasn't released until early 2004
     for i = 1, currentYear - 2003 do
-        if not GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i] then
+        if not GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame("Button", "YearIndexButton" .. i,
-                GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu);
-            GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i] = {tempButton,
+                GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu);
+            GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons[i] = {tempButton,
                                                                                tempButton:CreateFontString(nil,
                 "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local YearButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i][1];
-        local YearButtonsText = GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i][2];
+        local YearButtons = GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons[i][1];
+        local YearButtonsText = GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons[i][2];
         YearButtons:SetWidth(40);
         YearButtons:SetHeight(10);
         YearButtons:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
@@ -123,10 +123,10 @@ DD.InitializeDropDownYear = function()
         YearButtonsText:SetJustifyH("CENTER");
 
         if i == 1 then
-            YearButtons:SetPoint("TOP", GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu, 0, -7);
+            YearButtons:SetPoint("TOP", GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu, 0, -7);
             height = height + YearButtons:GetHeight();
         else
-            YearButtons:SetPoint("TOP", GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu.Buttons[i - 1][1],
+            YearButtons:SetPoint("TOP", GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu.Buttons[i - 1][1],
                 "BOTTOM", 0, -buffer);
             height = height + YearButtons:GetHeight() + buffer;
         end
@@ -135,16 +135,16 @@ DD.InitializeDropDownYear = function()
             if button == "LeftButton" then
                 local yearSelected = GRM.Time.GetCurrentCalendarTime().year + 1 - i;
                 GRM_G.yearIndex = yearSelected;
-                GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected.GRM_YearText:SetText(
+                GRM_UI.GRM_Mouseover.GRM_YearDropDownMenuSelected.GRM_YearText:SetText(
                     YearButtonsText:GetText());
-                GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenuSelected:Show();
+                GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu:Hide();
+                GRM_UI.GRM_Mouseover.GRM_YearDropDownMenuSelected:Show();
             end
         end);
         yearStamp = yearStamp - 1 -- Descending the year by 1
         YearButtons:Show();
     end
-    GRM_UI.GRM_MemberDetailMetaData.GRM_YearDropDownMenu:SetHeight(height + 15);
+    GRM_UI.GRM_Mouseover.GRM_YearDropDownMenu:SetHeight(height + 15);
 
 end
 
@@ -159,25 +159,25 @@ DD.InitializeDropDownMonth = function()
     -- populating the frames!
     local buffer = 3;
     local height = 0;
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons =
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons or {};
+    GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons =
+        GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons or {};
 
     -- Resetting the buttons!
-    for i = 1, #GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons do
-        GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i][1]:Hide();
+    for i = 1, #GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons do
+        GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons[i][1]:Hide();
     end
 
     for i = 1, #months do
-        if not GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i] then
+        if not GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons[i] then
             local tempButton = CreateFrame("Button", "monthIndex" .. i,
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu);
-            GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i] = {tempButton,
+                GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu);
+            GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons[i] = {tempButton,
                                                                                 tempButton:CreateFontString(nil,
                 "OVERLAY", "GameFontWhiteTiny")}
         end
 
-        local MonthButtons = GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i][1];
-        local MonthButtonsText = GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i][2];
+        local MonthButtons = GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons[i][1];
+        local MonthButtonsText = GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons[i][2];
         MonthButtons:SetWidth(83);
         MonthButtons:SetHeight(10);
         MonthButtons:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight");
@@ -189,10 +189,10 @@ DD.InitializeDropDownMonth = function()
         MonthButtonsText:SetJustifyH("CENTER");
 
         if i == 1 then
-            MonthButtons:SetPoint("TOP", GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu, 0, -7);
+            MonthButtons:SetPoint("TOP", GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu, 0, -7);
             height = height + MonthButtons:GetHeight();
         else
-            MonthButtons:SetPoint("TOP", GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu.Buttons[i - 1][1],
+            MonthButtons:SetPoint("TOP", GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu.Buttons[i - 1][1],
                 "BOTTOM", 0, -buffer);
             height = height + MonthButtons:GetHeight() + buffer;
         end
@@ -200,16 +200,16 @@ DD.InitializeDropDownMonth = function()
         MonthButtons:SetScript("OnClick", function(_, button)
             if button == "LeftButton" then
                 GRM_G.monthIndex = i;
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected.GRM_MonthText:SetText(
+                GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenuSelected.GRM_MonthText:SetText(
                     MonthButtonsText:GetText());
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:Hide();
-                GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenuSelected:Show();
+                GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu:Hide();
+                GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenuSelected:Show();
             end
         end);
 
         MonthButtons:Show();
     end
-    GRM_UI.GRM_MemberDetailMetaData.GRM_MonthDropDownMenu:SetHeight(height + 15);
+    GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenu:SetHeight(height + 15);
 end
 
 -- Method:          DD.PopulateOptionsRankDropDown()

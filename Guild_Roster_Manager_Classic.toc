@@ -16,6 +16,7 @@ Core\GRM_Types.lua
 Core\GRM_SaveVar_API.lua
 Compatibility\GRM_Compatibility.lua
 Core\GRM_Core.lua
+Core\GRM_SlashCommands.lua
 Core\GRM_Settings.lua
 
 Utils\GRM_Chat.lua
@@ -57,6 +58,7 @@ Modules\GRM_Roster.lua
 UI\GRM_Minimap.lua
 UI\GRM_UI_Dropdown.lua
 UI\GRM_UI.lua
+UI\GRM_Mouseover.lua
 
 UI\Options\GRM_OptionsCore.lua
 UI\Options\GRM_GeneralTab.lua

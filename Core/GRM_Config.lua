@@ -229,7 +229,8 @@ GRM.finalLoadSteps = function()
     end
 
     -- Activate the GRM frames!
-    GRM.InitiateMemberDetailFrame();
+    GRM_UI.FinalFrameInitialization();
+    
     GRM.GuildRoster();
     QueryGuildEventLog();
 
