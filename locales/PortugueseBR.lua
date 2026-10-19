@@ -565,7 +565,7 @@ GRML.PortugueseBR = function()
     GRM_L["Really Clear lines {custom1} to {custom2}?"] = "Realmente Limpar linhas {custom1} para {custom2}?"
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = "Habilitando Números de Linha ... Por favor, escolha dentro do intervalo especificado"
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "Ctrl-C para Copiar <> Ctrl-P para Colar <> Ctrl-A para Selecionar Tudo"
-    GRM_L["Language Selection:"] = "Seleção de Idiomas:"
+    GRM_L["Language:"] = "Seleção de Idiomas:"
     GRM_L["{num} phrases still need translation to {name}"] = "{num} frases ainda precisam de tradução para o {name}"                  -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
@@ -574,7 +574,7 @@ GRML.PortugueseBR = function()
     -- Update 1.146
     GRM_L["Really Clear line {num}?"] = "Realmente Limpar linha {num}?"
     GRM_L["Font has been Reset to DEFAULT."] = "Fonte foi Resetada para PADRÃO."
-    GRM_L["Font Selection:"] = "Seleção de Fonte:"
+    GRM_L["Font:"] = "Seleção de Fonte:"
     GRM_L["Font Scale:"] = "Escala da Fonte:"
     GRM_L["Example"] = "Exemplo"
     GRM_L["Right-Click to Reset to 100%"] = "Clique com o Direito para Resetar para 100%"
@@ -637,6 +637,7 @@ GRML.PortugueseBR = function()
     GRM_L["Time as Member:"] = "Tempo como Membro:"
     GRM_L["|CFFE6CC7FClick|r to select player event"] = "| CFFE6CC7FClique|r para selecionar o evento do jogador"
     GRM_L["Timestamp Format:"] = "Formato Data/Hora:"
+    GRM_L["Timestamp:"] = "Data/Hora:"
     GRM_L["Hour Format:"] = "Formato da Hora:"
     GRM_L["24 Hour"] = "24 Horas"
     GRM_L["12 Hour (am/pm)"] = "12 Horas (am/pm)"
@@ -1261,7 +1262,7 @@ GRML.PortugueseBR = function()
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
     GRM_L["Custom Notes can be Restricted Further Below"] = true
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
-    GRM_L["Always open to selected tab:"] = true
+    GRM_L["Default Open Tab:"] = true
     GRM_L["{num} guild members have incomplete info."] = true
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
     GRM_L["No Audit Necessary! Great Work!"] = true

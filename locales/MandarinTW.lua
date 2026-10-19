@@ -567,7 +567,7 @@ GRML.MandarinTW = function()
     GRM_L["Really Clear lines {custom1} to {custom2}?"] = true
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = true
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = true
-    GRM_L["Language Selection:"] = true
+    GRM_L["Language:"] = true
     GRM_L["{num} phrases still need translation to {name}"] = true                  -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
@@ -576,7 +576,7 @@ GRML.MandarinTW = function()
     -- Update 1.146
     GRM_L["Really Clear line {num}?"] = true
     GRM_L["Font has been Reset to DEFAULT."] = true
-    GRM_L["Font Selection:"] = true
+    GRM_L["Font:"] = true
     GRM_L["Font Scale:"] = true
     GRM_L["Example"] = true
     GRM_L["Right-Click to Reset to 100%"] = true
@@ -640,6 +640,7 @@ GRML.MandarinTW = function()
     GRM_L["Check the \"Sync Users\" tab to find out why!"] = true
     GRM_L["Time as Member:"] = true
     GRM_L["|CFFE6CC7FClick|r to select player event"] = true
+    GRM_L["Timestamp:"] = true
     GRM_L["Timestamp Format:"] = true
     GRM_L["Hour Format:"] = true
     GRM_L["24 Hour"] = true
@@ -1266,7 +1267,7 @@ GRML.MandarinTW = function()
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
     GRM_L["Custom Notes can be Restricted Further Below"] = true
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
-    GRM_L["Always open to selected tab:"] = true
+    GRM_L["Default Open Tab:"] = true
     GRM_L["{num} guild members have incomplete info."] = true
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
     GRM_L["No Audit Necessary! Great Work!"] = true

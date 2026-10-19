@@ -569,7 +569,7 @@ GRML.French = function()
     GRM_L["Really Clear lines {custom1} to {custom2}?"] = "Confirmer suppression des lignes {custom1} à {custom2} ?"
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = "Activation des les numéros de ligne ... Veuillez choisir dans la plage de données"
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "Ctrl-C pour Copier <> Ctrl-P pour Coller <> Ctrl-A pour Sélectionner Tout"
-    GRM_L["Language Selection:"] = "Sélection Langue :"
+    GRM_L["Language:"] = "Sélection Langue :"
     GRM_L["{num} phrases still need translation to {name}"] = "{num} phrases nécessitent une traduction en Français"  -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
@@ -578,7 +578,7 @@ GRML.French = function()
     -- Update 1.146
     GRM_L["Really Clear line {num}?"] = "Effacer la ligne {num} ?"
     GRM_L["Font has been Reset to DEFAULT."] = "Police par défaut réinitialisée"
-    GRM_L["Font Selection:"] = "Sélection Police :"
+    GRM_L["Font:"] = "Sélection Police :"
     GRM_L["Font Scale:"] = "Échelle de police :"
     GRM_L["Example"] = "Exemple"
     GRM_L["Right-Click to Reset to 100%"] = "Clic-droit pour réinitialiser à 100%"
@@ -640,6 +640,7 @@ GRML.French = function()
     GRM_L["Check the \"Sync Users\" tab to find out why!"] = "Consultez l'onglet \"Utilisateurs Synchronisation\" pour trouver la raison !"
     GRM_L["Time as Member:"] = "Membre depuis :"
     GRM_L["|CFFE6CC7FClick|r to select player event"] = "|CFFE6CC7FClic|r pour sélectionner l'événement du joueur"
+    GRM_L["Timestamp:"] = true
     GRM_L["Timestamp Format:"] = "Format de la date :"
     GRM_L["Hour Format:"] = "Format Horaire :"
     GRM_L["24 Hour"] = "24 heures"
@@ -1264,7 +1265,7 @@ GRML.French = function()
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
     GRM_L["Custom Notes can be Restricted Further Below"] = true
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
-    GRM_L["Always open to selected tab:"] = true
+    GRM_L["Default Open Tab:"] = true
     GRM_L["{num} guild members have incomplete info."] = true
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
     GRM_L["No Audit Necessary! Great Work!"] = true

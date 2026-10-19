@@ -2,8 +2,8 @@
 -- Addon Name: "Guild Roster Manager"
 
 -- slash commands (You can create custom one localized to your language in the localization folder)
--- SLASH_ROSTER1 = '/roster';
--- SLASH_GRM1 = '/grm';
+SLASH_ROSTER1 = '/roster';
+SLASH_GRM1 = '/grm';
 
 -- Addon Details:
 GRM_G.Version = "R1.99422";

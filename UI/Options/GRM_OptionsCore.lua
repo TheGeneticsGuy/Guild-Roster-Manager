@@ -304,7 +304,7 @@ OptionsCore.RefreshOptionsUI = function()
     
     GenOpts.GRM_FontSizeSlider.Slider:SetValue((S.fontModifier * 10) + 100)
     GenOpts.GRM_FontSizeSlider.Slider.GRM_FontSizeSliderText2:SetText(math.floor(GenOpts.GRM_FontSizeSlider.Slider:GetValue() + 0.5) .. "%")
-    GenOpts.GRM_FontSizeSlider.Slider.GRM_FontSizeSliderText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14)
+    GenOpts.GRM_FontSizeSlider.GRM_FontSizeSliderText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14)
     
     if not GameTooltip:IsVisible() then
         GRM_G.toolTipScale = GameTooltip:GetScale()

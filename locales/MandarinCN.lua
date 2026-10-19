@@ -568,7 +568,7 @@ GRML.MandarinCN = function()
     GRM_L["Really Clear lines {custom1} to {custom2}?"] = "确认清除{custom1}至{custom2}行?"
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = "启用行计数... 请在该范围中选择"
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "按Ctrl-C复制 <> 按Ctrl-P粘贴 <> 按Ctrl-A全选"
-    GRM_L["Language Selection:"] = "选择语言:"
+    GRM_L["Language:"] = "选择语言:"
     GRM_L["{num} phrases still need translation to {name}"] = "仍有{num}条字句需要被翻译成{name}"                 -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
@@ -577,7 +577,7 @@ GRML.MandarinCN = function()
     -- Update 1.146
     GRM_L["Really Clear line {num}?"] = "确认清除第{num}行?"
     GRM_L["Font has been Reset to DEFAULT."] = "字体已重置。"
-    GRM_L["Font Selection:"] = "选择字体:"
+    GRM_L["Font:"] = "选择字体:"
     GRM_L["Font Scale:"] = "字体大小:"
     GRM_L["Example"] = "示例"
     GRM_L["Right-Click to Reset to 100%"] = "右键点击重设为100%"
@@ -641,6 +641,7 @@ GRML.MandarinCN = function()
     GRM_L["Check the \"Sync Users\" tab to find out why!"] = "检查\"同步用户\"标签以查明原因!"
     GRM_L["Time as Member:"] = "入会时长:"
     GRM_L["|CFFE6CC7FClick|r to select player event"] = "|CFFE6CC7F点击|r以选择玩家活动"
+    GRM_L["Timestamp:"] = true
     GRM_L["Timestamp Format:"] = "时间戳格式:"
     GRM_L["Hour Format:"] = "小时格式:"
     GRM_L["24 Hour"] = "24小时"
@@ -1269,7 +1270,7 @@ GRML.MandarinCN = function()
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
     GRM_L["Custom Notes can be Restricted Further Below"] = true
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
-    GRM_L["Always open to selected tab:"] = true
+    GRM_L["Default Open Tab:"] = true
     GRM_L["{num} guild members have incomplete info."] = true
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
     GRM_L["No Audit Necessary! Great Work!"] = true

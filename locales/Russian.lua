@@ -569,7 +569,7 @@ GRML.Russian = function()
     GRM_L["Really Clear lines {custom1} to {custom2}?"] = "Вы действительно хотите очистить строки с {custom1} по {custom2}?"
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = "Включение номеров строк ... Пожалуйста, выберите из указанного диапазона"
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "Ctrl-C для копирования <> Ctrl-V для вставки <> Ctrl-A выбрать всё"
-    GRM_L["Language Selection:"] = "Выбор языка:"
+    GRM_L["Language:"] = "Выбор языка:"
     GRM_L["{num} phrases still need translation to {name}"] = "{num} фраз нуждаются в переводе на {name}" -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
@@ -578,7 +578,7 @@ GRML.Russian = function()
     -- Update 1.146
     GRM_L["Really Clear line {num}?"] = "Вы действительно хотите очистить строку {num}?"
     GRM_L["Font has been Reset to DEFAULT."] = "Шрифт был сброшен на по умолчанию."
-    GRM_L["Font Selection:"] = "Выбор шрифта:"
+    GRM_L["Font:"] = "Выбор шрифта:"
     GRM_L["Font Scale:"] = "Размер шрифта:"
     GRM_L["Example"] = "Пример"
     GRM_L["Right-Click to Reset to 100%"] = "|CFFE6CC7FПКМ|r для сброса до 100%"
@@ -640,6 +640,7 @@ GRML.Russian = function()
     GRM_L["Check the \"Sync Users\" tab to find out why!"] = "Проверьте вкладку \"Синхронизация пользователей \", чтобы узнать почему!"
     GRM_L["Time as Member:"] = "Время членства"
     GRM_L["|CFFE6CC7FClick|r to select player event"] = "|CFFE6CC7FЛКМ|r для выбора события игрока"
+    GRM_L["Timestamp:"] = true
     GRM_L["Timestamp Format:"] = "Формат даты:"
     GRM_L["Hour Format:"] = "Формат времени:"
     GRM_L["24 Hour"] = "24 часа"
@@ -1263,7 +1264,7 @@ GRML.Russian = function()
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = "Это относится только к Твинк/Мейн группам, датам присоединения, датам повышения, дням рождения и пользовательским заметкам."
     GRM_L["Custom Notes can be Restricted Further Below"] = "Пользовательские заметки могут быть ограничены ниже"
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = "Все звания получат исходящие данные игрока. Только игроки с выбранным званием или выше могут изменять эти данные и делиться ими."
-    GRM_L["Always open to selected tab:"] = "Всегда открывать на выбранной вкладке:"
+    GRM_L["Default Open Tab:"] = true
     GRM_L["{num} guild members have incomplete info."] = "{num} членов гильдии не имеют полной информации."
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = "Только 1 член гильдии все еще не имеет полной информации. Прекрасная работа!"
     GRM_L["No Audit Necessary! Great Work!"] = "Аудит не требуется! Отличная работа!"

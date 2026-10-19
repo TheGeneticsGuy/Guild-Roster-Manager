@@ -573,7 +573,7 @@ GRML.German = function()
     GRM_L["Really Clear lines {custom1} to {custom2}?"] = "Wirklich Zeilen {custom1} bis {custom2} löschen?"
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = "Aktiviere nummerierte Zeilen...Bitte wähle aus den Vorhandenen"
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "STRG+C zum Kopieren <> STRG+V zum Einfügen <> STRG+A un alles auszuwählen"
-    GRM_L["Language Selection:"] = "Sprache:"
+    GRM_L["Language:"] = "Sprache:"
     GRM_L["{num} phrases still need translation to {name}"] = "{num} Sätze müssen noch übersetzt werden"                  -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
@@ -582,7 +582,7 @@ GRML.German = function()
     -- Update 1.146
     GRM_L["Really Clear line {num}?"] = "Wirklich Zeile {num} löschen?"
     GRM_L["Font has been Reset to DEFAULT."] = "Schriftart zurückgesetzt"
-    GRM_L["Font Selection:"] = "Schriftart:"
+    GRM_L["Font:"] = "Schriftart:"
     GRM_L["Font Scale:"] = "Schriftgröße:"
     GRM_L["Example"] = "Beispiel"
     GRM_L["Right-Click to Reset to 100%"] = "Rechtsklicken, um auf 100% zurückzusetzen"
@@ -644,7 +644,8 @@ GRML.German = function()
     GRM_L["Check the \"Sync Users\" tab to find out why!"] = "Schaue in den \"Sync-Tab\", um herauszufinden, warum"
     GRM_L["Time as Member:"] = "Zeit als Mitglied:"
     GRM_L["|CFFE6CC7FClick|r to select player event"] = "|CFFE6CC7FKlicken|r, um Spieler-Event auszuwählen"
-    GRM_L["Timestamp Format:"] = "Datumsformat:"
+    GRM_L["Timestamp:"] = "Datums:"
+    GRM_L["Timestamp Format:"] = "Datumsformat"
     GRM_L["Hour Format:"] = "Zeitformat:"
     GRM_L["24 Hour"] = "24 Stunden"
     GRM_L["12 Hour (am/pm)"] = "12 Stunden"                             -- removed the am/pm due to spacing. Context prob just fine
@@ -1266,7 +1267,7 @@ GRML.German = function()
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = "Gilt nur für Twink/Main-Gruppen, Beitritts-/Beförderungsdaten, Geburtstage und eigene Notizen."
     GRM_L["Custom Notes can be Restricted Further Below"] = "Eigene Notizen können unten weiter eingeschränkt werden"
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = "Alle Ränge erhalten die Daten. Nur Spieler des gewählten Rangs oder höher können sie ändern und teilen."
-    GRM_L["Always open to selected tab:"] = "Immer mit diesem Tab öffnen:"
+    GRM_L["Default Open Tab:"] = true
     GRM_L["{num} guild members have incomplete info."] = "{num} Gildenmitglieder haben unvollständige Infos."
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = "Nur noch 1 Gildenmitglied mit unvollständigen Infos. Super!"
     GRM_L["No Audit Necessary! Great Work!"] = "Keine Prüfung nötig! Tolle Arbeit!"

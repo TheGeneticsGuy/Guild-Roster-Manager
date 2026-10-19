@@ -618,7 +618,7 @@ end
 -- Purpose:         Reusable tool to build options sliders
 GRM_UI.CreateOptionsSlider = function ( name, parentFrame, template, points, min, max, steps, fontSize, textTitle,
                                         defaultValue, textTemplate, valueChangeScript, toolTipScript, toolTipClearScript,
-                                        mouseUpLogic, includeLowHigh )
+                                        mouseUpLogic, includeLowHigh, hideTooltipOnClick)
 
     local fontStringTextValue = name.."Text2";
 
@@ -626,23 +626,24 @@ GRM_UI.CreateOptionsSlider = function ( name, parentFrame, template, points, min
         local fontStringTextTitle = name.."Text";
 
         parentFrame[name] = CreateFrame ( "Slider" , name , parentFrame , template );
-        parentFrame[name]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
         parentFrame[name].Slider:SetMinMaxValues ( min , max );
         parentFrame[name].Slider:SetObeyStepOnDrag ( true );
         parentFrame[name].Slider:SetValueStep ( steps );
 
-        parentFrame[name].Slider[fontStringTextTitle] = parentFrame[name].Slider:CreateFontString ( nil , "OVERLAY" , textTemplate );
+        parentFrame[name][fontStringTextTitle] = parentFrame[name]:CreateFontString ( nil , "OVERLAY" , textTemplate );
         parentFrame[name].Slider[fontStringTextValue] = parentFrame[name].Slider:CreateFontString ( nil , "OVERLAY" , textTemplate );
 
-        parentFrame[name].Slider[fontStringTextTitle]:SetPoint ( "RIGHT" , parentFrame[name].Slider , "LEFT" , -5 , 0 );
-        parentFrame[name].Slider[fontStringTextTitle]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
-        parentFrame[name].Slider[fontStringTextTitle]:SetText ( textTitle );
-        parentFrame[name].Slider[fontStringTextValue]:SetPoint ( "LEFT" , parentFrame[name].Slider , "RIGHT" , 5 , 0 );
+        parentFrame[name][fontStringTextTitle]:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
+        parentFrame[name][fontStringTextTitle]:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + fontSize );
+        parentFrame[name][fontStringTextTitle]:SetText ( textTitle );
+        parentFrame[name].Slider[fontStringTextValue]:SetPoint ( "LEFT" , parentFrame[name].Forward , "RIGHT" , 5 , 0 );
+
+        parentFrame[name]:SetPoint ( "LEFT" , parentFrame[name][fontStringTextTitle] , "RIGHT" , 5 , 0 );
         
         parentFrame[name].Slider:SetScript ( "OnValueChanged" , function( _ , value )
             valueChangeScript ( value );
-            if GameTooltip:IsVisible() then
-                GRM.RestoreTooltip();
+            if hideTooltipOnClick and toolTipClearScript then
+                toolTipClearScript();
             end
         end);
 
@@ -650,7 +651,7 @@ GRM_UI.CreateOptionsSlider = function ( name, parentFrame, template, points, min
             if button == "RightButton" then
                 self:SetValue ( defaultValue ); -- Right is to reset
             end
-            mouseUpLogic();
+            mouseUpLogic(self, button);
         end);
 
         if toolTipScript then
