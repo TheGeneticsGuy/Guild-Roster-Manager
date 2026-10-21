@@ -1220,16 +1220,16 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
                 updatedPlayer.name then
                 if updatedPlayer.note == "" then
                     if ( GRM.CanEditPublicNote() or (GRM_G.currentName == GRM_G.addonUser) ) then
-                        GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString1:SetText(GRM.L(
+                        GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(GRM.L(
                             "Click here to set a Public Note"));
                     else
-                        GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString1:SetText(GRM.L(
+                        GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(GRM.L(
                             "Unable to Edit Public Note at Rank"));
                     end
                 else
-                    GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString1:SetText(updatedPlayer.note);
+                    GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(updatedPlayer.note);
                 end
-                GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerNoteEditBox:SetText(updatedPlayer.note);
+                GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetText(updatedPlayer.note);
             end
         end
     end
@@ -1268,16 +1268,16 @@ Scan.CheckRosterChanges = function(updatedPlayer, player, rosterName)
             updatedPlayer.name then
             if updatedPlayer.officerNote == "" then
                 if GRM.CanEditOfficerNote() then
-                    GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString2:SetText(GRM.L(
+                    GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(GRM.L(
                         "Click here to set an Officer's Note"));
                 else
-                    GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString2:SetText(GRM.L(
+                    GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(GRM.L(
                         "Unable to Edit Officer Note at Rank"));
                 end
             else
-                GRM_UI.GRM_MemberDetailroster[rosterName].GRM_noteFontString2:SetText(updatedPlayer.officerNote);
+                GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(updatedPlayer.officerNote);
             end
-            GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerOfficerNoteEditBox:SetText(updatedPlayer.officerNote);
+            GRM_UI.GRM_MemberDetailroster[rosterName].GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetText(updatedPlayer.officerNote);
         end
         player.officerNote = updatedPlayer.officerNote;
     end
@@ -2368,8 +2368,8 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                         GRM.SetNote ( member.GUID, tempNote, false, rosterSelection );
 
                                         if GRM_G.currentName == member.name then
-                                            GRM_UI.GRM_Mouseover.GRM_noteFontString2:SetText(tempNote);
-                                            GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteEditBox:SetText(
+                                            GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(tempNote);
+                                            GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetText(
                                                 tempNote);
                                         end
 
@@ -2391,8 +2391,8 @@ Scan.IsRejoinAndSetDetails = function(member, simpleName, date_table, liveJoinDe
                                         GRM.SetNote ( member.GUID, tempNote, true, rosterSelection );
 
                                         if GRM_G.currentName == player.name then
-                                            GRM_UI.GRM_Mouseover.GRM_noteFontString1:SetText(tempNote);
-                                            GRM_UI.GRM_Mouseover.GRM_PlayerNoteEditBox:SetText(tempNote);
+                                            GRM_UI.GRM_Mouseover.GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(tempNote);
+                                            GRM_UI.GRM_Mouseover.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetText(tempNote);
                                         end
 
                                         if liveJoinDetected then
@@ -2701,7 +2701,9 @@ Scan.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappe
     end
 
     local birthdayInfo = GRM.GetBirthday(player);
-
+    if not birthdayInfo then
+        print("ERROR: " .. player.name)
+    end
     if GRM.S().bdayAnnounce then
 
         if birthdayInfo.date[1] > 0 then   -- No need to move on and check anniversary for unverified dates.

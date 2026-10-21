@@ -212,7 +212,9 @@ GRM_UI_Util.BuildSliderTextures = function ( slider )
     slider.botTextureFrame:SetPoint( "TOP", slider.bot, "TOP" );
     slider.botTextureFrame:EnableMouse ( true );
 
-    slider.NineSlice:Hide()
+    if slider.NineSlice then
+        slider.NineSlice:Hide()
+    end
 
     slider.botTextureFrame:SetScript( "OnMouseDown" , function( _ , button)
         if button == "LeftButton" then

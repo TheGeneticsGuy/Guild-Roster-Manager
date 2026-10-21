@@ -1588,7 +1588,6 @@ GRM.GetBirthday = function ( player )
     else
         return player.birthdayInfo;
     end
-    return; -- Returning nothing...
 end
 
 -- Method:          GRM.SetBirthdayInfo ( playerTable , int , int , bool , int , bool )
@@ -12324,8 +12323,8 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                             GRM.SetNote ( GUID, tempNote, false, i );
 
                             if GRM_G.currentName == name then
-                                GRM_UI.GRM_Mouseover.GRM_noteFontString2:SetText(tempNote);
-                                GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteEditBox:SetText(tempNote);
+                                GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(tempNote);
+                                GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetText(tempNote);
                             end
 
                             if player then
@@ -12344,8 +12343,8 @@ GRM.AddTimeStampToNote = function(name , GUID , date)
                             GRM.SetNote ( GUID, tempNote, true, i );
 
                             if GRM_G.currentName == name then
-                                GRM_UI.GRM_Mouseover.GRM_noteFontString1:SetText(tempNote);
-                                GRM_UI.GRM_Mouseover.GRM_PlayerNoteEditBox:SetText(tempNote);
+                                GRM_UI.GRM_Mouseover.GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(tempNote);
+                                GRM_UI.GRM_Mouseover.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetText(tempNote);
                             end
 
                             if player then

@@ -6045,9 +6045,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             if GRM_UI.GRM_Mouseover:IsVisible() then
                 if not GRM_G.BuildHasRestrictions then
                     -- Edit Boxes
-                    if GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteEditBox ~= nil and GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteEditBox:HasFocus() then
+                    if GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox ~= nil and GRM_UI.GRM_Mouseover.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:HasFocus() then
                         GRM_UI.EscapeOfficerNoteEditBox();
-                    elseif GRM_UI.GRM_Mouseover.GRM_PlayerNoteEditBox ~= nil and GRM_UI.GRM_Mouseover.GRM_PlayerNoteEditBox:HasFocus() then
+                    elseif GRM_UI.GRM_Mouseover.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox ~= nil and GRM_UI.GRM_Mouseover.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:HasFocus() then
                         GRM_UI.PlayerPublicNoteEditBox();
                     elseif GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox ~= nil and GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
                         if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditBox:HasFocus() then

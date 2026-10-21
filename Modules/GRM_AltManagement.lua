@@ -1226,29 +1226,29 @@ GRM.PopulateAltFrames = function ( playerName )
     local color = {};
 
     GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:Show();
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:Show();
+    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame:Show();
     local scrollHeight = 0;
     local scrollWidth = 170;
     local buffer = 1;
 
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons or {};  -- Create a table for the Buttons.
+    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons or {};  -- Create a table for the Buttons.
     -- populating the window correctly.
     for i = 1 , numAlts do
         -- if font string is not created, do so.
-        if not GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] then
-            local tempButton = CreateFrame ( "Button" , "GRM_AltAdded" .. i , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame ); -- Names each Button 1 increment up
+        if not GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] then
+            local tempButton = CreateFrame ( "Button" , "GRM_AltAdded" .. i , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame ); -- Names each Button 1 increment up
 
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
+            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
         end
 
-        if i == numAlts and #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons > numAlts then
-            for j = numAlts + 1 , #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
-                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[j][1]:Hide();
+        if i == numAlts and #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons > numAlts then
+            for j = numAlts + 1 , #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
+                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[j][1]:Hide();
             end
         end
 
-        local AltButtons = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1];
-        local AltButtonsText = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][2];
+        local AltButtons = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1];
+        local AltButtonsText = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][2];
         AltButtons:SetSize ( 86.5 , 20 );
         AltButtons:RegisterForClicks( "RightButtonDown" , "LeftButtonDown" );
 
@@ -1283,9 +1283,9 @@ GRM.PopulateAltFrames = function ( playerName )
                 if GRM_G.pause then
                     local listOfAlts = GRM.GetListOfAlts ( GRM.GetPlayer(GRM_G.currentName) );
 
-                    if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons ~= nil then
-                        for i = 1 , #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
-                            if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1]:IsVisible() and GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1]:IsMouseOver ( 1 , -1 , -1 , 1 ) and GRM.GetMouseFocus( GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1] ) and listOfAlts[i] and listOfAlts[i][1] then
+                    if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons ~= nil then
+                        for i = 1 , #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
+                            if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1]:IsVisible() and GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1]:IsMouseOver ( 1 , -1 , -1 , 1 ) and GRM.GetMouseFocus( GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1] ) and listOfAlts[i] and listOfAlts[i][1] then
 
                                 GRM_G.tempAltName = listOfAlts[i][1];
                                 break;
@@ -1344,12 +1344,12 @@ GRM.PopulateAltFrames = function ( playerName )
 
         -- Now let's pin it!
         if i == 1 then
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame , 0 , - 1 );
+            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame , 0 , - 1 );
             scrollHeight = scrollHeight + AltButtons:GetHeight();
         elseif i == 2 then
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 1][1] , "TOPRIGHT" , 1 , 0 );
+            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 1][1] , "TOPRIGHT" , 1 , 0 );
         else
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 2][1] , "BOTTOMLEFT" , 0 , - buffer );
+            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 2][1] , "BOTTOMLEFT" , 0 , - buffer );
             if i % 2 ~= 0 then
                 scrollHeight = scrollHeight + AltButtons:GetHeight() + buffer;
             end
@@ -1357,21 +1357,22 @@ GRM.PopulateAltFrames = function ( playerName )
         AltButtons:Show();
     end
 
+    local GRM_AddAltButton2 = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2
     -- Pin the button
     if numAlts == 0 then
-        GRM_UI.GRM_AddAltButton2:ClearAllPoints();
-        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame , "TOP" , 0 , - 1 );
+        GRM_AddAltButton2:ClearAllPoints();
+        GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame , "TOP" , 0 , - 1 );
     elseif numAlts == 1 then
-        GRM_UI.GRM_AddAltButton2:ClearAllPoints();
-        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[1][1] , "TOPRIGHT" , 1 , 0 );
+        GRM_AddAltButton2:ClearAllPoints();
+        GRM_AddAltButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[1][1] , "TOPRIGHT" , 1 , 0 );
     else
-        GRM_UI.GRM_AddAltButton2:ClearAllPoints();
-        GRM_UI.GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1] , "BOTTOM" , 0 , - buffer);
+        GRM_AddAltButton2:ClearAllPoints();
+        GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1] , "BOTTOM" , 0 , - buffer);
         if numAlts % 2 == 0 and numAlts > 12 then
-            scrollHeight = scrollHeight + GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer;
+            scrollHeight = scrollHeight + GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer;
         end
     end
-    GRM_UI.GRM_AddAltButton2:Show();
+    GRM_AddAltButton2:Show();
 
     if numAlts > 12 then
         if GRM_UI.GRM_Mouseover.GRM_GroupInviteButton:IsVisible() then
@@ -1380,7 +1381,7 @@ GRM.PopulateAltFrames = function ( playerName )
     end
 
     -- Update the size -- it either grows or it shrinks!
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame.GRM_CoreAltScrollChildFrame:SetSize ( scrollWidth , scrollHeight );
+    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame:SetSize ( scrollWidth , scrollHeight );
 
     --Set Slider Parameters ( has to be done after the above details are placed )
     local scrollMax = ( scrollHeight - GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:GetHeight() ) + ( buffer * .5 );

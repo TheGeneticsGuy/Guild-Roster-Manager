@@ -9,6 +9,7 @@
 -- GRM_UI.CreateCheckBox
 -- GRM_UI.CreateOptionsSlider
 -- GRM_UI.CreateHybridScrollFrame
+-- GRM_UI.CreateScrollFrame
 -- GRM_UI.CreateDropDownMenu
 
 GRM_UI = {};    -- Global Access
@@ -1073,4 +1074,48 @@ GRM_UI.HybridScrollOnValueChangedConfig = function(HscrollFrameSlider, value, sc
         end
     end
     HscrollFrameSlider.currentV = value;
+end
+
+-- Method:          GRM_UI.CreateScrollFrame ( string , frame , int , int , table , string , boolean , string , string , table , table )
+-- What it Does:    Creates a standard ScrollFrame, its child frame, and an optional slider.
+-- Purpose:         Reusable UI tool for creating scroll frames cleanly.
+GRM_UI.CreateScrollFrame = function ( name, parentFrame, width, height, points, childName, useExistingChild, sliderName, sliderTemplate, sliderSize, sliderPoints )
+    if parentFrame[name] then return end
+    
+    -- Create ScrollFrame
+    parentFrame[name] = CreateFrame( "ScrollFrame" , name , parentFrame )
+    parentFrame[name]:SetSize( width , height )
+    if points then
+        parentFrame[name]:SetPoint( points[1] , points[2] , points[3] , points[4] , points[5] )
+    end
+    
+    -- Create or Attach Child Frame
+    if useExistingChild then
+        parentFrame[name]:SetScrollChild( parentFrame[childName] )
+    else
+        parentFrame[childName] = CreateFrame( "Frame" , childName , parentFrame[name] )
+        parentFrame[name]:SetScrollChild( parentFrame[childName] )
+    end
+    
+    -- Create Slider
+    if sliderName then
+        parentFrame[sliderName] = CreateFrame( "Slider" , sliderName , parentFrame[name] , sliderTemplate )
+        local slider = parentFrame[sliderName]
+        slider:SetOrientation( "VERTICAL" )
+        
+        if sliderSize then
+            slider:SetSize( sliderSize[1] , sliderSize[2] )
+        end
+        
+        if sliderPoints then
+            slider:SetPoint( sliderPoints[1] , sliderPoints[2] , sliderPoints[3] , sliderPoints[4] , sliderPoints[5] )
+        end
+        
+        slider:SetValue( 0 )
+        GRM_UI_Util.BuildSliderTextures( slider )
+        
+        slider:SetScript( "OnValueChanged" , function( self )
+            parentFrame[name]:SetVerticalScroll( self:GetValue() )
+        end)
+    end
 end
