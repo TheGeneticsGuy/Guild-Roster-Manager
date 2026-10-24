@@ -1,7 +1,5 @@
 
-I should probably figure that out - I don't have it documented since I never needed to, until I broke it lol - Sec I can write it out.
-
-In order:
+Global Control String:
 
 * Timestamp format (General Tab)
 * Sync changes with guildies at Rank X (Officer Tab)
@@ -30,7 +28,6 @@ In order:
   - 2 = Auto update enabled and destination OFFICER Note
   - 3 = Auto update enabled and destination CUSTOM Note
 
-TO DO: - Timestamp doesn't have Global Control tag
 TO DO: - Remove settings:
           * useFullName
           * showMouseoverOld
@@ -45,6 +42,7 @@ TO DO: - Fix Default Settings button on Names Tab, maybe others?
 TO DO: - Implement FormatName settings somehow 
 TO DO: - Deal with Export.RemoveStringColoring() - this is going to complicate things with the new formatting possibly
 TO DO: - Request to implement custom note on the Promotions in macro tool
+TO DO: - When swapping languages, the dropdown menu doesn't re-translate.
 
 -- Possible Compatibility changes in WOW Forever
 TO DO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
@@ -7527,7 +7525,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * Bug Fix1: Before, it could do a check before server returned data, thus you would get generic message rather than full details on who did what.
 
-* Bug Fix2: "Clearing" the Rank Promotion history, the "Date Promoted?" button was not returning to proper position.
+* Bug Fix2: "Clearing" the Rank Promotion history, the "Date Promoted" button was not returning to proper position.
 
 * Bug Fix3: "Guild Log" button will now seat properly if frame is dragged over it.
 

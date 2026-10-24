@@ -1076,6 +1076,7 @@ GRM_UI.HybridScrollOnValueChangedConfig = function(HscrollFrameSlider, value, sc
     HscrollFrameSlider.currentV = value;
 end
 
+-- Non hybrid. Some things do not need to be hybrid
 -- Method:          GRM_UI.CreateScrollFrame ( string , frame , int , int , table , string , boolean , string , string , table , table )
 -- What it Does:    Creates a standard ScrollFrame, its child frame, and an optional slider.
 -- Purpose:         Reusable UI tool for creating scroll frames cleanly.

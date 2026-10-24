@@ -798,14 +798,15 @@ end
 GRM_UI.ScaleFontStringToObjectSize = function ( isWidth , size , fontstring , spacingOnEachSide )
     local spacing = spacingOnEachSide * 2;
     local currentFontSize = select ( 2 , fontstring:GetFont() );
+    local minimumSize = 5;
 
     if isWidth then
-        while fontstring:GetWidth() + spacing > size do
+        while currentFontSize > 5 and fontstring:GetWidth() + spacing > size do
             currentFontSize = currentFontSize - 1;
             fontstring:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + currentFontSize );
         end
     else
-        while fontstring:GetStringHeight() + spacing > size do
+        while currentFontSize > 5 and fontstring:GetStringHeight() + spacing > size do
             currentFontSize = currentFontSize - 1;
             fontstring:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + currentFontSize );
         end
@@ -822,9 +823,8 @@ local function InitializeFramesThatPinBlizzUI()
 
         -- Member Detail Frame Info
         GRM_UI.EstablishClassicFrames() -- For compatibility reasons
-        GRM_UI.GRM_MetaDataInitializeUIFirst(false); -- Initializing Frames
-        GRM_UI.GR_MetaDataInitializeUISecond(false); -- To avoid 60 upvalue Lua cap, place them in second list.
-        GRM_UI.GR_MetaDataInitializeUIThird(false); -- Also, to avoid another 60 upvalues!
+        GRM_UI.GRM_InitializeMouseoverFrames(false); -- Initializing Frames
+        GRM_UI.GRM_InitializeMiscFrames(false);
 
         GRM_G.UIIsLoaded = true;
 
@@ -848,9 +848,8 @@ GRM_UI.ReloadAllFrames = function( isManualUpdate , defaultSettingsReset )
     GRM_UI.MetaDataInitializeUIrosterLog1( isManualUpdate );
     GRM_UI.MetaDataInitializeUIrosterLog2( isManualUpdate );
     if GRM_G.FramesInitialized then
-        GRM_UI.GRM_MetaDataInitializeUIFirst( isManualUpdate );
-        GRM_UI.GR_MetaDataInitializeUISecond( isManualUpdate );
-        GRM_UI.GR_MetaDataInitializeUIThird( isManualUpdate );
+        GRM_UI.GRM_InitializeMouseoverFrames( isManualUpdate );
+        GRM_UI.GRM_InitializeMiscFrames( isManualUpdate );
     end
 
     -- Only rebuild mass kick tool if it has already been loaded, as it is an onDemand structure.
@@ -1072,19 +1071,17 @@ end
 -----------------------------------------------
 
 
--- Method:          GRM_UI.GRM_MetaDataInitializeUIFirst( boolean )
+-- Method:          GRM_UI.GRM_InitializeMouseoverFrames( boolean )
 -- What it Does:    Initializes "some of the frames" for an on-demand use... preserves heavy loading on login and only loads as necessary.
 -- Purpose:         Should only initialize as needed. Kept as local for speed
-GRM_UI.GRM_MetaDataInitializeUIFirst = function( isManualUpdate )
-    print("INITIALIZING")
+GRM_UI.GRM_InitializeMouseoverFrames = function( isManualUpdate )
     GRM_UI.InitializeMouseover(isManualUpdate)
-
 end
 
--- Method:                  GR_MetaDataInitializeUISecond( boolean )
+-- Method:                  GRM_UI.GRM_InitializeMiscFrames( boolean )
 -- What it Does:            Initializes "More of the frames values/scripts"
 -- Purpose:                 Just more contorls to control certain loads. The firist initialization was the core frame, this is 2ndary frames.
-GRM_UI.GR_MetaDataInitializeUISecond = function( isManualUpdate )
+GRM_UI.GRM_InitializeMiscFrames = function( isManualUpdate )
 
     -- CUSTOM
     GRM_UI.GRM_PopupWindow:SetPoint ( "TOP" , StaticPopup1 , "BOTTOM" , 0 , 1 );
@@ -9460,7 +9457,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
                                 GRM.ClearAllFrames ( true );
                             end
                         else
-                            GRM.RosterFrame();
+                            GRM_UI.RosterFrame();
                         end
                     end
                     GRM.GRM_CoreUpdateFrameCommunities.timer = 0;

@@ -1,4 +1,5 @@
 
+
 local f;
 
 --------------------------
@@ -143,6 +144,27 @@ local function ConfigureStatusRightClickMenu()
     end
 end
 
+-- Confirm Dates (Called from Context Menus)
+local function ConfirmPromoDate()
+    local name = GRM_G.currentName
+    local player = GRM.GetPlayer(name)
+
+    if player and player.rankHist[1][2] ~= 0 then
+        player.rankHist[1][6] = time()
+        player.rankHist[1][7] = true
+        player.promoteDateUnknown = false
+        f.GRM_MemberDetailRankDateTxt:SetText(string.gsub(f.GRM_MemberDetailRankDateTxt:GetText(), "!!", ""))
+
+        if GRM.S().syncEnabled then
+            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
+            GRMsync.SendMessage("GRM_SYNC", "GRM_PD?" .. syncRankFilter .. "?" .. name .. "?" .. tostring(player.rankHist[1][5]) .. "?" .. tostring(player.rankHist[1][6]), "GUILD")
+        end
+    end
+
+    GRM_UI.Unpause()
+    GRM_UI.RefreshSelectFrames(false, true, false, true, true, true)
+end
+
 local function ConfigurePromoteDateRightClickMenu()
     local player = GRM.GetPlayer(GRM_G.currentName)
     if not player then return end
@@ -150,7 +172,7 @@ local function ConfigurePromoteDateRightClickMenu()
     local buttons = {}
     table.insert(buttons, { text = GRM.L("Edit Date"), onClick = function()
         f.GRM_SetPromoDateButton:Click()
-        f.GRM_DateSubmitButtonTxt:SetText(GRM.L("Edit Promo Date"))
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetText(GRM.L("Edit Promo Date"))
         f.ContextMenu:Hide()
         f.GRM_MemberDetailRankDateTxt:Hide()
     end})
@@ -162,7 +184,7 @@ local function ConfigurePromoteDateRightClickMenu()
     
     if not player.promoteDateUnknown and not player.rankHist[1][7] then
         table.insert(buttons, { text = GRM.L("Confirm Date"), onClick = function()
-            GRM_UI.ConfirmPromoDate()
+            ConfirmPromoDate()
             f.ContextMenu:Hide()
         end})
         
@@ -178,6 +200,27 @@ local function ConfigurePromoteDateRightClickMenu()
     GRM_G.pause = true
 end
 
+local function ConfirmJoinDate()
+    local name = GRM_G.currentName
+    local player = GRM.GetPlayer(name)
+
+    if player and player.joinDateHist[1][1] ~= 0 then
+        player.joinDateHist[1][5] = time()
+        player.joinDateHist[1][6] = true
+        player.joinDateHist[1][7] = 1
+        player.joinDateUnknown = false
+        f.GRM_JoinDateText:SetText(string.gsub(f.GRM_JoinDateText:GetText(), "!!", ""))
+
+        if GRM.S().syncEnabled then
+            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
+            GRMsync.SendMessage("GRM_SYNC", "GRM_JD?" .. syncRankFilter .. "?" .. name .. "?" .. tostring(player.joinDateHist[1][4]) .. "?" .. tostring(player.joinDateHist[1][5]), "GUILD")
+        end
+    end
+
+    GRM_UI.Unpause()
+    GRM_UI.RefreshSelectFrames(false, true, false, true, true, true)
+end
+
 local function ConfigureJoinDateRightClickMenu()
     local player = GRM.GetPlayer(GRM_G.currentName)
     if not player then return end
@@ -185,7 +228,7 @@ local function ConfigureJoinDateRightClickMenu()
     local buttons = {}
     table.insert(buttons, { text = GRM.L("Edit Date"), onClick = function()
         f.GRM_MemberDetailJoinDateButton:Click()
-        f.GRM_DateSubmitButtonTxt:SetText(GRM.L("Edit Join Date"))
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetText(GRM.L("Edit Join Date"))
         f.ContextMenu:Hide()
         f.GRM_MemberDetailRankDateTxt:Hide()
         f.GRM_JoinDateText:Hide()
@@ -200,7 +243,7 @@ local function ConfigureJoinDateRightClickMenu()
     
     if not player.joinDateUnknown and not player.joinDateHist[1][6] then
         table.insert(buttons, { text = GRM.L("Confirm Date"), onClick = function()
-            GRM_UI.ConfirmJoinDate()
+            ConfirmJoinDate()
             f.ContextMenu:Hide()
         end})
         
@@ -224,7 +267,7 @@ local function ConfigureBirthDayRightClickMenu()
     table.insert(buttons, { text = GRM.L("Edit Date"), onClick = function()
         f.GRM_BirthdayText:Hide()
         f.GRM_MemberDetailBirthdayButton:Click()
-        f.GRM_DateSubmitButtonTxt:SetText(GRM.L("Edit Birthday"))
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetText(GRM.L("Edit Birthday"))
         f.ContextMenu:Hide()
     end})
     
@@ -238,12 +281,135 @@ local function ConfigureBirthDayRightClickMenu()
     GRM_G.pause = true
 end
 
+local function GetMonthList()
+    return {
+        GRM.L("January"), GRM.L("February"), GRM.L("March"), GRM.L("April"),
+        GRM.L("May"), GRM.L("June"), GRM.L("July"), GRM.L("August"),
+        GRM.L("September"), GRM.L("October"), GRM.L("November"), GRM.L("December")
+    }
+end
+
+local function GetDayList()
+    local list = {}
+    for i = 1, 31 do
+        table.insert(list, tostring(i))
+    end
+    return list
+end
+
+local function GetYearList()
+    local list = {}
+    local _, _, currentYear = select(2, GRM.Time.GetTodaysDate())
+    -- Range from WoW launch year to current year
+    for i = currentYear, 2004, -1 do
+        table.insert(list, tostring(i))
+    end
+    return list
+end
+
+-- Closes overlapping dropdowns when you click one
+local CloseOtherDateDropdowns = function(ind)
+    if ind ~= 1 then f.GRM_MonthDropDownMenu:Hide() end
+    if ind ~= 2 then f.GRM_DayDropDownMenu:Hide() end
+    if ind ~= 3 then f.GRM_YearDropDownMenu:Hide() end
+end
+
+local function ResetDeath()
+    local player = GRM.GetPlayer(GRM_G.currentName)
+    local clearDeath = false
+    if player then
+        local noteToCheck = player.note
+        if GRM_G.BuildHasRestrictions then noteToCheck = player.customNote[4] end
+
+        if noteToCheck:find("%[" .. GRM.L("D") .. "%]") then
+            if not GRM_G.BuildHasRestrictions then
+                if GRM.CanEditPublicNote() then
+                    local newNote = string.gsub(noteToCheck:gsub("%[" .. GRM.L("D") .. "%]%-%d%d%d%d%d%d%d%d", ""), "%[" .. GRM.L("D") .. "%]", "")
+                    newNote = GRM.Util.Trim(newNote)
+
+                    if newNote ~= noteToCheck then
+                        local i = GRM.GetRosterSelectionID(player.name, player.GUID)
+                        if i then
+                            local simpleName = GRM.GetStringClassColorByName(player.name) .. GRM.SlimName(player.name) .. "|r"
+                            local logReportWithTime, logReport = GRM.GetNoteChangeString(simpleName, noteToCheck, newNote, GRM.Time.GetTimestamp())
+
+                            if GRM.S().toChat.note then GRM.Log.PrintLog({4, logReport}) end
+                            GRM.Log.AddLog({4, logReportWithTime, simpleName, noteToCheck, newNote, GRM.Time.GetTimestamp()})
+                            player.note = newNote
+                            GRM.SetNote(player.GUID, newNote, true, i)
+                            clearDeath = true
+                        end
+                    end
+                else
+                    GRM.Report(GRM.L("The \"{custom1}\" indicates the player is dead.", nil, nil, nil, "[" .. GRM.L("D") .. "]") .. "\n" .. GRM.L("Your rank does not have permission to remove the tag."), GRM.S().logColor[15][1], GRM.S().logColor[15][2], GRM.S().logColor[15][3])
+                end
+            else
+                local newNote = string.gsub(noteToCheck:gsub("%[" .. GRM.L("D") .. "%]%-%d%d%d%d%d%d%d%d", ""), "%[" .. GRM.L("D") .. "%]", "")
+                newNote = GRM.Util.Trim(newNote)
+
+                if newNote ~= noteToCheck then
+                    player.customNote[2] = time()
+                    player.customNote[3] = GRM_G.addonUser
+                    player.customNote[4] = newNote
+                    GRM.RecordCustomNoteChanges(newNote, noteToCheck, GRM_G.addonUser, player.name, true)
+                end
+            end
+        else
+            clearDeath = true
+        end
+
+        if clearDeath then
+            player.HC.isDead = false
+            player.HC.timeOfDeath = {0, 0, 0, 0, 0, false}
+            GRM.Report(GRM.L("{name} is no longer reported as Dead.", GRM.GetClassifiedName(player.name, true)), GRM.S().logColor[15][1], GRM.S().logColor[15][2], GRM.S().logColor[15][3])
+            if f:IsVisible() then
+                GRM.ClearAllFrames(false)
+                GRM.PopulateMemberDetails(GRM_G.currentName)
+            end
+            GRM_UI.RefreshSelectFrames(true, true, false, true, true, false)
+        end
+    end
+end
+
+-- Method:          ConfigureOnlineStatusText()
+-- What it Does:    So you don't need to reprocess this over and over, it translates it all just one time.
+-- Purpose:         Just resource saving.
+local function ConfigureOnlineStatusText()
+    local list = {"( Active )", "( Mobile )", "( Offline )", "( AFK )", "( Busy )"};
+
+    for i = 1, #list do
+        GRM_G.Status[i] = GRM.L(list[i]);
+    end
+
+end
+
+-- RECONFIGURE FONTS LOGIC
+local function ReconfigureNoteFonts()
+    f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12)
+    f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12)
+    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetFontObject("GameFontWhite")
+    if not GRM_G.BuildHasRestrictions then
+        f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetFontObject("GameFontWhite")
+        f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetFontObject("GameFontWhite")
+    end
+end
+
+local function ReEnableSubIgnoreOption(button, text, editBox)
+    button:Enable(); editBox:Enable()
+    text:SetTextColor(1, 0.82, 0); editBox:SetTextColor(1, 1, 1)
+end
+
+local function DisableSubIgnoreOption(button, text, editBox)
+    button:Disable(); editBox:Disable()
+    text:SetTextColor(0.5, 0.5, 0.5); editBox:SetTextColor(0.5, 0.5, 0.5)
+end  
+
 -----------------------------------
 ---- CORE MOUSEOVER MODULE --------
 -----------------------------------
 
 GRM_UI.InitializeMouseover = function(isManualUpdate)
-
+    GRM_G.BuildHasRestrictions = false; -- TO DO - Remove this
     -- Core Frame
     GRM_UI.CreateCoreFrame("GRM_Mouseover", GRM_UI , UIParent, 400, 438, "TranslucentFrameTemplate", false, nil, nil, true, false)
     GRM_UI.GRM_Mouseover.timer = 0
@@ -269,28 +435,26 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_MemberDetailRankTxt", f, "GameFontNormal", "", 18, {"TOP", f.GRM_MemberDetailLevel, "BOTTOM", 0, -2}, nil, {0.90, 0.80, 0.50})
     GRM_UI.CreateString("GRM_MemberDetailRankDateTxt", f, "GameFontNormalSmall", "", 11, {"TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", 0, -4}, nil, {1, 1, 1})
     
-    GRM_UI.CreateButton("GRM_SetPromoDateButton", f, "GameMenuButtonTemplate", GRM.L("Date Promoted?"), 119, 24, {"TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", 0, -4}, nil, "GameFontWhiteTiny", 12, "CENTER")
+    GRM_UI.CreateButton("GRM_SetPromoDateButton", f, "GameMenuButtonTemplate", GRM.L("Date Promoted"), 119, 24, {"TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", 0, -4}, nil, "GameFontWhiteTiny", 12, "CENTER")
     GRM_UI.ScaleFontStringToObjectSize(true, f.GRM_SetPromoDateButton:GetWidth(), f.GRM_SetPromoDateButton.GRM_SetPromoDateButtonText, 2)
 
     -- Dropdowns
-    GRM_UI.CreateCoreFrame("GRM_MonthDropDownMenuSelected", f, nil, 110, 24, "InsetFrameTemplate", false, {"TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", -86.5, -4}, "HIGH", false, false)
-    f.GRM_MonthDropDownMenuSelected:Hide()
-    GRM_UI.CreateString("GRM_MonthText", f.GRM_MonthDropDownMenuSelected, "GameFontWhiteTiny", "", 13, {"CENTER", f.GRM_MonthDropDownMenuSelected, "CENTER", 0, 0})
-    GRM_UI.CreateCoreFrame("GRM_MonthDropDownMenu", f.GRM_MonthDropDownMenuSelected, nil, 106, 0, "InsetFrameTemplate", false, {"TOP", f.GRM_MonthDropDownMenuSelected, "BOTTOM", 0, 0}, "HIGH", false, true)
+    GRM_UI.CreateDropDownMenu("GRM_MonthDropDown", f, nil, {"TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", -86.5, -4}, {110, 24}, GetMonthList(), 13, {1,1,1},
+                              {1, GRM.L("|CFFE6CC7FClick|r to Change Month")}, GRM.RestoreTooltip, function(idx) GRM_G.monthIndex = idx end, nil, nil, true,
+                              function() CloseOtherDateDropdowns(1) end, 4)
     
-    GRM_UI.CreateCoreFrame("GRM_DayDropDownMenuSelected", f, nil, 40, 24, "InsetFrameTemplate", false, {"LEFT", f.GRM_MonthDropDownMenuSelected, "RIGHT", 5, 0}, "HIGH", false, false)
-    f.GRM_DayDropDownMenuSelected:Hide()
-    GRM_UI.CreateString("GRM_DayText", f.GRM_DayDropDownMenuSelected, "GameFontWhiteTiny", "", 13, {"CENTER", f.GRM_DayDropDownMenuSelected, "CENTER", 0, 0})
-    GRM_UI.CreateCoreFrame("GRM_DayDropDownMenu", f.GRM_DayDropDownMenuSelected, nil, 45, 0, "InsetFrameTemplate", false, {"TOP", f.GRM_DayDropDownMenuSelected, "BOTTOM", 0, 0}, "HIGH", false, true)
+    GRM_UI.CreateDropDownMenu("GRM_DayDropDown", f, nil, {"LEFT", f.GRM_MonthDropDownSelected, "RIGHT", 5, 0}, {40, 24}, GetDayList(), 13, {1,1,1},
+                              {1, GRM.L("|CFFE6CC7FClick|r to Change Day")}, GRM.RestoreTooltip, function(idx) GRM_G.dayIndex = tonumber(GetDayList()[idx]) end, nil, nil, true,
+                              function() CloseOtherDateDropdowns(2) end, 4)
 
-    GRM_UI.CreateCoreFrame("GRM_YearDropDownMenuSelected", f, nil, 110, 24, "InsetFrameTemplate", false, {"LEFT", f.GRM_DayDropDownMenuSelected, "RIGHT", 5, 0}, "HIGH", false, false)
-    f.GRM_YearDropDownMenuSelected:Hide()
-    GRM_UI.CreateString("GRM_YearText", f.GRM_YearDropDownMenuSelected, "GameFontWhiteTiny", "", 13, {"CENTER", f.GRM_YearDropDownMenuSelected, "CENTER", 0, 0})
-    GRM_UI.CreateCoreFrame("GRM_YearDropDownMenu", f.GRM_YearDropDownMenuSelected, nil, 69, 0, "InsetFrameTemplate", false, {"TOP", f.GRM_YearDropDownMenuSelected, "BOTTOM", 0, 0}, "HIGH", false, true)
+    GRM_UI.CreateDropDownMenu("GRM_YearDropDown", f, nil, {"LEFT", f.GRM_DayDropDownSelected, "RIGHT", 5, 0}, {110, 24}, GetYearList(), 13, {1,1,1},
+                             {1, GRM.L("|CFFE6CC7FClick|r to Change Year")}, GRM.RestoreTooltip, function(idx) GRM_G.yearIndex = tonumber(GetYearList()[idx]) end, nil, nil, true,
+                             function() CloseOtherDateDropdowns(3) end, 4)
     
     -- Date Submit/Cancel/Unknown
-    GRM_UI.CreateButton("GRM_DateSubmitButton", f, "UIPanelButtonTemplate", "", 98.5, 22, {"TOP", f.GRM_MonthDropDownMenuSelected, "BOTTOM", -26, -3}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
-    f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetSpacing(0); f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetWordWrap(true)
+    GRM_UI.CreateButton("GRM_DateSubmitButton", f, "UIPanelButtonTemplate", "", 98.5, 22, {"TOP", f.GRM_MonthDropDownSelected, "BOTTOM", -26, -3}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
+    f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetSpacing(0);
+    f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetWordWrap(true)
     
     GRM_UI.CreateButton("GRM_SetUnknownButton", f, "GameMenuButtonTemplate", GRM.L("Unknown"), 98.5, 22, {"LEFT", f.GRM_DateSubmitButton, "RIGHT", 6, 0}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
     GRM_UI.CreateButton("GRM_DateSubmitCancelButton", f, "UIPanelButtonTemplate", GRM.L("Cancel"), 98.5, 22, {"LEFT", f.GRM_SetUnknownButton, "RIGHT", 6, 0}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
@@ -305,14 +469,15 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_MemberDetailBirthdayTitleText", f, "GameFontNormalSmall", GRM.L("Birthday"), 12, {"TOP", f.GRM_MemberDetailJoinDateButton, "BOTTOM", 0, -5})
     f.GRM_MemberDetailBirthdayTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
     GRM_UI.CreateButton("GRM_MemberDetailBirthdayButton", f, "GameMenuButtonTemplate", GRM.L("Set Birthday"), 106, 22.5, {"TOP", f.GRM_MemberDetailBirthdayTitleText, "BOTTOM", 0, 0}, nil, "GameFontWhiteTiny", 10, "CENTER")
-    f.GRM_MemberDetailBirthdayButton.GRM_MemberDetailBirthdayButtonText:SetWidth(100); f.GRM_MemberDetailBirthdayButton.GRM_MemberDetailBirthdayButtonText:SetWordWrap(true)
+    f.GRM_MemberDetailBirthdayButton.GRM_MemberDetailBirthdayButtonText:SetWidth(100);
+    f.GRM_MemberDetailBirthdayButton.GRM_MemberDetailBirthdayButtonText:SetWordWrap(true)
     GRM_UI.CreateString("GRM_BirthdayText", f, "GameFontWhiteTiny", "", 11, {"TOP", f.GRM_MemberDetailBirthdayTitleText, "BOTTOM", -1.5, -2}, 89, nil, "CENTER")
     f.GRM_BirthdayText:Hide()
 
     -- Last Online / Status
     GRM_UI.CreateString("GRM_MemberDetailLastOnlineTitleTxt", f, "GameFontNormalSmall", GRM.L("Last Online"), 12, {"TOPLEFT", f, "TOPLEFT", 8, -32}, 106, nil, "CENTER")
     f.GRM_MemberDetailLastOnlineTitleTxt:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
-    GRM_UI.CreateString("GRM_MemberDetailLastOnlineTxt", f, "GameFontWhiteTiny", "", 12, {"TOP", f.GRM_MemberDetailLastOnlineTitleTxt, "BOTTOM", -2, -2}, 86, nil, "CENTER")
+    GRM_UI.CreateString("GRM_MemberDetailLastOnlineTxt", f, "GameFontWhiteTiny", "", 10, {"TOP", f.GRM_MemberDetailLastOnlineTitleTxt, "BOTTOM", -2, -2}, 86, nil, "CENTER")
     GRM_UI.CreateString("GRM_MemberDetailPlayerStatus", f, "GameFontNormalSmall", "", 12, {"TOP", f.GRM_MemberDetailLastOnlineTxt, "BOTTOM", 0, -18}, 100, nil, "CENTER")
 
     -- Reputation
@@ -323,7 +488,6 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_WindowIsLockedText:Hide()
 
     -- Zone Info
-    GRM_UI.CreateString("GRM_MemberDetailNoteTitle", f, "GameFontNormalSmall", GRM.L("Note:"), 11, {"BOTTOMLEFT", f, "BOTTOMLEFT", 20, 63}, 159, nil, "LEFT")
     GRM_UI.CreateString("GRM_ZoneInfoTime1", f, "GameFontNormalSmall", GRM.L("Time In:") .. " ", 11, {"BOTTOMLEFT", f.GRM_MemberDetailNoteTitle, "TOPLEFT", 5, 15})
     GRM_UI.CreateString("GRM_ZoneInfoTime2", f, "GameFontWhiteTiny", "", 11, {"LEFT", f.GRM_ZoneInfoTime1, "RIGHT", 2, 0})
     GRM_UI.CreateString("GRM_ZoneInfoText", f, "GameFontNormalSmall", GRM.L("Zone:"), 12, {"BOTTOMLEFT", f.GRM_ZoneInfoTime1, "TOPLEFT", -5, 2})
@@ -332,18 +496,23 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     -- Note Windows
     GRM_UI.CreateCoreFrame("GRM_PlayerNoteWindow", f, nil, 166, 53, BackdropTemplateMixin and "BackdropTemplate", false, {"LEFT", f, "LEFT", 15, 10}, nil, false, false)
+    f.GRM_PlayerNoteWindow:SetPoint("LEFT", f, "LEFT", 15, 10)
+    GRM_UI.CreateString("GRM_MemberDetailNoteTitle", f.GRM_PlayerNoteWindow, "GameFontNormalSmall", GRM.L("Note:"), 11, {"BOTTOMLEFT" , f.GRM_PlayerNoteWindow , "TOPLEFT" , 5 , 0 }, 159, nil, "LEFT")
     GRM_UI.CreateString("GRM_noteFontString1", f.GRM_PlayerNoteWindow, "GameFontWhite", "", 12, {"TOPLEFT", f.GRM_PlayerNoteWindow, "TOPLEFT", 8, -7}, 143, nil, "LEFT", true)
     f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetMaxLines(3)
+
     GRM_UI.CreateEditBox("GRM_PlayerNoteEditBox", f.GRM_PlayerNoteWindow, nil, 166, 60, {"TOP", f.GRM_PlayerNoteWindow, "TOP", 0, 0}, "LEFT", {1,1,1}, 31, false)
     f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetMultiLine(true);
     f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetTextInsets(8, 9, 9, 8);
     f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetFrameStrata("HIGH");
     f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:Hide()
     
-    GRM_UI.CreateString("GRM_MemberDetailONoteTitle", f, "GameFontNormalSmall", GRM.L("Officer's Note:"), 11, {"BOTTOMLEFT", f, "BOTTOMLEFT", 226, 63}, 159, nil, "LEFT")
     GRM_UI.CreateCoreFrame("GRM_PlayerOfficerNoteWindow", f, nil, 166, 53, BackdropTemplateMixin and "BackdropTemplate", false, {"RIGHT", f, "RIGHT", -15, 10}, nil, false, false)
+    f.GRM_PlayerOfficerNoteWindow:SetPoint("RIGHT", f, "RIGHT", -15, 10)
+    GRM_UI.CreateString("GRM_MemberDetailONoteTitle", f.GRM_PlayerOfficerNoteWindow, "GameFontNormalSmall", GRM.L("Officer's Note:"), 11, {"BOTTOMLEFT" , f.GRM_PlayerOfficerNoteWindow , "TOPLEFT" , 5 , 0}, 159, nil, "LEFT")
     GRM_UI.CreateString("GRM_noteFontString2", f.GRM_PlayerOfficerNoteWindow, "GameFontWhite", "", 12, {"TOPLEFT", f.GRM_PlayerOfficerNoteWindow, "TOPLEFT", 8, -7}, 143, nil, "LEFT", true)
     f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetMaxLines(3)
+    
     GRM_UI.CreateEditBox("GRM_PlayerOfficerNoteEditBox", f.GRM_PlayerOfficerNoteWindow, nil, 166, 60, {"TOP", f.GRM_PlayerOfficerNoteWindow, "TOP", 0, 0}, "LEFT", {1,1,1}, 31, false)
     f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetMultiLine(true);
     f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetTextInsets(8, 9, 9, 8);
@@ -354,24 +523,35 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     -- Custom Note
     GRM_UI.CreateCoreFrame("GRM_CustomNoteEditBoxFrame", f, nil, 166, 113, BackdropTemplateMixin and "BackdropTemplate", false, {"TOPLEFT", f.GRM_PlayerNoteWindow, "BOTTOMLEFT", 0, -10}, nil, false, false)
+    f.GRM_CustomNoteEditBoxFrame:SetPoint("TOPLEFT", f.GRM_PlayerNoteWindow, "BOTTOMLEFT", 0, -10)
     GRM_UI.CreateString("GRM_CustomNoteEditBoxText", f.GRM_CustomNoteEditBoxFrame, "GameFontNormal", GRM.L("Custom Public Notes:"), 11, {"BOTTOMLEFT", f.GRM_CustomNoteEditBoxFrame, "TOPLEFT", 5, 0}, nil, nil, "LEFT")
     GRM_UI.CreateString("GRM_CustomNoteTextCount", f.GRM_CustomNoteEditBoxFrame, "GameFontWhiteTiny", "", 11, {"LEFT", f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBoxText, "RIGHT", 5, 0})
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteTextCount:Hide()
-    GRM_UI.CreateCheckBox("GRM_CustomNoteSyncMetaCheckBox", f.GRM_CustomNoteEditBoxFrame, "InterfaceOptionsCheckButtonTemplate", {26,26}, {"TOPLEFT", f.GRM_CustomNoteEditBoxFrame, "BOTTOMLEFT", 30, -2}, nil, "Sync:", "GameFontNormalSmall", 11)
+    GRM_UI.CreateCheckBox("GRM_CustomNoteSyncMetaCheckBox", f.GRM_CustomNoteEditBoxFrame, "InterfaceOptionsCheckButtonTemplate", {26,26}, {"TOPLEFT", f.GRM_CustomNoteEditBoxFrame, "BOTTOMLEFT", 35, 2}, nil, "Sync:", "GameFontNormalSmall", 11)
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox.GRM_CustomNoteSyncMetaCheckBoxText:ClearAllPoints();
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox.GRM_CustomNoteSyncMetaCheckBoxText:SetPoint("RIGHT", f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox, "LEFT", 0, 1.5)
 
     GRM_UI.CreateEditBox("GRM_CustomNoteEditBox", f.GRM_CustomNoteEditBoxFrame, nil, 159, 106, {"TOPLEFT", f.GRM_CustomNoteEditBoxFrame, "TOPLEFT", 2, -1.5}, "LEFT", {1,1,1}, GRM_G.MaxCustomNoteSize, false)
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetMultiLine(true); f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetTextInsets(7, -10, 10, 6)
 
-    GRM_UI.CreateButton("GRM_ConfirmCustomNoteButton", f, "GameMenuButtonTemplate", GRM.L("Confirm"), 80, 22, {"TOPRIGHT", f.GRM_CustomNoteEditBoxFrame, "BOTTOM", -2.5, -17}, nil, "GameFontWhiteTiny", 12, "CENTER")
-    GRM_UI.CreateButton("GRM_CancelCustomNoteButton", f, "GameMenuButtonTemplate", GRM.L("Cancel"), 80, 22, {"TOPLEFT", f.GRM_CustomNoteEditBoxFrame, "BOTTOM", 2.5, -17}, nil, "GameFontWhiteTiny", 12, "CENTER")
+    GRM_UI.CreateButton("GRM_ConfirmCustomNoteButton", f, "GameMenuButtonTemplate", GRM.L("Confirm"), 80, 22, {"TOPRIGHT", f.GRM_CustomNoteEditBoxFrame, "BOTTOM", -2.5, -22}, nil, "GameFontWhiteTiny", 12, "CENTER")
+    GRM_UI.CreateButton("GRM_CancelCustomNoteButton", f, "GameMenuButtonTemplate", GRM.L("Cancel"), 80, 22, {"TOPLEFT", f.GRM_CustomNoteEditBoxFrame, "BOTTOM", 2.5, -22}, nil, "GameFontWhiteTiny", 12, "CENTER")
     f.GRM_ConfirmCustomNoteButton:Hide(); f.GRM_CancelCustomNoteButton:Hide()
 
     --- Scroll Frame for Custom Note
     GRM_UI.CreateScrollFrame("GRM_CustomNoteScrollFrame", f.GRM_CustomNoteEditBoxFrame, 163, 98, {"BOTTOM", f.GRM_CustomNoteEditBoxFrame, "BOTTOM", 1, 5}, "GRM_CustomNoteEditBox", true,
                              "GRM_CustomNoteScrollFrameSlider", GRM_G.SliderTemplate, {16, 78}, {"LEFT", f.GRM_CustomNoteEditBoxFrame, "RIGHT", 2, 0})
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:Hide()
+
+    if not GRM.S() or GRM.S().showBorders then
+        f.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
+        f.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.noteBackdrop );
+        f.GRM_CustomNoteEditBoxFrame:SetBackdrop ( GRM_UI.noteBackdrop );
+    else
+        f.GRM_PlayerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
+        f.GRM_PlayerOfficerNoteWindow:SetBackdrop ( GRM_UI.framelessBackdrop );
+        f.GRM_CustomNoteEditBoxFrame:SetBackdrop ( GRM_UI.framelessBackdrop );
+    end
 
     print("TODO - Change all the custom tooltips to default")
 
@@ -429,7 +609,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     -- ALT FRAMES!!!
     GRM_UI.CreateCoreFrame("GRM_CoreAltFrame", f, nil, 170, 150, nil, false, {"TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -10}, nil, false, false)
-    f.GRM_CoreAltFrame:Hide()
+    f.GRM_CoreAltFrame:SetPoint("TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -10)
     GRM_UI.CreateScrollFrame("GRM_CoreAltScrollFrame", f.GRM_CoreAltFrame, 170, 140, {"TOP", f.GRM_CoreAltFrame, "TOP", 0, -2}, "GRM_CoreAltScrollChildFrame", false, "GRM_CoreAltScrollFrameSlider",
                              GRM_G.SliderTemplate, {16, 109}, {"TOPLEFT", f.GRM_CoreAltFrame.GRM_CoreAltScrollFrame, "TOPRIGHT", 10, -13})
     f.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:Hide()
@@ -439,6 +619,33 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     altSlider:SetValue(0)
     altSlider:Hide()
     GRM_UI_Util.BuildSliderTextures(altSlider)
+
+    -- ADD ALT EDIT FRAME
+    GRM_UI.CreateCoreFrame("GRM_AddAltEditFrame", f.GRM_CoreAltFrame, nil, 173 + (#GRM_G.realmName * 3.5), 226, "TranslucentFrameTemplate", false,
+                          {"BOTTOMLEFT", f, "BOTTOMRIGHT", -7, 0}, nil, true, false)
+    local AddAltEditFrame = f.GRM_CoreAltFrame.GRM_AddAltEditFrame
+    AddAltEditFrame:Hide()
+    AddAltEditFrame:SetToplevel(true)
+    
+    GRM_UI.CreateScrollFrame("GRM_AddAltScrollFrame", AddAltEditFrame, AddAltEditFrame:GetWidth() - 10, 111.75, {"TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0},
+                             "GRM_AddAltScrollChildFrame", false, "GRM_AddAltScrollFrameSlider", GRM_G.SliderTemplate, {18, 95}, {"LEFT",
+                             AddAltEditFrame.GRM_AddAltScrollFrame, "RIGHT", -2.5, 0})
+    
+    local aafSlider = AddAltEditFrame.GRM_AddAltScrollFrameSlider
+    aafSlider:SetOrientation("VERTICAL"); aafSlider:SetValue(0)
+    aafSlider:SetScript("OnValueChanged", function(self) AddAltEditFrame.GRM_AddAltScrollFrame:SetVerticalScroll(self:GetValue()) end)
+    GRM_UI_Util.BuildSliderTextures(aafSlider)
+    
+    GRM_UI.CreateString("GRM_AddAltTitleText", AddAltEditFrame, "GameFontNormalSmall", GRM.L("Choose Alt"), 14.5, {"TOP", AddAltEditFrame, "TOP", 0, -15})
+    if not isManualUpdate then AddAltEditFrame.GRM_AddAltTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14.5, "THICKOUTLINE") end
+    
+    GRM_UI.CreateString("GRM_AddAltEditFrameTextBottom", AddAltEditFrame, "GameFontWhiteTiny", GRM.L("(Press Enter to Select)") .. "\n" .. GRM.L("(Press Tab to Cycle)"), 11,
+                        {"BOTTOMLEFT", AddAltEditFrame, "BOTTOMLEFT", 15, 13}, nil, {0.5, 0.5, 0.5}, "LEFT", true)
+    GRM_UI.CreateString("GRM_AddAltEditFrameHelpText", AddAltEditFrame, "GameFontNormalSmall", "", 11, {"CENTER", AddAltEditFrame, "CENTER", 0, 0}, 146, {1, 0, 0}, nil, true)
+    GRM_UI.CreateString("GRM_AddAltEditFrameHelpText2", AddAltEditFrame, "GameFontWhiteTiny", GRM.L("Shift-Click Name On Roster Also Works"), 11, {"BOTTOM", AddAltEditFrame, "BOTTOM", 0, 30}, 146, nil, nil, true)
+
+    GRM_UI.CreateEditBox("GRM_AddAltEditBox", AddAltEditFrame, "InputBoxTemplate", 126 + (#GRM_G.realmName * 3.5), 25, {"TOP", AddAltEditFrame.GRM_AddAltTitleText, "BOTTOM", 0, -2}, "LEFT", {1,1,1}, 40, false)
+    AddAltEditFrame.GRM_AddAltScrollFrame:SetPoint("TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0)
     
     GRM_UI.CreateString("GRM_altFrameTitleText", f.GRM_CoreAltFrame, "GameFontNormalSmall", GRM.L("Player Alts"), 12, {"BOTTOM", f.GRM_CoreAltFrame, "TOP", 0, -2})
     f.GRM_CoreAltFrame.GRM_altFrameTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
@@ -477,7 +684,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_AllianceIconTexture:SetSize(22, 22)
 
     -- Hardcore Death Texture
-    GRM_UI.CreateButton("GRM_ClearDeathButton", f, "UIPanelButtonTemplate", GRM.L("Player is Still Alive"), 200, 22, {"TOP", f, "BOTTOM", 0, 1}, GRM_UI.ResetDeath, "GameFontWhite", 12)
+    GRM_UI.CreateButton("GRM_ClearDeathButton", f, "UIPanelButtonTemplate", GRM.L("Player is Still Alive"), 200, 22, {"TOP", f, "BOTTOM", 0, 1}, ResetDeath, "GameFontWhite", 12)
     GRM_UI.CreateString("GRM_RIPtext", f, "GameFontNormal", "", 15, {"BOTTOM", f, "TOP", 0, 0}, nil, nil, "CENTER", false)
 
     GRM.CreateTexture(f, "GRM_DeathTexture", "ARTWORK", false)
@@ -518,19 +725,26 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText", IgnoreMacroFrame, "GameFontNormalSmall", "", 9, {"TOPLEFT", IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonDateSetText, "BOTTOMLEFT", 0, -6}, nil, {0.9, 0.8, 0.5}, "LEFT")
     GRM_UI.CreateEditBox("GRM_IgnoreListDemoteTimeExpireEditBox", IgnoreMacroFrame, "InputBoxTemplate", 33, 29, {"LEFT", IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton.GRM_IgnoreListDemoteTimeExpireButtonText, "RIGHT", 8, 0}, nil, {1,0,0}, 3, true)
 
-
     -- =============================================================
     -- ALL POST-CREATION SCRIPT LOGIC
     -- =============================================================
 
     if not isManualUpdate then
-        f.GRM_MouseoverCloseButton:HookScript("OnClick", function(_, button)
-            if button == "LeftButton" then
-                if not GRM_UI.MemberDetailFrame:IsVisible() then GRM_G.pause = false end
-            end
-        end);
-        GRM_UI.SetCloseButtonTooltip(f.GRM_MouseoverCloseButton)
+        GRM_UI.InitializeMouseoverUI_Logic()
     end
+
+    ConfigureOnlineStatusText()
+    ReconfigureNoteFonts()
+    
+end
+
+GRM_UI.InitializeMouseoverUI_Logic = function()
+    f.GRM_MouseoverCloseButton:HookScript("OnClick", function(_, button)
+        if button == "LeftButton" then
+            if not GRM_UI.MemberDetailFrame:IsVisible() then GRM_G.pause = false end
+        end
+    end);
+    GRM_UI.SetCloseButtonTooltip(f.GRM_MouseoverCloseButton)
 
     f:SetScript("OnUpdate", GRM.MemberDetailToolTips)
     f:SetScript("OnKeyDown", function(self, key)
@@ -637,64 +851,8 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
         if configured1 then GRM_UI.MemberDetailFrame.LockedFrameText:Hide() end
     end);
-
-    GRM_UI.ResetDeath = function()
-        local player = GRM.GetPlayer(GRM_G.currentName)
-        local clearDeath = false
-        if player then
-            local noteToCheck = player.note
-            if GRM_G.BuildHasRestrictions then noteToCheck = player.customNote[4] end
-
-            if noteToCheck:find("%[" .. GRM.L("D") .. "%]") then
-                if not GRM_G.BuildHasRestrictions then
-                    if GRM.CanEditPublicNote() then
-                        local newNote = string.gsub(noteToCheck:gsub("%[" .. GRM.L("D") .. "%]%-%d%d%d%d%d%d%d%d", ""), "%[" .. GRM.L("D") .. "%]", "")
-                        newNote = GRM.Util.Trim(newNote)
-
-                        if newNote ~= noteToCheck then
-                            local i = GRM.GetRosterSelectionID(player.name, player.GUID)
-                            if i then
-                                local simpleName = GRM.GetStringClassColorByName(player.name) .. GRM.SlimName(player.name) .. "|r"
-                                local logReportWithTime, logReport = GRM.GetNoteChangeString(simpleName, noteToCheck, newNote, GRM.Time.GetTimestamp())
-
-                                if GRM.S().toChat.note then GRM.Log.PrintLog({4, logReport}) end
-                                GRM.Log.AddLog({4, logReportWithTime, simpleName, noteToCheck, newNote, GRM.Time.GetTimestamp()})
-                                player.note = newNote
-                                GRM.SetNote(player.GUID, newNote, true, i)
-                                clearDeath = true
-                            end
-                        end
-                    else
-                        GRM.Report(GRM.L("The \"{custom1}\" indicates the player is dead.", nil, nil, nil, "[" .. GRM.L("D") .. "]") .. "\n" .. GRM.L("Your rank does not have permission to remove the tag."), GRM.S().logColor[15][1], GRM.S().logColor[15][2], GRM.S().logColor[15][3])
-                    end
-                else
-                    local newNote = string.gsub(noteToCheck:gsub("%[" .. GRM.L("D") .. "%]%-%d%d%d%d%d%d%d%d", ""), "%[" .. GRM.L("D") .. "%]", "")
-                    newNote = GRM.Util.Trim(newNote)
-
-                    if newNote ~= noteToCheck then
-                        player.customNote[2] = time()
-                        player.customNote[3] = GRM_G.addonUser
-                        player.customNote[4] = newNote
-                        GRM.RecordCustomNoteChanges(newNote, noteToCheck, GRM_G.addonUser, player.name, true)
-                    end
-                end
-            else
-                clearDeath = true
-            end
-
-            if clearDeath then
-                player.HC.isDead = false
-                player.HC.timeOfDeath = {0, 0, 0, 0, 0, false}
-                GRM.Report(GRM.L("{name} is no longer reported as Dead.", GRM.GetClassifiedName(player.name, true)), GRM.S().logColor[15][1], GRM.S().logColor[15][2], GRM.S().logColor[15][3])
-                if f:IsVisible() then
-                    GRM.ClearAllFrames(false)
-                    GRM.PopulateMemberDetails(GRM_G.currentName)
-                end
-                GRM_UI.RefreshSelectFrames(true, true, false, true, true, false)
-            end
-        end
-    end
-
+    
+    local JoinDateSideFrame = f.GRM_SyncJoinDateSideFrame
     JoinDateSideFrame:SetScript("OnUpdate", function(self, elapsed)
         self.timer = self.timer + elapsed
         if self.timer > 2 then
@@ -765,43 +923,6 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         elseif key == "ESCAPE" then self:Hide() end
     end);
 
-    -- Setup Event Listeners for Date Dropdowns
-    for _, dd in ipairs({f.GRM_DayDropDownMenu, f.GRM_MonthDropDownMenu, f.GRM_YearDropDownMenu}) do
-        dd:SetScript("OnKeyDown", function(self, key)
-            if not GRM_G.inCombat then
-                self:SetPropagateKeyboardInput(true)
-                if key == "ESCAPE" then self:SetPropagateKeyboardInput(false); self:Hide(); _G[self:GetName() .. "Selected"]:Show() end
-            elseif key == "ESCAPE" then self:Hide(); _G[self:GetName() .. "Selected"]:Show() end
-        end);
-    end
-
-    for _, dd in ipairs({{f.GRM_DayDropDownMenuSelected, f.GRM_DayDropDownMenu, GRM_UI.DD.InitializeDropDownDay, GRM.L("|CFFE6CC7FClick|r to Change Day")}, 
-                         {f.GRM_MonthDropDownMenuSelected, f.GRM_MonthDropDownMenu, GRM_UI.DD.InitializeDropDownMonth, GRM.L("|CFFE6CC7FClick|r to Change Month")}, 
-                         {f.GRM_YearDropDownMenuSelected, f.GRM_YearDropDownMenu, GRM_UI.DD.InitializeDropDownYear, GRM.L("|CFFE6CC7FClick|r to Change Year")}}) do
-        
-        dd[1]:SetScript("OnShow", function() dd[2]:Hide() end)
-        dd[1]:SetScript("OnEnter", function(self)
-            if not dd[2]:IsVisible() then
-                GRM_UI.SetTooltipScale()
-                GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-                GameTooltip:AddLine(dd[4])
-                GameTooltip:Show()
-            end
-        end)
-        dd[1]:SetScript("OnLeave", GRM.RestoreTooltip)
-        dd[1]:SetScript("OnMouseDown", function(_, button)
-            if button == "LeftButton" then
-                if dd[2]:IsVisible() then dd[2]:Hide() else
-                    dd[3]()
-                    dd[2]:Show()
-                    if dd[2] == f.GRM_DayDropDownMenu then f.GRM_YearDropDownMenu:Hide(); f.GRM_MonthDropDownMenu:Hide()
-                    elseif dd[2] == f.GRM_MonthDropDownMenu then f.GRM_YearDropDownMenu:Hide(); f.GRM_DayDropDownMenu:Hide()
-                    elseif dd[2] == f.GRM_YearDropDownMenu then f.GRM_DayDropDownMenu:Hide(); f.GRM_MonthDropDownMenu:Hide() end
-                end
-            end
-        end)
-    end
-
     -- Rank Drop down submit and cancel
     f.GRM_SetPromoDateButton:SetScript("OnClick", function(self, button)
         if button == "LeftButton" then
@@ -814,7 +935,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     f.GRM_SetUnknownButton:SetScript("OnClick", function(_, button)
         if button == "LeftButton" and not f.GRM_DayDropDownMenu:IsVisible() then
-            local buttonText = f.GRM_DateSubmitButtonTxt:GetText()
+            local buttonText = f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:GetText()
             if buttonText == GRM.L("Set Join Date") or buttonText == GRM.L("Edit Join Date") then
                 GRM.ClearJoinDateHistory(GRM_G.currentName, true)
                 GRM.DateSubmitCancelResetLogic(true, "join", false, nil)
@@ -859,7 +980,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_DateSubmitCancelButton:SetScript("OnEnter", function(self)
         GRM_UI.SetTooltipScale()
         GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-        GameTooltip:AddLine(f.GRM_DateSubmitCancelButtonTxt:GetText())
+        GameTooltip:AddLine(f.GRM_DateSubmitCancelButton.GRM_DateSubmitCancelButtonText:GetText())
         GameTooltip:Show()
     end)
     f.GRM_DateSubmitCancelButton:SetScript("OnLeave", GRM.RestoreTooltip);
@@ -925,8 +1046,6 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         end
     end);
 
-    GRM.ConfigureOnlineStatusText()
-
     f.GRM_MemberDetailJoinDateButton:SetScript("OnClick", function(self, button)
         if button == "LeftButton" then
             self:Hide()
@@ -951,17 +1070,6 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
             GRM_G.pause = true
         end
     end);
-
-    -- RECONFIGURE FONTS LOGIC
-    GRM_UI.ReconfigureNoteFonts = function()
-        f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12)
-        f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12)
-        f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetFontObject("GameFontWhite")
-        if not GRM_G.BuildHasRestrictions then
-            f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetFontObject("GameFontWhite")
-            f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetFontObject("GameFontWhite")
-        end
-    end
 
     if not GRM_G.BuildHasRestrictions then
         local defNotes = {
@@ -1132,15 +1240,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         end);
     end
 
-    GRM_UI.ReEnableSubIgnoreOption = function(button, text, editBox)
-        button:Enable(); editBox:Enable()
-        text:SetTextColor(1, 0.82, 0); editBox:SetTextColor(1, 1, 1)
-    end
-    GRM_UI.DisableSubIgnoreOption = function(button, text, editBox)
-        button:Disable(); editBox:Disable()
-        text:SetTextColor(0.5, 0.5, 0.5); editBox:SetTextColor(0.5, 0.5, 0.5)
-    end  
-
+    local IgnoreMacroFrame = f.GRM_MacroToolIgnoreListSettingsFrame
     GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow = function()
         local ruleEnum = { [false] = "|CFF00CCFF" .. GRM.L("Monitoring") .. "|r", [true] = "|CFFFF0000" .. GRM.L("Ignoring") .. "|r" }
         local disabled = "|CFFFF0000" .. GRM.L("Disabled at Current Rank") .. "|r"
@@ -1154,31 +1254,31 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
         if player.safeList.kick[1] then
             IgnoreMacroFrame.GRM_IgnoreListFrameKickCheckBox:SetChecked(true)
-            GRM_UI.ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
+            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
             color1 = "|CFF00CCFF"
         else
             IgnoreMacroFrame.GRM_IgnoreListFrameKickCheckBox:SetChecked(false)
             color1 = "|CFF7F7F7F"
-            GRM_UI.DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
+            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
         end
 
         if player.safeList.promote[1] then
             IgnoreMacroFrame.GRM_IgnoreListFramePromoteCheckBox:SetChecked(true)
-            GRM_UI.ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
+            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
             color2 = "|CFF00CCFF"
         else
             IgnoreMacroFrame.GRM_IgnoreListFramePromoteCheckBox:SetChecked(false)
-            GRM_UI.DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
+            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
             color2 = "|CFF7F7F7F"
         end
 
         if player.safeList.demote[1] then
             IgnoreMacroFrame.GRM_IgnoreListFrameDemoteCheckBox:SetChecked(true)
-            GRM_UI.ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
+            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
             color3 = "|CFF00CCFF"
         else
             IgnoreMacroFrame.GRM_IgnoreListFrameDemoteCheckBox:SetChecked(false)
-            GRM_UI.DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
+            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
             color3 = "|CFF7F7F7F"
         end
 
@@ -1288,7 +1388,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         IgnoreMacroFrame:SetHeight(baseHeight)
     end
 
-    GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate = function(self, elapsed)
+    local function MacroIgnoreCheckBoxesFrame_OnUpdate(self, elapsed)
         self.Timer = self.Timer + elapsed
         if self.Timer >= 1 then
             local player = GRM.GetPlayer(GRM_G.currentName)
@@ -1315,7 +1415,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         elseif key == "ESCAPE" then self:Hide() end
     end);
 
-    IgnoreMacroFrame:SetScript("OnUpdate", GRM_UI.MacroIgnoreCheckBoxesFrame_OnUpdate)
+    IgnoreMacroFrame:SetScript("OnUpdate", MacroIgnoreCheckBoxesFrame_OnUpdate)
     IgnoreMacroFrame:SetScript("OnHide", function() GRM.VerifySafeList(); IgnoreMacroFrame.currentName = "" end)
 
     IgnoreMacroFrame.GRM_IgnoreListFrameKickCheckBox:SetScript("OnClick", function(self, button)
@@ -1465,33 +1565,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     end);
     IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox:SetScript("OnEditFocusLost", function(self) self:HighlightText(0, 0); self:SetText(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox.value); GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow() end);
 
-    f.GRM_SafeFromRulesButton:SetScript("OnClick", function(_, button)
-        if button == "LeftButton" then
-            local player = GRM.GetPlayer(GRM_G.currentName)
-            if IsControlKeyDown() then
-                if IsShiftKeyDown() then
-                    GRM_UI.SyncAltsToSameIgnoreFilters(player)
-                    GRM.Report(GRM.L("{name}'s alts now share the same macro rule ignore settings.", GRM.GetClassifiedName(player.name, true)))
-                    GRM.RefreshAllMacroToolFrames()
-                else
-                    GRM_UI.SetAllMacroIgnoreFilters(player, true)
-                    GRM_UI.SetIgnoreCheckButtonTooltip()
-                    GRM.RefreshAllMacroToolFrames()
-                end
-            elseif IsAltKeyDown() then
-                GRM_UI.SetAllMacroIgnoreFilters(player, false)
-                GRM_UI.SetIgnoreCheckButtonTooltip()
-                GRM.RefreshAllMacroToolFrames()
-            else
-                if not IgnoreMacroFrame:IsVisible() then IgnoreMacroFrame:Show(); GRM_G.pause = true else IgnoreMacroFrame:Hide() end
-                GRM.RestoreTooltip()
-            end
-            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then GRM.TriggerIgnoredQueuedWindowRefresh() end
-            if IgnoreMacroFrame:IsVisible() then GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow() end
-        end
-    end);
-
-    GRM_UI.SetIgnoreCheckButtonTooltip = function()
+    local function SetIgnoreCheckButtonTooltip()
         local player = GRM.GetPlayer(GRM_G.currentName)
         if player and player.altGroup ~= nil then
             local safeList = player.safeList or GRM.GenerateSafeListForPlayer()
@@ -1522,12 +1596,12 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         end
     end
 
-    GRM_UI.SetAllMacroIgnoreFilters = function(player, isEnabled)
+    local function SetAllMacroIgnoreFilters(player, isEnabled)
         player.safeList = player.safeList or GRM.GenerateSafeListForPlayer()
         for list in pairs(player.safeList) do player.safeList[list][1] = isEnabled end
     end
 
-    GRM_UI.SyncAltsToSameIgnoreFilters = function(player)
+    local function SyncAltsToSameIgnoreFilters(player)
         if GRM.PlayerHasAlts(player) then
             local group = GRM.GetGuildAlts()[player.altGroup]
             player.safeList = player.safeList or GRM.GenerateSafeListForPlayer()
@@ -1544,21 +1618,37 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
             GRM.VerifySafeList(player)
         end
     end
-
-    f.GRM_SafeFromRulesButton:SetScript("OnEnter", GRM_UI.SetIgnoreCheckButtonTooltip)
-    f.GRM_SafeFromRulesButton:SetScript("OnLeave", GRM.RestoreTooltip)
-
-    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetScript("OnClick", function(self, button)
+    
+    f.GRM_SafeFromRulesButton:SetScript("OnClick", function(_, button)
         if button == "LeftButton" then
             local player = GRM.GetPlayer(GRM_G.currentName)
-            if player then
-                if self:GetChecked() then player.customNote[1] = true; GRM_UI.ResetCustomNoteSyncTooltip()
-                else player.customNote[1] = false; GRM_UI.ResetCustomNoteSyncTooltip() end
+            if IsControlKeyDown() then
+                if IsShiftKeyDown() then
+                    SyncAltsToSameIgnoreFilters(player)
+                    GRM.Report(GRM.L("{name}'s alts now share the same macro rule ignore settings.", GRM.GetClassifiedName(player.name, true)))
+                    GRM.RefreshAllMacroToolFrames()
+                else
+                    SetAllMacroIgnoreFilters(player, true)
+                    SetIgnoreCheckButtonTooltip()
+                    GRM.RefreshAllMacroToolFrames()
+                end
+            elseif IsAltKeyDown() then
+                SetAllMacroIgnoreFilters(player, false)
+                SetIgnoreCheckButtonTooltip()
+                GRM.RefreshAllMacroToolFrames()
+            else
+                if not IgnoreMacroFrame:IsVisible() then IgnoreMacroFrame:Show(); GRM_G.pause = true else IgnoreMacroFrame:Hide() end
+                GRM.RestoreTooltip()
             end
+            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolIgnoreListFrame:IsVisible() then GRM.TriggerIgnoredQueuedWindowRefresh() end
+            if IgnoreMacroFrame:IsVisible() then GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow() end
         end
     end);
 
-    GRM_UI.ResetCustomNoteSyncTooltip = function()
+    f.GRM_SafeFromRulesButton:SetScript("OnEnter", SetIgnoreCheckButtonTooltip)
+    f.GRM_SafeFromRulesButton:SetScript("OnLeave", GRM.RestoreTooltip)
+
+    local function ResetCustomNoteSyncTooltip()
         GRM_UI.SetTooltipScale()
         GameTooltip:SetOwner(f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox, "ANCHOR_CURSOR")
         local script = f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:GetChecked() and GRM.L("Click to Disable Sync of Custom Note") or GRM.L("Click to Enable Sync of Custom Note")
@@ -1566,7 +1656,17 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         GameTooltip:Show()
     end
 
-    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetScript("OnEnter", GRM_UI.ResetCustomNoteSyncTooltip)
+    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetScript("OnClick", function(self, button)
+        if button == "LeftButton" then
+            local player = GRM.GetPlayer(GRM_G.currentName)
+            if player then
+                if self:GetChecked() then player.customNote[1] = true; ResetCustomNoteSyncTooltip()
+                else player.customNote[1] = false; ResetCustomNoteSyncTooltip() end
+            end
+        end
+    end);
+
+    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetScript("OnEnter", ResetCustomNoteSyncTooltip)
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetScript("OnLeave", GRM.RestoreTooltip)
 
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetScript("OnEditFocusGained", function(self)
@@ -1579,6 +1679,27 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteTextCount:Show()
         f.GRM_GroupInviteButton:Hide(); f.GRM_ConfirmCustomNoteButton:Show(); f.GRM_CancelCustomNoteButton:Show(); f.GRM_SafeFromRulesButton:Hide()
     end);
+
+    GRM_UI.CustomNoteEditBoxOnFocusLost = function(isForced)
+        local player = GRM.GetPlayer(GRM_G.currentName)
+        if isForced or (not (f.GRM_ConfirmCustomNoteButton:IsVisible() and f.GRM_ConfirmCustomNoteButton:IsMouseOver() and IsMouseButtonDown(1)) or (GRM.Util.Trim(f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText()) == player.customNote[4])) then
+            f.GRM_ConfirmCustomNoteButton:Hide()
+            f.GRM_CancelCustomNoteButton:Hide()
+            f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetText(GRM_G.OriginalEditBoxValue)
+            f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus()
+            f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteTextCount:Hide()
+
+            if GRM_G.currentName ~= GRM_G.addonUser then
+                f.GRM_SafeFromRulesButton:Show()
+                if player.isOnline then
+                    GRM.SetGroupInviteButton(GRM_G.currentName)
+                    f.GRM_GroupInviteButton:Show()
+                end
+            end
+            GRM.BuildCustomNoteScrollFrame(GRM_G.OriginalEditBoxValue)
+            if not f.GRM_DateSubmitButton:IsVisible() then GRM_UI.Unpause() end
+        end
+    end
 
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetScript("OnEditFocusLost", function() GRM_UI.CustomNoteEditBoxOnFocusLost() end)
 
@@ -1650,9 +1771,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteScrollFrameSlider:SetScript("OnShow", function(self)
         local tempVal = self:GetValue()
         if tempVal == 0 then self:SetValue(20); self:SetValue(tempVal) else self:SetValue(0); self:SetValue(tempVal) end
-    end);
-
-    GRM_UI.ReconfigureNoteFonts()
+    end);   
 
     f.GRM_ConfirmCustomNoteButton:SetScript("OnClick", function(_, button)
         if button == "LeftButton" then
@@ -1665,61 +1784,8 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_ConfirmCustomNoteButton:SetScript("OnLeave", GRM.RestoreTooltip);
     f.GRM_CancelCustomNoteButton:SetScript("Onclick", function(_, button) if button == "LeftButton" then f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus() end end);
 
-    GRM_UI.CustomNoteEditBoxOnFocusLost = function(isForced)
-        local player = GRM.GetPlayer(GRM_G.currentName)
-        if isForced or (not (f.GRM_ConfirmCustomNoteButton:IsVisible() and f.GRM_ConfirmCustomNoteButton:IsMouseOver() and IsMouseButtonDown(1)) or (GRM.Util.Trim(f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:GetText()) == player.customNote[4])) then
-            f.GRM_ConfirmCustomNoteButton:Hide()
-            f.GRM_CancelCustomNoteButton:Hide()
-            f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:SetText(GRM_G.OriginalEditBoxValue)
-            f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus()
-            f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteTextCount:Hide()
-
-            if GRM_G.currentName ~= GRM_G.addonUser then
-                f.GRM_SafeFromRulesButton:Show()
-                if player.isOnline then
-                    GRM.SetGroupInviteButton(GRM_G.currentName)
-                    f.GRM_GroupInviteButton:Show()
-                end
-            end
-            GRM.BuildCustomNoteScrollFrame(GRM_G.OriginalEditBoxValue)
-            if not f.GRM_DateSubmitButton:IsVisible() then GRM_UI.Unpause() end
-        end
-    end
-end
-
------------------------------------------
--- PART TWO: THIRD UI META DATA INITIAL--
------------------------------------------
-
-GRM_UI.GR_MetaDataInitializeUIThird = function(isManualUpdate)
-
-    -- ADD ALT EDIT FRAME
-    GRM_UI.CreateCoreFrame("GRM_AddAltEditFrame", f.GRM_CoreAltFrame, nil, 173 + (#GRM_G.realmName * 3.5), 226, "TranslucentFrameTemplate", false,
-                          {"BOTTOMLEFT", f, "BOTTOMRIGHT", -7, 0}, nil, true, false)
     local AddAltEditFrame = f.GRM_CoreAltFrame.GRM_AddAltEditFrame
-    AddAltEditFrame:Hide()
-    AddAltEditFrame:SetToplevel(true)
-    
-    GRM_UI.CreateScrollFrame("GRM_AddAltScrollFrame", AddAltEditFrame, AddAltEditFrame:GetWidth() - 10, 111.75, {"TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0},
-                             "GRM_AddAltScrollChildFrame", false, "GRM_AddAltScrollFrameSlider", GRM_G.SliderTemplate, {18, 95}, {"LEFT",
-                             AddAltEditFrame.GRM_AddAltScrollFrame, "RIGHT", -2.5, 0})
-    
-    local aafSlider = AddAltEditFrame.GRM_AddAltScrollFrameSlider
-    aafSlider:SetOrientation("VERTICAL"); aafSlider:SetValue(0)
-    aafSlider:SetScript("OnValueChanged", function(self) AddAltEditFrame.GRM_AddAltScrollFrame:SetVerticalScroll(self:GetValue()) end)
-    GRM_UI_Util.BuildSliderTextures(aafSlider)
-    
-    GRM_UI.CreateString("GRM_AddAltTitleText", AddAltEditFrame, "GameFontNormalSmall", GRM.L("Choose Alt"), 14.5, {"TOP", AddAltEditFrame, "TOP", 0, -15})
-    if not isManualUpdate then AddAltEditFrame.GRM_AddAltTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14.5, "THICKOUTLINE") end
-    
-    GRM_UI.CreateString("GRM_AddAltEditFrameTextBottom", AddAltEditFrame, "GameFontWhiteTiny", GRM.L("(Press Enter to Select)") .. "\n" .. GRM.L("(Press Tab to Cycle)"), 11, {"BOTTOMLEFT", AddAltEditFrame, "BOTTOMLEFT", 15, 13}, nil, {0.5, 0.5, 0.5}, "LEFT", true)
-    GRM_UI.CreateString("GRM_AddAltEditFrameHelpText", AddAltEditFrame, "GameFontNormalSmall", "", 11, {"CENTER", AddAltEditFrame, "CENTER", 0, 0}, 146, {1, 0, 0}, nil, true)
-    GRM_UI.CreateString("GRM_AddAltEditFrameHelpText2", AddAltEditFrame, "GameFontWhiteTiny", GRM.L("Shift-Click Name On Roster Also Works"), 11, {"BOTTOM", AddAltEditFrame, "BOTTOM", 0, 30}, 146, nil, nil, true)
-
-    GRM_UI.CreateEditBox("GRM_AddAltEditBox", AddAltEditFrame, "InputBoxTemplate", 126 + (#GRM_G.realmName * 3.5), 25, {"TOP", AddAltEditFrame.GRM_AddAltTitleText, "BOTTOM", 0, -2}, "LEFT", {1,1,1}, 40, false)
-    AddAltEditFrame.GRM_AddAltScrollFrame:SetPoint("TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0)
-
-    GRM_UI.AddAltButtonControls = function(_, button)
+    local function AddAltButtonControls(_, button)
         if button == "LeftButton" then
             local player = GRM.GetPlayer(GRM_G.currentName)
             if player then
@@ -1743,29 +1809,19 @@ GRM_UI.GR_MetaDataInitializeUIThird = function(isManualUpdate)
         GRM_G.currentHighlightIndex = 0
     end);
 
-    f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2:SetScript("OnClick", GRM_UI.AddAltButtonControls)
+    f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2:SetScript("OnClick", AddAltButtonControls)
     AddAltEditFrame.GRM_AddAltEditBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end);
     AddAltEditFrame.GRM_AddAltEditBox:SetScript("OnChar", function() GRM.AddAltAutoComplete() end);
 
-    AddAltEditFrame.GRM_AddAltEditBox:SetScript("OnKeyDown", function(self, key)
-        if key == "BACKSPACE" then
-            local text = self:GetText()
-            if text ~= nil and #text > 0 then self:SetText(string.sub(text, 0, #text - 1)) end
-            GRM.AddAltAutoComplete()
-            self:SetText(text)
-        elseif key == "DOWN" or key == "UP" or key == "TAB" then
-            GRM_UI.AddAltSelectionControls(self, key)
-        end
-    end);
+    local function SetAddAltSliderValue()
+        if GRM_G.currentHighlightIndex < 7 then aafSlider:SetValue(0)
+        elseif GRM_G.currentHighlightIndex > 6 and GRM_G.currentHighlightIndex < 13 then aafSlider:SetValue(84)
+        elseif GRM_G.currentHighlightIndex > 12 and GRM_G.currentHighlightIndex < 19 then aafSlider:SetValue(168)
+        elseif GRM_G.currentHighlightIndex > 18 and GRM_G.currentHighlightIndex < 25 then aafSlider:SetValue(252)
+        elseif GRM_G.currentHighlightIndex > 24 and GRM_G.currentHighlightIndex < 31 then aafSlider:SetValue(select(2, aafSlider:GetMinMaxValues())) end
+    end
 
-    AddAltEditFrame:SetScript("OnKeyDown", function(self, key)
-        if not GRM_G.inCombat then
-            self:SetPropagateKeyboardInput(true)
-            if key == "ESCAPE" then self:SetPropagateKeyboardInput(false); self:Hide() end
-        elseif key == "ESCAPE" then self:Hide() end
-    end);
-
-    GRM_UI.AddAltSelectionControls = function(_, key)
+    local function AddAltSelectionControls(_, key)
         local notSet = true
         local buttons = AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons
         local i = GRM_G.currentHighlightIndex
@@ -1784,7 +1840,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function(isManualUpdate)
                     buttons[i][1]:UnlockHighlight()
                     buttons[i + 1][1]:LockHighlight()
                     notSet = false
-                    GRM_UI.SetAddAltSliderValue()
+                    SetAddAltSliderValue()
                 else
                     GRM_G.currentHighlightIndex = 1
                     buttons[i][1]:UnlockHighlight()
@@ -1807,54 +1863,28 @@ GRM_UI.GR_MetaDataInitializeUIThird = function(isManualUpdate)
                 buttons[i][1]:UnlockHighlight()
                 buttons[i - 1][1]:LockHighlight()
                 notSet = false
-                GRM_UI.SetAddAltSliderValue()
+                SetAddAltSliderValue()
             end
         end
     end
 
-    GRM_UI.SetAddAltSliderValue = function()
-        if GRM_G.currentHighlightIndex < 7 then aafSlider:SetValue(0)
-        elseif GRM_G.currentHighlightIndex > 6 and GRM_G.currentHighlightIndex < 13 then aafSlider:SetValue(84)
-        elseif GRM_G.currentHighlightIndex > 12 and GRM_G.currentHighlightIndex < 19 then aafSlider:SetValue(168)
-        elseif GRM_G.currentHighlightIndex > 18 and GRM_G.currentHighlightIndex < 25 then aafSlider:SetValue(252)
-        elseif GRM_G.currentHighlightIndex > 24 and GRM_G.currentHighlightIndex < 31 then aafSlider:SetValue(select(2, aafSlider:GetMinMaxValues())) end
-    end
-
-    GRM_UI.AddAltSideFrameLogic = function(editBox)
-        local currentText = editBox:GetText()
-        if AddAltEditFrame.GRM_AddAltEditFrameHelpText:IsVisible() and (AddAltEditFrame.GRM_AddAltEditFrameHelpText:GetText() == GRM.L("Player Not Found") or AddAltEditFrame.GRM_AddAltEditFrameHelpText:GetText() == GRM.L("Player Cannot Add Themselves as an Alt") or AddAltEditFrame.GRM_AddAltEditFrameHelpText:GetText() == GRM.L("Player is Already in this Alt Group")) then
-            if GRM.SlimName(GRM_G.currentName) == currentText or GRM_G.currentName == currentText then
-                GRM.Report(GRM.L("Player Cannot Add Themselves as an Alt"))
-            elseif f.alts[currentText] then
-                GRM.Report(GRM.L("Player is Already in this Alt Group"))
-            end
-            GRM.Report(GRM.L("Please choose a VALID character to set as an Alt"))
-        else
-            if currentText ~= nil and currentText ~= "" then
-                local addToAltsGroup = false
-                local nameToAdd = GRM.RemoveMainAltTags(AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[GRM_G.currentHighlightIndex][2]:GetText())
-
-                if editBox:GetText() ~= nameToAdd then
-                    editBox:SetText(nameToAdd)
-                else
-                    local timestamp = time()
-                    addToAltsGroup = GRM.AddAlt(GRM_G.currentName, nameToAdd, timestamp)
-                    GRM.SyncBirthdayWithNewAlt(GRM_G.currentName, nameToAdd, addToAltsGroup, timestamp)
-
-                    GRM_UI.RefreshSelectFrames(false, true, false, true, true, true, true)
-                    if GRM.S().syncEnabled then GRM_UI.SendFullAltGroup(GRM_G.currentName, nameToAdd, timestamp) end
-
-                    editBox:ClearFocus()
-                    AddAltEditFrame:Hide()
-
-                    if GRM_UI.GRM_LoadToolButton:IsVisible() then GRM_UI.RefreshToolButtonsOnUpdate_Async(false, false) end
-                    GRM.Report(GRM.L("{name} added to {name2}'s list of Alts.", GRM.GetClassifiedName(nameToAdd, true), GRM.GetClassifiedName(GRM_G.currentName, true)))
-                end
-            else
-                GRM.Report(GRM.L("Please choose a character to set as alt."))
-            end
+    AddAltEditFrame.GRM_AddAltEditBox:SetScript("OnKeyDown", function(self, key)
+        if key == "BACKSPACE" then
+            local text = self:GetText()
+            if text ~= nil and #text > 0 then self:SetText(string.sub(text, 0, #text - 1)) end
+            GRM.AddAltAutoComplete()
+            self:SetText(text)
+        elseif key == "DOWN" or key == "UP" or key == "TAB" then
+            AddAltSelectionControls(self, key)
         end
-    end
+    end);
+
+    AddAltEditFrame:SetScript("OnKeyDown", function(self, key)
+        if not GRM_G.inCombat then
+            self:SetPropagateKeyboardInput(true)
+            if key == "ESCAPE" then self:SetPropagateKeyboardInput(false); self:Hide() end
+        elseif key == "ESCAPE" then self:Hide() end
+    end);
 
     GRM_UI.SendFullAltGroup = function(currentName, nameToAdd, timestamp, index, player, alts)
         index = index or 2
@@ -1909,54 +1939,48 @@ GRM_UI.GR_MetaDataInitializeUIThird = function(isManualUpdate)
         end
     end
 
+    local function AddAltSideFrameLogic(editBox)
+        local currentText = editBox:GetText()
+        if AddAltEditFrame.GRM_AddAltEditFrameHelpText:IsVisible() and (AddAltEditFrame.GRM_AddAltEditFrameHelpText:GetText() == GRM.L("Player Not Found") or AddAltEditFrame.GRM_AddAltEditFrameHelpText:GetText() == GRM.L("Player Cannot Add Themselves as an Alt") or AddAltEditFrame.GRM_AddAltEditFrameHelpText:GetText() == GRM.L("Player is Already in this Alt Group")) then
+            if GRM.SlimName(GRM_G.currentName) == currentText or GRM_G.currentName == currentText then
+                GRM.Report(GRM.L("Player Cannot Add Themselves as an Alt"))
+            elseif f.alts[currentText] then
+                GRM.Report(GRM.L("Player is Already in this Alt Group"))
+            end
+            GRM.Report(GRM.L("Please choose a VALID character to set as an Alt"))
+        else
+            if currentText ~= nil and currentText ~= "" then
+                local addToAltsGroup = false
+                local nameToAdd = GRM.RemoveMainAltTags(AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[GRM_G.currentHighlightIndex][2]:GetText())
+
+                if editBox:GetText() ~= nameToAdd then
+                    editBox:SetText(nameToAdd)
+                else
+                    local timestamp = time()
+                    addToAltsGroup = GRM.AddAlt(GRM_G.currentName, nameToAdd, timestamp)
+                    GRM.SyncBirthdayWithNewAlt(GRM_G.currentName, nameToAdd, addToAltsGroup, timestamp)
+
+                    GRM_UI.RefreshSelectFrames(false, true, false, true, true, true, true)
+                    if GRM.S().syncEnabled then GRM_UI.SendFullAltGroup(GRM_G.currentName, nameToAdd, timestamp) end
+
+                    editBox:ClearFocus()
+                    AddAltEditFrame:Hide()
+
+                    if GRM_UI.GRM_LoadToolButton:IsVisible() then GRM_UI.RefreshToolButtonsOnUpdate_Async(false, false) end
+                    GRM.Report(GRM.L("{name} added to {name2}'s list of Alts.", GRM.GetClassifiedName(nameToAdd, true), GRM.GetClassifiedName(GRM_G.currentName, true)))
+                end
+            else
+                GRM.Report(GRM.L("Please choose a character to set as alt."))
+            end
+        end
+    end
+
     AddAltEditFrame.GRM_AddAltEditBox:SetScript("OnEnterPressed", function(self)
-        if self:HasFocus() then GRM_UI.AddAltSideFrameLogic(self) end
+        if self:HasFocus() then AddAltSideFrameLogic(self) end
     end);
 
-    -- Confirm Dates (Called from Context Menus)
-    GRM_UI.ConfirmPromoDate = function()
-        local name = GRM_G.currentName
-        local player = GRM.GetPlayer(name)
-
-        if player and player.rankHist[1][2] ~= 0 then
-            player.rankHist[1][6] = time()
-            player.rankHist[1][7] = true
-            player.promoteDateUnknown = false
-            f.GRM_MemberDetailRankDateTxt:SetText(string.gsub(f.GRM_MemberDetailRankDateTxt:GetText(), "!!", ""))
-
-            if GRM.S().syncEnabled then
-                local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
-                GRMsync.SendMessage("GRM_SYNC", "GRM_PD?" .. syncRankFilter .. "?" .. name .. "?" .. tostring(player.rankHist[1][5]) .. "?" .. tostring(player.rankHist[1][6]), "GUILD")
-            end
-        end
-
-        GRM_UI.Unpause()
-        GRM_UI.RefreshSelectFrames(false, true, false, true, true, true)
-    end
-
-    GRM_UI.ConfirmJoinDate = function()
-        local name = GRM_G.currentName
-        local player = GRM.GetPlayer(name)
-
-        if player and player.joinDateHist[1][1] ~= 0 then
-            player.joinDateHist[1][5] = time()
-            player.joinDateHist[1][6] = true
-            player.joinDateHist[1][7] = 1
-            player.joinDateUnknown = false
-            f.GRM_JoinDateText:SetText(string.gsub(f.GRM_JoinDateText:GetText(), "!!", ""))
-
-            if GRM.S().syncEnabled then
-                local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
-                GRMsync.SendMessage("GRM_SYNC", "GRM_JD?" .. syncRankFilter .. "?" .. name .. "?" .. tostring(player.joinDateHist[1][4]) .. "?" .. tostring(player.joinDateHist[1][5]), "GUILD")
-            end
-        end
-
-        GRM_UI.Unpause()
-        GRM_UI.RefreshSelectFrames(false, true, false, true, true, true)
-    end
-
     -- Alt Grouping Frame Handlers
-    GRM_UI.AltGroupingBorderFrame_OnShow = function()
+    local function AltGroupingBorderFrame_OnShow()
         if AddAltEditFrame:IsVisible() then AddAltEditFrame:Hide() end
         GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.timer2 = 0
         if f:IsMouseOver() then
@@ -1985,7 +2009,7 @@ GRM_UI.GR_MetaDataInitializeUIThird = function(isManualUpdate)
         if not f.GRM_ExtraAltDetailsArrowButton:IsMouseOver() then GRM.RestoreTooltip() end
     end
 
-    GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:SetScript("OnShow", GRM_UI.AltGroupingBorderFrame_OnShow)
+    GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:SetScript("OnShow", AltGroupingBorderFrame_OnShow)
     GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:SetScript("OnHide", function() GRM_G.AltSideWindowFreeze = false end)
 
     GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:SetScript("OnKeyDown", function(self, key)
@@ -2015,36 +2039,34 @@ GRM_UI.GR_MetaDataInitializeUIThird = function(isManualUpdate)
         end
     end)
 
-    if not isManualUpdate then
-        GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:SetScript("OnUpdate", function(self, elapsed)
-            self.timer2 = self.timer2 + elapsed
-            self.timer1 = self.timer1 + elapsed
-            if self.timer2 > 0.05 then
-                if (self.GRM_AltGroupingName:IsMouseOver(1, -1, -1, 1) or self.GRM_AltGroupingLastOnline:IsMouseOver(1, -1, -1, 1) or self.GRM_AltGroupingLevel:IsMouseOver(1, -1, -1, 1) or self.GRM_AltGroupingRank:IsMouseOver(1, -1, -1, 1)) then
-                    if not self.GRM_AltGroupHeaderTooltip:IsVisible() then
-                        self.GRM_AltGroupHeaderTooltip:SetOwner(self, "ANCHOR_CURSOR")
-                        self.GRM_AltGroupHeaderTooltip:AddLine(GRM.L("Click to Sort"))
-                        self.GRM_AltGroupHeaderTooltip:Show()
-                    end
-                elseif self.GRM_AltGroupHeaderTooltip:IsVisible() then
-                    self.GRM_AltGroupHeaderTooltip:Hide()
+    GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:SetScript("OnUpdate", function(self, elapsed)
+        self.timer2 = self.timer2 + elapsed
+        self.timer1 = self.timer1 + elapsed
+        if self.timer2 > 0.05 then
+            if (self.GRM_AltGroupingName:IsMouseOver(1, -1, -1, 1) or self.GRM_AltGroupingLastOnline:IsMouseOver(1, -1, -1, 1) or self.GRM_AltGroupingLevel:IsMouseOver(1, -1, -1, 1) or self.GRM_AltGroupingRank:IsMouseOver(1, -1, -1, 1)) then
+                if not self.GRM_AltGroupHeaderTooltip:IsVisible() then
+                    self.GRM_AltGroupHeaderTooltip:SetOwner(self, "ANCHOR_CURSOR")
+                    self.GRM_AltGroupHeaderTooltip:AddLine(GRM.L("Click to Sort"))
+                    self.GRM_AltGroupHeaderTooltip:Show()
                 end
-
-                if self.timer1 > 300 then
-                    GRM.BuildAltGroupingScrollFrame(GRM_G.currentName)
-                    self.timer1 = 0
-                end
-                self.timer2 = 0
+            elseif self.GRM_AltGroupHeaderTooltip:IsVisible() then
+                self.GRM_AltGroupHeaderTooltip:Hide()
             end
-        end)
-    end
+
+            if self.timer1 > 300 then
+                GRM.BuildAltGroupingScrollFrame(GRM_G.currentName)
+                self.timer1 = 0
+            end
+            self.timer2 = 0
+        end
+    end)
 end
 
 -----------------------------------
 ---- CORE HELPER LOGIC ------------
 -----------------------------------
 
-GRM.RosterFrame = function()
+GRM_UI.RosterFrame = function()
     if GRM.GetGuild() then
         if GRM_G.pause and not f:IsVisible() and not GRM_UI.MemberDetailFrame:IsVisible() then
             if not GRM_UI.MemberDetailFrame:IsVisible() then GRM_G.pause = false end
@@ -2515,7 +2537,7 @@ GRM.BuildAutoCompleteAltSelectionScrollFrame = function(listOfAlts)
             if key == "LeftButton" then
                 local result = GRM.RemoveMainAltTags(child.AllButtons[i][2]:GetText())
                 if AddAltEditFrame.GRM_AddAltEditBox:GetText() == result then
-                    GRM_UI.AddAltSideFrameLogic(AddAltEditFrame.GRM_AddAltEditBox)
+                    AddAltSideFrameLogic(AddAltEditFrame.GRM_AddAltEditBox)
                 else
                     GRM_G.currentHighlightIndex = i
                     result = GRM.RemoveMainAltTags(result)
@@ -2586,9 +2608,9 @@ end
 
 GRM.SetJoinDate = function(name, dayJoined, monthJoined, yearJoined)
     name = name or GRM_G.currentName
-    dayJoined = dayJoined or tonumber(f.GRM_DayDropDownMenuSelected.GRM_DayText:GetText())
-    monthJoined = monthJoined or GRM.Time.Enums.months_full_name[GRML.OrigL(f.GRM_MonthDropDownMenuSelected.GRM_MonthText:GetText())]
-    yearJoined = yearJoined or tonumber(f.GRM_YearDropDownMenuSelected.GRM_YearText:GetText())
+    dayJoined = dayJoined or tonumber(f.GRM_DayDropDownSelected.GRM_DayDropDownSelectedText:GetText())
+    monthJoined = monthJoined or GRM.Time.Enums.months_full_name[GRML.OrigL(f.GRM_MonthDropDownSelected.GRM_MonthDropDownSelectedText:GetText())]
+    yearJoined = yearJoined or tonumber(f.GRM_YearDropDownSelected.GRM_YearDropDownSelectedText:GetText())
 
     if GRM.Time.IsValidSubmitDate(dayJoined, monthJoined, yearJoined, GRM.Time.IsLeapYear(yearJoined)) then
         local rankButton, showBdayText = false, false
@@ -2596,7 +2618,7 @@ GRM.SetJoinDate = function(name, dayJoined, monthJoined, yearJoined)
         local player = GRM.GetPlayer(name)
 
         if player then
-            if f.GRM_DateSubmitButtonTxt:GetText() == GRM.L("Edit Join Date") or player.joinDateHist[1][1] == 0 then
+            if f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:GetText() == GRM.L("Edit Join Date") or player.joinDateHist[1][1] == 0 then
                 table.remove(player.joinDateHist, 1)
             end
 
@@ -2635,8 +2657,8 @@ GRM.SetJoinDate = function(name, dayJoined, monthJoined, yearJoined)
             end
         end
 
-        f.GRM_DayDropDownMenuSelected:Hide(); f.GRM_MonthDropDownMenuSelected:Hide(); f.GRM_YearDropDownMenuSelected:Hide()
-        f.GRM_DateSubmitCancelButton:Hide(); f.GRM_DateSubmitButton:Hide()
+        f.GRM_DayDropDownSelected:Hide(); f.GRM_MonthDropDownSelected:Hide(); f.GRM_YearDropDownSelected:Hide()
+        f.GRM_DateSubmitCancelButton:Hide(); f.GRM_DateSubmitButton:Hide(); f.GRM_SetUnknownButton:Hide()
         f.GRM_JoinDateText:Show()
         
         if rankButton then f.GRM_SetPromoDateButton:Show() else f.GRM_MemberDetailRankDateTxt:Show() end
@@ -2681,9 +2703,9 @@ end
 
 GRM.SetPromoDate = function(name, day, month, year, isManual)
     name = name or GRM_G.currentName
-    day = day or tonumber(f.GRM_DayDropDownMenuSelected.GRM_DayText:GetText())
-    month = month or GRM.Time.Enums.months_full_name[GRML.OrigL(f.GRM_MonthDropDownMenuSelected.GRM_MonthText:GetText())]
-    year = year or tonumber(f.GRM_YearDropDownMenuSelected.GRM_YearText:GetText())
+    day = day or tonumber(f.GRM_DayDropDownSelected.GRM_DayDropDownSelectedText:GetText())
+    month = month or GRM.Time.Enums.months_full_name[GRML.OrigL(f.GRM_MonthDropDownSelected.GRM_MonthDropDownSelectedText:GetText())]
+    year = year or tonumber(f.GRM_YearDropDownSelected.GRM_YearDropDownSelectedText:GetText())
 
     if GRM.Time.IsValidSubmitDate(day, month, year, GRM.Time.IsLeapYear(year)) then
         local player = GRM.GetPlayer(name)
@@ -2718,8 +2740,8 @@ GRM.SetPromoDate = function(name, day, month, year, isManual)
         end
 
         if name == GRM_G.currentName and f:IsVisible() then
-            f.GRM_DayDropDownMenuSelected:Hide(); f.GRM_MonthDropDownMenuSelected:Hide(); f.GRM_YearDropDownMenuSelected:Hide()
-            f.GRM_DateSubmitCancelButton:Hide(); f.GRM_DateSubmitButton:Hide()
+            f.GRM_DayDropDownSelected:Hide(); f.GRM_MonthDropDownSelected:Hide(); f.GRM_YearDropDownSelected:Hide()
+            f.GRM_DateSubmitCancelButton:Hide(); f.GRM_DateSubmitButton:Hide(); f.GRM_SetUnknownButton:Hide()
             f.GRM_MemberDetailRankDateTxt:Show()
 
             GRM_UI.Unpause()
@@ -2729,7 +2751,7 @@ GRM.SetPromoDate = function(name, day, month, year, isManual)
 end
 
 GRM.DateSubmitCancelResetLogic = function(isUnknown, date, isAudit, playerName)
-    local buttonText = f.GRM_DateSubmitButtonTxt:GetText()
+    local buttonText = f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:GetText()
     local joinDateText, promoDateText, bDayDateText = GRM.L("Set Join Date"), GRM.L("Set Promo Date"), GRM.L("Set Birthday")
     local editDateText, editJoinText = GRM.L("Edit Promo Date"), GRM.L("Edit Join Date")
     local name = GRM_G.currentName
@@ -2840,32 +2862,32 @@ GRM.DateSubmitCancelResetLogic = function(isUnknown, date, isAudit, playerName)
         f.GRM_SyncDateArrowButton:Hide()
     end
 
-    f.GRM_MonthDropDownMenuSelected:Hide(); f.GRM_YearDropDownMenuSelected:Hide(); f.GRM_DayDropDownMenuSelected:Hide()
-    f.GRM_DateSubmitButton:Hide(); f.GRM_DateSubmitCancelButton:Hide()
+    f.GRM_MonthDropDownSelected:Hide(); f.GRM_YearDropDownSelected:Hide(); f.GRM_DayDropDownSelected:Hide()
+    f.GRM_DateSubmitButton:Hide(); f.GRM_DateSubmitCancelButton:Hide(); f.GRM_SetUnknownButton:Hide()
 end
 
 GRM.SetDateButtonConfiguration = function(formatNum)
     if formatNum == 1 then
         if GRM_G.formatNumber ~= formatNum then
             GRM_G.formatNumber = formatNum
-            f.GRM_MonthDropDownMenuSelected:SetPoint("TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", -86.5, -4)
-            f.GRM_DateSubmitButton:SetPoint("TOP", f.GRM_MonthDropDownMenuSelected, "BOTTOM", -22, -3)
+            f.GRM_MonthDropDownSelected:SetPoint("TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", -86.5, -4)
+            f.GRM_DateSubmitButton:SetPoint("TOP", f.GRM_MonthDropDownSelected, "BOTTOM", -22, -3)
             f.GRM_DateSubmitCancelButton:SetPoint("LEFT", f.GRM_SetUnknownButton, "RIGHT", 6, 0)
         end
-        f.GRM_YearDropDownMenuSelected:Show()
+        f.GRM_YearDropDownSelected:Show()
         f.GRM_SetUnknownButton:Show()
     elseif formatNum == 2 then
         if GRM_G.formatNumber ~= formatNum then
             GRM_G.formatNumber = formatNum
-            f.GRM_MonthDropDownMenuSelected:SetPoint("TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", -20, -4)
-            f.GRM_DateSubmitButton:SetPoint("TOP", f.GRM_MonthDropDownMenuSelected, "BOTTOM", -86.5, -3)
+            f.GRM_MonthDropDownSelected:SetPoint("TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", -20, -4)
+            f.GRM_DateSubmitButton:SetPoint("TOP", f.GRM_MonthDropDownSelected, "BOTTOM", -86.5, -3)
             f.GRM_DateSubmitCancelButton:SetPoint("LEFT", f.GRM_SetUnknownButton, "RIGHT", 3, 0)
         end
-        f.GRM_YearDropDownMenuSelected:Hide()
+        f.GRM_YearDropDownSelected:Hide()
         f.GRM_SetUnknownButton:Show()
     end
-    f.GRM_DayDropDownMenuSelected:Show()
-    f.GRM_MonthDropDownMenuSelected:Show()
+    f.GRM_DayDropDownSelected:Show()
+    f.GRM_MonthDropDownSelected:Show()
     f.GRM_DateSubmitButton:Show()
     f.GRM_DateSubmitCancelButton:Show()
 end
@@ -2892,25 +2914,25 @@ GRM.SetDateSelectFrame = function(buttonName)
     local months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
     local formatNumber = 0
 
-    f.GRM_DayDropDownMenuSelected.GRM_DayText:SetText(day); GRM_G.dayIndex = day
-    f.GRM_MonthDropDownMenuSelected.GRM_MonthText:SetText(GRM.L(months[month])); GRM_G.monthIndex = month
-    f.GRM_YearDropDownMenuSelected.GRM_YearText:SetText(currentYear); GRM_G.yearIndex = currentYear
+    f.GRM_DayDropDownSelected.GRM_DayDropDownSelectedText:SetText(day); GRM_G.dayIndex = day
+    f.GRM_MonthDropDownSelected.GRM_MonthDropDownSelectedText:SetText(GRM.L(months[month])); GRM_G.monthIndex = month
+    f.GRM_YearDropDownSelected.GRM_YearDropDownSelectedText:SetText(currentYear); GRM_G.yearIndex = currentYear
 
     if buttonName == "PromoRank" then
         formatNumber = 1
-        f.GRM_DateSubmitButtonTxt:SetText(GRM.L("Set Promo Date"))
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetText(GRM.L("Set Promo Date"))
         f.GRM_DateSubmitButton:SetScript("OnClick", function(_, button)
             if button == "LeftButton" and not f.GRM_MonthDropDownMenu:IsVisible() then GRM.SetPromoDate() end
         end)
     elseif buttonName == "JoinDate" then
         formatNumber = 1
-        f.GRM_DateSubmitButtonTxt:SetText(GRM.L("Set Join Date"))
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetText(GRM.L("Set Join Date"))
         f.GRM_DateSubmitButton:SetScript("OnClick", function(_, button)
             if button == "LeftButton" then GRM.SetJoinDate() end
         end)
     elseif buttonName == "Birthday" then
         formatNumber = 2
-        f.GRM_DateSubmitButtonTxt:SetText(GRM.L("Set Birthday"))
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetText(GRM.L("Set Birthday"))
         f.GRM_DateSubmitButton:SetScript("OnClick", function(_, button)
             if button == "LeftButton" then GRM.SetBirthdayFrameLogic() end
         end)
@@ -3087,8 +3109,8 @@ GRM.ClearAllFrames = function(includingMeta)
     if includingMeta then
         if f:IsVisible() then f:Hide(); GRM_G.currentName = "" end
     end
-    f.GRM_MonthDropDownMenuSelected:Hide(); f.GRM_YearDropDownMenuSelected:Hide(); f.GRM_DayDropDownMenuSelected:Hide()
-    f.GRM_DateSubmitButton:Hide(); f.GRM_DateSubmitCancelButton:Hide()
+    f.GRM_MonthDropDownSelected:Hide(); f.GRM_YearDropDownSelected:Hide(); f.GRM_DayDropDownSelected:Hide()
+    f.GRM_DateSubmitButton:Hide(); f.GRM_DateSubmitCancelButton:Hide(); f.GRM_SetUnknownButton:Hide()
     f.GRM_NoteCount:Hide(); f.GRM_CoreAltFrame:Hide()
     if f.ContextMenu then f.ContextMenu:Hide() end
     f.GRM_CoreAltFrame.GRM_AddAltEditFrame:Hide()
@@ -3371,8 +3393,6 @@ GRM.MemberDetailToolTips = function(self, elapsed)
             GRM.CustomNoteSlider(self)
             GRM.PlayerStatusNotificationTooltip(self)
             GRM.EditBdayTooltip(self)
-
-            if GRM_G.pause then self.GRM_WindowIsLockedText:Show() else self.GRM_WindowIsLockedText:Hide() end
         end
         self.timer = 0
     end
@@ -3383,245 +3403,255 @@ GRM.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
         GRM_G.rankDateSet = false
 
         local player = GRM.GetPlayer(handle)
-        if player then
-            local zone, online = "", false
-            if memberInfo and memberInfo.guid ~= nil then
-                zone = memberInfo.zone
-                online = GRM.IsPresenceOnline(memberInfo.presence)
-            else
-                local member = GRM.GetClubMemberInfo(handle, GRM_G.gClubID)
-                if member then
-                    zone = member.zone
-                    online = GRM.IsPresenceOnline(member.presence)
-                end
+        if not player then return end
+
+        -- Player Details
+        local zone, online = "", false
+        if memberInfo and memberInfo.guid ~= nil then
+            zone = memberInfo.zone
+            online = GRM.IsPresenceOnline(memberInfo.presence)
+        else
+            local member = GRM.GetClubMemberInfo(handle, GRM_G.gClubID)
+            if member then
+                zone = member.zone
+                online = GRM.IsPresenceOnline(member.presence)
             end
+        end
 
-            if not doubleCopy and zone ~= nil and zone ~= "" then
-                player.isOnline = online
-                if player.zone ~= zone then player.timeEnteredZone = time() end
-                player.zone = zone
-            end
+        -- Top-right lock indication
+        if GRM_G.pause then
+            f.GRM_WindowIsLockedText:Show()
+        else
+            f.GRM_WindowIsLockedText:Hide()
+        end
 
-            local class = memberInfo and C_CreatureInfo.GetClassInfo(memberInfo.classID).classFile or player.class
-            local classColors = GRM.GetClassColorRGB(class)
-            f.GRM_MemberDetailNameText:SetTextColor(classColors[1], classColors[2], classColors[3], 1.0)
-            GRM.FactionIcon(player.faction)
+        if not doubleCopy and zone ~= nil and zone ~= "" then
+            player.isOnline = online
+            if player.zone ~= zone then player.timeEnteredZone = time() end
+            player.zone = zone
+        end
 
-            local note = memberInfo and memberInfo.memberNote or player.note
-            if not doubleCopy then GRM.DeathStatus(player) else GRM.DeathStatus(nil, true, string.match(note or "", "%[D%]-(%d+)")) end
+        local class = memberInfo and C_CreatureInfo.GetClassInfo(memberInfo.classID).classFile or player.class
+        local classColors = GRM.GetClassColorRGB(class)
+        f.GRM_MemberDetailNameText:SetTextColor(classColors[1], classColors[2], classColors[3], 1.0)
+        GRM.FactionIcon(player.faction)
 
-            f.GRM_MemberDetailNameText:SetText(GRM.SlimName(handle))
-            local nameHeight = 16
+        local note = memberInfo and memberInfo.memberNote or player.note
+        if not doubleCopy then GRM.DeathStatus(player) else GRM.DeathStatus(nil, true, string.match(note or "", "%[D%]-(%d+)")) end
+
+        f.GRM_MemberDetailNameText:SetText(GRM.SlimName(handle))
+        local nameHeight = 16
+        f.GRM_MemberDetailNameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight)
+        while (f.GRM_MemberDetailNameText:GetWidth() > 120) do
+            nameHeight = nameHeight - 0.1
             f.GRM_MemberDetailNameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight)
-            while (f.GRM_MemberDetailNameText:GetWidth() > 120) do
-                nameHeight = nameHeight - 0.1
-                f.GRM_MemberDetailNameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight)
-            end
+        end
 
-            if not doubleCopy and GRM.IsMain(player.name) then
-                f.GRM_MemberDetailMainText:Show(); f.GRM_MemberDetailAltText:Hide()
+        if not doubleCopy and GRM.IsMain(player.name) then
+            f.GRM_MemberDetailMainText:Show(); f.GRM_MemberDetailAltText:Hide()
+        else
+            f.GRM_MemberDetailMainText:Hide()
+            if not doubleCopy and GRM.PlayerIsAnAlt(player) then f.GRM_MemberDetailAltText:Show() else f.GRM_MemberDetailAltText:Hide() end
+        end
+
+        local levelAndMythicText = ""
+        local level = memberInfo and memberInfo.level or player.level
+        if GRM.S().showLevel and (not GRM.S().showLevelMaxOnly or (GRM.S().showLevelMaxOnly and level < GRM_G.LvlCap)) then
+            if GRML.Languages[GRM.S().selectedLang] == "Russian" or GRML.Languages[GRM.S().selectedLang] == "Korean" then
+                levelAndMythicText = tostring(level) .. GRM.L("Level: ")
             else
-                f.GRM_MemberDetailMainText:Hide()
-                if not doubleCopy and GRM.PlayerIsAnAlt(player) then f.GRM_MemberDetailAltText:Show() else f.GRM_MemberDetailAltText:Hide() end
+                levelAndMythicText = GRM.L("Level: ") .. level
             end
+        end
 
-            local levelAndMythicText = ""
-            local level = memberInfo and memberInfo.level or player.level
-            if GRM.S().showLevel and (not GRM.S().showLevelMaxOnly or (GRM.S().showLevelMaxOnly and level < GRM_G.LvlCap)) then
-                if GRML.Languages[GRM.S().selectedLang] == "Russian" or GRML.Languages[GRM.S().selectedLang] == "Korean" then
-                    levelAndMythicText = tostring(level) .. GRM.L("Level: ")
-                else
-                    levelAndMythicText = GRM.L("Level: ") .. level
+        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and GRM.S().showMythicRating and level == GRM_G.LvlCap then
+            local mythicScore = memberInfo and memberInfo.overallDungeonScore or player.MythicScore or 0
+            local mStr = GRM.L("M+ Rating:") .. "  " .. GRM.GetMythicRatingToMatchRaiderIO(mythicScore) .. mythicScore .. "|r"
+            levelAndMythicText = levelAndMythicText ~= "" and levelAndMythicText .. " | " .. mStr or mStr
+        end
+
+        f.GRM_MemberDetailLevel:SetText(levelAndMythicText)
+        f.GRM_MemberDetailRankTxt:SetText("\"" .. player.rankName .. "\"")
+        f.GRM_MemberDetailRankTxt:Show()
+
+        if not f.GRM_DateSubmitButton:IsVisible() then
+            if not doubleCopy and player.isOnline then
+                if player.zone ~= nil then
+                    f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                    f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
                 end
+                f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+                f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
+            else
+                f.GRM_ZoneInfoText:Hide(); f.GRM_MemberDetailMetaZoneInfoZoneText:Hide()
+                f.GRM_ZoneInfoTime1:Hide(); f.GRM_ZoneInfoTime2:Hide()
             end
 
-            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and GRM.S().showMythicRating and level == GRM_G.LvlCap then
-                local mythicScore = memberInfo and memberInfo.overallDungeonScore or player.MythicScore or 0
-                local mStr = GRM.L("M+ Rating:") .. "  " .. GRM.GetMythicRatingToMatchRaiderIO(mythicScore) .. mythicScore .. "|r"
-                levelAndMythicText = levelAndMythicText ~= "" and levelAndMythicText .. " | " .. mStr or mStr
-            end
-
-            f.GRM_MemberDetailLevel:SetText(levelAndMythicText)
-            f.GRM_MemberDetailRankTxt:SetText("\"" .. player.rankName .. "\"")
-            f.GRM_MemberDetailRankTxt:Show()
-
-            if not f.GRM_DateSubmitButton:IsVisible() then
-                if not doubleCopy and player.isOnline then
-                    if player.zone ~= nil then
-                        f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
-                        f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
-                    end
-                    f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
-                    f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
+            if not doubleCopy and player.promoteDateUnknown then
+                f.GRM_MemberDetailRankDateTxt:SetText(GRM.L("Promoted:") .. " " .. GRM.L("Unknown"))
+                f.GRM_MemberDetailRankDateTxt:Show(); f.GRM_SetPromoDateButton:Hide()
+                GRM_G.rankDateSet = true
+            else
+                if doubleCopy or #player.rankHist[1][5] == 1 then
+                    f.GRM_MemberDetailRankDateTxt:Hide(); f.GRM_SetPromoDateButton:Show()
                 else
-                    f.GRM_ZoneInfoText:Hide(); f.GRM_MemberDetailMetaZoneInfoZoneText:Hide()
-                    f.GRM_ZoneInfoTime1:Hide(); f.GRM_ZoneInfoTime2:Hide()
-                end
-
-                if not doubleCopy and player.promoteDateUnknown then
-                    f.GRM_MemberDetailRankDateTxt:SetText(GRM.L("Promoted:") .. " " .. GRM.L("Unknown"))
-                    f.GRM_MemberDetailRankDateTxt:Show(); f.GRM_SetPromoDateButton:Hide()
+                    f.GRM_SetPromoDateButton:Hide()
                     GRM_G.rankDateSet = true
-                else
-                    if doubleCopy or #player.rankHist[1][5] == 1 then
-                        f.GRM_MemberDetailRankDateTxt:Hide(); f.GRM_SetPromoDateButton:Show()
-                    else
-                        f.GRM_SetPromoDateButton:Hide()
-                        GRM_G.rankDateSet = true
-                        f.GRM_MemberDetailRankDateTxt:SetText(GRM.DateUntrustedTag(player.rankHist[1][7]) .. GRM.L("Promoted:") .. " " .. GRM.Time.FormatTimeStamp({player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]}, false, false))
-                        f.GRM_MemberDetailRankDateTxt:Show()
-                    end
+                    f.GRM_MemberDetailRankDateTxt:SetText(GRM.DateUntrustedTag(player.rankHist[1][7]) .. GRM.L("Promoted:") .. " " .. GRM.Time.FormatTimeStamp({player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]}, false, false))
+                    f.GRM_MemberDetailRankDateTxt:Show()
                 end
+            end
 
-                if not doubleCopy and player.joinDateUnknown then
+            if not doubleCopy and player.joinDateUnknown then
+                f.GRM_MemberDetailJoinDateButton:Hide()
+                f.GRM_JoinDateText:SetText(GRM.L("Unknown"))
+                f.GRM_JoinDateText:Show()
+            else
+                if doubleCopy or player.joinDateHist[1][1] == 0 then
+                    f.GRM_JoinDateText:Hide(); f.GRM_MemberDetailJoinDateButton:Show()
+                else
                     f.GRM_MemberDetailJoinDateButton:Hide()
-                    f.GRM_JoinDateText:SetText(GRM.L("Unknown"))
+                    f.GRM_JoinDateText:SetText(GRM.DateUntrustedTag(player.joinDateHist[1][6]) .. GRM.Time.FormatTimeStamp({player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false))
                     f.GRM_JoinDateText:Show()
-                else
-                    if doubleCopy or player.joinDateHist[1][1] == 0 then
-                        f.GRM_JoinDateText:Hide(); f.GRM_MemberDetailJoinDateButton:Show()
-                    else
-                        f.GRM_MemberDetailJoinDateButton:Hide()
-                        f.GRM_JoinDateText:SetText(GRM.DateUntrustedTag(player.joinDateHist[1][6]) .. GRM.Time.FormatTimeStamp({player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false))
-                        f.GRM_JoinDateText:Show()
-                    end
                 end
+            end
 
-                if not doubleCopy and GRM.S().showBDay then
-                    f.GRM_MemberDetailBirthdayTitleText:Show()
-                    local birthdayInfo = GRM.GetBirthday(player)
-                    if birthdayInfo.unknown then
+            if not doubleCopy and GRM.S().showBDay then
+                f.GRM_MemberDetailBirthdayTitleText:Show()
+                local birthdayInfo = GRM.GetBirthday(player)
+                if birthdayInfo.unknown then
+                    f.GRM_MemberDetailBirthdayButton:Hide()
+                    f.GRM_BirthdayText:SetText(GRM.L("Unknown"))
+                    f.GRM_BirthdayText:Show()
+                else
+                    if birthdayInfo.date[1] ~= 0 then
                         f.GRM_MemberDetailBirthdayButton:Hide()
-                        f.GRM_BirthdayText:SetText(GRM.L("Unknown"))
+                        f.GRM_BirthdayText:SetText(GRM.Time.FormatTimeStamp({ birthdayInfo.date[1], birthdayInfo.date[2] }, false, true))
                         f.GRM_BirthdayText:Show()
                     else
-                        if birthdayInfo.date[1] ~= 0 then
-                            f.GRM_MemberDetailBirthdayButton:Hide()
-                            f.GRM_BirthdayText:SetText(GRM.Time.FormatTimeStamp({ birthdayInfo.date[1], birthdayInfo.date[2] }, false, true))
-                            f.GRM_BirthdayText:Show()
-                        else
-                            f.GRM_MemberDetailBirthdayButton:Show(); f.GRM_BirthdayText:Hide()
-                        end
-                    end
-                else
-                    f.GRM_MemberDetailBirthdayButton:Hide(); f.GRM_BirthdayText:Hide(); f.GRM_MemberDetailBirthdayTitleText:Hide()
-                end
-            end
-
-            if not f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:HasFocus() and not f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:HasFocus() and not f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
-                local finalNote = ""
-                local finalONote = ""
-                local canModifyPublicNote = (not GRM_G.BuildHasRestrictions)
-                if canModifyPublicNote then
-                    finalNote = GRM.L("Click here to set a Public Note")
-                    finalONote = GRM.L("Click here to set an Officer's Note")
-                else
-                    finalNote = GRM.L("Public Note not set")
-                    finalONote = GRM.L("Officer Note not Set")
-                end
-
-                f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:Hide(); f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:Hide()
-
-                if note and note ~= "" then finalNote = note end
-                f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(finalNote)
-
-                if canModifyPublicNote then
-                    if (GRM.CanEditPublicNote() or handle == GRM_G.addonUser) then
-                        if finalNote ~= GRM.L("Click here to set a Public Note") then f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetText(finalNote) else f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetText("") end
-                    elseif finalNote == GRM.L("Click here to set a Public Note") then
-                        f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(GRM.L("Unable to Edit Public Note at Rank"))
+                        f.GRM_MemberDetailBirthdayButton:Show(); f.GRM_BirthdayText:Hide()
                     end
                 end
-
-                local officerNote = memberInfo and memberInfo.officerNote or player.officerNote
-                if memberInfo and not officerNote and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
-                    officerNote = select(8, GRM.GetGuildRosterInfo_ClassicMethod(player.name, false, player.GUID))
-                end
-
-                if GRM.CanViewOfficerNote() == true then
-                    if officerNote and officerNote ~= "" then finalONote = officerNote end
-                    if canModifyPublicNote and finalONote == GRM.L("Click here to set an Officer's Note") and not GRM.CanEditOfficerNote() then
-                        finalONote = GRM.L("Unable to Edit Officer Note at Rank")
-                    end
-                    f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(finalONote)
-                    if canModifyPublicNote and finalONote ~= GRM.L("Click here to set an Officer's Note") then
-                        f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetText(finalONote)
-                        if GRM_UI.MemberDetailFrame:IsVisible() and finalONote ~= "" then
-                            GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText(finalONote)
-                        end
-                    else
-                        f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetText("")
-                    end
-                else
-                    f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(GRM.L("Unable to View Officer Note at Rank"))
-                end
-
-                if not doubleCopy and player.customNote[1] then
-                    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetChecked(true)
-                else
-                    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetChecked(false)
-                end
-                
-                if GRM.S().syncEnabled and GRM.S().syncCustomNote then
-                    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:Enable()
-                    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox.GRM_CustomNoteSyncMetaCheckBoxText:SetTextColor(1.0, 0.82, 0.0, 1.0)
-                else
-                    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox.GRM_CustomNoteSyncMetaCheckBoxText:SetTextColor(0.5, 0.5, 0.5, 1)
-                    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:Disable()
-                end
-
-                local cNote = not doubleCopy and player.customNote[4] or ""
-                GRM.BuildCustomNoteScrollFrame(cNote)
-                if f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus() end
-                f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:Show(); f.GRM_PlayerNoteWindow.GRM_noteFontString1:Show()
-            end
-
-            if not doubleCopy and player.isOnline then f.GRM_MemberDetailLastOnlineTxt:SetText(GRM.L("Online"))
-            else f.GRM_MemberDetailLastOnlineTxt:SetText(GRM.Time.HoursReport(player.lastOnlineTime)) end
-
-            if not doubleCopy and GRM.S().viewGuildRep and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then
-                f.GRM_ReputationLevelText:SetText(GRM.GetReputationTextLevel(player.guildRep, true))
-                f.GRM_ReputationLevelText:Show()
             else
-                f.GRM_ReputationLevelText:Hide()
+                f.GRM_MemberDetailBirthdayButton:Hide(); f.GRM_BirthdayText:Hide(); f.GRM_MemberDetailBirthdayTitleText:Hide()
+            end
+        end
+
+        if not f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:HasFocus() and not f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:HasFocus() and not f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
+            local finalNote = ""
+            local finalONote = ""
+            local canModifyPublicNote = (not GRM_G.BuildHasRestrictions)
+            if canModifyPublicNote then
+                finalNote = GRM.L("Click here to set a Public Note")
+                finalONote = GRM.L("Click here to set an Officer's Note")
+            else
+                finalNote = GRM.L("Public Note not set")
+                finalONote = GRM.L("Officer Note not Set")
             end
 
-            if not doubleCopy and player.isOnline and handle ~= GRM_G.addonUser and not f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
-                GRM.SetGroupInviteButton(handle)
-                f.GRM_GroupInviteButton:Show()
-                f.GRM_SafeFromRulesButton:ClearAllPoints()
-                f.GRM_SafeFromRulesButton:SetPoint("LEFT", f.GRM_GroupInviteButton, "RIGHT", 5, 0)
-                f.GRM_SafeFromRulesButton:Show()
-            elseif not doubleCopy and (not player.isOnline or handle == GRM_G.addonUser) then
-                f.GRM_GroupInviteButton:Hide()
-                if handle ~= GRM_G.addonUser and not f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
-                    f.GRM_SafeFromRulesButton:ClearAllPoints()
-                    f.GRM_SafeFromRulesButton:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 15, 13)
-                    f.GRM_SafeFromRulesButton:Show()
-                else
-                    f.GRM_SafeFromRulesButton:Hide()
+            f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:Hide(); f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:Hide()
+
+            if note and note ~= "" then finalNote = note end
+            f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(finalNote)
+
+            if canModifyPublicNote then
+                if (GRM.CanEditPublicNote() or handle == GRM_G.addonUser) then
+                    if finalNote ~= GRM.L("Click here to set a Public Note") then f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetText(finalNote) else f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetText("") end
+                elseif finalNote == GRM.L("Click here to set a Public Note") then
+                    f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetText(GRM.L("Unable to Edit Public Note at Rank"))
                 end
-            elseif doubleCopy then
+            end
+
+            local officerNote = memberInfo and memberInfo.officerNote or player.officerNote
+            if memberInfo and not officerNote and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
+                officerNote = select(8, GRM.GetGuildRosterInfo_ClassicMethod(player.name, false, player.GUID))
+            end
+
+            if GRM.CanViewOfficerNote() == true then
+                if officerNote and officerNote ~= "" then finalONote = officerNote end
+                if canModifyPublicNote and finalONote == GRM.L("Click here to set an Officer's Note") and not GRM.CanEditOfficerNote() then
+                    finalONote = GRM.L("Unable to Edit Officer Note at Rank")
+                end
+                f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(finalONote)
+                if canModifyPublicNote and finalONote ~= GRM.L("Click here to set an Officer's Note") then
+                    f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetText(finalONote)
+                    if GRM_UI.MemberDetailFrame:IsVisible() and finalONote ~= "" then
+                        GRM_UI.MemberDetailFrame.OfficerNoteBackground.OfficerNoteText:SetText(finalONote)
+                    end
+                else
+                    f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetText("")
+                end
+            else
+                f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetText(GRM.L("Unable to View Officer Note at Rank"))
+            end
+
+            if not doubleCopy and player.customNote[1] then
+                f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetChecked(true)
+            else
+                f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:SetChecked(false)
+            end
+            
+            if GRM.S().syncEnabled and GRM.S().syncCustomNote then
+                f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:Enable()
+                f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox.GRM_CustomNoteSyncMetaCheckBoxText:SetTextColor(1.0, 0.82, 0.0, 1.0)
+            else
+                f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox.GRM_CustomNoteSyncMetaCheckBoxText:SetTextColor(0.5, 0.5, 0.5, 1)
+                f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteSyncMetaCheckBox:Disable()
+            end
+
+            local cNote = not doubleCopy and player.customNote[4] or ""
+            GRM.BuildCustomNoteScrollFrame(cNote)
+            if f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus() end
+            f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:Show(); f.GRM_PlayerNoteWindow.GRM_noteFontString1:Show()
+        end
+
+        if not doubleCopy and player.isOnline then f.GRM_MemberDetailLastOnlineTxt:SetText(GRM.L("Online"))
+        else f.GRM_MemberDetailLastOnlineTxt:SetText(GRM.Time.HoursReport(player.lastOnlineTime)) end
+
+        if not doubleCopy and GRM.S().viewGuildRep and GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA then
+            f.GRM_ReputationLevelText:SetText(GRM.GetReputationTextLevel(player.guildRep, true))
+            f.GRM_ReputationLevelText:Show()
+        else
+            f.GRM_ReputationLevelText:Hide()
+        end
+
+        if not doubleCopy and player.isOnline and handle ~= GRM_G.addonUser and not f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
+            GRM.SetGroupInviteButton(handle)
+            f.GRM_GroupInviteButton:Show()
+            f.GRM_SafeFromRulesButton:ClearAllPoints()
+            f.GRM_SafeFromRulesButton:SetPoint("LEFT", f.GRM_GroupInviteButton, "RIGHT", 5, 0)
+            f.GRM_SafeFromRulesButton:Show()
+        elseif not doubleCopy and (not player.isOnline or handle == GRM_G.addonUser) then
+            f.GRM_GroupInviteButton:Hide()
+            if handle ~= GRM_G.addonUser and not f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
+                f.GRM_SafeFromRulesButton:ClearAllPoints()
+                f.GRM_SafeFromRulesButton:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 15, 13)
+                f.GRM_SafeFromRulesButton:Show()
+            else
                 f.GRM_SafeFromRulesButton:Hide()
             end
-
-            local isGuildieBanned = not doubleCopy and player.bannedInfo[1] or false
-            if isGuildieBanned and handle ~= GRM_G.addonUser then
-                f.GRM_MemberDetailBannedIgnoreButton:SetScript("OnClick", function(_, button)
-                    if button == "LeftButton" then
-                        local epochTimeStamp = time()
-                        GRM.RemoveBan(handle, true, GRM_G.addonUser, epochTimeStamp)
-                        GRM.RemoveBanSendSyncMessage(player.name, epochTimeStamp)
-                        GRM.Report(GRM.L("{name} has been Removed from the Ban List.", GRM.GetClassifiedName(player.name, true)))
-                    end
-                end)
-                f.GRM_MemberDetailBannedText1:Show(); f.GRM_MemberDetailBannedIgnoreButton:Show()
-            else
-                f.GRM_MemberDetailBannedText1:Hide(); f.GRM_MemberDetailBannedIgnoreButton:Hide()
-            end
-
-            if not doubleCopy then GRM.PopulateAltFrames(handle) end
-            GRM_UI.ReconfigureNoteFonts()
+        elseif doubleCopy then
+            f.GRM_SafeFromRulesButton:Hide()
         end
+
+        local isGuildieBanned = not doubleCopy and player.bannedInfo[1] or false
+        if isGuildieBanned and handle ~= GRM_G.addonUser then
+            f.GRM_MemberDetailBannedIgnoreButton:SetScript("OnClick", function(_, button)
+                if button == "LeftButton" then
+                    local epochTimeStamp = time()
+                    GRM.RemoveBan(handle, true, GRM_G.addonUser, epochTimeStamp)
+                    GRM.RemoveBanSendSyncMessage(player.name, epochTimeStamp)
+                    GRM.Report(GRM.L("{name} has been Removed from the Ban List.", GRM.GetClassifiedName(player.name, true)))
+                end
+            end)
+            f.GRM_MemberDetailBannedText1:Show(); f.GRM_MemberDetailBannedIgnoreButton:Show()
+        else
+            f.GRM_MemberDetailBannedText1:Hide(); f.GRM_MemberDetailBannedIgnoreButton:Hide()
+        end
+
+        if not doubleCopy then
+            GRM.PopulateAltFrames(handle)
+        end
+        ReconfigureNoteFonts()
     end
 end

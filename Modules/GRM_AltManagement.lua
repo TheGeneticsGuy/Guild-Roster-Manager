@@ -1596,17 +1596,17 @@ GRM.AddAltAutoComplete = function()
     if partName ~= nil and partName ~= "" then
 
         if #matchingList > 0 then
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Hide();
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Show();
+            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:Hide();
+            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText2:Hide();
+            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameTextBottom:Show();
             GRM.BuildAutoCompleteAltSelectionScrollFrame ( matchingList );
             GRM_G.currentHighlightIndex = 1;
             GRM.ResetAutoCompleteHighlights();
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[1][1]:LockHighlight();
         else
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Show();
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Show();
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Hide();
+            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:Show();
+            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText2:Show();
+            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameTextBottom:Hide();
             -- Hide the buttons
             if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons then
                 for i = 1 , #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons do
@@ -1614,12 +1614,12 @@ GRM.AddAltAutoComplete = function()
                 end
             end
             if string.lower ( GRM_G.currentName ) == string.lower ( partName ) then
-                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Cannot Add Themselves as an Alt" ) );
-                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Hide();
+                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Cannot Add Themselves as an Alt" ) );
+                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText2:Hide();
             elseif GRM_UI.GRM_Mouseover.alts[string.lower ( partName )] then
-                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player is Already in this Alt Group" ) );
+                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player is Already in this Alt Group" ) );
             else
-                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Not Found" ) );
+                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Player Not Found" ) );
             end
         end
     else
@@ -1628,10 +1628,10 @@ GRM.AddAltAutoComplete = function()
                 GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[i][1]:Hide();
             end
         end
-        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameTextBottom:Hide();
-        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Please Type the Name of the alt" ) );
-        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText:Show();
-        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrameHelpText2:Show();
+        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameTextBottom:Hide();
+        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:SetText ( GRM.L ( "Please Type the Name of the alt" ) );
+        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:Show();
+        GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText2:Show();
     end
 end
 

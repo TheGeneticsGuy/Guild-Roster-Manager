@@ -3633,18 +3633,6 @@ GRM.BindingCurrentlyInUse = function(keyBind)
     return result, finalName;
 end
 
--- Method:          GRM.ConfigureOnlineStatusText()
--- What it Does:    So you don't need to reprocess this over and over, it translates it all just one time.
--- Purpose:         Just resource saving.
-GRM.ConfigureOnlineStatusText = function()
-    local list = {"( Active )", "( Mobile )", "( Offline )", "( AFK )", "( Busy )"};
-
-    for i = 1, #list do
-        GRM_G.Status[i] = GRM.L(list[i]);
-    end
-
-end
-
 -- Method:          GRM.GetPlayerClass ( string )
 -- What it Does:    Returns the string name of the class that is also region compatible
 -- Purpose:         Useful in UI design to pull the class so you can pull the class RGB colors, but there can be other uses too.
@@ -7910,8 +7898,8 @@ GRM.SetBirthdayFrameLogic = function()
     end
 
     -- Frame Logic
-    GRM_UI.GRM_Mouseover.GRM_DayDropDownMenuSelected:Hide();
-    GRM_UI.GRM_Mouseover.GRM_MonthDropDownMenuSelected:Hide();
+    GRM_UI.GRM_Mouseover.GRM_DayDropDownSelected:Hide();
+    GRM_UI.GRM_Mouseover.GRM_MonthDropDownSelected:Hide();
     GRM_UI.GRM_Mouseover.GRM_DateSubmitCancelButton:Hide();
     GRM_UI.GRM_Mouseover.GRM_DateSubmitButton:Hide();
 
@@ -13137,7 +13125,7 @@ GRM.IsCalendarEventEditOpen = function()
 end
 
 ---------------------------------------------
--------- BACKGROUND SCANNING ----------------
+-------- Macro Ignore Validation ------------
 ---------------------------------------------
 
 -- Method:          GRM.UpdateMacroToolSafeListExpirations()
@@ -13202,7 +13190,7 @@ GRM.ValidateIgnoreExpireDates = function(player)
 
                 player.safeList[safeType] = {false, false, 0, 0};
 
-                if player.name == GRM_G.currentName and
+                if player.name == GRM_G.currentName and GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover.GRM_MacroToolIgnoreListSettingsFrame and
                     GRM_UI.GRM_Mouseover.GRM_MacroToolIgnoreListSettingsFrame:IsVisible() then
                         GRM_UI.MacroIgnoreCheckBoxesFrame_OnShow();
                 else
