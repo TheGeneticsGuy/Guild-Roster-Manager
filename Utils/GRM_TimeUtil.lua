@@ -8,7 +8,6 @@ Time.Enums = {}
 -- GLOBAL Time Lookup Tables
 -- Of note, these will be in English as default, but when used will be passed through the localizer.
 local Configure_Time_Enums = function()
-    local months = { "January" , "February" , "March" , "April" , "May" , "June" , "July" , "August" , "September" , "October" , "November" , "December" }
     local abrev = "";
 
     Time.Enums.abbrev_month_ind = {}
@@ -16,9 +15,9 @@ local Configure_Time_Enums = function()
     Time.Enums.ind_to_month_abbrev = {}
     Time.Enums.months_full_name = {}
 
-    for i = 1 , #months do
-        abrev = months[i]:sub(1,3)
-        Time.Enums.months_full_name[months[i]] = i
+    for i = 1 , #GRM_ENUM.MONTHS do
+        abrev = GRM_ENUM.MONTHS[i]:sub(1,3)
+        Time.Enums.months_full_name[GRM_ENUM.MONTHS[i]] = i
         Time.Enums.abbrev_month_ind[abrev] = i
         Time.Enums.ind_to_month_abbrev[i] = abrev
         Time.Enums.month_abbrev[i] = abrev

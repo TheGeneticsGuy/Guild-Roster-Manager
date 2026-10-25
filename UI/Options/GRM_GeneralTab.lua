@@ -129,7 +129,7 @@ local function SelectLanguage(parsedNumber)
         GRM.Report(GRM.L("Font has been Reset to DEFAULT."));
     end
     
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM.GetLevelRange());
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM_UI.ScanTab.GetLevelRange());
     GRM.ReprocessAllLogEntriesToCurrentLanguage();
 
     if #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons > 0 then

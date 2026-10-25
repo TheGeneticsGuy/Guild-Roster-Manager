@@ -43,6 +43,8 @@ TO DO: - Implement FormatName settings somehow
 TO DO: - Deal with Export.RemoveStringColoring() - this is going to complicate things with the new formatting possibly
 TO DO: - Request to implement custom note on the Promotions in macro tool
 TO DO: - When swapping languages, the dropdown menu doesn't re-translate.
+TO DO: - When setting it to allow editing the public/officer notes, it is letting me even though it should be blocked. The global controls and the mouseover
+TO DO: - On the join and promot dates - it needs to re-process the day dropdowns...
 
 -- Possible Compatibility changes in WOW Forever
 TO DO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever

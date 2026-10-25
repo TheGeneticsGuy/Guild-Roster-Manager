@@ -8120,7 +8120,7 @@ GRM.RemoveHighlightedPlayersFromIgnoredList = function ()
 
                 -- Rebuild the mouseover frame in case it is open
                 if GRM_G.currentName == player.name and GRM_UI.GRM_Mouseover:IsVisible() then
-                    GRM.PopulateMemberDetails ( GRM_G.currentName );
+                    GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
                 end
             end
         end

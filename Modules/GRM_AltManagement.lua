@@ -1327,7 +1327,7 @@ GRM.PopulateAltFrames = function ( playerName )
                             GRM.OpenPlayerWindow( GRM_G.tempAltName );
                         elseif GRM_UI.GRM_Mouseover.GRM_MemberDetailServerNameToolTip:IsVisible() and not GRM_UI.GRM_Mouseover.GRM_MemberDetailNameText:IsMouseOver ( 2 , -2 , -2 , 2 ) then
                             -- This makes the main window the alt that was clicked on! TempAltName is saved when mouseover action occurs.
-                            GRM.SelectPlayerOnRoster ( GRM_G.tempAltName );
+                            GRM_UI.SelectPlayerOnRoster ( GRM_G.tempAltName );
                         end
                     end
                 else
@@ -1557,6 +1557,15 @@ GRM.GetAltTag = function ( value )
     return "";
 end
 
+local function ResetAutoCompleteHighlights()
+    local buttons = f.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons
+    for i = 1, #buttons do
+        if i ~= GRM_G.currentHighlightIndex then
+            buttons[i][1]:UnlockHighlight()
+        end
+    end
+end
+
 -- Method:          GRM.AddAltAutoComplete()
 -- What it Does:    Takes the entire list of guildies, then sorts them as player types to be added to alts list
 -- Purpose:         Eliminates the possibility of a person entering a fake name of a player no longer in the guild.
@@ -1599,9 +1608,9 @@ GRM.AddAltAutoComplete = function()
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:Hide();
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText2:Hide();
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameTextBottom:Show();
-            GRM.BuildAutoCompleteAltSelectionScrollFrame ( matchingList );
+            GRM_UI.BuildAutoCompleteAltSelectionScrollFrame ( matchingList );
             GRM_G.currentHighlightIndex = 1;
-            GRM.ResetAutoCompleteHighlights();
+            ResetAutoCompleteHighlights();
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons[1][1]:LockHighlight();
         else
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltEditFrameHelpText:Show();

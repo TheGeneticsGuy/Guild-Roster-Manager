@@ -518,7 +518,7 @@ ScanTab.BuildScanTab = function()
                 end
             end
 
-            GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM.GetLevelRange())
+            GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM_UI.ScanTab.GetLevelRange())
         end
 
         -- Logic for individual filter checkbox clicks
@@ -538,7 +538,7 @@ ScanTab.BuildScanTab = function()
                     button:SetChecked(true) 
                 end
             end
-            GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM.GetLevelRange())
+            GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM_UI.ScanTab.GetLevelRange())
         end
 
         -- =====================
@@ -627,4 +627,46 @@ ScanTab.UpdateText = function()
     GRM_ScanningOptionsFrame.GRM_MinLevelText2:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12)
     GRM_ScanningOptionsFrame.GRM_MinLevelText2:SetText(GRM.L("Report Milestones:"))
     GRM_ScanningOptionsFrame.GRM_LevelRange:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12)
+end
+
+-- For handling the level range logic on scanning display
+ScanTab.GetLevelRange = function()
+    local result = ""
+    if GRM.S().recordLevelUp then
+        result = "|cffffd100" .. GRM.L("Reporting:") .. "|r|cff00ccff"
+        local initialNumber = ""
+        local caps = {10, 20, 30, 40, 50, 60, 70, 80, 90}
+        local addon = ""
+        local atLeastOne = false
+
+        if GRM.S().levelReportMin == GRM_G.LvlCap and GRM.S().levelFilters[#GRM.S().levelFilters] then
+            initialNumber = tostring(GRM_G.LvlCap)
+            atLeastOne = true
+        elseif GRM.S().levelReportMin < GRM_G.LvlCap then
+            initialNumber = GRM.S().levelReportMin .. "-" .. GRM_G.LvlCap
+            atLeastOne = true
+        end
+
+        local count = 0
+        for i = 1, #GRM.S().levelFilters do
+            if GRM.S().levelFilters[i] and GRM.S().levelReportMin > caps[i] then
+                if count == 0 then addon = caps[i]; count = 1 else addon = addon .. " , " .. caps[i] end
+            elseif GRM.S().levelReportMin <= caps[i] then
+                break
+            end
+        end
+        if addon ~= "" then
+            result = result .. " " .. addon
+            if atLeastOne then result = result .. " , " .. initialNumber end
+        elseif atLeastOne then
+            result = result .. " " .. initialNumber
+        else
+            result = GRM.L("No Levels to Report to Log")
+        end
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetTextColor(0, 0.82, 1, 1)
+    else
+        result = GRM.L("No Levels to Report to Log")
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_ScanningOptionsFrame.GRM_RosterMinLvlOverlayNoteText:SetTextColor(1, 0, 0, 1)
+    end
+    return result
 end

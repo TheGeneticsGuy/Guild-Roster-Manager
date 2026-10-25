@@ -2960,7 +2960,7 @@ Scan.FinalReportInformation = function(needToReport)
     GRM_UI.RefreshSelectFrames(needToReport, true, false, false, true, (#GRM_G.TempEventReport > 0));
 
     if GRM_UI.GRM_Mouseover:IsVisible() then
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
     end
 
     -- Report on the live changes collected while this scan was occurring.

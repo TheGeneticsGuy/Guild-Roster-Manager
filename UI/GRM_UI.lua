@@ -864,7 +864,7 @@ GRM_UI.ReloadAllFrames = function( isManualUpdate , defaultSettingsReset )
     end
 
     if GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() then
-        GRM.PopulateMemberDetails ( GRM_G.currentName );
+        GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
     end
 
     -- Hybrid ScrollFrame Reloads
@@ -1159,9 +1159,9 @@ GRM_UI.GRM_InitializeMiscFrames = function( isManualUpdate )
 
     GRM_UI.AltMainSetButton = function()
         if string.find ( GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText:GetText() , GRM.L ( "Set as Main" ) , 1 , true ) ~= nil then
-            GRM.SetAltAsMainDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
+            GRM_UI.SetAltAsMainDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
         elseif string.find ( GRM_UI.GRM_DropDownList1AttachmentFrame.GRM_DropDownAltMainSetButton.GRM_DropDownAltMainSetButtonText:GetText() , GRM.L ( "Set as Alt" ) , 1 , true ) ~= nil then
-            GRM.DemoteMainToAltDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
+            GRM_UI.DemoteMainToAltDropDownMenuLogic ( { GRM_UI.GRM_DropDownList1AttachmentFrame.name , GRM_UI.GRM_DropDownList1AttachmentFrame.name , true } );
         end
         DropDownList1:Hide();
     end
@@ -1212,9 +1212,9 @@ GRM_UI.GRM_InitializeMiscFrames = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.GRM_AuditWindowDropDownAltMainButton:SetScript ( "OnClick" , function ( self , button )
         if button == "LeftButton" then
             if string.find ( self.GRM_AuditWindowDropDownAltMainButtonText:GetText() , GRM.L ( "Set as Main" ) , 1 , true ) ~= nil then
-                GRM.SetAltAsMainDropDownMenuLogic ( { GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , true } );
+                GRM_UI.SetAltAsMainDropDownMenuLogic ( { GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , true } );
             elseif string.find ( self.GRM_AuditWindowDropDownAltMainButtonText:GetText() , GRM.L ( "Set as Alt" ) , 1 , true ) ~= nil then
-                GRM.DemoteMainToAltDropDownMenuLogic ( { GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , true } );
+                GRM_UI.DemoteMainToAltDropDownMenuLogic ( { GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame.name , true } );
             end
             GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditWindowDropDownFrame:Hide();
         end
@@ -3679,7 +3679,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             end
 
             if GRM_UI.GRM_Mouseover:IsVisible() then
-                GRM.PopulateMemberDetails ( GRM_G.currentName );
+                GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
             end
         end
     end);
@@ -3698,7 +3698,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
             end
 
             if GRM_UI.GRM_Mouseover:IsVisible() then
-                GRM.PopulateMemberDetails ( GRM_G.currentName );
+                GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
             end
         end
     end);
@@ -3722,7 +3722,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM.S().showMythicRating = false;
             end
             if GRM_UI.GRM_Mouseover:IsVisible() then
-                GRM.PopulateMemberDetails ( GRM_G.currentName );
+                GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
             end
         end
     end);
@@ -3750,7 +3750,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                 GRM.S().showFaction = false;
             end
             if GRM_UI.GRM_Mouseover:IsVisible() then
-                GRM.PopulateMemberDetails ( GRM_G.currentName );
+                GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
             end
         end
     end);
@@ -6765,7 +6765,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_AuditVerifyAllFrame:Hide();
 
         if GRM_UI.GRM_Mouseover:IsVisible() then
-            GRM.PopulateMemberDetails ( GRM_G.currentName );
+            GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
         end
         GRM_UI.RefreshSelectFrames ( false , true , false , false , true , true );
     end
@@ -9418,6 +9418,107 @@ GRM_UI.OnlineUsersTextUpdate = function()
     end
 end
 
+local function RosterFrame()
+    if not GRM.GetGuild() then
+        return;
+    end
+    local f = GRM_UI.GRM_Mouseover
+    if GRM_G.pause and not f:IsVisible() and not GRM_UI.MemberDetailFrame:IsVisible() then
+        if not GRM_UI.MemberDetailFrame:IsVisible() then GRM_G.pause = false end
+    end
+
+    if not GRM_G.pause and not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver(4, -20, -4, 30) then
+        if not f:IsVisible() or (
+                f:IsVisible() and CommunitiesFrame and
+                not CommunitiesFrame.MemberList.ScrollBox:IsMouseOver(4, -20, -4, 30) and
+                not DropDownList1MenuBackdrop:IsMouseOver(2, -2, -2, 2) and
+                not StaticPopup1:IsMouseOver(2, -2, -2, 2) and
+                not f:IsMouseOver(1, -1, -30, 1) and
+                not f.GRM_CoreAltFrame:IsMouseOver(5, 5, 5, 35) and
+                not f.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:IsMouseOver(1, 1, 1, 3)
+            ) then 
+                GRM_UI.ClearAllFrames(true)
+        end
+    end
+
+    local player = GRM.GetPlayer(GRM_G.currentName)
+    if player then
+        if (time() - GRM_G.CommunitiesUpdateTimer) > 5 then
+            local memberInfo = GRM.GetClubMemberInfo(player.name, GRM_G.gClubID)
+            if memberInfo then
+                player.isOnline = GRM.IsPresenceOnline(memberInfo.presence)
+                if player.zone ~= memberInfo.zone then
+                    player.zone = memberInfo.zone
+                    player.timeEnteredZone = time()
+                end
+            end
+            GRM_G.CommunitiesUpdateTimer = time()
+        end
+
+        if player.isOnline or GRM_G.currentName == GRM_G.addonUser then
+            if not f.GRM_DateSubmitButton:IsVisible() then
+                if player.zone ~= nil then
+                    f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                    f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
+                end
+                f.GRM_ZoneInfoText:Show()
+                f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+                f.GRM_ZoneInfoTime1:Show()
+                f.GRM_ZoneInfoTime2:Show()
+            end
+
+            if player.isOnline and player.status == 0 then
+                if f.GRM_MemberDetailPlayerStatus:GetText() ~= GRM_G.Status[1] then
+                    f.GRM_MemberDetailPlayerStatus:SetTextColor(0.12, 1.0, 0.0, 1.0)
+                    f.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[1])
+                end
+            elseif player.status == 1 then
+                if f.GRM_MemberDetailPlayerStatus:GetText() ~= GRM_G.Status[4] then
+                    f.GRM_MemberDetailPlayerStatus:SetTextColor(1.0, 0.96, 0.41, 1.0)
+                    f.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[4])
+                end
+            elseif player.status == 2 then
+                if f.GRM_MemberDetailPlayerStatus:GetText() ~= GRM_G.Status[5] then
+                    f.GRM_MemberDetailPlayerStatus:SetTextColor(0.77, 0.12, 0.23, 1.0)
+                    f.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[5])
+                end
+            end
+            if not f.GRM_MemberDetailPlayerStatus:IsVisible() then f.GRM_MemberDetailPlayerStatus:Show() end
+
+        elseif player.isMobile then
+            f.GRM_MemberDetailPlayerStatus:SetTextColor(0.87, 0.44, 0.0, 1.0)
+            f.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[2])
+            if not f.GRM_MemberDetailPlayerStatus:IsVisible() then f.GRM_MemberDetailPlayerStatus:Show() end
+
+        elseif not player.isOnline then
+            if f.GRM_MemberDetailPlayerStatus:GetText() ~= GRM_G.Status[3] then
+                f.GRM_MemberDetailPlayerStatus:SetTextColor(0.5, 0.5, 0.5, 1.0)
+                f.GRM_MemberDetailPlayerStatus:SetText(GRM_G.Status[3])
+            end
+            if not f.GRM_MemberDetailPlayerStatus:IsVisible() then f.GRM_MemberDetailPlayerStatus:Show() end
+        else
+            f.GRM_MemberDetailPlayerStatus:Hide()
+        end
+    else
+        f.GRM_ZoneInfoText:Hide()
+        f.GRM_MemberDetailMetaZoneInfoZoneText:Hide()
+        f.GRM_ZoneInfoTime1:Hide()
+        f.GRM_ZoneInfoTime2:Hide()
+    end
+
+    if (CommunitiesFrame and not CommunitiesFrame:IsVisible()) then
+        GRM_UI.ClearAllFrames(true)
+    end
+end
+
+local function ClearResetFramesOnTabChange()
+    local f = GRM_UI.GRM_Mouseover
+    if f:IsVisible() then f:Hide() end
+    if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
+        GRM_UI.MemberDetailFrame:Hide()
+    end
+end
+
 -- Method:          GRM_UI.BlizzardFramePinHookInitializations ( bool )
 -- What it Does:    Initializes all the chooks and attachements and logic integrated into Blizz default frames
 -- Purpose:         Warcraft is smart in how it handles loading frames and it only loads them *as needed* and as a result, they will appear as "nil" until you
@@ -9454,10 +9555,10 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
 
                         if GRM_G.clubID ~= GRM_G.gClubID then
                             if GRM_UI.GRM_Mouseover:IsVisible() then
-                                GRM.ClearAllFrames ( true );
+                                GRM_UI.ClearAllFrames ( true );
                             end
                         else
-                            GRM_UI.RosterFrame();
+                            RosterFrame();
                         end
                     end
                     GRM.GRM_CoreUpdateFrameCommunities.timer = 0;
@@ -9469,37 +9570,37 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             CommunitiesFrame:HookScript ( "OnHide" , function ()
                 GRM_UI.GRM_LoadLogButton:Hide();
                 GRM_UI.GRM_LoadToolButton:Hide();
-                GRM.ClearAllFrames( true );
+                GRM_UI.ClearAllFrames( true );
             end);
 
             CommunitiesFrame.MemberList.ScrollBox:HookScript ( "OnHide" , function()
-                GRM.ClearAllFrames( true );
+                GRM_UI.ClearAllFrames( true );
             end);
 
             CommunitiesFrame.MemberList.ShowOfflineButton:HookScript ( "OnShow" , GRM_UI.OnlineUsersTextUpdate );
 
             CommunitiesFrame.GuildBenefitsTab:HookScript ( "OnClick" , function ( _ , button )
                 if button == "LeftButton" then
-                    GRM.ClearResetFramesOnTabChange();
+                    ClearResetFramesOnTabChange();
                 end
             end);
 
             CommunitiesFrame.GuildInfoTab:HookScript ( "OnClick" , function ( _ , button )
                 if button == "LeftButton" then
-                    GRM.ClearResetFramesOnTabChange();
+                    ClearResetFramesOnTabChange();
                 end
             end);
 
                     -- Need to hook script on each of these.
             CommunitiesFrame.ChatTab:HookScript ( "OnClick" , function ( _ , button )
                 if button == "LeftButton" then
-                    GRM.ClearResetFramesOnTabChange();
+                    ClearResetFramesOnTabChange();
                 end
             end);
 
             CommunitiesFrame.RosterTab:HookScript ( "OnClick" , function ( _ , button )
                 if button == "LeftButton" then
-                    GRM.ClearResetFramesOnTabChange();
+                    ClearResetFramesOnTabChange();
                 end
             end);
 
@@ -9566,7 +9667,7 @@ GRM_UI.CommunitesFrame_OnShow = function()
     GRM_UI.GRM_LoadToolButton:Show();
     GRM_UI.GRM_Mouseover:SetPoint ( "TOPLEFT" , CommunitiesFrame , "TOPRIGHT" , 34 , 5 );
     GRM_UI.MemberDetailFrame:Hide();
-    GRM.ClearAllFrames ( true );
+    GRM_UI.ClearAllFrames ( true );
     GRM_G.pause = false;
     GRM_G.clubID = CommunitiesFrame:GetSelectedClubId();            -- Establish the clubID immediately...
 
@@ -9746,7 +9847,7 @@ GRM_UI.RefreshSelectFrames = function ( log , audit , ban , macroTool , customRo
     end
 
     if mouseover and GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() then
-        GRM.PopulateMemberDetails ( GRM_G.currentName );
+        GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
     end
 end
 

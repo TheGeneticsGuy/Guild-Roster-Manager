@@ -1490,7 +1490,7 @@ GRMsync.CheckJoinDateChange = function( msg , sender , prefix )
 
             -- Live update if any frames visible so player does not need to close and reopen for updates.
             if GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == playerName then
-                GRM.PopulateMemberDetails ( GRM_G.currentName );
+                GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
             end
 
             if not isSyncUpdate then
@@ -1559,7 +1559,7 @@ GRMsync.CheckPromotionDateChange = function ( msg , sender , prefix )
 
             -- If the player is on the same frames, update them too!
             if GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == player.name then
-                GRM.PopulateMemberDetails ( GRM_G.currentName );
+                GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
             end
 
             if not isSyncUpdate then
@@ -1887,7 +1887,7 @@ GRMsync.CheckRemoveAltChange = function ( msg , sender )
             GRM.RemovePlayerFromAltGroup ( altName , altChangeTimeStamp , false , false , false )
 
             if GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == altName then       -- If the alt being removed is being dumped from the list of alts, but the Sync person is on that frame..
-                GRM.PopulateMemberDetails ( GRM_G.currentName );
+                GRM_UI.PopulateMemberDetails ( GRM_G.currentName );
             end
             GRM_UI.RefreshSelectFrames ( false , true , false , false , true , true , true );
 
@@ -2137,7 +2137,7 @@ GRMsync.CheckCustomNoteChange = function ( msg , sender , prefix )
                             GRM.Report ( GRM.L ( "{name} has updated {name2}'s custom public note" , GRM.GetClassifiedName ( sender , false ) , GRM.GetClassifiedName ( player.name , false ) ) .. "\n\n|cFFFFFFFF" .. customNote );
                         end
 
-                        GRM.BuildCustomNoteScrollFrame ( player.customNote[4] );
+                        GRM_UI.BuildCustomNoteScrollFrame ( player.customNote[4] );
                         if GRM_UI.GRM_Mouseover.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:HasFocus() then
                             GRM_UI.GRM_Mouseover.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus();
                         end

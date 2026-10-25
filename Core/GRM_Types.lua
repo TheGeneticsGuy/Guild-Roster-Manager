@@ -35,3 +35,5 @@ GRM_ENUM.BUILD = {              -- Features Added
     ["MIDNIGHT"]    = 120000,   -- Secret Variables and addon restrictions - Also affecting FOREVER
     ["TLT"]         = 130000
 }
+
+GRM_ENUM.MONTHS = { "January" , "February" , "March" , "April" , "May" , "June" , "July" , "August" , "September" , "October" , "November" , "December" }

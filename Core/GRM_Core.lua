@@ -1194,8 +1194,8 @@ GRM.LoadRestorePoint = function(guild, guildTransfer, oldName)
         end
 
         if GRM_UI.GRM_Mouseover:IsVisible() then
-            GRM.ClearAllFrames(false);
-            GRM.PopulateMemberDetails(GRM_G.currentName);
+            GRM_UI.ClearAllFrames(false);
+            GRM_UI.PopulateMemberDetails(GRM_G.currentName);
         end
 
         GRM.RefreshAllMacroToolFrames();
@@ -1687,7 +1687,7 @@ GRM.GetAuditLinePlayervalues = function(data, isComplete)
             isComplete = false;
         end
     else
-        joinDate = GRM.DateUntrustedTag(player.joinDateHist[1][6]) ..
+        joinDate = GRM_UI.DateUntrustedTag(player.joinDateHist[1][6]) ..
                        GRM.Time.FormatTimeStamp(
                 {player.joinDateHist[1][1], player.joinDateHist[1][2], player.joinDateHist[1][3]}, false);
     end
@@ -1702,7 +1702,7 @@ GRM.GetAuditLinePlayervalues = function(data, isComplete)
         promoDate = GRM.L("No Date Set");
         isComplete = false;
     else
-        promoDate = GRM.DateUntrustedTag(player.rankHist[1][7]) ..
+        promoDate = GRM_UI.DateUntrustedTag(player.rankHist[1][7]) ..
                         GRM.Time.FormatTimeStamp({player.rankHist[1][2], player.rankHist[1][3], player.rankHist[1][4]}, false);
     end
 
@@ -3286,10 +3286,10 @@ end
 ---- MousOver Methods --------------
 ------------------------------------
 
--- Method:          GRM.GetRosterName ( button , boolean )
+-- Method:          SubFrameCheck ( button , boolean )
 -- Method:          To return the current mouseover name of the given button, with the server appended.
 -- Purpose:         Need the full name-server, untruncated, to be able to correctly identify the player in database, in case 2 players with same name, but diff. servers
-GRM.GetRosterName = function(button, isMouseClick)
+SubFrameCheck = function(button, isMouseClick)
     local name = "";
     local guid = "";
 
@@ -3317,6 +3317,31 @@ GRM.GetRosterName = function(button, isMouseClick)
     return name , guid;
 end
 
+local function SubFrameCheck()
+    local f = GRM_UI.GRM_Mouseover
+    if f.GRM_DateSubmitCancelButton:IsVisible() then
+        f.GRM_DateSubmitCancelButton:Click()
+    end
+    if f.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
+        f.GRM_CoreAltFrame.GRM_AddAltEditFrame:Hide()
+    end
+    if f.GRM_NoteCount:IsVisible() then
+        f.GRM_NoteCount:Hide()
+    end
+    if f.GRM_MacroToolIgnoreListSettingsFrame:IsVisible() then
+        f.GRM_MacroToolIgnoreListSettingsFrame:Hide()
+    end
+    
+    f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:ClearFocus();
+    f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:ClearFocus()
+    GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:Hide()
+    f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBox:ClearFocus()
+    if f.ContextMenu then
+        f.ContextMenu:Hide()
+    end
+    f.GRM_SyncJoinDateSideFrame:Hide()
+end
+
 -- Method:          GRM.InitializeCommunitiesButtons()
 -- What it Does:    Initializes, one time, the script handlers for the roster frames
 -- Purpose:         So main player popup window appears properly
@@ -3332,7 +3357,7 @@ GRM.InitializeCommunitiesButtons = function()
                     nameCopy = true;
                 end
 
-                local name , guid = GRM.GetRosterName(self, true);
+                local name , guid = SubFrameCheck(self, true);
                 local player;
 
                 if name and name ~= "" then
@@ -3348,7 +3373,7 @@ GRM.InitializeCommunitiesButtons = function()
 
                         GRM.SubFrameCheck();
                         if cFrame:GetSelectedClubId() == GRM_G.gClubID then
-                            GRM.PopulateMemberDetails(name, self.memberInfo);
+                            GRM_UI.PopulateMemberDetails(name, self.memberInfo);
                             GRM_G.pause = true;
                             if not GRM_UI.GRM_Mouseover:IsVisible() then
                                 if GRM_UI.MemberDetailFrame:IsVisible() then
@@ -3374,7 +3399,7 @@ GRM.InitializeCommunitiesButtons = function()
                             GRM_UI.GRM_Mouseover:Hide();
                         end
                     else
-                        GRM.PopulateMemberDetails( name , self.memberInfo , true );
+                        GRM_UI.PopulateMemberDetails( name , self.memberInfo , true );
                     end
                 end
             end
@@ -3394,7 +3419,7 @@ GRM.RosterButton_OnUpdate = function( self, elapsed )
     if GRM_G.ButtonRosterTimer > 0.05 and GRM.GetMouseFocus( self ) and CommunitiesFrame:GetSelectedClubId() ==
         GRM_G.gClubID then
 
-        local name , guid = GRM.GetRosterName( self, true );
+        local name , guid = SubFrameCheck( self, true );
 
         if name and name ~= "" and name ~= GRM_G.currentName and not GRM_G.pause and
             not CommunitiesFrame.RecruitmentDialog:IsVisible() then
@@ -3405,7 +3430,7 @@ GRM.RosterButton_OnUpdate = function( self, elapsed )
                 GRM.SubFrameCheck();
 
                 if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID then
-                    GRM.PopulateMemberDetails(name, self.memberInfo);
+                    GRM_UI.PopulateMemberDetails(name, self.memberInfo);
                     if not GRM_UI.GRM_Mouseover:IsVisible() then
 
                         if GRM_UI.MemberDetailFrame:IsVisible() then
@@ -3428,7 +3453,7 @@ GRM.RosterButton_OnUpdate = function( self, elapsed )
                         GRM_UI.GRM_Mouseover:Hide();
                     end
                 else
-                    GRM.PopulateMemberDetails( name , self.memberInfo , true );
+                    GRM_UI.PopulateMemberDetails( name , self.memberInfo , true );
                 end
             end
         end
@@ -7674,7 +7699,7 @@ GRM.VerifyAllRankDates = function(numDays)
     GRM_UI.RefreshSelectFrames(false, true, false, true, true, true);
 
     if GRM_UI.GRM_Mouseover:IsVisible() then
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
     end
 
     if count == 1 then
@@ -7732,7 +7757,7 @@ GRM.VerifyAllJoinDates = function(numDays)
     GRM_UI.RefreshSelectFrames(false, true, false, true, true, true);
 
     if GRM_UI.GRM_Mouseover:IsVisible() then
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
     end
 
     if count == 1 then
@@ -7832,7 +7857,7 @@ GRM.NotificationCheck = function(isOnline, presence, i, name)
     player.isOnline = isOnline;
 
     if updateNeeded and GRM_UI.GRM_Mouseover:IsVisible() then
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
     end
 
 end
@@ -8445,12 +8470,12 @@ GRM.SetAllIncompleteJoinUnknown = function()
 
                         -- if not "unknown" already, and if it doesn't have an established join date
                         if not player.joinDateUnknown and #player.joinDateHist[1][4] == 1 then
-                            GRM.ClearJoinDateHistory(player.name, true);
-                            GRM.DateSubmitCancelResetLogic(true, "join", true, player.name);
+                            GRM_UI.ClearJoinDateHistory(player.name, true);
+                            GRM_UI.DateSubmitCancelResetLogic(true, "join", true, player.name);
                         elseif GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == player.name then
                             GRM_G.pause = false;
-                            GRM.ClearAllFrames(true);
-                            GRM.PopulateMemberDetails(player.name);
+                            GRM_UI.ClearAllFrames(true);
+                            GRM_UI.PopulateMemberDetails(player.name);
                             GRM_UI.GRM_Mouseover:Show();
                             if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                 GRM_UI.MemberDetailFrame:Hide();
@@ -8468,12 +8493,12 @@ GRM.SetAllIncompleteJoinUnknown = function()
 
                         -- if not "unknown" already, and if it doesn't have an established join date
                         if player.joinDateUnknown then
-                            GRM.ClearJoinDateHistory(player.name, false);
-                            GRM.DateSubmitCancelResetLogic(false, "join", true, player.name);
+                            GRM_UI.ClearJoinDateHistory(player.name, false);
+                            GRM_UI.DateSubmitCancelResetLogic(false, "join", true, player.name);
                         elseif GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == player.name then
                             GRM_G.pause = false;
-                            GRM.ClearAllFrames(true);
-                            GRM.PopulateMemberDetails(player.name);
+                            GRM_UI.ClearAllFrames(true);
+                            GRM_UI.PopulateMemberDetails(player.name);
                             GRM_UI.GRM_Mouseover:Show();
                             if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                 GRM_UI.MemberDetailFrame:Hide();
@@ -8510,8 +8535,8 @@ GRM.SetAllIncompletePromoUnknown = function()
 
                         -- if not "unknown" already, and if it doesn't have an established join date
                         if not player.promoteDateUnknown and not player.rankHist[1][7] then
-                            GRM.ClearPromoDateHistory(player.name, true);
-                            GRM.DateSubmitCancelResetLogic(true, "promo", true, player.name);
+                            GRM_UI.ClearPromoDateHistory(player.name, true);
+                            GRM_UI.DateSubmitCancelResetLogic(true, "promo", true, player.name);
                         end
                     end
                 end
@@ -8523,8 +8548,8 @@ GRM.SetAllIncompletePromoUnknown = function()
                     if type(player) == "table" then
 
                         if player.promoteDateUnknown then
-                            GRM.ClearPromoDateHistory(player.name, false);
-                            GRM.DateSubmitCancelResetLogic(false, "promo", true, player.name);
+                            GRM_UI.ClearPromoDateHistory(player.name, false);
+                            GRM_UI.DateSubmitCancelResetLogic(false, "promo", true, player.name);
                         end
                     end
                 end
@@ -8561,8 +8586,8 @@ GRM.SetAllIncompleteBdayUnknown = function()
                             GRM.SetBirthdayInfo ( player , nil , nil , nil , nil , true );
                             if GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == player.name then
                                 GRM_G.pause = false;
-                                GRM.ClearAllFrames(true);
-                                GRM.PopulateMemberDetails(player.name);
+                                GRM_UI.ClearAllFrames(true);
+                                GRM_UI.PopulateMemberDetails(player.name);
                                 GRM_UI.GRM_Mouseover:Show();
                                 if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                     GRM_UI.MemberDetailFrame:Hide();
@@ -8582,8 +8607,8 @@ GRM.SetAllIncompleteBdayUnknown = function()
                         GRM.SetBirthdayInfo ( player , nil , nil , nil , nil , false );
                         if GRM_UI.GRM_Mouseover:IsVisible() and GRM_G.currentName == player.name then
                             GRM_G.pause = false;
-                            GRM.ClearAllFrames(true);
-                            GRM.PopulateMemberDetails(player.name);
+                            GRM_UI.ClearAllFrames(true);
+                            GRM_UI.PopulateMemberDetails(player.name);
                             GRM_UI.GRM_Mouseover:Show();
                             if GRM_UI.MemberDetailFrame and GRM_UI.MemberDetailFrame:IsVisible() then
                                 GRM_UI.MemberDetailFrame:Hide();
@@ -8785,7 +8810,7 @@ GRM.OnRankChange = function(formerRank, newRank, promotedName, promoterName)
                 recorded = true;
             end
             if GRM_UI.GRM_Mouseover:IsVisible() and promotedName == GRM_G.currentName then
-                GRM.PopulateMemberDetails(GRM_G.currentName);
+                GRM_UI.PopulateMemberDetails(GRM_G.currentName);
             end
         end
 
@@ -11981,9 +12006,9 @@ GRM.EditJoinDateManually = function(name, day, month, year)
         if GRM_UI.GRM_Mouseover.GRM_SetUnknownButton:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_SyncJoinDateSideFrame:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
-            GRM.ClearAllFrames(false);
+            GRM_UI.ClearAllFrames(false);
         end
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
     end
 end
 
@@ -12136,10 +12161,10 @@ GRM.EditSavedNoteDateManually = function(member)
         if GRM_UI.GRM_Mouseover.GRM_SetUnknownButton:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_SyncJoinDateSideFrame:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
-            GRM.ClearAllFrames(false);
+            GRM_UI.ClearAllFrames(false);
         end
         GRM_G.pause = false;
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
         GRM_G.pause = true;
     end
 end
@@ -12260,10 +12285,10 @@ GRM.AddDateTagToDefaultNote = function(member, getCount)
         if GRM_UI.GRM_Mouseover.GRM_SetUnknownButton:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_SyncJoinDateSideFrame:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
-            GRM.ClearAllFrames(false);
+            GRM_UI.ClearAllFrames(false);
         end
         GRM_G.pause = false;
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
         GRM_G.pause = true;
     end
 
@@ -12408,10 +12433,10 @@ GRM.RemoveDatesFromNonDefaultNotes = function(member)
         if GRM_UI.GRM_Mouseover.GRM_SetUnknownButton:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_SyncJoinDateSideFrame:IsVisible() or
             GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame:IsVisible() then
-            GRM.ClearAllFrames(false);
+            GRM_UI.ClearAllFrames(false);
         end
         GRM_G.pause = false;
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
         GRM_G.pause = true;
     end
 end
@@ -12714,9 +12739,9 @@ GRM.OpenPlayerWindow = function(playerName)
     C_Timer.After(timer, function()
         GRM_G.pause = false;
 
-        GRM.ClearAllFrames(true);
+        GRM_UI.ClearAllFrames(true);
         GRM_G.currentName = playerName;
-        GRM.PopulateMemberDetails(GRM_G.currentName);
+        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
         GRM_UI.GRM_Mouseover:Show();
         GRM_G.pause = true;
 

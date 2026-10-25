@@ -296,7 +296,7 @@ OptionsCore.RefreshOptionsUI = function()
         ConfigLvlFilter(fData, vis, en)
     end
 
-    GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM.GetLevelRange())
+    GRM_ScanningOptionsFrame.GRM_LevelRange:SetText(GRM_UI.ScanTab.GetLevelRange())
 
     -- ====================
     -- SLIDERS & EDIT BOXES

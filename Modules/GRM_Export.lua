@@ -304,7 +304,7 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
                         if #roster[i].joinDateHist[pos][4] == 1 then
                             playerDetails = playerDetails .. delimiter;
                         else
-                            playerDetails = playerDetails .. (GRM.DateUntrustedTag(roster[i].joinDateHist[pos][6]) ..
+                            playerDetails = playerDetails .. (GRM_UI.DateUntrustedTag(roster[i].joinDateHist[pos][6]) ..
                                                 GRM.Time.FormatTimeStamp(
                                     {roster[i].joinDateHist[pos][1], roster[i].joinDateHist[pos][2],
                                      roster[i].joinDateHist[pos][3]}, false)) .. delimiter;
@@ -324,7 +324,7 @@ Export.BuildExportMemberDetails = function(currentMembers, specificGuild)
                         if #roster[i].rankHist[pos][5] == 1 then --- Promotion has never been recorded!
                             playerDetails = playerDetails .. delimiter;
                         else
-                            playerDetails = playerDetails .. (GRM.DateUntrustedTag(roster[i].rankHist[pos][7]) ..
+                            playerDetails = playerDetails .. (GRM_UI.DateUntrustedTag(roster[i].rankHist[pos][7]) ..
                                                 GRM.Time.FormatTimeStamp(
                                     {roster[i].rankHist[pos][2], roster[i].rankHist[pos][3], roster[i].rankHist[pos][4]},
                                     false)) .. delimiter;
