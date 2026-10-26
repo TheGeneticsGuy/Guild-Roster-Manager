@@ -3286,10 +3286,10 @@ end
 ---- MousOver Methods --------------
 ------------------------------------
 
--- Method:          SubFrameCheck ( button , boolean )
+-- Method:          GetRosterName ( button , boolean )
 -- Method:          To return the current mouseover name of the given button, with the server appended.
 -- Purpose:         Need the full name-server, untruncated, to be able to correctly identify the player in database, in case 2 players with same name, but diff. servers
-GRM.GetRosterName = function(button, isMouseClick)
+local function GetRosterName(button, isMouseClick)
     local name = "";
     local guid = "";
 
@@ -3357,7 +3357,7 @@ GRM.InitializeCommunitiesButtons = function()
                     nameCopy = true;
                 end
 
-                local name , guid = SubFrameCheck(self, true);
+                local name , guid = GetRosterName(self, true);
                 local player;
 
                 if name and name ~= "" then
@@ -3371,7 +3371,7 @@ GRM.InitializeCommunitiesButtons = function()
                             StaticPopup1:Hide();
                         end
 
-                        GRM.SubFrameCheck();
+                        SubFrameCheck();
                         if cFrame:GetSelectedClubId() == GRM_G.gClubID then
                             GRM_UI.PopulateMemberDetails(name, self.memberInfo);
                             GRM_G.pause = true;
@@ -3419,7 +3419,7 @@ GRM.RosterButton_OnUpdate = function( self, elapsed )
     if GRM_G.ButtonRosterTimer > 0.05 and GRM.GetMouseFocus( self ) and CommunitiesFrame:GetSelectedClubId() ==
         GRM_G.gClubID then
 
-        local name , guid = SubFrameCheck( self, true );
+        local name , guid = GetRosterName( self, true );
 
         if name and name ~= "" and name ~= GRM_G.currentName and not GRM_G.pause and
             not CommunitiesFrame.RecruitmentDialog:IsVisible() then
@@ -3427,7 +3427,7 @@ GRM.RosterButton_OnUpdate = function( self, elapsed )
 
             local player = GRM.GetPlayer(name);
             if player and player.GUID == guid then
-                GRM.SubFrameCheck();
+                SubFrameCheck();
 
                 if CommunitiesFrame:GetSelectedClubId() == GRM_G.gClubID then
                     GRM_UI.PopulateMemberDetails(name, self.memberInfo);

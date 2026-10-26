@@ -48,7 +48,7 @@ GRM.SetMain = function ( playerName , timestamp )
                 if GRM_G.currentName and GRM_G.currentName ~= "" then
                     local altMember = GRM.GetPlayer ( GRM_G.currentName );
                     if altMember and altMember.altGroup == player.altGroup then
-                        GRM.PopulateAltFrames ( GRM_G.currentName );
+                        GRM_UI.PopulateAltFrames ( GRM_G.currentName );
                         GRM_UI.RefreshSelectFrames ( false , true , false , false , true , false );
                     end
                 end
@@ -99,7 +99,7 @@ GRM.DemotePlayerFromMain = function ( playerName , timestamp )
                 end
 
                 if GRM.GetPlayer ( GRM_G.currentName ).altGroup == player.altGroup then
-                    GRM.PopulateAltFrames ( GRM_G.currentName );
+                    GRM_UI.PopulateAltFrames ( GRM_G.currentName );
                 end
             end
         end
@@ -435,7 +435,7 @@ GRM.AddAlt = function ( playerName , secondPlayerName , timestamp )
         -- LIVE UPDATE THE FRAMES
         if GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() then
             if GRM.GetPlayer ( GRM_G.currentName ).altGroup == player.altGroup then
-                GRM.PopulateAltFrames ( GRM_G.currentName );
+                GRM_UI.PopulateAltFrames ( GRM_G.currentName );
             end
         end
 
@@ -771,7 +771,7 @@ GRM.RemovePlayerFromAltGroup = function( playerName , timestamp , keepMainStatus
         -- Even if player is not removed from a grouping, the time should be logged as now it is made in-sync with others' addon on players no longe in guild.
         if refreshUI then
             if GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() then
-                GRM.PopulateAltFrames ( GRM_G.currentName );
+                GRM_UI.PopulateAltFrames ( GRM_G.currentName );
             end
             if not GRM_G.HK then    -- I don't want this to refresh if I am actively kicking alts with the macro tool.
                 GRM_UI.RefreshSelectFrames ( true , true , false , true , true , true );
@@ -1204,224 +1204,6 @@ GRM.PlayerOrAltHasJD = function ( playerName )
     return result;
 end
 
--- Method:          GRM.PopulateAltFrames( string )
--- What it Does:    This generates the alt frames in the main addon metadata detail frame
--- Purpose:         Clean formatting of the alt frames.
-GRM.PopulateAltFrames = function ( playerName )
-    -- let's start by prepping the frames.
-    local player = GRM.GetPlayer ( playerName );
-    local alts = GRM.GetListOfAlts ( player );
-    local numAlts = #alts;
-    local main = "";
-    GRM_UI.GRM_Mouseover.alts = {};
-
-    if player.altGroup ~= "" then
-        main = GRM.GetAltGroup( player.altGroup ).main;
-
-        -- Now, let's build an alt reference dict...
-        for i = 1 , #alts do
-            GRM_UI.GRM_Mouseover.alts[ string.lower(alts[i][1]) ] = {};
-        end
-    end
-    local color = {};
-
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:Show();
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame:Show();
-    local scrollHeight = 0;
-    local scrollWidth = 170;
-    local buffer = 1;
-
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons or {};  -- Create a table for the Buttons.
-    -- populating the window correctly.
-    for i = 1 , numAlts do
-        -- if font string is not created, do so.
-        if not GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] then
-            local tempButton = CreateFrame ( "Button" , "GRM_AltAdded" .. i , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame ); -- Names each Button 1 increment up
-
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i] = { tempButton , tempButton:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ) };
-        end
-
-        if i == numAlts and #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons > numAlts then
-            for j = numAlts + 1 , #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
-                GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[j][1]:Hide();
-            end
-        end
-
-        local AltButtons = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1];
-        local AltButtonsText = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][2];
-        AltButtons:SetSize ( 86.5 , 20 );
-        AltButtons:RegisterForClicks( "RightButtonDown" , "LeftButtonDown" );
-
-        -- Check if main
-        local name = GRM.SlimName ( alts[i][1] );
-        if main ~= "" and alts[i][1] == main then
-            name = name .. "\n|cffff0000" .. GRM.L ( "(main)" );
-            AltButtonsText:SetWordWrap ( true );
-        else
-            AltButtonsText:SetWordWrap ( false );
-        end
-        AltButtonsText:SetText ( name );
-        color = GRM.GetClassColorRGB ( alts[i][2] , false );
-        AltButtonsText:SetTextColor ( color[1] , color[2] , color[3] , 1.0 );
-        AltButtonsText:SetWidth ( 80 );
-
-        if i == 1 and GRM.S().fontModifier > 0 and string.find ( name , GRM.L ( "(main)" ) ) ~= nil then
-            AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
-        else
-            AltButtonsText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
-        end
-
-        AltButtonsText:SetPoint ( "CENTER" , AltButtons );
-        AltButtonsText:SetJustifyH ( "CENTER" );
-
-        AltButtons:SetScript ( "OnClick" , function ( self , button )
-            if button == "RightButton" then
-                -- Parse the button number, so the alt position can be identified...
-                local isMain = false;
-
-                -- This is wrapped in the OnUpdate, but if this action is paused it needs to run when clicked 1 time
-                if GRM_G.pause then
-                    local listOfAlts = GRM.GetListOfAlts ( GRM.GetPlayer(GRM_G.currentName) );
-
-                    if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons ~= nil then
-                        for i = 1 , #GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
-                            if GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1]:IsVisible() and GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1]:IsMouseOver ( 1 , -1 , -1 , 1 ) and GRM.GetMouseFocus( GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i][1] ) and listOfAlts[i] and listOfAlts[i][1] then
-
-                                GRM_G.tempAltName = listOfAlts[i][1];
-                                break;
-                            end
-                        end
-                    end
-                end
-
-                -- Ok, populate the buttons properly...
-                GRM_G.pause = true;
-
-                if string.find ( AltButtonsText:GetText() , GRM.L ( "(main)" ) ) == nil then
-                    GRM_UI.GRM_Mouseover.GRM_altDropDownOptions.GRM_altSetMainButtonText:SetText ( GRM.L ( "Set as Main" ) );
-                    GRM_UI.GRM_Mouseover.GRM_altDropDownOptions.GRM_altOptionsText:SetText ( AltButtonsText:GetText() );
-                else -- player IS the main... place option to Demote From Main rahter than set as main.
-                    GRM_UI.GRM_Mouseover.GRM_altDropDownOptions.GRM_altSetMainButtonText:SetText ( GRM.L ( "Set as Alt" ) );
-                    isMain = true;
-                    GRM_UI.GRM_Mouseover.GRM_altDropDownOptions.GRM_altOptionsText:SetText ( string.sub ( AltButtonsText:GetText() , 1 , string.find ( AltButtonsText:GetText() , "\n" ) - 1 ) );
-                end
-
-                GRM_UI.GRM_Mouseover.GRM_altDropDownOptions.GRM_altRemoveButtonText:SetText( GRM.L ( "Remove" ) );
-
-                GRM_UI.GRM_Mouseover.GRM_altDropDownOptions:ClearAllPoints();
-                GRM_UI.GRM_Mouseover.GRM_altDropDownOptions:SetPoint( "TOPRIGHT" , self , "BOTTOM" );
-
-                GRM_UI.ConfigureAltNamesContextMenuSize();
-                GRM_UI.GRM_Mouseover.GRM_altDropDownOptions:Show();
-
-                -- Set the Global info now!
-                if GRM.GetPlayer ( GRM_G.currentName ) then
-                    GRM_G.selectedName = { GRM_G.currentName , tostring ( GRM_G.tempAltName ) , GRM_G.guildName , isMain };
-                end
-
-            elseif button == "LeftButton" then
-                if not IsShiftKeyDown() then
-
-                    if GRM_G.tempAltName ~= "" then
-                        if IsControlKeyDown() then
-                            GRM.OpenPlayerWindow( GRM_G.tempAltName );
-                        elseif GRM_UI.GRM_Mouseover.GRM_MemberDetailServerNameToolTip:IsVisible() and not GRM_UI.GRM_Mouseover.GRM_MemberDetailNameText:IsMouseOver ( 2 , -2 , -2 , 2 ) then
-                            -- This makes the main window the alt that was clicked on! TempAltName is saved when mouseover action occurs.
-                            GRM_UI.SelectPlayerOnRoster ( GRM_G.tempAltName );
-                        end
-                    end
-                else
-                    if GRM_UI.GRM_Mouseover.GRM_MemberDetailNameText:IsMouseOver ( 2 , -2 , -2 , 2 ) then
-                        GRM_G.tempAltName = GRM_G.currentName;
-                    end
-                    if GRM_G.tempAltName ~= "" then
-                        GRM.GR_Roster_Click ( GRM_G.tempAltName );
-                        GRM_G.tempAltName = "";
-                    end
-                end
-            end
-        end);
-
-        -- Now let's pin it!
-        if i == 1 then
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame , 0 , - 1 );
-            scrollHeight = scrollHeight + AltButtons:GetHeight();
-        elseif i == 2 then
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 1][1] , "TOPRIGHT" , 1 , 0 );
-        else
-            AltButtons:SetPoint( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[i - 2][1] , "BOTTOMLEFT" , 0 , - buffer );
-            if i % 2 ~= 0 then
-                scrollHeight = scrollHeight + AltButtons:GetHeight() + buffer;
-            end
-        end
-        AltButtons:Show();
-    end
-
-    local GRM_AddAltButton2 = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2
-    -- Pin the button
-    if numAlts == 0 then
-        GRM_AddAltButton2:ClearAllPoints();
-        GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame , "TOP" , 0 , - 1 );
-    elseif numAlts == 1 then
-        GRM_AddAltButton2:ClearAllPoints();
-        GRM_AddAltButton2:SetPoint ( "TOPLEFT" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[1][1] , "TOPRIGHT" , 1 , 0 );
-    else
-        GRM_AddAltButton2:ClearAllPoints();
-        GRM_AddAltButton2:SetPoint ( "TOP" , GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1] , "BOTTOM" , 0 , - buffer);
-        if numAlts % 2 == 0 and numAlts > 12 then
-            scrollHeight = scrollHeight + GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer;
-        end
-    end
-    GRM_AddAltButton2:Show();
-
-    if numAlts > 12 then
-        if GRM_UI.GRM_Mouseover.GRM_GroupInviteButton:IsVisible() then
-            GRM_UI.GRM_Mouseover.GRM_SafeFromRulesButton:SetPoint ( "LEFT" , GRM_UI.GRM_Mouseover.GRM_GroupInviteButton , "RIGHT" , 5 , 0 );
-        end
-    end
-
-    -- Update the size -- it either grows or it shrinks!
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame:SetSize ( scrollWidth , scrollHeight );
-
-    --Set Slider Parameters ( has to be done after the above details are placed )
-    local scrollMax = ( scrollHeight - GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:GetHeight() ) + ( buffer * .5 );
-    if scrollMax < 0 then
-        scrollMax = 0;
-    end
-
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetMinMaxValues ( 0 , scrollMax );
-    -- Mousewheel Scrolling Logic
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:EnableMouseWheel( true );
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrame:SetScript( "OnMouseWheel" , function( _ , delta )
-        local current = GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:GetValue();
-
-        if IsShiftKeyDown() and delta > 0 then
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( 0 );
-        elseif IsShiftKeyDown() and delta < 0 then
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( scrollMax );
-        elseif delta < 0 and current < scrollMax then
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current + 20 );
-        elseif delta > 0 and current > 1 then
-            GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:SetValue ( current - 20 );
-        end
-    end);
-
-    if GRM.PlayerOrAltHasJD ( GRM_G.currentName ) then
-        if GRM_UI.GRM_Mouseover.GRM_MemberDetailJoinDateButton:IsVisible() then
-            GRM_UI.GRM_Mouseover.GRM_SyncDateArrowButton:ClearAllPoints();
-            GRM_UI.GRM_Mouseover.GRM_SyncDateArrowButton:SetPoint ( "LEFT" , GRM_UI.GRM_Mouseover.GRM_MemberDetailJoinDateButton , "RIGHT" , 0 , 0 );
-        elseif GRM_UI.GRM_Mouseover.GRM_JoinDateText:IsVisible() then
-            GRM_UI.GRM_Mouseover.GRM_SyncDateArrowButton:ClearAllPoints();
-            GRM_UI.GRM_Mouseover.GRM_SyncDateArrowButton:SetPoint ( "LEFT" , GRM_UI.GRM_Mouseover.GRM_JoinDateText , "RIGHT" , 8 , -0.5 );
-        end
-        GRM_UI.GRM_Mouseover.GRM_SyncDateArrowButton:Show();
-    else
-        GRM_UI.GRM_Mouseover.GRM_SyncDateArrowButton:Hide();
-    end
-
-    GRM_UI.GRM_Mouseover.GRM_CoreAltFrame:Show();
-end
-
 -- Method:          GRM.GetSortedAltNamesWithDetails ( string )
 -- What it Does:    Returns the alt grouping of the player, with their own name, the player details, as well as main sorted as index 1.
 -- Purpose:         Mainly for use with the alt groupings window on mouseover of the player alts on core popup window.
@@ -1558,7 +1340,7 @@ GRM.GetAltTag = function ( value )
 end
 
 local function ResetAutoCompleteHighlights()
-    local buttons = f.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons
+    local buttons =  GRM_UI.GRM_Mouseover.GRM_CoreAltFrame.GRM_AddAltEditFrame.GRM_AddAltScrollChildFrame.AllButtons
     for i = 1, #buttons do
         if i ~= GRM_G.currentHighlightIndex then
             buttons[i][1]:UnlockHighlight()

@@ -596,6 +596,115 @@ local function SetGroupInviteButton(handle)
     end
 end
 
+local function BuildAltGroupingScrollFrame(currentName)
+    local scrollHeight = 0
+    local scrollWidth = 315
+    local buffer = 9
+
+    local borderFrame = GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame
+    local child = borderFrame.GRM_AltGroupingScrollChildFrame
+    local slider = borderFrame.GRM_AltGroupingScrollFrameSlider
+
+    slider:SetValue(0)
+    child.AllFrameFontstrings = child.AllFrameFontstrings or {}
+    
+    borderFrame.GRM_AltGroupingScrollBorderFrameTitle:SetText(GRM_G.CurrentCalendarHexCode .. GRM.L("{name}'s Alts", GRM.SlimName(currentName)))
+
+    if GRM.GetPlayer(currentName) then
+        local listOfAlts = GRM.GetSortedAltNamesWithDetails(currentName)
+        local mainFound = false
+        
+        for i = 1, #listOfAlts do
+            if not child.AllFrameFontstrings[i] then
+                child.AllFrameFontstrings[i] = {
+                    child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
+                    child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
+                    child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
+                    child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")
+                }
+            end
+
+            local AltName = child.AllFrameFontstrings[i][1]
+            local AltLvl = child.AllFrameFontstrings[i][2]
+            local AltRank = child.AllFrameFontstrings[i][3]
+            local AltLastOnline = child.AllFrameFontstrings[i][4]
+            local altClassRGB = GRM.GetClassColorRGB(listOfAlts[i][3], false)
+
+            AltName:SetText(GRM.SlimName(listOfAlts[i][1]))
+            AltName:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9)
+            AltName:SetJustifyH("LEFT")
+            AltName:SetTextColor(altClassRGB[1], altClassRGB[2], altClassRGB[3], 1)
+
+            AltLvl:SetText(listOfAlts[i][2])
+            AltLvl:SetWidth(75); AltLvl:SetWordWrap(false); AltLvl:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9); AltLvl:SetJustifyH("CENTER")
+
+            AltRank:SetText(GuildControlGetRankName(listOfAlts[i][4] + 1))
+            AltRank:SetWidth(75); AltRank:SetWordWrap(false); AltRank:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9); AltRank:SetJustifyH("CENTER")
+
+            AltLastOnline:SetWidth(100); AltLastOnline:SetWordWrap(false); AltLastOnline:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9)
+
+            if listOfAlts[i][9] then
+                AltLastOnline:SetText(GRM.L("Online"))
+                AltLastOnline:SetTextColor(0.12, 1.0, 0.0, 1.0)
+            else
+                AltLastOnline:SetText(GRM.Time.HoursReport(listOfAlts[i][10]))
+                AltLastOnline:SetTextColor(1, 1, 1, 1.0)
+            end
+
+            local stringHeight = AltLastOnline:GetStringHeight()
+
+            if i == 1 then
+                AltName:SetPoint("TOPLEFT", child, "TOPLEFT", 14, -5)
+                AltLvl:SetPoint("TOP", child, "TOP", -60, -5)
+                AltRank:SetPoint("TOP", child, "TOP", 10, -5)
+                AltLastOnline:SetPoint("TOP", child, "TOP", 98, -5)
+                scrollHeight = scrollHeight + stringHeight
+            else
+                AltName:SetPoint("TOPLEFT", child.AllFrameFontstrings[i - 1][1], "BOTTOMLEFT", 0, -buffer)
+                AltLvl:SetPoint("TOP", child.AllFrameFontstrings[i - 1][2], "BOTTOM", 0, -buffer)
+                AltRank:SetPoint("TOP", child.AllFrameFontstrings[i - 1][3], "BOTTOM", 0, -buffer)
+                AltLastOnline:SetPoint("TOP", child.AllFrameFontstrings[i - 1][4], "BOTTOM", 0, -buffer)
+                scrollHeight = scrollHeight + stringHeight + buffer
+            end
+
+            if listOfAlts[i][5] then
+                child.GRM_MainTag:SetPoint("TOP", AltName, "BOTTOM")
+                child.GRM_MainTag:Show()
+                mainFound = true
+            end
+
+            AltName:Show(); AltLvl:Show(); AltRank:Show(); AltLastOnline:Show()
+        end
+
+        if not mainFound then child.GRM_MainTag:Hide() end
+
+        for i = #listOfAlts + 1, #child.AllFrameFontstrings do
+            child.AllFrameFontstrings[i][1]:Hide(); child.AllFrameFontstrings[i][2]:Hide()
+            child.AllFrameFontstrings[i][3]:Hide(); child.AllFrameFontstrings[i][4]:Hide()
+        end
+
+        child:SetSize(scrollWidth, scrollHeight)
+
+        local scrollMax = (scrollHeight - 105) + buffer
+        if scrollMax < 0 then
+            scrollMax = 0
+            slider:Hide()
+            GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollFrame:EnableMouseWheel(false)
+        else
+            slider:SetMinMaxValues(0, scrollMax)
+            GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollFrame:EnableMouseWheel(true)
+            GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollFrame:SetScript("OnMouseWheel", function(_, delta)
+                local current = slider:GetValue()
+                if delta < 0 and current < scrollMax then
+                    slider:SetValue(current + (IsControlKeyDown() and 60 or 20))
+                elseif delta > 0 and current > 1 then
+                    slider:SetValue(current - (IsControlKeyDown() and 60 or 20))
+                end
+            end)
+            slider:Show()
+        end
+    end
+end
 
 -----------------------------------
 ---- CORE MOUSEOVER MODULE --------
@@ -1575,6 +1684,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
 
                 f.GRM_NoteCount:SetText(f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:GetNumLetters() .. "/31")
                 f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:Show()
+                f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetFocus()
                 f.GRM_NoteCount:Show()
                 f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:Hide()
             end
@@ -1597,6 +1707,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
 
                 f.GRM_NoteCount:SetText(f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:GetNumLetters() .. "/31")
                 f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:Show()
+                f.GRM_PlayerOfficerNoteWindow.GRM_PlayerOfficerNoteEditBox:SetFocus()
                 f.GRM_NoteCount:Show()
                 f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:Hide()
 
@@ -2600,116 +2711,6 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         GRM.ConfigureSlider(AddAltEditFrame.GRM_AddAltScrollFrame, child, AddAltEditFrame.GRM_AddAltScrollFrameSlider, scrollWidth, scrollHeight, 84, true)
     end
 
-    local function BuildAltGroupingScrollFrame(currentName)
-        local scrollHeight = 0
-        local scrollWidth = 315
-        local buffer = 9
-
-        local borderFrame = GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame
-        local child = borderFrame.GRM_AltGroupingScrollChildFrame
-        local slider = borderFrame.GRM_AltGroupingScrollFrameSlider
-
-        slider:SetValue(0)
-        child.AllFrameFontstrings = child.AllFrameFontstrings or {}
-        
-        borderFrame.GRM_AltGroupingScrollBorderFrameTitle:SetText(GRM_G.CurrentCalendarHexCode .. GRM.L("{name}'s Alts", GRM.SlimName(currentName)))
-
-        if GRM.GetPlayer(currentName) then
-            local listOfAlts = GRM.GetSortedAltNamesWithDetails(currentName)
-            local mainFound = false
-            
-            for i = 1, #listOfAlts do
-                if not child.AllFrameFontstrings[i] then
-                    child.AllFrameFontstrings[i] = {
-                        child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
-                        child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
-                        child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"),
-                        child:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")
-                    }
-                end
-
-                local AltName = child.AllFrameFontstrings[i][1]
-                local AltLvl = child.AllFrameFontstrings[i][2]
-                local AltRank = child.AllFrameFontstrings[i][3]
-                local AltLastOnline = child.AllFrameFontstrings[i][4]
-                local altClassRGB = GRM.GetClassColorRGB(listOfAlts[i][3], false)
-
-                AltName:SetText(GRM.SlimName(listOfAlts[i][1]))
-                AltName:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9)
-                AltName:SetJustifyH("LEFT")
-                AltName:SetTextColor(altClassRGB[1], altClassRGB[2], altClassRGB[3], 1)
-
-                AltLvl:SetText(listOfAlts[i][2])
-                AltLvl:SetWidth(75); AltLvl:SetWordWrap(false); AltLvl:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9); AltLvl:SetJustifyH("CENTER")
-
-                AltRank:SetText(GuildControlGetRankName(listOfAlts[i][4] + 1))
-                AltRank:SetWidth(75); AltRank:SetWordWrap(false); AltRank:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9); AltRank:SetJustifyH("CENTER")
-
-                AltLastOnline:SetWidth(100); AltLastOnline:SetWordWrap(false); AltLastOnline:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 9)
-
-                if listOfAlts[i][9] then
-                    AltLastOnline:SetText(GRM.L("Online"))
-                    AltLastOnline:SetTextColor(0.12, 1.0, 0.0, 1.0)
-                else
-                    AltLastOnline:SetText(GRM.Time.HoursReport(listOfAlts[i][10]))
-                    AltLastOnline:SetTextColor(1, 1, 1, 1.0)
-                end
-
-                local stringHeight = AltLastOnline:GetStringHeight()
-
-                if i == 1 then
-                    AltName:SetPoint("TOPLEFT", child, "TOPLEFT", 14, -5)
-                    AltLvl:SetPoint("TOP", child, "TOP", -60, -5)
-                    AltRank:SetPoint("TOP", child, "TOP", 10, -5)
-                    AltLastOnline:SetPoint("TOP", child, "TOP", 98, -5)
-                    scrollHeight = scrollHeight + stringHeight
-                else
-                    AltName:SetPoint("TOPLEFT", child.AllFrameFontstrings[i - 1][1], "BOTTOMLEFT", 0, -buffer)
-                    AltLvl:SetPoint("TOP", child.AllFrameFontstrings[i - 1][2], "BOTTOM", 0, -buffer)
-                    AltRank:SetPoint("TOP", child.AllFrameFontstrings[i - 1][3], "BOTTOM", 0, -buffer)
-                    AltLastOnline:SetPoint("TOP", child.AllFrameFontstrings[i - 1][4], "BOTTOM", 0, -buffer)
-                    scrollHeight = scrollHeight + stringHeight + buffer
-                end
-
-                if listOfAlts[i][5] then
-                    child.GRM_MainTag:SetPoint("TOP", AltName, "BOTTOM")
-                    child.GRM_MainTag:Show()
-                    mainFound = true
-                end
-
-                AltName:Show(); AltLvl:Show(); AltRank:Show(); AltLastOnline:Show()
-            end
-
-            if not mainFound then child.GRM_MainTag:Hide() end
-
-            for i = #listOfAlts + 1, #child.AllFrameFontstrings do
-                child.AllFrameFontstrings[i][1]:Hide(); child.AllFrameFontstrings[i][2]:Hide()
-                child.AllFrameFontstrings[i][3]:Hide(); child.AllFrameFontstrings[i][4]:Hide()
-            end
-
-            child:SetSize(scrollWidth, scrollHeight)
-
-            local scrollMax = (scrollHeight - 105) + buffer
-            if scrollMax < 0 then
-                scrollMax = 0
-                slider:Hide()
-                GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollFrame:EnableMouseWheel(false)
-            else
-                slider:SetMinMaxValues(0, scrollMax)
-                GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollFrame:EnableMouseWheel(true)
-                GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollFrame:SetScript("OnMouseWheel", function(_, delta)
-                    local current = slider:GetValue()
-                    if delta < 0 and current < scrollMax then
-                        slider:SetValue(current + (IsControlKeyDown() and 60 or 20))
-                    elseif delta > 0 and current > 1 then
-                        slider:SetValue(current - (IsControlKeyDown() and 60 or 20))
-                    end
-                end)
-                slider:Show()
-            end
-        end
-    end
-
     -- Alt Grouping Frame Handlers
     local function AltGroupingBorderFrame_OnShow()
         if AddAltEditFrame:IsVisible() then AddAltEditFrame:Hide() end
@@ -3110,6 +3111,225 @@ end
 
 GRM_UI.DateUntrustedTag = function(isVerified)
     return not isVerified and "|cffff0000!!|r" or ""
+end
+
+-- Method:          GRM_UI.PopulateAltFrames( string )
+-- What it Does:    This generates the alt frames in the mouseover frame
+-- Purpose:         Clean formatting of the alt frames.
+GRM_UI.PopulateAltFrames = function(playerName)
+    local player = GRM.GetPlayer(playerName)
+    if not player then
+        return
+    end
+
+    local alts = GRM.GetListOfAlts(player)
+    local numAlts = #alts
+    local main = ""
+    f.alts = {}
+
+    if player.altGroup ~= "" then
+        main = GRM.GetAltGroup(player.altGroup).main
+        -- Build an alt reference dict
+        for i = 1, numAlts do
+            f.alts[string.lower(alts[i][1])] = {}
+        end
+    end
+
+    local altFrame = f.GRM_CoreAltFrame
+    local scrollFrame = altFrame.GRM_CoreAltScrollFrame
+    local child = altFrame.GRM_CoreAltScrollChildFrame
+    local slider = altFrame.GRM_CoreAltScrollFrameSlider
+
+    scrollFrame:Show()
+    child:Show()
+
+    local scrollHeight = 0
+    local scrollWidth = 170
+    local buffer = 1
+
+    child.allFrameButtons = child.allFrameButtons or {}
+
+    for i = 1, numAlts do
+        if not child.allFrameButtons[i] then
+            local tempButton = CreateFrame("Button", "GRM_AltAdded" .. i, child)
+            child.allFrameButtons[i] = {tempButton, tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny")}
+        end
+
+        local AltButton = child.allFrameButtons[i][1]
+        local AltButtonText = child.allFrameButtons[i][2]
+
+        AltButton:SetSize(86.5, 20)
+        AltButton:RegisterForClicks("RightButtonDown", "LeftButtonDown")
+
+        local name = GRM.SlimName(alts[i][1])
+        local isMain = false
+        if main ~= "" and alts[i][1] == main then
+            name = name .. "\n|cffff0000" .. GRM.L("(main)")
+            AltButtonText:SetWordWrap(true)
+            isMain = true
+        else
+            AltButtonText:SetWordWrap(false)
+        end
+
+        AltButtonText:SetText(name)
+        local color = GRM.GetClassColorRGB(alts[i][2], false)
+        AltButtonText:SetTextColor(color[1], color[2], color[3], 1.0)
+        AltButtonText:SetWidth(80)
+
+        if i == 1 and GRM.S().fontModifier > 0 and isMain then
+            AltButtonText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 10)
+        else
+            AltButtonText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 10)
+        end
+
+        AltButtonText:SetPoint("CENTER", AltButton)
+        AltButtonText:SetJustifyH("CENTER")
+
+        AltButton:SetScript("OnClick", function(self, button)
+            if button == "RightButton" then
+                GRM_G.pause = true
+                GRM_G.tempAltName = alts[i][1]
+                GRM_G.selectedName = { GRM_G.currentName, tostring(GRM_G.tempAltName), GRM_G.guildName, isMain }
+
+                -- BUILD DYNAMIC CONTEXT MENU OPTIONS
+                local menuButtons = {}
+                local cleanName = string.gsub(AltButtonText:GetText(), "\n.*", "") -- Strip the (main) line for title
+
+                if not isMain then
+                    table.insert(menuButtons, { text = GRM.L("Set as Main"), onClick = function()
+                        GRM_UI.SetAltAsMainDropDownMenuLogic(GRM_G.selectedName)
+                        f.ContextMenu:Hide()
+                    end})
+                else
+                    table.insert(menuButtons, { text = GRM.L("Set as Alt"), onClick = function()
+                        GRM_UI.DemoteMainToAltDropDownMenuLogic(GRM_G.selectedName)
+                        f.ContextMenu:Hide()
+                    end})
+                end
+
+                table.insert(menuButtons, { text = GRM.L("Remove"), onClick = function()
+                    local altDetails = GRM_G.selectedName
+                    local timestamp = time()
+                    
+                    GRM.RemovePlayerFromAltGroup(altDetails[2], timestamp, true, true)
+                    
+                    if f.GRM_AltGroupingScrollBorderFrame:IsVisible() then
+                        BuildAltGroupingScrollFrame(GRM_G.currentName)
+                    end
+                    
+                    if GRM_UI.GRM_LoadToolButton and GRM_UI.GRM_LoadToolButton:IsVisible() then
+                        GRM_UI.RefreshToolButtonsOnUpdate_Async(false, false)
+                    end
+                    
+                    if GRM.S().syncEnabled then
+                        local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
+                        GRMsync.SendMessage("GRM_SYNC", "GRM_RMVALT?" .. syncRankFilter .. "?" .. altDetails[2] .. "?" .. tostring(timestamp) .. "?" .. altDetails[1], "GUILD")
+                    end
+                    
+                    GRM.Report(GRM.L("{name} has been removed from {name2}'s list of Alts.", GRM.GetClassifiedName(altDetails[2], true), GRM.GetClassifiedName(GRM_G.currentName, true)))
+                    f.ContextMenu:Hide()
+                end})
+
+                -- Show the unified menu attached to this Alt button
+                ShowContextMenu({"TOPRIGHT", self, "BOTTOM", 0, 0}, cleanName, menuButtons)
+
+            elseif button == "LeftButton" then
+                GRM_G.tempAltName = alts[i][1]
+                if not IsShiftKeyDown() then
+                    if GRM_G.tempAltName ~= "" then
+                        if IsControlKeyDown() then
+                            GRM.OpenPlayerWindow(GRM_G.tempAltName)
+                        elseif f.GRM_MemberDetailServerNameToolTip:IsVisible() and not f.GRM_MemberDetailNameText:IsMouseOver(2, -2, -2, 2) then
+                            GRM_UI.SelectPlayerOnRoster(GRM_G.tempAltName)
+                        end
+                    end
+                else
+                    if f.GRM_MemberDetailNameText:IsMouseOver(2, -2, -2, 2) then
+                        GRM_G.tempAltName = GRM_G.currentName
+                    end
+                    if GRM_G.tempAltName ~= "" then
+                        GRM.GR_Roster_Click(GRM_G.tempAltName)
+                        GRM_G.tempAltName = ""
+                    end
+                end
+            end
+        end)
+
+        -- Position the button in the grid
+        if i == 1 then
+            AltButton:SetPoint("TOPLEFT", child, "TOPLEFT", 0, -1)
+            scrollHeight = scrollHeight + AltButton:GetHeight()
+        elseif i == 2 then
+            AltButton:SetPoint("TOPLEFT", child.allFrameButtons[i - 1][1], "TOPRIGHT", 1, 0)
+        else
+            AltButton:SetPoint("TOPLEFT", child.allFrameButtons[i - 2][1], "BOTTOMLEFT", 0, -buffer)
+            if i % 2 ~= 0 then
+                scrollHeight = scrollHeight + AltButton:GetHeight() + buffer
+            end
+        end
+        AltButton:Show()
+    end
+
+    -- Hide unused buttons
+    for j = numAlts + 1, #child.allFrameButtons do
+        child.allFrameButtons[j][1]:Hide()
+    end
+
+    -- Position the "Add Alt" Button
+    local addBtn = f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2
+    addBtn:ClearAllPoints()
+    if numAlts == 0 then
+        addBtn:SetPoint("TOP", scrollFrame, "TOP", 0, -1)
+    elseif numAlts == 1 then
+        addBtn:SetPoint("TOPLEFT", child.allFrameButtons[1][1], "TOPRIGHT", 1, 0)
+    else
+        addBtn:SetPoint("TOP", child.allFrameButtons[numAlts - 1][1], "BOTTOM", 0, -buffer)
+        if numAlts % 2 == 0 and numAlts > 12 then
+            scrollHeight = scrollHeight + child.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer
+        end
+    end
+    addBtn:Show()
+
+    if numAlts > 12 and f.GRM_GroupInviteButton:IsVisible() then
+        f.GRM_SafeFromRulesButton:SetPoint("LEFT", f.GRM_GroupInviteButton, "RIGHT", 5, 0)
+    end
+
+    child:SetSize(scrollWidth, scrollHeight)
+
+    -- Configure Slider
+    local scrollMax = (scrollHeight - scrollFrame:GetHeight()) + (buffer * 0.5)
+    if scrollMax < 0 then scrollMax = 0 end
+
+    slider:SetMinMaxValues(0, scrollMax)
+    scrollFrame:EnableMouseWheel(true)
+    scrollFrame:SetScript("OnMouseWheel", function(_, delta)
+        local current = slider:GetValue()
+        if IsShiftKeyDown() and delta > 0 then
+            slider:SetValue(0)
+        elseif IsShiftKeyDown() and delta < 0 then
+            slider:SetValue(scrollMax)
+        elseif delta < 0 and current < scrollMax then
+            slider:SetValue(current + 20)
+        elseif delta > 0 and current > 1 then
+            slider:SetValue(current - 20)
+        end
+    end)
+
+    -- Configure Join Date Arrow Button
+    if GRM.PlayerOrAltHasJD(GRM_G.currentName) then
+        if f.GRM_MemberDetailJoinDateButton:IsVisible() then
+            f.GRM_SyncDateArrowButton:ClearAllPoints()
+            f.GRM_SyncDateArrowButton:SetPoint("LEFT", f.GRM_MemberDetailJoinDateButton, "RIGHT", 0, 0)
+        elseif f.GRM_JoinDateText:IsVisible() then
+            f.GRM_SyncDateArrowButton:ClearAllPoints()
+            f.GRM_SyncDateArrowButton:SetPoint("LEFT", f.GRM_JoinDateText, "RIGHT", 8, -0.5)
+        end
+        f.GRM_SyncDateArrowButton:Show()
+    else
+        f.GRM_SyncDateArrowButton:Hide()
+    end
+
+    altFrame:Show()
 end
 
 local function JoinDateTooltip(self)
@@ -3657,7 +3877,7 @@ GRM_UI.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
         end
 
         if not doubleCopy then
-            GRM.PopulateAltFrames(handle)
+            GRM_UI.PopulateAltFrames(handle)
         end
         ReconfigureNoteFonts()
     end
