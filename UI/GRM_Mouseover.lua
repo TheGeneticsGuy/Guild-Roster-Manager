@@ -3112,30 +3112,6 @@ GRM_UI.DateUntrustedTag = function(isVerified)
     return not isVerified and "|cffff0000!!|r" or ""
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 local function JoinDateTooltip(self)
     if GRM.GetMouseFocus(self) and not self.GRM_MemberDetailJoinDateToolTip:IsVisible() and
         not StaticPopup1:IsVisible() and self.GRM_JoinDateText:IsVisible() and

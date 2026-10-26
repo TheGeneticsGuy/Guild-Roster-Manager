@@ -3289,7 +3289,7 @@ end
 -- Method:          SubFrameCheck ( button , boolean )
 -- Method:          To return the current mouseover name of the given button, with the server appended.
 -- Purpose:         Need the full name-server, untruncated, to be able to correctly identify the player in database, in case 2 players with same name, but diff. servers
-SubFrameCheck = function(button, isMouseClick)
+GRM.GetRosterName = function(button, isMouseClick)
     local name = "";
     local guid = "";
 

@@ -9519,6 +9519,29 @@ local function ClearResetFramesOnTabChange()
     end
 end
 
+-- Method:          FrameUpdateCommunities ( self , int )
+-- What it Does:    On_Update handler for the frames when Communities is open.
+-- Purpose:         For mouseover to function properly
+local function FrameUpdateCommunities( _ , elapsed )
+    GRM.GRM_CoreUpdateFrameCommunities.timer = GRM.GRM_CoreUpdateFrameCommunities.timer + elapsed;
+    if GRM.GRM_CoreUpdateFrameCommunities.timer >= 0.05 then
+        if CommunitiesFrame ~= nil and IsInGuild() then
+            if CommunitiesFrame:GetSelectedClubId() ~= GRM_G.clubID then
+                GRM_G.clubID = CommunitiesFrame:GetSelectedClubId();
+            end
+
+            if GRM_G.clubID ~= GRM_G.gClubID then
+                if GRM_UI.GRM_Mouseover:IsVisible() then
+                    GRM_UI.ClearAllFrames ( true );
+                end
+            else
+                RosterFrame();
+            end
+        end
+        GRM.GRM_CoreUpdateFrameCommunities.timer = 0;
+    end
+end
+
 -- Method:          GRM_UI.BlizzardFramePinHookInitializations ( bool )
 -- What it Does:    Initializes all the chooks and attachements and logic integrated into Blizz default frames
 -- Purpose:         Warcraft is smart in how it handles loading frames and it only loads them *as needed* and as a result, they will appear as "nil" until you
@@ -9542,29 +9565,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             GRM.GRM_CoreUpdateFrameCommunities = CreateFrame ( "Frame" , nil , CommunitiesFrame );
             GRM.GRM_CoreUpdateFrameCommunities.timer = 0;
 
-            -- Method:          GRM.FrameUpdateCommunities ( self , int )
-            -- What it Does:    On_Update handler for the frames when Communities is open.
-            -- Purpose:         For mouseover to function properly
-            GRM.FrameUpdateCommunities = function ( _ , elapsed )
-                GRM.GRM_CoreUpdateFrameCommunities.timer = GRM.GRM_CoreUpdateFrameCommunities.timer + elapsed;
-                if GRM.GRM_CoreUpdateFrameCommunities.timer >= 0.05 then
-                    if CommunitiesFrame ~= nil and IsInGuild() then
-                        if CommunitiesFrame:GetSelectedClubId() ~= GRM_G.clubID then
-                            GRM_G.clubID = CommunitiesFrame:GetSelectedClubId();
-                        end
-
-                        if GRM_G.clubID ~= GRM_G.gClubID then
-                            if GRM_UI.GRM_Mouseover:IsVisible() then
-                                GRM_UI.ClearAllFrames ( true );
-                            end
-                        else
-                            RosterFrame();
-                        end
-                    end
-                    GRM.GRM_CoreUpdateFrameCommunities.timer = 0;
-                end
-            end
-            GRM.GRM_CoreUpdateFrameCommunities:SetScript ( "OnUpdate" , GRM.FrameUpdateCommunities );
+            GRM.GRM_CoreUpdateFrameCommunities:SetScript ( "OnUpdate" , FrameUpdateCommunities );
             -- See if it is the scanning that is causing disconnects next
             -- Close Meta data window
             CommunitiesFrame:HookScript ( "OnHide" , function ()
@@ -9650,7 +9651,6 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
             end);
 
             GRM_R.InitializeRosterLoadButton ( CommunitiesFrame , { "TOP" , CommunitiesFrame.GuildInfoTab , "BOTTOM" , 0 , -10 } , { 44 , 44 } , { 32 , 32 } );
-
         end
     end
 
