@@ -1506,7 +1506,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
     f.GRM_SetPromoDateButton:SetScript("OnClick", function(self, button)
         if button == "LeftButton" then
             self:Hide()
-            GRM.SetDateSelectFrame("PromoRank")
+            SetDateSelectFrame("PromoRank")
             GRM_G.pause = true
         end
     end);
@@ -1637,7 +1637,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
                 f.GRM_SyncDateArrowButton:Hide()
             end
 
-            GRM.SetDateSelectFrame("JoinDate")
+            SetDateSelectFrame("JoinDate")
             f.GRM_SyncJoinDateSideFrame:Hide()
             GRM_G.pause = true
         end
@@ -1652,7 +1652,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
                 f.GRM_SetPromoDateButton:Hide()
             end
             
-            GRM.SetDateSelectFrame("Birthday")
+            SetDateSelectFrame("Birthday")
             f.GRM_SyncJoinDateSideFrame:Hide()
             GRM_G.pause = true
         end
