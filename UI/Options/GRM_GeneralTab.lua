@@ -215,6 +215,14 @@ local function UpdateTooltipSlider(value)
     end
 end
 
+local function DropdowmMenusNotVisible()
+    local f = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
+    if f.GRM_TimestampDDMenu:IsVisible() or f.GRM_LanguageDDMenu:IsVisible() or f.GRM_FontDDMenu:IsVisible() then
+        return false;
+    end
+    return true
+end
+
 local function OnTooltipSliderMouseUp(self, button)
     if button == "RightButton" then
         self:SetValue(100)
@@ -226,7 +234,7 @@ local function OnTooltipSliderMouseUp(self, button)
 end
 
 local ttSliderTooltip = function(self)
-    if not GameTooltip:IsVisible() then
+    if not GameTooltip:IsVisible() and DropdowmMenusNotVisible() then
         GRM_UI.SetTooltipScale()
         GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
         GameTooltip:AddLine(GRM.L("This only affects GRM tooltips"), 1, 0, 0)
@@ -270,7 +278,9 @@ local function ToggleAchieve(self)
 end
 
 local fontSliderTooltip = function(self)
-    GRM_UI.CreateTooltipFromTable(self, {1, GRM.L("Right-Click to Reset to 100%")})
+    if DropdowmMenusNotVisible() then
+        GRM_UI.CreateTooltipFromTable(self, {1, GRM.L("Right-Click to Reset to 100%")})
+    end
 end
 
 local CloseOtherDropdowns = function(ind)
@@ -376,7 +386,7 @@ GeneralTab.InitializeGeneralTab = function(isManualUpdate)
     GRM_UI.CreateCheckBox("GRM_DefaultTabSelectionButton", f, nil, nil, {"TOPLEFT", f.GRM_SyncCompatibilityMessageButton, "BOTTOMLEFT", 0, -6}, ToggleDefaultTab, GRM.L("Default Open Tab:"), "GameFontNormalSmall", 12)
     GRM_UI.CreateDropDownMenu("GRM_DefaultTabDD", f, nil, {"LEFT", f.GRM_DefaultTabSelectionButton.GRM_DefaultTabSelectionButtonText, "RIGHT", 8, 0}, {110, 25}, GetDefaultTabList(), 12, {1,1,1},
                             GRM.L("{custom1} to Change Default GRM Tab on First Open.", nil, nil, nil, "|CFFE6CC7F" .. GRM.L("Left-Click") .. "|r"), GRM.RestoreTooltip, function(idx) GRM.S().defaultTabSelection[2] = idx end,
-                            nil, nil, true, function() CloseOtherDropdowns(1) end)
+                            nil, nil, true, function() CloseOtherDropdowns(1) end, 4)
 
     -- =======================================================
     -- REPORT DESTINATION EDITBOX
@@ -406,18 +416,18 @@ GeneralTab.InitializeGeneralTab = function(isManualUpdate)
 
     GRM_UI.CreateString("GRM_TimestampLbl", f, "GameFontNormalSmall", GRM.L("Timestamp:"), 12, {"TOPLEFT", f.GRM_GeneralOptionsFormattingText, "BOTTOMLEFT", 0, -16})
     GRM_UI.CreateDropDownMenu("GRM_TimestampDD", f, nil, {"LEFT", f.GRM_TimestampLbl, "RIGHT", 8, 0}, DEFAULT_SIZE, GetTimestampList(), 12, {1,1,1},
-                                nil, nil, function(idx) SelectTimestamp(idx) end, nil, nil, true, function() CloseOtherDropdowns(2) end)
+                                nil, nil, function(idx) SelectTimestamp(idx) end, nil, nil, true, function() CloseOtherDropdowns(2) end, 4)
 
     -- 24HR FORMAT
     GRM_UI.CreateString("GRM_24HrLbl", f, "GameFontNormalSmall", GRM.L("Hour Format:"), 12, {"LEFT", f.GRM_TimestampDDSelected, "RIGHT", 25, 0})
     GRM_UI.CreateDropDownMenu("GRM_24HrDD", f, nil, {"LEFT", f.GRM_24HrLbl, "RIGHT", 8, 0}, DEFAULT_SIZE, Get24HrList(), 12, {1,1,1},
-                                nil, nil, function(idx) Select24HrFormat(idx) end, nil, nil, true, function() CloseOtherDropdowns(3) end)
+                                nil, nil, function(idx) Select24HrFormat(idx) end, nil, nil, true, function() CloseOtherDropdowns(3) end, 4)
                                 
     -- LANGUAGE
     GRM_UI.CreateString("GRM_LanguageLbl", f, "GameFontNormalSmall", GRM.L("Language:"), 12, {"TOPLEFT", f.GRM_TimestampLbl, "BOTTOMLEFT", 0, -16})
     GRM_UI.CreateDropDownMenu("GRM_LanguageDD", f, nil, {"TOPLEFT", f.GRM_TimestampDDSelected, "BOTTOMLEFT", 0, -4}, DEFAULT_SIZE, GetLanguageList(), 12, {1,1,1},
                             GRM.L("{custom1} to Change the Language", nil, nil, nil, "|CFFE6CC7F" .. GRM.L("Left-Click") .. "|r"), GRM.RestoreTooltip,
-                            function(idx) SelectLanguage(idx) end, nil, nil, true, function() CloseOtherDropdowns(4) end)
+                            function(idx) SelectLanguage(idx) end, nil, nil, true, function() CloseOtherDropdowns(4) end, 4)
     
     GRM_UI.CreateString("GRM_LanguageCountText", f, "GameFontNormalSmall", "", 12, {"LEFT", f.GRM_LanguageDDSelected, "RIGHT", 10, 0}, 290, {0.0, 0.8, 1.0}, "LEFT", false)
     
@@ -425,7 +435,7 @@ GeneralTab.InitializeGeneralTab = function(isManualUpdate)
     GRM_UI.CreateString("GRM_FontLbl", f, "GameFontNormalSmall", GRM.L("Font:"), 12, {"TOPLEFT", f.GRM_LanguageLbl, "BOTTOMLEFT", 0, -16})
     GRM_UI.CreateDropDownMenu("GRM_FontDD", f, nil, {"TOPLEFT", f.GRM_LanguageDDSelected, "BOTTOMLEFT", 0, -4}, DEFAULT_SIZE, GetFontList(), 12, {1,1,1},
                             GRM.L("{custom1} to Change Display Format", nil, nil, nil, "|CFFE6CC7F" .. GRM.L("Left-Click") .. "|r"), GRM.RestoreTooltip,
-                            function(idx) SelectFont(idx) end, nil, nil, true, function() CloseOtherDropdowns(5) end)
+                            function(idx) SelectFont(idx) end, nil, nil, true, function() CloseOtherDropdowns(5) end, 4)
     
     -- =======================================================
     -- SLIDERS

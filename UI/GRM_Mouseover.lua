@@ -5,6 +5,9 @@ local f;
 --------------------------
 -- CONTEXT MENU BUILDER --
 --------------------------
+-------------------------------------
+-- CONTEXT MENU BUILDER (REUSABLE) --
+-------------------------------------
 local function ShowContextMenu(anchor, title, buttons)
     local cm = f.ContextMenu
     if not cm then
@@ -52,14 +55,17 @@ local function ShowContextMenu(anchor, title, buttons)
         end
         
         btn:SetPoint("TOPLEFT", cm, "TOPLEFT", 7, yOffset)
-        btn[btn:GetName() .. "Text"]:SetText(btnInfo.text)
+        
+        local textObj = btn[btn:GetName() .. "Text"]
+        textObj:SetText(btnInfo.text)
+        
         btn:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
                 btnInfo.onClick()
             end
         end)
         
-        maxWidth = math.max(maxWidth, btn[btn:GetName() .. "Text"]:GetStringWidth() + 15)
+        maxWidth = math.max(maxWidth, textObj:GetStringWidth() + 15)
         btn:Show()
         yOffset = yOffset - 26
     end
@@ -69,9 +75,15 @@ local function ShowContextMenu(anchor, title, buttons)
     end
     
     cm.CancelButton:SetWidth(maxWidth)
+    cm.CancelButton.CancelButtonText:SetWidth(maxWidth - 5)
+    
     for i = 1, #buttons do
-        cm.Buttons[i]:SetWidth(maxWidth)
-        GRM.NormalizeHitRects(cm.Buttons[i], cm.Buttons[i][cm.Buttons[i]:GetName() .. "Text"], maxWidth)
+        local btn = cm.Buttons[i]
+        local textObj = btn[btn:GetName() .. "Text"]
+        
+        btn:SetWidth(maxWidth)
+        textObj:SetWidth(maxWidth - 5)
+        GRM.NormalizeHitRects(btn, textObj, maxWidth)
     end
     
     cm.Divider:SetPoint("BOTTOMLEFT", cm.CancelButton, "TOPLEFT", 0, -2)
@@ -180,13 +192,20 @@ local function ConfigureStatusRightClickMenu()
     local statusText = f.GRM_MemberDetailPlayerStatus:GetText()
     local buttons = {}
     
+    -- Explicitly capture the target name so it doesn't get lost in the closure
+    local targetName = GRM_G.selectedName[1] or GRM_G.currentName
+    
     if statusText == GRM_G.Status[1] or statusText == GRM_G.Status[2] then
-        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"), onClick = function() GRM.AddPlayerStatusCheck(GRM_G.selectedName[1], 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"),
+                     onClick = function() GRM.AddPlayerStatusCheck(targetName, 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
     elseif statusText == GRM_G.Status[3] then
-        table.insert(buttons, { text = GRM.L("Notify When Player Comes Online"), onClick = function() GRM.AddPlayerStatusCheck(GRM_G.selectedName[1], 2); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player Comes Online"),
+                     onClick = function() GRM.AddPlayerStatusCheck(targetName, 2); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
     elseif statusText == GRM_G.Status[4] or statusText == GRM_G.Status[5] then
-        table.insert(buttons, { text = GRM.L("Notify When Player is Active"), onClick = function() GRM.AddPlayerStatusCheck(GRM_G.selectedName[1], 1); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
-        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"), onClick = function() GRM.AddPlayerStatusCheck(GRM_G.selectedName[1], 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player is Active"),
+                     onClick = function() GRM.AddPlayerStatusCheck(targetName, 1); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"),
+              onClick = function() GRM.AddPlayerStatusCheck(targetName, 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
     end
     
     if #buttons > 0 then
@@ -908,9 +927,9 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_MemberDetailBannedText1", f, "GameFontNormalSmall", GRM.L("WARNING!") .. "\n" .. GRM.L("Player Was Previously Banned!"), 11, {"BOTTOMLEFT", f.GRM_MemberDetailBannedIgnoreButton, "TOPLEFT", 0, 2}, 400, {1.0, 0.0, 0.0}, "LEFT", true)
 
     -- ALT FRAMES!!!
-    GRM_UI.CreateCoreFrame("GRM_CoreAltFrame", f, nil, 170, 150, nil, false, {"TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -10}, nil, false, false)
+    GRM_UI.CreateCoreFrame("GRM_CoreAltFrame", f, nil, 170, 180, nil, false, {"TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -10}, nil, false, false)
     f.GRM_CoreAltFrame:SetPoint("TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -10)
-    GRM_UI.CreateScrollFrame("GRM_CoreAltScrollFrame", f.GRM_CoreAltFrame, 170, 140, {"TOP", f.GRM_CoreAltFrame, "TOP", 0, -2}, "GRM_CoreAltScrollChildFrame", false, "GRM_CoreAltScrollFrameSlider",
+    GRM_UI.CreateScrollFrame("GRM_CoreAltScrollFrame", f.GRM_CoreAltFrame, 170, 170, {"TOP", f.GRM_CoreAltFrame, "TOP", 0, -2}, "GRM_CoreAltScrollChildFrame", false, "GRM_CoreAltScrollFrameSlider",
                              GRM_G.SliderTemplate, {16, 109}, {"TOPLEFT", f.GRM_CoreAltFrame.GRM_CoreAltScrollFrame, "TOPRIGHT", 10, -13})
     f.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:Hide()
 
