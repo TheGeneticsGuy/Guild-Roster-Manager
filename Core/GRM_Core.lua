@@ -2097,7 +2097,7 @@ GRM.GetAllGuildiesByBirthdayDateOrder = function(fullNameNeeded, newFirst)
                 local birthdayInfo = GRM.GetBirthday(player);
                 if birthdayInfo.date[1] ~= 0 then
                     -- find a proper place to sort
-                    local timestamp = GRM.Time.Enums.days_before_month[birthdayInfo.date[2]] + birthdayInfo.date[1];
+                    local timestamp = GRM_ENUM.DAYS_BEFORE_MONTH[birthdayInfo.date[2]] + birthdayInfo.date[1];
 
                     if #listOfGuildiesWithDates == 0 then -- the first one can be a straight insert
                         table.insert(listOfGuildiesWithDates,
@@ -11290,7 +11290,7 @@ GRM.IsValidDay = function(day, month, year)
     local result = false;
     if day ~= nil and type(day) == "number" and type(month) == "number" and type(year) == "number" and day < 32 and day >
         0 and month < 13 and month > 0 then
-        if (month == 2 and day == 29 and GRM.Time.IsLeapYear(year)) or (day <= GRM.Time.Enums.days_in_month[month]) then
+        if (month == 2 and day == 29 and GRM.Time.IsLeapYear(year)) or (day <= GRM_ENUM.DAYS_IN_MONTH[month]) then
             result = true;
         end
     end

@@ -1600,6 +1600,7 @@ GRML.English = function()
     GRM_L["Show Member Faction"] = true
     GRM_L["Faction"] = true
     GRM_L["Alts:"] = true
+    GRM_L["Alts"] = true
 
     -- R1.975
     GRM_L["Export a full list of names in the queue."] = true
@@ -2068,6 +2069,7 @@ GRML.English = function()
 
     -- Misc
     GRM_L["All GRM Settings have been set to default."] = true
+    GRM_L["Public and Officer notes are addon restricted in current Warcraft version. GRM will only consider Custom Note if empty."] = true
 
     -- NamesTab in options
     GRM_L["Tag Color"] = true

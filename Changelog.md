@@ -83,6 +83,7 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 * Color Picker (colorwheel window) has been more smartly implemented with universal compatibility of any other color picker modification addon, like Color Picker Plus, Color Picker Advanced, or even ElvUI. Before I had modified things significantly which requried me to build carve-out compatibility specifically. Now, that is no longer necessary. I now hook the baseline actions, allowing GRM to instead enjoy the colorpicker modifications
 
+* The Mouseover Alt Window now has a static alt button that doesn't move, and the scroll window is improved, making it obvious if you have additional alts to scroll to.
 
 
 ***BUG FIXES***
@@ -100,6 +101,8 @@ Thank you to all who have been great support and even coding mentors over the ye
 * Fixed a Lua error that would occur when resetting the sync restrictions of only the custom notes.
 
 * Fixed a bug where right-clicking and resetting the player data on a single player from the mouseover would not fully reset the data and also requried a re-scan to add them.
+
+* Fixed a bug where if you mouseover the side alt details frame where you can get a more detailed list of alt data on the mouseover, then you would lose your window locked status.
 
 
 

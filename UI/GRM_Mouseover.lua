@@ -196,16 +196,12 @@ local function ConfigureStatusRightClickMenu()
     local targetName = GRM_G.selectedName[1] or GRM_G.currentName
     
     if statusText == GRM_G.Status[1] or statusText == GRM_G.Status[2] then
-        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"),
-                     onClick = function() GRM.AddPlayerStatusCheck(targetName, 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"), onClick = function() GRM.AddPlayerStatusCheck(targetName, 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
     elseif statusText == GRM_G.Status[3] then
-        table.insert(buttons, { text = GRM.L("Notify When Player Comes Online"),
-                     onClick = function() GRM.AddPlayerStatusCheck(targetName, 2); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player Comes Online"), onClick = function() GRM.AddPlayerStatusCheck(targetName, 2); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
     elseif statusText == GRM_G.Status[4] or statusText == GRM_G.Status[5] then
-        table.insert(buttons, { text = GRM.L("Notify When Player is Active"),
-                     onClick = function() GRM.AddPlayerStatusCheck(targetName, 1); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
-        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"),
-              onClick = function() GRM.AddPlayerStatusCheck(targetName, 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player is Active"), onClick = function() GRM.AddPlayerStatusCheck(targetName, 1); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
+        table.insert(buttons, { text = GRM.L("Notify When Player Goes Offline"), onClick = function() GRM.AddPlayerStatusCheck(targetName, 3); f.ContextMenu:Hide(); GRM_UI.Unpause() end })
     end
     
     if #buttons > 0 then
@@ -466,10 +462,32 @@ end
 
 local function GetDayList()
     local list = {}
-    for i = 1, 31 do
+    local month = GRM_G.monthIndex or select(2, GRM.Time.GetTodaysDate())
+    local year = GRM_G.yearIndex or select(3, GRM.Time.GetTodaysDate())
+    
+    local maxDays = GRM_ENUM.DAYS_IN_MONTH[month]
+    if month == 2 and GRM.Time.IsLeapYear(year) then
+        maxDays = 29
+    end
+    
+    for i = 1, maxDays do
         table.insert(list, tostring(i))
     end
     return list
+end
+
+-- Validates that the UI doesn't say "31" if the user just clicked "February"
+local function ValidateSelectedDay()
+    local maxDays = #GetDayList()
+    local currentDayText = f.GRM_DayDropDownSelected.GRM_DayDropDownSelectedText:GetText()
+    
+    if currentDayText and currentDayText ~= "" then
+        local currentDay = tonumber(currentDayText)
+        if currentDay and currentDay > maxDays then
+            f.GRM_DayDropDownSelected.GRM_DayDropDownSelectedText:SetText(tostring(maxDays))
+            GRM_G.dayIndex = maxDays
+        end
+    end
 end
 
 local function GetYearList()
@@ -761,15 +779,15 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     -- Dropdowns
     GRM_UI.CreateDropDownMenu("GRM_MonthDropDown", f, nil, {"TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", -86.5, -4}, {110, 24}, GetMonthList(), 13, {1,1,1},
-                              {1, GRM.L("|CFFE6CC7FClick|r to Change Month")}, GRM.RestoreTooltip, function(idx) GRM_G.monthIndex = idx end, nil, nil, true,
+                              {1, GRM.L("|CFFE6CC7FClick|r to Change Month")}, GRM.RestoreTooltip, function(idx) GRM_G.monthIndex = idx; ValidateSelectedDay() end, nil, nil, true,
                               function() CloseOtherDateDropdowns(1) end, 4)
     
     GRM_UI.CreateDropDownMenu("GRM_DayDropDown", f, nil, {"LEFT", f.GRM_MonthDropDownSelected, "RIGHT", 5, 0}, {40, 24}, GetDayList(), 13, {1,1,1},
-                              {1, GRM.L("|CFFE6CC7FClick|r to Change Day")}, GRM.RestoreTooltip, function(idx) GRM_G.dayIndex = tonumber(GetDayList()[idx]) end, nil, nil, true,
+                              {1, GRM.L("|CFFE6CC7FClick|r to Change Day")}, GRM.RestoreTooltip, function(idx) GRM_G.dayIndex = tonumber(GetDayList()[idx]); ValidateSelectedDay() end, nil, nil, true,
                               function() CloseOtherDateDropdowns(2) end, 4)
 
     GRM_UI.CreateDropDownMenu("GRM_YearDropDown", f, nil, {"LEFT", f.GRM_DayDropDownSelected, "RIGHT", 5, 0}, {110, 24}, GetYearList(), 13, {1,1,1},
-                             {1, GRM.L("|CFFE6CC7FClick|r to Change Year")}, GRM.RestoreTooltip, function(idx) GRM_G.yearIndex = tonumber(GetYearList()[idx]) end, nil, nil, true,
+                             {1, GRM.L("|CFFE6CC7FClick|r to Change Year")}, GRM.RestoreTooltip, function(idx) GRM_G.yearIndex = tonumber(GetYearList()[idx]); ValidateSelectedDay() end, nil, nil, true,
                              function() CloseOtherDateDropdowns(3) end, 4)
     
     -- Date Submit/Cancel/Unknown
@@ -918,7 +936,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_SyncDateArrowButton:GetNormalTexture():SetRotation(-1.57)
     f.GRM_SyncDateArrowButton:GetPushedTexture():SetRotation(-1.57)
     
-    GRM_UI.CreateButton("GRM_ExtraAltDetailsArrowButton", f, "UIPanelScrollUpButtonTemplate", "", 12, 12, {"TOPRIGHT", f.GRM_PlayerOfficerNoteWindow, "BOTTOMRIGHT", 0, -2})
+    GRM_UI.CreateButton("GRM_ExtraAltDetailsArrowButton", f, "UIPanelScrollUpButtonTemplate", "", 12, 12, {"TOPRIGHT", f.GRM_PlayerOfficerNoteWindow, "BOTTOMRIGHT", 0, 2})
     f.GRM_ExtraAltDetailsArrowButton:GetNormalTexture():SetRotation(-1.57)
     f.GRM_ExtraAltDetailsArrowButton:GetPushedTexture():SetRotation(-1.57)
 
@@ -927,10 +945,18 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_MemberDetailBannedText1", f, "GameFontNormalSmall", GRM.L("WARNING!") .. "\n" .. GRM.L("Player Was Previously Banned!"), 11, {"BOTTOMLEFT", f.GRM_MemberDetailBannedIgnoreButton, "TOPLEFT", 0, 2}, 400, {1.0, 0.0, 0.0}, "LEFT", true)
 
     -- ALT FRAMES!!!
-    GRM_UI.CreateCoreFrame("GRM_CoreAltFrame", f, nil, 170, 180, nil, false, {"TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -10}, nil, false, false)
-    f.GRM_CoreAltFrame:SetPoint("TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -10)
-    GRM_UI.CreateScrollFrame("GRM_CoreAltScrollFrame", f.GRM_CoreAltFrame, 170, 170, {"TOP", f.GRM_CoreAltFrame, "TOP", 0, -2}, "GRM_CoreAltScrollChildFrame", false, "GRM_CoreAltScrollFrameSlider",
-                             GRM_G.SliderTemplate, {16, 109}, {"TOPLEFT", f.GRM_CoreAltFrame.GRM_CoreAltScrollFrame, "TOPRIGHT", 10, -13})
+    GRM_UI.CreateCoreFrame("GRM_CoreAltFrame", f, nil, 170, 185, nil, false, {"TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -5}, nil, false, false)
+    f.GRM_CoreAltFrame:SetPoint("TOP", f.GRM_PlayerOfficerNoteWindow, "BOTTOM", 0, -5);
+    
+    -- STATIC HEADER
+    GRM_UI.CreateString("GRM_altFrameTitleText", f.GRM_CoreAltFrame, "GameFontNormalSmall", GRM.L("Alts"), 12, {"TOP", f.GRM_CoreAltFrame, "TOP", -40 , -5})
+    f.GRM_CoreAltFrame.GRM_altFrameTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
+    
+    GRM_UI.CreateButton("GRM_AddAltButton2", f.GRM_CoreAltFrame, "GameMenuButtonTemplate", GRM.L("Add"), 50, 20, {"TOP", f.GRM_CoreAltFrame, "TOP", 45, 0}, nil, "GameFontWhiteTiny", 11, "CENTER")
+    GRM_UI.ScaleFontStringToObjectSize(true, f.GRM_CoreAltFrame.GRM_AddAltButton2:GetWidth(), f.GRM_CoreAltFrame.GRM_AddAltButton2.GRM_AddAltButton2Text, 2)
+
+    -- SCROLL FRAME
+    GRM_UI.CreateScrollFrame("GRM_CoreAltScrollFrame", f.GRM_CoreAltFrame, 170, 160, {"TOP", f.GRM_CoreAltFrame, "TOP", 0, -22}, "GRM_CoreAltScrollChildFrame", false, "GRM_CoreAltScrollFrameSlider", GRM_G.SliderTemplate, {16, 109}, {"TOPLEFT", f.GRM_CoreAltFrame.GRM_CoreAltScrollFrame, "TOPRIGHT", 10, -13})
     f.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider:Hide()
 
     local altSlider = f.GRM_CoreAltFrame.GRM_CoreAltScrollFrameSlider
@@ -965,14 +991,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_AddAltEditFrameHelpText2", AddAltEditFrame, "GameFontWhiteTiny", GRM.L("Shift-Click Name On Roster Also Works"), 11, {"BOTTOM", AddAltEditFrame, "BOTTOM", 0, 30}, 146, nil, nil, true)
 
     GRM_UI.CreateEditBox("GRM_AddAltEditBox", AddAltEditFrame, "InputBoxTemplate", 126 + (#GRM_G.realmName * 3.5), 25, {"TOP", AddAltEditFrame.GRM_AddAltTitleText, "BOTTOM", 0, -2}, "LEFT", {1,1,1}, 40, false)
-    AddAltEditFrame.GRM_AddAltScrollFrame:SetPoint("TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0)
-    
-    GRM_UI.CreateString("GRM_altFrameTitleText", f.GRM_CoreAltFrame, "GameFontNormalSmall", GRM.L("Player Alts"), 12, {"BOTTOM", f.GRM_CoreAltFrame, "TOP", 0, -2})
-    f.GRM_CoreAltFrame.GRM_altFrameTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
-
-    GRM_UI.CreateButton("GRM_AddAltButton2", f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame, "GameMenuButtonTemplate", GRM.L("Add Alt"), 86, 20,
-                       {"CENTER", f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame, "CENTER", 0, 0}, nil, "GameFontWhiteTiny", 11, "CENTER")
-    GRM_UI.ScaleFontStringToObjectSize(true, f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2:GetWidth(), f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2.GRM_AddAltButton2Text, 2)
+    AddAltEditFrame.GRM_AddAltScrollFrame:SetPoint("TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0)    
 
     -- ALT GROUP SCROLL FRAME
     GRM_UI.CreateCoreFrame("GRM_AltGroupingScrollBorderFrame", GRM_UI.GRM_Mouseover , UIParent, 340, 150, "TranslucentFrameTemplate", false, nil, "HIGH", true, false)
@@ -1626,7 +1645,6 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
     f.GRM_ExtraAltDetailsArrowButton:SetScript("OnLeave", function()
         if not GRM_G.AltSideWindowFreeze then
             GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame:Hide()
-            GRM_G.pause = false
         end
         GRM.RestoreTooltip()
     end);
@@ -2479,7 +2497,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         GRM_G.currentHighlightIndex = 0
     end);
 
-    f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2:SetScript("OnClick", AddAltButtonControls)
+    f.GRM_CoreAltFrame.GRM_AddAltButton2:SetScript("OnClick", AddAltButtonControls)
     AddAltEditFrame.GRM_AddAltEditBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end);
     AddAltEditFrame.GRM_AddAltEditBox:SetScript("OnChar", function() GRM.AddAltAutoComplete() end);
 
@@ -3144,7 +3162,14 @@ GRM_UI.PopulateAltFrames = function(playerName)
     local alts = GRM.GetListOfAlts(player)
     local numAlts = #alts
     local main = ""
+    local altFrame = f.GRM_CoreAltFrame
     f.alts = {}
+
+    if numAlts > 0 then
+        altFrame.GRM_altFrameTitleText:SetText(GRM.L("Alts") .. string.format(" (%d)", numAlts));
+    else
+        altFrame.GRM_altFrameTitleText:SetText(GRM.L("Alts"))
+    end
 
     if player.altGroup ~= "" then
         main = GRM.GetAltGroup(player.altGroup).main
@@ -3154,7 +3179,6 @@ GRM_UI.PopulateAltFrames = function(playerName)
         end
     end
 
-    local altFrame = f.GRM_CoreAltFrame
     local scrollFrame = altFrame.GRM_CoreAltScrollFrame
     local child = altFrame.GRM_CoreAltScrollChildFrame
     local slider = altFrame.GRM_CoreAltScrollFrameSlider
@@ -3293,21 +3317,6 @@ GRM_UI.PopulateAltFrames = function(playerName)
     for j = numAlts + 1, #child.allFrameButtons do
         child.allFrameButtons[j][1]:Hide()
     end
-
-    -- Position the "Add Alt" Button
-    local addBtn = f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.GRM_AddAltButton2
-    addBtn:ClearAllPoints()
-    if numAlts == 0 then
-        addBtn:SetPoint("TOP", scrollFrame, "TOP", 0, -1)
-    elseif numAlts == 1 then
-        addBtn:SetPoint("TOPLEFT", child.allFrameButtons[1][1], "TOPRIGHT", 1, 0)
-    else
-        addBtn:SetPoint("TOP", child.allFrameButtons[numAlts - 1][1], "BOTTOM", 0, -buffer)
-        if numAlts % 2 == 0 and numAlts > 12 then
-            scrollHeight = scrollHeight + child.allFrameButtons[numAlts - 1][1]:GetHeight() + buffer
-        end
-    end
-    addBtn:Show()
 
     if numAlts > 12 and f.GRM_GroupInviteButton:IsVisible() then
         f.GRM_SafeFromRulesButton:SetPoint("LEFT", f.GRM_GroupInviteButton, "RIGHT", 5, 0)

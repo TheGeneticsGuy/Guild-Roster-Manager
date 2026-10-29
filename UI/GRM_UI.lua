@@ -798,15 +798,15 @@ end
 GRM_UI.ScaleFontStringToObjectSize = function ( isWidth , size , fontstring , spacingOnEachSide )
     local spacing = spacingOnEachSide * 2;
     local currentFontSize = select ( 2 , fontstring:GetFont() );
-    local minimumSize = 5;
+    local minimumSize = 10;
 
     if isWidth then
-        while currentFontSize > 5 and fontstring:GetWidth() + spacing > size do
+        while currentFontSize > minimumSize and fontstring:GetWidth() + spacing > size do
             currentFontSize = currentFontSize - 1;
             fontstring:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + currentFontSize );
         end
     else
-        while currentFontSize > 5 and fontstring:GetStringHeight() + spacing > size do
+        while currentFontSize > minimumSize and fontstring:GetStringHeight() + spacing > size do
             currentFontSize = currentFontSize - 1;
             fontstring:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + currentFontSize );
         end

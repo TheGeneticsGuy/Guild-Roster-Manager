@@ -1598,6 +1598,7 @@ GRML.German = function()
     GRM_L["Show Member Faction"] = "Fraktion des Mitglieds anzeigen"
     GRM_L["Faction"] = "Fraktion"
     GRM_L["Alts:"] = "Twinks:"
+    GRM_L["Alts"] = "Twinks"
 
     -- R1.975
     GRM_L["Export a full list of names in the queue."] = "Exportiere eine vollständige Liste der Namen in der Warteschlange."

@@ -25,35 +25,6 @@ local Configure_Time_Enums = function()
     end
 end
 
-Time.Enums.days_before_month = {
-    [1] = 0,
-    [2] = 31,
-    [3] = 59,
-    [4] = 90,
-    [5] = 120,
-    [6] = 151,
-    [7] = 181,
-    [8] = 212,
-    [9] = 243,
-    [10] = 273,
-    [11] = 304,
-    [12] = 334
-};
-Time.Enums.days_in_month = {
-    [1] = 31,
-    [2] = 28, -- Will adjust for leap years as needed
-    [3] = 31,
-    [4] = 30,
-    [5] = 31,
-    [6] = 30,
-    [7] = 31,
-    [8] = 31,
-    [9] = 30,
-    [10] = 31,
-    [11] = 30,
-    [12] = 31
-}
-
 ---- END OF LOOKUP TABLES ---
 
 Time.GetTodaysDate = function()
@@ -153,7 +124,7 @@ Time.DaysInMonth = function(month, year)
     if month == 2 and Time.IsLeapYear(year) then
         return 29
     end
-    return Time.Enums.days_in_month[month];
+    return GRM_ENUM.DAYS_IN_MONTH[month];
 end
 
 -- Method:          Time.ConvertToStandardFormatDate ( int , int , int )
@@ -514,7 +485,7 @@ Time.GetTimePassedUsingTableOrString = function(timestamp)
         if tempMonth == 12 then
             tempMonth = 1;
         end
-        result[3] = day + (Time.Enums.days_in_month[tempMonth] - startDay);
+        result[3] = day + (GRM_ENUM.DAYS_IN_MONTH[tempMonth] - startDay);
 
     else
         result[3] = day - startDay;
@@ -698,7 +669,7 @@ Time.ComplexHoursReport = function(hours)
                     leapYearModifier = 1;
                 end
 
-                days = (currentDay + Time.Enums.days_in_month[timeTable.month] + leapYearModifier) - timeTable.day;
+                days = (currentDay + GRM_ENUM.DAYS_IN_MONTH[timeTable.month] + leapYearModifier) - timeTable.day;
 
                 -- now we need to compare hours.
                 if currentHour < timeTable.hour then
@@ -716,7 +687,7 @@ Time.ComplexHoursReport = function(hours)
                         leapYearModifier = 1;
                     end
 
-                    days = Time.Enums.days_in_month[timeTable.month] + leapYearModifier - 1;
+                    days = GRM_ENUM.DAYS_IN_MONTH[timeTable.month] + leapYearModifier - 1;
                 else
                     days = 0;
                 end
@@ -973,7 +944,7 @@ Time.GetTimestampBasedOnTimePassed = function(dateInfo)
     if day - stampDay > 0 then
         day = day - stampDay;
     else
-        local daysInSelectedMonth = Time.Enums.days_in_month[month];
+        local daysInSelectedMonth = GRM_ENUM.DAYS_IN_MONTH[month];
         if LeapYear and month == 2 then
             daysInSelectedMonth = daysInSelectedMonth + 1;
         end
@@ -998,7 +969,7 @@ Time.GetTimestampBasedOnTimePassed = function(dateInfo)
                 month = 12;
                 year = year - 1;
             end
-            local dim = Time.Enums.days_in_month[month]; -- Days In Month = dim
+            local dim = GRM_ENUM.DAYS_IN_MONTH[month]; -- Days In Month = dim
             if LeapYear and month == 2 then
                 dim = dim + 1;
             end

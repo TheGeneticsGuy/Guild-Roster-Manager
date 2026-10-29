@@ -5570,6 +5570,19 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end);
 
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton:SetScript ( "OnEnter" , function( self )
+            if GRM_G.BuildHasRestrictions then
+                GRM_UI.SetTooltipScale()
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                GameTooltip:AddLine( GRM.L ( "Public and Officer notes are addon restricted in current Warcraft version. GRM will only consider Custom Note if empty." ) );
+                GameTooltip:Show();
+            end
+        end);
+
+        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
+        end)
+
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton:SetPoint ( "TOP" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolEmptyCheckButton , "BOTTOM" , 0 , -6 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton , "RIGHT" , 2 , 0 );
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolPublicNoteCheckButton:SetScript ( "OnClick" , function( self )
@@ -10359,10 +10372,10 @@ GRM.GetKickNamesByFilterRulesChunk = function(allPlayerNamesSorted, startIndex, 
                     if ruleConfirmedCheck and rule.noteMatch and not rule.noteMatchEmpty then
                         if #rule.matchingString > 0 then
                             ruleConfirmedCheck = false;
-                            if rule.notesToCheck[1] and string.find(string.lower(player.note or ""), string.lower(rule.matchingString), 1, true) then
+                            if rule.notesToCheck[1] and not GRM_G.BuildHasRestrictions and string.find(string.lower(player.note or ""), string.lower(rule.matchingString), 1, true) then
                                 ruleConfirmedCheck = true;
                             end
-                            if not ruleConfirmedCheck and rule.notesToCheck[2] and string.find(string.lower(player.officerNote or ""), string.lower(rule.matchingString), 1, true) then
+                            if not ruleConfirmedCheck and not GRM_G.BuildHasRestrictions and rule.notesToCheck[2] and string.find(string.lower(player.officerNote or ""), string.lower(rule.matchingString), 1, true) then
                                 ruleConfirmedCheck = true;
                             end
                             if not ruleConfirmedCheck and rule.notesToCheck[3] and player.customNote and string.find(string.lower(player.customNote[4] or ""), string.lower(rule.matchingString), 1, true) then
