@@ -246,10 +246,10 @@ local function CopyFromJoinDate()
 
         if player.isOnline then
             if player.zone ~= nil then
-                f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                f.GRM_MouseoverInfoZoneText:SetText(player.zone)
                 f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
             end
-            f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+            f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
             f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
         end
 
@@ -357,10 +357,10 @@ local function CopyFromPromoDate()
 
         if player.isOnline then
             if player.zone ~= nil then
-                f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                f.GRM_MouseoverInfoZoneText:SetText(player.zone)
                 f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
             end
-            f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+            f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
             f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
         end
 
@@ -767,10 +767,11 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     -- Populating Frames with FontStrings
     GRM_UI.CreateString("GRM_MemberDetailNameText", f, "GameFontNormalLarge", "", 21, {"TOP", f, "TOP", 0, -30})
+    GRM_UI.CreateString("GRM_DetailNicknameText", f, "GameFontNormalLarge", "", 21, {"TOP", f.GRM_MemberDetailNameText, "BOTTOM", 0, -2})
     GRM_UI.CreateString("GRM_MemberDetailMainText", f, "GameFontWhiteTiny", GRM.L("( Main )"), 10, {"BOTTOM", f.GRM_MemberDetailNameText, "TOP", 0, 2}, nil, {1.0, 0.0, 0.0})
     GRM_UI.CreateString("GRM_MemberDetailAltText", f, "GameFontWhiteTiny", "( " .. GRM.L("Alt") .. " )", 10, {"BOTTOM", f.GRM_MemberDetailNameText, "TOP", 0, 2}, nil, {1.0, 0.5, 0.5})
     
-    GRM_UI.CreateString("GRM_MemberDetailLevel", f, "GameFontNormalSmall", "", 11, {"TOP", f.GRM_MemberDetailNameText, "BOTTOM", 0, -4})
+    GRM_UI.CreateString("GRM_MemberDetailLevel", f, "GameFontNormalSmall", "", 11, {"TOP", f.GRM_DetailNicknameText, "BOTTOM", 0, -4})
     GRM_UI.CreateString("GRM_MemberDetailRankTxt", f, "GameFontNormal", "", 18, {"TOP", f.GRM_MemberDetailLevel, "BOTTOM", 0, -2}, nil, {0.90, 0.80, 0.50})
     GRM_UI.CreateString("GRM_MemberDetailRankDateTxt", f, "GameFontNormalSmall", "", 11, {"TOP", f.GRM_MemberDetailRankTxt, "BOTTOM", 0, -4}, nil, {1, 1, 1})
     
@@ -792,8 +793,11 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     
     -- Date Submit/Cancel/Unknown
     GRM_UI.CreateButton("GRM_DateSubmitButton", f, "UIPanelButtonTemplate", "", 98.5, 22, {"TOP", f.GRM_MonthDropDownSelected, "BOTTOM", -26, -3}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
-    f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetSpacing(0);
-    f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetWordWrap(true)
+    if not isManualUpdate then
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetSpacing(0);
+        f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetWordWrap(true)
+    end
+    
     
     GRM_UI.CreateButton("GRM_SetUnknownButton", f, "GameMenuButtonTemplate", GRM.L("Unknown"), 98.5, 22, {"LEFT", f.GRM_DateSubmitButton, "RIGHT", 6, 0}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
     GRM_UI.CreateButton("GRM_DateSubmitCancelButton", f, "UIPanelButtonTemplate", GRM.L("Cancel"), 98.5, 22, {"LEFT", f.GRM_SetUnknownButton, "RIGHT", 6, 0}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
@@ -826,17 +830,10 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_WindowIsLockedText", f, "GameFontWhiteTiny", GRM.L("Locked. Press ESC"), 10, {"BOTTOMRIGHT", f, "TOPRIGHT", -5, -4}, nil, {1, 0, 0})
     f.GRM_WindowIsLockedText:Hide()
 
-    -- Zone Info
-    GRM_UI.CreateString("GRM_ZoneInfoTime1", f, "GameFontNormalSmall", GRM.L("Time In:") .. " ", 11, {"BOTTOMLEFT", f.GRM_MemberDetailNoteTitle, "TOPLEFT", 5, 15})
-    GRM_UI.CreateString("GRM_ZoneInfoTime2", f, "GameFontWhiteTiny", "", 11, {"LEFT", f.GRM_ZoneInfoTime1, "RIGHT", 2, 0})
-    GRM_UI.CreateString("GRM_ZoneInfoText", f, "GameFontNormalSmall", GRM.L("Zone:"), 12, {"BOTTOMLEFT", f.GRM_ZoneInfoTime1, "TOPLEFT", -5, 2})
-    f.GRM_ZoneInfoText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
-    GRM_UI.CreateString("GRM_MemberDetailMetaZoneInfoZoneText", f, "GameFontWhiteTiny", "", 12, {"LEFT", f.GRM_ZoneInfoText, "RIGHT", 2, 0})
-
     -- Note Windows
     GRM_UI.CreateCoreFrame("GRM_PlayerNoteWindow", f, nil, 166, 53, BackdropTemplateMixin and "BackdropTemplate", false, {"LEFT", f, "LEFT", 15, 10}, nil, false, false)
     f.GRM_PlayerNoteWindow:SetPoint("LEFT", f, "LEFT", 15, 10)
-    GRM_UI.CreateString("GRM_MemberDetailNoteTitle", f.GRM_PlayerNoteWindow, "GameFontNormalSmall", GRM.L("Note:"), 11, {"BOTTOMLEFT" , f.GRM_PlayerNoteWindow , "TOPLEFT" , 5 , 0 }, 159, nil, "LEFT")
+    GRM_UI.CreateString("GRM_MouseoverNoteTitle", f.GRM_PlayerNoteWindow, "GameFontNormalSmall", GRM.L("Note:"), 11, {"BOTTOMLEFT" , f.GRM_PlayerNoteWindow , "TOPLEFT" , 5 , 0 }, 159, nil, "LEFT")
     GRM_UI.CreateString("GRM_noteFontString1", f.GRM_PlayerNoteWindow, "GameFontWhite", "", 12, {"TOPLEFT", f.GRM_PlayerNoteWindow, "TOPLEFT", 8, -7}, 143, nil, "LEFT", true)
     f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetMaxLines(3)
 
@@ -845,7 +842,29 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetTextInsets(8, 9, 9, 8);
     f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:SetFrameStrata("HIGH");
     f.GRM_PlayerNoteWindow.GRM_PlayerNoteEditBox:Hide()
-    
+
+    -- Zone Info
+    GRM_UI.CreateString("GRM_ZoneInfoTime1", f, "GameFontNormalSmall", GRM.L("Time In:") .. " ", 11, {"BOTTOMLEFT", f.GRM_PlayerNoteWindow.GRM_MouseoverNoteTitle, "TOPLEFT", 5, 15})
+    GRM_UI.CreateString("GRM_ZoneInfoTime2", f, "GameFontWhiteTiny", "", 11, {"LEFT", f.GRM_ZoneInfoTime1, "RIGHT", 2, 0})
+    GRM_UI.CreateString("GRM_ZoneInfoText", f, "GameFontNormalSmall", GRM.L("Zone:"), 12, {"BOTTOMLEFT", f.GRM_ZoneInfoTime1, "TOPLEFT", -5, 2})
+    f.GRM_ZoneInfoText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
+    GRM_UI.CreateString("GRM_MouseoverInfoZoneText", f, "GameFontWhiteTiny", "", 12, {"LEFT", f.GRM_ZoneInfoText, "RIGHT", 2, 0})
+    if not isManualUpdate then
+        f.GRM_DateSubmitButton:SetScript("OnShow", function()
+            if f.GRM_ZoneInfoTime1:IsVisible() then
+                f.GRM_ZoneInfoTime1:Hide(); f.GRM_ZoneInfoTime2:Hide()
+                f.GRM_ZoneInfoText:Hide(); f.GRM_MouseoverInfoZoneText:Hide()
+            end
+        end)
+        f.GRM_DateSubmitButton:SetScript("OnHide", function()
+            local player = GRM.GetPlayer(GRM_G.currentName)
+            if player and player.isOnline and player.zone ~= "" then
+                f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
+                f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
+            end
+        end)
+    end
+
     GRM_UI.CreateCoreFrame("GRM_PlayerOfficerNoteWindow", f, nil, 166, 53, BackdropTemplateMixin and "BackdropTemplate", false, {"RIGHT", f, "RIGHT", -15, 10}, nil, false, false)
     f.GRM_PlayerOfficerNoteWindow:SetPoint("RIGHT", f, "RIGHT", -15, 10)
     GRM_UI.CreateString("GRM_MemberDetailONoteTitle", f.GRM_PlayerOfficerNoteWindow, "GameFontNormalSmall", GRM.L("Officer's Note:"), 11, {"BOTTOMLEFT" , f.GRM_PlayerOfficerNoteWindow , "TOPLEFT" , 5 , 0}, 159, nil, "LEFT")
@@ -983,7 +1002,9 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI_Util.BuildSliderTextures(aafSlider)
     
     GRM_UI.CreateString("GRM_AddAltTitleText", AddAltEditFrame, "GameFontNormalSmall", GRM.L("Choose Alt"), 14.5, {"TOP", AddAltEditFrame, "TOP", 0, -15})
-    if not isManualUpdate then AddAltEditFrame.GRM_AddAltTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14.5, "THICKOUTLINE") end
+    if not isManualUpdate then
+        AddAltEditFrame.GRM_AddAltTitleText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 14.5, "THICKOUTLINE")
+    end
     
     GRM_UI.CreateString("GRM_AddAltEditFrameTextBottom", AddAltEditFrame, "GameFontWhiteTiny", GRM.L("(Press Enter to Select)") .. "\n" .. GRM.L("(Press Tab to Cycle)"), 11,
                         {"BOTTOMLEFT", AddAltEditFrame, "BOTTOMLEFT", 15, 13}, nil, {0.5, 0.5, 0.5}, "LEFT", true)
@@ -1270,10 +1291,10 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
             mainHasJD = PlayerHasJoinDate(mainName)
         end
 
-        self.GRM_JDOldestButtonText:SetText(">  " .. GRM.L("Sync All Alts to the Earliest Join Date: {name}", GRM.GetClassifiedName(oldestPlayerAndDate, true)) .. " |CFFFF0000- " .. oldestDate)
+        self.GRM_JDOldestButton.GRM_JDOldestButtonText:SetText(">  " .. GRM.L("Sync All Alts to the Earliest Join Date: {name}", GRM.GetClassifiedName(oldestPlayerAndDate, true)) .. " |CFFFF0000- " .. oldestDate)
 
         if mainName and mainName ~= "" and mainName ~= GRM_G.currentName and oldestPlayerAndDate ~= mainName and mainHasJD[1] then
-            self.GRM_JDMainButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s |cffff0000(main)|r Join Date", GRM.GetClassifiedName(mainName, true)) .. " |CFFFF0000- " .. mainHasJD[2])
+            self.GRM_JDMainButton.GRM_JDMainButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s |cffff0000(main)|r Join Date", GRM.GetClassifiedName(mainName, true)) .. " |CFFFF0000- " .. mainHasJD[2])
             self.GRM_JDMainButton:SetScript("OnClick", function(_, button)
                 if button == "LeftButton" then
                     GRM.SyncJoinDateUsingMain(); GRM_UI.PopulateMemberDetails(GRM_G.currentName); JoinDateSideFrame:Hide()
@@ -1281,7 +1302,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
             end);
             self.GRM_JDMainButton:Show(); count = count + 1
         elseif oldestPlayerAndDate ~= GRM_G.currentName and playerHasJD[1] then
-            self.GRM_JDMainButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s Join Date", GRM.GetClassifiedName(GRM_G.currentName, true)) .. " |CFFFF0000- " .. playerHasJD[2])
+            self.GRM_JDMainButton.GRM_JDMainButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s Join Date", GRM.GetClassifiedName(GRM_G.currentName, true)) .. " |CFFFF0000- " .. playerHasJD[2])
             self.GRM_JDMainButton:SetScript("OnClick", function(_, button)
                 if button == "LeftButton" then
                     GRM.SyncJoinDateUsingCurrentSelected(); GRM_UI.PopulateMemberDetails(GRM_G.currentName); JoinDateSideFrame:Hide()
@@ -1299,7 +1320,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         elseif count == 1 then
             if oldestPlayerAndDate[1] ~= GRM_G.currentName and playerHasJD[1] then
                 self:SetSize(439, 146)
-                self.GRM_JDSelectedPlayerButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s Join Date", GRM.GetClassifiedName(GRM_G.currentName, true)) .. " |CFFFF0000- " .. playerHasJD[2])
+                self.GRM_JDSelectedPlayerButton.GRM_JDSelectedPlayerButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s Join Date", GRM.GetClassifiedName(GRM_G.currentName, true)) .. " |CFFFF0000- " .. playerHasJD[2])
                 self.GRM_JDSelectedPlayerButton:SetScript("OnClick", function(self2, button)
                     if button == "LeftButton" then
                         GRM.SyncJoinDateUsingCurrentSelected(); GRM_UI.PopulateMemberDetails(GRM_G.currentName); self2:Hide()
@@ -1382,10 +1403,10 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
 
                 if player.isOnline then
                     if player.zone ~= nil then
-                        f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                        f.GRM_MouseoverInfoZoneText:SetText(player.zone)
                         f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
                     end
-                    f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+                    f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
                     f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
                 end
 
@@ -1454,10 +1475,10 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
 
                     if player.isOnline then
                         if player.zone ~= nil then
-                            f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                            f.GRM_MouseoverInfoZoneText:SetText(player.zone)
                             f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
                         end
-                        f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+                        f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
                         f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
                     end
                 end
@@ -1505,6 +1526,42 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         f.GRM_DateSubmitCancelButton:Show()
     end
 
+    -- Method:          SetBirthdayFrameLogic()
+    -- What it Does:    Sets the birthdate and resets the frames as needed
+    -- Purpose:         To keep presentation clean!
+    local function SetBirthdayFrameLogic()
+        local day = GRM_G.dayIndex;
+        local month = GRM_G.monthIndex;
+        GRM.SetBirthday(GRM_G.currentName, day, month, time() );
+
+        -- Birthday Text logic...
+        GRM_UI.GRM_Mouseover.GRM_BirthdayText:SetText(GRM.Time.FormatTimeStamp( { day , month } , false , true));
+        GRM_UI.GRM_Mouseover.GRM_BirthdayText:Show();
+        GRM_UI.GRM_Mouseover.GRM_MemberDetailBirthdayButton:Hide();
+
+        -- Promo Window
+
+        local player = GRM.GetPlayer(GRM_G.currentName);
+        if player then
+            if #player.rankHist[1][5] == 1 and not player.promoteDateUnknown then
+                GRM_UI.GRM_Mouseover.GRM_MemberDetailRankDateTxt:Hide();
+                GRM_UI.GRM_Mouseover.GRM_SetPromoDateButton:Show();
+            else
+                GRM_UI.GRM_Mouseover.GRM_MemberDetailRankDateTxt:Show();
+            end
+        end
+
+        -- Frame Logic
+        GRM_UI.GRM_Mouseover.GRM_DayDropDownSelected:Hide();
+        GRM_UI.GRM_Mouseover.GRM_MonthDropDownSelected:Hide();
+        GRM_UI.GRM_Mouseover.GRM_YearDropDownSelected:Hide()
+        GRM_UI.GRM_Mouseover.GRM_DateSubmitCancelButton:Hide();
+        GRM_UI.GRM_Mouseover.GRM_DateSubmitButton:Hide();
+        GRM_UI.GRM_Mouseover.GRM_SetUnknownButton:Hide()
+        
+        GRM_UI.RefreshSelectFrames(false, true, false, true, true, true);
+    end
+
     local function SetDateSelectFrame(buttonName)
         local day, month, currentYear = GetRecordedDate(buttonName)
         local months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
@@ -1534,7 +1591,9 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
             formatNumber = 2
             f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetText(GRM.L("Set Birthday"))
             f.GRM_DateSubmitButton:SetScript("OnClick", function(_, button)
-                if button == "LeftButton" then GRM.SetBirthdayFrameLogic() end
+                if button == "LeftButton" then
+                    SetBirthdayFrameLogic()
+                end
             end)
         end
         SetDateButtonConfiguration(formatNumber)
@@ -2987,10 +3046,10 @@ GRM_UI.DateSubmitCancelResetLogic = function(isUnknown, date, isAudit, playerNam
         if not isAudit or (f:IsVisible() and GRM_G.currentName == playerName) then
             if player.isOnline then
                 if player.zone ~= nil then
-                    f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                    f.GRM_MouseoverInfoZoneText:SetText(player.zone)
                     f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
                 end
-                f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+                f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
                 f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
             end
         end
@@ -3462,8 +3521,12 @@ local function AltNameTooltip(self)
                         if childButtons[i][1]:IsVisible() and childButtons[i][1]:IsMouseOver(1, -1, -1, 1) and GRM.GetMouseFocus(childButtons[i][1]) and listOfAlts[i] and listOfAlts[i][1] then
                             GRM_G.tempAltName = listOfAlts[i][1]
                             color = GRM.GetClassColorRGB(listOfAlts[i][2], false)
+                            local nickname = GRM.NN.GetNickname(listOfAlts[i][1])
                             AltTT:SetOwner(childButtons[i][1], "ANCHOR_CURSOR")
                             AltTT:AddLine(listOfAlts[i][1], color[1], color[2], color[3])
+                            if nickname and nickname ~= "" then
+                                AltTT:AddLine(nickname, color[1], color[2], color[3]) -- same class color
+                            end
                             AltTT:AddLine(" ")
                             AltTT:AddLine(GRM.L("{custom1} to Copy Name to Chat", nil, nil, nil, "|CFFE6CC7F" .. GRM.L("Shift-Click") .. "|r"))
                             AltTT:AddLine(GRM.L("{custom1} for Additional Options", nil, nil, nil, "|CFFE6CC7F" .. GRM.L("Right-Click") .. "|r"))
@@ -3709,6 +3772,19 @@ GRM_UI.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
             if not doubleCopy and GRM.PlayerIsAnAlt(player) then f.GRM_MemberDetailAltText:Show() else f.GRM_MemberDetailAltText:Hide() end
         end
 
+        -- Nickname
+        if player.nickInfo.nickname ~= "" then
+            f.GRM_DetailNicknameText:SetTextColor(classColors[1], classColors[2], classColors[3], 1.0)
+            f.GRM_DetailNicknameText:SetText(GRM_Name.GetColorizedNNorName(nil, player))
+            f.GRM_DetailNicknameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight) -- Keep nameheight the same or less
+            while (f.GRM_DetailNicknameText:GetWidth() > 120) do
+                nameHeight = nameHeight - 0.1
+                f.GRM_DetailNicknameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight)
+            end
+        else
+            f.GRM_DetailNicknameText:SetText("")
+        end
+        
         local levelAndMythicText = ""
         local level = memberInfo and memberInfo.level or player.level
         if GRM.S().showLevel and (not GRM.S().showLevelMaxOnly or (GRM.S().showLevelMaxOnly and level < GRM_G.LvlCap)) then
@@ -3732,13 +3808,13 @@ GRM_UI.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
         if not f.GRM_DateSubmitButton:IsVisible() then
             if not doubleCopy and player.isOnline then
                 if player.zone ~= nil then
-                    f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                    f.GRM_MouseoverInfoZoneText:SetText(player.zone)
                     f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
                 end
-                f.GRM_ZoneInfoText:Show(); f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+                f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
                 f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
             else
-                f.GRM_ZoneInfoText:Hide(); f.GRM_MemberDetailMetaZoneInfoZoneText:Hide()
+                f.GRM_ZoneInfoText:Hide(); f.GRM_MouseoverInfoZoneText:Hide()
                 f.GRM_ZoneInfoTime1:Hide(); f.GRM_ZoneInfoTime2:Hide()
             end
 

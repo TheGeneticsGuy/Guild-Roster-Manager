@@ -6,133 +6,133 @@ GRM_G.SettingsTabFocus = 0;
 -- Method:          GRM_S.SetDefaultAddonSettings( object , int )
 -- What it Does:    Establishes the default addon setttings for all of the options and some other misc. stored variables, like minimap position
 -- Purpose:         Easy access to settings on a default reset.
-GRM_S.SetDefaultAddonSettings = function(player, page)
+GRM_S.SetDefaultAddonSettings = function(setting, page)
 
     -- Misc needs a tab home
-    player.nameFormat = 1;      -- 1 = Blizzard naming convention(only include if not server), 2 = Always include server, 3 = Always remove server
+    setting.nameFormat = 1;      -- 1 = Blizzard naming convention(only include if not server), 2 = Always include server, 3 = Always remove server
 
-    if not player.removedMacroRules then
-        player.removedMacroRules = {};
+    if not setting.removedMacroRules then
+        setting.removedMacroRules = {};
     end
 
     -- Page 0 = misc stuff unrelated to specific settings
     if page == 0 then
-        player.showMouseoverRetail = true;
-        player.minimapPos = 345;
+        setting.showMouseoverRetail = true;
+        setting.minimapPos = 345;
 
         if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then    -- 10.0 DF increased size of minimap slightly
-            player.minimapRad = 105;
+            setting.minimapRad = 105;
         else
-            player.minimapRad = 80;
+            setting.minimapRad = 80;
         end
 
-        player.customPos = false;
-        player.macroToolCoordinates = {"", "", 0, 0};
-        player.minimapCustomPos = {"", ""};
-        player.CoreWindowPos = {"", "", 0, 0};
-        player.SyncTrackerPOS = {"", "", 0, 0};
-        player.RosterFramePOS = {"", "", 0, 0};
-        player.disableMacroToolLogSpam = false;
-        player.ignoreDeadNames = false;
-        player.JDAuditToolFilter = false;
-        player.JDAuditToolIgnoreProtected = false;
+        setting.customPos = false;
+        setting.macroToolCoordinates = {"", "", 0, 0};
+        setting.minimapCustomPos = {"", ""};
+        setting.CoreWindowPos = {"", "", 0, 0};
+        setting.SyncTrackerPOS = {"", "", 0, 0};
+        setting.RosterFramePOS = {"", "", 0, 0};
+        setting.disableMacroToolLogSpam = false;
+        setting.ignoreDeadNames = false;
+        setting.JDAuditToolFilter = false;
+        setting.JDAuditToolIgnoreProtected = false;
 
         -- GRM Roster
-        player.showMains = true;
-        player.showAlts = true;
-        player.showMainTags = false;
-        player.showAltTags = false;
-        player.showRosterOffline = true;
-        player.showRosterOptions = true;
-        player.groupByMain = false;
-        player.numRosterRows = 18;
+        setting.showMains = true;
+        setting.showAlts = true;
+        setting.showMainTags = false;
+        setting.showAltTags = false;
+        setting.showRosterOffline = true;
+        setting.showRosterOptions = true;
+        setting.groupByMain = false;
+        setting.numRosterRows = 18;
 
         -- One time messaging
-        player.banInfoReport = false;
+        setting.banInfoReport = false;
 
         local rosterFrameDefault = 885;
         if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then -- Mythic+ Size Diff
             rosterFrameDefault = rosterFrameDefault + 90;
         end
 
-        player.UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0},
+        setting.UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0},
                             {rosterFrameDefault, 525, 1.0}};
 
-        player.classicUIInformed = false;
+        setting.classicUIInformed = false;
 
         -- Messaging for save data being too much
-        player.LogSizeWarning = { false , false , false , false };
+        setting.LogSizeWarning = { false , false , false , false };
 
         -- General Options Tab
     elseif page == 1 then
-        player.viewOnLoad = true;
-        player.onlyViewIfChanges = true;
-        player.syncSettings = true;
-        player.minimapEnabled = true;
+        setting.viewOnLoad = true;
+        setting.onlyViewIfChanges = true;
+        setting.syncSettings = true;
+        setting.minimapEnabled = true;
 
         -- Minimap button type - 1 is custom default, but 2 is standard
         if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
-            player.minimapType = 1;
+            setting.minimapType = 1;
         else
-            player.minimapType = 2;
+            setting.minimapType = 2;
         end
 
-        player.twentyFourHrScale = GRM.Use24HrBasedOnDefaultLanguage();
-        player.selectedLang = GRM_G.LocalizedIndex;
-        player.selectedFont = 1;
-        player.fontModifier = 0;
-        player.tooltipSize = 0.9;
-        player.dateFormat = 1;
-        player.reportChannel = {};
-        player.defaultTabSelection = {false, 1};
-        player.syncCompatibilityMsg = false;
+        setting.twentyFourHrScale = GRM.Use24HrBasedOnDefaultLanguage();
+        setting.selectedLang = GRM_G.LocalizedIndex;
+        setting.selectedFont = 1;
+        setting.fontModifier = 0;
+        setting.tooltipSize = 0.9;
+        setting.dateFormat = 1;
+        setting.reportChannel = {};
+        setting.defaultTabSelection = {false, 1};
+        setting.syncCompatibilityMsg = false;
 
         -- Scan Options Tab
     elseif page == 2 then
-        player.inactiveHours = 336;
-        player.eventAdvanceDays = 14;
-        player.scanDelay = 30;
-        player.calendarAnnouncements = true;
-        player.reportInactiveReturn = true;
-        player.onlyAnnounceForMain = false;
-        player.scanEnabled = true;
-        player.levelReportMin = 10;
-        player.levelFilters = {true, true, true, true, true, true, true, true, true, true, true};
-        player.allAltRequirement = false; -- I want it off by default.
-        player.recordLevelUp = true;
-        player.AnnounceBdayOnLogin = true;
-        player.bdayAnnounce = true;
-        player.annivAnnounce = true;
+        setting.inactiveHours = 336;
+        setting.eventAdvanceDays = 14;
+        setting.scanDelay = 30;
+        setting.calendarAnnouncements = true;
+        setting.reportInactiveReturn = true;
+        setting.onlyAnnounceForMain = false;
+        setting.scanEnabled = true;
+        setting.levelReportMin = 10;
+        setting.levelFilters = {true, true, true, true, true, true, true, true, true, true, true};
+        setting.allAltRequirement = false; -- I want it off by default.
+        setting.recordLevelUp = true;
+        setting.AnnounceBdayOnLogin = true;
+        setting.bdayAnnounce = true;
+        setting.annivAnnounce = true;
 
         -- Sync Options Tab
     elseif page == 3 then
-        player.syncEnabled = true;
-        player.syncRank = GRM.G_Util.GetRankRestrictedDefaultRankIndex();
-        player.syncChatEnabled = true;
-        player.syncBanList = true;
-        player.syncRankBanList = GRM.GetFirstOfficerRank();
-        player.exportAllRanks = true;
-        player.syncCustomNote = true;
-        player.syncRankCustom = GRM.G_Util.GetRankRestrictedDefaultRankIndex();
-        player.autoTriggerSync = true;
-        player.syncDelay = 60;
+        setting.syncEnabled = true;
+        setting.syncRank = GRM.G_Util.GetRankRestrictedDefaultRankIndex();
+        setting.syncChatEnabled = true;
+        setting.syncBanList = true;
+        setting.syncRankBanList = GRM.GetFirstOfficerRank();
+        setting.exportAllRanks = true;
+        setting.syncCustomNote = true;
+        setting.syncRankCustom = GRM.G_Util.GetRankRestrictedDefaultRankIndex();
+        setting.autoTriggerSync = true;
+        setting.syncDelay = 60;
 
         -- Officer Options Tab
     elseif page == 4 then
-        player.addTimestampToNote = false;
-        player.allowEventsToCalendar = true;
-        player.joinDateDestination = 1;
+        setting.addTimestampToNote = false;
+        setting.allowEventsToCalendar = true;
+        setting.joinDateDestination = 1;
         if GRM_G.BuildHasRestrictions then
-            player.joinDateDestination = 3; -- Default to Custom Note
+            setting.joinDateDestination = 3; -- Default to Custom Note
         end
-        player.customTags = {"", ""};
-        player.includeTag = true;
-        player.addNotesToLeft = true;
-        player.noteSetEnabled = true;
+        setting.customTags = {"", ""};
+        setting.includeTag = true;
+        setting.addNotesToLeft = true;
+        setting.noteSetEnabled = true;
         if GRM_G.BuildHasRestrictions then
-            player.noteSetEnabled = false;
+            setting.noteSetEnabled = false;
         end
-        player.globalDateFormat = 1;
+        setting.globalDateFormat = 1;
 
         -- Backup Options Tab
     elseif page == 5 then
@@ -143,34 +143,34 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
         -- UI Options Tab
     elseif page == 7 then
 
-        player.showLevel = true;
-        player.showLevelMaxOnly = false;
-        player.showMythicRating = true;
-        player.showFaction = true;
+        setting.showLevel = true;
+        setting.showLevelMaxOnly = false;
+        setting.showMythicRating = true;
+        setting.showFaction = true;
 
         -- No cross-faction guilds prior to Dragonflight expansion
         if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
-            player.showFaction = false;
+            setting.showFaction = false;
         end
-        player.useFade = false;
+        setting.useFade = false;
 
         -- No guild rep pre-Cataclysm expansion.
         if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
-            player.viewGuildRep = false;
+            setting.viewGuildRep = false;
         else
-            player.viewGuildRep = true;
+            setting.viewGuildRep = true;
         end
 
-        player.showBorders = false; -- Off by default
-        player.showBDay = true;
-        player.colorizeNames = true;
-        player.colorizeClassicRosterNames = true;
-        player.hideFramesInCombat = true;
+        setting.showBorders = false; -- Off by default
+        setting.showBDay = true;
+        setting.colorizeNames = true;
+        setting.colorizeClassicRosterNames = true;
+        setting.hideFramesInCombat = true;
 
         -- Log Options and Side Window
     elseif page == 8 then
-        player.toLog = {};
-        player.toChat = {};
+        setting.toLog = {};
+        setting.toChat = {};
 
         local s = "toLog";
         for i = 1, 2 do
@@ -179,37 +179,37 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
                 s = "toChat";
             end
 
-            player[s].joined = true;
-            player[s].leveled = true;
-            player[s].inactiveReturn = true;
-            player[s].promotion = true;
-            player[s].demotion = true;
-            player[s].note = true;
-            player[s].officerNote = true;
-            player[s].customNote = true;
-            player[s].nameChange = true;
-            player[s].rankRename = true;
-            player[s].eventAnnounce = true;
-            player[s].left = true;
-            player[s].recommend = true;
-            player[s].banned = true;
+            setting[s].joined = true;
+            setting[s].leveled = true;
+            setting[s].inactiveReturn = true;
+            setting[s].promotion = true;
+            setting[s].demotion = true;
+            setting[s].note = true;
+            setting[s].officerNote = true;
+            setting[s].customNote = true;
+            setting[s].nameChange = true;
+            setting[s].rankRename = true;
+            setting[s].eventAnnounce = true;
+            setting[s].left = true;
+            setting[s].recommend = true;
+            setting[s].banned = true;
 
             if GRM_G.HardcoreActive then
                 if i == 1 then
-                    player[s].death = true;
+                    setting[s].death = true;
                 else
-                    player[s].death = false;
+                    setting[s].death = false;
                 end
             end
 
         end
 
-        player.showLineNumbers = true;
-        player.shiftClickRemove = true;
-        player.autoFocusSearch = false;
-        player.showTooltip = true;
-        player.logFontSize = 0;
-        player.logColor = { -- 15 total
+        setting.showLineNumbers = true;
+        setting.shiftClickRemove = true;
+        setting.autoFocusSearch = false;
+        setting.showTooltip = true;
+        setting.logFontSize = 0;
+        setting.logColor = { -- 15 total
         {0.5, 1.0, 0.0}, -- Joined
         {0.0, 0.44, 0.87}, -- Leveled
         {0.0, 1.0, 0.87}, -- Inactive Return
@@ -229,128 +229,128 @@ GRM_S.SetDefaultAddonSettings = function(player, page)
 
         -- Export Options
     elseif page == 9 then
-        player.exportDelimiter = {true, ";"};
-        player.specialCharRemoval = false;
-        player.columnHeaders = false;
-        player.ExportLevelRange = {1, 999}; -- 999 represents MaxLevel
-        player.exportFilters = {};
-        player.exportFilters.name = true;
-        player.exportFilters.rank = true;
-        player.exportFilters.level = true;
-        player.exportFilters.class = true;
-        player.exportFilters.race = true;
-        player.exportFilters.sex = true;
-        player.exportFilters.lastOnline = true;
-        player.exportFilters.mainAlt = true;
-        player.exportFilters.alts = true;
-        player.exportFilters.joinDate = true;
-        player.exportFilters.promoteDate = true;
-        player.exportFilters.rankHist = true;
-        player.exportFilters.bday = true;
-        player.exportFilters.rep = true;
-        player.exportFilters.note = true;
-        player.exportFilters.oNote = true;
-        player.exportFilters.cNote = true;
-        player.exportFilters.mythicScore = true;
-        player.exportFilters.faction = true;
-        player.exportFilters.Realm = true;
-        player.exportFilters.GUID = false;
-        player.exportFilters.MainOrAlt = false;
-        player.exportFilters.mainOnly = true;
+        setting.exportDelimiter = {true, ";"};
+        setting.specialCharRemoval = false;
+        setting.columnHeaders = false;
+        setting.ExportLevelRange = {1, 999}; -- 999 represents MaxLevel
+        setting.exportFilters = {};
+        setting.exportFilters.name = true;
+        setting.exportFilters.rank = true;
+        setting.exportFilters.level = true;
+        setting.exportFilters.class = true;
+        setting.exportFilters.race = true;
+        setting.exportFilters.sex = true;
+        setting.exportFilters.lastOnline = true;
+        setting.exportFilters.mainAlt = true;
+        setting.exportFilters.alts = true;
+        setting.exportFilters.joinDate = true;
+        setting.exportFilters.promoteDate = true;
+        setting.exportFilters.rankHist = true;
+        setting.exportFilters.bday = true;
+        setting.exportFilters.rep = true;
+        setting.exportFilters.note = true;
+        setting.exportFilters.oNote = true;
+        setting.exportFilters.cNote = true;
+        setting.exportFilters.mythicScore = true;
+        setting.exportFilters.faction = true;
+        setting.exportFilters.Realm = true;
+        setting.exportFilters.GUID = false;
+        setting.exportFilters.MainOrAlt = false;
+        setting.exportFilters.mainOnly = true;
 
         if GRM_G.HardcoreActive then
-            player.exportHardcoreSort = 1;
+            setting.exportHardcoreSort = 1;
         end
 
         if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
-            player.exportFilters.rep = false;
+            setting.exportFilters.rep = false;
         end
 
         if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
-            player.exportFilters.mythicScore = false; 
+            setting.exportFilters.mythicScore = false; 
         end
 
         -- Macro Tool Kick Options
     elseif page == 10 then
-        player.kickRules = {};
-        player.macroSyncKickEnabled = true;
-        player.ignoreFilter = false;
-        player.removedMacroRules.kickRules = {};
-        player.macroHotKey = "CTRL-SHIFT-K";
+        setting.kickRules = {};
+        setting.macroSyncKickEnabled = true;
+        setting.ignoreFilter = false;
+        setting.removedMacroRules.kickRules = {};
+        setting.macroHotKey = "CTRL-SHIFT-K";
 
         -- Macro Tool Promote Options
     elseif page == 11 then
-        player.promoteRules = {};
-        player.macroSyncPromoteEnabled = true;
-        player.ignoreFilter = false;
-        player.removedMacroRules.promoteRules = {};
-        player.promoteOnlineOnly = false;
-        player.macroHotKey = "CTRL-SHIFT-K";
+        setting.promoteRules = {};
+        setting.macroSyncPromoteEnabled = true;
+        setting.ignoreFilter = false;
+        setting.removedMacroRules.promoteRules = {};
+        setting.promoteOnlineOnly = false;
+        setting.macroHotKey = "CTRL-SHIFT-K";
 
         -- Macro Tool Demote Options
     elseif page == 12 then
-        player.demoteRules = {};
-        player.macroSyncDemoteEnabled = true;
-        player.ignoreFilter = false;
-        player.removedMacroRules.demoteRules = {};
-        player.demoteOnlineOnly = false;
-        player.macroHotKey = "CTRL-SHIFT-K";
+        setting.demoteRules = {};
+        setting.macroSyncDemoteEnabled = true;
+        setting.ignoreFilter = false;
+        setting.removedMacroRules.demoteRules = {};
+        setting.demoteOnlineOnly = false;
+        setting.macroHotKey = "CTRL-SHIFT-K";
 
         -- Audit
     elseif page == 13 then
-        player.onlyShowIncomplete = false;
-        player.unknownIsComplete = true;
-        player.includeBirthdaysInAudit = false;
+        setting.onlyShowIncomplete = false;
+        setting.unknownIsComplete = true;
+        setting.includeBirthdaysInAudit = false;
 
         -- Macro Tool Special Options
     elseif page == 14 then
-        player.specialRules = {};
-        player.macroSyncSpecialEnabled = true;
-        player.ignoreFilter = false;
-        player.removedMacroRules.specialRules = {};
-        player.macroHotKey = "CTRL-SHIFT-K";
+        setting.specialRules = {};
+        setting.macroSyncSpecialEnabled = true;
+        setting.ignoreFilter = false;
+        setting.removedMacroRules.specialRules = {};
+        setting.macroHotKey = "CTRL-SHIFT-K";
 
         -- Modules
     elseif page == 15 then
 
         -- GroupInfoModule
-        player.GIModule = {};
-        player.GIModule.enabled = true;
-        player.GIModule.DisableGroupInfoTooltip = false;
+        setting.GIModule = {};
+        setting.GIModule.enabled = true;
+        setting.GIModule.DisableGroupInfoTooltip = false;
 
         -- Classic Tab
     elseif page == 16 then
         -- HARDCORE MODE
-        player.includeDeathTime = true;
-        player.addDeathTag = true
-        player.ignoreDeathChannel = false;
+        setting.includeDeathTime = true;
+        setting.addDeathTag = true
+        setting.ignoreDeathChannel = false;
 
         -- Classic In General
-        player.ProfReportUpdatesToChat = false;
-        player.ProfRankAutoUpdate = false;
-        player.ProfNoteDestination = 1;
-        player.ProfFullyDisabled = false;
+        setting.ProfReportUpdatesToChat = false;
+        setting.ProfRankAutoUpdate = false;
+        setting.ProfNoteDestination = 1;
+        setting.ProfFullyDisabled = false;
         if GRM_G.BuildHasRestrictions then
-            player.ProfNoteDestination = 3;
+            setting.ProfNoteDestination = 3;
         end
         if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
-            player.ProfFullyDisabled = true;
+            setting.ProfFullyDisabled = true;
         end
 
         -- Names Tab
     elseif page == 17 then
-        player.useMainTag = true; -- Can we remove
+        setting.useMainTag = true; -- Can we remove
 
-        player.mainTagIndex = 1
-        player.altTagIndex = 1
-        player.nickTagIndex = 1
-        player.nameFormatMain = 2
-        player.nameFormatAlt = 4
-        player.nicknameFormatMain = 1
-        player.nicknameFormatAlt = 1
-        player.nnFormatUnassigned = 1
-        player.mainTagColor = { r = 1.0, g = 0.0, b = 0.0 }  -- RESET TO DEFAULT
-        player.nicknameTagColor = { r = 0.0, g = 0.8, b = 1.0 }
+        setting.mainTagIndex = 1
+        setting.altTagIndex = 1
+        setting.nickTagIndex = 1
+        setting.nameFormatMain = 2
+        setting.nameFormatAlt = 4
+        setting.nicknameFormatMain = 1
+        setting.nicknameFormatAlt = 1
+        setting.nnFormatUnassigned = 1
+        setting.mainTagColor = { r = 1.0, g = 0.0, b = 0.0 }  -- RESET TO DEFAULT
+        setting.nicknameTagColor = { r = 0.0, g = 0.8, b = 1.0 }
 
     end
 

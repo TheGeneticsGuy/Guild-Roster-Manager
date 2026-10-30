@@ -6454,7 +6454,7 @@ end
 GRM.GetLeveledString = function(simpleName, milestoneLevel, level, numGained, date, atLevelCap, fullName)
     local result = "";
 
-    if GRM.S().useMainTag and fullName then
+    if fullName then
         local player = GRM.GetPlayer(fullName);
 
         if player then
@@ -7891,44 +7891,6 @@ GRM.NotificationIndependentChecker = function()
             end);
         end);
     end
-end
-
-----------------------
--- EVENT TRACKING!!!!!
-----------------------
-
--- Method:          GRM.SetBirthdayFrameLogic()
--- What it Does:    Sets the birthdate and resets the frames as needed
--- Purpose:         To keep presentation clean!
-GRM.SetBirthdayFrameLogic = function()
-    local day = GRM_G.dayIndex;
-    local month = GRM_G.monthIndex;
-    GRM.SetBirthday(GRM_G.currentName, day, month, time() );
-
-    -- Birthday Text logic...
-    GRM_UI.GRM_Mouseover.GRM_BirthdayText:SetText(GRM.Time.FormatTimeStamp( { day , month } , false , true));
-    GRM_UI.GRM_Mouseover.GRM_BirthdayText:Show();
-    GRM_UI.GRM_Mouseover.GRM_MemberDetailBirthdayButton:Hide();
-
-    -- Promo Window
-
-    local player = GRM.GetPlayer(GRM_G.currentName);
-    if player then
-        if #player.rankHist[1][5] == 1 and not player.promoteDateUnknown then
-            GRM_UI.GRM_Mouseover.GRM_MemberDetailRankDateTxt:Hide();
-            GRM_UI.GRM_Mouseover.GRM_SetPromoDateButton:Show();
-        else
-            GRM_UI.GRM_Mouseover.GRM_MemberDetailRankDateTxt:Show();
-        end
-    end
-
-    -- Frame Logic
-    GRM_UI.GRM_Mouseover.GRM_DayDropDownSelected:Hide();
-    GRM_UI.GRM_Mouseover.GRM_MonthDropDownSelected:Hide();
-    GRM_UI.GRM_Mouseover.GRM_DateSubmitCancelButton:Hide();
-    GRM_UI.GRM_Mouseover.GRM_DateSubmitButton:Hide();
-
-    GRM_UI.RefreshSelectFrames(false, true, false, true, true, true);
 end
 
 -- Method:          GRM.SetBirthday ( string , int , int , int , boolean , string , boolean )

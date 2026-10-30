@@ -21,21 +21,35 @@ NN.CreateNickObject = function()
     return nickInfo;
 end
 
--- Method:          NN.GetNickname ( string )
+-- Method:          NN.GetNickname ( string, playerObject )
 -- What it Does:    Returns the player nickname
-NN.GetNickname = function ( playerName )
-    local player = GRM.GetPlayer ( playerName );
-    local nickname = "";
-    if player then
-
-        if not player.nickInfo then
-            player.nickInfo = NN.CreateNickObject();
-        end
-
-        nickname = player.nickInfo.nickname;
+NN.GetNickname = function ( playerName, player )
+    player = player or GRM.GetPlayer ( playerName );
+    if not player then
+        return ""
     end
 
-    return nickname;
+    if not player.nickInfo then
+        player.nickInfo = NN.CreateNickObject();
+    end
+
+    return player.nickInfo.nickname
+end
+
+-- Get the nickname which has been class colorized
+NN.GetColorizedNickname = function (playerName, player)
+    player = player or GRM.GetPlayer(playerName)
+    if not player then
+        return
+    end
+
+    local nickname = NN.GetNickname(nil, player)
+
+    if nickname ~= "" then
+        nickname = GRM.GetClassColorRGB(player.class, true) .. nickname .. "|r"
+    end
+
+    return nickname
 end
 
 -- Method:          NN.PlayerHasNickname ( string )

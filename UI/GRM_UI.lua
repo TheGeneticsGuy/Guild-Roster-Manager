@@ -9458,11 +9458,11 @@ local function RosterFrame()
         if player.isOnline or GRM_G.currentName == GRM_G.addonUser then
             if not f.GRM_DateSubmitButton:IsVisible() then
                 if player.zone ~= nil then
-                    f.GRM_MemberDetailMetaZoneInfoZoneText:SetText(player.zone)
+                    f.GRM_MouseoverInfoZoneText:SetText(player.zone)
                     f.GRM_ZoneInfoTime2:SetText(GRM.Time.GetTimePassedInZone(player.timeEnteredZone))
                 end
                 f.GRM_ZoneInfoText:Show()
-                f.GRM_MemberDetailMetaZoneInfoZoneText:Show()
+                f.GRM_MouseoverInfoZoneText:Show()
                 f.GRM_ZoneInfoTime1:Show()
                 f.GRM_ZoneInfoTime2:Show()
             end
@@ -9501,7 +9501,7 @@ local function RosterFrame()
         end
     else
         f.GRM_ZoneInfoText:Hide()
-        f.GRM_MemberDetailMetaZoneInfoZoneText:Hide()
+        f.GRM_MouseoverInfoZoneText:Hide()
         f.GRM_ZoneInfoTime1:Hide()
         f.GRM_ZoneInfoTime2:Hide()
     end

@@ -1051,8 +1051,23 @@ GRM_Patch.PatchHistory = {
             GRM_Patch.AddNewSetting("ProfFullyDisabled", (GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF))
         end
     },
-    { version = 1.995, apply = function() GRM_Patch.MemberDataCleanup() end }
+    {
+        version = 1.99383,
+        apply = function()
+            GRM_Patch.MemberDataCleanup()
+            GRM_Patch.EditSetting("useFullName", nil)
+            GRM_Patch.EditSetting("showMouseoverOld", nil)
+            GRM_Patch.EditSetting("useMainTag", nil)
+            GRM_Patch.EditSetting("showNickname", nil)
+            GRM_Patch.EditSetting("showNicknameNotMain", nil)
+            GRM_Patch.EditSetting("ShowNicknameToAll", nil)
+            GRM_Patch.EditSetting("showMainName", nil)
+        end
+    },
+    { version = 1.995, apply = function()  end }
 }
+
+
 
 -- Final report is good to go!
 -- Note, these are purposefully "PRINTED" as they are not necessary to be stored in the chat logs which other addons might save.

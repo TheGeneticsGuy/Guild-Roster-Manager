@@ -28,19 +28,12 @@ Global Control String:
   - 2 = Auto update enabled and destination OFFICER Note
   - 3 = Auto update enabled and destination CUSTOM Note
 
-TO DO: - Remove settings:
-          * useFullName
-          * showMouseoverOld
-          * INVESTIGATE FIRST - useMainTag
-          * showNickname
-          * showNicknameNotMain
-          * ShowNicknameToAll
-          * showMainName
 
 TO DO: - Fix Default Settings button on Names Tab, maybe others?
     
 TO DO: - Implement FormatName settings somehow 
-TO DO: - Deal with Export.RemoveStringColoring() - this is going to complicate things with the new formatting possibly
+
+
 TO DO: - Request to implement custom note on the Promotions in macro tool
 TO DO: - When swapping languages, the dropdown menu doesn't re-translate.
 TO DO: - When setting it to allow editing the public/officer notes, it is letting me even though it should be blocked. The global controls and the mouseover

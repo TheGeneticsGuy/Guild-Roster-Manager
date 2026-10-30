@@ -165,6 +165,29 @@ GRM_Name.GetNickTags = function(returnTable, index)
     return returnTable and tags or tags[index]
 end
 
+-- Get nickname or player name - Non Class Colored
+GRM_Name.GetName = function(playerName, player)
+    player = player or GRM.GetPlayer(playerName)
+    if not player then
+        return
+    end
+
+    return player.nickInfo.nickname ~= "" and player.nickInfo.nickname or player.name
+end
+
+-- Get the name OR the nickname which has bene class colorized - where it will always return the name, but nickname first
+GRM_Name.GetColorizedNNorName = function(playerName, player)
+    player = player or GRM.GetPlayer ( playerName );
+    if not player then
+        return ""
+    end
+    local name =  GRM.NN.GetColorizedNickname(nil, player)
+    if name == "" then
+        name = GRM.GetClassColorRGB(player.class, true) .. player.name .. "|r"
+    end
+    return name;
+end
+
 -- Method:          GRM.RemoveMainAltTags ( string )
 -- What it Does:    takes the name, and parses out both the string coloring and the main tag. There is ALWAYS hexcode, so "|" can be found.
 -- Purpose:         Add Alt window has the tags added, this just retroactively removes them.

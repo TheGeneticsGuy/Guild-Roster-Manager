@@ -240,7 +240,7 @@ Util.GetNumLetters = function(text)
     local c = 0;
 
     if text ~= nil then
-        c = GRM.UTF8Len(text);
+        c = Util.UTF8Len(text);
     end
 
     return c;
