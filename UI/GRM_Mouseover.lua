@@ -1179,7 +1179,11 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         local newNick = GRM.Util.Trim(nickPopup.EditBox:GetText())
         local player = GRM.GetPlayer(nickPopup.playerName)
         
-        if not player then nickPopup:Hide(); return end
+        if not player then
+            nickPopup:Hide();
+            GRM.Report("Unable to Process Nickname. Player no longer found.")
+            return
+        end
         
         -- If they cleared the box, treat it as a removal
         if newNick == "" then

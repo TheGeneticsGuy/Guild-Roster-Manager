@@ -2096,6 +2096,7 @@ GRML.English = function()
     GRM_L["Share Nickname across all Alts"] = true
     GRM_L["Save"] = true
     GRM_L["Nickname for {name}"] = true
+    GRM_L["Unable to Process Nickname. Player no longer found."] = true
 
     -- General Tab
     GRM_L["{custom1} to Change Default GRM Tab on First Open."] = true
