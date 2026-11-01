@@ -2049,6 +2049,7 @@ GRML.English = function()
     GRM_L["This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank." ] = true
 
     -- Nickname Update
+    -- 1.995
     GRM_L["Player Nicknames must be no longer than {num} letters in length"] = true
     GRM_L["Player Nicknames must be at least {num} characters in length"] = true
     GRM_L["{name} has added a shared nickname ({custom1}) for {name2}'s alt group."] = true
@@ -2090,6 +2091,11 @@ GRML.English = function()
     GRM_L["Nick Tag"] = true
     GRM_L["Tagging Disabled"] = true
     GRM_L["Nickname Disabled"] = true
+    GRM_L["Set Nickname"] = true
+    GRM_L["Edit Nickname"] = true
+    GRM_L["Share Nickname across all Alts"] = true
+    GRM_L["Save"] = true
+    GRM_L["Nickname for {name}"] = true
 
     -- General Tab
     GRM_L["{custom1} to Change Default GRM Tab on First Open."] = true

@@ -743,6 +743,34 @@ local function BuildAltGroupingScrollFrame(currentName)
     end
 end
 
+-- Global helper to open this popup
+local function OpenNicknamePopup(playerName)
+    local player = GRM.GetPlayer(playerName)
+    if not player then
+        return
+    end
+    local nickPopup = GRM_UI.GRM_Mouseover.GRM_NicknamePopup
+    
+    nickPopup.playerName = playerName
+    nickPopup.Title:SetText(GRM.L("Nickname for {name}", GRM.SlimName(playerName)))
+    nickPopup.EditBox:SetText(GRM.NN.GetNickname(playerName, player))
+    
+    -- Default to shared if they have no setting yet, otherwise use their setting
+    local isShared = true
+    if player.nickInfo and player.nickInfo.shareNickAmongAlts ~= nil then
+        isShared = player.nickInfo.shareNickAmongAlts
+    end
+    nickPopup.ShareCheckbox:SetChecked(isShared)
+    
+    -- Trigger text update to set Save/Remove text properly on open
+    local text = GRM.Util.Trim(nickPopup.EditBox:GetText())
+    nickPopup.SaveButton.SaveButtonText:SetText((text == "" and GRM.NN.PlayerHasNickname(playerName)) and GRM.L("Remove") or GRM.L("Save"))
+    
+    nickPopup:Show()
+    nickPopup.EditBox:SetFocus()
+    nickPopup.EditBox:HighlightText()
+end
+
 -----------------------------------
 ---- CORE MOUSEOVER MODULE --------
 -----------------------------------
@@ -767,6 +795,17 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     -- Populating Frames with FontStrings
     GRM_UI.CreateString("GRM_MemberDetailNameText", f, "GameFontNormalLarge", "", 21, {"TOP", f, "TOP", 0, -30})
+
+    -- The Nickname Edit Icon
+    GRM_UI.CreateButton("GRM_NicknameEditButton", f, nil, "", 16, 16, {"LEFT", f.GRM_MemberDetailNameText, "RIGHT", 5, 0}, function() OpenNicknamePopup(GRM_G.currentName) end,
+                        nil, nil, nil, nil, nil, function()
+                            GRM_UI.SetTooltipScale()
+                            GameTooltip:SetOwner(f.GRM_NicknameEditButton, "ANCHOR_CURSOR")
+                            GameTooltip:AddLine(GRM.NN.PlayerHasNickname(GRM_G.currentName) and GRM.L("Edit Nickname") or GRM.L("Set Nickname"))
+                            GameTooltip:Show()
+                        end,
+                        GRM.RestoreTooltip )
+
     GRM_UI.CreateString("GRM_DetailNicknameText", f, "GameFontNormalLarge", "", 21, {"TOP", f.GRM_MemberDetailNameText, "BOTTOM", 0, -2})
     GRM_UI.CreateString("GRM_MemberDetailMainText", f, "GameFontWhiteTiny", GRM.L("( Main )"), 10, {"BOTTOM", f.GRM_MemberDetailNameText, "TOP", 0, 2}, nil, {1.0, 0.0, 0.0})
     GRM_UI.CreateString("GRM_MemberDetailAltText", f, "GameFontWhiteTiny", "( " .. GRM.L("Alt") .. " )", 10, {"BOTTOM", f.GRM_MemberDetailNameText, "TOP", 0, 2}, nil, {1.0, 0.5, 0.5})
@@ -850,19 +889,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_ZoneInfoText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 12, "THICKOUTLINE")
     GRM_UI.CreateString("GRM_MouseoverInfoZoneText", f, "GameFontWhiteTiny", "", 12, {"LEFT", f.GRM_ZoneInfoText, "RIGHT", 2, 0})
     if not isManualUpdate then
-        f.GRM_DateSubmitButton:SetScript("OnShow", function()
-            if f.GRM_ZoneInfoTime1:IsVisible() then
-                f.GRM_ZoneInfoTime1:Hide(); f.GRM_ZoneInfoTime2:Hide()
-                f.GRM_ZoneInfoText:Hide(); f.GRM_MouseoverInfoZoneText:Hide()
-            end
-        end)
-        f.GRM_DateSubmitButton:SetScript("OnHide", function()
-            local player = GRM.GetPlayer(GRM_G.currentName)
-            if player and player.isOnline and player.zone ~= "" then
-                f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
-                f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
-            end
-        end)
+        
     end
 
     GRM_UI.CreateCoreFrame("GRM_PlayerOfficerNoteWindow", f, nil, 166, 53, BackdropTemplateMixin and "BackdropTemplate", false, {"RIGHT", f, "RIGHT", -15, 10}, nil, false, false)
@@ -1087,6 +1114,16 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_IgnoreListDemoteTimeExpireButtonTimeLeftText", IgnoreMacroFrame, "GameFontNormalSmall", "", 9, {"TOPLEFT", IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonDateSetText, "BOTTOMLEFT", 0, -6}, nil, {0.9, 0.8, 0.5}, "LEFT")
     GRM_UI.CreateEditBox("GRM_IgnoreListDemoteTimeExpireEditBox", IgnoreMacroFrame, "InputBoxTemplate", 33, 29, {"LEFT", IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton.GRM_IgnoreListDemoteTimeExpireButtonText, "RIGHT", 8, 0}, nil, {1,0,0}, 3, true)
 
+    -- ==========================================
+    -- NICKNAME EDIT POPUP FRAME
+    -- ==========================================
+    GRM_UI.CreateCoreFrame("GRM_NicknamePopup", f , UIParent , 320, 160, BackdropTemplateMixin and "BackdropTemplate", true, {"CENTER", UIParent, "CENTER", 0, 0}, "FULLSCREEN_DIALOG", true, true)    
+    GRM_UI.CreateString("Title", f.GRM_NicknamePopup, "GameFontNormal", GRM.L("Set Nickname"), 14, {"TOP", f.GRM_NicknamePopup, "TOP", 0, -15})
+    GRM_UI.CreateEditBox("EditBox", f.GRM_NicknamePopup, "InputBoxTemplate", 220, 25, {"TOP", f.GRM_NicknamePopup.Title, "BOTTOM", 0, -15}, "CENTER", {1, 1, 1}, 20, false)
+    GRM_UI.CreateCheckBox("ShareCheckbox", f.GRM_NicknamePopup, "InterfaceOptionsCheckButtonTemplate", {26, 26}, {"TOPLEFT", f.GRM_NicknamePopup.EditBox, "BOTTOMLEFT", -5, -10}, nil, GRM.L("Share Nickname across all Alts"), "GameFontNormalSmall", 11)
+    GRM_UI.CreateButton("SaveButton", f.GRM_NicknamePopup, "GameMenuButtonTemplate", GRM.L("Save"), 100, 25, {"BOTTOMLEFT", f.GRM_NicknamePopup, "BOTTOMLEFT", 45, 15}, nil, "GameFontWhite", 12, "CENTER")
+    GRM_UI.CreateButton("CancelButton", f.GRM_NicknamePopup, "GameMenuButtonTemplate", GRM.L("Cancel"), 100, 25, {"LEFT", f.GRM_NicknamePopup.SaveButton, "RIGHT", 30, 0}, function() f.GRM_NicknamePopup:Hide() end, "GameFontWhite", 12, "CENTER")
+
     -- =============================================================
     -- ALL POST-CREATION SCRIPT LOGIC
     -- =============================================================
@@ -1133,6 +1170,45 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         end
     end);
 
+    local nickPopup = GRM_UI.GRM_Mouseover.GRM_NicknamePopup
+    nickPopup:SetBackdrop (GRM_UI_Util.GetBackdrop(4));
+    nickPopup:Hide()
+    nickPopup.playerName = "" -- Reference to the player being edited
+    -- Logic for the Popup Saving
+    local function ProcessNicknameSave()
+        local newNick = GRM.Util.Trim(nickPopup.EditBox:GetText())
+        local player = GRM.GetPlayer(nickPopup.playerName)
+        
+        if not player then nickPopup:Hide(); return end
+        
+        -- If they cleared the box, treat it as a removal
+        if newNick == "" then
+            if GRM.NN.PlayerHasNickname(player.name) then
+                GRM.NN.RemoveNickname(player, GRM_G.addonUser, nickPopup.ShareCheckbox:GetChecked(), time(), time(), false)
+            end
+            nickPopup:Hide()
+            return
+        end
+        
+        -- Normal save
+        if GRM.NN.IsNicknameFormatValid(newNick) then
+            GRM.NN.SetNickname(player, newNick, nickPopup.ShareCheckbox:GetChecked(), GRM_G.addonUser, time(), GRM.Time.GetTimestamp(), false)
+            nickPopup:Hide()
+        end
+    end
+
+    nickPopup.SaveButton:SetScript("OnClick", ProcessNicknameSave)
+    nickPopup.EditBox:SetScript("OnEnterPressed", ProcessNicknameSave)
+    
+    -- Dynamic Button Text (Save vs Remove)
+    nickPopup.EditBox:SetScript("OnTextChanged", function(self)
+        if GRM.Util.Trim(self:GetText()) == "" and GRM.NN.PlayerHasNickname(nickPopup.playerName) then
+            nickPopup.SaveButton.SaveButtonText:SetText(GRM.L("Remove"))
+        else
+            nickPopup.SaveButton.SaveButtonText:SetText(GRM.L("Save"))
+        end
+    end)
+
     local function IsMouseOverAltButton()
         local result = false
         for i = 1, #f.GRM_CoreAltFrame.GRM_CoreAltScrollChildFrame.allFrameButtons do
@@ -1159,6 +1235,11 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         f.GRM_MemberDetailNotifyStatusChangeTooltip:Hide()
         f.GRM_BirthdayTooltip:Hide()
     end
+
+    f.GRM_NicknameEditButton:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-Up")
+    f.GRM_NicknameEditButton:SetHighlightTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-Up")
+    f.GRM_NicknameEditButton:SetPushedTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-Down")
+    f.GRM_NicknameEditButton:GetHighlightTexture():SetAlpha(0.5) -- Add a glow on hover
 
     -- For Fontstring logic handling (Right Click Context Menus hook)
     f:SetScript("OnMouseDown", function(_, button)
@@ -1688,6 +1769,20 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
             end
         end
     end);
+
+    f.GRM_DateSubmitButton:SetScript("OnShow", function()
+        if f.GRM_ZoneInfoTime1:IsVisible() then
+            f.GRM_ZoneInfoTime1:Hide(); f.GRM_ZoneInfoTime2:Hide()
+            f.GRM_ZoneInfoText:Hide(); f.GRM_MouseoverInfoZoneText:Hide()
+        end
+    end)
+    f.GRM_DateSubmitButton:SetScript("OnHide", function()
+        local player = GRM.GetPlayer(GRM_G.currentName)
+        if player and player.isOnline and player.zone ~= "" then
+            f.GRM_ZoneInfoTime1:Show(); f.GRM_ZoneInfoTime2:Show()
+            f.GRM_ZoneInfoText:Show(); f.GRM_MouseoverInfoZoneText:Show()
+        end
+    end)
 
     -- ALT DETAILS ARROW 
     f.GRM_ExtraAltDetailsArrowButton:SetScript("OnEnter", function()
@@ -3759,8 +3854,9 @@ GRM_UI.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
 
         f.GRM_MemberDetailNameText:SetText(GRM.SlimName(handle))
         local nameHeight = 16
+        local minimum = 11
         f.GRM_MemberDetailNameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight)
-        while (f.GRM_MemberDetailNameText:GetWidth() > 120) do
+        while (f.GRM_MemberDetailNameText:GetWidth() > 120 and nameHeight > minimum) do
             nameHeight = nameHeight - 0.1
             f.GRM_MemberDetailNameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight)
         end
@@ -3773,17 +3869,30 @@ GRM_UI.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
         end
 
         -- Nickname
-        if player.nickInfo.nickname ~= "" then
+        if player.nickInfo and player.nickInfo.nickname ~= "" then
             f.GRM_DetailNicknameText:SetTextColor(classColors[1], classColors[2], classColors[3], 1.0)
             f.GRM_DetailNicknameText:SetText(GRM_Name.GetColorizedNNorName(nil, player))
-            f.GRM_DetailNicknameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight) -- Keep nameheight the same or less
-            while (f.GRM_DetailNicknameText:GetWidth() > 120) do
+            f.GRM_DetailNicknameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight) 
+            while (f.GRM_DetailNicknameText:GetWidth() > 120 and nameHeight > minimum) do
                 nameHeight = nameHeight - 0.1
                 f.GRM_DetailNicknameText:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + nameHeight)
             end
+            f.GRM_DetailNicknameText:Show()
+            
+            -- Anchor button to the Nickname text and make it fully opaque
+            f.GRM_NicknameEditButton:ClearAllPoints()
+            f.GRM_NicknameEditButton:SetPoint("LEFT", f.GRM_DetailNicknameText, "RIGHT", 5, 0)
+            f.GRM_NicknameEditButton:SetAlpha(1.0)
         else
             f.GRM_DetailNicknameText:SetText("")
+            f.GRM_DetailNicknameText:Hide()
+            
+            -- Anchor button to the Name text
+            f.GRM_NicknameEditButton:ClearAllPoints()
+            f.GRM_NicknameEditButton:SetPoint("LEFT", f.GRM_MemberDetailNameText, "RIGHT", 5, 0)
+            f.GRM_NicknameEditButton:SetAlpha(0.4) -- Faded look for discoverability
         end
+        f.GRM_NicknameEditButton:Show()
         
         local levelAndMythicText = ""
         local level = memberInfo and memberInfo.level or player.level
