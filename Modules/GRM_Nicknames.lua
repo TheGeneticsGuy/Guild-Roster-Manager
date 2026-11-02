@@ -86,34 +86,42 @@ NN.SyncNickChangeToAltGroup = function( player, onlyChangeShareSetting )
     end
 end
 
--- /run GRM.NN.SetNickname(GRM.GetPlayer("Arkaan-Zul'jin",false), "TestNick2", true, "Arkaan-Zul'jin", time(), {12,10,2026},false)
--- /run GRM.NN.SetNickname(GRM.GetPlayer("Enrigg-Zul'jin",false), "EnriggBOSS", true, "Arkaan-Zul'jin", time(), {12,10,2026},false)
--- /run GRM.NN.SetNickname(GRM.GetPlayer("Enrigg-Zul'jin",false), "LOL Master", true, "Arkaan-Zul'jin", time(), {12,10,2026},false)
--- /dump GRM.NN.GetNickname("Enrigg-Zul'jin")
-
--- Method:          NN.SetNickname ( table , string , bool,  string , int , table, bool  )
+-- Method:          NN.SetNickname ( table , string , bool, bool,  string , int , table, bool  )
 -- What it Does:    Sets the nickname to either the player or the group based on settings.
 -- Purpose:         To apply identity changes across the database.
-NN.SetNickname = function ( player , newNick , shareNickAmongAlts, setterName, epochStamp , date, isRetroSync )
+NN.SetNickname = function ( player , newNick , shareNickAmongAlts, shareSettingChanged, setterName, date, epochStamp, isSync )
 
     if not player or not NN.IsNicknameFormatValid(newNick) then
         return;
     end
 
-    local addingAltGroupNN = false;
     epochStamp = epochStamp or time();
     date = date or GRM.Time.GetTimestamp(); -- { day, month, year }
     local editedDetails = { setterName , { date[1] , date[2] , date[3] } , epochStamp };
-    
+    local originalName = "";
+    local isRemove = false;
+
     -- Backup
     if not player.nickInfo then 
         player.nickInfo = NN.CreateNickObject()
+    else
+        originalName = player.nickInfo.nickname
     end
     local onlyChangeShareSetting = player.nickInfo.shareNickAmongAlts; -- Set before overwriting.
+
+    if shareSettingChanged and shareNickAmongAlts == "X" then
+        player.nickInfo.shareNickAmongAlts = shareNickAmongAlts
+    else
+        player.nickInfo.nickname = newNick
+        player.nickInfo.editedDetails = editedDetails;
+        player.nickInfo.shareNickAmongAlts = shareNickAmongAlts;
+
+        if #originalName > 0 and #newNick == 0 then
+            isRemove = true
+        end
+    end
+
     
-    player.nickInfo.nickname = newNick
-    player.nickInfo.editedDetails = editedDetails;
-    player.nickInfo.shareNickAmongAlts = shareNickAmongAlts;
 
     -- Spread the nicknames
     -- Both of these are circumstantial and could be true
@@ -123,13 +131,15 @@ NN.SetNickname = function ( player , newNick , shareNickAmongAlts, setterName, e
         NN.SyncNickChangeToAltGroup(player, true);
     end
 
-    if not isRetroSync then
+    if not isSync then
         
         -- Sync the data
         if GRM.S().syncEnabled then
-            local isRemove = "0"; -- Represents false bit
+            local removeBit = isRemove and "1" or "0"; -- Represents false bit
             local standardFormat = GRM.Time.ConvertToStandardFormatDate(date[1] , date[2] , date[3]);
-            GRMsync.SendMessage ( "GRM_NN" , player.name .. "?" .. newNick .. "?" .. setterName .. "?" .. isRemove .. "?" .. GRMsync.SetBit(shareNickAmongAlts) .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
+            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
+            local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?" .. newNick .. "?" .. setterName .. "?" .. removeBit .. "?" .. GRMsync.SetBit(shareNickAmongAlts) .. "?" .. GRMsync.SetBit(shareSettingChanged) .. "?" .. standardFormat .. "?" .. tostring(epochStamp)
+            GRMsync.SendMessage("GRM_SYNC", msg , "GUILD");
         end
 
         -- Add to Chat
@@ -138,26 +148,27 @@ NN.SetNickname = function ( player , newNick , shareNickAmongAlts, setterName, e
         local coloredNick = classColor .. newNick .. "|r";
 
         -- Report to Chat
-        if shareNickAmongAlts and GRM.PlayerHasAlts(player) then
-            GRM.Report ( GRM.L ( "A shared nickname ({name}) has been added to {name2}'s alt group." , coloredNick, coloredPlayer ) );
+        if shareSettingChanged and shareNickAmongAlts == "X" then
+            GRM.Report ( GRM.L ( "Nickname sharing for ({name}) has been {name2}.", coloredPlayer, shareNickAmongAlts and GRM.L("Enabled") or GRM.L("Disabled") ) );
         else
-            GRM.Report ( GRM.L ( "A nickname ({name}) has been added to {name2}" , coloredNick, coloredPlayer) );
+            if shareNickAmongAlts and GRM.PlayerHasAlts(player) then
+                GRM.Report ( GRM.L ( "A shared nickname ({name}) has been set to {name2}'s alt group." , coloredNick, coloredPlayer ) );
+            else
+                GRM.Report ( GRM.L ( "A nickname ({name}) has been set to {name2}" , coloredNick, coloredPlayer) );
+            end
+            GRM_UI.RefreshSelectFrames ( true , true , false , false , true , false , true );
         end
-
-        GRM_UI.RefreshSelectFrames ( true , true , false , false , true , false , true );
     end
 end
 
--- Method:          NN.RemoveNickname ( table , string , array, int , bool )
+-- Method:          NN.RemoveNickname ( table , bool, bool string , array, int , bool )
 -- What it Does:    Clears the nickname from the player and/or the alt group based on settings.
 -- Purpose:         To provide a clean way to purge nicknames while maintaining history/sync integrity.
-NN.RemoveNickname = function ( player , removerName , removeNickFromAlts , timestamp, epochStamp , isNonLiveSync )
-
+NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, removerName, timestamp, epochStamp, isSync )
     if not player then
         return
     end
 
-    local addingAltGroupNN = false;
     epochStamp = epochStamp or time();
     timestamp = timeStamp or GRM.Time.GetTimestamp(); -- { day, month, year }
     local editedDetails = { removerName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
@@ -174,17 +185,18 @@ NN.RemoveNickname = function ( player , removerName , removeNickFromAlts , times
 
     -- Spread the nicknames
     if removeNickFromAlts then
-        NN.SyncNickChangeToAltGroup(player.name , player);
+        NN.SyncNickChangeToAltGroup(player.name , false);
     end
 
-    if not isNonLiveSync then
+    if not isSync then
         
         -- Sync the data
         if GRM.S().syncEnabled then
             local isRemove = "1"; -- Represents true bit
             local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
-            GRMsync.SendMessage ( "GRM_NN" , playerName .. "?x?" .. removerName .. "?" .. isRemove .. "?"
-                                .. GRMsync.SetBit(removeNickFromAlts) .. "?" .. standardFormat .. "?" .. tostring(epochStamp) );
+            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
+            local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?x?" .. removerName .. "?" .. isRemove .. "?" .. GRMsync.SetBit(removeNickFromAlts) .. "?" .. GRMsync.SetBit(shareSettingChanged) .. "?" .. standardFormat .. "?" .. tostring(epochStamp)
+            GRMsync.SendMessage("GRM_SYNC", msg, "GUILD");
         end
 
         -- Add to Chat
@@ -193,13 +205,23 @@ NN.RemoveNickname = function ( player , removerName , removeNickFromAlts , times
 
         -- Report to Chat
         if isShared and GRM.PlayerHasAlts(player) then
-            GRM.Report ( GRM.L ( "{name} has removed a shared nickname from {name2} and all their alts." , coloredRemover, coloredPlayer ) );
+            GRM.Report ( GRM.L ( "{name} has removed the shared nickname from {name2}'s alt group." , coloredRemover, coloredPlayer ) );
         else
             GRM.Report ( GRM.L ( "{name} has removed {name2}'s nickname." , coloredRemover, coloredPlayer) );
         end
 
         GRM_UI.RefreshSelectFrames ( true , true , false , false , true , false , true );
     end
+end
+
+NN.SetNicknameShare = function( player, removeNickFromAlts, setterName, date, epochStamp )
+
+
+
+
+
+
+
 end
 
 -- Method:          NN.IsNicknameFormatValid ( string )
@@ -270,7 +292,7 @@ end
 -- Blacklist for offensive nicknames -- maybe not necessary as officers will manage since I log who makes it
 
 -- Sync Comes
--- GRM_NN          -- Live nickname add/remove -- ALMOST COMPLETE
+-- GRM_NN          -- Live nickname add/remove -- COMPLETE
 -- GRM_NNSYNCUP     -- Final data send  -- GRMsync.CheckNickNameChanges
 -- GRM_RECNNPRE    -- Initiali Precheck Vals -- GRMsync.CollectPreCheckData
 -- GRM_NNSYNCF      -- Sending actual NN Data NON alt groups - GRMsync.CollectDataPacketsF

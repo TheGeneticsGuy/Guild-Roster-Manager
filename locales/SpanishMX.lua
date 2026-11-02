@@ -1993,11 +1993,7 @@ GRML.SpanishMX = function()
     GRM_L["Nickname is too long. Max {num} letters."] = true
     GRM_L["Invalid Character: \"|\" is not allowed."] = true
     GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
-    GRM_L["Nickname contains invalid hidden characters." ] = true
-    GRM_L["{name} has removed the shared nickname for {name2} and all alts ({custom1})"] = true
-    GRM_L["{name} has removed {name2}'s nickname ({custom1})"] = true
-    GRM_L["{name} has added the shared nickname for {name2} and all alts ({custom1})"] = true
-    GRM_L["{name} has added {name2}'s nickname ({custom1})"] = true
+    GRM_L["Nickname contains invalid hidden characters."] = true
 
     -- 1.99383
     GRM_L["Apply to Max Level Only"] = true

@@ -1985,11 +1985,7 @@ GRML.English = function()
     GRM_L["Nickname is too long. Max {num} letters."] = true
     GRM_L["Invalid Character: \"|\" is not allowed."] = true
     GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
-    GRM_L["Nickname contains invalid hidden characters." ] = true
-    GRM_L["{name} has removed the shared nickname for {name2} and all alts ({custom1})"] = true
-    GRM_L["{name} has removed {name2}'s nickname ({custom1})"] = true
-    GRM_L["{name} has added the shared nickname for {name2} and all alts ({custom1})"] = true
-    GRM_L["{name} has added {name2}'s nickname ({custom1})"] = true
+    GRM_L["Nickname contains invalid hidden characters."] = true
 
     -- 1.99383
     GRM_L["Apply to Max Level Only"] = true
@@ -2052,11 +2048,13 @@ GRML.English = function()
     -- 1.995
     GRM_L["Player Nicknames must be no longer than {num} letters in length"] = true
     GRM_L["Player Nicknames must be at least {num} characters in length"] = true
-    GRM_L["{name} has added a shared nickname ({custom1}) for {name2}'s alt group."] = true
-    GRM_L["{name} has added {name2}'s nickname ({custom1})."] = true
-    GRM_L["A shared nickname ({name}) has been added to {name2}'s alt group."] = true
-    GRM_L["A nickname ({name}) has been added to {name2}"] = true
-    GRM_L["{name} has removed a shared nickname from {name2} and all their alts."] = true
+    GRM_L["{name} has set a shared nickname ({custom1}) for {name2}'s alt group."] = true
+    GRM_L["{name} has removed the shared nickname for {name2}'s alt group."] = true
+    GRM_L["{name} has removed {name2}'s nickname."] = true
+    GRM_L["{name} has set {name2}'s nickname ({custom1})."] = true
+    GRM_L["A shared nickname ({name}) has been set to {name2}'s alt group."] = true
+    GRM_L["A nickname ({name}) has been set to {name2}"] = true
+    GRM_L["{name} has removed the shared nickname from {name2}'s alt group."] = true
     GRM_L["{name} has removed {name2}'s nickname."] = true
     GRM_L["Invalid Character: \"|\" is not allowed when making a nickname."] = true
     GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
@@ -2097,6 +2095,9 @@ GRML.English = function()
     GRM_L["Save"] = true
     GRM_L["Nickname for {name}"] = true
     GRM_L["Unable to Process Nickname. Player no longer found."] = true
+    GRM_L["No nickname has been set."] = true
+    GRM_L["Nickname sharing for ({name}) has been {name2}."] = true
+    GRM_L["{name} has {custom1} nickname sharing for {name2}."] = true
 
     -- General Tab
     GRM_L["{custom1} to Change Default GRM Tab on First Open."] = true

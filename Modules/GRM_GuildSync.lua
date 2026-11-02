@@ -270,7 +270,6 @@ end);
 -- What it Does:    Changes the throttle cap to the much lower default cap after the player has entered the world for 15 seconds.
 -- Purpose:         This is due to a cap of there being a tiny 4Kb/s otherwise a player disconnect, and also an interesting discovery of an enhanced throttle eveen
 GRMsync.MessageThrottleUpdate = function ( self , elapsed )
-    print("Message Throttle Update");
     if not GRMsyncGlobals.reloadControl then
         GRMsyncGlobals.throttleTimerUpdate = GRMsyncGlobals.throttleTimerUpdate + elapsed;
         if GRMsyncGlobals.throttleTimerUpdate > 0.8 then
@@ -282,7 +281,6 @@ GRMsync.MessageThrottleUpdate = function ( self , elapsed )
                     GRMsyncGlobals.ThrottleCap = GRMsyncGlobals.normalMessage;
                 end
                 -- Unregister the OnUpdate here...
-                print("Unregistering throttle update1")
                 self:SetScript ( "OnUpdate" , nil );
             elseif ( time() - GRMsyncGlobals.timeAtLogin ) <= 5 then
                 if InstanceManager.StatusFlip == 2 then
@@ -302,7 +300,6 @@ GRMsync.MessageThrottleUpdate = function ( self , elapsed )
             GRMsyncGlobals.ThrottleCap = GRMsyncGlobals.ThrottleCap * 0.5
         end
         -- Unregister the OnUpdate here...
-        print("Unregistering throttle update2")
         self:SetScript ( "OnUpdate" , nil );
     end
 end
@@ -2612,78 +2609,72 @@ end
 -- NICKNAMES --
 ---------------
 
-
 GRMsync.NickNameSync = function ( msg , sender , prefix )
     local isRetroSync = false;
     if prefix == "GRM_NNSYNCUP" then
         isRetroSync = true;
     end
 
-    GRM_G.MatchPattern7 = GRM_G.MatchPattern7 or GRM.BuildComPattern ( 7 , "?" , false );
-    local playerName, newNick, setterName, isRemove, shareNickAmongAlts, standardDate, epochStamp  = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern7 );
+    GRM_G.MatchPattern7 = GRM_G.MatchPattern7 or GRM.BuildComPattern ( 8 , "?" , false );
+    local playerName, newNick, setterName, isRemove, shareNickAmongAlts, shareSettingChanged, standardDate, epochStamp  = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern7 );
 
     local date = {GRM.Time.ParseStandardFormatDate ( standardDate )}; -- Day, month, year
     shareNickAmongAlts = GRMsync.DecodeBit(shareNickAmongAlts);
+    shareSettingChanged = GRMsync.DecodeBit(shareSettingChanged);
     isRemove = GRMsync.DecodeBit(isRemove);
     epochStamp = tonumber(epochStamp);
-
     local player = GRM.GetPlayer(playerName);
 
-    if isRemove then
-        GRMsync.AddNickNameSync( player , newNick, shareNickAmongAlts, setterName, date, epochStamp, sender, isRetroSync )
-    elseif isRemove == false then
-        GRMsync.RemoveNickNameSync( player , newNick, shareNickAmongAlts , setterName, date, epochStamp, sender, isRetroSync )
-    end
-
-    
+    GRMsync.AddNickNameSync( player, newNick, isRemove, shareNickAmongAlts, shareSettingChanged, setterName, date, epochStamp, sender, isRetroSync )
 end
 
-GRMsync.AddNickNameSync = function( player , newNick, shareNickAmongAlts , setterName, date, epochStamp, sender, isRetroSync )
-
+GRMsync.AddNickNameSync = function( player, newNick, isRemove, shareNickAmongAlts, shareSettingChanged, setterName, date, epochStamp, sender, isRetroSync )
     if not player then
         return
     end
 
-    GRM.NN.SetNickname(player , newNick , shareNickAmongAlts, setterName, date, epochStamp , isRetroSync)
-
-    -- Report the updates!
-    if GRM.S().syncChatEnabled and not isRetroSync then
-        GRM.Report ( GRM.L ( "{name} updated {name2}'s Promotion Date." , GRM.GetClassifiedName ( sender , true ) , GRM.GetClassifiedName ( player.name , true ) ) );
-
-        local classColor = GRM.GetStringClassColorByName ( player.name );
-        local coloredPlayer = classColor .. GRM.FormatName(player.name) .. "|r";
-        local coloredNick = classColor .. newNick .. "|r";
-        local setter = GRM.GetClassifiedName ( setterName, false );
-
-        -- Report to Chat
-        if shareNickAmongAlts and GRM.PlayerHasAlts (player) then
-            GRM.Report ( GRM.L ( "{name} has added a shared nickname ({custom1}) for {name2}'s alt group." , setter , coloredPlayer , nil , coloredNick ) );
-        else
-            GRM.Report ( GRM.L ( "{name} has added {name2}'s nickname ({custom1})." , setter , coloredPlayer , nil , coloredNick) );
-        end
+    if isRemove then
+        GRM.NN.RemoveNickname(player , shareNickAmongAlts, shareSettingChanged, setterName, date, epochStamp , true)
+    else
+        GRM.NN.SetNickname(player , newNick , shareNickAmongAlts, shareSettingChanged, setterName, date, epochStamp , true)
     end
-
-    -- Updating count of changes
+    
     if isRetroSync then
         GRMsyncGlobals.updateCount = GRMsyncGlobals.updateCount + 1;
         GRMsyncGlobals.updatesEach[9] = GRMsyncGlobals.updatesEach[9] + 1;
-    end
-    
-    if not isRetroSync then
+    else
+        if GRM.S().syncChatEnabled then
+            local classColor = GRM.GetStringClassColorByName ( player.name );
+            local coloredPlayer = classColor .. GRM.FormatName(player.name) .. "|r";
+            local coloredNick = classColor .. newNick .. "|r";
+            local setter = GRM.GetClassifiedName ( setterName, false );
+
+            -- Report to Chat
+            if GRM.S().syncChatEnabled then
+
+                if shareSettingChanged and newNick == "X" then
+                    GRM.Report ( GRM.L ( "{name} has {custom1} nickname sharing for {name2}." , setter, coloredPlayer, nil, shareNickAmongAlts and GRM.L("Enabled") or GRM.L("Disabled") ))
+                else
+                    if shareNickAmongAlts and GRM.PlayerHasAlts (player) then
+                        if isRemove then
+                            GRM.Report ( GRM.L ( "{name} has removed the shared nickname for {name2}'s alt group." , setter, coloredPlayer ))
+                        else
+                            GRM.Report ( GRM.L ( "{name} has set a shared nickname ({custom1}) for {name2}'s alt group." , setter , coloredPlayer , nil , coloredNick ) );
+                        end
+                    else
+                        if isRemove then
+                            GRM.Report ( GRM.L ( "{name} has removed {name2}'s nickname." , setter , coloredPlayer) );
+                        else
+                            GRM.Report ( GRM.L ( "{name} has set {name2}'s nickname ({custom1})." , setter , coloredPlayer , nil , coloredNick) );
+                        end
+                    end
+                end
+            end
+        end
         GRM_UI.RefreshSelectFrames ( true , false , false , false , true , false, (GRM_G.currentName == player.name) );
     end
-end
-
-GRM.RemoveNickNameSync = function( player , newNick, shareNickAmongAlts , setterName, date, epochStamp, sender, isRetroSync )
-
-    if not player then
-        return
-    end
-
-
 
 end
-
 
 GRMsync.CheckNickNameChanges = function()
 
@@ -5542,6 +5533,7 @@ GRMsync.InitiateDataSync = function ()
     if not GRM.IsCalendarEventEditOpen() then
         GRM.GuildRoster();
     end
+
     GRMsyncGlobals.LeadSyncProcessing = false;
     GRMsyncGlobals.numGuildRanks = GuildControlGetNumRanks() - 1;
     if not GRMsyncGlobals.currentlySyncing then
@@ -8417,7 +8409,7 @@ local SyncDispatch = {
     ["GRM_ELECTINFO"]     = function(msg) GRMsync.RegisterTimeStamps(msg) end,
 
     -- Start Sync or Queue
-    ["GRM_REQUESTSYNC"]   = function(sender) GRMsync.RequestSync(sender) end,
+    ["GRM_REQUESTSYNC"]   = function(_, sender) GRMsync.RequestSync(sender) end,
     ["GRM_BUSY"]          = function(msg) GRMsync.BusyMessage(tonumber(msg)) end,
     ["GRM_REQJDDATA"]     = function(msg) if msg == GRM_G.addonUser and not GRMsyncGlobals.currentlySyncing then GRMsync.DataRequestStart() end end,
 
@@ -8546,7 +8538,6 @@ GRMsync.RegisterCommunicationProtocols = function()
         end
 
         if event == "CHAT_MSG_ADDON" and ( channel == GRMsyncGlobals.channelName or channel == "WHISPER" ) and GRMsync.IsPrefixVerified ( prefix ) then
-
             -- First, see if they are on compatible list.
             if not GRMsyncGlobals.CompatibleAddonUsers[sender] then
                 return;
@@ -8565,37 +8556,44 @@ GRMsync.RegisterCommunicationProtocols = function()
             end
 
             -- At this point forward is strictly Member data syncing and if disabled just return
-            if not GRM.S().syncEnabled then return end
+            if not GRM.S().syncEnabled then
+                return
+            end
 
             msg = GRM.Next ( msg );
-
             -- Extract rank req (and cleans up legacy error)
             local rankReqStr = string.sub ( msg , 1 , string.find ( msg , "?" ) - 1 );
-            if not rankReqStr then return end
+            if not rankReqStr then
+                return
+            end
 
             local senderRankRequirement = tonumber(rankReqStr);
-            if not senderRankRequirement then return end
+            if not senderRankRequirement then
+                return
+            end
 
             -- Configure only first time
             local senderRankID = GRM.G_Util.GetGuildMemberRankID ( sender );
             if GRM_G.playerRankID == nil then
                 GRM_G.playerRankID = GRM.G_Util.GetGuildMemberRankID ( GRM_G.addonUser );
             end
-
             -----------------------------
             -- PERMISSIONS/RANK CHECKS --
             -----------------------------
 
             -- Custom note restriction
-            if ( comms.commsLiveDispatch[prefix2] or comms.custNoteSyncUp[prefix2] ) and ( senderRankRequirement < GRM_G.playerRankID or senderRankID > GRM.S().syncRankCustom ) then
+            if ( comms.commsLiveDispatch[prefix2] or comms.custNoteSyncUp[prefix2] ) and
+               ( senderRankRequirement < GRM_G.playerRankID or senderRankID > GRM.S().syncRankCustom ) then
                 return
 
             -- Player rank is too low
-            elseif ( comms.commsLive[prefix2] or comms.commsSyncUp[prefix2] ) and ( senderRankRequirement < GRM_G.playerRankID or senderRankID > GRM.S().syncRank ) then
+            elseif ( comms.commsLive[prefix2] or comms.commsSyncUp[prefix2] ) and
+                   ( senderRankRequirement < GRM_G.playerRankID or senderRankID > GRM.S().syncRank ) then
                 return
 
             -- Leader sync restriction
-            elseif ( not GRMsyncGlobals.IsElectedLeader and not comms.commsLead[prefix2] and sender ~= GRMsyncGlobals.DesignatedLeader ) and ( senderRankID > GRM.S().syncRank or senderRankRequirement < GRM_G.playerRankID ) then        -- If player's rank is below settings threshold, ignore message.
+            elseif ( not GRMsyncGlobals.IsElectedLeader and not comms.commsLead[prefix2] and sender ~= GRMsyncGlobals.DesignatedLeader ) and
+                   ( senderRankID > GRM.S().syncRank or senderRankRequirement < GRM_G.playerRankID ) then        -- If player's rank is below settings threshold, ignore message.
                 return
             end
 
@@ -8605,7 +8603,6 @@ GRMsync.RegisterCommunicationProtocols = function()
                     return; 
                 end
             end
-            
             -- parsing out the rank requirement and continue
             msg = GRM.Next ( msg );
 
@@ -8614,7 +8611,9 @@ GRMsync.RegisterCommunicationProtocols = function()
             ----------------------------------
 
             -- Block non-live comms while in group
-            if GRM_G.InGroup and not comms.commsLive[prefix2] then return end
+            if GRM_G.InGroup and not comms.commsLive[prefix2] then
+                return
+            end
 
             --------------------------------
             -- Routing to Master Dispatch --
@@ -8625,7 +8624,7 @@ GRMsync.RegisterCommunicationProtocols = function()
                 -- Note, any a recursive function this will need to be nested it the C_Timer also
                 GRMsyncGlobals.TimeSinceLastSyncAction = time()
                 
-                -- 0(1) time routing, baby!
+                -- 0(1) time routing!
                 handler(msg, sender, prefix2)
             end
         end

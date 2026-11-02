@@ -771,12 +771,30 @@ local function OpenNicknamePopup(playerName)
     nickPopup.EditBox:HighlightText()
 end
 
+local function NicknamePlayerMissing(player)
+    if not player then
+        nickPopup:Hide();
+        GRM.Report("Unable to Process Nickname. Player no longer found.")
+        return true
+    end
+    return false
+end
+
+local function ProcessNicknameShare()
+    local player = GRM.GetPlayer(nickPopup.playerName)
+    if NicknamePlayerMissing(player) then
+        return
+    end
+
+    local shareNickAmongAlts = nickPopup.ShareCheckbox:GetChecked()
+    GRM.NN.SetNickname(player, "X", shareNickAmongAlts, true, GRM_G.addonUser, GRM.Time.GetTimestamp(), time(), false)
+end
+
 -----------------------------------
 ---- CORE MOUSEOVER MODULE --------
 -----------------------------------
 
 GRM_UI.InitializeMouseover = function(isManualUpdate)
-    GRM_G.BuildHasRestrictions = false; -- TO DO - Remove this
     -- Core Frame
     GRM_UI.CreateCoreFrame("GRM_Mouseover", GRM_UI , UIParent, 400, 438, "TranslucentFrameTemplate", false, nil, nil, true, false)
     GRM_UI.GRM_Mouseover.timer = 0
@@ -1120,7 +1138,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateCoreFrame("GRM_NicknamePopup", f , UIParent , 320, 160, BackdropTemplateMixin and "BackdropTemplate", true, {"CENTER", UIParent, "CENTER", 0, 0}, "FULLSCREEN_DIALOG", true, true)    
     GRM_UI.CreateString("Title", f.GRM_NicknamePopup, "GameFontNormal", GRM.L("Set Nickname"), 14, {"TOP", f.GRM_NicknamePopup, "TOP", 0, -15})
     GRM_UI.CreateEditBox("EditBox", f.GRM_NicknamePopup, "InputBoxTemplate", 220, 25, {"TOP", f.GRM_NicknamePopup.Title, "BOTTOM", 0, -15}, "CENTER", {1, 1, 1}, 20, false)
-    GRM_UI.CreateCheckBox("ShareCheckbox", f.GRM_NicknamePopup, "InterfaceOptionsCheckButtonTemplate", {26, 26}, {"TOPLEFT", f.GRM_NicknamePopup.EditBox, "BOTTOMLEFT", -5, -10}, nil, GRM.L("Share Nickname across all Alts"), "GameFontNormalSmall", 11)
+    GRM_UI.CreateCheckBox("ShareCheckbox", f.GRM_NicknamePopup, "InterfaceOptionsCheckButtonTemplate", {26, 26}, {"TOPLEFT", f.GRM_NicknamePopup.EditBox, "BOTTOMLEFT", -5, -10}, ProcessNicknameShare, GRM.L("Share Nickname across all Alts"), "GameFontNormalSmall", 11)
     GRM_UI.CreateButton("SaveButton", f.GRM_NicknamePopup, "GameMenuButtonTemplate", GRM.L("Save"), 100, 25, {"BOTTOMLEFT", f.GRM_NicknamePopup, "BOTTOMLEFT", 45, 15}, nil, "GameFontWhite", 12, "CENTER")
     GRM_UI.CreateButton("CancelButton", f.GRM_NicknamePopup, "GameMenuButtonTemplate", GRM.L("Cancel"), 100, 25, {"LEFT", f.GRM_NicknamePopup.SaveButton, "RIGHT", 30, 0}, function() f.GRM_NicknamePopup:Hide() end, "GameFontWhite", 12, "CENTER")
 
@@ -1170,25 +1188,28 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         end
     end);
 
+    
     local nickPopup = GRM_UI.GRM_Mouseover.GRM_NicknamePopup
     nickPopup:SetBackdrop (GRM_UI_Util.GetBackdrop(4));
     nickPopup:Hide()
     nickPopup.playerName = "" -- Reference to the player being edited
+
     -- Logic for the Popup Saving
     local function ProcessNicknameSave()
-        local newNick = GRM.Util.Trim(nickPopup.EditBox:GetText())
         local player = GRM.GetPlayer(nickPopup.playerName)
-        
-        if not player then
-            nickPopup:Hide();
-            GRM.Report("Unable to Process Nickname. Player no longer found.")
+        if NicknamePlayerMissing(player) then
             return
         end
-        
+
+        local newNick = GRM.Util.Trim(nickPopup.EditBox:GetText())
+        local shareNickAmongAlts = nickPopup.ShareCheckbox:GetChecked()
+
         -- If they cleared the box, treat it as a removal
         if newNick == "" then
             if GRM.NN.PlayerHasNickname(player.name) then
-                GRM.NN.RemoveNickname(player, GRM_G.addonUser, nickPopup.ShareCheckbox:GetChecked(), time(), time(), false)
+                GRM.NN.RemoveNickname(player, shareNickAmongAlts, false, GRM_G.addonUser, time(), time(), false)
+            else
+                GRM.Report(GRM.L("No nickname has been set."))
             end
             nickPopup:Hide()
             return
@@ -1196,7 +1217,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         
         -- Normal save
         if GRM.NN.IsNicknameFormatValid(newNick) then
-            GRM.NN.SetNickname(player, newNick, nickPopup.ShareCheckbox:GetChecked(), GRM_G.addonUser, time(), GRM.Time.GetTimestamp(), false)
+            GRM.NN.SetNickname(player, newNick, shareNickAmongAlts, false, GRM_G.addonUser, GRM.Time.GetTimestamp(), time(), false)
             nickPopup:Hide()
         end
     end
