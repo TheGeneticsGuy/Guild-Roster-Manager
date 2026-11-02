@@ -2645,7 +2645,7 @@ GRMsync.AddNickNameSync = function( player, newNick, isRemove, shareNickAmongAlt
     else
         if GRM.S().syncChatEnabled then
             local classColor = GRM.GetStringClassColorByName ( player.name );
-            local coloredPlayer = classColor .. GRM.FormatName(player.name) .. "|r";
+            local coloredPlayer = classColor .. player.name .. "|r";
             local coloredNick = classColor .. newNick .. "|r";
             local setter = GRM.GetClassifiedName ( setterName, false );
 

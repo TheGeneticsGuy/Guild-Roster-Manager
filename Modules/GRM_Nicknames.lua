@@ -91,7 +91,7 @@ end
 -- Purpose:         To apply identity changes across the database.
 NN.SetNickname = function ( player , newNick , shareNickAmongAlts, shareSettingChanged, setterName, date, epochStamp, isSync )
 
-    if not player or not NN.IsNicknameFormatValid(newNick) then
+    if not player or (not shareSettingChanged and not NN.IsNicknameFormatValid(newNick)) then
         return;
     end
 
@@ -109,7 +109,7 @@ NN.SetNickname = function ( player , newNick , shareNickAmongAlts, shareSettingC
     end
     local onlyChangeShareSetting = player.nickInfo.shareNickAmongAlts; -- Set before overwriting.
 
-    if shareSettingChanged and shareNickAmongAlts == "X" then
+    if shareSettingChanged and newNick == "X" then
         player.nickInfo.shareNickAmongAlts = shareNickAmongAlts
     else
         player.nickInfo.nickname = newNick
@@ -120,8 +120,6 @@ NN.SetNickname = function ( player , newNick , shareNickAmongAlts, shareSettingC
             isRemove = true
         end
     end
-
-    
 
     -- Spread the nicknames
     -- Both of these are circumstantial and could be true
@@ -145,12 +143,12 @@ NN.SetNickname = function ( player , newNick , shareNickAmongAlts, shareSettingC
         -- Add to Chat
         local classColor = GRM.GetStringClassColorByName ( player.name );
         local coloredPlayer = classColor .. GRM.FormatName(player.name) .. "|r";
-        local coloredNick = classColor .. newNick .. "|r";
-
+        
         -- Report to Chat
-        if shareSettingChanged and shareNickAmongAlts == "X" then
+        if shareSettingChanged and newNick == "X" then
             GRM.Report ( GRM.L ( "Nickname sharing for ({name}) has been {name2}.", coloredPlayer, shareNickAmongAlts and GRM.L("Enabled") or GRM.L("Disabled") ) );
         else
+            local coloredNick = classColor .. newNick .. "|r";
             if shareNickAmongAlts and GRM.PlayerHasAlts(player) then
                 GRM.Report ( GRM.L ( "A shared nickname ({name}) has been set to {name2}'s alt group." , coloredNick, coloredPlayer ) );
             else

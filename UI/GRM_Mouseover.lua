@@ -773,7 +773,7 @@ end
 
 local function NicknamePlayerMissing(player)
     if not player then
-        nickPopup:Hide();
+        GRM_UI.GRM_Mouseover.GRM_NicknamePopup:Hide();
         GRM.Report("Unable to Process Nickname. Player no longer found.")
         return true
     end
@@ -781,6 +781,7 @@ local function NicknamePlayerMissing(player)
 end
 
 local function ProcessNicknameShare()
+    local nickPopup = GRM_UI.GRM_Mouseover.GRM_NicknamePopup
     local player = GRM.GetPlayer(nickPopup.playerName)
     if NicknamePlayerMissing(player) then
         return
