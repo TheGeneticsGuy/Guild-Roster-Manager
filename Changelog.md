@@ -1,49 +1,16 @@
 
-Global Control String:
-
-* Timestamp format (General Tab)
-* Sync changes with guildies at Rank X (Officer Tab)
-* Sync BAN list with guildies at Rank X (Officer Tab)
-* Default Custom Note Rank Minimum X (Officer Tab)
-* Join Date (Officer Tab)
-  - 0 = Disabled from adding to any note
-  - 1 = Sent to Officer Note
-  - 2 = Sent to Public Note
-  - 3 = Sent to Custom Note
-* Joined/Rejoined Tags (Officer Tab)
- - `+` = They will be prepended to dates (Joined May 5th, 2020)
- - `-` = The Joined and Rejoined tags are DISABLED and only Date is added (May 5th, 2020)
-* Joined Date to note format (Officer Tab)
- - `XX` = Default ("Joined: <Date>")
- - `Custom:` = `Custom: <Date>`
-* Rejoined Date to note format (Officer Tab)
-  - `XX` = Default ("Rejoined: <Date")
- - `Custom:` = `Custom: <Date>`
-* !Note Feature (Officer Tab)
-  - 1 = Enabled
-  - 2 = Disabled
-* Professions Feature (Classic Tab)
-  - 0 = Fully Disabled 
-  - 1 = Auto update enabled and destination PUBLIC Note
-  - 2 = Auto update enabled and destination OFFICER Note
-  - 3 = Auto update enabled and destination CUSTOM Note
-
-
-TO DO: - Fix Default Settings button on Names Tab, maybe others?
-    
-TO DO: - Implement FormatName settings somehow 
-
-
-TO DO: - Request to implement custom note on the Promotions in macro tool
-TO DO: - When swapping languages, the dropdown menu doesn't re-translate.
-TO DO: - When setting it to allow editing the public/officer notes, it is letting me even though it should be blocked. The global controls and the mouseover
-TO DO: - On the join and promot dates - it needs to re-process the day dropdowns...
+TODO: - Fix Default Settings button on Names Tab, maybe others?
+TODO: - Request to implement custom note on the Promotions in macro tool
+TODO: - When swapping languages, the dropdown menu doesn't re-translate.
+TODO: - On the join and promot dates - it needs to re-process the day dropdowns...
 
 -- Possible Compatibility changes in WOW Forever
-TO DO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
-TO DO: - GRM.LoadAddon function - look at build restrictions
-TO DO: - GRM.GetParsedKickPlayerNames -- Check Korean changes in early builds now or WOW Forever
-TO DO: - Instead of checking for BFA build for mythic score, see if there is an API available
+TODO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
+TODO: - GRM.LoadAddon function - look at build restrictions
+TODO: - GRM.GetParsedKickPlayerNames -- Check Korean changes in early builds now or WOW Forever
+TODO: - Instead of checking for BFA build for mythic score, see if there is an API available
+TODO: - When someone does a namechange - check if edited info needs to be updated, also customNote, and Banned
+TODO: - Show my own nickname in chat. I am not processing if it is me.
 
 ## **VERSION 1.995 - PENDING DATE**
 

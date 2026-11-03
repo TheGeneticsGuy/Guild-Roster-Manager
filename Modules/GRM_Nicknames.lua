@@ -136,7 +136,8 @@ NN.SetNickname = function ( player , newNick , shareNickAmongAlts, shareSettingC
             local removeBit = isRemove and "1" or "0"; -- Represents false bit
             local standardFormat = GRM.Time.ConvertToStandardFormatDate(date[1] , date[2] , date[3]);
             local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
-            local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?" .. newNick .. "?" .. setterName .. "?" .. removeBit .. "?" .. GRMsync.SetBit(shareNickAmongAlts) .. "?" .. GRMsync.SetBit(shareSettingChanged) .. "?" .. standardFormat .. "?" .. tostring(epochStamp)
+            local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?" .. newNick .. "?" .. GRMsync.SetBit(shareNickAmongAlts) .. "?" ..
+                        setterName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) .. "?" .. removeBit .. "?" .. GRMsync.SetBit(shareSettingChanged)
             GRMsync.SendMessage("GRM_SYNC", msg , "GUILD");
         end
 
@@ -192,8 +193,9 @@ NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, 
         if GRM.S().syncEnabled then
             local isRemove = "1"; -- Represents true bit
             local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
-            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
-            local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?x?" .. removerName .. "?" .. isRemove .. "?" .. GRMsync.SetBit(removeNickFromAlts) .. "?" .. GRMsync.SetBit(shareSettingChanged) .. "?" .. standardFormat .. "?" .. tostring(epochStamp)
+            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRankged
+            local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?x?" .. GRMsync.SetBit(player.nickInfo.shareNickAmongAlts) .. "?" ..
+                        removerName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) .. "?" .. isRemove .. "?" .. GRMsync.SetBit(shareSettingChanged)
             GRMsync.SendMessage("GRM_SYNC", msg, "GUILD");
         end
 
@@ -291,11 +293,11 @@ end
 
 -- Sync Comes
 -- GRM_NN          -- Live nickname add/remove -- COMPLETE
--- GRM_NNSYNCUP     -- Final data send  -- GRMsync.CheckNickNameChanges
--- GRM_RECNNPRE    -- Initiali Precheck Vals -- GRMsync.CollectPreCheckData
--- GRM_NNSYNCF      -- Sending actual NN Data NON alt groups - GRMsync.CollectDataPacketsF
--- GRM_REQ_NNF     -- ResendMissingF  -- GRMsync.CollectMissingMsgRequest(msg, prefix2)
--- GRM_REQNNFIN    -- ResendMissingAgain -- GRMsync.CollectMissingMsgRequest(msg, prefix2)
+-- GRM_RECNNPRE    -- Initiali Precheck Vals -- COMPLETE
+-- GRM_NNSYNCF      -- Sending actual NN Data NON alt groups - COMPLETE
+-- GRM_REQMISNNF     -- ResendMissingF  -- COMPLETE
+-- GRM_REQNNFIN    -- ResendMissingAgain -- COMPLETE
+-- GRM_NNSYNCUP     -- FinalChangeReceived  -- COMPLETE
 
 -- So, it is broken down into two parts... main name/alt configuration and Nickname configuration. Rather than the checkboxes as you see them now what is actually going to be is a dropdown selection that shows the exact implementation and what it will look like in the chat. This will have I think 6 configurations to choose from. This will act completely independent and be displayed very similar to how you see it now.
 

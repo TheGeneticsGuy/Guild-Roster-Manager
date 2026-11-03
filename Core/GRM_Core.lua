@@ -4017,8 +4017,8 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     member.mainAtTimeOfLeaving = {}; -- Easy way to track who is their previous main when they returned to the guild.
     member.bannedInfo = {false, 0, false, ""}; -- 17   {isBanned , epochStamp, unbanned , whoBanned }
     member.reasonBanned = ""; -- 18
-    member.rankHist = {{memberInfo.rankName, 0, 0, 0, "0", 0, false, 1, 0}}; -- { rankName , day , month , year , timeInEpoch , timeChangedManually , isVerified , typeOfRankChange }
-    member.joinDateHist = {{0, 0, 0, "0", 0, false, 1}}; -- { day , month , year , timeInEpoch , timeChangedManually , isVerified , join/leave } - 1 = join; 2 = leave;
+    member.rankHist = {{memberInfo.rankName, 0, 0, 0, "0", 0, false, 1, 0}}; -- { rankName , day , month , year , timeInEpoch , standardForm , isVerified , typeOfRankChange }
+    member.joinDateHist = {{0, 0, 0, "0", 0, false, 1}}; -- { day , month , year , timeInEpoch , standardForm , isVerified , join/leave } - 1 = join; 2 = leave;
     member.joinDateUnknown = false; -- 40
     member.promoteDateUnknown = false -- 41
 

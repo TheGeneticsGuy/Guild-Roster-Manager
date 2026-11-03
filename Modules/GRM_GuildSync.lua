@@ -76,10 +76,9 @@ GRMsyncGlobals.CompatibleAddonUsers = {};
 
 -- Custom pseudo hash values
 GRMsyncGlobals.PreCheckHashValues = {};
-GRMsyncGlobals.HashValuesReceived = { {} , {} , {} , {} , {} , {} };
+GRMsyncGlobals.HashValuesReceived = { {} , {} , {} , {} , {} , {}, {} };
 GRMsyncGlobals.DatabaseMarkers = {};
-GRMsyncGlobals.SyncPath = { false , false , false , false , false , false };
-GRMsyncGlobals.SyncProgress = { false , false , false , false , false , false , true }; -- 7 is completion and always true
+GRMsyncGlobals.SyncPath = { false , false , false , false , false , false, false };
 GRMsyncGlobals.SyncTracker = {};
 GRMsyncGlobals.senderBanRankReq = 0;
 GRMsyncGlobals.senderMaxRankReq = 0;
@@ -88,7 +87,7 @@ GRMsyncGlobals.senderCustRankReq = 0;
 
 -- Results
 GRMsyncGlobals.updateCount = 0;                             -- Number of items updated in this sync.
-GRMsyncGlobals.updatesEach = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }; -- JoinDates , promotionDates, alts, customNote, bday , Ban, unban, banEdits, niknames
+GRMsyncGlobals.updatesEach = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }; -- JoinDates , promotionDates, alts, customNote, bday , Ban, unban, banEdits, nicknames
 
 -- Tables to hold data in array format, sorted - to maintain compatibility with sync system with new data structures
 GRMsyncGlobals.guildData = {};
@@ -118,6 +117,7 @@ GRMsyncGlobals.progStart = 0;
 GRMsyncGlobals.JDChanges = {};
 GRMsyncGlobals.PDChanges = {};
 GRMsyncGlobals.BanChanges = {};
+GRMsyncGlobals.NNChanges = {};
 GRMsyncGlobals.AltChangesNoGroup = {};
 GRMsyncGlobals.AltChangesMainOnly = {};
 GRMsyncGlobals.AltChangesFullGroup = {};
@@ -125,13 +125,13 @@ GRMsyncGlobals.CustomNoteChanges = {};
 GRMsyncGlobals.BDayChanges = {};
 GRMsyncGlobals.FinalAltListReceived = {};
 
-
 -- Collected Tables of Data when received from the player
 GRMsyncGlobals.JDReceivedNoDetailsTemp = {};
 GRMsyncGlobals.PDReceivedNoDetailsTemp = {};
 GRMsyncGlobals.AltReceivedNoDetailsTemp = {};
 GRMsyncGlobals.CustReceivedNoDetailsTemp = {};
 GRMsyncGlobals.BanReceivedNoDetailsTemp = {};
+GRMsyncGlobals.NNReceivedNoDetailsTemp = {};
 GRMsyncGlobals.BdayReceivedNoDetailsTemp = {};
 
 GRMsyncGlobals.JDReceivedTemp = {};
@@ -148,6 +148,7 @@ GRMsyncGlobals.CustomNoteReceivedTemp2 = {};
 GRMsyncGlobals.CustomNoteReceivedTempFinal = {};
 GRMsyncGlobals.CustomNoteReceievedLiveTemp = {};
 GRMsyncGlobals.BirthdayReceivedTemp = {};
+GRMsyncGlobals.NicknameReceivedTemp = {};
 
 -- Sync Integrity
 GRMsyncGlobals.messageTree = {};                        -- Include the table of sent messages - if any messages lost they can be recalled here.
@@ -161,6 +162,8 @@ GRMsyncGlobals.messageTree.CUST = {};
 GRMsyncGlobals.messageTree.CUSTF = {};
 GRMsyncGlobals.messageTree.BAN = {};
 GRMsyncGlobals.messageTree.BANF = {};
+GRMsyncGlobals.messageTree.NN = {};
+GRMsyncGlobals.messageTree.NNF = {};
 GRMsyncGlobals.messageTree.BDAY = {};
 GRMsyncGlobals.messageTree.BDAYF = {};
 GRMsyncGlobals.messageIndexesReceived = {};             -- Include table of messages received. Array of ints.
@@ -174,6 +177,8 @@ GRMsyncGlobals.messageIndexesReceived.CUST = {};
 GRMsyncGlobals.messageIndexesReceived.CUSTF = {};
 GRMsyncGlobals.messageIndexesReceived.BAN = {};
 GRMsyncGlobals.messageIndexesReceived.BANF = {};
+GRMsyncGlobals.messageIndexesReceived.NN = {};
+GRMsyncGlobals.messageIndexesReceived.NNF = {};
 GRMsyncGlobals.messageIndexesReceived.BDAY = {};
 GRMsyncGlobals.messageIndexesReceived.BDAYF = {};
 GRMsyncGlobals.messageTree.JDFINAL = {};                -- Final sent messages stored
@@ -181,12 +186,14 @@ GRMsyncGlobals.messageTree.PDFINAL = {};
 GRMsyncGlobals.messageTree.ALTFINAL = {};
 GRMsyncGlobals.messageTree.CUSTFINAL = {};
 GRMsyncGlobals.messageTree.BANFINAL = {};
+GRMsyncGlobals.messageTree.NNFINAL = {};
 GRMsyncGlobals.messageTree.BDAYFINAL = {};
 GRMsyncGlobals.messageIndexesReceived.JDFINAL = {};     -- Final sent messages received
 GRMsyncGlobals.messageIndexesReceived.PDFINAL = {};
 GRMsyncGlobals.messageIndexesReceived.ALTFINAL = {};
 GRMsyncGlobals.messageIndexesReceived.CUSTFINAL = {};
 GRMsyncGlobals.messageIndexesReceived.BANFINAL = {};
+GRMsyncGlobals.messageIndexesReceived.NNFINAL = {};
 GRMsyncGlobals.messageIndexesReceived.BDAYFINAL = {};
 GRMsyncGlobals.MissingRequest = {};                     -- Stores indexes of the missing messages req
 GRMsyncGlobals.MissingRequest.JDF = {};
@@ -199,6 +206,8 @@ GRMsyncGlobals.MissingRequest.CUSTF = {};
 GRMsyncGlobals.MissingRequest.CUST = {};
 GRMsyncGlobals.MissingRequest.BANF = {};
 GRMsyncGlobals.MissingRequest.BAN = {};
+GRMsyncGlobals.MissingRequest.NNF = {};
+GRMsyncGlobals.MissingRequest.NN = {};
 GRMsyncGlobals.MissingRequest.BDAYF = {};
 GRMsyncGlobals.MissingRequest.BDAY = {};
 GRMsyncGlobals.MissingRequest.JDFINAL = {};
@@ -206,6 +215,7 @@ GRMsyncGlobals.MissingRequest.PDFINAL = {};
 GRMsyncGlobals.MissingRequest.ALTFINAL = {};
 GRMsyncGlobals.MissingRequest.CUSTFINAL = {};
 GRMsyncGlobals.MissingRequest.BANFINAL = {};
+GRMsyncGlobals.MissingRequest.NNFINAL = {};
 GRMsyncGlobals.MissingRequest.BDAYFINAL = {};
 
 -- Precheck Holder
@@ -332,6 +342,7 @@ GRMsync.ResetReportTables = function()
     GRMsyncGlobals.JDChanges = {};
     GRMsyncGlobals.PDChanges = {};
     GRMsyncGlobals.BanChanges = {};
+    GRMsyncGlobals.NNChanges = {};
     GRMsyncGlobals.AltChangesNoGroup = {};
     GRMsyncGlobals.AltChangesMainOnly = {};
     GRMsyncGlobals.AltChangesFullGroup = {};
@@ -348,14 +359,11 @@ GRMsync.ResetReportTables = function()
     GRMsyncGlobals.messageTree.CUSTF = {};
     GRMsyncGlobals.messageTree.BAN = {};
     GRMsyncGlobals.messageTree.BANF = {};
+    GRMsyncGlobals.messageTree.NN = {};
+    GRMsyncGlobals.messageTree.NNF = {};
     GRMsyncGlobals.messageTree.BDAY = {};
     GRMsyncGlobals.messageTree.BDAYF = {};
-    GRMsyncGlobals.messageTree.JDFINAL = {};
-    GRMsyncGlobals.messageTree.PDFINAL = {};
-    GRMsyncGlobals.messageTree.ALTFINAL = {};
-    GRMsyncGlobals.messageTree.CUSTFINAL = {};
-    GRMsyncGlobals.messageTree.BANFINAL = {};
-    GRMsyncGlobals.messageTree.BDAYFINAL = {};
+    GRMsyncGlobals.messageIndexesReceived = {};             -- Include table of messages received. Array of ints.
     GRMsyncGlobals.messageIndexesReceived.JD = {};
     GRMsyncGlobals.messageIndexesReceived.JDF = {};
     GRMsyncGlobals.messageIndexesReceived.PD = {};
@@ -366,14 +374,25 @@ GRMsync.ResetReportTables = function()
     GRMsyncGlobals.messageIndexesReceived.CUSTF = {};
     GRMsyncGlobals.messageIndexesReceived.BAN = {};
     GRMsyncGlobals.messageIndexesReceived.BANF = {};
+    GRMsyncGlobals.messageIndexesReceived.NN = {};
+    GRMsyncGlobals.messageIndexesReceived.NNF = {};
     GRMsyncGlobals.messageIndexesReceived.BDAY = {};
     GRMsyncGlobals.messageIndexesReceived.BDAYF = {};
-    GRMsyncGlobals.messageIndexesReceived.JDFINAL = {};
+    GRMsyncGlobals.messageTree.JDFINAL = {};                -- Final sent messages stored
+    GRMsyncGlobals.messageTree.PDFINAL = {};
+    GRMsyncGlobals.messageTree.ALTFINAL = {};
+    GRMsyncGlobals.messageTree.CUSTFINAL = {};
+    GRMsyncGlobals.messageTree.BANFINAL = {};
+    GRMsyncGlobals.messageTree.NNFINAL = {};
+    GRMsyncGlobals.messageTree.BDAYFINAL = {};
+    GRMsyncGlobals.messageIndexesReceived.JDFINAL = {};     -- Final sent messages received
     GRMsyncGlobals.messageIndexesReceived.PDFINAL = {};
     GRMsyncGlobals.messageIndexesReceived.ALTFINAL = {};
     GRMsyncGlobals.messageIndexesReceived.CUSTFINAL = {};
     GRMsyncGlobals.messageIndexesReceived.BANFINAL = {};
+    GRMsyncGlobals.messageIndexesReceived.NNFINAL = {};
     GRMsyncGlobals.messageIndexesReceived.BDAYFINAL = {};
+    GRMsyncGlobals.MissingRequest = {};                     -- Stores indexes of the missing messages req
     GRMsyncGlobals.MissingRequest.JDF = {};
     GRMsyncGlobals.MissingRequest.JD = {};
     GRMsyncGlobals.MissingRequest.PDF = {};
@@ -384,11 +403,16 @@ GRMsync.ResetReportTables = function()
     GRMsyncGlobals.MissingRequest.CUST = {};
     GRMsyncGlobals.MissingRequest.BANF = {};
     GRMsyncGlobals.MissingRequest.BAN = {};
+    GRMsyncGlobals.MissingRequest.NNF = {};
+    GRMsyncGlobals.MissingRequest.NN = {};
+    GRMsyncGlobals.MissingRequest.BDAYF = {};
+    GRMsyncGlobals.MissingRequest.BDAY = {};
     GRMsyncGlobals.MissingRequest.JDFINAL = {};
     GRMsyncGlobals.MissingRequest.PDFINAL = {};
     GRMsyncGlobals.MissingRequest.ALTFINAL = {};
     GRMsyncGlobals.MissingRequest.CUSTFINAL = {};
     GRMsyncGlobals.MissingRequest.BANFINAL = {};
+    GRMsyncGlobals.MissingRequest.NNFINAL = {};
     GRMsyncGlobals.MissingRequest.BDAYFINAL = {};
     GRMsyncGlobals.preCheckResult = {};
     GRMsyncGlobals.FinalMsgCommCount = {};
@@ -402,6 +426,7 @@ GRMsync.ResetTempTables = function()
     GRMsyncGlobals.AltReceivedNoDetailsTemp = {};
     GRMsyncGlobals.CustReceivedNoDetailsTemp = {};
     GRMsyncGlobals.BanReceivedNoDetailsTemp = {};
+    GRMsyncGlobals.NNReceivedNoDetailsTemp = {};
     GRMsyncGlobals.BdayReceivedNoDetailsTemp = {};
     GRMsyncGlobals.JDReceivedTemp = {};
     GRMsyncGlobals.PDReceivedTemp = {};
@@ -415,10 +440,10 @@ GRMsync.ResetTempTables = function()
     GRMsyncGlobals.CustomNoteReceivedTemp2 = {};
     GRMsyncGlobals.CustomNoteReceivedTempFinal = {};
     GRMsyncGlobals.BirthdayReceivedTemp = {};
+    GRMsyncGlobals.NicknameReceivedTemp = {};
     GRMsyncGlobals.PreCheckHashValues = {};
     GRMsyncGlobals.DatabaseMarkers = {};
-    GRMsyncGlobals.SyncPath = { false , false , false , false , false , false };
-    GRMsyncGlobals.SyncProgress = { false , false , false , false , false , false , true };
+    GRMsyncGlobals.SyncPath = { false , false , false , false , false , false, false };
     GRMsyncGlobals.updateCount = 0;
     GRMsyncGlobals.updatesEach = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
 
@@ -452,12 +477,14 @@ GRMsync.ResetSyncTracker = function()
     GRMsyncGlobals.SyncTracker.altData = false;
     GRMsyncGlobals.SyncTracker.customNotes = false;
     GRMsyncGlobals.SyncTracker.banData = false;
+    GRMsyncGlobals.SyncTracker.nicknameData = false;
     GRMsyncGlobals.SyncTracker.compareAlts = false;
     GRMsyncGlobals.SyncTracker.finalJD = false;
     GRMsyncGlobals.SyncTracker.finalPD = false;
     GRMsyncGlobals.SyncTracker.finalAlts = false;
     GRMsyncGlobals.SyncTracker.finalCustom = false;
     GRMsyncGlobals.SyncTracker.finalBan = false;
+    GRMsyncGlobals.SyncTracker.finalNN = false;
     GRMsyncGlobals.SyncTracker.bdays = false;
     GRMsyncGlobals.SyncTracker.finalBdays = false;
     GRMsyncGlobals.SyncTracker.finish = false;
@@ -512,27 +539,31 @@ end
 -- Purpose:         Because the sync attempts to be efficient, it only syncs data that needs to be sync, thus some points will be skipped. For the tracking purpose, it is useful to just identify those prior sync points as "true" and completed if it skips.
 GRMsyncGlobals.ProgressControl = function ( point )
 
-    local syncOrder = { ["JD"] = 6 , ["PD"] = 7 , ["ALT"] = 8 , ["CUSTOMNOTE"] = 9 , ["BAN"] = 10 , ["COMPAREALTS"] = 11 , ["FINALJD"] = 12 , ["FINALPD"] = 13 ,  ["FINALALT"] = 14 , ["FINALCUSTOM"] = 15 , ["FINALBAN"] = 16 , ["BDAYS"] = 17 , ["FINALBDAYS"] = 18 , ["FINISH"] = 19 };
+    local syncOrder = { ["JD"] = 6, ["PD"] = 7, ["ALT"] = 8, ["CUSTOMNOTE"] = 9, ["BAN"] = 10, ["NN"] = 11, ["COMPAREALTS"] = 12,
+                        ["FINALJD"] = 13, ["FINALPD"] = 14,  ["FINALALT"] = 15, ["FINALCUSTOM"] = 16, ["FINALBAN"] = 17, ["FINALNN"] = 18,
+                        ["BDAYS"] = 19, ["FINALBDAYS"] = 20, ["FINISH"] = 21 };
 
     local progress = {
-        "TriggeringSync" ,
-        "EstablishingLeader" ,
-        "buildingHashes" ,
-        "sendingHashes" ,
-        "calculating" ,
-        "jd" ,
-        "pd" ,
-        "alts" ,
-        "customNotes" ,
-        "banData" ,
-        "compareAlts" ,
-        "finalJD" ,
-        "finalPD" ,
-        "finalAlts" ,
-        "finalCustom" ,
-        "finalBan" ,
-        "bdays" ,
-        "finalBdays" ,
+        "TriggeringSync",
+        "EstablishingLeader",
+        "buildingHashes",
+        "sendingHashes",
+        "calculating",
+        "jd",
+        "pd",
+        "alts",
+        "customNotes",
+        "banData",
+        "nn",
+        "compareAlts",
+        "finalJD",
+        "finalPD",
+        "finalAlts",
+        "finalCustom",
+        "finalBan",
+        "finalNN",
+        "bdays",
+        "finalBdays",
         "finish"
     };
 
@@ -751,24 +782,26 @@ GRMsync.SyncProgressPoint = function()
 
     local statusPoint = "";
     local progressTracker = {
-        "TriggeringSync" ,
-        "EstablishingLeader" ,
-        "buildingHashes" ,
-        "sendingHashes" ,
-        "calculating" ,
-        "jd" ,
-        "pd" ,
-        "alts" ,
-        "customNotes" ,
-        "banData" ,
-        "compareAlts" ,
-        "finalJD" ,
-        "finalPD" ,
-        "finalAlts" ,
-        "finalCustom" ,
-        "finalBan" ,
-        "bdays" ,
-        "finalBdays" ,
+        "TriggeringSync",
+        "EstablishingLeader",
+        "buildingHashes",
+        "sendingHashes",
+        "calculating",
+        "jd",
+        "pd",
+        "alts",
+        "customNotes",
+        "banData",
+        "nn",
+        "compareAlts",
+        "finalJD",
+        "finalPD",
+        "finalAlts",
+        "finalCustom",
+        "finalBan",
+        "bdays",
+        "finalNN",
+        "finalBdays",
         "finish"
     }
 
@@ -2609,22 +2642,43 @@ end
 -- NICKNAMES --
 ---------------
 
-GRMsync.NickNameSync = function ( msg , sender , prefix )
+GRMsync.CheckNicknameChange = function ( msg , sender , prefix )
     local isRetroSync = false;
     if prefix == "GRM_NNSYNCUP" then
         isRetroSync = true;
     end
 
-    GRM_G.MatchPattern7 = GRM_G.MatchPattern7 or GRM.BuildComPattern ( 8 , "?" , false );
-    local playerName, newNick, setterName, isRemove, shareNickAmongAlts, shareSettingChanged, standardDate, epochStamp  = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern7 );
+    local playerName, newNick, shareNickAmongAlts, setterName, standardDate, epochStamp, isRemove, shareSettingChanged
+    local date
+    local indReceived;
 
-    local date = {GRM.Time.ParseStandardFormatDate ( standardDate )}; -- Day, month, year
-    shareNickAmongAlts = GRMsync.DecodeBit(shareNickAmongAlts);
-    shareSettingChanged = GRMsync.DecodeBit(shareSettingChanged);
-    isRemove = GRMsync.DecodeBit(isRemove);
-    epochStamp = tonumber(epochStamp);
+    if type ( msg ) == "table" then
+        playerName = msg[1]
+        newNick = msg[2]
+        shareNickAmongAlts = msg[3]
+        setterName = msg[4]
+        standardDate = msg[5]
+        epochStamp = msg[6]
+        isRemove = msg[7]
+        shareSettingChanged = msg[8]
+        
+    else
+        if isRetroSync then
+            msg , indReceived = msg:match ( "(.+)%?(%d+)$" );   -- Parse out the msg num
+            table.insert ( GRMsyncGlobals.messageIndexesReceived.NNFINAL , tonumber ( indReceived ) );
+        end
+
+        GRM_G.MatchPattern8 = GRM_G.MatchPattern8 or GRM.BuildComPattern ( 8 , "?" , false );
+        playerName, newNick, shareNickAmongAlts, setterName, standardDate, epochStamp, isRemove, shareSettingChanged  = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern8 );
+
+        shareNickAmongAlts = GRMsync.DecodeBit(shareNickAmongAlts);
+        shareSettingChanged = GRMsync.DecodeBit(shareSettingChanged);
+        epochStamp = tonumber(epochStamp);
+    end
+
+    date = {GRM.Time.ParseStandardFormatDate( standardDate )}; -- Day, month, year
+    
     local player = GRM.GetPlayer(playerName);
-
     GRMsync.AddNickNameSync( player, newNick, isRemove, shareNickAmongAlts, shareSettingChanged, setterName, date, epochStamp, sender, isRetroSync )
 end
 
@@ -2676,30 +2730,38 @@ GRMsync.AddNickNameSync = function( player, newNick, isRemove, shareNickAmongAlt
 
 end
 
-GRMsync.CheckNickNameChanges = function()
+GRMsync.CheckingNicknameChanges = function()
+    local players = GRMsync.BuildValidatedNicknamesForSync();
+    local namesAdded = {};
 
+    -- Add the player's data to the banChanges
+    for j = #GRMsyncGlobals.NicknameReceivedTemp , 1 , -1  do
+        for i = 1 , #players do
+            if players[i][1] == GRMsyncGlobals.NicknameReceivedTemp[j][1] and players[i][6] >= GRMsyncGlobals.NicknameReceivedTemp[j][6] then
+
+                -- playerName, newNick, shareNickAmongAlts, setterName, standardDate, epochStamp, isRemove, shareSettingChanged
+                table.insert ( GRMsyncGlobals.NNChanges , { players[i][1], players[i][2], players[i][3], players[i][4], players[i][5], players[i][6], players[i][7], players[i][8], true } );  -- Final position bool - if my data
+                table.remove ( GRMsyncGlobals.NicknameReceivedTemp , j );
+                namesAdded[players[i][1]] = {};
+                break;
+            end
+        end
+    end
+
+    for i = 1 , #GRMsyncGlobals.NicknameReceivedTemp do
+        table.insert ( GRMsyncGlobals.NNChanges , { GRMsyncGlobals.NicknameReceivedTemp[i][1], GRMsyncGlobals.NicknameReceivedTemp[i][2], GRMsyncGlobals.NicknameReceivedTemp[i][3],
+                                                    GRMsyncGlobals.NicknameReceivedTemp[i][4], GRMsyncGlobals.NicknameReceivedTemp[i][5], GRMsyncGlobals.NicknameReceivedTemp[i][6],
+                                                    GRMsyncGlobals.NicknameReceivedTemp[i][7], GRMsyncGlobals.NicknameReceivedTemp[i][8], false } );
+        namesAdded[GRMsyncGlobals.NicknameReceivedTemp[i][1]] = {};
+    end
+
+    for i = 1 , #players do
+        if not namesAdded[players[i][1]] then
+            namesAdded[players[i][1]] = {};
+            table.insert ( GRMsyncGlobals.NNChanges , { players[i][1], players[i][2], players[i][3], players[i][4], players[i][5], players[i][6], players[i][7], players[i][8], true } );
+        end
+    end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 --------------------------------
 --- Default Mewsage Functions --
@@ -2805,11 +2867,11 @@ GRMsync.GetCustomPseudoHash = function( dataRequested )
 
     local guildData = GRMsyncGlobals.guildData;
     local altData = GRMsyncGlobals.guildAltData;
-    local jd1 , pd1 , alt1 , cust1 , bday1 , ban1 = 0 , 0 , 0 , 0 , 0 , 0;
-    local jd2 , pd2 , alt2 , cust2 , bday2 , ban2 = {} , {} , {} , {} , {} , {};
+    local jd1 , pd1 , alt1 , cust1 , bday1 , ban1, nn1 = 0, 0, 0, 0, 0, 0, 0;
+    local jd2 , pd2 , alt2 , cust2 , bday2 , ban2, nn2 = {}, {}, {}, {}, {}, {};
     local totalHashSum = 0;
 
-    local data = { ["join"] = 1 , ["promote"] = 2 , ["alt"] = 3 , ["custom"] = 4 , ["bday"] = 5 , ["ban"] = 6 };
+    local data = { ["join"] = 1 , ["promote"] = 2 , ["alt"] = 3 , ["custom"] = 4 , ["bday"] = 5 , ["ban"] = 6, ["nick"] = 7 };
     local specificData = data[dataRequested];
 
     -- GRMsyncGlobals.SyncTracker.buildingHashes = true;
@@ -2842,9 +2904,6 @@ GRMsync.GetCustomPseudoHash = function( dataRequested )
     if ( not specificData or specificData == 2 ) and GRMsync.IsCompatibleToShareData( true ) then
         for i = 1 , #guildData do
             player = guildData[i];
-            if not player.GUID then
-                player.GUID = "";
-            end
 
             if player.rankHist[1][7] then
                 -- day + month + year + name byteVal + GUID byteVal;
@@ -2941,12 +3000,36 @@ GRMsync.GetCustomPseudoHash = function( dataRequested )
         ban2.list = {};
     end
 
-    if not specificData then
-        totalHashSum = ( jd2.compareHash or 0 ) + ( pd2.compareHash or 0 ) + ( alt2.compareHash or 0 ) + ( cust2.compareHash or 0 ) + ( bday2.compareHash or 0 ) + ( ban2.compareHash or 0 ); -- Need to be in parentheses for truthy logic to work
+    -- Nickname Data
+    -- Promotion Dates
+    if ( not specificData or specificData == 7 ) and GRMsync.IsCompatibleToShareData( true ) then
+        for i = 1 , #guildData do
+            player = guildData[i];
+            if not player.nickInfo then
+                player.nickInfo = NN.CreateNickObject();
+            end
+
+            if player.nickInfo.editedDetails[3] > 0 then
+                -- day + month + year + name byteVal + GUID byteVal;
+                nn1 = nn1 + player.nickInfo.editedDetails[2][1] + player.nickInfo.editedDetails[2][2] + player.nickInfo.editedDetails[2][3] + player.nickInfo.editedDetails[3]
+                if player.nickInfo.nickname ~= "" then
+                    nn1 = nn1 + GRMsync.ConvertStringToVal ( player.nickInfo.nickname )
+                end
+            end
+        end
+
+        nn2.compareHash = nn1;
+        nn2.list = GRMsync.GetListOfPlayersWIthNicknameModifications( GRMsyncGlobals.guildData );   -- Needs to run in separate loop when doing a change comparison.
+    else
+        nn2.compareHash = 0;
+        nn2.list = {};
     end
 
+    if not specificData then
+        totalHashSum = ( jd2.compareHash or 0 ) + ( pd2.compareHash or 0 ) + ( alt2.compareHash or 0 ) + ( cust2.compareHash or 0 ) + ( bday2.compareHash or 0 ) + ( ban2.compareHash or 0 ) + ( nn2.compareHash or 0 ); -- Need to be in parentheses for truthy logic to work
+    end
 
-    return { jd2 , pd2 , alt2 , cust2 , bday2 , ban2 , totalHashSum };
+    return { jd2 , pd2 , alt2 , cust2 , bday2 , ban2 , nn2, totalHashSum };
 end
 
 -- Method:          GRMsync.RefreshPlayerRankIDs()
@@ -3081,6 +3164,39 @@ GRMsync.GetListOfPlayersWithModifiedBdays = function( guildData , getFullProfile
     return list;
 end
 
+-- Method:          GRMsync.GetListOfPlayersWIthNicknameModifications ( table , bool )
+-- What it Does:    Returns the names of all players in the guild with modified bdays
+-- Purpose:         Control the flow of sync data.
+GRMsync.GetListOfPlayersWIthNicknameModifications = function (guildData, getFullProfile)
+    local list = {}
+    local nickname = ""
+    local standardDate = ""
+    local isRemove = false
+    local shareSettingChanged = false
+
+    for i = 1 , #guildData do
+        if guildData[i].nickInfo.editedDetails[3] > 0 then
+            if not getFullProfile then
+                table.insert ( list , { guildData[i].name, guildData[i].nickInfo.editedDetails[3] } );   -- { name , timestamp }
+            else
+                nickname = guildData[i].nickInfo.nickname;
+                if nickname == "" then
+                    nickname = "X"
+                end
+                isRemove = false
+                if guildData[i].nickInfo.editedDetails[3] > 0 and nickname == "X" then
+                    isRemove = true
+                end
+                standardDate = GRM.Time.ConvertToStandardFormatDate(guildData[i].nickInfo.editedDetails[2][1], guildData[i].nickInfo.editedDetails[2][2], guildData[i].nickInfo.editedDetails[2][3])
+                table.insert ( list , { guildData[i].name, nickname, guildData[i].nickInfo.shareNickAmongAlts, guildData[i].nickInfo.editedDetails[1],
+                                        standardDate, guildData[i].nickInfo.editedDetails[3], isRemove, shareSettingChanged } );   -- { name , nickname, shareNickAmongAlts, whoEdited, standardDate , timestamp, isRemove, shareSettingChanged }
+            end
+        end
+    end
+
+    return list;
+end
+
 -- Method:          GRMsync.GetListBannedAndUnbannedPlayers ( guildData , bool )
 -- What it Does:    Pulls the list of all players banned and unbanned.
 -- Purpose:         For sync use - only need to compare timestamp. If not the same, then will tag it as needed to be shown.
@@ -3208,7 +3324,7 @@ GRMsync.SendOverallDataHashes = function ()
 
     GRMsync.PreCheckHashValues = GRMsync.GetCustomPseudoHash();
 
-    local msg = "GRM_PREHASHALL?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsync.PreCheckHashValues[1].compareHash .. "?" .. GRMsync.PreCheckHashValues[2].compareHash .. "?" .. GRMsync.PreCheckHashValues[3].compareHash .. "?" .. GRMsync.PreCheckHashValues[4].compareHash .. "?" .. GRMsync.PreCheckHashValues[5].compareHash .. "?" .. GRMsync.PreCheckHashValues[6].compareHash .. "?" .. GRMsync.PreCheckHashValues[7];
+    local msg = "GRM_PREHASHALL?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsync.PreCheckHashValues[1].compareHash .. "?" .. GRMsync.PreCheckHashValues[2].compareHash .. "?" .. GRMsync.PreCheckHashValues[3].compareHash .. "?" .. GRMsync.PreCheckHashValues[4].compareHash .. "?" .. GRMsync.PreCheckHashValues[5].compareHash .. "?" .. GRMsync.PreCheckHashValues[6].compareHash .. "?" .. GRMsync.PreCheckHashValues[7].compareHash .. "?" .. GRMsync.PreCheckHashValues[8];
     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRMsyncGlobals.sizeModifier;
 
     GRMsync.SendMessage ( "GRM_SYNC" , msg , GRMsyncGlobals.CurrentSyncPlayer );        -- No need to consider loop delay as minimal data has been shared at this point. Still count it.
@@ -3230,19 +3346,22 @@ end
 GRMsync.CompareOverallHashes = function( msg , syncMessage )
 
     if not syncMessage then
-        GRM_G.MatchPattern7 = GRM_G.MatchPattern7 or GRM.BuildComPattern ( 7 , "?" , false );
+        GRM_G.MatchPattern8 = GRM_G.MatchPattern8 or GRM.BuildComPattern ( 8 , "?" , false );
 
-        local jdHash , pdHash , altHash , custHash , bdayHash , banHash , totalHash = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern7 );
+        local jdHash, pdHash, altHash, custHash, bdayHash, banHash, nnHash, totalHash = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern8 );
         GRMsync.PreCheckHashValues = GRMsync.GetCustomPseudoHash();     -- Collect my hash values
         syncMessage = "GRM_PREALLRESULT?" .. GRMsyncGlobals.numGuildRanks
 
         -- Start with overall database comparison.
-        if tonumber ( totalHash ) == GRMsync.PreCheckHashValues[7] then
+        if tonumber ( totalHash ) == GRMsync.PreCheckHashValues[8] then
             syncMessage = syncMessage .. "?000000"; -- "Zeros represent FALSE or no need to send"
         else
-            GRMsyncGlobals.SyncPath = { tonumber ( jdHash ) ~= GRMsync.PreCheckHashValues[1].compareHash , tonumber ( pdHash ) ~= GRMsync.PreCheckHashValues[2].compareHash , tonumber ( altHash ) ~= GRMsync.PreCheckHashValues[3].compareHash , tonumber ( custHash ) ~= GRMsync.PreCheckHashValues[4].compareHash , tonumber ( bdayHash ) ~= GRMsync.PreCheckHashValues[5].compareHash , tonumber ( banHash ) ~= GRMsync.PreCheckHashValues[6].compareHash };
+            GRMsyncGlobals.SyncPath = { tonumber ( jdHash ) ~= GRMsync.PreCheckHashValues[1].compareHash , tonumber ( pdHash ) ~= GRMsync.PreCheckHashValues[2].compareHash,
+                                        tonumber ( altHash ) ~= GRMsync.PreCheckHashValues[3].compareHash , tonumber ( custHash ) ~= GRMsync.PreCheckHashValues[4].compareHash,
+                                        tonumber ( bdayHash ) ~= GRMsync.PreCheckHashValues[5].compareHash , tonumber ( banHash ) ~= GRMsync.PreCheckHashValues[6].compareHash,
+                                        tonumber ( nnHash ) ~= GRMsync.PreCheckHashValues[7].compareHash };
 
-            syncMessage = syncMessage .. "?" .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[1] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[2] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[3] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[4] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[5] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[6] );
+            syncMessage = syncMessage .. "?" .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[1] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[2] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[3] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[4] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[5] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[6] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[7] );
         end
     end
 
@@ -3290,7 +3409,7 @@ end
 -- What it Does:    Sends the PreCheckData over to compare databases
 -- Purpose:         Smaller amount of code to determine who needs data updated.
 GRMsync.ReviewAndSendPrecheckData = function( completedPath )
-    completedPath = completedPath or { false , false , false , false , false , false }; -- 5 would be bdays b ut skip for now
+    completedPath = completedPath or { false , false , false , false , false , false, false }; -- 5 would be bdays b ut skip for now
     -- Join Dates
     if not completedPath[1] and GRMsyncGlobals.SyncPath[1] then
         GRMsync.SendPrecheckData ( completedPath , 1 );
@@ -3326,7 +3445,15 @@ GRMsync.ReviewAndSendPrecheckData = function( completedPath )
         GRMsync.SendPrecheckData ( completedPath , 6 );
         return;
     end
-    completedPath[6] = true;
+    completedPath[6] = true
+
+    -- Nicknames
+    if not completedPath[7] and GRMsyncGlobals.SyncPath[7] then
+        GRMsync.SendPrecheckData ( completedPath , 7 );
+        return;
+    end
+    completedPath[7] = true;
+
     GRMsync.SendMessage ( "GRM_SYNC" , "GRM_FINALPRE?" .. GRMsyncGlobals.syncRankFilter .. "?" , GRMsyncGlobals.CurrentSyncPlayer );
 end
 
@@ -3334,7 +3461,7 @@ end
 -- What it Does:    Sends all the precheck info for qualifying for sync
 -- Purpose:         More efficient syncing.
 GRMsync.SendPrecheckData = function ( completedPath , dataInd , index , special )
-    local syncHeader = { "GRM_RECJDPRE?" , "GRM_RECPDPRE?" , "GRM_RECALTPRE?" , "GRM_RECCUSTPRE?" , "GRM_RECBDAYPRE?" , "GRM_RECBANPRE?" };
+    local syncHeader = { "GRM_RECJDPRE?" , "GRM_RECPDPRE?" , "GRM_RECALTPRE?" , "GRM_RECCUSTPRE?" , "GRM_RECBDAYPRE?" , "GRM_RECBANPRE?", "GRM_RECNNPRE?" };
 
     index = index or 1;
     local players = GRMsync.PreCheckHashValues[dataInd].list        -- From PseudoCustomHash
@@ -3417,7 +3544,7 @@ GRMsync.CollectPreCheckData = function ( msg , prefix )
     GRMsyncGlobals.TimeSinceLastSyncAction = time();
     local name = "";
     local timeStampOfChange = 0;
-    local dataIndex = { ["GRM_RECJDPRE"] = 1 , ["GRM_RECPDPRE"] = 2 , ["GRM_RECALTPRE"] = 3 , ["GRM_RECCUSTPRE"] = 4 , ["GRM_RECBDAYPRE"] = 5 , ["GRM_RECBANPRE"] = 6 };
+    local dataIndex = { ["GRM_RECJDPRE"] = 1 , ["GRM_RECPDPRE"] = 2 , ["GRM_RECALTPRE"] = 3 , ["GRM_RECCUSTPRE"] = 4 , ["GRM_RECBDAYPRE"] = 5 , ["GRM_RECBANPRE"] = 6 , ["GRM_RECNNPRE"] = 7 };
     local ind = dataIndex[prefix];
 
     local receivedValues = GRMsync.ParseAllSeparatedItems ( msg );
@@ -3565,7 +3692,7 @@ GRMsync.ProcessBdayDataAndContinue = function()
 
     local delay = 0;
     if needsUpdatedPath then
-        local syncMessage = "GRM_PREALLRESULT2?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[1] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[2] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[3] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[4] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[5] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[6] )
+        local syncMessage = "GRM_PREALLRESULT2?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[1] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[2] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[3] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[4] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[5] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[6] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[7] )
         delay = 0.5;    -- Ensures this arrives first by adding a delay
         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
         GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.CurrentSyncPlayer );
@@ -3592,10 +3719,10 @@ end
 -- Method:          GRMsync.ProcessPreCheckDataAndBeginSync()
 -- What it Does:    Processes the precheck data and sets the database markers or the actual data that is latest
 -- Purpose:         Part of the sync process and efficiency.
-GRMsync.ProcessPreCheckDataAndBeginSync = function()
+GRMsync.ProcessPreCheckDataAndBeginSync = function() 
 
     local needsUpdatedPath = false;
-    for i = 1 , 6 do
+    for i = 1 , #GRMsyncGlobals.HashValuesReceived do
         if i ~= 5 and GRMsyncGlobals.SyncPath[i] then -- If no alts to update.
             GRMsyncGlobals.DatabaseMarkers[i] = GRMsync.CompareListDBMarkers( i );
             sort ( GRMsyncGlobals.DatabaseMarkers[i] , function ( a , b ) return a[1] < b[1] end );
@@ -3611,7 +3738,7 @@ GRMsync.ProcessPreCheckDataAndBeginSync = function()
 
     local delay = 0;
     if needsUpdatedPath then
-        local syncMessage = "GRM_PREALLRESULT2?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[1] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[2] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[3] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[4] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[5] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[6] )
+        local syncMessage = "GRM_PREALLRESULT2?" .. GRMsyncGlobals.numGuildRanks .. "?" .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[1] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[2] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[3] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[4] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[5] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[6] ) .. GRMsync.BoolToInt ( GRMsyncGlobals.SyncPath[7] )
         delay = 0.5;    -- Ensures this arrives first by adding a delay
         GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
         GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.CurrentSyncPlayer );
@@ -3657,7 +3784,7 @@ end
 -- Purpose:         Cleanly execute sharing and syncing data in a minimalistic way, in specified order. DO NOT ADJUST ORDER as some things require review prior to next step.
 GRMsync.NextSyncStep = function( completedPath )
 
-    completedPath = completedPath or { false , false , false , false , false , false };
+    completedPath = completedPath or { false , false , false , false , false , false, false };
 
     if not completedPath[1] and GRMsyncGlobals.SyncPath[1] then
         GRMsync.SendJDPacketsNotMine( completedPath );
@@ -3689,6 +3816,12 @@ GRMsync.NextSyncStep = function( completedPath )
     end
     completedPath[6] = true;
 
+    if not completedPath[7] and GRMsyncGlobals.SyncPath[7] then
+        GRMsync.SendNicknamePacketsNotMine( completedPath );
+        return;
+    end
+    completedPath[7] = true;
+
     GRMsync.SendCompletionMsg()
 end
 
@@ -3699,7 +3832,7 @@ GRMsync.SendCompletionMsg = function()
     GRMsyncGlobals.TimeSinceLastSyncAction = time();
     -- This string is reordered for legacy code reasons in change 1.50 that I just do not wish to have to restructure. Minor adaptation
 
-    local msg = "GRM_STOP?" .. GRMsyncGlobals.syncRankFilter .. "?" .. #GRMsyncGlobals.messageTree.JDF .. "?" .. #GRMsyncGlobals.messageTree.JD .. "?" .. #GRMsyncGlobals.messageTree.PDF .. "?" .. #GRMsyncGlobals.messageTree.PD .. "?" .. #GRMsyncGlobals.messageTree.ALTF .. "?" .. #GRMsyncGlobals.messageTree.ALT .. "?" .. #GRMsyncGlobals.messageTree.CUSTF .. "?" .. #GRMsyncGlobals.messageTree.CUST .. "?" .. #GRMsyncGlobals.messageTree.BANF .. "?" .. #GRMsyncGlobals.messageTree.BAN;
+    local msg = "GRM_STOP?" .. GRMsyncGlobals.syncRankFilter .. "?" .. #GRMsyncGlobals.messageTree.JDF .. "?" .. #GRMsyncGlobals.messageTree.JD .. "?" .. #GRMsyncGlobals.messageTree.PDF .. "?" .. #GRMsyncGlobals.messageTree.PD .. "?" .. #GRMsyncGlobals.messageTree.ALTF .. "?" .. #GRMsyncGlobals.messageTree.ALT .. "?" .. #GRMsyncGlobals.messageTree.CUSTF .. "?" .. #GRMsyncGlobals.messageTree.CUST .. "?" .. #GRMsyncGlobals.messageTree.BANF .. "?" .. #GRMsyncGlobals.messageTree.BAN .. "?" .. #GRMsyncGlobals.messageTree.NNF .. "?" .. #GRMsyncGlobals.messageTree.NN;
     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg;
     GRMsync.SendMessage ( "GRM_SYNC" , msg  , GRMsyncGlobals.CurrentSyncPlayer );
     -- Need to Disable error checking now as you will stop communicating with the designated leader
@@ -3763,7 +3896,7 @@ GRMsync.SendJDPacketsNotMine = function( completedPath , messageCount , index )
                 tempMessage = syncMessage .. "?" .. dataIndexes[i][1];
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -3843,7 +3976,7 @@ GRMsync.SendJDPackets = function( completedPath , messageCount , index , players
             tempMessage = syncMessage .. "?" .. players[i][1] .. "?" .. players[i][2] .. "?" .. players[i][3];
 
             if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
             else
                 -- Do not add the new name, just send the syncMessage
                 syncMessage = syncMessage .. "?" .. messageCount;
@@ -3952,7 +4085,7 @@ GRMsync.SendPDPacketsNotMine = function( completedPath , messageCount , index )
                 tempMessage = syncMessage .. "?" .. dataIndexes[i][1];
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -4032,7 +4165,7 @@ GRMsync.SendPDPackets = function( completedPath , messageCount , index , players
             tempMessage = syncMessage .. "?" .. players[i][1] .. "?" .. players[i][2] .. "?" .. players[i][3];
 
             if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
             else
                 -- Do not add the new name, just send the syncMessage
                 syncMessage = syncMessage .. "?" .. messageCount;
@@ -4140,6 +4273,215 @@ GRMsync.ValidatePromoteDataForSync = function( rankHist , rankName)
     return validated
 end
 
+-- Sending the DatabaseMarker lineups
+GRMsync.SendNicknamePacketsNotMine = function( completedPath , messageCount , index )
+    -- Progress tracking
+    -- if not GRMsyncGlobals.SyncTracker.altData then
+    --     GRMsyncGlobals.ProgressControl ( "NN" );
+    -- end
+
+    -- Increment next message
+    messageCount = messageCount or 1;
+    index = index or 1;
+    GRMsyncGlobals.TimeSinceLastSyncAction = time();
+    local syncMessage = "";
+    local tempMessage = "";
+    local dataIndexes = GRMsyncGlobals.DatabaseMarkers[7];
+
+    for i = index , #dataIndexes do
+        if GRMsyncGlobals.SyncOK then
+            if dataIndexes[i][2] == 1 then
+
+                if syncMessage == "" then
+                    syncMessage =  "GRM_NNSYNCF?".. GRMsyncGlobals.syncRankFilter;
+                end
+
+                tempMessage = syncMessage .. "?" .. dataIndexes[i][1];
+
+                if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
+                else
+                    -- Do not add the new name, just send the syncMessage
+                    syncMessage = syncMessage .. "?" .. messageCount;
+                    GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+                    GRMsyncGlobals.messageTree.NNF[messageCount] = syncMessage;
+                    GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+                    messageCount = messageCount + 1;
+
+                    syncMessage = "GRM_NNSYNCF?".. GRMsyncGlobals.syncRankFilter .. "?" .. dataIndexes[i][1];
+                end
+
+                -- If at the end of the alt Group, we need to send, even if not a full string.
+                if i == #dataIndexes then
+                    syncMessage = syncMessage .. "?" .. messageCount;
+                    GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+                    GRMsyncGlobals.messageTree.NNF[messageCount] = syncMessage;
+                    GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+                    messageCount = messageCount + 1;
+
+                    syncMessage = "";
+                end
+
+                -- Check if there needs to be a throttled delay
+                if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
+                    GRMsyncGlobals.syncTempDelay = true;
+
+                    index = i;
+
+                    GRMsyncGlobals.SyncCount = 0;
+                    C_Timer.After ( GRMsyncGlobals.ThrottleDelay , function()
+                        GRMsync.SendNicknamePacketsNotMine ( completedPath , messageCount , index );
+                    end);
+                    return;
+                end
+            elseif i == #dataIndexes and syncMessage ~= "" then
+
+                syncMessage = syncMessage .. "?" .. messageCount;
+                GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+                GRMsyncGlobals.messageTree.NNF[messageCount] = syncMessage;
+                GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+            end
+
+        else
+            return;
+        end
+    end
+
+    -- Close the Data stream
+    GRMsyncGlobals.syncTempDelay = false;
+    if GRMsyncGlobals.SyncOK then
+        GRMsync.SendNicknamePackets( completedPath );
+    else
+        return;
+    end
+
+end
+
+GRMsync.SendNicknamePackets = function( completedPath , messageCount , index , players )
+    GRMsyncGlobals.TimeSinceLastSyncAction = time();
+    messageCount = messageCount or 1;
+    index = index or 1;
+
+    local syncMessage = "";
+    local tempMessage = "";
+
+    players = players or GRMsync.BuildNicknameListForSync();
+
+    for i = index , #players do
+        if GRMsyncGlobals.SyncOK then
+
+            if syncMessage == "" then
+                syncMessage = "GRM_NNSYNC?" .. GRMsyncGlobals.syncRankFilter;
+            end
+
+            tempMessage = syncMessage .. "?" .. players[i][1] .. "?" .. players[i][2] .. "?" .. players[i][3] .. "?" .. players[i][4] .. "?" ..
+                               players[i][5] .. "?" .. players[i][6];
+
+            if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
+                syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
+            else
+                -- Do not add the new name, just send the syncMessage
+                syncMessage = syncMessage .. "?" .. messageCount;
+                GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+                GRMsyncGlobals.messageTree.PD[messageCount] = syncMessage;
+                GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+                messageCount = messageCount + 1;
+                -- { name , nickname, shareNickAmongAlts, whoEdited, standardDate , timestamp }
+                syncMessage = "GRM_NNSYNC?" .. GRMsyncGlobals.syncRankFilter .. "?" .. players[i][1] .. "?" .. players[i][2] .. "?" .. players[i][3] .. "?" .. players[i][4] .. "?" ..
+                               players[i][5] .. "?" .. players[i][6];
+            end
+
+            -- If at the end of the alt Group, we need to send, even if not a full string.
+            if i == #players then
+                syncMessage = syncMessage .. "?" .. messageCount;
+                GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #syncMessage + GRMsyncGlobals.sizeModifier;
+                GRMsyncGlobals.messageTree.PD[messageCount] = syncMessage;
+                GRMsync.SendMessage ( "GRM_SYNC" , syncMessage , GRMsyncGlobals.DesignatedLeader );
+                messageCount = messageCount + 1;
+
+                syncMessage = "";
+            end
+
+            -- Check if there needs to be a throttled delay
+            if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
+                GRMsyncGlobals.syncTempDelay = true;
+
+                index = i;
+
+                GRMsyncGlobals.SyncCount = 0;
+                C_Timer.After ( GRMsyncGlobals.ThrottleDelay , function()
+                    GRMsync.SendPDPackets ( completedPath , messageCount , index , players );
+                end);
+                return;
+            end
+        else
+            return;
+        end
+    end
+    -- Close the Data stream
+    GRMsyncGlobals.syncTempDelay = false;
+    if GRMsyncGlobals.SyncOK then
+        completedPath[2] = true;
+        GRMsync.NextSyncStep ( completedPath );
+    else
+        return;
+    end
+end
+
+-- Method:          GRMsync.BuildNicknameListForSync()
+-- What it Does:    Creates a specialized alt table for sync purposes
+-- Purpose:         Breaking them into categories makes it easier syncing/parsing
+GRMsync.BuildNicknameListForSync = function()
+    local dataIndexes = GRMsyncGlobals.DatabaseMarkers[7];
+    local guildData = GRMsyncGlobals.guildData;
+    local playersWithNicknames = {};
+
+    -- Cycle through the names that need to be sent.
+    for i = 1 , #dataIndexes do
+        if dataIndexes[i][2] == 2 then -- Indicates I do have data
+            -- Cycle through guild data to find them. This is now in array format, remember, so that arrays align.
+            for j = 1, #guildData do
+                if guildData[j].name == dataIndexes[i][1] then
+                    if guildData[j].nickInfo.editedDetails[3] > 0 and GRMsync.ValidateNicknameForSync( guildData[j].nickInfo ) then
+                        -- { name , nickname, shareNickAmongAlts, whoEdited, day, month, year , timestamp }
+                        local standardDate = GRM.Time.ConvertToStandardFormatDate(guildData[j].nickInfo.editedDetails[2][1], guildData[j].nickInfo.editedDetails[2][2],
+                                                                                    guildData[j].nickInfo.editedDetails[2][3])
+                        local nickname = guildData[j].nickInfo.nickname;    -- Need to have some baseline to send, not an empty string
+                        if nickname == "" then
+                            nickname = "X"
+                        end
+                        table.insert ( playersWithNicknames , { guildData[j].name , nickname, GRMsync.SetBit(guildData[j].nickInfo.shareNickAmongAlts),
+                                                                guildData[j].nickInfo.editedDetails[1], standardDate, guildData[j].nickInfo.editedDetails[3]} );
+                    end
+                    break;
+                end
+            end
+
+        end
+    end
+    return playersWithNicknames;
+end
+
+-- need to Validate structure is safe for sync
+GRMsync.ValidateNicknameForSync = function( nickInfo )
+    local validated = false;
+
+    if nickInfo and nickInfo.nickname and nickInfo.editedDetails and type(nickInfo.shareNickAmongAlts) == "boolean" then
+        if nickInfo.editedDetails[3] > 0 then -- Nickname has been set or removed
+            if type(nickInfo.nickname) == "string" and #nickInfo.editedDetails[1] > 0 and nickInfo.editedDetails[2][1] > 0 and nickInfo.editedDetails[2][2] > 0 and
+               nickInfo.editedDetails[2][3] > 0 and nickInfo.editedDetails[3] > 0 then
+                validated = true
+            end
+        end
+    end
+
+    if not validated then
+        nickInfo = GRM.NN.CreateNickObject()
+    end
+
+    return validated
+end
+
 -- Method:          GRMsync.SendAltNamesNotMine ( table , int , int )
 -- What it Does:    Sends the names of the players who are more current than mine, but I have no exact details on them
 -- Purpose:         Efficiency in syncing
@@ -4171,7 +4513,7 @@ GRMsync.SendAltNamesNotMine = function( completedPath , messageCount , index )
                 tempMessage = syncMessage .. "?" .. dataIndexes[i][1];
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -4262,7 +4604,7 @@ GRMsync.SendAltPacketsNoGroupAndMainOnly = function( completedPath , messageCoun
                     tempMessage = syncMessage .. "?" .. altGroups[1][i][1] .. "?" .. altGroups[1][i][2];
 
                     if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                        syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                        syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                     else
                         -- Do not add the new name, just send the syncMessage
                         syncMessage = syncMessage .. "?" .. messageCount;
@@ -4317,7 +4659,7 @@ GRMsync.SendAltPacketsNoGroupAndMainOnly = function( completedPath , messageCoun
                 tempMessage = syncMessage .. "?" .. altGroups[2][i][1] .. "?" .. altGroups[2][i][2];
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -4407,7 +4749,7 @@ GRMsync.SendAltGroupsFullDetails = function ( completedPath , altGroups , messag
                 tempMessage = syncMessage .. "?" .. altGroups[i][1] .. "?" .. main .. "?" .. altGroups[i].timeModified;
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -4463,7 +4805,7 @@ GRMsync.SendAltGroupsFullDetails = function ( completedPath , altGroups , messag
                 tempMessage = syncMessage .. "?" .. altGroups[i][j];
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -4619,7 +4961,7 @@ GRMsync.SendCUSTPacketsNotMine = function( completedPath , messageCount , index 
                 tempMessage = syncMessage .. "?" .. dataIndexes[i][1];
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -4814,7 +5156,7 @@ GRMsync.SendBdayPacketsNotMine = function( completedPath , messageCount , index 
                 tempMessage = syncMessage .. "?" .. dataIndexes[i][1];
 
                 if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                    syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                    syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
                 else
                     -- Do not add the new name, just send the syncMessage
                     syncMessage = syncMessage .. "?" .. messageCount;
@@ -4894,7 +5236,7 @@ GRMsync.SendBDayPackets = function( completedPath , messageCount , index , playe
             tempMessage = syncMessage .. "?" .. players[i][1] .. "?" .. players[i][2] .. "?" .. players[i][3] .. "?" .. players[i][4];
 
             if ( #tempMessage + GRMsyncGlobals.sizeModifier + GRMsync.GetNumDigits(messageCount) + 1 ) < 255 then
-                syncMessage = tempMessage;  -- Strung is still small, keep building it. Otherwise, send the syncMessage
+                syncMessage = tempMessage;  -- String is still small, keep building it. Otherwise, send the syncMessage
             else
                 -- Do not add the new name, just send the syncMessage
                 syncMessage = syncMessage .. "?" .. messageCount;
@@ -5637,7 +5979,7 @@ GRMsync.SubmitFinalJoinDateData = function( messageCount , index )
     messageCount = messageCount or 1;
     GRMsyncGlobals.TimeSinceLastSyncAction = time();
 
-    -- BAN changes sync!
+    -- Join changes sync!
     if #GRMsyncGlobals.JDChanges > 0 then
         local msg = "";
 
@@ -6379,6 +6721,66 @@ GRMsync.SubmitFinalBansData = function( messageCount , index )
             end
         end
     end
+    GRMsync.SubmitFinalNicknameData();
+end
+
+-- TODO
+GRMsync.SubmitFinalNicknameData = function( messageCount , index )
+    index = index or 1;
+    messageCount = messageCount or 1;
+    GRMsyncGlobals.TimeSinceLastSyncAction = time();
+
+    -- Join changes sync!
+    if #GRMsyncGlobals.NNChanges > 0 then
+        local msg = "";
+
+        -- if not GRMsyncGlobals.SyncTracker.finalNN then
+        --     GRMsyncGlobals.ProgressControl ( "FINALNN" );
+        -- end
+
+        for i = index , #GRMsyncGlobals.NNChanges do
+            msg = "";
+
+            if GRMsyncGlobals.SyncOK then
+
+                if not GRMsyncGlobals.NNChanges[i][9] then
+                    if GRMsync.IsCompatibleToShareData ( false , false , false , true ) then
+                        GRMsync.CheckNicknameChange ( GRMsyncGlobals.NNChanges[i] , nil , "GRM_NNSYNCUP" );
+                    end
+                else
+                    -- playerName, newNick, shareNickAmongAlts, setterName, standardDate, epochStamp, isRemove, shareSettingChanged
+                    -- msg = "GRM_NNSYNCUP?" .. GRMsyncGlobals.syncRankFilter .. "?" .. GRMsyncGlobals.JDChanges[i][1] .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][2] ) .. "?" .. GRMsyncGlobals.JDChanges[i][3] .. "?" .. messageCount;
+
+                    GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRMsyncGlobals.sizeModifier;
+                    GRMsyncGlobals.messageTree.NNFINAL[messageCount] = msg;
+                    GRMsync.SendMessage ( "GRM_SYNC" , msg , GRMsyncGlobals.CurrentSyncPlayer );
+                    messageCount = messageCount + 1;
+
+                    if GRMsyncGlobals.SyncCount + 254 > GRMsyncGlobals.ThrottleCap then
+                        GRMsyncGlobals.SyncCount = 0;
+
+                        index = i + 1;
+
+                        C_Timer.After ( GRMsyncGlobals.ThrottleDelay , function()
+                            GRMsync.SubmitFinalNicknameData( messageCount , index );
+                        end);
+                        return;
+                    end
+                end
+            else
+                return;
+            end
+            -- GRM.AuditRefreshTracker();  When nicknames get added uncomment
+        end
+    end
+
+    -- if GRMsyncGlobals.TrackerData.JD[1] then
+    --     GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[3] );
+    -- end
+
+
+
+
     GRMsync.SendDataCompletionMsg();
 end
 
@@ -6386,7 +6788,7 @@ end
 -- What it Does:    Sendds the details of how many messages sent
 -- Purpose:         Sync integrity so messages can be resent
 GRMsync.SendDataCompletionMsg = function()
-    local msg = "GRM_FINALSTOP?" .. GRMsyncGlobals.syncRankFilter .. "?" .. #GRMsyncGlobals.messageTree.JDFINAL .. "?" .. #GRMsyncGlobals.messageTree.PDFINAL .. "?" .. #GRMsyncGlobals.messageTree.ALTFINAL .. "?" .. #GRMsyncGlobals.messageTree.CUSTFINAL .. "?" .. #GRMsyncGlobals.messageTree.BANFINAL;
+    local msg = "GRM_FINALSTOP?" .. GRMsyncGlobals.syncRankFilter .. "?" .. #GRMsyncGlobals.messageTree.JDFINAL .. "?" .. #GRMsyncGlobals.messageTree.PDFINAL .. "?" .. #GRMsyncGlobals.messageTree.ALTFINAL .. "?" .. #GRMsyncGlobals.messageTree.CUSTFINAL .. "?" .. #GRMsyncGlobals.messageTree.BANFINAL .. "?" .. #GRMsyncGlobals.messageTree.NNFINAL;
     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg;
     GRMsync.SendMessage ( "GRM_SYNC" , msg  , GRMsyncGlobals.CurrentSyncPlayer );
 end
@@ -6733,7 +7135,13 @@ end
 -- Purpose:         When comparing data this helps determine whose data to accept.
 GRMsync.CollectDataPacketsF = function ( msg , prefix )
 
-    local dataTypes = { ["GRM_JDSYNCF"] = { "JD" , "JDF" , "JDReceivedNoDetailsTemp" } , ["GRM_PDSYNCF"] = { "PD" , "PDF" , "PDReceivedNoDetailsTemp" } , ["GRM_ALTSYNCF"] = { "ALT" , "ALTF" , "AltReceivedNoDetailsTemp" } , ["GRM_CUSTSYNCF"] = { "CUSTOMNOTE" , "CUSTF" , "CustReceivedNoDetailsTemp" } ,  ["GRM_BANSYNCF"] = { "BAN" , "BANF" , "BanReceivedNoDetailsTemp" } , ["GRM_BDAYSYNCF"] = { "BDAYS" , "BDAYF" , "BdayReceivedNoDetailsTemp" }  };
+    local dataTypes = { ["GRM_JDSYNCF"] = { "JD" , "JDF" , "JDReceivedNoDetailsTemp" },
+                        ["GRM_PDSYNCF"] = { "PD" , "PDF" , "PDReceivedNoDetailsTemp" },
+                        ["GRM_ALTSYNCF"] = { "ALT" , "ALTF" , "AltReceivedNoDetailsTemp" },
+                        ["GRM_CUSTSYNCF"] = { "CUSTOMNOTE" , "CUSTF" , "CustReceivedNoDetailsTemp" },
+                        ["GRM_BANSYNCF"] = { "BAN" , "BANF" , "BanReceivedNoDetailsTemp" },
+                        ["GRM_BDAYSYNCF"] = { "BDAYS" , "BDAYF" , "BdayReceivedNoDetailsTemp" },
+                        ["GRM_NNSYNCF"] = { "NN" , "NNF" , "NNReceivedNoDetailsTemp" } };
 
     if dataTypes[prefix] then
         local selection = dataTypes[prefix];
@@ -6975,6 +7383,44 @@ GRMsync.CollectBirthdayData = function ( msg )
     end
 end
 
+-- Method:          GRMsync.CollectNicknameData(string)
+-- What it Does:    Collects the Nickname data for sync
+GRMsync.CollectNicknameData = function (msg)
+    local name = ""
+    local nickname = ""
+    local shareNickAmongAlts = true
+    local whoEdited = ""
+    local standardDate = ""
+    local timestamp = 0
+    local values = {}
+    local isRemove = false
+    local shareSettingChanged = false
+
+    -- if not GRMsyncGlobals.SyncTracker.NN then
+    -- GRMsyncGlobals.ProgressControl ( "NN" );
+    -- end
+
+    -- Add the message index received
+    local indReceived = ""
+    msg , indReceived = msg:match ( "(.+)%?(%d+)$" )   -- Parse out the msg num
+    table.insert ( GRMsyncGlobals.messageIndexesReceived.NN , tonumber ( indReceived ) )
+
+    values = GRMsync.ParseAllSeparatedItems( msg )
+    for i = 1 , #values , 6 do
+        name = values[i]
+        nickname = values[i+1]
+        shareNickAmongAlts = GRMsync.DecodeBit ( values[i+2] )
+        whoEdited = values[i+3]
+        standardDate = values[i+4]
+        timestamp = tonumber(values[i+5])
+        isRemove = false
+        if timestamp > 0 and nickname == "X" then
+            isRemove = true
+        end
+        table.insert ( GRMsyncGlobals.NicknameReceivedTemp, { name , nickname, shareNickAmongAlts, whoEdited, standardDate, timestamp, isRemove, shareSettingChanged } )
+    end
+end
+
 -- Method:          GRMsync.CheckingJDChanges()
 -- What it Does:    After receiving ALL of the Join Date info, it parses through and checks for new updates/changes
 -- Purpose:         For syncing the data properly to people if update is needed!
@@ -6985,7 +7431,7 @@ GRMsync.CheckingJDChanges = function ()
     -- Add the player's data to the banChanges
     for j = #GRMsyncGlobals.JDReceivedTemp , 1 , -1  do
         for i = 1 , #players do
-            if players[i][1] == GRMsyncGlobals.JDReceivedTemp[j][1] and players[i][2] >= GRMsyncGlobals.JDReceivedTemp[j][2] then -- Ban Match
+            if players[i][1] == GRMsyncGlobals.JDReceivedTemp[j][1] and players[i][2] >= GRMsyncGlobals.JDReceivedTemp[j][2] then
                 table.insert ( GRMsyncGlobals.JDChanges , { players[i][1] , players[i][2] , players[i][3] , true } );  -- Final position bool - if my data -- { name , timestamp , standardTime }
                 table.remove ( GRMsyncGlobals.JDReceivedTemp , j );
                 namesAdded[players[i][1]] = {};
@@ -7017,7 +7463,7 @@ GRMsync.CheckingPDChanges = function ()
     -- Add the player's data to the banChanges
     for j = #GRMsyncGlobals.PDReceivedTemp , 1 , -1  do
         for i = 1 , #players do
-            if players[i][1] == GRMsyncGlobals.PDReceivedTemp[j][1] and players[i][2] >= GRMsyncGlobals.PDReceivedTemp[j][2] then -- Ban Match
+            if players[i][1] == GRMsyncGlobals.PDReceivedTemp[j][1] and players[i][2] >= GRMsyncGlobals.PDReceivedTemp[j][2] then
                 table.insert ( GRMsyncGlobals.PDChanges , { players[i][1] , players[i][2] , players[i][3] , true } );  -- Final position bool - if my data
                 table.remove ( GRMsyncGlobals.PDReceivedTemp , j );
                 namesAdded[players[i][1]] = {};
@@ -7222,7 +7668,7 @@ GRMsync.CheckingCustomNoteChanges = function ()
     -- Add the player's data to the banChanges
     for j = #GRMsyncGlobals.CustomNoteReceivedTemp , 1 , -1  do
         for i = 1 , #players do
-            if players[i][1] == GRMsyncGlobals.CustomNoteReceivedTemp[j][1] and players[i][2] >= GRMsyncGlobals.CustomNoteReceivedTemp[j][2] then -- Ban Match
+            if players[i][1] == GRMsyncGlobals.CustomNoteReceivedTemp[j][1] and players[i][2] >= GRMsyncGlobals.CustomNoteReceivedTemp[j][2] then
                 table.insert ( GRMsyncGlobals.CustomNoteChanges , { players[i][1] , players[i][2] , players[i][3] , players[i][4] , true } );  -- playerName , timeStampOfChange , whoEdited , customNote
                 table.remove ( GRMsyncGlobals.CustomNoteReceivedTemp , j );
                 namesAdded[players[i][1]] = {};
@@ -7319,6 +7765,29 @@ GRMsync.BuildValidatedPromoteDatesForSync = function()
             for j = 1 , #data do
                 if dataIndexes[i] == data[j][1] then
                     table.insert ( finalList , { data[j][1] , data[j][2] , data[j][3] } );   -- { name , standardTimestamp , Epoch}
+                    namesAlreadyProcessed[data[j][1]] = {};
+                    break;
+                end
+            end
+
+        end
+    end
+
+    return finalList;
+end
+
+GRMsync.BuildValidatedNicknamesForSync = function()
+    sort ( GRMsyncGlobals.NNReceivedNoDetailsTemp );    -- Will be more efficient to order it
+    local dataIndexes = GRMsyncGlobals.NNReceivedNoDetailsTemp;
+    local namesAlreadyProcessed = {};
+    local data = GRMsync.GetListOfPlayersWIthNicknameModifications ( GRMsyncGlobals.guildData , true );
+    local finalList = {};
+
+    for i = 1 , #dataIndexes do         -- Scan through the ALTF data
+        if not namesAlreadyProcessed[dataIndexes[i]] then
+            for j = 1 , #data do
+                if dataIndexes[i] == data[j][1] then           -- { name , nickname, shareNickAmongAlts, whoEdited, standardDate, timestamp, isRemove, shareSettingChanged }
+                    table.insert ( finalList , { data[j][1], data[j][2], data[j][3], data[j][4], data[j][5], data[j][6], data[j][7], data[j][8] } );
                     namesAlreadyProcessed[data[j][1]] = {};
                     break;
                 end
@@ -7594,7 +8063,11 @@ end
 -- What it Does:    Collects the request for missing messages
 -- Prupose:         Sync integrity.
 GRMsync.CollectMissingMsgRequest = function( msg , prefix )
-    local group = { ["GRM_REQMISJDF"] = "JDF" , ["GRM_REQMISJD"] = "JD" , ["GRM_REQMISPDF"] = "PDF" , ["GRM_REQMISPD"] = "PD" , ["GRM_REQMISALTF"] = "ALTF" , ["GRM_REQMISALT"] = "ALT" , ["GRM_REQMISCUSTF"] = "CUSTF" , ["GRM_REQMISCUST"] = "CUST" , ["GRM_REQMISBANF"] = "BANF" , ["GRM_REQMISBAN"] = "BAN" , ["GRM_REQMISBDAYF"] = "BDAYF" , ["GRM_REQMISBDAY"] = "BDAY" , ["GRM_REQJDFIN"] = "JDFINAL" , ["GRM_REQPDFIN"] = "PDFINAL" , ["GRM_REQALTFIN"] = "ALTFINAL" , ["GRM_REQCUSTFIN"] = "CUSTFINAL" , ["GRM_REQBANFIN"] = "BANFINAL" , ["GRM_REQBDAYFIN"] = "BDAYFINAL" };
+    local group = { ["GRM_REQMISJDF"] = "JDF" , ["GRM_REQMISJD"] = "JD" , ["GRM_REQMISPDF"] = "PDF" , ["GRM_REQMISPD"] = "PD" , ["GRM_REQMISALTF"] = "ALTF" ,
+                    ["GRM_REQMISALT"] = "ALT" , ["GRM_REQMISCUSTF"] = "CUSTF" , ["GRM_REQMISCUST"] = "CUST" , ["GRM_REQMISBANF"] = "BANF" , ["GRM_REQMISBAN"] = "BAN" ,
+                    ["GRM_REQMISNNF"] = "NNF" , ["GRM_REQMISNN"] = "NN" ,["GRM_REQMISBDAYF"] = "BDAYF" , ["GRM_REQMISBDAY"] = "BDAY" , ["GRM_REQJDFIN"] = "JDFINAL" ,
+                    ["GRM_REQPDFIN"] = "PDFINAL" , ["GRM_REQALTFIN"] = "ALTFINAL" , ["GRM_REQCUSTFIN"] = "CUSTFINAL" , ["GRM_REQBANFIN"] = "BANFINAL" ,
+                    ["GRM_REQNNFIN"] = "NNFINAL" , ["GRM_REQBDAYFIN"] = "BDAYFINAL" };
 
     if #GRMsyncGlobals.MissingRequest[group[prefix]] == 0 then
         GRMsyncGlobals.MissingRequest[group[prefix]] = GRMsync.ConvertIntStringToArray ( msg );
@@ -7615,13 +8088,13 @@ GRMsync.SendRequestsForMissingMessages = function( missingMessages , index1 , fi
     local prefixes = {};
 
     if finalData then
-        prefixes = { "GRM_REQJDFIN" , "GRM_REQPDFIN" , "GRM_REQALTFIN" , "GRM_REQCUSTFIN" , "GRM_REQBANFIN" };
+        prefixes = { "GRM_REQJDFIN" , "GRM_REQPDFIN" , "GRM_REQALTFIN" , "GRM_REQCUSTFIN" , "GRM_REQBANFIN" , "GRM_REQNNFIN" };
     elseif BDayPreCheck then
         prefixes = { "GRM_REQMISBDAYF" , "GRM_REQMISBDAY" };
     elseif finalBday then
         prefixes = { "GRM_REQBDAYFIN" };
     else
-        prefixes = { "GRM_REQMISJDF" , "GRM_REQMISJD" , "GRM_REQMISPDF" , "GRM_REQMISPD" , "GRM_REQMISALTF" , "GRM_REQMISALT" , "GRM_REQMISCUSTF" , "GRM_REQMISCUST" , "GRM_REQMISBANF" , "GRM_REQMISBAN" };
+        prefixes = { "GRM_REQMISJDF" , "GRM_REQMISJD" , "GRM_REQMISPDF" , "GRM_REQMISPD" , "GRM_REQMISALTF" , "GRM_REQMISALT" , "GRM_REQMISCUSTF" , "GRM_REQMISCUST" , "GRM_REQMISBANF" , "GRM_REQMISBAN", "GRM_REQMISNNF" , "GRM_REQMISNN" };
     end
 
     local msg = "";
@@ -7692,9 +8165,9 @@ end
 -- Purpose:         Sync integrity
 GRMsync.SendMissingMessages = function( sendFinal , sendBdayPreCheck , sendBdayFinal , index1 , index2 )
     GRMsyncGlobals.TimeSinceLastSyncAction = time();
-    local group = { "JDF" , "JD" , "PDF" , "PD" , "ALTF" , "ALT" , "CUSTF" , "CUST" , "BANF" , "BAN" };
+    local group = { "JDF" , "JD" , "PDF" , "PD" , "ALTF" , "ALT" , "CUSTF" , "CUST" , "BANF" , "BAN", "NNF", "NN" };
     if sendFinal then
-        group = { "JDFINAL" , "PDFINAL" , "ALTFINAL" , "CUSTFINAL" , "BANFINAL" };
+        group = { "JDFINAL" , "PDFINAL" , "ALTFINAL" , "CUSTFINAL" , "BANFINAL", "NNFINAL" };
     elseif sendBdayPreCheck then
         group = { "BDAYF" , "BDAY" };
     elseif sendBdayFinal then
@@ -7766,7 +8239,10 @@ end
 GRMsync.ValidateReSentMessages = function()
     GRMsync.SortReceivedMessageIndexes();
 
-    local count = select ( 2 , GRMsync.AnyMessagesMissing ( GRMsyncGlobals.preCheckResult[1] , GRMsyncGlobals.preCheckResult[2] , GRMsyncGlobals.preCheckResult[3] , GRMsyncGlobals.preCheckResult[4] , GRMsyncGlobals.preCheckResult[5] , GRMsyncGlobals.preCheckResult[6] , GRMsyncGlobals.preCheckResult[7] , GRMsyncGlobals.preCheckResult[8] , GRMsyncGlobals.preCheckResult[9] , GRMsyncGlobals.preCheckResult[10] ) );
+    local count = select ( 2 , GRMsync.AnyMessagesMissing(GRMsyncGlobals.preCheckResult[1], GRMsyncGlobals.preCheckResult[2], GRMsyncGlobals.preCheckResult[3],
+                               GRMsyncGlobals.preCheckResult[4], GRMsyncGlobals.preCheckResult[5], GRMsyncGlobals.preCheckResult[6], GRMsyncGlobals.preCheckResult[7],
+                               GRMsyncGlobals.preCheckResult[8], GRMsyncGlobals.preCheckResult[9], GRMsyncGlobals.preCheckResult[10], GRMsyncGlobals.preCheckResult[11],
+                               GRMsyncGlobals.preCheckResult[12] ));
 
     if count > 0 then
         if GRM_G.DebugEnabled then
@@ -7781,8 +8257,8 @@ end
 -- What it Does:    Validates the messages requested have been received
 -- Purpose:         Data integrity.
 GRMsync.ValidateReSentMessagesFinal = function()
-    local count = select ( 2 , GRMsync.AnyMessagesMissingFinal ( GRMsyncGlobals.FinalMsgCommCount[1] , GRMsyncGlobals.FinalMsgCommCount[2] , GRMsyncGlobals.FinalMsgCommCount[3] , GRMsyncGlobals.FinalMsgCommCount[4] , GRMsyncGlobals.FinalMsgCommCount[5] ) );
-        -- JD, PD, ALT, BAN
+    local count = select ( 2 , GRMsync.AnyMessagesMissingFinal ( GRMsyncGlobals.FinalMsgCommCount[1] , GRMsyncGlobals.FinalMsgCommCount[2] , GRMsyncGlobals.FinalMsgCommCount[3] , GRMsyncGlobals.FinalMsgCommCount[4] , GRMsyncGlobals.FinalMsgCommCount[5], GRMsyncGlobals.FinalMsgCommCount[6] ) );
+        -- JD, PD, ALT, CUSTNOTE, BAN, NICK
     if count > 0 then
         if GRM_G.DebugEnabled then
             GRM.Debug.PrintDebugMessage ( "Messages for Sync still missing after re-send - ValidateReSentMessagesFinal - Count: " .. count );
@@ -7823,8 +8299,8 @@ end
 -- What it Does:    Integrity check on received messages and determines if any are lost to request them again
 -- Purpose:         Sync integrity. Critical to know if missing alt groups.
 GRMsync.MessageDeliveryCheck = function ( msg )
-    GRM_G.MatchPattern10 = GRM_G.MatchPattern10 or GRM.BuildComPattern ( 10 , "?" , false );
-    local numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern10 );
+    GRM_G.MatchPattern12 = GRM_G.MatchPattern12 or GRM.BuildComPattern ( 12 , "?" , false );
+    local numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN, numNNF, numNN = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern12 );
 
     numJDF = tonumber ( numJDF );
     numJD = tonumber ( numJD );
@@ -7836,9 +8312,11 @@ GRMsync.MessageDeliveryCheck = function ( msg )
     numCUST = tonumber ( numCUST );
     numBANF = tonumber ( numBANF );
     numBAN = tonumber ( numBAN );
-    GRMsyncGlobals.preCheckResult = { numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN };
+    numNNF = tonumber ( numNNF );
+    numNN = tonumber ( numNN );
+    GRMsyncGlobals.preCheckResult = { numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN, numNNF , numNN };
 
-    local missingMessages , count = GRMsync.AnyMessagesMissing ( numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN );
+    local missingMessages , count = GRMsync.AnyMessagesMissing ( numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN , numNNF , numNN );
 
     if count > 0 then
         GRMsync.SendRequestsForMissingMessages ( missingMessages );
@@ -7852,18 +8330,19 @@ end
 -- What it Does:    Integrity check on received messages and determines if any are lost to request them again
 -- Purpose:         Sync integrity. Critical to know if missing alt groups.
 GRMsync.MessageDeliveryCheckFINAL = function ( msg )
-    GRM_G.MatchPattern5 = GRM_G.MatchPattern5 or GRM.BuildComPattern ( 5 , "?" , false );
-    local jdFinal , pdFinal , altFinal , custFinal , banFinal = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern5 );
+    GRM_G.MatchPattern6 = GRM_G.MatchPattern6 or GRM.BuildComPattern ( 6 , "?" , false );
+    local jdFinal , pdFinal , altFinal , custFinal , banFinal , nickFinal = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern6 );
 
     jdFinal = tonumber ( jdFinal );
     pdFinal = tonumber ( pdFinal );
     altFinal = tonumber ( altFinal );
     custFinal = tonumber ( custFinal );
     banFinal = tonumber ( banFinal );
+    nickFinal = tonumber ( nickFinal );
 
-    GRMsyncGlobals.FinalMsgCommCount = { jdFinal , pdFinal , altFinal , custFinal , banFinal };
+    GRMsyncGlobals.FinalMsgCommCount = { jdFinal , pdFinal , altFinal , custFinal , banFinal, nickFinal };
 
-    local missingMessages , count = GRMsync.AnyMessagesMissingFinal ( jdFinal , pdFinal , altFinal , custFinal , banFinal );
+    local missingMessages , count = GRMsync.AnyMessagesMissingFinal ( jdFinal , pdFinal , altFinal , custFinal , banFinal, nickFinal );
 
     if count > 0 then
         GRMsync.SendRequestsForMissingMessages ( missingMessages , nil , true );
@@ -7956,11 +8435,11 @@ GRMsync.DetermineMissingMessages = function ( numSent , received )
     return missing , count;
 end
 
--- Method:          GRMsync.AnyMessagesMissing ( int , int , int , int , int , int )
+-- Method:          GRMsync.AnyMessagesMissing ( int , int , int , int , int , int ... )
 -- What it Does:    Builds the table of all the missing message
 -- Purpose:         Sync integrity. Any lost messages can be sync'd
-GRMsync.AnyMessagesMissing = function( numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN )
-    local missingMessages = { {} , {} , {} , {} , {} , {} , {} , {} , {} , {} }; -- Each nested table will include the array numbers of missed messages.
+GRMsync.AnyMessagesMissing = function( numJDF , numJD , numPDF , numPD , numALTF , numALT , numCUSTF , numCUST , numBANF , numBAN, numNNF, numNN )
+    local missingMessages = { {} , {} , {} , {} , {} , {} , {} , {} , {} , {}, {}, {} }; -- Each nested table will include the array numbers of missed messages.
     local count = 0;
     local total = 0;
 
@@ -8025,14 +8504,26 @@ GRMsync.AnyMessagesMissing = function( numJDF , numJD , numPDF , numPD , numALTF
         total = total + count;
     end
 
+    if #GRMsyncGlobals.messageIndexesReceived.NNF ~= numNNF then
+        sort ( GRMsyncGlobals.messageIndexesReceived.NNF );
+        missingMessages[11] , count = GRMsync.DetermineMissingMessages ( numNNF , GRMsyncGlobals.messageIndexesReceived.NNF );
+        total = total + count;
+    end
+
+    if #GRMsyncGlobals.messageIndexesReceived.NN ~= numNN then
+        sort ( GRMsyncGlobals.messageIndexesReceived.NN );
+        missingMessages[12] , count = GRMsync.DetermineMissingMessages ( numNN , GRMsyncGlobals.messageIndexesReceived.NN );
+        total = total + count;
+    end
+
     return missingMessages , total;
 end
 
 -- Method:          GRMsync.AnyMessagesMissingFinal ( int , int , int , int )
 -- What it Does:    Builds the table of all the missing message
 -- Purpose:         Sync integrity. Any lost messages can be sync'd
-GRMsync.AnyMessagesMissingFinal = function( jdFinal , pdFinal , altFinal , custFinal , banFinal )
-    local missingMessages = { {} , {} , {} , {} , {} }; -- Each nested table will include the array numbers of missed messages.
+GRMsync.AnyMessagesMissingFinal = function( jdFinal , pdFinal , altFinal , custFinal , banFinal, nicknameFinal )
+    local missingMessages = { {} , {} , {} , {} , {}, {} }; -- Each nested table will include the array numbers of missed messages.
     local count = 0;
     local total = 0;
 
@@ -8063,6 +8554,12 @@ GRMsync.AnyMessagesMissingFinal = function( jdFinal , pdFinal , altFinal , custF
     if #GRMsyncGlobals.messageIndexesReceived.BANFINAL ~= banFinal then
         sort ( GRMsyncGlobals.messageIndexesReceived.BANFINAL );
         missingMessages[5] , count = GRMsync.DetermineMissingMessages ( banFinal , GRMsyncGlobals.messageIndexesReceived.BANFINAL );
+        total = total + count;
+    end
+
+    if #GRMsyncGlobals.messageIndexesReceived.NNFINAL ~= nicknameFinal then
+        sort ( GRMsyncGlobals.messageIndexesReceived.NNFINAL );
+        missingMessages[6] , count = GRMsync.DetermineMissingMessages ( nicknameFinal , GRMsyncGlobals.messageIndexesReceived.NNFINAL );
         total = total + count;
     end
 
@@ -8127,6 +8624,9 @@ GRMsync.PreCheckChanges = function ()
     if GRMsyncGlobals.SyncPath[6] then
         GRMsync.CheckChanges ( "BAN" );
     end
+    if GRMsyncGlobals.SyncPath[7] then
+        GRMsync.CheckChanges ( "NN" );
+    end
 
     GRMsync.SubmitFinalJoinDateData();      -- First step of final submission
 end
@@ -8158,6 +8658,12 @@ GRMsync.CheckChanges = function ( msg )
     -----------------------------
     elseif msg == "BAN" then
         GRMsync.CheckingBANChanges();
+
+    -----------------------------
+    --- FOR Nickname CHECK ------
+    -----------------------------
+    elseif msg == "NN" then
+        GRMsync.CheckingNicknameChanges();
 
     -----------------------------
     -- For BIRTHDAY checking!
@@ -8355,11 +8861,11 @@ comms.commsLive = {             ["GRM_JD"] = true , ["GRM_PD"] = true , ["GRM_AD
 comms.commsLiveDispatch = {     ["GRM_CNOTE1"] = true, ["GRM_CNOTE2"] = true, ["GRM_CNOTE3"] = true } -- For dispatch, though it appears redundant
 
 -- Pre-check to analyze differences, consolidate data check
-comms.commsPreCheckGrp1 = {     ["GRM_PREHASHALL"] = true , ["GRM_PREALLRESULT"] = true , ["GRM_PREALLRESULT2"] = true , ["GRM_RECJDPRE"] = true ,
+comms.commsPreCheckGrpPENDING = {["GRM_PREHASHALL"] = true , ["GRM_PREALLRESULT"] = true , ["GRM_PREALLRESULT2"] = true , ["GRM_RECJDPRE"] = true ,
                                 ["GRM_RECPDPRE"] = true , ["GRM_RECALTPRE"] = true , ["GRM_RECCUSTPRE"] = true , ["GRM_FINALPRE"] = true ,
                                 ["GRM_FINALPRE2"] = true , ["GRM_RECBDAYPRE"] = true , ["GRM_RECBANPRE"] = true , ["GRM_RECNNPRE"] = true }
 
-comms.commsPreCheckGrp2 = {     ["GRM_RECJDPRE"] = true , ["GRM_RECPDPRE"] = true , ["GRM_RECALTPRE"] = true , ["GRM_RECCUSTPRE"] = true ,
+comms.commsPreCheckGrp = {     ["GRM_RECJDPRE"] = true , ["GRM_RECPDPRE"] = true , ["GRM_RECALTPRE"] = true , ["GRM_RECCUSTPRE"] = true ,
                                 ["GRM_RECBDAYPRE"] = true , ["GRM_RECBANPRE"] = true , ["GRM_RECNNPRE"] = true }
 
 -- Collecting Data
@@ -8388,7 +8894,7 @@ comms.commsMissing = {          ["GRM_REQMISJDF"] = true , ["GRM_REQMISJD"] = tr
                                 ["GRM_REQMISALTF"] = true , ["GRM_REQMISBDAY"] = true , ["GRM_REQMISCUSTF"] = true , ["GRM_REQMISCUST"] = true ,
                                 ["GRM_REQMISBANF"] = true , ["GRM_REQMISBAN"] = true , ["GRM_REQMISBDAYF"] = true , ["GRM_REQJDFIN"] = true ,
                                 ["GRM_REQPDFIN"] = true , ["GRM_REQALTFIN"] = true , ["GRM_REQCUSTFIN"] = true , ["GRM_REQBANFIN"] = true ,
-                                ["GRM_REQBDAYFIN"] = true , ["GRM_REQ_NNF"] = true , ["GRM_REQNNFIN"] = true };
+                                ["GRM_REQBDAYFIN"] = true , ["GRM_REQNNFIN"] = true };
 
 comms.macroSync = {             ["GRM_MACRO_T"] = true , ["GRM_Macro_SK"] = true , ["GRM_Macro_SP"] = true , ["GRM_Macro_SD"] = true ,
                                 ["GRM_Macro_RK"] = true , ["GRM_Macro_RP"] = true , ["GRM_Macro_RD"] = true , ["GRM_Macro_LK"] = true ,
@@ -8437,7 +8943,7 @@ local SyncDispatch = {
     ["GRM_BANSYNCF"]      = function(msg, _, prefix2) GRMsync.CollectDataPacketsF(msg, prefix2) end,
 
     -- NICKNAMES
-    ["GRM_NN"]            = function(msg, sender, prefix2) GRMsync.NickNameSync(msg, sender, prefix2) end,
+    ["GRM_NN"]            = function(msg, sender, prefix2) GRMsync.CheckNicknameChange(msg, sender, prefix2) end,
 
     -- STOPS & DELIVERY CHECKS
     ["GRM_STOP"]          = function(msg, sender) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.MessageDeliveryCheck(msg) end end,
@@ -8455,6 +8961,7 @@ local SyncDispatch = {
     ["GRM_JDSYNC"]        = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectData(msg, prefix2) end end,
     ["GRM_PDSYNC"]        = function(msg, sender, prefix2) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectData(msg, prefix2) end end,
     ["GRM_BDSYNC"]        = function(msg, sender) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectBirthdayData(msg) end end,
+    ["GRM_NNSYNC"]        = function(msg, sender) if sender == GRMsyncGlobals.CurrentSyncPlayer then GRMsync.CollectNicknameData(msg) end end,
 
     -- DATA CHANGE RESULTS
     ["GRM_JDSYNCUP"]      = function(msg, sender, prefix2) GRMsync.CheckJoinDateChange(msg, nil, prefix2); GRM.AuditRefreshTracker() end,
@@ -8464,7 +8971,7 @@ local SyncDispatch = {
     ["GRM_ALTSYNCUP2"]    = function(msg, sender, prefix2) GRMsync.CheckFinalAltMainAndNotGroupChanges(msg, prefix2, false) end,
     ["GRM_ALTSYNCUP3"]    = function(msg, sender, prefix2) GRMsync.CheckFinalAltFullGroupChanges(msg, prefix2, nil, false) end,
     ["GRM_ALTSYNCUP4"]    = function(msg, sender, prefix2) GRMsync.CheckFinalAltFullGroupChanges(msg, prefix2, nil, false) end,
-    ["GRM_NNSYNCUP"]      = function(msg, sender, prefix2) GRMsync.CheckNickNameChanges(msg, sender, prefix2); end,
+    ["GRM_NNSYNCUP"]      = function(msg, sender, prefix2) GRMsync.CheckNicknameChange(msg, sender, prefix2); end,
 
     -- MISSING & ALT FINAL 
     ["GRM_RMVERR"]        = function(msg) GRMsync.RemoveAltErrorFix(msg) end,
@@ -8489,7 +8996,7 @@ for prefix in pairs(comms.commsLiveDispatch) do
 end
 
 -- PRE-CHECKS
-for prefix in pairs(comms.commsPreCheckGrp2) do 
+for prefix in pairs(comms.commsPreCheckGrp) do 
     SyncDispatch[prefix] = function(msg, _, prefix2) GRMsync.CollectPreCheckData(msg, prefix2) end
 end
 
