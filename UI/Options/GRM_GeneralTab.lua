@@ -16,9 +16,11 @@ end
 local function ToggleMinimap(self)
     GRM.S().minimapEnabled = self:GetChecked()
     if GRM.S().minimapEnabled then
-        GRM.MinimapGRM.Show(); GRM_MinimapPosition.hide = false
+        GRM.MinimapGRM.Show();
+        GRM_MinimapPosition.hide = false
     else
-        GRM.MinimapGRM.Hide(); GRM_MinimapPosition.hide = true
+        GRM.MinimapGRM.Hide();
+        GRM_MinimapPosition.hide = true
     end
 end
 
@@ -31,31 +33,36 @@ local syncTooltip = function(self)
 end
 
 local ToggleSync = function(self)
+    local OptionsFrame = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame
     GRM.S().syncSettings = self:GetChecked()
-    GRM_G.playerOnlySettings = not GRM.S().syncSettings
-    
     if GRM.S().syncSettings then
+        if not GRM_AddonSettings_Save[GRM_G.guildName] then
+            GRM_AddonSettings_Save[GRM_G.guildName] = GRM.Util.DeepCopyArray(GRM_AddonSettings_Save[GRM_G.addonUser])
+        end
+        GRM_G.playerOnlySettings = false
         GRM_AddonSettings_Save[GRM_G.addonUser] = nil
         OptionsFrame.settingsOwner:SetText(GRM.L("{name}'s Settings", GRM.SlimName(GRM_G.guildName)))
     else
+        GRM_G.playerOnlySettings = true
         GRM_AddonSettings_Save[GRM_G.addonUser] = GRM.Util.DeepCopyArray(GRM_AddonSettings_Save[GRM_G.guildName])
         OptionsFrame.settingsOwner:SetText(GRM.L("{name}'s Settings", GRM.SlimName(GRM_G.addonUser)))
     end
+    
     GRM.SetJoinAndRejoinTags()
     GRM_UI.OptionsCore.RefreshOptionsUI()
-    ToggleMinimap(GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton) 
+    ToggleMinimap(OptionsFrame.GRM_GeneralOptionsFrame.GRM_ShowMinimapButton) 
 end
 
 -- Show At Logon
-local ToggleShowOnLogon = function(self)
+local ToggleShowOnLogon = function()
     local f = GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_GeneralOptionsFrame
-    GRM.S().viewOnLoad = self:GetChecked()
+    GRM.S().viewOnLoad = f.GRM_RosterLoadOnLogonCheckButton:GetChecked()
     if GRM.S().viewOnLoad then
         f.GRM_RosterLoadOnLogonChangesCheckButton:Enable()
-        f.GRM_RosterLoadOnLogonChangesCheckButtonText:SetTextColor(1.0, 0.82, 0.0, 1.0)
+        f.GRM_RosterLoadOnLogonChangesCheckButton.GRM_RosterLoadOnLogonChangesCheckButtonText:SetTextColor(1.0, 0.82, 0.0, 1.0)
     else
         f.GRM_RosterLoadOnLogonChangesCheckButton:Disable()
-        f.GRM_RosterLoadOnLogonChangesCheckButtonText:SetTextColor(0.5, 0.5, 0.5, 1)
+        f.GRM_RosterLoadOnLogonChangesCheckButton.GRM_RosterLoadOnLogonChangesCheckButtonText:SetTextColor(0.5, 0.5, 0.5, 1)
     end
 end
 

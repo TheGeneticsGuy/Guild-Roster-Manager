@@ -1,6 +1,6 @@
 GRM_S = {};
 
-GRM_G.SettingsPages = 17;
+GRM_G.SettingsPages = GRM_ENUM.OPTIONS_TABS.TOTAL
 GRM_G.SettingsTabFocus = 0;
 
 -- Method:          GRM_S.SetDefaultAddonSettings( object , int )
@@ -8,24 +8,17 @@ GRM_G.SettingsTabFocus = 0;
 -- Purpose:         Easy access to settings on a default reset.
 GRM_S.SetDefaultAddonSettings = function(setting, page)
 
-    -- Misc needs a tab home
-    setting.nameFormat = 1;      -- 1 = Blizzard naming convention(only include if not server), 2 = Always include server, 3 = Always remove server
-
+    local TABS = GRM_ENUM.OPTIONS_TABS
     if not setting.removedMacroRules then
         setting.removedMacroRules = {};
     end
 
-    -- Page 0 = misc stuff unrelated to specific settings
-    if page == 0 then
+    -- =======================================================
+    if page == TABS.MISC then
+    -- =======================================================
         setting.showMouseoverRetail = true;
         setting.minimapPos = 345;
-
-        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then    -- 10.0 DF increased size of minimap slightly
-            setting.minimapRad = 105;
-        else
-            setting.minimapRad = 80;
-        end
-
+        setting.minimapRad = GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF and 105 or 80;
         setting.customPos = false;
         setting.macroToolCoordinates = {"", "", 0, 0};
         setting.minimapCustomPos = {"", ""};
@@ -37,7 +30,6 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.JDAuditToolFilter = false;
         setting.JDAuditToolIgnoreProtected = false;
 
-        -- GRM Roster
         setting.showMains = true;
         setting.showAlts = true;
         setting.showMainTags = false;
@@ -46,37 +38,21 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.showRosterOptions = true;
         setting.groupByMain = false;
         setting.numRosterRows = 18;
-
-        -- One time messaging
         setting.banInfoReport = false;
-
-        local rosterFrameDefault = 885;
-        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then -- Mythic+ Size Diff
-            rosterFrameDefault = rosterFrameDefault + 90;
-        end
-
-        setting.UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0},
-                            {rosterFrameDefault, 525, 1.0}};
-
         setting.classicUIInformed = false;
-
-        -- Messaging for save data being too much
         setting.LogSizeWarning = { false , false , false , false };
 
-        -- General Options Tab
-    elseif page == 1 then
+        local rosterFrameDefault = GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and 975 or 885;
+        setting.UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0}, {rosterFrameDefault, 525, 1.0}};
+
+    -- =======================================================
+    elseif page == TABS.GENERAL then
+    -- =======================================================
         setting.viewOnLoad = true;
         setting.onlyViewIfChanges = true;
         setting.syncSettings = true;
         setting.minimapEnabled = true;
-
-        -- Minimap button type - 1 is custom default, but 2 is standard
-        if LibStub and LibStub("LibDataBroker-1.1", true ) and LibStub("LibDBIcon-1.0", true) then
-            setting.minimapType = 1;
-        else
-            setting.minimapType = 2;
-        end
-
+        setting.minimapType = (LibStub and LibStub("LibDataBroker-1.1", true) and LibStub("LibDBIcon-1.0", true)) and 1 or 2;
         setting.twentyFourHrScale = GRM.Use24HrBasedOnDefaultLanguage();
         setting.selectedLang = GRM_G.LocalizedIndex;
         setting.selectedFont = 1;
@@ -87,8 +63,9 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.defaultTabSelection = {false, 1};
         setting.syncCompatibilityMsg = false;
 
-        -- Scan Options Tab
-    elseif page == 2 then
+    -- =======================================================
+    elseif page == TABS.SCAN then
+    -- =======================================================
         setting.inactiveHours = 336;
         setting.eventAdvanceDays = 14;
         setting.scanDelay = 30;
@@ -98,14 +75,15 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.scanEnabled = true;
         setting.levelReportMin = 10;
         setting.levelFilters = {true, true, true, true, true, true, true, true, true, true, true};
-        setting.allAltRequirement = false; -- I want it off by default.
+        setting.allAltRequirement = false; 
         setting.recordLevelUp = true;
         setting.AnnounceBdayOnLogin = true;
         setting.bdayAnnounce = true;
         setting.annivAnnounce = true;
 
-        -- Sync Options Tab
-    elseif page == 3 then
+    -- =======================================================
+    elseif page == TABS.SYNC then
+    -- =======================================================
         setting.syncEnabled = true;
         setting.syncRank = GRM.G_Util.GetRankRestrictedDefaultRankIndex();
         setting.syncChatEnabled = true;
@@ -117,169 +95,90 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.autoTriggerSync = true;
         setting.syncDelay = 60;
 
-        -- Officer Options Tab
-    elseif page == 4 then
+    -- =======================================================
+    elseif page == TABS.OFFICER then
+    -- =======================================================
         setting.addTimestampToNote = false;
         setting.allowEventsToCalendar = true;
-        setting.joinDateDestination = 1;
-        if GRM_G.BuildHasRestrictions then
-            setting.joinDateDestination = 3; -- Default to Custom Note
-        end
+        setting.joinDateDestination = GRM_G.BuildHasRestrictions and 3 or 1;
         setting.customTags = {"", ""};
         setting.includeTag = true;
         setting.addNotesToLeft = true;
-        setting.noteSetEnabled = true;
-        if GRM_G.BuildHasRestrictions then
-            setting.noteSetEnabled = false;
-        end
+        setting.noteSetEnabled = not GRM_G.BuildHasRestrictions;
         setting.globalDateFormat = 1;
 
-        -- Backup Options Tab
-    elseif page == 5 then
+    -- =======================================================
+    elseif page == TABS.BACKUP then
+    -- =======================================================
 
-        -- Help Options Tab
-    elseif page == 6 then
+    -- =======================================================
+    elseif page == TABS.HELP then
+    -- =======================================================
 
-        -- UI Options Tab
-    elseif page == 7 then
-
+    -- =======================================================
+    elseif page == TABS.UI then
+    -- =======================================================
         setting.showLevel = true;
         setting.showLevelMaxOnly = false;
         setting.showMythicRating = true;
-        setting.showFaction = true;
-
-        -- No cross-faction guilds prior to Dragonflight expansion
-        if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
-            setting.showFaction = false;
-        end
+        setting.showFaction = GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF;
         setting.useFade = false;
-
-        -- No guild rep pre-Cataclysm expansion.
-        if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
-            setting.viewGuildRep = false;
-        else
-            setting.viewGuildRep = true;
-        end
-
-        setting.showBorders = false; -- Off by default
+        setting.viewGuildRep = GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA;
+        setting.showBorders = false; 
         setting.showBDay = true;
         setting.colorizeNames = true;
         setting.colorizeClassicRosterNames = true;
         setting.hideFramesInCombat = true;
 
-        -- Log Options and Side Window
-    elseif page == 8 then
-        setting.toLog = {};
-        setting.toChat = {};
-
-        local s = "toLog";
-        for i = 1, 2 do
-
-            if i == 2 then
-                s = "toChat";
-            end
-
-            setting[s].joined = true;
-            setting[s].leveled = true;
-            setting[s].inactiveReturn = true;
-            setting[s].promotion = true;
-            setting[s].demotion = true;
-            setting[s].note = true;
-            setting[s].officerNote = true;
-            setting[s].customNote = true;
-            setting[s].nameChange = true;
-            setting[s].rankRename = true;
-            setting[s].eventAnnounce = true;
-            setting[s].left = true;
-            setting[s].recommend = true;
-            setting[s].banned = true;
-
-            if GRM_G.HardcoreActive then
-                if i == 1 then
-                    setting[s].death = true;
-                else
-                    setting[s].death = false;
-                end
-            end
-
-        end
-
+    -- =======================================================
+    elseif page == TABS.LOG then
+    -- =======================================================
+        setting.toLog = { joined=true, leveled=true, inactiveReturn=true, promotion=true, demotion=true, note=true, officerNote=true, customNote=true, nameChange=true, rankRename=true, eventAnnounce=true, left=true, recommend=true, banned=true, death = GRM_G.HardcoreActive }
+        setting.toChat = { joined=true, leveled=true, inactiveReturn=true, promotion=true, demotion=true, note=true, officerNote=true, customNote=true, nameChange=true, rankRename=true, eventAnnounce=true, left=true, recommend=true, banned=true, death = false }
+        
         setting.showLineNumbers = true;
         setting.shiftClickRemove = true;
         setting.autoFocusSearch = false;
         setting.showTooltip = true;
         setting.logFontSize = 0;
-        setting.logColor = { -- 15 total
-        {0.5, 1.0, 0.0}, -- Joined
-        {0.0, 0.44, 0.87}, -- Leveled
-        {0.0, 1.0, 0.87}, -- Inactive Return
-        {1.0, 0.914, 0.0}, -- Promotions
-        {0.91, 0.388, 0.047}, -- Demotions
-        {1.0, 0.6, 1.0}, -- Note
-        {1.0, 0.094, 0.93}, -- Officer Note
-        {0.24, 0.69, 0.49}, -- Custom Note
-        {0.90, 0.82, 0.62}, -- Name Change
-        {1, 1, 1}, -- Rank Rename
-        {0.0, 0.8, 1.0}, -- Event Announce
-        {0.5, 0.5, 0.5}, -- Left Guild
-        {0.65, 0.19, 1.0}, -- Recommendations
-        {1.0, 0.0, 0.0}, -- Banned Coloring
-        {0.76, 0.0, 0.0} -- Death
+        setting.logColor = { 
+            {0.5, 1.0, 0.0}, {0.0, 0.44, 0.87}, {0.0, 1.0, 0.87}, {1.0, 0.914, 0.0}, {0.91, 0.388, 0.047}, 
+            {1.0, 0.6, 1.0}, {1.0, 0.094, 0.93}, {0.24, 0.69, 0.49}, {0.90, 0.82, 0.62}, {1, 1, 1}, 
+            {0.0, 0.8, 1.0}, {0.5, 0.5, 0.5}, {0.65, 0.19, 1.0}, {1.0, 0.0, 0.0}, {0.76, 0.0, 0.0} 
         };
 
-        -- Export Options
-    elseif page == 9 then
+    -- =======================================================
+    elseif page == TABS.EXPORT then
+    -- =======================================================
         setting.exportDelimiter = {true, ";"};
         setting.specialCharRemoval = false;
         setting.columnHeaders = false;
-        setting.ExportLevelRange = {1, 999}; -- 999 represents MaxLevel
-        setting.exportFilters = {};
-        setting.exportFilters.name = true;
-        setting.exportFilters.rank = true;
-        setting.exportFilters.level = true;
-        setting.exportFilters.class = true;
-        setting.exportFilters.race = true;
-        setting.exportFilters.sex = true;
-        setting.exportFilters.lastOnline = true;
-        setting.exportFilters.mainAlt = true;
-        setting.exportFilters.alts = true;
-        setting.exportFilters.joinDate = true;
-        setting.exportFilters.promoteDate = true;
-        setting.exportFilters.rankHist = true;
-        setting.exportFilters.bday = true;
-        setting.exportFilters.rep = true;
-        setting.exportFilters.note = true;
-        setting.exportFilters.oNote = true;
-        setting.exportFilters.cNote = true;
-        setting.exportFilters.mythicScore = true;
-        setting.exportFilters.faction = true;
-        setting.exportFilters.Realm = true;
-        setting.exportFilters.GUID = false;
-        setting.exportFilters.MainOrAlt = false;
-        setting.exportFilters.mainOnly = true;
-
+        setting.ExportLevelRange = {1, 999}; 
+        setting.exportFilters = { name=true, rank=true, level=true, class=true, race=true, sex=true, lastOnline=true, mainAlt=true, alts=true, joinDate=true, promoteDate=true, rankHist=true, bday=true, rep=true, note=true, oNote=true, cNote=true, mythicScore=true, faction=true, Realm=true, GUID=false, MainOrAlt=false, mainOnly=true };
+        
         if GRM_G.HardcoreActive then
-            setting.exportHardcoreSort = 1;
+            setting.exportHardcoreSort = 1
         end
-
         if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
-            setting.exportFilters.rep = false;
+            setting.exportFilters.rep = false
         end
-
         if GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
-            setting.exportFilters.mythicScore = false; 
+            setting.exportFilters.mythicScore = false
         end
 
-        -- Macro Tool Kick Options
-    elseif page == 10 then
+
+    -- =======================================================
+    elseif page == TABS.KICK then
+    -- =======================================================
         setting.kickRules = {};
         setting.macroSyncKickEnabled = true;
         setting.ignoreFilter = false;
         setting.removedMacroRules.kickRules = {};
         setting.macroHotKey = "CTRL-SHIFT-K";
 
-        -- Macro Tool Promote Options
-    elseif page == 11 then
+    -- =======================================================
+    elseif page == TABS.PROMOTE then
+    -- =======================================================
         setting.promoteRules = {};
         setting.macroSyncPromoteEnabled = true;
         setting.ignoreFilter = false;
@@ -287,8 +186,9 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.promoteOnlineOnly = false;
         setting.macroHotKey = "CTRL-SHIFT-K";
 
-        -- Macro Tool Demote Options
-    elseif page == 12 then
+    -- =======================================================
+    elseif page == TABS.DEMOTE then
+    -- =======================================================
         setting.demoteRules = {};
         setting.macroSyncDemoteEnabled = true;
         setting.ignoreFilter = false;
@@ -296,51 +196,41 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.demoteOnlineOnly = false;
         setting.macroHotKey = "CTRL-SHIFT-K";
 
-        -- Audit
-    elseif page == 13 then
+    -- =======================================================
+    elseif page == TABS.AUDIT then
+    -- =======================================================
         setting.onlyShowIncomplete = false;
         setting.unknownIsComplete = true;
         setting.includeBirthdaysInAudit = false;
 
-        -- Macro Tool Special Options
-    elseif page == 14 then
+    -- =======================================================
+    elseif page == TABS.SPECIAL then
+    -- =======================================================
         setting.specialRules = {};
         setting.macroSyncSpecialEnabled = true;
         setting.ignoreFilter = false;
         setting.removedMacroRules.specialRules = {};
         setting.macroHotKey = "CTRL-SHIFT-K";
 
-        -- Modules
-    elseif page == 15 then
+    -- =======================================================
+    elseif page == TABS.MODULES then
+    -- =======================================================
+        setting.GIModule = { enabled=true, DisableGroupInfoTooltip=false };
 
-        -- GroupInfoModule
-        setting.GIModule = {};
-        setting.GIModule.enabled = true;
-        setting.GIModule.DisableGroupInfoTooltip = false;
-
-        -- Classic Tab
-    elseif page == 16 then
-        -- HARDCORE MODE
+    -- =======================================================
+    elseif page == TABS.CLASSIC then
+    -- =======================================================
         setting.includeDeathTime = true;
         setting.addDeathTag = true
         setting.ignoreDeathChannel = false;
-
-        -- Classic In General
         setting.ProfReportUpdatesToChat = false;
         setting.ProfRankAutoUpdate = false;
-        setting.ProfNoteDestination = 1;
-        setting.ProfFullyDisabled = false;
-        if GRM_G.BuildHasRestrictions then
-            setting.ProfNoteDestination = 3;
-        end
-        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
-            setting.ProfFullyDisabled = true;
-        end
+        setting.ProfNoteDestination = GRM_G.BuildHasRestrictions and 3 or 1;
+        setting.ProfFullyDisabled = GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF;
 
-        -- Names Tab
-    elseif page == 17 then
-        setting.useMainTag = true; -- Can we remove
-
+    -- =======================================================
+    elseif page == TABS.NAMES then
+    -- =======================================================
         setting.mainTagIndex = 1
         setting.altTagIndex = 1
         setting.nickTagIndex = 1
@@ -349,11 +239,10 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.nicknameFormatMain = 1
         setting.nicknameFormatAlt = 1
         setting.nnFormatUnassigned = 1
-        setting.mainTagColor = { r = 1.0, g = 0.0, b = 0.0 }  -- RESET TO DEFAULT
+        setting.mainTagColor = { r = 1.0, g = 0.0, b = 0.0 }
         setting.nicknameTagColor = { r = 0.0, g = 0.8, b = 1.0 }
 
     end
-
 end
 
 -- Method:          GRM_S.IsSettingsConfigured()
@@ -706,81 +595,84 @@ end
 -- What it Does:    Resets the OPTIONS to the default one for only the currently logged in player
 -- Purpose:         Easy, quality of life for user in the options, for simple reset.
 GRM_S.ResetDefaultSettings = function(pageIndex)
+    -- If a specific page isn't passed, use the actively focused tab!
     local page = pageIndex or GRM_S.GetPageIndex();
-    local needsRefresh = false;
-    local resetAll = false;
+    local resetAll = IsShiftKeyDown() and IsControlKeyDown()
+    local settings = GRM.S()
 
-    if IsShiftKeyDown() and IsControlKeyDown() then
-        needsRefresh = true;
-        resetAll = true;
-
-        -- resetting ALL player data.
-        local settings = GRM.S();
+    if resetAll then
+        -- Resetting ALL player data
         for i = 0, GRM_G.SettingsPages do
-            GRM_S.SetDefaultAddonSettings(settings, i);
+            GRM_S.SetDefaultAddonSettings(settings, i)
         end
-
-        GRM.Report(GRM.L("All GRM Settings have been set to default."));
-
+        GRM.Report(GRM.L("All GRM Settings have been set to default."))
     elseif page then
-
-        needsRefresh = true;
         -- Reset only specific settings
-        local settings = GRM.S();
-        GRM_S.SetDefaultAddonSettings(settings, page);
-
-        if page == 10 then
-            GRM.Scan.RefreshNumberOfHoursTilRecommend();
+        GRM_S.SetDefaultAddonSettings(settings, page)
+        
+        if page == GRM_ENUM.OPTIONS_TABS.KICK then
+            GRM.Scan.RefreshNumberOfHoursTilRecommend()
         end
-
     end
 
-    if needsRefresh then
-        if (resetAll or page == 1) and GRM_UI.GRM_CoreFrame:IsVisible() then
-            GRML.SetNewLanguage(GRM_G.LocalizedIndex, false, true);
+    -- ==========================================
+    -- UI REFRESH HANDLERS
+    -- ==========================================
+    local TABS = GRM_ENUM.OPTIONS_TABS
+
+    -- Core Options UI Frame Refreshes
+    if GRM_UI.GRM_CoreFrame:IsVisible() then
+        if resetAll or page == TABS.GENERAL then
+            GRML.SetNewLanguage(GRM_G.LocalizedIndex, false, true)
         end
 
-        -- Check Permissions
-        GRM.Global.UpdateGuildLeaderPermissions(false, true);
-
-        -- Reset frames as needed
-        if (resetAll or page < 9) and GRM_UI.GRM_CoreFrame:IsVisible() then -- General options
-            GRM_UI.OptionsCore.RefreshOptionsUI();
+        -- Refresh the Options UI for most tabs
+        if resetAll or page < TABS.EXPORT or page == TABS.CLASSIC or page == TABS.NAMES then 
+            GRM_UI.OptionsCore.RefreshOptionsUI()
         end
-
-        if page == 15 then
-            GRM_UI.ConfigureGroupInfoRules();
-        end
-
-        -- refresh the log as settings might be changed.
-        if (resetAll or page == 8) and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
-            GRM_UI.RefreshLogExtraOptions();
-            GRM_UI.ColorPicker.RefreshLogColorOptions();
-            GRM.Log.ResetLogStringPoints(true);
-            GRM.Log.BuildLogComplete(true, false, true);
-        end
-
-        if (resetAll or page == 9) and GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
-            GRM.Export.SetExportTabHighlights();
-        end
-
-        if (resetAll or ((page > 9 and page < 13)) or page == 14) and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
-            GRM_UI.RefreshManagementTool();
-        end
-
-        if resetAll then
-            GRM_UI.ResetScalingForAll();
-        end
-
-        if not (LibStub and LibStub("LibDataBroker-1.1", true) and LibStub("LibDBIcon-1.0", true)) then
-            GRM.MinimapGRM.GRM_MinimapButtonInit();
-        end
-
-        GRM_UI.CorePositionInit();
-        GRM_UI.CoreToolPositionInit();
-        GRM_Name.RefreshTagHexCode();
-        GRM_Chat.SetReportWindow();
-        GRM.Scan.RefreshNumberOfHoursTilRecommend();
     end
 
+    -- Name formatting
+    if page == TABS.NAMES then
+        GRM_UI.NamesTab.BuildNamesTab()
+    end
+
+    -- Global Re-checks
+    GRM.Global.UpdateGuildLeaderPermissions(false, true)
+
+    -- Specific Tab / Tool Refreshes
+    if resetAll or page == TABS.MODULES then
+        GRM_UI.ConfigureGroupInfoRules()
+    end
+
+    if (resetAll or page == TABS.LOG) and GRM_UI.GRM_CoreFrame.GRM_LogFrame:IsVisible() then
+        GRM_UI.RefreshLogExtraOptions()
+        GRM_UI.ColorPicker.RefreshLogColorOptions()
+        GRM.Log.ResetLogStringPoints(true)
+        GRM.Log.BuildLogComplete(true, false, true)
+    end
+
+    if (resetAll or page == TABS.EXPORT) and GRM_UI.GRM_ExportLogBorderFrame and GRM_UI.GRM_ExportLogBorderFrame:IsVisible() then
+        GRM.Export.SetExportTabHighlights()
+    end
+
+    if (resetAll or (page >= TABS.KICK and page <= TABS.DEMOTE) or page == TABS.SPECIAL) and GRM_UI.GRM_ToolCoreFrame:IsVisible() then
+        GRM_UI.RefreshManagementTool()
+    end
+
+    -- General Environment Resets
+    if resetAll then
+        GRM_UI.ResetScalingForAll()
+        GRM.SlashCommandCenter()
+    end
+    
+    if not (LibStub and LibStub("LibDataBroker-1.1", true) and LibStub("LibDBIcon-1.0", true)) then
+        GRM.MinimapGRM.GRM_MinimapButtonInit()
+    end
+
+    GRM_UI.CorePositionInit()
+    GRM_UI.CoreToolPositionInit()
+    GRM_Name.RefreshTagHexCode()
+    GRM_Chat.SetReportWindow()
+    GRM.Scan.RefreshNumberOfHoursTilRecommend()
 end

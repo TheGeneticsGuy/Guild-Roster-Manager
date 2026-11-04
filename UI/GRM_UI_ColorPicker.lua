@@ -158,8 +158,11 @@ ColorPicker.RefreshLogColorOptions = function()
         if i ~= 15 or (i == 15 and GRM_G.HardcoreActive) then
             -- We just trigger our custom API widget to update itself!
             local box = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_LogExtraOptionsFrame["colorBoxFrame" .. i]
-            box.texture:SetColorTexture(colors[i][1], colors[i][2], colors[i][3], 1.0)
-            ColorPicker.UpdateLogFilterTextColor(colors[i][1], colors[i][2], colors[i][3], i)
+            if box then
+                box.texture:SetColorTexture(colors[i][1], colors[i][2], colors[i][3], 1.0)
+                ColorPicker.UpdateLogFilterTextColor(colors[i][1], colors[i][2], colors[i][3], i)
+            end
+            
         end
     end
 end

@@ -6,23 +6,22 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
+GRM_G.addonName = "Guild_Roster_Manager";
 GRM_G.Version = "R1.995";
-GRM_G.Beta = false;
 GRM_G.PatchDayString = "1793753094";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.PatchDay = 1793753094;            -- In Epoch Time
-GRM_G.LvlCap = GetMaxPlayerLevel();
+
+-- Build Details
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.IsWoWForever = GRM_WOWF.IsWowForever();
+GRM_G.Beta = IsBetaBuild();
 GRM_G.RetailBaseBuild = 120105;
-GRM_G.ForeverBaseBuild = 16001; -- Placeholder
+GRM_G.ForeverBaseBuild = 16001;
 
--- GroupInfo
+-- GroupInfo Module
 GRM_G.GroupInfoV = 1.65;
 
--- Initialization Useful Globals
--- ADDON
-GRM_G.addonName = "Guild_Roster_Manager";
--- Player Details
+-- Guild Details
 GRM_G.guildName = "";
 GRM_G.realmName = string.gsub(string.gsub(GetRealmName(), "-", ""), "%s+", ""); -- Remove the space since server return calls don't include space on multi-name servers, also removes a hyphen if server is hyphened.Necessary for backend addon to addon comms formatting sende bvcxr.
 GRM_G.addonUser = (GetUnitName("PLAYER", false) .. "-" .. GRM_G.realmName); -- Oddly, GetUnitName set as true will not reliably return realm name on non-merged realms without this formatting.
@@ -36,6 +35,9 @@ if UnitFactionGroup("PLAYER") then
 else
     GRM_G.faction = 0;
 end
+
+-- Player
+GRM_G.LvlCap = GetMaxPlayerLevel();
 
 -- NoteSizes to allow dynamic flexibility if Blizz ever changes them.
 GRM_G.MaxPublicNoteSize = StaticPopupDialogs["SET_GUILDPLAYERNOTE"].maxLetters;
@@ -892,15 +894,20 @@ GRM.SlimName = function(name)
     end
 end
 
--- Method:          GRM.FormatName ( string , bool )
+-- Method:          GRM.FormatName ( string )
 -- What it Does:    Standardizes the formatting of player names
 -- Purpose:         Customizing how the name appears in log and elsewhere.
 -- Formatting:      1 = Blzzard convention of always showing except those on same realm, 2 = always show realm, 3 = never show realm
-GRM.FormatName = function( name , normalize )
+GRM.FormatName = function( name )
+    local normalize = true
+    if GRM_G.IsWoWForever then
+        normalize = false
+    end
+
     if name then
         if string.find( name, "-") then
-            if GRM.S().nameFormat == 1 or GRM.S().nameFormat == 3 or normalize then     -- Blizzard naming convention - only remove server if same realm
-                if GRM.S().nameFormat == 3 or ( name:match ("%-(.+)" ) == GRM_G.realmName ) then
+            if normalize then     -- Blizzard naming convention - only remove server if same realm
+                if ( name:match ("%-(.+)" ) == GRM_G.realmName ) then
                     return string.gsub( name, "%-.+", "" );
                 end
             end
@@ -1411,12 +1418,12 @@ GRM.GetFullNameClubMember = function( memberGUID )
     local tries = 10;
 
     if memberGUID and memberGUID ~= "" then
-        local s, name, realm = select(5, GetPlayerInfoByGUID(memberGUID));
+        local s, name, realmOrLname = select(5, GetPlayerInfoByGUID(memberGUID));
         sex = s;
         -- For some reason the server sometimes fails to give info on the first ask that session.
         if not name or name == "" then
             for i = 1, tries do
-                sex, name, realm = select(5, GetPlayerInfoByGUID(memberGUID));
+                sex, name, realmOrLname = select(5, GetPlayerInfoByGUID(memberGUID));
 
                 if name and name ~= "" then
                     break;
@@ -1425,10 +1432,10 @@ GRM.GetFullNameClubMember = function( memberGUID )
         end
 
         if name and name ~= "" then
-            if realm == "" then
+            if not GRM_G.IsWoWForever and realmOrLname == "" then
                 fullName = name .. "-" .. GRM_G.realmName;
-            else
-                fullName = name .. "-" .. realm;
+            elseif realmOrLname ~= "" then
+                fullName = name .. "-" .. realmOrLname;
             end
         end
     end
@@ -1452,7 +1459,7 @@ GRM.GetPlayerNameByGUID = function(guid)
     if name then
         if realm ~= "" then
             name = name .. "-" .. realm;
-        else
+        elseif not GRM_G.IsWoWForever and realm == "" then
             name = name .. "-" .. GRM_G.realmName;
         end
     end

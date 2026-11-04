@@ -1,9 +1,8 @@
 
-TODO: - When adding an alt they should also sync over the nickname
-TODO: - Fix Default Settings button on Names Tab, maybe others?
 TODO: - Request to implement custom note on the Promotions in macro tool
 TODO: - When swapping languages, the dropdown menu doesn't re-translate.
 TODO: - On the join and promote dates - it needs to re-process the day dropdowns...
+TODO: GRM.FormatName -- This is set to auto normalize - I should set it to false if WOW Forever
 
 -- Possible Compatibility changes in WOW Forever
 TODO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
@@ -64,6 +63,8 @@ Thank you to all who have been great support and even coding mentors over the ye
 * Fixed a bug where right-clicking and resetting the player data on a single player from the mouseover would not fully reset the data and also requried a re-scan to add them.
 
 * Fixed a bug where if you mouseover the side alt details frame where you can get a more detailed list of alt data on the mouseover, then you would lose your window locked status.
+
+* Fixed a serious bug in the General Options where if you chose to make your settings specific to each toon, rather than guild-wide settings, it would cause a lua error and prevent GRM from working until your next session. This now instantly works when selecting. No need for reload.
 
 * Many other minor bugs were resolved...
 

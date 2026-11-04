@@ -165,10 +165,10 @@ OptionsCore.RefreshOptionsUI = function()
     SetUIState(GRM_ScanningOptionsFrame.GRM_ScanOptionsAnniversaryAnnounce, GRM_ScanningOptionsFrame.GRM_ScanOptionsAnniversaryAnnounceText, S.calendarAnnouncements)
     SetUIState(GRM_ScanningOptionsFrame.GRM_ScanOptionsBirthdayAnnounce, GRM_ScanningOptionsFrame.GRM_ScanOptionsBirthdayAnnounceText, S.calendarAnnouncements)
     
-    SetUIState(GenOpts.GRM_RosterLoadOnLogonChangesCheckButton, GenOpts.GRM_RosterLoadOnLogonChangesCheckButtonText, S.viewOnLoad)
+    SetUIState(GenOpts.GRM_RosterLoadOnLogonChangesCheckButton, GenOpts.GRM_RosterLoadOnLogonChangesCheckButton.GRM_RosterLoadOnLogonChangesCheckButtonText, S.viewOnLoad)
 
     -- Sync Settings have more custom colorizing
-    SetUIState(SyncOpts.GRM_RosterNotifyOnChangesCheckButton, SyncOpts.GRM_RosterNotifyOnChangesCheckButtonText, S.syncEnabled)
+    SetUIState(SyncOpts.GRM_RosterNotifyOnChangesCheckButton, SyncOpts.GRM_RosterNotifyOnChangesCheckButton.GRM_RosterNotifyOnChangesCheckButtonText, S.syncEnabled)
     SetUIState(SyncOpts.GRM_RosterSyncBanList, SyncOpts.GRM_RosterSyncBanListText, S.syncEnabled)
     if S.syncEnabled then SyncOpts.GRM_RosterSyncBanListText3:SetTextColor(1.0, 0.82, 0.0, 1.0) else SyncOpts.GRM_RosterSyncBanListText3:SetTextColor(0.5, 0.5, 0.5, 1) end
     

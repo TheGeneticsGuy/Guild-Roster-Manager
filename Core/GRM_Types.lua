@@ -3,16 +3,25 @@
 GRM_ENUM = {};
 
 GRM_ENUM.OPTIONS_TABS = {
+    MISC = 0,
     GENERAL = 1,
-    SYNC = 2,
-    OFFICER = 3,
-    SCAN = 4,
-    UI = 5,
-    NAMES = 6,
-    CLASSIC = 7,
-    MODULES = 8,
-    LOGTOOLS = 9,
-    EXPORT = 10
+    SCAN = 2,
+    SYNC = 3,
+    OFFICER = 4,
+    BACKUP = 5,
+    HELP = 6,
+    UI = 7,
+    LOG = 8,
+    EXPORT = 9,
+    KICK = 10,
+    PROMOTE = 11,
+    DEMOTE = 12,
+    AUDIT = 13,
+    SPECIAL = 14,
+    MODULES = 15,
+    CLASSIC = 16,
+    NAMES = 17,
+    TOTAL = 17  -- For easy reference
 }
 
 GRM_ENUM.OPTIONS_SIZE = {
@@ -22,6 +31,7 @@ GRM_ENUM.OPTIONS_SIZE = {
 
 GRM_ENUM.BUILD = {              -- Features Added
     ["CLASSICERA"]  = 10000,
+    ["FOREVER"]     = 16000,
     ["TBC"]         = 20000,
     ["WOTLK"]       = 30000,    -- Calendar, LFG, achievements, DK Class
     ["CATA"]        = 40000,    -- Guild Rep

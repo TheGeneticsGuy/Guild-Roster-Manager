@@ -1053,6 +1053,7 @@ GRM_Patch.PatchHistory = {
         version = 1.995,
         apply = function()
             GRM_Patch.MemberDataCleanup()
+            GRM_Patch.EditSetting("nameFormat", nil)
             GRM_Patch.EditSetting("useFullName", nil)
             GRM_Patch.EditSetting("showMouseoverOld", nil)
             GRM_Patch.EditSetting("useMainTag", nil)
