@@ -445,7 +445,7 @@ GRMsync.ResetTempTables = function()
     GRMsyncGlobals.DatabaseMarkers = {};
     GRMsyncGlobals.SyncPath = { false , false , false , false , false , false, false };
     GRMsyncGlobals.updateCount = 0;
-    GRMsyncGlobals.updatesEach = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+    GRMsyncGlobals.updatesEach = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};
 
     -- Major data - by setting it to nil it wipese the whole memory reference, not just overwrites it. This can trigger
     -- the Blizz Lua built-in auto garbage collection sooner with that much data floating around with no memory reference to it.
@@ -2672,6 +2672,7 @@ GRMsync.CheckNicknameChange = function ( msg , sender , prefix )
         playerName, newNick, shareNickAmongAlts, setterName, standardDate, epochStamp, isRemove, shareSettingChanged  = GRMsync.ParseComMsg ( msg , GRM_G.MatchPattern8 );
 
         shareNickAmongAlts = GRMsync.DecodeBit(shareNickAmongAlts);
+        isRemove = GRMsync.DecodeBit(isRemove)
         shareSettingChanged = GRMsync.DecodeBit(shareSettingChanged);
         epochStamp = tonumber(epochStamp);
     end
@@ -2868,7 +2869,7 @@ GRMsync.GetCustomPseudoHash = function( dataRequested )
     local guildData = GRMsyncGlobals.guildData;
     local altData = GRMsyncGlobals.guildAltData;
     local jd1 , pd1 , alt1 , cust1 , bday1 , ban1, nn1 = 0, 0, 0, 0, 0, 0, 0;
-    local jd2 , pd2 , alt2 , cust2 , bday2 , ban2, nn2 = {}, {}, {}, {}, {}, {};
+    local jd2 , pd2 , alt2 , cust2 , bday2 , ban2, nn2 = {}, {}, {}, {}, {}, {}, {};
     local totalHashSum = 0;
 
     local data = { ["join"] = 1 , ["promote"] = 2 , ["alt"] = 3 , ["custom"] = 4 , ["bday"] = 5 , ["ban"] = 6, ["nick"] = 7 };
@@ -4410,7 +4411,7 @@ GRMsync.SendNicknamePackets = function( completedPath , messageCount , index , p
 
                 GRMsyncGlobals.SyncCount = 0;
                 C_Timer.After ( GRMsyncGlobals.ThrottleDelay , function()
-                    GRMsync.SendPDPackets ( completedPath , messageCount , index , players );
+                    GRMsync.SendNicknamePackets ( completedPath , messageCount , index , players );
                 end);
                 return;
             end
@@ -4421,7 +4422,7 @@ GRMsync.SendNicknamePackets = function( completedPath , messageCount , index , p
     -- Close the Data stream
     GRMsyncGlobals.syncTempDelay = false;
     if GRMsyncGlobals.SyncOK then
-        completedPath[2] = true;
+        completedPath[7] = true;
         GRMsync.NextSyncStep ( completedPath );
     else
         return;
@@ -6749,7 +6750,9 @@ GRMsync.SubmitFinalNicknameData = function( messageCount , index )
                     end
                 else
                     -- playerName, newNick, shareNickAmongAlts, setterName, standardDate, epochStamp, isRemove, shareSettingChanged
-                    -- msg = "GRM_NNSYNCUP?" .. GRMsyncGlobals.syncRankFilter .. "?" .. GRMsyncGlobals.JDChanges[i][1] .. "?" .. tostring ( GRMsyncGlobals.JDChanges[i][2] ) .. "?" .. GRMsyncGlobals.JDChanges[i][3] .. "?" .. messageCount;
+                    msg = "GRM_NNSYNCUP?" .. GRMsyncGlobals.syncRankFilter .. "?" .. GRMsyncGlobals.NNChanges[i][1] .. "?" .. GRMsyncGlobals.NNChanges[i][2] .. "?" ..
+                          GRMsync.SetBit(GRMsyncGlobals.NNChanges[i][3]) .. "?" .. GRMsyncGlobals.NNChanges[i][4] .. "?" .. GRMsyncGlobals.NNChanges[i][5] .. "?" ..
+                          GRMsyncGlobals.NNChanges[i][6] .. "?" .. GRMsync.SetBit(GRMsyncGlobals.NNChanges[i][7]) .. "?" .. GRMsync.SetBit(GRMsyncGlobals.NNChanges[i][8]) .. "?" .. messageCount;
 
                     GRMsyncGlobals.SyncCount = GRMsyncGlobals.SyncCount + #msg + GRMsyncGlobals.sizeModifier;
                     GRMsyncGlobals.messageTree.NNFINAL[messageCount] = msg;
@@ -6777,9 +6780,6 @@ GRMsync.SubmitFinalNicknameData = function( messageCount , index )
     -- if GRMsyncGlobals.TrackerData.JD[1] then
     --     GRM_API.CheckPoint ( GRM_UI.GRM_SyncTrackerWindow.GRM_SyncProgressBar , GRMsyncGlobals.TrackerData.JD[1] , GRMsyncGlobals.TrackerData.JD[3] );
     -- end
-
-
-
 
     GRMsync.SendDataCompletionMsg();
 end
@@ -8707,7 +8707,7 @@ GRMsync.ReportResults = function()
 
     -- Now, set the maxSpaces gap
 
-    for i = 1 , ( #GRMsyncGlobals.updatesEach - 1 ) do -- Subtracting 1 since I am doing mains out of order
+    for i = 1 , #GRMsyncGlobals.updatesEach do -- Subtracting 1 since I am doing mains out of order
 
         if i == 1 and GRMsyncGlobals.updatesEach[i] > 0 then
             results = results .. "\n" .. GRM.L ( "{num}{custom1}: " , nil , nil , GRMsyncGlobals.updatesEach[i] , addedSpace ( GRMsyncGlobals.updatesEach[i] , totalSpaces ) ) .. GRM.L ( "Join Dates" );
@@ -8725,6 +8725,8 @@ GRMsync.ReportResults = function()
             results = results .. "\n" .. GRM.L ( "{num}{custom1}: " , nil , nil , GRMsyncGlobals.updatesEach[i] , addedSpace ( GRMsyncGlobals.updatesEach[i] , totalSpaces ) ) .. GRM.L ( "UnBans" );
         elseif i == 8 and GRMsyncGlobals.updatesEach[i] > 0 then
             results = results .. "\n" .. GRM.L ( "{num}{custom1}: " , nil , nil , GRMsyncGlobals.updatesEach[i] , addedSpace ( GRMsyncGlobals.updatesEach[i] , totalSpaces ) ) .. GRM.L ( "Ban Edits" );
+        elseif i == 9 and GRMsyncGlobals.updatesEach[9] > 0 then
+            results = results .. "\n" .. GRM.L ( "{num}{custom1}: " , nil , nil , GRMsyncGlobals.updatesEach[i] , addedSpace ( GRMsyncGlobals.updatesEach[i] , totalSpaces ) ) .. GRM.L ( "Nicknames" );
         end
 
     end

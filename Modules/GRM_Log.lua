@@ -246,75 +246,6 @@ Log.ClearAllLogLinesWithinRange = function(start, stop)
 
 end
 
--- Method:          LogSetLastValue()
--- What it Does:    Triggers the setting fo all values at index 40 of the core log
--- Purpose:         On the single line shift, you end up with 1 on the edge that needs to be built
-local LogSetLastValue = function()
-    SetLogValues(#GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons,
-        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset);
-end
-
--- Method:          LogSetFirstValue()
--- What it Does:    Triggers the setting fo all values at index 1 of the core Log
--- Purpose:         On the single line shift, you end up with 1 on the edge that needs to be built
-local LogSetFirstValue = function()
-    SetLogValues(1, GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset -
-        #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons + 1);
-end
-
--- Method:          LogToolHybridShiftDown()
--- What it Does:    Shifts all the values down one line to give the illusion of scrolling when in reality this is just a hybrid scrollframe
--- Purpose:         Clean scrolling
-local LogToolHybridShiftDown = function()
-    if #GRM_G.fullLogMatch > 25 then
-        local fontStrings = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
-        local MouseOverButton = 0;
-        -- Shift them down...
-        for i = 1, #fontStrings - 1 do
-            fontStrings[i][2]:SetText(fontStrings[i + 1][2]:GetText());
-            fontStrings[i][2]:SetTextColor(fontStrings[i + 1][2]:GetTextColor(fontStrings[i + 1][2]:GetText()));
-            fontStrings[i][3]:SetText(fontStrings[i + 1][3]:GetText());
-            fontStrings[i][3]:SetTextColor(fontStrings[i + 1][3]:GetTextColor(fontStrings[i + 1][3]:GetText()));
-            fontStrings[i][4] = fontStrings[i + 1][4]
-
-            if MouseOverButton == 0 and fontStrings[i][1]:IsMouseOver() then
-                MouseOverButton = i;
-            end
-        end
-        GRM.LogSetLastValue();
-        if MouseOverButton > 0 then
-            Log.RefreshLogTooltip(fontStrings[MouseOverButton][1]);
-        end
-    end
-end
-
--- Method:          LogToolHybridShiftUP()
--- What it Does:    Shifts all the values up one line to give the illusion of scrolling when in reality this is just a hybrid scrollframe
--- Purpose:         Clean scrolling
-local LogToolHybridShiftUP = function()
-    if #GRM_G.fullLogMatch > 25 then
-        local fontStrings = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
-        local MouseOverButton = 0;
-        -- Shift them down...
-        for i = #fontStrings, 2, -1 do
-            fontStrings[i][2]:SetText(fontStrings[i - 1][2]:GetText());
-            fontStrings[i][2]:SetTextColor(fontStrings[i - 1][2]:GetTextColor(fontStrings[i - 1][2]:GetText()));
-            fontStrings[i][3]:SetText(fontStrings[i - 1][3]:GetText());
-            fontStrings[i][3]:SetTextColor(fontStrings[i - 1][3]:GetTextColor(fontStrings[i - 1][3]:GetText()));
-            fontStrings[i][4] = fontStrings[i - 1][4]
-            -- Configure new SetPoints due to varying string sizes
-
-            if MouseOverButton == 0 and fontStrings[i][1]:IsMouseOver() then
-                MouseOverButton = i;
-            end
-        end
-        LogSetFirstValue();
-        if MouseOverButton > 0 then
-            Log.RefreshLogTooltip(fontStrings[MouseOverButton][1]);
-        end
-    end
-end
-
 -- Method:          SetLogValues ( int , int )
 -- What it Does:    Sets the fontstring values for the lineNumber count and the actual strings for display
 -- Purpose:         So we have a functioning hybrid scrollframe on the core log.
@@ -369,6 +300,75 @@ local SetLogValues = function(indString, indLog)
             GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons[indString][1]:IsMouseOver() then
             Log.RefreshLogTooltip(GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame
                                       .AllButtons[indString][1]);
+        end
+    end
+end
+
+-- Method:          LogSetLastValue()
+-- What it Does:    Triggers the setting fo all values at index 40 of the core log
+-- Purpose:         On the single line shift, you end up with 1 on the edge that needs to be built
+local LogSetLastValue = function()
+    SetLogValues(#GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons,
+        GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset);
+end
+
+-- Method:          LogSetFirstValue()
+-- What it Does:    Triggers the setting fo all values at index 1 of the core Log
+-- Purpose:         On the single line shift, you end up with 1 on the edge that needs to be built
+local LogSetFirstValue = function()
+    SetLogValues(1, GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.Offset -
+        #GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons + 1);
+end
+
+-- Method:          LogToolHybridShiftDown()
+-- What it Does:    Shifts all the values down one line to give the illusion of scrolling when in reality this is just a hybrid scrollframe
+-- Purpose:         Clean scrolling
+local LogToolHybridShiftDown = function()
+    if #GRM_G.fullLogMatch > 25 then
+        local fontStrings = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
+        local MouseOverButton = 0;
+        -- Shift them down...
+        for i = 1, #fontStrings - 1 do
+            fontStrings[i][2]:SetText(fontStrings[i + 1][2]:GetText());
+            fontStrings[i][2]:SetTextColor(fontStrings[i + 1][2]:GetTextColor(fontStrings[i + 1][2]:GetText()));
+            fontStrings[i][3]:SetText(fontStrings[i + 1][3]:GetText());
+            fontStrings[i][3]:SetTextColor(fontStrings[i + 1][3]:GetTextColor(fontStrings[i + 1][3]:GetText()));
+            fontStrings[i][4] = fontStrings[i + 1][4]
+
+            if MouseOverButton == 0 and fontStrings[i][1]:IsMouseOver() then
+                MouseOverButton = i;
+            end
+        end
+        LogSetLastValue();
+        if MouseOverButton > 0 then
+            Log.RefreshLogTooltip(fontStrings[MouseOverButton][1]);
+        end
+    end
+end
+
+-- Method:          LogToolHybridShiftUP()
+-- What it Does:    Shifts all the values up one line to give the illusion of scrolling when in reality this is just a hybrid scrollframe
+-- Purpose:         Clean scrolling
+local LogToolHybridShiftUP = function()
+    if #GRM_G.fullLogMatch > 25 then
+        local fontStrings = GRM_UI.GRM_CoreFrame.GRM_LogFrame.GRM_RosterChangeLogScrollChildFrame.AllButtons;
+        local MouseOverButton = 0;
+        -- Shift them down...
+        for i = #fontStrings, 2, -1 do
+            fontStrings[i][2]:SetText(fontStrings[i - 1][2]:GetText());
+            fontStrings[i][2]:SetTextColor(fontStrings[i - 1][2]:GetTextColor(fontStrings[i - 1][2]:GetText()));
+            fontStrings[i][3]:SetText(fontStrings[i - 1][3]:GetText());
+            fontStrings[i][3]:SetTextColor(fontStrings[i - 1][3]:GetTextColor(fontStrings[i - 1][3]:GetText()));
+            fontStrings[i][4] = fontStrings[i - 1][4]
+            -- Configure new SetPoints due to varying string sizes
+
+            if MouseOverButton == 0 and fontStrings[i][1]:IsMouseOver() then
+                MouseOverButton = i;
+            end
+        end
+        LogSetFirstValue();
+        if MouseOverButton > 0 then
+            Log.RefreshLogTooltip(fontStrings[MouseOverButton][1]);
         end
     end
 end

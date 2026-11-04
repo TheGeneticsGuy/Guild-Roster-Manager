@@ -387,7 +387,6 @@ GRM.DataLoadDelayProtection = function( isReady , count )
         end);
     else
         -- Secret Protections - Let's check
-        print("Secret Check");
         GRM.Secrets.InitializeSecretCheck();
         GRM_S.LoadSettings();
     end

@@ -265,12 +265,6 @@ local AddMainTagToComeOnlineSystemMessage = function(msg)
                 -- Route it through your new universal formatter!
                 local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
                 
-                -- Colorize
-                if GRM.S().colorizeNames then
-                    local classColor = GRM.GetStringClassColorByName(fullName)
-                    formattedName = classColor .. formattedName .. "|r"
-                end
-                
                 -- Reconstruct the chat link with the newly formatted name
                 return prefix .. "[" .. formattedName .. "]" .. suffix
             end
@@ -305,12 +299,6 @@ local AddMainTagToGoneOfflineSystemMessage = function(msg)
 
             -- Route it through your new universal formatter!
             local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
-            
-            -- Colorize
-            if GRM.S().colorizeNames then
-                local classColor = GRM.GetStringClassColorByName(fullName)
-                formattedName = classColor .. formattedName .. "|r"
-            end
             
             -- Since going offline we don't need brackets as we can't click to msg
             return formattedName .. string.sub(msg, breakIndex)
@@ -473,31 +461,29 @@ GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
 
         local placeHolderMsg = msg -- Save raw message for the !note trigger if needed
 
-        if sender ~= GRM_G.addonUser then
-            local player = GRM.GetPlayer(sender)
-            if player then
-                local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+        local player = GRM.GetPlayer(sender)
+        if player then
+            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
 
-                if addTag then
-                    local toonName = GRM.FormatName(sender)
-                    local mainName = isMain and toonName or GRM.GetPlayerMain(player)
-                    
-                    local nickname = GRM.NN.GetNickname(sender)
+            if addTag then
+                local toonName = GRM.FormatName(sender)
+                local mainName = isMain and toonName or GRM.GetPlayerMain(player)
+                
+                local nickname = GRM.NN.GetNickname(sender)
 
-                    -- Format the name using our universal helper
-                    local formattedName = GRM_Name.GetFormattedNameString(toonName, mainName, nickname, isMain, isUnassigned, nil, false)
-                    
-                    -- Add class coloring if enabled
-                    if GRM.S().colorizeNames then
-                        local classColor = GRM.GetStringClassColorByName(sender)
-                        formattedName = classColor .. formattedName .. "|r"
-                    end
+                -- Format the name using our universal helper
+                local formattedName = GRM_Name.GetFormattedNameString(toonName, mainName, nickname, isMain, isUnassigned, nil, false)
+                
+                -- Add class coloring if enabled
+                if GRM.S().colorizeNames then
+                    local classColor = GRM.GetStringClassColorByName(sender)
+                    formattedName = classColor .. formattedName .. "|r"
+                end
 
-                    -- INJECT THE HIDDEN MARKER! 
-                    -- \001 and \002 are invisible ASCII control characters that players cannot type.
-                    if formattedName ~= toonName then
-                        msg = "\001GRM\001" .. formattedName .. "\002" .. msg
-                    end
+                -- INJECT THE HIDDEN MARKER! 
+                -- \001 and \002 are invisible ASCII control characters that players cannot type.
+                if formattedName ~= toonName then
+                    msg = "\001GRM\001" .. formattedName .. "\002" .. msg
                 end
             end
         end

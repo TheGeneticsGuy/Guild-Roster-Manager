@@ -1,7 +1,7 @@
-## Interface: 50504
+## Interface: 11509, 16001, 20506, 50504, 120105
 
 ## Author: Arkaan
-## Version: 1.99422
+## Version: 1.995
 ## Title: Guild Roster Manager
 ## Notes: Manage Guild Roster Changes, Events, with Alt/Main tagging, for ALL guildies
 ## X-Website: https://www.curseforge.com/wow/addons/guild-roster-manager
@@ -51,6 +51,7 @@ locales\Dutch.lua
 locales\Danish.lua
 locales\GRM_LocDefaults.lua
 
+UI\GRM_UI_Util.lua
 UI\GRM_UI_API.lua
 UI\GRM_UI_ColorPicker.lua
 Modules\GRM_Roster.lua

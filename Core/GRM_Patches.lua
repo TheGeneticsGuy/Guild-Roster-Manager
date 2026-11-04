@@ -47,7 +47,6 @@ end
 
 -- Heartbeat function to watch for crashes on patching.
 local function CheckPatchHeartbeat()
-    print("Checking heartbeat...") -- Debug output
     -- If we aren't patching, cancel the ticker
     if not GRM_G.currentlyPatching and heartbeatTicker then
         heartbeatTicker:Cancel()
@@ -81,7 +80,6 @@ local function ProcessPatchQueue(numericV)
         end
 
         if shouldApply then
-            print("Patching: " .. patch.version .. " - " .. GRM.Util.TableLength(GRM_GuildMemberHistory_Save)) -- Debug output
             local jumpToVersion = patch.apply(numericV, FID)
 
             if type(jumpToVersion) == "number" then

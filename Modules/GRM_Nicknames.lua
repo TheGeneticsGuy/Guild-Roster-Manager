@@ -63,7 +63,6 @@ end
 -- What it Does:    Persists the player's nickname to the whole altGroup
 NN.SyncNickChangeToAltGroup = function( player, onlyChangeShareSetting )
     if player then
-
         local group = GRM.GetAltGroup ( player.altGroup );
         if group and #group > 1 then
 
@@ -111,6 +110,7 @@ NN.SetNickname = function ( player , newNick , shareNickAmongAlts, shareSettingC
 
     if shareSettingChanged and newNick == "X" then
         player.nickInfo.shareNickAmongAlts = shareNickAmongAlts
+        player.nickInfo.editedDetails = editedDetails;
     else
         player.nickInfo.nickname = newNick
         player.nickInfo.editedDetails = editedDetails;
@@ -163,14 +163,14 @@ end
 -- Method:          NN.RemoveNickname ( table , bool, bool string , array, int , bool )
 -- What it Does:    Clears the nickname from the player and/or the alt group based on settings.
 -- Purpose:         To provide a clean way to purge nicknames while maintaining history/sync integrity.
-NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, removerName, timestamp, epochStamp, isSync )
+NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, removerName, date, epochStamp, isSync )
     if not player then
         return
     end
 
     epochStamp = epochStamp or time();
-    timestamp = timeStamp or GRM.Time.GetTimestamp(); -- { day, month, year }
-    local editedDetails = { removerName , { timestamp[1] , timestamp[2] , timestamp[3] } , epochStamp };
+    date = date or GRM.Time.GetTimestamp(); -- { day, month, year }
+    local editedDetails = { removerName , { date[1] , date[2] , date[3] } , epochStamp };
     
     -- Backup
     if not player.nickInfo then 
@@ -181,10 +181,9 @@ NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, 
     player.nickInfo.nickname = ""
     player.nickInfo.editedDetails = editedDetails;
     player.nickInfo.shareNickAmongAlts = removeNickFromAlts;
-
     -- Spread the nicknames
     if removeNickFromAlts then
-        NN.SyncNickChangeToAltGroup(player.name , false);
+        NN.SyncNickChangeToAltGroup(player , false);
     end
 
     if not isSync then
@@ -192,7 +191,7 @@ NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, 
         -- Sync the data
         if GRM.S().syncEnabled then
             local isRemove = "1"; -- Represents true bit
-            local standardFormat = GRM.Time.ConvertToStandardFormatDate(timestamp[1] , timestamp[2] , timestamp[3]);
+            local standardFormat = GRM.Time.ConvertToStandardFormatDate(date[1] , date[2] , date[3]);
             local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRankged
             local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?x?" .. GRMsync.SetBit(player.nickInfo.shareNickAmongAlts) .. "?" ..
                         removerName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) .. "?" .. isRemove .. "?" .. GRMsync.SetBit(shareSettingChanged)
@@ -212,16 +211,6 @@ NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, 
 
         GRM_UI.RefreshSelectFrames ( true , true , false , false , true , false , true );
     end
-end
-
-NN.SetNicknameShare = function( player, removeNickFromAlts, setterName, date, epochStamp )
-
-
-
-
-
-
-
 end
 
 -- Method:          NN.IsNicknameFormatValid ( string )
@@ -263,43 +252,10 @@ NN.IsNicknameFormatValid = function ( nickname )
     return true;
 end
 
----------------------------
--- NICKNAME SYNC
----------------------------
 
-NN.NickNamesSync = function( msg , prefix)
-    print("SYNC RECEIVED: " .. prefix .. " - " .. msg);
-end
-
-
-
--- validation
--- permissions
-   -- Treat it as public info but only changes accepted from leadership
--- History
-  -- Who set the nickname
--- Client-side name replacement (chatframe_addmessageeventfilter)
+-- Enhanced permissions controls - currently treated as public info
 -- tooltips - show nicnkname when hovering over player in the 3D world
--- Broadcast to all GRM users when nickname is set "PlayerName is now known as Nick!"
--- Officer nickname approval queue?
 -- Add nicknames to export feature
--- Alt overrides allowed
 -- Analytics - % of guild with nicknames
 -- searchable nickname in the roster
-
--- Name format: "RealName (Nickname): or just Nickname:"
--- nick! can be enabled or disabled
--- Blacklist for offensive nicknames -- maybe not necessary as officers will manage since I log who makes it
-
--- Sync Comes
--- GRM_NN          -- Live nickname add/remove -- COMPLETE
--- GRM_RECNNPRE    -- Initiali Precheck Vals -- COMPLETE
--- GRM_NNSYNCF      -- Sending actual NN Data NON alt groups - COMPLETE
--- GRM_REQMISNNF     -- ResendMissingF  -- COMPLETE
--- GRM_REQNNFIN    -- ResendMissingAgain -- COMPLETE
--- GRM_NNSYNCUP     -- FinalChangeReceived  -- COMPLETE
-
--- So, it is broken down into two parts... main name/alt configuration and Nickname configuration. Rather than the checkboxes as you see them now what is actually going to be is a dropdown selection that shows the exact implementation and what it will look like in the chat. This will have I think 6 configurations to choose from. This will act completely independent and be displayed very similar to how you see it now.
-
--- Next, you have the Nicknames Implementation. This will also have it's own dropdown selection of configurations to choose from that will show you what your nickname will look like in chat. It will be similar to the upper main/alt configuration dropdown, but it will not be the same as I think it needs it's own sort of custom styling choices that slightly vary. 
--- The way it will work is, as long as you have nicknames enabled, will always default to your Nickname dropdown selection styling, as long as that player has a nickname configured. Otherwise, it defaults to the non-nickname styling dropdown selection. If no nickname, it just uses non nickname styling.
+-- /nick! can be enabled or disabled

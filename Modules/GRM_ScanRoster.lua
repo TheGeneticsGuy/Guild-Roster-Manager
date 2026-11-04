@@ -2701,9 +2701,7 @@ Scan.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappe
     end
 
     local birthdayInfo = GRM.GetBirthday(player);
-    if not birthdayInfo then
-        print("ERROR: " .. player.name)
-    end
+
     if GRM.S().bdayAnnounce then
 
         if birthdayInfo.date[1] > 0 then   -- No need to move on and check anniversary for unverified dates.

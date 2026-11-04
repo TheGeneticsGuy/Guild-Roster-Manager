@@ -6,14 +6,14 @@ SLASH_ROSTER1 = '/roster';
 SLASH_GRM1 = '/grm';
 
 -- Addon Details:
-GRM_G.Version = "R1.99422";
+GRM_G.Version = "R1.995";
 GRM_G.Beta = false;
-GRM_G.PatchDayString = "1787292341";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1787292341;            -- In Epoch Time
+GRM_G.PatchDayString = "1793753094";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1793753094;            -- In Epoch Time
 GRM_G.LvlCap = GetMaxPlayerLevel();
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RetailBaseBuild = 120105;
-GRM_G.ForeverBaseBuild = 10000; -- Placeholder
+GRM_G.ForeverBaseBuild = 16001; -- Placeholder
 
 -- GroupInfo
 GRM_G.GroupInfoV = 1.65;
@@ -3965,14 +3965,12 @@ end
 -- What it Does:    Builds Member Record into Guild History with various metadata
 -- Purpose:         For reliable guild data tracking.
 GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liveJDetected, logEntryMetaData)
-    print("Adding Member Record0")
     -- -- First things first... ensure the player is not already added...
     local guildData = GRM.GetGuild();
 
     if not guildData or (guildData[memberInfo.name] ~= nil and guildData[memberInfo.name].GUID == memberInfo.GUID) then
         return -- Already in the guild. Abort!!!
     end
-    print("Adding Member Record1")
     local name = memberInfo.name;
     local timeSeconds = time();
     local liveJoinDetected = false;
@@ -3986,7 +3984,6 @@ GRM.AddMemberRecord = function(memberInfo, isReturningMember, oldMemberInfo, liv
     if name == "" or name == nil then
         return;
     end
-    print("Adding Member Record12")
     -- Add index to guild table.
     guildData[name] = {};
 

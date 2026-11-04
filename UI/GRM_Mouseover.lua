@@ -1204,11 +1204,12 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
 
         local newNick = GRM.Util.Trim(nickPopup.EditBox:GetText())
         local shareNickAmongAlts = nickPopup.ShareCheckbox:GetChecked()
+        local date = GRM.Time.GetTimestamp()
 
         -- If they cleared the box, treat it as a removal
         if newNick == "" then
             if GRM.NN.PlayerHasNickname(player.name) then
-                GRM.NN.RemoveNickname(player, shareNickAmongAlts, false, GRM_G.addonUser, time(), time(), false)
+                GRM.NN.RemoveNickname(player, shareNickAmongAlts, false, GRM_G.addonUser, date, time(), false)
             else
                 GRM.Report(GRM.L("No nickname has been set."))
             end
@@ -1218,7 +1219,7 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         
         -- Normal save
         if GRM.NN.IsNicknameFormatValid(newNick) then
-            GRM.NN.SetNickname(player, newNick, shareNickAmongAlts, false, GRM_G.addonUser, GRM.Time.GetTimestamp(), time(), false)
+            GRM.NN.SetNickname(player, newNick, shareNickAmongAlts, false, GRM_G.addonUser, date, time(), false)
             nickPopup:Hide()
         end
     end

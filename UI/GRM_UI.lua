@@ -10029,7 +10029,6 @@ end
 -- What it Does:    Sets the scale to the saved values of the interface.
 -- Purpose:         Allow flexibility in how the windows look for GRM.
 GRM_UI.SetAllWindowScales = function ( buildSizingLogic , specificFrame )
-    print("Set All Window Scales")
     local framesToScale = {
         ["log"] = true,
         ["macro"] = true,
