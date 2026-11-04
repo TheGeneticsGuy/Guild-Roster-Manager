@@ -1050,7 +1050,7 @@ GRM_Patch.PatchHistory = {
         end
     },
     {
-        version = 1.99383,
+        version = 1.995,
         apply = function()
             GRM_Patch.MemberDataCleanup()
             GRM_Patch.EditSetting("useFullName", nil)
@@ -1062,10 +1062,7 @@ GRM_Patch.PatchHistory = {
             GRM_Patch.EditSetting("showMainName", nil)
         end
     },
-    { version = 1.995, apply = function()  end }
 }
-
-
 
 -- Final report is good to go!
 -- Note, these are purposefully "PRINTED" as they are not necessary to be stored in the chat logs which other addons might save.

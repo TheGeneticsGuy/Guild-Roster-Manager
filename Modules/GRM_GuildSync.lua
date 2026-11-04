@@ -1785,6 +1785,19 @@ GRMsync.CheckAddAltChange = function ( msg , sender )
                     if playerToAdd and playerInGroup then
                         GRM.AddPlayerToAltGroup ( playerToAdd , playerInGroup.altGroup , GRMsyncGlobals.AltSyncReceived[leadName].timeModified , ( GRMsyncGlobals.AltSyncReceived[leadName].nameToAdd == GRMsyncGlobals.AltSyncReceived[leadName].main ) , true )
 
+                        -- ==========================================================
+                        -- NICKNAME SYNC: Apply Host's nickname settings to new Alt
+                        -- ==========================================================
+                        if not playerInGroup.nickInfo then 
+                            playerInGroup.nickInfo = GRM.NN.CreateNickObject() 
+                        end
+
+                        if playerInGroup.nickInfo.shareNickAmongAlts then
+                            GRM.NN.SyncNickChangeToAltGroup(playerInGroup, false)
+                        else
+                            GRM.NN.SyncNickChangeToAltGroup(playerInGroup, true)
+                        end
+
                         if GRM.S().syncChatEnabled then
                             GRM.Report ( GRM.L ( "{name} added {name2} to {custom1}'s list of Alts." , GRM.GetClassifiedName ( sender , true ) , GRM.GetClassifiedName ( GRMsyncGlobals.AltSyncReceived[leadName].nameToAdd , true ) , nil , GRM.GetClassifiedName ( GRMsyncGlobals.AltSyncReceived[leadName].currentName , true ) ) );
                         end
@@ -1890,6 +1903,22 @@ GRMsync.ProcessFullAltGroupChange = function ( leadName , finalAltGroup )
             GRM.AddPlayerToAltGroup ( player , groupID , finalAltGroup.timeModified , ( finalAltGroup.main == finalAltGroup[i] ) );
         end
     end
+
+    -- ==========================================================
+    -- NICKNAME SYNC: Reapply Host's nicknames to the rebuilt group
+    -- ==========================================================
+    local leadPlayer = GRM.GetPlayer(leadName)
+    if leadPlayer then
+        if not leadPlayer.nickInfo then 
+            leadPlayer.nickInfo = GRM.NN.CreateNickObject() 
+        end
+
+        if leadPlayer.nickInfo.shareNickAmongAlts then
+            GRM.NN.SyncNickChangeToAltGroup(leadPlayer, false)
+        else
+            GRM.NN.SyncNickChangeToAltGroup(leadPlayer, true)
+        end
+    end
 end
 
 -- Method:          GRMsync.CheckRemoveAltChange ( string , string , string )
@@ -1936,8 +1965,6 @@ GRMsync.CheckRemoveAltChange = function ( msg , sender )
         end
     end
 end
-
-
 
 -- Method:          GRMsync.CheckSetMainChange ( string , string )
 -- What it Does:    Syncs Main selection control between players

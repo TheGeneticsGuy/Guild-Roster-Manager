@@ -271,6 +271,10 @@ Time.GetTimePassedInZone = function(oldTimestamp, exactSeconds, includeAll)
         end
         if (hours == 0 and minutes == 0) or includeAll then
             if not includeAll or #timestamp == 0 then
+                if seconds == 0 then
+                    seconds = "< 1"
+                    secondsTag = GRM.L("Second");
+                end
                 timestamp = (GRM.L("{num} {custom1}", nil, nil, seconds, secondsTag));
             else
                 timestamp = (timestamp .. " " .. GRM.L("{num} {custom1}", nil, nil, seconds, secondsTag));

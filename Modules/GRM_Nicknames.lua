@@ -192,7 +192,7 @@ NN.RemoveNickname = function ( player, removeNickFromAlts, shareSettingChanged, 
         if GRM.S().syncEnabled then
             local isRemove = "1"; -- Represents true bit
             local standardFormat = GRM.Time.ConvertToStandardFormatDate(date[1] , date[2] , date[3]);
-            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRankged
+            local syncRankFilter = GRM.S().exportAllRanks and (GuildControlGetNumRanks() - 1) or GRM.S().syncRank
             local msg = "GRM_NN?" .. syncRankFilter .. "?" .. player.name .. "?x?" .. GRMsync.SetBit(player.nickInfo.shareNickAmongAlts) .. "?" ..
                         removerName .. "?" .. standardFormat .. "?" .. tostring(epochStamp) .. "?" .. isRemove .. "?" .. GRMsync.SetBit(shareSettingChanged)
             GRMsync.SendMessage("GRM_SYNC", msg, "GUILD");

@@ -432,6 +432,25 @@ GRM.AddAlt = function ( playerName , secondPlayerName , timestamp )
             end
         end
 
+        -- =========================
+        -- NICKNAME INTEGRATION
+        -- =========================
+        -- Determine the "Host" of the surviving group
+        local hostPlayer = addToAltsGroup and player2 or player
+
+        -- Ensure initialization just in case
+        if not hostPlayer.nickInfo then 
+            hostPlayer.nickInfo = GRM.NN.CreateNickObject() 
+        end
+
+        -- If the host shares nicknames, sync the Nickname and the Setting to the new alt.
+        -- If the host DOES NOT share nicknames, only sync the "share = false" setting so the new alt doesn't infect the group later.
+        if hostPlayer.nickInfo.shareNickAmongAlts then
+            GRM.NN.SyncNickChangeToAltGroup(hostPlayer, false)
+        else
+            GRM.NN.SyncNickChangeToAltGroup(hostPlayer, true)
+        end
+
         -- LIVE UPDATE THE FRAMES
         if GRM_UI.GRM_Mouseover and GRM_UI.GRM_Mouseover:IsVisible() then
             if GRM.GetPlayer ( GRM_G.currentName ).altGroup == player.altGroup then

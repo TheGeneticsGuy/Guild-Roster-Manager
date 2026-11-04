@@ -1,8 +1,9 @@
 
+TODO: - When adding an alt they should also sync over the nickname
 TODO: - Fix Default Settings button on Names Tab, maybe others?
 TODO: - Request to implement custom note on the Promotions in macro tool
 TODO: - When swapping languages, the dropdown menu doesn't re-translate.
-TODO: - On the join and promot dates - it needs to re-process the day dropdowns...
+TODO: - On the join and promote dates - it needs to re-process the day dropdowns...
 
 -- Possible Compatibility changes in WOW Forever
 TODO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
@@ -10,7 +11,6 @@ TODO: - GRM.LoadAddon function - look at build restrictions
 TODO: - GRM.GetParsedKickPlayerNames -- Check Korean changes in early builds now or WOW Forever
 TODO: - Instead of checking for BFA build for mythic score, see if there is an API available
 TODO: - When someone does a namechange - check if edited info needs to be updated, also customNote, and Banned
-TODO: - Show my own nickname in chat. I am not processing if it is me.
 
 ## **VERSION 1.995 - PENDING DATE**
 
@@ -45,6 +45,7 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 * The Mouseover Alt Window now has a static alt button that doesn't move, and the scroll window is improved, making it obvious if you have additional alts to scroll to.
 
+* The .toc files are now unified as a single file, no matter which GRM build you use.
 
 ***BUG FIXES***
 
@@ -64,6 +65,7 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 * Fixed a bug where if you mouseover the side alt details frame where you can get a more detailed list of alt data on the mouseover, then you would lose your window locked status.
 
+* Many other minor bugs were resolved...
 
 
 ## **VERSION 1.99423 - October 15th, 2026**

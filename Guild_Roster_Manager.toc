@@ -15,6 +15,7 @@
 Core\GRM_Types.lua
 Core\GRM_SaveVar_API.lua
 Compatibility\GRM_Compatibility.lua
+Compatibility\GRM_Forever.lua
 Core\GRM_Core.lua
 Core\GRM_SlashCommands.lua
 Core\GRM_Settings.lua
@@ -81,5 +82,5 @@ Utils\GRM_TimeUtil.lua
 Modules\GRM_Export.lua
 UI\GRM_UI_Precheck.lua
 Utils\GRM_SecretProtection.lua
-Compatibility\grm_chattynator.lua
+Compatibility\GRM_chattynator.lua
 Core\GRM_Config.lua
