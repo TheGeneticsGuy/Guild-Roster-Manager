@@ -1,7 +1,6 @@
 
 TODO: - When swapping languages, the dropdown menu doesn't re-translate.
 TODO: - On the join and promote dates - it needs to re-process the day dropdowns...
-TODO: GRM.FormatName -- This is set to auto normalize - I should set it to false if WOW Forever
 
 -- Possible Compatibility changes in WOW Forever
 TODO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
@@ -11,6 +10,18 @@ TODO: - Instead of checking for BFA build for mythic score, see if there is an A
 TODO: - When someone does a namechange - check if edited info needs to be updated, also customNote, and Banned
 
 ## **VERSION 1.995 - PENDING DATE**
+
+***WOW FOREVER COMPATIBILITY LAUNCH***
+
+This was actually a fairly significant compatibility problem because of one simple feature - WOW Forever is REALM FREE!!! First off, from a personal standpoint, I love it. I love the concept of the elimination of realms with our modern server tech. It just makes sense. And, I love how Blizz gave us first/last names in place of that.
+
+The huge headache here is there are many things GRM needed to adapt to and change as a result of this. But, for my own sanity, I only build a single codebase for ALL versions of Warcraft, be it retail, Classic builds like MoP, Classic Era HC/SOD, and Anniversary. With Blizzard unifying the backend API, this is not too hard to do... until now. These fundamentally changes how some of the structure are laid out in my database and my dictionary tables. This affects how ensuring names are properly normalized so syncing can occur. For example, in Retail, you have to have `Name-NormalizedServer` when querying data or messaging the backend addon to addon comms. Well now, all those same APIs just querying the name returns the "First Last" name. But before, I had to handle logic where say, you were on a server like "Area 52." That appended server would not work when querying Blizz's server. You had to normalize it to "Area52" by elimination of any white space. Except now, in WOW Forever, you HAVE to have white space separate the first/last name, and no appended realm name, or it won't work. But the thing is, realms still technically exist, they are just masked, but I can see their names when I query the server.
+
+It was a HUGE headache, but I did it, and it is working. A key factor in how I retrofit this project to work with WOW Forever is how I did it under an assumption that one day Blizz is going to trickle over the realmless feature of WOW Forever to at least Retail builds, and probably others. So, with a little forward thinking, if Blizz ever does that, it will be as simple as a single line of code to carry over these changes to any build as needed.
+
+***NEW FEATURE - NICKNAMES***
+
+
 
 ***QUALITY OF LIFE***
 

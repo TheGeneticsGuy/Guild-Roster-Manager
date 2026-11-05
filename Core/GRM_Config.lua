@@ -61,6 +61,7 @@ Config.ActivateAddon = function(_, event, addon, isReload )
         Initialization:RegisterEvent("PLAYER_ENTERING_WORLD"); -- Ensures this check does not occur until after Addon is fully loaded.
 
     elseif event == "PLAYER_ENTERING_WORLD" then
+        print("Activating addoon")
         Initialization:UnregisterEvent("PLAYER_ENTERING_WORLD");
 
         if isReload then
@@ -352,26 +353,7 @@ GRM.DataLoadDelayProtection = function( isReady , count )
         if IsInGuild() then
             if GetGuildInfo("PLAYER") ~= nil then -- Critical to be receiving data properly from the server...
                 count=count+1;
-                -- Need to pull guildName
-                local guildName, _, _, server = GetGuildInfo("PLAYER");
-                if not guildName or not server then
-                    guildName, _, _, server = GetGuildInfo("PLAYER")
-                end
-                local timePassed = 0;
-                if not server then
-                    timePassed = time() - GRM_G.SessionTime;
-                end
-                if server or timePassed > 10 or count == countLimit then
-                    isReady = true;
-                end
-                
-                if isReady then
-                    if server ~= nil then
-                        GRM_G.guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
-                    else
-                        GRM_G.guildName = guildName .. "-" .. GRM_G.realmName;
-                    end
-                end
+                isReady, GRM_G.guildName = GRM_RF.ConfigureGuildName()
             end
         else
             count = count + 1;

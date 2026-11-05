@@ -380,15 +380,15 @@ DD.PopulateClassDropDownMenu = function()
 
     local j = 1;
 
-    for i = 1, #AllClasses do
+    for i = 1, #GRM_ENUM.CLASSES do
 
-        if (AllClasses[i] ~= "Deathknight" and AllClasses[i] ~= "Monk" and AllClasses[i] ~= "Demonhunter" and
-            AllClasses[i] ~= "Evoker") or ((AllClasses[i] == "Deathknight" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK) or
-            (AllClasses[i] == "Monk" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.MOP) or
-            (AllClasses[i] == "Demonhunter" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.LEGION) or
-            (AllClasses[i] == "Evoker" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF)) then
+        if (GRM_ENUM.CLASSES[i] ~= "Deathknight" and GRM_ENUM.CLASSES[i] ~= "Monk" and GRM_ENUM.CLASSES[i] ~= "Demonhunter" and
+            GRM_ENUM.CLASSES[i] ~= "Evoker") or ((GRM_ENUM.CLASSES[i] == "Deathknight" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK) or
+            (GRM_ENUM.CLASSES[i] == "Monk" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.MOP) or
+            (GRM_ENUM.CLASSES[i] == "Demonhunter" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.LEGION) or
+            (GRM_ENUM.CLASSES[i] == "Evoker" and GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF)) then
 
-            local class = string.upper(AllClasses[i]);
+            local class = string.upper(GRM_ENUM.CLASSES[i]);
             local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class];
 
             if classColor then

@@ -13,7 +13,7 @@ GRM_G.PatchDay = 1793753094;            -- In Epoch Time
 
 -- Build Details
 GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
-GRM_G.IsWoWForever = GRM_WOWF.IsWowForever();
+GRM_G.RealmFree = GRM_RF.IsRealmFree();
 GRM_G.Beta = IsBetaBuild();
 GRM_G.RetailBaseBuild = 120105;
 GRM_G.ForeverBaseBuild = 16001;
@@ -23,15 +23,14 @@ GRM_G.GroupInfoV = 1.65;
 
 -- Guild Details
 GRM_G.guildName = "";
-GRM_G.realmName = string.gsub(string.gsub(GetRealmName(), "-", ""), "%s+", ""); -- Remove the space since server return calls don't include space on multi-name servers, also removes a hyphen if server is hyphened.Necessary for backend addon to addon comms formatting sende bvcxr.
-GRM_G.addonUser = (GetUnitName("PLAYER", false) .. "-" .. GRM_G.realmName); -- Oddly, GetUnitName set as true will not reliably return realm name on non-merged realms without this formatting.
+GRM_G.realmName = string.gsub(string.gsub(GetRealmName(), "-", ""), "%s+", ""); -- Normalized Realm Name
+GRM_G.addonUser = GRM_RF.GetFullName();
 GRM_G.clubID = 0; -- The currently selected clubID (for community frame added in 8.0)
 GRM_G.gClubID = 0; -- The immutable guild clubID
 
 -- Establish Factions
-GRM_G.factionEnum = { ["Horde"] = 0, ["Alliance"] = 1, ["Neutral"] = 2 };
 if UnitFactionGroup("PLAYER") then
-    GRM_G.faction = GRM_G.factionEnum[UnitFactionGroup("PLAYER")]
+    GRM_G.faction = GRM_ENUM.FACTION[UnitFactionGroup("PLAYER")]
 else
     GRM_G.faction = 0;
 end
@@ -342,10 +341,6 @@ GRM_G.maxRaceID = 100;
 
 -- Compatibility
 GRM_G.Compat = {};
-
-
-local AllClasses = {"Deathknight", "Demonhunter", "Druid", "Evoker", "Hunter", "Mage", "Monk", "Paladin", "Priest",
-                    "Rogue", "Shaman", "Warlock", "Warrior"}; -- This is only here as an alphabetized list
 
 local GuildRanks = {}; -- Necessary to have the current ranks in a global table for when changed and so they can be carried over each session
 
@@ -840,10 +835,12 @@ GRM.IsMouseOverAnyChatWindowIncludingCommunities = function()
                 end
 
                 if name ~= nil and name ~= "" then
-                    if server == "" then
-                        name = name .. "-" .. GRM_G.realmName;
-                    else
-                        name = name .. "-" .. server;
+                    if not GRM_G.RealmFree then
+                        if server == "" then
+                            name = name .. "-" .. GRM_G.realmName;
+                        else
+                            name = name .. "-" .. server;
+                        end
                     end
                 end
                 result = true;
@@ -883,7 +880,7 @@ end
 -- What it Does:    Removes the server name after character name.
 -- Purpose:         Server name is not important in a guild of the same server since all will be server name.
 GRM.SlimName = function(name)
-    if name ~= nil then
+    if name ~= nil and not GRM_G.RealmFree then
         if string.find(name, "-") then
             return string.gsub(name, "%-.+", "");
         else
@@ -900,7 +897,7 @@ end
 -- Formatting:      1 = Blzzard convention of always showing except those on same realm, 2 = always show realm, 3 = never show realm
 GRM.FormatName = function( name )
     local normalize = true
-    if GRM_G.IsWoWForever then
+    if GRM_G.RealmFree then
         normalize = false
     end
 
@@ -1432,10 +1429,14 @@ GRM.GetFullNameClubMember = function( memberGUID )
         end
 
         if name and name ~= "" then
-            if not GRM_G.IsWoWForever and realmOrLname == "" then
-                fullName = name .. "-" .. GRM_G.realmName;
-            elseif realmOrLname ~= "" then
-                fullName = name .. "-" .. realmOrLname;
+            if not GRM_G.RealmFree then
+                if realmOrLname == "" then
+                    fullName = name .. "-" .. GRM_G.realmName;
+                else
+                    fullName = name .. "-" .. realmOrLname;
+                end
+            else
+                fullName = name;
             end
         end
     end
@@ -1452,14 +1453,14 @@ GRM.GetPlayerNameByGUID = function(guid)
     end
 
     local name, realm = select(6, GetPlayerInfoByGUID(guid));
-    if not name then
+    if not name or name == "" then
         name, realm = select(6, GetPlayerInfoByGUID(guid));
     end
 
-    if name then
+    if not GRM_G.RealmFree and name and name ~= "" then
         if realm ~= "" then
             name = name .. "-" .. realm;
-        elseif not GRM_G.IsWoWForever and realm == "" then
+        elseif realm == "" then
             name = name .. "-" .. GRM_G.realmName;
         end
     end
@@ -2551,11 +2552,15 @@ GRM.GetPlayersWithoutGUID = function(myRealmOnly, onlyOtherRealms)
                 player.class = "HUNTER"; -- Just setting placeholder.
             end
 
-            if player.GUID == "" and
-                ((not myRealmOnly and not onlyOtherRealms) or
+            if player.GUID == "" then
+            
+                if (GRM_G.RealmFree or
+                    (not myRealmOnly and not onlyOtherRealms) or
                     (myRealmOnly and string.match(player.name, ".--(.+)") == GRM_G.realmName) or
                     (onlyOtherRealms and string.match(player.name, ".--(.+)") ~= GRM_G.realmName)) then
-                table.insert(result, {name, player.bannedInfo[1]});
+
+                    table.insert(result, {name, player.bannedInfo[1]});
+                end
             end
         end
     end
@@ -2815,7 +2820,7 @@ GRM.CollectGUIDsWithinGoup = function()
             name = GetUnitName(unit, true); -- name, include Server
 
             if name and guid then
-                if not string.find(name, "-") then
+                if not GRM_G.RealmFree and not string.find(name, "-") then
                     name = name .. "-" .. GRM_G.realmName;
                 end
                 table.insert(members, {name, guid});
@@ -2843,11 +2848,15 @@ GRM.BanInfo = function()
         openBanWindow();
     end
 
-    GRM.SetConfirmationWindow(confirm, "|CFFFF0000" .. GRM.L("Important Notice!!!") .. "|r\n\n" .. GRM.L(
-        "Due to the implementation of x-realm guilds, when banning players from servers other than your own, important identification data cannot be obtained. To bypass this limitation, add the ban when still grouped with the player, or while you are targeting them.") ..
-        "\n\n" .. GRM.L(
-        "This only applies to players who have never been a member of your guild and are not on your personal realm ({name}).",
-        GRM_G.realmName), ignore, {475, 225}, GRM.L("Remind Me Next Time"), GRM.L("Acknowledge"));
+    local noRealmsMsg = GRM.L("Due to the elimination of Realms, when banning players who have never been in your guild, some queries for important identification data cannot be currently obtained. This may be a technical hiccup. To bypass, add the ban when still grouped with a player or while you are targeting them.");
+    local noRealmsMsg2 = GRM.L("This only applies to players who have never been a member of your guild that you wish to ban.");
+    local hasRealmsMsg = GRM.L("Due to the implementation of x-realm guilds, when banning players from servers other than your own,important identification data cannot be obtained. To bypass this limitation, add the ban when still grouped with the player, or while you are targeting them.")
+    local hasRealmMsg2 = GRM.L("This only applies to players who have never been a member of your guild and are not on your personal realm ({name}).", GRM_G.realmName)
+    local displayMsg1 = GRM_G.RealmFree and noRealmsMsg or hasRealmsMsg
+    local displayMsg2 = GRM_G.RealmFree and noRealmsMsg2 or hasRealmMsg2
+
+    GRM.SetConfirmationWindow(confirm, "|CFFFF0000" .. GRM.L("Important Notice!!!") .. "|r\n\n" .. displayMsg1 ..
+        "\n\n" .. displayMsg2, ignore, {475, 225}, GRM.L("Remind Me Next Time"), GRM.L("Acknowledge"));
 end
 
 -- Method:          GRM.DelayMinimapButtonOpen ( boolean )
@@ -3755,7 +3764,7 @@ GRM.GetStringClassColorByName = function(name)
     local player;
 
     -- Append the server name to it if necessary
-    if string.find(name, "-") == nil then
+    if not GRM_G.RealmFree and string.find(name, "-") == nil then
         name = name .. "-" .. GRM_G.realmName;
     end
 
@@ -3771,7 +3780,6 @@ GRM.GetStringClassColorByName = function(name)
         player = GRM.GetFormerPlayer(name);
 
         if player then
-
             result = GRM.GetClassColorRGB(player.class, true);
 
             if #player.altsAtTimeOfLeaving > 0 then
@@ -4292,10 +4300,14 @@ GRM.ImportJoinDate = function(gName)
             if name == "" then
                 local guildName, _, _, server = GetGuildInfo("PLAYER");
 
-                if server ~= nil then
-                    name = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
+                if not GRM_G.RealmFree then
+                    if server ~= nil then
+                        name = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
+                    else
+                        name = guildName .. "-" .. GRM_G.realmName;
+                    end
                 else
-                    name = guildName .. "-" .. GRM_G.realmName;
+                    name = guildName;
                 end
             end
 
@@ -9014,7 +9026,7 @@ GRM.CheckForNewPlayer = function( name )
                         if player.race then
                             local factionName = C_CreatureInfo.GetFactionInfo(player.race).groupTag;
                             if factionName then
-                                memberInfoToAdd.faction = GRM_G.factionEnum[factionName];
+                                memberInfoToAdd.faction = GRM_ENUM.FACTION[factionName];
                             end
                         end
 
@@ -13215,14 +13227,18 @@ GRM.ConfigureGuild = function()
         local guildName, _, _, server = GetGuildInfo("PLAYER");
         local count = 1;
 
-        if not guildName or not server then
+        if not guildName or (not GRM_G.RealmFree and not server) then
             guildName, _, _, server = GetGuildInfo("PLAYER");
         end
 
-        if server ~= nil then
-            GRM_G.guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
+        if not GRM_G.RealmFree then
+            if server ~= nil then
+                GRM_G.guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
+            else
+                GRM_G.guildName = guildName .. "-" .. GRM_G.realmName;
+            end
         else
-            GRM_G.guildName = guildName .. "-" .. GRM_G.realmName;
+            GRM_G.guildName = guildName;
         end
     end
 
@@ -13385,7 +13401,7 @@ GRM.TrackingConfiguration = function(forced)
             -- For Invite Messaging
             hooksecurefunc(C_GuildInfo, "Invite", function(name)
                 local fullName = name;
-                if not string.find(name, "-") then
+                if not GRM_G.RealmFree and not string.find(name, "-") then
                     fullName = name .. "-" .. GRM_G.realmName;
                 end
 

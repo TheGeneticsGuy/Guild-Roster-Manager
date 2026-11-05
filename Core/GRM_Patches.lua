@@ -3420,6 +3420,9 @@ end
 -- What it Does:            Does an initial trigger check to identify all the GUIDs of players no longer in the guild and adds them, as well as fixes their classes
 -- Purpose:                 GUID was not readily available pre-8.0. This brings up all old info up to parity properly.
 GRM_Patch.BuildGUIDProfilesForAllNoLongerInGuild = function()
+    if GRM_G.RealmFree then
+        return
+    end
     if not GRM_G.OnFirstLoad and not GRM_G.CheckingGUIDThroughFriendsList then
         GRM.QueryPlayersGUIDByFriendsList ( GRM.GetPlayersWithoutGUID() , 1 , true );
     elseif GRM_G.CheckingGUIDThroughFriendsList then

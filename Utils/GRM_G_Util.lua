@@ -51,20 +51,6 @@ G_Util.DatabasesAligned = function()
         
         if classicAPI_Count > 0 and classicAPI_Count == GRM.Util.TableLength(C_Club.GetClubMembers ( GRM_G.gClubID )) then
             return true;
-        else
-            -- Guild Name
-            local guildName, _, _, server = GetGuildInfo("PLAYER");
-
-            if not guildName then
-                -- Sometimes you have to call the server API twice to get it back.
-                guildName, _, _, server = GetGuildInfo("PLAYER");
-            end
-            
-            if server then
-                guildName = guildName .. "-" .. string.gsub(string.gsub(server, "-", ""), "%s+", "");
-            else
-                guildName = guildName .. "-" .. GRM_G.realmName;
-            end
         end
     end
     return false;

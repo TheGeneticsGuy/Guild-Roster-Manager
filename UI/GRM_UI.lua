@@ -7555,6 +7555,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:EnableMouse( true );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetAutoFocus( false );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox.EscapeControl = false;
+    if GRM_G.RealmFree then
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:Disable();
+    end
 
 
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBoxFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelected , "BOTTOMLEFT" , 0 , -4 );
@@ -7682,7 +7685,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM.BuildAutoCompleteBanNames ( GRM.GetAutoCompleteMatches ( GRM_G.autoCompleteBanList , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) );
     end
 
-    GRM_UI.RealmTextChanged = function ()
+    GRM_UI.RealmTextChanged = function()
 
         local realms = GRM.GetAutoCompleteRealmMatches ( GRM_G.autoCompleteRealmsList , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() ); -- I want it to always populate with server names list evne if no matches.
         if #realms == 0 then
@@ -7699,8 +7702,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetScript ( "OnTextChanged" , function( self )
-        if not GRM_G.InitiatingBanEdit and not self.EscapeControl then
-            GRM_UI.RealmTextChanged ();
+        if not GRM_G.InitiatingBanEdit and not self.EscapeControl and not GRM_G.RealmFree then
+            GRM_UI.RealmTextChanged();
         end
     end);
 
@@ -7786,7 +7789,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
         if #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() > 0 and GRM.Util.IsValidName( name ) then
             GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( name );
-            if isServerSelection then
+            if isServerSelection and not GRM_G.RealmFree then
                 name = name .. "-" .. GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText();
             end
             -- Now, we check the class...
@@ -7837,7 +7840,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] , 1 );
 
                 -- Selecting the server
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( string.sub ( foundInfo[1][1] , string.find ( foundInfo[1][1] , "-" ) + 1 ) );
+                if not GRM_G.RealmFree then
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( string.sub ( foundInfo[1][1] , string.find ( foundInfo[1][1] , "-" ) + 1 ) );
+                end
 
                 if playerNameBoxExit then
                     -- Skipping Class selection
@@ -7852,7 +7857,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                         GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:HighlightText ( 0 );
                     end);
                 end
-            elseif #foundInfo > 1 then
+            elseif #foundInfo > 1 and not GRM_G.RealmFree then
                 GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "{num} players were found to have the same name. Please manually select the player's realm" , nil , nil , #foundInfo ) );
                 GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( serverList[1] );
                 GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetFocus();
@@ -7907,16 +7912,18 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     end);
 
     GRM_UI.RealmSelectionUpdateName = function()
-        local text = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText();
-        if text ~= "" then
+        if not GRM_G.RealmFree then
+            local text = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText();
+            if text ~= "" then
 
-            local text2 = GRM.Util.Trim ( GRM.Util.NormalizeRealmName( GRM.Util.Title( text ) ) );
-            if text2 ~= text then
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox.EscapeControl = true;
+                local text2 = GRM.Util.Trim ( GRM.Util.NormalizeRealmName( GRM.Util.Title( text ) ) );
+                if text2 ~= text then
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox.EscapeControl = true;
+                end
+
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( text );
+                GRM_UI.RealmTextChanged();
             end
-
-            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( text );
-            GRM_UI.RealmTextChanged();
         end
         GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollFrame:Hide();
     end
@@ -7950,8 +7957,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetScript ( "OnEnter" , function ( self )
         GRM_UI.SetTooltipScale();
         GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        GameTooltip:AddLine( GRM.L ( "Normalized Realm Names is Acceptable" ) );
-        GameTooltip:AddLine ( GRM.L ( "Example: \'Aerie Peak\' or \'AeriePeak\'" ))
+        if GRM_G.RealmFree then
+            GameTooltip:AddLine( GRM.L ( "Realms are Not Applicable" ) );
+        else
+            GameTooltip:AddLine( GRM.L ( "Normalized Realm Names is Acceptable" ) );
+            GameTooltip:AddLine ( GRM.L ( "Example: \'Aerie Peak\' or \'AeriePeak\'" ))
+        end
+        
         GameTooltip:Show();
     end);
 
@@ -8127,7 +8139,8 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         if not GRM_G.InitiatingBanEdit then
             GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetFocus();
             GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( "" );
-            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( GRM_G.realmName );
+            local realmName = GRM_G.RealmFree and GRM.L("<DOES NOT APPLY>") or GRM_G.realmName
+            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( realmName );
             if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
                 GRM_G.tempAddBanClass = "DEATHKNIGHT";
             else
@@ -8259,13 +8272,19 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetFocus();
                 needsToReEnter = true;
             end
-            if #server <= 1 or tonumber ( server ) ~= nil then
-                GRM.Report ( GRM.L ( "Please Enter a Valid Server Name" ) );
-                needsToReEnter = true;
+            if not GRM_G.RealmFree then
+                if #server <= 1 or tonumber ( server ) ~= nil then
+                    GRM.Report ( GRM.L ( "Please Enter a Valid Server Name" ) );
+                    needsToReEnter = true;
+                end
             end
 
             if not needsToReEnter then
-                local name = ( GRM.Util.FormatInputName ( GRM.Util.Trim( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) ) .. "-" .. GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() );
+                local name = GRM.Util.FormatInputName ( GRM.Util.Trim( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) );
+                
+                if not GRM_G.RealmFree then
+                    name = name .. "-" .. GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText();
+                end
 
                 -- Check if there are alts.
                 local isFound = false;
@@ -8395,7 +8414,11 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             -- This is where the actual logic for doling out the ban takes place!!!
 
             -- Required info to add the player...
-            local fullName = GRM.Util.Trim( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() ) .. "-" .. string.gsub ( string.gsub ( GRM.Util.Trim( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() ) , "-" , "" ) , "%s+" , "" );
+            local fullName = GRM.Util.Trim( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:GetText() );
+            
+            if not GRM_G.RealmFree then
+                fullName = fullName .. "-" .. string.gsub ( string.gsub ( GRM.Util.Trim( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:GetText() ) , "-" , "" ) , "%s+" , "" );
+            end
             local banReason = GRM.Util.Trim ( GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:GetText() );
             if banReason == GRM.L ( "Reason Banned?" ) or banReason == nil then
                 banReason = "";
@@ -8505,7 +8528,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     player.reasonBanned = banReason;
                 end
 
-                if string.match ( fullName , ".--(.+)" ) == GRM_G.realmName and not GRM_G.CheckingGUIDThroughFriendsList then
+                if not GRM_G.RealmFree and string.match ( fullName , ".--(.+)" ) == GRM_G.realmName and not GRM_G.CheckingGUIDThroughFriendsList then
                     GRM.QueryPlayersGUIDByFriendsList ( GRM.GetPlayersWithoutGUID ( true ) , 1 , true , true );
                 else
                     GRM.QueryNearbyGUIDsAndUpdate( fullName );
@@ -8565,7 +8588,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
 
                     GRM.Report ( "\n" ..GRM.L ( "GRM:" ) .. " " .. GRM.L ( "One moment, requesting additional details on {name} from the server. Ban List will soon update." , colorCode .. GRM.SlimName ( fullName ) .. "|r\n" ) );
 
-                    if string.match ( fullName , ".--(.+)" ) ~= GRM_G.realmName then
+                    if GRM_G.RealmFree or string.match ( fullName , ".--(.+)" ) ~= GRM_G.realmName then
 
                         timer = 2;
                         C_Timer.After ( timer , function()
@@ -8616,7 +8639,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         end
         -- Build the frames...
         GRM.RefreshBanListFrames();
-        if not GRM_G.CheckingGUIDThroughFriendsList then
+        if not GRM_G.RealmFree and not GRM_G.CheckingGUIDThroughFriendsList then
             GRM.QueryPlayersGUIDByFriendsList ( GRM.GetPlayersWithoutGUID( true ) , 1 , true , true );
         end
 
@@ -8779,7 +8802,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:Show();
                 GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanConfirmButtonText:SetText ( GRM.L ( "Update Ban" ) );
                 GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( GRM.SlimName ( GRM_G.TempBanTarget[1] ) );
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( string.sub ( GRM_G.TempBanTarget[1] , string.find ( GRM_G.TempBanTarget[1] , "-" ) + 1 ) );
+                if not GRM_G.RealmFree then
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( string.sub ( GRM_G.TempBanTarget[1] , string.find ( GRM_G.TempBanTarget[1] , "-" ) + 1 ) );
+                end
 
                 GRM_G.tempAddBanClass = "DEATHKNIGHT"; -- Placeholder
                 local banReason = "";

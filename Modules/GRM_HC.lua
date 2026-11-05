@@ -55,7 +55,7 @@ HC.HardCoreInitialize = function()
         -- Purpose:         Ensure accurate time reporting of a player's death.
         HC.LogDeath = function ( name )
 
-            if not name:find ( "-" , 1 , true ) then
+            if not GRM_G.RealmFree and not name:find ( "-" , 1 , true ) then
                 name = name .. "-" .. GRM_G.realmName;
             end
             local player = GRM.GetPlayer ( name );

@@ -2069,7 +2069,10 @@ GRML.English = function()
     -- Misc
     GRM_L["All GRM Settings have been set to default."] = true
     GRM_L["Public and Officer notes are addon restricted in current Warcraft version. GRM will only consider Custom Note if empty."] = true
-
+    GRM_L["Due to the elimination of Realms, when banning players who have never been in your guild, some queries for important identification data cannot be currently obtained. This may be a technical hiccup. To bypass, add the ban when still grouped with a player or while you are targeting them."] = true
+    GRM_L["This only applies to players who have never been a member of your guild that you wish to ban."] = true
+    GRM_L["Realms are Not Applicable"] = true
+    
     -- NamesTab in options
     GRM_L["Tag Color"] = true
     GRM_L["Nickname Tag Color"] = true

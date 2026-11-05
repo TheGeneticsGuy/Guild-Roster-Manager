@@ -8031,7 +8031,7 @@ GRM.BuildKickMacrodScrollButtons = function ( ind , isResizeAction )
 
         coreButton:SetScript ( "OnMouseDown" , function ( _ , button )
             local playerName = GRM_UI.GRM_ToolCoreFrame.GRM_ToolMacrodScrollChildFrame.AllButtons[ind][2]:GetText();
-            if string.find ( playerName , "-" , 1 , true ) == nil then
+            if not GRM_G.RealmFree and string.find ( playerName , "-" , 1 , true ) == nil then
                 playerName = playerName .. "-" .. GRM_G.realmName;
             end
             if button == "LeftButton" then

@@ -15,7 +15,7 @@
 Core\GRM_Types.lua
 Core\GRM_SaveVar_API.lua
 Compatibility\GRM_Compatibility.lua
-Compatibility\GRM_Forever.lua
+Compatibility\GRM_RealmFree.lua
 Core\GRM_Core.lua
 Core\GRM_SlashCommands.lua
 Core\GRM_Settings.lua

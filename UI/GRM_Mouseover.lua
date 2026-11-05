@@ -1031,7 +1031,8 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI_Util.BuildSliderTextures(altSlider)
 
     -- ADD ALT EDIT FRAME
-    GRM_UI.CreateCoreFrame("GRM_AddAltEditFrame", f.GRM_CoreAltFrame, nil, 173 + (#GRM_G.realmName * 3.5), 226, "TranslucentFrameTemplate", false,
+    local distance = GRM_G.RealmFree and 30 or (#GRM_G.realmName * 3.5) 
+    GRM_UI.CreateCoreFrame("GRM_AddAltEditFrame", f.GRM_CoreAltFrame, nil, 173 + distance, 226, "TranslucentFrameTemplate", false,
                           {"BOTTOMLEFT", f, "BOTTOMRIGHT", -7, 0}, nil, true, false)
     local AddAltEditFrame = f.GRM_CoreAltFrame.GRM_AddAltEditFrame
     AddAltEditFrame:SetPoint("BOTTOMLEFT", f, "BOTTOMRIGHT", -7, 0)
@@ -1057,7 +1058,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_AddAltEditFrameHelpText", AddAltEditFrame, "GameFontNormalSmall", "", 11, {"CENTER", AddAltEditFrame, "CENTER", 0, 0}, 146, {1, 0, 0}, nil, true)
     GRM_UI.CreateString("GRM_AddAltEditFrameHelpText2", AddAltEditFrame, "GameFontWhiteTiny", GRM.L("Shift-Click Name On Roster Also Works"), 11, {"BOTTOM", AddAltEditFrame, "BOTTOM", 0, 30}, 146, nil, nil, true)
 
-    GRM_UI.CreateEditBox("GRM_AddAltEditBox", AddAltEditFrame, "InputBoxTemplate", 126 + (#GRM_G.realmName * 3.5), 25, {"TOP", AddAltEditFrame.GRM_AddAltTitleText, "BOTTOM", 0, -2}, "LEFT", {1,1,1}, 40, false)
+    GRM_UI.CreateEditBox("GRM_AddAltEditBox", AddAltEditFrame, "InputBoxTemplate", 126 + distance, 25, {"TOP", AddAltEditFrame.GRM_AddAltTitleText, "BOTTOM", 0, -2}, "LEFT", {1,1,1}, 40, false)
     AddAltEditFrame.GRM_AddAltScrollFrame:SetPoint("TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0)    
 
     -- ALT GROUP SCROLL FRAME

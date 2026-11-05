@@ -2,6 +2,12 @@
 
 GRM_ENUM = {};
 
+GRM_ENUM.FACTION = {
+    ["Horde"] = 0,
+    ["Alliance"] = 1,
+    ["Neutral"] = 2
+};
+
 GRM_ENUM.OPTIONS_TABS = {
     MISC = 0,
     GENERAL = 1,
@@ -76,3 +82,6 @@ GRM_ENUM.DAYS_IN_MONTH = {
     [11] = 30,
     [12] = 31
 }
+
+GRM_ENUM.CLASSES = {"Deathknight", "Demonhunter", "Druid", "Evoker", "Hunter", "Mage", "Monk", "Paladin", "Priest",
+                    "Rogue", "Shaman", "Warlock", "Warrior"};

@@ -461,7 +461,9 @@ Scan.GetClubMemberTable = function()
         for i = 1 , #members do
             local member = C_Club.GetMemberInfo(GRM_G.gClubID, members[i])
             if member.name then
-                member.name = GRM.AppendServerNameSimple ( member.name );
+                if not GRM_G.RealmFree then
+                    member.name = GRM.AppendServerNameSimple ( member.name );
+                end
                 if member.name == GRM_G.addonUser then
                     clubMemberTable.ownNameFound = true;
                 end
@@ -545,7 +547,7 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
                 if player.race then
                     local factionName = C_CreatureInfo.GetFactionInfo(player.race).groupTag;
                     if factionName then
-                        player.faction = GRM_G.factionEnum[factionName];
+                        player.faction = GRM_ENUM.FACTION[factionName];
                     end
                 end
 
@@ -4276,11 +4278,13 @@ Scan.GetGuildEventString = function(index, playerName, initRank, finRank, class,
     local logEntryMetaData = {false};
     
     local normalizeNames = function(name1,name2)
-        if name1 then
-            name1 = GRM.AppendServerNameSimple(name1);
-        end
-        if name2 then
-            name2 = GRM.AppendServerNameSimple(name2);
+        if not GRM_G.RealmFree then
+            if name1 then
+                name1 = GRM.AppendServerNameSimple(name1);
+            end
+            if name2 then
+                name2 = GRM.AppendServerNameSimple(name2);
+            end
         end
         return name1,name2;
     end
@@ -4412,12 +4416,16 @@ Scan.GenerateRetroactiveGuildEventReport = function()
     -- Helper function to normalize names
     local normalizeNames = function(name1, name2)
         if name1 and name1 ~= "" then
-            name1 = GRM.AppendServerNameSimple(name1);
+            if not GRM_G.RealmFree then
+                name1 = GRM.AppendServerNameSimple(name1);
+            end
         else
             name1 = nil;
         end
         if name2 and name2 ~= "" then
-            name2 = GRM.AppendServerNameSimple(name2);
+            if not GRM_G.RealmFree then
+                name2 = GRM.AppendServerNameSimple(name2);
+            end
         else
             name2 = nil;
         end
