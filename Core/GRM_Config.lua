@@ -61,7 +61,6 @@ Config.ActivateAddon = function(_, event, addon, isReload )
         Initialization:RegisterEvent("PLAYER_ENTERING_WORLD"); -- Ensures this check does not occur until after Addon is fully loaded.
 
     elseif event == "PLAYER_ENTERING_WORLD" then
-        print("Activating addoon")
         Initialization:UnregisterEvent("PLAYER_ENTERING_WORLD");
 
         if isReload then

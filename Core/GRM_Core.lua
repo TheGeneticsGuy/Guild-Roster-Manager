@@ -880,8 +880,8 @@ end
 -- What it Does:    Removes the server name after character name.
 -- Purpose:         Server name is not important in a guild of the same server since all will be server name.
 GRM.SlimName = function(name)
-    if name ~= nil and not GRM_G.RealmFree then
-        if string.find(name, "-") then
+    if name ~= nil then
+        if not GRM_G.RealmFree and string.find(name, "-") then
             return string.gsub(name, "%-.+", "");
         else
             return name;

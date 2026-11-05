@@ -1,6 +1,7 @@
 
 TODO: - When swapping languages, the dropdown menu doesn't re-translate.
 TODO: - On the join and promote dates - it needs to re-process the day dropdowns...
+TODO: - Officer Tab - Unlock calendar
 
 -- Possible Compatibility changes in WOW Forever
 TODO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever

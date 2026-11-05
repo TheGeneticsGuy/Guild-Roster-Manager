@@ -25,7 +25,7 @@ FormattingDupeProtect.tableString = "";
 local CreateGuildCreationDatePattern = function()
     local pattern = GUILD_INFO_TEMPLATE;
 
-    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK or GRM_G.Region == "deDE" or GRM_G.Region == "frFR" or GRM_G.Region == "koKR" then
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK or (GRM_G.BuildVersion >= GRM_ENUM.BUILD.FOREVER and GRM_G.BuildVersion < GRM_ENUM.BUILD.TBC) or GRM_G.Region == "deDE" or GRM_G.Region == "frFR" or GRM_G.Region == "koKR" then
         for i = 1, 5 do
             pattern = string.gsub(pattern, "%%" .. i .. "$d", "(%%d+)");
         end
@@ -321,7 +321,6 @@ local ProcessSystemMessage = function(msg)
         if string.find(msg, GRM_G.guildInfoSystemMessage) and ((time() - GRM_G.SystemMsgThrottle) > 1) then
             GRM_G.SystemMsgThrottle = time()
             GRM_G.CreationDatePattern = GRM_G.CreationDatePattern or CreateGuildCreationDatePattern()
-
             local a, b, c, _, numUniqueAccounts = string.match(msg, GRM_G.CreationDatePattern)
             if a and b and c then
                 local month, day, year
