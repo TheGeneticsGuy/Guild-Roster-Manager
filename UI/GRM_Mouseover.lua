@@ -891,7 +891,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     -- Note Windows
     GRM_UI.CreateCoreFrame("GRM_PlayerNoteWindow", f, nil, 166, 53, BackdropTemplateMixin and "BackdropTemplate", false, {"LEFT", f, "LEFT", 15, 10}, nil, false, false)
     f.GRM_PlayerNoteWindow:SetPoint("LEFT", f, "LEFT", 15, 10)
-    GRM_UI.CreateString("GRM_MouseoverNoteTitle", f.GRM_PlayerNoteWindow, "GameFontNormalSmall", GRM.L("Note:"), 11, {"BOTTOMLEFT" , f.GRM_PlayerNoteWindow , "TOPLEFT" , 5 , 0 }, 159, nil, "LEFT")
+    GRM_UI.CreateString("GRM_MouseoverNoteTitle", f.GRM_PlayerNoteWindow, "GameFontNormalSmall", GRM.L("Note:"), 12, {"BOTTOMLEFT" , f.GRM_PlayerNoteWindow , "TOPLEFT" , 5 , 0 }, 159, nil, "LEFT")
     GRM_UI.CreateString("GRM_noteFontString1", f.GRM_PlayerNoteWindow, "GameFontWhite", "", 12, {"TOPLEFT", f.GRM_PlayerNoteWindow, "TOPLEFT", 8, -7}, 143, nil, "LEFT", true)
     f.GRM_PlayerNoteWindow.GRM_noteFontString1:SetMaxLines(3)
 
@@ -913,7 +913,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     GRM_UI.CreateCoreFrame("GRM_PlayerOfficerNoteWindow", f, nil, 166, 53, BackdropTemplateMixin and "BackdropTemplate", false, {"RIGHT", f, "RIGHT", -15, 10}, nil, false, false)
     f.GRM_PlayerOfficerNoteWindow:SetPoint("RIGHT", f, "RIGHT", -15, 10)
-    GRM_UI.CreateString("GRM_MemberDetailONoteTitle", f.GRM_PlayerOfficerNoteWindow, "GameFontNormalSmall", GRM.L("Officer's Note:"), 11, {"BOTTOMLEFT" , f.GRM_PlayerOfficerNoteWindow , "TOPLEFT" , 5 , 0}, 159, nil, "LEFT")
+    GRM_UI.CreateString("GRM_MemberDetailONoteTitle", f.GRM_PlayerOfficerNoteWindow, "GameFontNormalSmall", GRM.L("Officer's Note:"), 12, {"BOTTOMLEFT" , f.GRM_PlayerOfficerNoteWindow , "TOPLEFT" , 5 , 0}, 159, nil, "LEFT")
     GRM_UI.CreateString("GRM_noteFontString2", f.GRM_PlayerOfficerNoteWindow, "GameFontWhite", "", 12, {"TOPLEFT", f.GRM_PlayerOfficerNoteWindow, "TOPLEFT", 8, -7}, 143, nil, "LEFT", true)
     f.GRM_PlayerOfficerNoteWindow.GRM_noteFontString2:SetMaxLines(3)
     
@@ -926,9 +926,9 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     GRM_UI.CreateString("GRM_NoteCount", f, "GameFontWhite", "", 11, {"TOPRIGHT", f.GRM_PlayerNoteWindow, "TOPRIGHT", -6, 8})
 
     -- Custom Note
-    GRM_UI.CreateCoreFrame("GRM_CustomNoteEditBoxFrame", f, nil, 166, 113, BackdropTemplateMixin and "BackdropTemplate", false, {"TOPLEFT", f.GRM_PlayerNoteWindow, "BOTTOMLEFT", 0, -10}, nil, false, false)
-    f.GRM_CustomNoteEditBoxFrame:SetPoint("TOPLEFT", f.GRM_PlayerNoteWindow, "BOTTOMLEFT", 0, -10)
-    GRM_UI.CreateString("GRM_CustomNoteEditBoxText", f.GRM_CustomNoteEditBoxFrame, "GameFontNormal", GRM.L("Custom Public Notes:"), 11, {"BOTTOMLEFT", f.GRM_CustomNoteEditBoxFrame, "TOPLEFT", 5, 0}, nil, nil, "LEFT")
+    GRM_UI.CreateCoreFrame("GRM_CustomNoteEditBoxFrame", f, nil, 166, 113, BackdropTemplateMixin and "BackdropTemplate", false, {"TOPLEFT", f.GRM_PlayerNoteWindow, "BOTTOMLEFT", 0, -21}, nil, false, false)
+    f.GRM_CustomNoteEditBoxFrame:SetPoint("TOPLEFT", f.GRM_PlayerNoteWindow, "BOTTOMLEFT", 0, -21)
+    GRM_UI.CreateString("GRM_CustomNoteEditBoxText", f.GRM_CustomNoteEditBoxFrame, "GameFontNormal", GRM.L("Custom Public Notes:"), 12, {"BOTTOMLEFT", f.GRM_CustomNoteEditBoxFrame, "TOPLEFT", 5, 0}, nil, nil, "LEFT")
     GRM_UI.CreateString("GRM_CustomNoteTextCount", f.GRM_CustomNoteEditBoxFrame, "GameFontWhiteTiny", "", 11, {"LEFT", f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteEditBoxText, "RIGHT", 5, 0})
     f.GRM_CustomNoteEditBoxFrame.GRM_CustomNoteTextCount:Hide()
     GRM_UI.CreateCheckBox("GRM_CustomNoteSyncMetaCheckBox", f.GRM_CustomNoteEditBoxFrame, "InterfaceOptionsCheckButtonTemplate", {26,26}, {"TOPLEFT", f.GRM_CustomNoteEditBoxFrame, "BOTTOMLEFT", 35, 2}, nil, "Sync:", "GameFontNormalSmall", 11)
@@ -1102,6 +1102,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     -- Member Mouseover window - macro tool checkbox frame
     GRM_UI.CreateCoreFrame("GRM_MacroToolIgnoreListSettingsFrame", f, nil, 400, 235, "TranslucentFrameTemplate", false, {"TOPLEFT", f, "BOTTOMLEFT", 0, 2}, nil, true, true)
+    f.GRM_MacroToolIgnoreListSettingsFrame:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, 2)
     local IgnoreMacroFrame = f.GRM_MacroToolIgnoreListSettingsFrame
     IgnoreMacroFrame.modifier = 32
     IgnoreMacroFrame.Timer = 1
@@ -2061,31 +2062,31 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
 
         if player.safeList.kick[1] then
             IgnoreMacroFrame.GRM_IgnoreListFrameKickCheckBox:SetChecked(true)
-            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
+            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
             color1 = "|CFF00CCFF"
         else
             IgnoreMacroFrame.GRM_IgnoreListFrameKickCheckBox:SetChecked(false)
             color1 = "|CFF7F7F7F"
-            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
+            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton.GRM_IgnoreListKickTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox)
         end
 
         if player.safeList.promote[1] then
             IgnoreMacroFrame.GRM_IgnoreListFramePromoteCheckBox:SetChecked(true)
-            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
+            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
             color2 = "|CFF00CCFF"
         else
             IgnoreMacroFrame.GRM_IgnoreListFramePromoteCheckBox:SetChecked(false)
-            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
+            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton.GRM_IgnoreListPromoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox)
             color2 = "|CFF7F7F7F"
         end
 
         if player.safeList.demote[1] then
             IgnoreMacroFrame.GRM_IgnoreListFrameDemoteCheckBox:SetChecked(true)
-            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
+            ReEnableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
             color3 = "|CFF00CCFF"
         else
             IgnoreMacroFrame.GRM_IgnoreListFrameDemoteCheckBox:SetChecked(false)
-            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
+            DisableSubIgnoreOption(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton.GRM_IgnoreListDemoteTimeExpireButtonText, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox)
             color3 = "|CFF7F7F7F"
         end
 
@@ -2174,23 +2175,35 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         end
 
         local kickMsg, promoteMsg, demoteMsg = "", "", ""
-        if CanGuildRemove() then kickMsg = ruleEnum[player.safeList.kick[1]] else kickMsg = disabled end
-        if CanGuildPromote() then promoteMsg = ruleEnum[player.safeList.promote[1]] else promoteMsg = disabled end
-        if CanGuildDemote() then demoteMsg = ruleEnum[player.safeList.demote[1]] else demoteMsg = disabled end
+        if CanGuildRemove() then
+            kickMsg = ruleEnum[player.safeList.kick[1]]
+        else
+            kickMsg = disabled 
+        end
+        if CanGuildPromote() then
+            promoteMsg = ruleEnum[player.safeList.promote[1]]
+        else
+            promoteMsg = disabled
+        end
+        if CanGuildDemote() then
+            demoteMsg = ruleEnum[player.safeList.demote[1]]
+        else
+            demoteMsg = disabled
+        end
 
         IgnoreMacroFrame.GRM_IgnoreListFrameKickCheckBoxText2:SetText(kickMsg)
         IgnoreMacroFrame.GRM_IgnoreListFramePromoteCheckBoxText2:SetText(promoteMsg)
         IgnoreMacroFrame.GRM_IgnoreListFrameDemoteCheckBoxText2:SetText(demoteMsg)
 
         IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireEditBox:SetText(player.safeList.kick[3])
-        IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText:SetText(GRM.L("Reactivate monitoring after {num} days.", nil, nil, color1 .. player.safeList.kick[3] .. "|r") .. "  " .. GRM.L("Set Days:"))
-        GRM.NormalizeHitRects(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButtonText)
+        IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton.GRM_IgnoreListKickTimeExpireButtonText:SetText(GRM.L("Reactivate monitoring after {num} days.", nil, nil, color1 .. player.safeList.kick[3] .. "|r") .. "  " .. GRM.L("Set Days:"))
+        GRM.NormalizeHitRects(IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListKickTimeExpireButton.GRM_IgnoreListKickTimeExpireButtonText)
         IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireEditBox:SetText(player.safeList.promote[3])
-        IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText:SetText(GRM.L("Reactivate monitoring after {num} days.", nil, nil, color2 .. player.safeList.promote[3] .. "|r") .. "  " .. GRM.L("Set Days:"))
-        GRM.NormalizeHitRects(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButtonText)
+        IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton.GRM_IgnoreListPromoteTimeExpireButtonText:SetText(GRM.L("Reactivate monitoring after {num} days.", nil, nil, color2 .. player.safeList.promote[3] .. "|r") .. "  " .. GRM.L("Set Days:"))
+        GRM.NormalizeHitRects(IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListPromoteTimeExpireButton.GRM_IgnoreListPromoteTimeExpireButtonText)
         IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireEditBox:SetText(player.safeList.demote[3])
-        IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText:SetText(GRM.L("Reactivate monitoring after {num} days.", nil, nil, color3 .. player.safeList.demote[3] .. "|r") .. "  " .. GRM.L("Set Days:"))
-        GRM.NormalizeHitRects(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButtonText)
+        IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton.GRM_IgnoreListDemoteTimeExpireButtonText:SetText(GRM.L("Reactivate monitoring after {num} days.", nil, nil, color3 .. player.safeList.demote[3] .. "|r") .. "  " .. GRM.L("Set Days:"))
+        GRM.NormalizeHitRects(IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton, IgnoreMacroFrame.GRM_IgnoreListDemoteTimeExpireButton.GRM_IgnoreListDemoteTimeExpireButtonText)
 
         IgnoreMacroFrame:SetHeight(baseHeight)
     end

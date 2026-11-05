@@ -124,7 +124,7 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.showFaction = GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF;
         setting.useFade = false;
         setting.viewGuildRep = GRM_G.BuildVersion >= GRM_ENUM.BUILD.CATA;
-        setting.showBorders = false; 
+        setting.showBorders = true; 
         setting.showBDay = true;
         setting.colorizeNames = true;
         setting.colorizeClassicRosterNames = true;

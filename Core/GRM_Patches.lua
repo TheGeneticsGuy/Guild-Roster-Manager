@@ -1061,6 +1061,8 @@ GRM_Patch.PatchHistory = {
             GRM_Patch.EditSetting("showNicknameNotMain", nil)
             GRM_Patch.EditSetting("ShowNicknameToAll", nil)
             GRM_Patch.EditSetting("showMainName", nil)
+            GRM_Patch.AddOrEditNewMacroSetting("promoteRules", "AddNoteOnPromotion", {false, "", 3, false})
+            GRM_Patch.SetAllNoteMacroRulesToCustom()
         end
     },
 }
@@ -1440,31 +1442,6 @@ GRM_Patch.ModifyPlayerSetting = function ( setting , valueOrLogic , additionalSe
                     else
                         GRM_AddonSettings_Save[F][p][setting] = valueOrLogic;
                     end
-                end
-            end
-        end
-    end
-end
-
--- 1.943
--- Method:          GRM_Patch.ModifyOrAddMacroRuleSetting ( string , string , function or type )
--- What it Does:    Allows the player to modify an existing setting to a new value given the valueOrLogic function
--- Purpose:         To be able to retroactively adapt and make changes to the database of macro rules
-GRM_Patch.ModifyOrAddMacroRuleSetting = function ( ruleType , setting , valueOrFunction )
-    for F in pairs ( GRM_AddonSettings_Save ) do
-        if type (GRM_AddonSettings_Save[F]) == "table" then
-            for p in pairs ( GRM_AddonSettings_Save[F] ) do
-                if not GRM_AddonSettings_Save[F][p][ruleType] then
-                    GRM_AddonSettings_Save[F][p][ruleType] = {};
-                end
-                for _,rule in pairs ( GRM_AddonSettings_Save[F][p][ruleType] ) do
-
-                    if type ( valueOrFunction ) == "function" then
-                        rule = valueOrFunction ( rule , setting );
-                    else
-                        rule[setting] = valueOrFunction;
-                    end
-
                 end
             end
         end
@@ -9719,6 +9696,17 @@ GRM_Patch.MemberDataCleanup = function()
         if guildData.alts then
             for _, group in pairs(guildData.alts) do
                 group.nicknameDetails = nil;
+            end
+        end
+    end
+end
+
+-- R1.995
+GRM_Patch.SetAllNoteMacroRulesToCustom = function()
+    for g in pairs ( GRM_AddonSettings_Save ) do
+        if type(GRM_AddonSettings_Save[g]) == "table" then
+            for _,rule in pairs ( GRM_AddonSettings_Save[g].demoteRules ) do
+                rule.AddNoteOnDemotion[3] = 3;
             end
         end
     end

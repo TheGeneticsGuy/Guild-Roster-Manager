@@ -1,5 +1,4 @@
 
-TODO: - Request to implement custom note on the Promotions in macro tool
 TODO: - When swapping languages, the dropdown menu doesn't re-translate.
 TODO: - On the join and promote dates - it needs to re-process the day dropdowns...
 TODO: GRM.FormatName -- This is set to auto normalize - I should set it to false if WOW Forever
@@ -44,6 +43,8 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 * The Mouseover Alt Window now has a static alt button that doesn't move, and the scroll window is improved, making it obvious if you have additional alts to scroll to.
 
+* Promotion macros can now ALSO add a custom note to be added when players get promotions.
+
 * The .toc files are now unified as a single file, no matter which GRM build you use.
 
 ***BUG FIXES***
@@ -65,6 +66,8 @@ Thank you to all who have been great support and even coding mentors over the ye
 * Fixed a bug where if you mouseover the side alt details frame where you can get a more detailed list of alt data on the mouseover, then you would lose your window locked status.
 
 * Fixed a serious bug in the General Options where if you chose to make your settings specific to each toon, rather than guild-wide settings, it would cause a lua error and prevent GRM from working until your next session. This now instantly works when selecting. No need for reload.
+
+* Fixed an issue where if you were sending a customNote to a player note with the macro tool, when they got demoted, it wasn't working. This was a side-effect of the addongeddon changes in Midnight when I tried to adapt but it ended up gimping all builds, including Retail. This is now fixed (and expanded to promotions).
 
 * Many other minor bugs were resolved...
 

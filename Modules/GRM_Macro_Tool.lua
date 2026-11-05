@@ -1360,8 +1360,8 @@ GRM_UI.LoadToolFrames = function ( isManual )
                         --         GRM.Log.AddLog ( { 5 , logReportWithTime , simpleName , oldNote , player.officerNote , GRM.Time.GetTimestamp() } );
                         --     end
 
-                        if details.destination == 1 and not string.find ( player.customNote[4] , details.note , 1 , true ) then    -- Custom note no server permission needed
-                            tempNote = GRM.Util.Trim ( player.officerNote .. " " .. details.note );
+                        if details.destination == 3 and not string.find ( player.customNote[4] , details.note , 1 , true ) then    -- Custom note no server permission needed
+                            tempNote = GRM.Util.Trim ( player.customNote[4] .. " " .. details.note );
 
                             if GRM.Util.GetNumLetters(tempNote) <= GRM_G.MaxCustomNoteSize or details.forceOverwrite then
 
@@ -1411,7 +1411,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     -- Need to validate the names are update now...
                     if GRM.IsMacroActionComplete() then
 
-                        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then   -- Adding a custom message
+                        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 or GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then   -- Adding a custom message
                             GRM_Macro.CustomMessageToPlayerNote();
                         end
 
@@ -3835,7 +3835,25 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetHitRectInsets ( 0 , 0 , 0 , 0 );
 
-                    GRM_UI.HideAllAddMessageToNote();
+                    GRM_UI.ShowAllAddMessageToNote();
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[1] then
+                        GRM_UI.GRM_AddMessageToNoteCheckbox_Enable();
+                    else
+                        GRM_UI.GRM_AddMessageToNoteCheckbox_Disable();
+                    end
+
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[4] then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(true);
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(false);
+                    end
+
+                    local text = GRM.L ( "Click to Set" );
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2] > 0 then
+                        text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2];
+                    end
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetText ( text );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = text;
 
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Hide();
@@ -4255,8 +4273,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton:SetHitRectInsets ( 0 , 0 , 0 , 0 );
 
-                    GRM_UI.HideAllAddMessageToNote();
-
                 elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildOrRankSelected:Hide();
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText:Show();
@@ -4264,10 +4280,10 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RosterKickRecommendEditBox:SetPoint ( "LEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText , "RIGHT" , 5 , 0 );
 
                     GRM.NormalizeHitRects ( GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButtonText );
-
-                    GRM_UI.ShowAllAddMessageToNote();
-                    GRM_UI.GRM_AddMessageToNoteCheckbox_Disable();
                 end
+
+                GRM_UI.ShowAllAddMessageToNote();
+                GRM_UI.GRM_AddMessageToNoteCheckbox_Disable();
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule = GRM.BuildNewPromoteOrDemoteRuleTemplate();
 
@@ -4358,13 +4374,27 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_MythicRatingRuleCheckButton:SetChecked ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected:EnableMouse ( false );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetTextColor ( 0.5 , 0.5 , 0.5 );
+
+                GRM_UI.SetMessageToNoteRadialConfig();
+
                 if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[1] );
+                    if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[4] then
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(true);
+                    else
+                        GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(false);
+                    end
+
+                    local text = GRM.L ( "Click to Set" );
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2] > 0 then
+                        text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2];
+                    end
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetText ( text );
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = text;
                 else
                     -- Demote
                     GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_GuildMythicRatingSymbolSelected.GRM_GuildMythicRatingSymbolSelectedText:SetText ( repOperatorsMythic[3] );
 
-                    GRM_UI.SetMessageToNoteRadialConfig();
                     if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] then
                         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteOverwriteCheckbox:SetChecked(true);
                     else
@@ -4418,7 +4448,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
 
             if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 820 );
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 920 );
             else
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 855 );
             end
@@ -5939,16 +5969,29 @@ GRM_UI.LoadToolFrames = function ( isManual )
         -- Add Message to Player Note
         GRM_UI.AddMessageToNoteAfterRankChange = function( self )
             if self:GetChecked() then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[1] = true
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[1] = true
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then 
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[1] = true
+                end
                 GRM_UI.GRM_AddMessageToNoteCheckbox_Enable();
             else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[1] = false;
-                GRM_UI.GRM_AddMessageToNoteCheckbox_Disable()
-
                 local text = GRM.L ( "Click to Set" );
-                if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] > 0 then
-                    text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2];
+
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[1] = false;
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2] > 0 then
+                        text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2];
+                    end
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[1] = false;
+                    if #GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] > 0 then
+                        text = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2];
+                    end
                 end
+                
+                GRM_UI.GRM_AddMessageToNoteCheckbox_Disable();
+
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetText ( text );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = text;
             end
@@ -5957,23 +6000,42 @@ GRM_UI.LoadToolFrames = function ( isManual )
         --  Force Overwrite
         GRM_UI.AddMessageToNoteOverwriteLogic = function( self )
             if self:GetChecked() then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] = true
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[4] = true
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] = true
+                end
             else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] = false;
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[4] = false
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[4] = false
+                end
             end
         end
 
         -- Choose note destination
         GRM_UI.AddMessageToNoteDestinationChoice = function()
             if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:GetChecked() then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 1
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[3] = 1
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] = 1
+                end
             end
         end
 
         GRM_UI.SetMessageToNoteRadialConfig = function()
-            if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 1 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(true);
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[3] == 1 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(true);
+                end
+            else
+                if GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3] == 1 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteDestinationRadial1:SetChecked(true);
+                end
             end
+            
         end
 
         GRM_UI.MessageToNoteOverwriteTT = function( self )
@@ -5988,7 +6050,13 @@ GRM_UI.LoadToolFrames = function ( isManual )
         GRM_UI.AddMessageToNoteEditBoxTT = function ( self )
             -- Letter max varies depending on destination
             local maxLettersTable = { [1] = GRM_G.MaxPublicNoteSize, [2] = GRM_G.MaxOfficerNoteSize , [3] = GRM_G.MaxCustomNoteSize };
-            local maxLetters = maxLettersTable[GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3]];
+            local maxLetters = 0
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                maxLetters = maxLettersTable[GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[3]];
+            elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                maxLetters = maxLettersTable[GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[3]];
+            end
+            
 
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
@@ -6063,9 +6131,17 @@ GRM_UI.LoadToolFrames = function ( isManual )
             local textResult = self:GetText();
             if textResult == "" then
                 textResult = GRM.L ( "Click to Set" );
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = "";
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2] = "";
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = "";
+                end
             else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = textResult;
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2] = textResult;
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = "textResult";
+                end
             end
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = textResult;
             self:SetText ( textResult );
@@ -6078,7 +6154,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.GRM_AddMessageToNoteEditBoxCount:Hide();
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox.tempText = self:GetText();
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = self:GetText();
+            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnPromotion[2] = self:GetText();
+            elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.rule.AddNoteOnDemotion[2] = self:GetText();
+            end
         end)
 
         GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_AddMessageToNoteEditBox:SetScript ( "OnEditFocusGained" , function ( self )
@@ -8864,9 +8944,12 @@ GRM.BuildNewPromoteOrDemoteRuleTemplate = function ( name , num , tabPosition )
     result.mythicRating = 1000;
     result.mythicPlusOperator = 1;
 
+    if position == 2 then
+        result.AddNoteOnPromotion = { false , "" , 3 , false };
+    end
     if position == 3 then
         result.mythicPlusOperator = 3;
-        result.AddNoteOnDemotion = { false , "" , 2 , false };
+        result.AddNoteOnDemotion = { false , "" , 3 , false };
     end
 
     -- Unique rules to demote and promote
@@ -10730,16 +10813,18 @@ GRM.GetPromoteAndDemoteNamesByFilterRulesChunk = function(ruleTypeIndex, allPlay
                                                 rule.destinationRank - 1, GRM.GetFormattedMainName(player, true) , rule.customLogMsg
                                             );
 
-                                            if ruleTypeIndex == 3 and GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and rule.AddNoteOnDemotion[1] and rule.AddNoteOnDemotion[2] ~= "" then
+                                            if (ruleTypeIndex == 3 and GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and rule.AddNoteOnDemotion[1] and rule.AddNoteOnDemotion[2] ~= "" ) or
+                                            (ruleTypeIndex == 2 and GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and rule.AddNoteOnPromotion[1] and rule.AddNoteOnPromotion[2] ~= "" ) then
+                                                local AddNote = (ruleTypeIndex == 3) and rule.AddNoteOnDemotion or rule.AddNoteOnPromotion;
                                                 GRM_G.PlayersWithNotesToAdd[player.name] = {};
-                                                GRM_G.PlayersWithNotesToAdd[player.name].destination = rule.AddNoteOnDemotion[3];
-                                                GRM_G.PlayersWithNotesToAdd[player.name].note = rule.AddNoteOnDemotion[2];
-                                                GRM_G.PlayersWithNotesToAdd[player.name].forceOverwrite = rule.AddNoteOnDemotion[4];
+                                                GRM_G.PlayersWithNotesToAdd[player.name].destination = AddNote[3];
+                                                GRM_G.PlayersWithNotesToAdd[player.name].note = AddNote[2];
+                                                GRM_G.PlayersWithNotesToAdd[player.name].forceOverwrite = AddNote[4];
 
                                                 -- Insert Rank
                                                 if string.find ( GRM_G.PlayersWithNotesToAdd[player.name].note , GRM.L ("{rank}" ) , 1 , true ) then
                                                     local maxLettersTable = { [1] = GRM_G.MaxPublicNoteSize, [2] = GRM_G.MaxOfficerNoteSize , [3] = GRM_G.MaxCustomNoteSize };
-                                                    local maxLetters = maxLettersTable[rule.AddNoteOnDemotion[3]];
+                                                    local maxLetters = maxLettersTable[AddNote[3]];
 
                                                     local text = string.gsub ( GRM_G.PlayersWithNotesToAdd[player.name].note , GRM.L("{rank}") , player.rankName );
                                                     if GRM.Util.GetNumLetters(text) <= maxLetters then
@@ -13015,6 +13100,10 @@ end);
 --     tostring ( rule.mythicRating ) .. "?" ..                    -- 35
 --     tostring ( rule.mythicPlusOperator ) .. "?" ..              -- 36
 --     tostring ( rule.safeMatchAllNotes );                        -- 37
+--     GRM.B2Num ( rule.AddNoteOnPromotion[1] ) .. "?" ..          -- 38
+--     rule.AddNoteOnPromotion[2] .. "?" ..                        -- 39
+--     tostring ( rule.AddNoteOnPromotion[3] ) .. "?" ..           -- 40
+--     GRM.B2Num ( rule.AddNoteOnPromotion[4] );                   -- 41
 
 --     return result;
 -- end
@@ -13543,6 +13632,10 @@ end);
 --         rule.mythicRating = newRule[35];
 --         rule.mythicPlusOperator = newRule[36];
 --         rule.safeMatchAllNotes = newRule[37];
+--         rule.AddNoteOnPromotion[1] = newRule[38];
+--         rule.AddNoteOnPromotion[2] = newRule[39];
+--         rule.AddNoteOnPromotion[3] = newRule[40];
+--         rule.AddNoteOnPromotion[4] = newRule[41];
 
 --     elseif ruleType == "demoteRules" then
 --         rule = GRM.BuildNewPromoteOrDemoteRuleTemplate( nil , nil , 3 );
