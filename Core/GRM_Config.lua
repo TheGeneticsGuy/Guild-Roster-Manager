@@ -245,6 +245,11 @@ end
 --                  is necessary because it doesn't need to re-register frames like it would on the first activation upon logging in.
 -- Purpose:         Resource efficiency.
 GRM.ReactivateAddon = function()
+
+    if GRM_G.FramesNeverLoaded then
+        GRM_UI.ReloadAllFrames( false , false );
+    end
+
     C_Timer.After(5, GRM.Util.RegisterGuildChatPermission);
 
     GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
@@ -257,6 +262,7 @@ GRM.ReactivateAddon = function()
         for i = 0, GRM_G.SettingsPages do
             GRM_S.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.guildName], i);
         end
+        GRM_G.playerOnlySettings = false
     end
 
     if not GRM_UI.GRM_CoreFrame.GRM_CoreFrameReScale then
@@ -332,11 +338,10 @@ GRM.ManageGuildStatus = function()
 
                 GRM_G.guildStatusChecked = false;
             end
-        end               
-    else
-        GRM_G.guildStatusChecked = true;
-        C_Timer.After(5, GRM.ManageGuildStatus); -- Recursively re-check on guild status trigger.
+        end
     end
+    GRM_G.guildStatusChecked = true;
+    C_Timer.After(5, GRM.ManageGuildStatus); -- Recursively re-check on guild status trigger.
 end
 
 

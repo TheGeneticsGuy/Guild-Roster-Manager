@@ -214,7 +214,7 @@ OptionsCore.RefreshOptionsUI = function()
     end
 
     -- Add Events To Calendar permission check
-    local canAddCalendar = GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent()
+    local canAddCalendar = GRM_G.Compatibility.CalendarAvailable and CanEditGuildEvent()
     if not canAddCalendar then 
         OfficerOpts.GRM_RosterReportAddEventsToCalendarButton:SetChecked(false)
     end

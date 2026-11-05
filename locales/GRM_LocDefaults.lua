@@ -307,7 +307,7 @@ elseif GRM_G.Region == "ptBR" then
     -- Korean Defaults
 elseif GRM_G.Region == "koKR" then
     GRM_G.Localized = true
-    GRM_G.LocalizedIndex = 9;
+    GRM_G.LocalizedIndex = 10;
     -- SYSTEM MESSAGES (DO NOT CHANGE THESE!!!! They are used for the back-end code to recognize for parsing info out, not for player UI
     GRM_L["has been kicked"] = "길드에서 추방했습니다."
     GRM_L["joined the guild."] = "님이 길드에 가입했습니다"
@@ -350,7 +350,7 @@ elseif GRM_G.Region == "koKR" then
     -- Mandarin Chinese (CN) Defaults
 elseif GRM_G.Region == "zhCN" then
     GRM_G.Localized = true
-    GRM_G.LocalizedIndex = 10;
+    GRM_G.LocalizedIndex = 11;
     -- SYSTEM MESSAGES (DO NOT CHANGE THESE!!!! They are used for the back-end code to recognize for parsing info out, not for player UI
     GRM_L["has been kicked"] = "开除出公会。"
     GRM_L["joined the guild."] = "加入了公会。"
@@ -392,7 +392,7 @@ elseif GRM_G.Region == "zhCN" then
 -- Mandarin Chinese (TW) Defaults
 elseif GRM_G.Region == "zhTW" then
     GRM_G.Localized = true
-    GRM_G.LocalizedIndex = 11;
+    GRM_G.LocalizedIndex = 12;
     -- SYSTEM MESSAGES (DO NOT CHANGE THESE!!!! They are used for the back-end code to recognize for parsing info out, not for player UI
     GRM_L["has been kicked"] = "踢出公會。"
     GRM_L["joined the guild."] = "加入了公會。"

@@ -12,7 +12,6 @@ GRM_G.PatchDayString = "1793753094";    -- 2 Versions saves on conversion comput
 GRM_G.PatchDay = 1793753094;            -- In Epoch Time
 
 -- Build Details
-GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
 GRM_G.RealmFree = GRM_RF.IsRealmFree();
 GRM_G.Beta = IsBetaBuild();
 GRM_G.RetailBaseBuild = 120105;
@@ -50,6 +49,7 @@ GRM_G.CommunityInitialized = false;
 GRM_G.ClassicRosterInitialized = false;
 GRM_G.BlizzFramePinsInitialized = false;
 GRM_G.OnFirstLoad = true;
+GRM_G.FramesNeverLoaded = false
 GRM_G.SelfAddCheck = false;
 GRM_G.currentlyTracking = false;
 GRM_G.trackingTriggered = false;
@@ -1494,7 +1494,7 @@ end
 -- What it Does:    Adds the server name to the player's name if it is not there
 -- Purpose:    AppendServerName = fun     In some cases you need the full name-serverName to do some actions, when the server only gives you the name of players you are on same realm with trimmed of server. This adds it back.
 GRM.AppendServerName = function(name, currentGuild)
-    if name ~= nil and name ~= "" and not string.find(name, "-", 1, true) then
+    if name ~= nil and name ~= "" and not GRM_G.RealmFree and not string.find(name, "-", 1, true) then
         local realm = GRM.GetPlayerServer(name, currentGuild);
         if realm ~= "" then
             name = name .. "-" .. realm;
@@ -1510,7 +1510,7 @@ end
 -- What it Does:    Appends the realm name to a player's name if not alreayd appended
 -- Purpose:         Useful as database matchign requires full name-server.
 GRM.AppendServerNameSimple = function ( name , server )
-    if name then
+    if name and not GRM_G.realmName then
         if not string.find(name,"-") then
             server = server or GRM_G.realmName;
             name = name .. "-" .. server;
@@ -2943,6 +2943,7 @@ GRM.RegisterVersionCheck = function()
     -- Setup tracking actions
     VersionCheck:SetScript("OnEvent", function(_, event, prefix, msg, channel, sender)
         if event == "CHAT_MSG_ADDON" and prefix == "GRMVER" and channel == "GUILD" then
+
             -- Gotta filter my own messages out too!
             if sender ~= GRM_G.addonUser then
                 -- Just to ensure it only does a check one time from each player with the addon installed.
@@ -3879,7 +3880,7 @@ GRM.CreateMacro = function(macroText, name, icon, keyBind, isLogOff)
         local index = GetMacroIndexByName(name);
         local canBuild = false;
 
-        if index == 0 and GetNumMacros() < GRM.Comp_API.GetMaxMacros() then
+        if index == 0 and GetNumMacros() < GRM_COMP.GetMaxMacros() then
             -- no macro yet created
             CreateMacro(name, icon, macroText);
             canBuild = true;
@@ -6377,7 +6378,7 @@ GRM.RefreshAddEventFrame = function()
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameDateText:Hide();
     end
 
-    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent() then
+    if GRM_G.Compatibility.CalendarAvailable and CanEditGuildEvent() then
         if not GRM.S().allowEventsToCalendar then
             GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "You Currently Have Disabled Adding Events to Calendar"));
@@ -6386,10 +6387,10 @@ GRM.RefreshAddEventFrame = function()
             GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:Hide();
         end
     else
-        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
+        if GRM_G.Compatibility.CalendarAvailable and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
             GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "You Do Not Have Permission to Add Events to Calendar"));
-        else
+        elseif not GRM_G.Compatibility.CalendarAvailable then
             GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText(GRM.L(
                 "Limited Features. There is no Calendar in Classic"));
         end
@@ -6471,25 +6472,26 @@ end
 GRM.GetLeveledString = function(simpleName, milestoneLevel, level, numGained, date, atLevelCap, fullName)
     local result = "";
 
-    if fullName then
-        local player = GRM.GetPlayer(fullName);
+    -- NO LONGER APPLICABLE WITH NICKNAMES - HOLDING FOR NOW TIL OVERWRITE
+    -- if fullName then
+    --     local player = GRM.GetPlayer(fullName);
 
-        if player then
+    --     if player then
 
-            local mainDisplay = GRM_Name.GetMainTags(false, GRM.S().mainTagIndex);
-            if GRM.IsMain(player.name) then
-                simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r";
-            else
+    --         local mainDisplay = GRM_Name.GetMainTags(false, GRM.S().mainTagIndex);
+    --         if GRM.IsMain(player.name) then
+    --             simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r";
+    --         else
 
-                local altGroup = GRM.GetAltGroup(player.altGroup);
-                if GRM.PlayerHasAlts(player) and altGroup.main ~= "" then
-                    simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r (" ..
-                                     GRM.GetStringClassColorByName(altGroup.main) .. GRM.SlimName(altGroup.main) ..
-                                     "|r)";
-                end
-            end
-        end
-    end
+    --             local altGroup = GRM.GetAltGroup(player.altGroup);
+    --             if GRM.PlayerHasAlts(player) and altGroup.main ~= "" then
+    --                 simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r (" ..
+    --                                  GRM.GetStringClassColorByName(altGroup.main) .. GRM.SlimName(altGroup.main) ..
+    --                                  "|r)";
+    --             end
+    --         end
+    --     end
+    -- end
 
     if milestoneLevel == 0 or atLevelCap then
         if atLevelCap then
@@ -6813,8 +6815,7 @@ GRM.GetLeftOrKickString = function(unitName, playerWasKicked, timePassed, logEnt
             name = GRM.SlimName(unitName);
         end
 
-        result = result .. "\n|CFFFFFFFF" .. GRM.L("{name} is listed as the Main",
-            name .. " " .. GRM_G.TagHexCode .. GRM_Name.GetMainTags(false, GRM.S().mainTagIndex) .. "|r");
+        result = result .. "\n|CFFFFFFFF" .. GRM.L("{name} is listed as the Main", name) .. "|r"; 
     end
 
     if timePassed ~= "" then
@@ -8197,7 +8198,7 @@ GRM.RemoveAllFromEventQue = function()
 
     if num > 0 then
 
-        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent() then
+        if GRM_G.Compatibility.CalendarAvailable and CanEditGuildEvent() then
             if num == 1 then
                 msg = GRM.L("This event has not yet been added to the calender. Are you sure?");
             else
@@ -8218,7 +8219,7 @@ end
 -- What it Does:    It checks the Add Que list, if the event is already on the calendar, then it removes it from the addque list.
 -- Purpose:         In case other players add items to the calendar, this keeps it clean.
 GRM.CalendarQueCheck = function()
-    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
+    if GRM_G.Compatibility.CalendarAvailable then
         local calendarQ = GRM.GetEvents();
 
         for i = #calendarQ, 1, -1 do
@@ -9303,13 +9304,15 @@ GRM.KickButtonLogic = function(nameOrGUID, scanNumber, isMacro)
     if string.match(nameOrGUID, "Player-.+") then -- guid
         playerThatWasKicked, realm = select(6, GetPlayerInfoByGUID(nameOrGUID));
         -- run it twice...
-        C_Timer.After(1, function()
+        C_Timer.After(0.1, function()
             playerThatWasKicked, realm = select(6, GetPlayerInfoByGUID(nameOrGUID));
 
-            if realm == "" or realm == nil then
-                playerThatWasKicked = GRM.AppendServerName(playerThatWasKicked);
-            else
-                playerThatWasKicked = playerThatWasKicked .. "-" .. realm;
+            if not GRM_G.RealmFree then
+                if realm == "" or realm == nil then
+                    playerThatWasKicked = GRM.AppendServerName(playerThatWasKicked);
+                else
+                    playerThatWasKicked = playerThatWasKicked .. "-" .. realm;
+                end
             end
 
             if playerThatWasKicked then
@@ -9345,7 +9348,6 @@ end
 -- Purpose:         Management of kicking logic.
 GRM.KickAction = function(kickedToon, kickerOfficer, scanNumber, isMacro , refresh_macro_tool )
     if kickerOfficer ~= nil and #kickerOfficer > 0 then
-
         -- Calculate the changes
         if refresh_macro_tool == nil then
             refresh_macro_tool = true
@@ -9794,7 +9796,8 @@ GRM.GetParsedplayerName = function(text)
     elseif GRM_G.Region == "zhTW" then
         result = string.sub(text, 1, string.find(text, "離") - 1);
     else
-        result = string.sub(text, 1, string.find(text, " ") - 1);
+        local pattern = "^" .. ERR_GUILD_LEAVE_S:gsub("%%s", "(.-)");
+        result = string.match(text, pattern) or string.sub(text, 1, string.find(text, " ") - 1);
     end
 
     return GRM.AppendServerName(result);

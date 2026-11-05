@@ -169,10 +169,14 @@ GRML.SetNewLanguage = function ( index , firstLoad , resetAllDefaults )
     GRML.LoadLanguage(index);
     GRM_G.FontChoice = GRML.listOfFonts[font];
     SetFontModifier();
-    if firstLoad then
-        GRM_UI.ReloadAllFrames( false , false );
+    if IsInGuild() then
+        if firstLoad then
+            GRM_UI.ReloadAllFrames( false , false );
+        else
+            GRM_UI.ReloadAllFrames ( true , resetAllDefaults );
+        end
     else
-        GRM_UI.ReloadAllFrames ( true , resetAllDefaults );
+        GRM_G.FramesNeverLoaded = true
     end
 
     -- This will eventually replace all the

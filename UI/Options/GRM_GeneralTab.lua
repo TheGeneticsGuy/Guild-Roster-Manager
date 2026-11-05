@@ -422,7 +422,7 @@ GeneralTab.InitializeGeneralTab = function(isManualUpdate)
     local DEFAULT_SIZE = {150, 25}
 
     GRM_UI.CreateString("GRM_TimestampLbl", f, "GameFontNormalSmall", GRM.L("Timestamp:"), 12, {"TOPLEFT", f.GRM_GeneralOptionsFormattingText, "BOTTOMLEFT", 0, -16})
-    GRM_UI.CreateDropDownMenu("GRM_TimestampDD", f, nil, {"LEFT", f.GRM_TimestampLbl, "RIGHT", 8, 0}, DEFAULT_SIZE, GetTimestampList(), 12, {1,1,1},
+    GRM_UI.CreateDropDownMenu("GRM_TimestampDD", f, nil, {"LEFT", f.GRM_TimestampLbl, "RIGHT", 40, 0}, DEFAULT_SIZE, GetTimestampList(), 12, {1,1,1},
                                 nil, nil, function(idx) SelectTimestamp(idx) end, nil, nil, true, function() CloseOtherDropdowns(2) end, 4)
 
     -- 24HR FORMAT

@@ -1,12 +1,8 @@
 
 TODO: - When swapping languages, the dropdown menu doesn't re-translate.
 TODO: - On the join and promote dates - it needs to re-process the day dropdowns...
-TODO: - Officer Tab - Unlock calendar
 
 -- Possible Compatibility changes in WOW Forever
-TODO: - CreateGuildCreationDatePattern formatting needs to be double-checked in WOW Forever
-TODO: - GRM.LoadAddon function - look at build restrictions
-TODO: - GRM.GetParsedKickPlayerNames -- Check Korean changes in early builds now or WOW Forever
 TODO: - Instead of checking for BFA build for mythic score, see if there is an API available
 TODO: - When someone does a namechange - check if edited info needs to be updated, also customNote, and Banned
 
@@ -80,6 +76,10 @@ Thank you to all who have been great support and even coding mentors over the ye
 * Fixed a serious bug in the General Options where if you chose to make your settings specific to each toon, rather than guild-wide settings, it would cause a lua error and prevent GRM from working until your next session. This now instantly works when selecting. No need for reload.
 
 * Fixed an issue where if you were sending a customNote to a player note with the macro tool, when they got demoted, it wasn't working. This was a side-effect of the addongeddon changes in Midnight when I tried to adapt but it ended up gimping all builds, including Retail. This is now fixed (and expanded to promotions).
+
+* Fixed a Lua error that could occur if you had GRM installed but never joined a guild. It is also much more efficient now and never loads the GRM frames in the background unless you join a guild.
+
+* Fixed an error where if you logged in in ANY of the Asian language regions, were not guilded, and then joined a guild, it would auto-select the wrong default language for you. Like Korean would select Portuguese, etc... So when you joined a guild it would now be loaded and configured in the wrong language. This is now fixed.
 
 * Many other minor bugs were resolved...
 

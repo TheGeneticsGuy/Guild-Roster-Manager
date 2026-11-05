@@ -1770,7 +1770,7 @@ GRM_UI.PreAddonLoadUI = function()
     GRM_UI.GRM_CoreFrame.GRM_AddEventTab:SetScript ( "OnEnter" , function( self )
         GRM_UI.SetTooltipScale();
         GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then 
+        if GRM_G.Compatibility.CalendarAvailable then 
             if CanEditGuildEvent() then
                 GameTooltip:AddLine( GRM.L ( "Add Upcoming Events to the Calendar" ) );
             else
@@ -3914,7 +3914,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     if self:GetChecked() then
                         GRM.S().colorizeClassicRosterNames = true;
                         SetCVar("chatClassColorOverride" , 0 );
-                        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
+                        if GRM_G.Compatibility.ChatClassColoringModern then
                             GRM.SetChatClassColoringInWrath ( true );
                         else
                             GRM.SetChatClassColoringNew ( true );
@@ -3922,7 +3922,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
                     else
                         GRM.S().colorizeClassicRosterNames = false;
                         SetCVar("chatClassColorOverride" , 1 )
-                        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
+                        if GRM_G.Compatibility.ChatClassColoringModern then
                             GRM.SetChatClassColoringInWrath ( false );
                         else
                             GRM.SetChatClassColoringNew ( false );
@@ -4611,7 +4611,7 @@ GRM_UI.MetaDataInitializeUIrosterLog1 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 12 );
 
     tempString = GRM.L ( "Add Events to Calendar" );
-    if GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK then  -- Calendar addin in 3.0 WOTLK
+    if not GRM_G.Compatibility.CalendarAvailable then  -- Calendar addin in 3.0 WOTLK
         tempString = tempString .. " |CFFFF0000" .. GRM.L ( "(Disabled in Classic)" );
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_RosterReportAddEventsToCalendarButtonText:SetTextColor ( 0.5 , 0.5 , 0.5 );
     end
@@ -5986,9 +5986,9 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetWidth ( GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame:GetWidth() - 50 );
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetPoint ( "LEFT" , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , "RIGHT" , 1 , 0 );
 
-        if not GRM_G.BuildHasRestrictions then
-            GRM.NormalizeHitRects ( GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText );
-            GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnClick", function ( self , button )
+    if not GRM_G.BuildHasRestrictions then
+        GRM.NormalizeHitRects ( GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton , GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText );
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:SetScript ( "OnClick", function ( self , button )
             if button == "LeftButton" and not GRM_G.GlobalControl7 then
                 if self:GetChecked() then
                     GRM.S().noteSetEnabled = true;
@@ -6032,7 +6032,10 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     else
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButton:Disable();
         GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetTextColor(0.5,0.5,0.5);
-        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetText( GRM.L ( "Allow Guild Members to Type \"!note notehere\" to Set Their Own Public Note") .. " |CFFFF0000" .. GRM.L ( "(Unavailable in Retail)"  ) );
+        local text = GRM.L ( "Allow Guild Members to Type \"!note notehere\" to Set Their Own Public Note") .. " |CFFFF0000";
+        local text2 = GRM_G.RealmFree and GRM.L ("(Restricted)") or GRM.L ("(Unavailable in Retail)")
+        text = text .. text2
+        GRM_UI.GRM_CoreFrame.GRM_OptionsFrame.GRM_OfficerOptionsFrame.GRM_NoteTagFeatureCheckButtonText:SetText( text);
     end
 
      -- Propagate for keyboard control of the frames!!!
@@ -8951,7 +8954,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetPoint ( "TOP" , GRM_UI.GRM_CoreFrame.GRM_EventsFrame , 0 , 65 );
     end
     GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 16 );
-    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
+    if GRM_G.Compatibility.CalendarAvailable then
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText ( GRM.L ( "You Do Not Have Permission to Add Events to Calendar" ) );
     else
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameStatusMessageText2:SetText ( GRM.L ( "Limited Features. There is no Calendar in Classic" ) );
@@ -9004,7 +9007,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameSetAnnounceButton:SetScript ( "OnClick" , function ( self , button )
         if button == "LeftButton" then
 
-            if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and CanEditGuildEvent() then
+            if GRM_G.Compatibility.CalendarAvailable and CanEditGuildEvent() then
                 if not GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameNameToAddText:IsVisible() then
                     GRM.Report ( GRM.L ( "No Player Event Has Been Selected" ) );
                 else
@@ -9082,24 +9085,26 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                     end
                 end
             else
-                if GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
+                if GRM_G.Compatibility.CalendarAvailable then
                     GRM.Report ( GRM.L ( "You Do Not Have Permission to Add Events to Calendar" ) );
                 else
-                    if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
-                        GRM.Report ( GRM.L ( "Feature is disabled in WoW Classic" ) );
-                    else
-                        GRM.Report ( GRM.L ( "Feature is disabled in TBC Classic" ) );
+                    if not GRM_G.Compatibility.CalendarAvailable then
+                        if GRM_G.BuildVersion < GRM_ENUM.BUILD.TBC then
+                            GRM.Report ( GRM.L ( "Feature is disabled in WoW Classic" ) );
+                        else
+                            GRM.Report ( GRM.L ( "Feature is disabled in TBC Classic" ) );
+                        end
                     end
                 end
             end
         end
     end);
 
-    if GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK then
+    if not GRM_G.Compatibility.CalendarAvailable then
         GRM_UI.GRM_CoreFrame.GRM_EventsFrame.GRM_EventsFrameSetAnnounceButton:SetScript ( "OnEnter" , function ( self )
             GRM_UI.SetTooltipScale();
             GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
+            if GRM_G.BuildVersion < GRM_ENUM.BUILD.TBC then
                 GameTooltip:AddLine ( GRM.L ( "Feature is disabled in WoW Classic" ) );
             else
                 GameTooltip:AddLine ( GRM.L ( "Feature is disabled in TBC Classic" ) );
@@ -9675,7 +9680,10 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
                 end
             end);
 
-            GRM_R.InitializeRosterLoadButton ( CommunitiesFrame , { "TOP" , CommunitiesFrame.GuildInfoTab , "BOTTOM" , 0 , -10 } , { 44 , 44 } , { 32 , 32 } );
+
+            local pinFrame = CommunitiesFrame.GuildPreferredPlaySettingsTab ~= nil and CommunitiesFrame.GuildPreferredPlaySettingsTab or CommunitiesFrame.GuildInfoTab;
+                
+            GRM_R.InitializeRosterLoadButton ( CommunitiesFrame , { "TOP" , pinFrame , "BOTTOM" , 0 , -10 } , { 44 , 44 } , { 32 , 32 } );
         end
     end
 

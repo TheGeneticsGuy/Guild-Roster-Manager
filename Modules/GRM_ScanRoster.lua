@@ -737,6 +737,7 @@ Scan.BuildNewGuildOrNameChange = function(roster)
             for i = 0, GRM_G.SettingsPages do
                 GRM_S.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.guildName], i);
             end
+            GRM_G.playerOnlySettings = false
 
             if GRM.IsAddOnLoaded("epgp") and GRM.S().joinDateDestination ~= 3 then
                 GRM.S().joinDateDestination = 2;
@@ -2656,7 +2657,7 @@ Scan.CheckPlayerAnniversary = function( player , day , month , year , count )
                                     finalYear = finalYear + 1;
                                 end
 
-                                if (GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK or ( GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 1 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
+                                if (not GRM_G.Compatibility.CalendarAvailable or ( GRM_G.Compatibility.CalendarAvailable and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 1 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 1, title) then
 
                                     GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,
                                         description, 1);
@@ -2745,7 +2746,7 @@ Scan.CheckPlayerBirthday = function ( player , day , month , year , cleanupHappe
                                     finalYear = finalYear + 1;
                                 end
 
-                                if (GRM_G.BuildVersion < GRM_ENUM.BUILD.WOTLK or ( GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 2 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 2 , title) then
+                                if (not GRM_G.Compatibility.CalendarAvailable or ( GRM_G.Compatibility.CalendarAvailable and not GRM.IsCalendarEventAlreadyAdded(player.name, title, eventDay, eventMonthIndex, finalYear, 2 ) ) ) and not GRM.IsOnAnnouncementList(player.name, 2 , title) then
 
 
                                     GRM.InsertNewEvent (player.name, title, eventDay, eventMonthIndex, finalYear,

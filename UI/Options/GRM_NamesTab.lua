@@ -5,13 +5,14 @@ local playerClass = select(2,UnitClass("player"));
 local altClass = "MAGE" ~= playerClass and "MAGE" or "ROGUE" -- Adjust classes if the same
 local nickClass = "WARRIOR" ~= playerClass and "WARRIOR" or "HUNTER"
 local toonClass = "DRUID" ~= playerClass and "DRUID" or "PALADIN"
-local mainName = GRM.GetClassColorRGB(playerClass, true) .. GRM.L("MainName") .. "|r";
-local altName = GRM.GetClassColorRGB(altClass, true) .. GRM.L("AltName") .. "|r";
-local nickName = GRM.GetClassColorRGB(nickClass, true) .. GRM.L("Nickname") .. "|r";
-local toonName = GRM.GetClassColorRGB(toonClass, true) .. GRM.L("ToonName") .. "|r";
 
 -- Helper to grab the base dummy text for UI dropdown options
 local GetPreview = function(type, index)
+    local mainName = GRM.GetClassColorRGB(playerClass, true) .. GRM.L("MainName") .. "|r";
+    local altName = GRM.GetClassColorRGB(altClass, true) .. GRM.L("AltName") .. "|r";
+    local nickName = GRM.GetClassColorRGB(nickClass, true) .. GRM.L("Nickname") .. "|r";
+    local toonName = GRM.GetClassColorRGB(toonClass, true) .. GRM.L("ToonName") .. "|r";
+    
     if type == "MAIN" then
         return GRM_Name.GetFormattedNameString(mainName, mainName, "", true, false, index, true)
     elseif type == "ALT" then 

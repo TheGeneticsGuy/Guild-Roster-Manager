@@ -1100,6 +1100,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     f.GRM_DeathTexture:SetPoint("CENTER", f, "CENTER", 0, 0)
     f.GRM_DeathTexture:SetTexture("Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\dead.png")
     f.GRM_DeathTexture:SetSize(350, 350)
+    f.GRM_DeathTexture:Hide()
 
     -- Member Mouseover window - macro tool checkbox frame
     GRM_UI.CreateCoreFrame("GRM_MacroToolIgnoreListSettingsFrame", f, nil, 400, 235, "TranslucentFrameTemplate", false, {"TOPLEFT", f, "BOTTOMLEFT", 0, 2}, nil, true, true)
@@ -1407,7 +1408,9 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
             self.GRM_JDMainButton.GRM_JDMainButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s |cffff0000(main)|r Join Date", GRM.GetClassifiedName(mainName, true)) .. " |CFFFF0000- " .. mainHasJD[2])
             self.GRM_JDMainButton:SetScript("OnClick", function(_, button)
                 if button == "LeftButton" then
-                    GRM.SyncJoinDateUsingMain(); GRM_UI.PopulateMemberDetails(GRM_G.currentName); JoinDateSideFrame:Hide()
+                    GRM.SyncJoinDateUsingMain();
+                    GRM_UI.PopulateMemberDetails(GRM_G.currentName);
+                    JoinDateSideFrame:Hide()
                 end
             end);
             self.GRM_JDMainButton:Show(); count = count + 1
@@ -1415,7 +1418,9 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
             self.GRM_JDMainButton.GRM_JDMainButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s Join Date", GRM.GetClassifiedName(GRM_G.currentName, true)) .. " |CFFFF0000- " .. playerHasJD[2])
             self.GRM_JDMainButton:SetScript("OnClick", function(_, button)
                 if button == "LeftButton" then
-                    GRM.SyncJoinDateUsingCurrentSelected(); GRM_UI.PopulateMemberDetails(GRM_G.currentName); JoinDateSideFrame:Hide()
+                    GRM.SyncJoinDateUsingCurrentSelected();
+                    GRM_UI.PopulateMemberDetails(GRM_G.currentName);
+                    JoinDateSideFrame:Hide()
                 end
             end);
             self.GRM_JDMainButton:Show(); count = count + 2
@@ -1433,7 +1438,9 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
                 self.GRM_JDSelectedPlayerButton.GRM_JDSelectedPlayerButtonText:SetText(">  " .. GRM.L("Sync All Alts to {name}'s Join Date", GRM.GetClassifiedName(GRM_G.currentName, true)) .. " |CFFFF0000- " .. playerHasJD[2])
                 self.GRM_JDSelectedPlayerButton:SetScript("OnClick", function(self2, button)
                     if button == "LeftButton" then
-                        GRM.SyncJoinDateUsingCurrentSelected(); GRM_UI.PopulateMemberDetails(GRM_G.currentName); self2:Hide()
+                        GRM.SyncJoinDateUsingCurrentSelected();
+                        GRM_UI.PopulateMemberDetails(GRM_G.currentName);
+                        self2:Hide()
                     end
                 end);
                 self.GRM_JDSelectedPlayerButton:Show()
@@ -3801,7 +3808,7 @@ end
 
 local function FactionIcon(index)
     if not index then
-        if GRM_G.BuildVersion >= GRM_ENUM.BUILD.DF then
+        if GRM_G.BuildVersion < GRM_ENUM.BUILD.DF then
             f.GRM_AllianceIconTexture:Hide(); f.GRM_HordeIconTexture:Hide(); return
         else
             index = GRM_G.faction
@@ -3834,7 +3841,7 @@ local function DeathStatus(player, isDead, timestamp)
             local time = {}
             if player then
                 time = {player.HC.timeOfDeath[1], player.HC.timeOfDeath[2], player.HC.timeOfDeath[3]}
-            elseif timestamp and #timestamp == 8 then
+            elseif timestamp and #timestamp == 8 then 
                 local day, month, year = GRM.Time.ParseStandardFormatDate(timestamp)
                 if day then time = {day, month, year} end
             end
@@ -3848,7 +3855,9 @@ local function DeathStatus(player, isDead, timestamp)
             f.GRM_RIPtext:Hide()
         end
     else
-        f.GRM_DeathTexture:Hide(); f.GRM_ClearDeathButton:Hide(); f.GRM_RIPtext:Hide()
+        f.GRM_DeathTexture:Hide();
+        f.GRM_ClearDeathButton:Hide();
+        f.GRM_RIPtext:Hide()
     end
 end
 
@@ -3891,7 +3900,11 @@ GRM_UI.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
         FactionIcon(player.faction)
 
         local note = memberInfo and memberInfo.memberNote or player.note
-        if not doubleCopy then DeathStatus(player) else DeathStatus(nil, true, string.match(note or "", "%[D%]-(%d+)")) end
+        if not doubleCopy then
+            DeathStatus(player)
+        else
+            DeathStatus(nil, true, string.match(note or "", "%[D%]-(%d+)"))
+        end
 
         f.GRM_MemberDetailNameText:SetText(GRM.SlimName(handle))
         local nameHeight = 16

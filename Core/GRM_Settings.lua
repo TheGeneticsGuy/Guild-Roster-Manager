@@ -337,6 +337,7 @@ GRM_S.UpdateOldSettingsFormat = function()
                     for i = 0, GRM_G.SettingsPages do
                         GRM_S.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.guildName], i);
                     end
+                    GRM_G.playerOnlySettings = false
 
                     -- Forcing core log window/options frame to load on the first load ever as well
                     GRM_G.ChangesFoundOnLoad = true;
@@ -404,7 +405,12 @@ GRM_S.LoadSettings = function( isManual )
                 GRM_AddonSettings_Save[GRM_G.guildName].syncSettings = false;
                 GRM_AddonSettings_Save[GRM_G.addonUser].syncSettings = false;
             end
-
+        else
+            GRM_G.playerOnlySettings = true
+            GRM_AddonSettings_Save[GRM_G.addonUser] = {}
+            for i = 0, GRM_G.SettingsPages do
+                GRM_S.SetDefaultAddonSettings(GRM_AddonSettings_Save[GRM_G.addonUser], i);
+            end
         end
 
     end

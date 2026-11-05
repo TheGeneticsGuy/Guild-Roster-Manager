@@ -3,16 +3,29 @@
 -- because they haven't received those changes yet until their next major build update, which could be months away. Other times Blizz
 -- decides certain API must be restricted in Classic builds for originality purposes. So, GRM has to account for inconsistent API at times.
 
-local Comp_API = {};
-GRM.Comp_API = Comp_API;
+GRM_COMP = {};
+
+GRM_G.BuildVersion = select(4, GetBuildInfo()); -- Technically the build level or the patch version as an integer.
+GRM_G.Compatibility = {};
 
 -- Returns the max amount of macros
-Comp_API.GetMaxMacros = function()
+GRM_COMP.GetMaxMacros = function()
     if MAX_ACCOUNT_MACROS then
         return MAX_ACCOUNT_MACROS
     else
         return Constants.MacroConsts.MAX_ACCOUNT_MACROS;
     end
+end
+
+local EstalishBuildCompatibility = function()
+    GRM_G.Compatibility.CalendarAvailable = (GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK) or -- Introduced in WOTLK
+                                            (GRM_G.BuildVersion >= GRM_ENUM.BUILD.FOREVER and GRM_G.BuildVersion < GRM_ENUM.BUILD.TBC); -- Available in Forever, but not TBC Classic/Anniv
+
+    -- Yes, logic is same as CalendarAvailable, but this might change to other classic builds, like TBC, so we'll see
+    GRM_G.Compatibility.ChatClassColoringModern = (GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK) or
+                                                    (GRM_G.BuildVersion >= GRM_ENUM.BUILD.FOREVER and GRM_G.BuildVersion < GRM_ENUM.BUILD.TBC);
+
+    -- Other features to be added
 end
 
 -------------------------------------
@@ -132,3 +145,4 @@ GRM.SetNote = function(guid, newNote, isPublic, index)
     end
 end
 
+EstalishBuildCompatibility();
