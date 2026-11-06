@@ -1,11 +1,3 @@
-
-TODO: - When swapping languages, the dropdown menu doesn't re-translate.
-TODO: - On the join and promote dates - it needs to re-process the day dropdowns...
-
--- Possible Compatibility changes in WOW Forever
-TODO: - Instead of checking for BFA build for mythic score, see if there is an API available
-TODO: - When someone does a namechange - check if edited info needs to be updated, also customNote, and Banned
-
 ## **VERSION 1.995 - PENDING DATE**
 
 ***WOW FOREVER COMPATIBILITY LAUNCH***
@@ -18,11 +10,43 @@ It was a HUGE headache, but I did it, and it is working. A key factor in how I r
 
 ***NEW FEATURE - NICKNAMES***
 
+The LONG promised and awaited feature is finally here. First off, too all of you that have kept on me on getting this released, it definitely has worked to motivate me. I think the big hesitancy I had in finally pushing this out is I didn't have a 100% clear vision of how I wanted it implemented, and for the few things I did want implemented, I knew the time cost would be high to get it done. I also know myself and my level of obsessiveness of not releasing half a feature. At minimum I wanted nicknames that could be synced to other GRM users. That alone is a big task. But, I really went all out to maximize customizability.
+
+You will find that in the new Names Tab in the `/grm` Options window. Altogether, there is approximately 28 total different configurations. The key thing to understand is this:
+
+* No Nickname Configured - It will follow your Alt/Main configurations.
+
+* Nickname Configured - It will follow the Alt/Main/No Designation configuration you set.
+
+![Names Tab](https://i.imgur.com/uWoxXtg.png)
+
+**How to Set Your Nickname**
+
+Button Found on mouseover
+![nickname button](https://i.imgur.com/5Bntfo2.png)
+
+Nickname Window - Yes, the share with alts is SYNCED info.
+![Nickname Edit Window](https://i.imgur.com/ew0F3vz.png)
+
+Yes, you can choose to ONLY show the nickname if you want.
+![Only Show Nickname](https://i.imgur.com/uYaE5pg.png)
+
+Or, show the toon name and nickname.
+![Show Both Names](https://i.imgur.com/GzdE8Y8.png)
+
+Nicknames Feature does sync to other GRM users
+![Sync Nicknames](https://i.imgur.com/5eKttGp.png)
+
+**Current Limitations**
+
+* Does not show in the log - yet. As of now, the actual player toon name is what shows in the log. I will give an option to change this eventually.
+
+* Limited to chat, and mouseover window.
 
 
 ***QUALITY OF LIFE***
 
-***ONGOING OPTIMIZATION WORK***
+***MASSIVE ONGOING OPTIMIZATION WORK***
 
 When I wrote GRM, I was not really a knowledgeable programmer. I had done some minor coding work in the Computational Biology world in college, but I was a biologist, not a coder. It did kind of spark my journey of interest into coding, however, and I started doing little fun personal side projects here and there. Eventually, as a long-time WOW player and Guild Leader, I got tired of waiting around for Blizz to enhance and update the guild interface, so I just thought to myself one day, "Maybe I can just write an addon to do a few things I want." And thus, GRM was born.
 
@@ -45,11 +69,13 @@ Thank you to all who have been great support and even coding mentors over the ye
 
 *Example:* I took a 185Mb save file with over 113,000 log entries and it took only 18 seconds to patch 72 patches. Previously this would have taken over 2 minutes with my fixed delays. For most people the patching now will take less than 1 second. This larger one was due to massive overhauls over the last 4 years, and I have a save file I use for stress testing massive changes.
 
+***ADDITIONAL QUALITY OF LIFE IMPROVEMENTS***
+
+* The Alt list has been revamped a bit in the mouseover window. There is no longer a floating "Add" button but a bar at the top, as well as a numeber indicator of how many alts.
+
 * Some better messaging has been added to the addon confirm your actions. For example, if you Ctrl-Shift click the "restore defaults button, it informs you that you reset all addon settings. Before it just said nothing and you just had to flip through tabs to confirm it worked.
 
 * Color Picker (colorwheel window) has been more smartly implemented with universal compatibility of any other color picker modification addon, like Color Picker Plus, Color Picker Advanced, or even ElvUI. Before I had modified things significantly which requried me to build carve-out compatibility specifically. Now, that is no longer necessary. I now hook the baseline actions, allowing GRM to instead enjoy the colorpicker modifications
-
-* The Mouseover Alt Window now has a static alt button that doesn't move, and the scroll window is improved, making it obvious if you have additional alts to scroll to.
 
 * Promotion macros can now ALSO add a custom note to be added when players get promotions.
 

@@ -1510,7 +1510,7 @@ end
 -- What it Does:    Appends the realm name to a player's name if not alreayd appended
 -- Purpose:         Useful as database matchign requires full name-server.
 GRM.AppendServerNameSimple = function ( name , server )
-    if name and not GRM_G.realmName then
+    if name and not GRM_G.RealmFree then
         if not string.find(name,"-") then
             server = server or GRM_G.realmName;
             name = name .. "-" .. server;
@@ -13370,7 +13370,6 @@ end
 -- Purpose:         Control flow of data inquiries
 GRM.TrackingConfiguration = function(forced)
     if IsInGuild() and (not GRM_G.trackingTriggered or forced) then
-
         GRM_G.trackingTriggered = true;
         GRM_G.currentlyTracking = true;
 
@@ -13480,7 +13479,7 @@ GRM.TrackingConfiguration = function(forced)
         GRM.GuildRoster();
         QueryGuildEventLog();
 
-        C_Timer.After(2, function()
+        C_Timer.After(1, function()
             GRM_G.UI_Events:RegisterEvent("GUILD_ROSTER_UPDATE");
             GRM_G.UI_Events:RegisterEvent("GUILD_EVENT_LOG_UPDATE");
             GRM_G.UI_Events.Timer = 0;

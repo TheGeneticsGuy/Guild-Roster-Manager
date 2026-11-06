@@ -255,7 +255,7 @@ GRM.ReactivateAddon = function()
     GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
     GRM_Sys.SetGuildInfoDetails();
     QueryGuildEventLog();
-
+    
     if not GRM.S() then
         GRM_AddonSettings_Save[GRM_G.guildName] = {};
         -- Load the Default Settings
@@ -398,7 +398,6 @@ GRM.SettingsLoadedFinishDataLoad = function( isManual )
     GRM_G.DebugLog = GRM_DebugLog_Save;
 
     if IsInGuild() then
-
         GRM_G.playerRankID = GRM.GetPlayerRankIDAtStart();
 
         -- Let's set window scales now...

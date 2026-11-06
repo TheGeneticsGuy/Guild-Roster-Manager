@@ -72,7 +72,6 @@ end
 -- What it Does:    Controls when to give the go ahead to scan the roster if an event triggers
 -- Purpose:         It can be a bit spammy in pulling data from the server if it calls too frequently. This controls that.
 Scan.RosterPreCheck = function()
-
     -- Prevent running this listener if GRM is still configuring
     if not GRM.S() then
         return;
@@ -88,7 +87,6 @@ Scan.RosterPreCheck = function()
             GRM.MinimapGRM.UpdateMinimapLabel()
         end
     end)
-
     -- Flow control to prevent double or spammy scanning...
     if (((time() - GRM_G.ScanControl) >= GRM_G.DefaultMinScanTime) and Scan.NoLivecheck()) or GRM_G.OnFirstLoad then
         C_Timer.After(0.1, function()
@@ -246,7 +244,6 @@ Scan.BuildNewRoster = function( forceScan )
         GRM_G.HeartBeatOn = true;
         Scan.HeartbeatCheck();
     end
-
     C_Timer.After ( 0.1 , function()
         Scan.BuildRosterClassicMethod();
     end);
@@ -290,7 +287,6 @@ end
 -- Purpose:         Avoid script timeouts during the initial roster build phase, particularly for large guilds
 Scan.BuildRosterClassicMethod = function(startIndex, roster, orderedRoster, count , liveRosterSnapshot )
     GRM_G.ScanTimer = time(); -- Keeping heartbeat alive
-
     -- Leave an exit if player quits guild in middle of scan
     if not IsInGuild() then
         GRM_G.CurrentlyScanning = false;
@@ -526,7 +522,7 @@ Scan.UpdateRosterWithCommunitiesAPI = function( roster, orderedRoster , count , 
             return;
         end
     end
-
+    
     local memberInfo;
     local player;
     
@@ -620,7 +616,6 @@ Scan.FinalizeRosterBuild = function( roster, orderedRoster, count )
     end
     local atLeastOneOverall = (next(roster) ~= nil);
     if atLeastOneOverall and GRM_G.guildName ~= nil and GRM_G.guildName ~= "" then
-
         if not GRM.GetGuild() then
             Scan.BuildNewGuildOrNameChange(roster);
         else

@@ -3,25 +3,17 @@
 *These are either my own notes, or mostly suggestions and reports from all of you. This does not yet include all reported or suggestions on Discord. There is no guarantee I am going to do all of these eventually, just notes of all things suggested that I am either moderately interested in, or extremely interested in implemented. Some items I have already largely built but are not yet ready for release. Most I have not even begun to brainstorm implementation on. If you would like to add to any of these suggestions or expand on things further, please look at Suggestions in Discord*
 
 
+-- Possible Compatibility changes in WOW Forever
+TODO: - Instead of checking for BFA build for mythic score, see if there is an API available
+TODO: - When someone does a namechange - check if edited info needs to be updated, also customNote, and Banned
+TODO: - When swapping languages, the dropdown menu doesn't re-translate.
+
+
 **PRIORITY BUILD CHANGES**
 
 ** SYNC PROGRESS BAR - Finish getting it working.
 
 ** HYBRID SCROLLFRAME FOR BAN window...
-
-* Lightweight Note tool that does the following:
-
-  -- Auto sets iLvl to the note
-  -- [+XX] or [+20] highest M rating
-  -- RBG rating
-  -- Arena rating
-
-  -- Possibly give option to set it to custom note if you are in GRM, share alt data as well.
-
-
-# **BUG FIXES**
-
-* Birthday column on Audit window is not sorting when clicked. Note, when selecting "Include bdays as incomplete," the sorting works fine, interestingly enough.
 
 
 # **QUALITY OF LIFE**
@@ -34,13 +26,7 @@
     1) Receive changes from selected rank and above, send changes to everyone. >OR<
     2) Receive and Send changes to and from the selected rank and above only.
 
-* Add step in Join Date tool that also syncs all alts to mains.
-
 * Export rank history and join history - This should actually be pretty easy to implement
-
-* Tips for GRM users, like how shift and control scroll adjust scroll speed
-
-* Add message or tooltip indicating that ranks can only move by 1 at a time due to macro limitations by Blizz.
 
 * Add export tool tips:
  -- EXPORT: 'Excel: Paste data into Excel, Click the Data Tab, Click "Text to Columns" '
@@ -53,10 +39,6 @@
 * Leverage LibAlts data if it is found. Not relying on it, just pulling the data to help the alt lists automatically - OR BUILD MORE FLESHED OUT MODULE SUPPORT
 
 * Auto-select proper font when adjusting the language.
-
-* Add slash command /grm search to bring up audit window with search
-
-* When configuring a guild for the first time, scan the log for recent changes and add those to the log immediately.
 
 
 # **SUGGESTIONS**

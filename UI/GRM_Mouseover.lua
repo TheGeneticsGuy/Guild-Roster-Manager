@@ -466,13 +466,21 @@ local function GetDayList()
     local year = GRM_G.yearIndex or select(3, GRM.Time.GetTodaysDate())
     
     local maxDays = GRM_ENUM.DAYS_IN_MONTH[month]
-    if month == 2 and GRM.Time.IsLeapYear(year) then
+    if month == 2 and year and GRM.Time.IsLeapYear(year) then
         maxDays = 29
     end
     
     for i = 1, maxDays do
         table.insert(list, tostring(i))
     end
+
+    -- -- Explicitly hiding any buttons beyond maxDays in the Day Dropdown
+    -- if f.GRM_DayDropDownMenu and f.GRM_DayDropDownMenu.Buttons then
+    --     for i = maxDays + 1, #f.GRM_DayDropDownMenu.Buttons do
+    --         f.GRM_DayDropDownMenu.Buttons[i][1]:Hide()
+    --     end
+    -- end
+    
     return list
 end
 
@@ -842,7 +850,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
                               function() CloseOtherDateDropdowns(1) end, 4)
     
     GRM_UI.CreateDropDownMenu("GRM_DayDropDown", f, nil, {"LEFT", f.GRM_MonthDropDownSelected, "RIGHT", 5, 0}, {40, 24}, GetDayList(), 13, {1,1,1},
-                              {1, GRM.L("|CFFE6CC7FClick|r to Change Day")}, GRM.RestoreTooltip, function(idx) GRM_G.dayIndex = tonumber(GetDayList()[idx]); ValidateSelectedDay() end, nil, nil, true,
+                              {1, GRM.L("|CFFE6CC7FClick|r to Change Day")}, GRM.RestoreTooltip, function(idx) GRM_G.dayIndex = tonumber(GetDayList()[idx]); ValidateSelectedDay() end, GetDayList, nil, true,
                               function() CloseOtherDateDropdowns(2) end, 4)
 
     GRM_UI.CreateDropDownMenu("GRM_YearDropDown", f, nil, {"LEFT", f.GRM_DayDropDownSelected, "RIGHT", 5, 0}, {110, 24}, GetYearList(), 13, {1,1,1},
@@ -855,7 +863,6 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
         f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetSpacing(0);
         f.GRM_DateSubmitButton.GRM_DateSubmitButtonText:SetWordWrap(true)
     end
-    
     
     GRM_UI.CreateButton("GRM_SetUnknownButton", f, "GameMenuButtonTemplate", GRM.L("Unknown"), 98.5, 22, {"LEFT", f.GRM_DateSubmitButton, "RIGHT", 6, 0}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
     GRM_UI.CreateButton("GRM_DateSubmitCancelButton", f, "UIPanelButtonTemplate", GRM.L("Cancel"), 98.5, 22, {"LEFT", f.GRM_SetUnknownButton, "RIGHT", 6, 0}, nil, "GameFontWhiteTiny", 10.5, "CENTER")
