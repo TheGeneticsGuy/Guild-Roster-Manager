@@ -442,7 +442,7 @@ end
 -- Method:          GRM_Sys.AddFormattedNameToChat ( ... )
 -- What it Does:    Calculates the formatted name and injects a hidden marker for the AddMessage hook.
 GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
-    if IsInGuild() and GRM.S() and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg) then
+    if not GRM.issecretvalue(msg) and IsInGuild() and GRM.S() and GRM_G.guildName ~= "" then
         local tableString = tostring(chatFrame)
 
         -- Dupe protection
@@ -490,7 +490,7 @@ GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
         -- Public note hook (using the RAW message)
         if GRM.S().noteSetEnabled and (event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER") then
             if not GRM_G.BuildHasRestrictions then
-                GRM.TriggerPlayerNote(sender, placeHolderMsg)
+                GRM_Sys.TriggerPlayerNote(sender, placeHolderMsg)
             end
         end
     end
@@ -730,6 +730,10 @@ GRM_Sys.HookChatFrames = function()
             local originalAddMessage = chatFrame.AddMessage
             
             chatFrame.AddMessage = function(self, text, ...)
+                if GRM.issecretvalue(text) then
+                    return originalAddMessage(self, text, ...)
+                end
+
                 if text and type(text) == "string" and string.find(text, "\001GRM\001", 1, true) then
                     
                     -- Extract the  formatted name from between the  invisible markers

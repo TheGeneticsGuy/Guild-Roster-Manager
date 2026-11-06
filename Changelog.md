@@ -1,3 +1,15 @@
+## **VERSION 1.9951 - November 6th, 2026**
+
+***BUG FIXES***
+
+* Lua error resolved that will spam you in all Classic builds that was an oversight from the WOW Forever/Retail adjustment. The !note feature will also work again.
+
+* Fixed a bug where attempts to process nicknames or main/alt configurations to chat were throwing secret protection errors.
+
+* Anyone not English/Korean build users were getting spammed with missing localization files. Sorry about that guys, forgot to include them for non-English users.
+
+
+
 ## **VERSION 1.995 - November 5th, 2026**
 
 ***WOW FOREVER COMPATIBILITY LAUNCH***

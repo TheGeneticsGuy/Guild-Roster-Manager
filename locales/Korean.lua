@@ -2115,5 +2115,72 @@ GRML.Korean = function()
     -- Forever labeling
     GRM_L["(Forever)"] = true
     GRM_L["Only Available in Classic or Forever"] = true
+
+    -- Nickname Update
+    -- 1.995
+    GRM_L["Player Nicknames must be no longer than {num} letters in length"] = true
+    GRM_L["Player Nicknames must be at least {num} characters in length"] = true
+    GRM_L["{name} has set a shared nickname ({custom1}) for {name2}'s alt group."] = true
+    GRM_L["{name} has removed the shared nickname for {name2}'s alt group."] = true
+    GRM_L["{name} has removed {name2}'s nickname."] = true
+    GRM_L["{name} has set {name2}'s nickname ({custom1})."] = true
+    GRM_L["A shared nickname ({name}) has been set to {name2}'s alt group."] = true
+    GRM_L["A nickname ({name}) has been set to {name2}"] = true
+    GRM_L["{name} has removed the shared nickname from {name2}'s alt group."] = true
+    GRM_L["{name} has removed {name2}'s nickname."] = true
+    GRM_L["Invalid Character: \"|\" is not allowed when making a nickname."] = true
+    GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
+
+    -- Patching update
+    GRM_L["The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"] = true
+
+    -- Secret Protection warnings
+    GRM_L["Failed to enable Communities Roster. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
+    GRM_L["Failed to enable Classic chat class coloring. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
+
+    -- Misc
+    GRM_L["All GRM Settings have been set to default."] = true
+    GRM_L["Public and Officer notes are addon restricted in current Warcraft version. GRM will only consider Custom Note if empty."] = true
+    GRM_L["Due to the elimination of Realms, when banning players who have never been in your guild, some queries for important identification data cannot be currently obtained. This may be a technical hiccup. To bypass, add the ban when still grouped with a player or while you are targeting them."] = true
+    GRM_L["This only applies to players who have never been a member of your guild that you wish to ban."] = true
+    GRM_L["Realms are Not Applicable"] = true
+    GRM_L["(Restricted)"] = true
+
+    -- NamesTab in options
+    GRM_L["Tag Color"] = true
+    GRM_L["Nickname Tag Color"] = true
+    GRM_L["Name Formatting (No Nickname)"] = true
+    GRM_L["Format for Mains"] = true
+    GRM_L["Format for Alts"] = true
+    GRM_L["Nickname Formatting"] = true
+    GRM_L["Format for Mains with Nicknames"] = true
+    GRM_L["Format for Alts with Nicknames"] = true
+    GRM_L["Format for Unassigned with Nicknames"] = true
+    GRM_L["Nickname"] = true
+    GRM_L["AltName"] = true
+    GRM_L["MainName"] = true
+    GRM_L["ToonName"] = true
+    GRM_L["Main Tag"] = true
+    GRM_L["Alt Tag"] = true
+    GRM_L["Nick Tag"] = true
+    GRM_L["Tagging Disabled"] = true
+    GRM_L["Nickname Disabled"] = true
+    GRM_L["Set Nickname"] = true
+    GRM_L["Edit Nickname"] = true
+    GRM_L["Share Nickname across all Alts"] = true
+    GRM_L["Save"] = true
+    GRM_L["Nickname for {name}"] = true
+    GRM_L["Unable to Process Nickname. Player no longer found."] = true
+    GRM_L["No nickname has been set."] = true
+    GRM_L["Nickname sharing for ({name}) has been {name2}."] = true
+    GRM_L["{name} has {custom1} nickname sharing for {name2}."] = true
+
+    -- General Tab
+    GRM_L["{custom1} to Change Default GRM Tab on First Open."] = true
+
+    -- Forever labeling
+    GRM_L["(Forever)"] = true
+    GRM_L["Only Available in Classic or Forever"] = true
+    
 end
 
