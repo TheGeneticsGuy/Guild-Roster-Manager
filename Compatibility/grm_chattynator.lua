@@ -146,6 +146,10 @@ end
 -- What it Does:    Enables or Disables chattynator tabs to GRM based on the addon settings.
 -- Purpose:         Chattynator compatibility initialization upon logging in. Ensure settings unity between addons for compatibility
 chattynator.InitializeTabsForGRM = function()
+    if not Chattynator then
+        return
+    end
+    
     local windows = Chattynator.API.GetWindowsAndTabs();
 
     for i = 1 , #windows do
@@ -190,7 +194,7 @@ chattynator.CreateChattynatorTab = function( customName )
             isTemporary = false
         }
         table.insert(CHATTYNATOR_CONFIG.Profiles[profileName].windows[1].tabs, newTab)
-        GRM.AddReportChannel(customName, nil, false)
+        GRM_Chat.AddReportChannel(customName, nil, false)
         chattynator.RefreshChattynatorTabs();
         chattynator.EnableChannel(customName);
     end

@@ -81,7 +81,7 @@ GRML.Italian = function()
 	GRM_L["Edit Join Date"] = "Modifica data"
 	GRM_L["Set Promo Date"] = "Modifica data"
 	GRM_L["Group Invite"] = "Invita in gruppo"
-	GRM_L["Date Promoted?"] = "Data promozione?"
+	GRM_L["Date Promoted"] = "Data promozione"
 	GRM_L["Last Online"] = "Ultimo accesso"
 	GRM_L["Time In:"] = "Da:"                            -- Context: "Time In" the current zone...
 	GRM_L["Date Joined"] = "Data entrata"
@@ -337,7 +337,6 @@ GRML.Italian = function()
 	GRM_L["{name}'s saved data has been wiped!"] = "I dati di {name} sono stati cancellati!"
 	GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Cancellazione di tutti i dati dell'account! Ricostruzione da zero..." --WIP
 	GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Cancellazione di tutti i dati della gilda! Ricostruzione da zero..." --WIP
-	GRM_L["There are No Log Entries to Delete, silly {name}!"] = "Non ci sono Voci del Registro da cancellare"
 	GRM_L["Guild Log has been RESET!"] = "Il Registro di Gilda è stato RESETTATO!"
 	GRM_L["{name} is now set as \"main\""] = "{name} è stato impostato come \"main\""
 	GRM_L["{name} is no longer set as \"main\""] = "{name} non è più impostato come \"main\""
@@ -569,7 +568,7 @@ GRML.Italian = function()
 	GRM_L["Really Clear lines {custom1} to {custom2}?"] = "Vuoi davvero eliminare le righe da {custom1} a {custom2}? "
 	GRM_L["Enabling Line Numbers... Please choose within the given range"] = "Sto abilitando il numero delle righe... Per favore, scegli dei valori nell'intervallo"
 	GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "Ctrl-C copia <> Ctrl-P incolla <> Ctrl-A seleziona tutto"
-	GRM_L["Language Selection:"] = "Seleziona linguaggio:"
+	GRM_L["Language:"] = "Seleziona linguaggio:"
 	GRM_L["{num} phrases still need translation to {name}"] = "{num} frasi ancora da tradurre in italiano"                  -- Ex: 300 phrases still need translation to German
 
 	-- update 1.145
@@ -578,7 +577,7 @@ GRML.Italian = function()
 	-- Update 1.146
 	GRM_L["Really Clear line {num}?"] = "Vuoi davvero eliminare la riga {num}"
 	GRM_L["Font has been Reset to DEFAULT."] = "Il carattere è stato reimpostato"
-	GRM_L["Font Selection:"] = "Seleziona carattere:"
+	GRM_L["Font:"] = "Seleziona carattere:"
 	GRM_L["Font Scale:"] = "Dimensione carattere:"
 	GRM_L["Example"] = "Esempio"
 	GRM_L["Right-Click to Reset to 100%"] = "Click destro per reimpostare al 100%"
@@ -622,9 +621,9 @@ GRML.Italian = function()
 	-- R1.1482
 	GRM_L["Shift-Click Name On Roster Also Works"] = "Oppure fai Shift-Click sul nome nell'elenco "
 	GRM_L["Tooltip Scale:"] = "Dimensione Tooltip:"
-	GRM_L["|CFFE6CC7FLeft-Click|r to Change the Language"] = "|CFFE6CC7FClicca|r per cambiare la Lingua"
-	GRM_L["|CFFE6CC7FLeft-Click|r to Change Display Format"] = "|CFFE6CC7FClicca|r per cambiare il Formato"
-	GRM_L["|CFFE6CC7FLeft-Click|r to Change the Font"] = "|CFFE6CC7FClicca|r per cambiare il Carattere"
+	GRM_L["{custom1} to Change the Language"] = "{custom1} per cambiare la Lingua"
+    GRM_L["{custom1} to Change Display Format"] = "{custom1} per cambiare il Formato"
+    GRM_L["{custom1} to Change the Font"] = "{custom1} per cambiare il Carattere"
 
 	-- R1.1490
 	GRM_L["Unable to properly locate guild for backup"] = "Impossibile trovare una gilda per il backup" --WIP
@@ -641,6 +640,7 @@ GRML.Italian = function()
 	GRM_L["Check the \"Sync Users\" tab to find out why!"] = "Controlla la scheda \"Sincronizza\" per capire perché!"
 	GRM_L["Time as Member:"] = "Membro da:"
 	GRM_L["|CFFE6CC7FClick|r to select player event"] = "|CFFE6CC7FClicca|r per selezionare un evento"
+	GRM_L["Timestamp:"] = "Data e Ora"
 	GRM_L["Timestamp Format:"] = "Formato Data e Ora"
 	GRM_L["Hour Format:"] = "Formato Orario"
 	GRM_L["24 Hour"] = "24 Ore"
@@ -1268,7 +1268,7 @@ GRML.Italian = function()
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = true
     GRM_L["Custom Notes can be Restricted Further Below"] = true
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = true
-    GRM_L["Always open to selected tab:"] = true
+    GRM_L["Default Open Tab:"] = true
     GRM_L["{num} guild members have incomplete info."] = true
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
     GRM_L["No Audit Necessary! Great Work!"] = true
@@ -1606,6 +1606,7 @@ GRML.Italian = function()
     GRM_L["Show Member Faction"] = true
     GRM_L["Faction"] = true
     GRM_L["Alts:"] = true
+	GRM_L["Alts"] = true
 
     -- R1.975
     GRM_L["Export a full list of names in the queue."] = true
@@ -1850,7 +1851,6 @@ GRML.Italian = function()
     GRM_L["Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."] = true
     GRM_L["Auto-update is disabled. This will only update your notes a single time"] = true
     GRM_L["Cancel Auto-Update"] = true
-    GRM_L["Only Available in Classic Era"] = true
     GRM_L["Only Available for Officers"] = true
     GRM_L["One moment. Processing profession data..."] = true
     GRM_L["Update profession ranks (Classic Era Only)"] = true
@@ -1986,18 +1986,12 @@ GRML.Italian = function()
     GRM_L["Move Anywhere"] = true
 
     -- 1.99374
-    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = true
-    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
     GRM_L["Addons are no longer restricted. Continuing GRM initialization now."] = true
     GRM_L["Please specify a number limit after the altlimit command."] = true
     GRM_L["Nickname is too long. Max {num} letters."] = true
     GRM_L["Invalid Character: \"|\" is not allowed."] = true
     GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
-    GRM_L["Nickname contains invalid hidden characters." ] = true
-    GRM_L["{name} has removed the shared nickname for {name2} and all alts ({custom1})"] = true
-    GRM_L["{name} has removed {name2}'s nickname ({custom1})"] = true
-    GRM_L["{name} has added the shared nickname for {name2} and all alts ({custom1})"] = true
-    GRM_L["{name} has added {name2}'s nickname ({custom1})"] = true
+    GRM_L["Nickname contains invalid hidden characters."] = true
 
 	-- 1.99383
     GRM_L["Apply to Max Level Only"] = true
@@ -2022,7 +2016,6 @@ GRML.Italian = function()
     GRM_L["Officer Note Locations:"] = true
     GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = true
     GRM_L["Disregard notes located in Public or Officer notes"] = true
-    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
 	
 	-- R1.99386
     GRM_L["Unable to Retrieve. Addons currently restricted."] = true

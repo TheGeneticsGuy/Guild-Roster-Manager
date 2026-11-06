@@ -1,0 +1,86 @@
+## Interface: 11509, 16001, 20506, 50504, 120105
+
+## Author: Arkaan
+## Version: 1.995
+## Title: Guild Roster Manager
+## Notes: Manage Guild Roster Changes, Events, with Alt/Main tagging, for ALL guildies
+## X-Website: https://www.curseforge.com/wow/addons/guild-roster-manager
+## Category: Guild
+## IconTexture: Interface\AddOns\Guild_Roster_Manager\Media\icons\logo_64x64.png
+## AddonCompartmentFunc: GRM_ToggleOptionsWindow
+
+## SavedVariables: GRM_PlayersThatLeftHistory_Save , GRM_GuildMemberHistory_Save , GRM_CalendarAddQue_Save , GRM_LogReport_Save , GRM_AddonSettings_Save , GRM_PlayerListOfAlts_Save , GRM_GuildDataBackup_Save , GRM_Restore_Members , GRM_Restore_FormerMembers , GRM_Restore_Log , GRM_Misc , GRM_Alts , GRM_DailyAnnounce
+## SavedVariablesPerCharacter: GRM_DebugLog_Save , GRM_MinimapPosition
+
+Core\GRM_Types.lua
+Core\GRM_SaveVar_API.lua
+Compatibility\GRM_Compatibility.lua
+Compatibility\GRM_RealmFree.lua
+Core\GRM_Core.lua
+Core\GRM_SlashCommands.lua
+Core\GRM_Settings.lua
+
+Utils\GRM_Chat.lua
+Utils\GRM_Debug.lua
+Modules\GRM_WebApps.lua
+Utils\GRM_G_Util.lua
+Utils\GRM_Util.lua
+Utils\GRM_Name.lua
+Utils\GRM_SysMsgHandler.lua
+Core\GRM_Global_Control.lua
+
+Modules\GRM_AltManagement.lua
+Modules\GRM_GuildSync.lua
+Modules\GRM_ScanRoster.lua
+Modules\GRM_Log.lua
+Core\GRM_Modules.lua
+
+locales\GRM_Localization.lua
+locales\German.lua
+locales\French.lua
+locales\Italian.lua
+locales\MandarinCN.lua
+locales\MandarinTW.lua
+locales\Korean.lua
+locales\Portuguese.lua
+locales\PortugueseBR.lua
+locales\Russian.lua
+locales\SpanishEU.lua
+locales\SpanishMX.lua
+locales\English.lua
+locales\Dutch.lua
+locales\Danish.lua
+locales\GRM_LocDefaults.lua
+
+UI\GRM_UI_Util.lua
+UI\GRM_UI_API.lua
+UI\GRM_UI_ColorPicker.lua
+Modules\GRM_Roster.lua
+UI\GRM_Minimap.lua
+UI\GRM_UI_Dropdown.lua
+UI\GRM_UI.lua
+UI\GRM_Mouseover.lua
+
+UI\Options\GRM_OptionsCore.lua
+UI\Options\GRM_GeneralTab.lua
+UI\Options\GRM_OfficerTab.lua
+UI\Options\GRM_ScanTab.lua
+UI\Options\GRM_NamesTab.lua
+
+Compatibility\GRM_ClassicFrames.lua
+Modules\GRM_Macro_Tool.lua
+Utils\GRM_EE.lua
+Core\GRM_Patches.lua
+Core\GRM_API.lua
+Modules\GRM_Stats.lua
+Modules\GRM_HC.lua
+Utils\GRM_Realms.lua
+Modules\GRM_Professions.lua
+Utils\GRM_Hyperlinks.lua
+Modules\GRM_Nicknames.lua
+Utils\GRM_TimeUtil.lua
+Modules\GRM_Export.lua
+UI\GRM_UI_Precheck.lua
+Utils\GRM_SecretProtection.lua
+Compatibility\GRM_chattynator.lua
+Core\GRM_Config.lua

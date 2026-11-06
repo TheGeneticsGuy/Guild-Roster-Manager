@@ -1,3 +1,115 @@
+## **VERSION 1.995 - November 5th, 2026**
+
+***WOW FOREVER COMPATIBILITY LAUNCH***
+
+This was actually a fairly significant compatibility problem because of one simple feature - WOW Forever is REALM FREE!!! First off, from a personal standpoint, I love it. I love the concept of the elimination of realms with our modern server tech. It just makes sense. And, I love how Blizz gave us first/last names in place of that.
+
+The huge headache here is there are many things GRM needed to adapt to and change as a result of this. But, for my own sanity, I only build a single codebase for ALL versions of Warcraft, be it retail, Classic builds like MoP, Classic Era HC/SOD, and Anniversary. With Blizzard unifying the backend API, this is not too hard to do... until now. These fundamentally changes how some of the structure are laid out in my database and my dictionary tables. This affects how ensuring names are properly normalized so syncing can occur. For example, in Retail, you have to have `Name-NormalizedServer` when querying data or messaging the backend addon to addon comms. Well now, all those same APIs just querying the name returns the "First Last" name. But before, I had to handle logic where say, you were on a server like "Area 52." That appended server would not work when querying Blizz's server. You had to normalize it to "Area52" by elimination of any white space. Except now, in WOW Forever, you HAVE to have white space separate the first/last name, and no appended realm name, or it won't work. But the thing is, realms still technically exist, they are just masked, but I can see their names when I query the server.
+
+It was a HUGE headache, but I did it, and it is working. A key factor in how I retrofit this project to work with WOW Forever is how I did it under an assumption that one day Blizz is going to trickle over the realmless feature of WOW Forever to at least Retail builds, and probably others. So, with a little forward thinking, if Blizz ever does that, it will be as simple as a single line of code to carry over these changes to any build as needed.
+
+***NEW FEATURE - NICKNAMES***
+
+The LONG promised and awaited feature is finally here. First off, too all of you that have kept on me on getting this released, it definitely has worked to motivate me. I think the big hesitancy I had in finally pushing this out is I didn't have a 100% clear vision of how I wanted it implemented, and for the few things I did want implemented, I knew the time cost would be high to get it done. I also know myself and my level of obsessiveness of not releasing half a feature. At minimum I wanted nicknames that could be synced to other GRM users. That alone is a big task. But, I really went all out to maximize customizability.
+
+You will find that in the new Names Tab in the `/grm` Options window. Altogether, there is approximately 28 total different configurations. The key thing to understand is this:
+
+* No Nickname Configured - It will follow your Alt/Main configurations.
+
+* Nickname Configured - It will follow the Alt/Main/No Designation configuration you set.
+
+![Names Tab](https://i.imgur.com/uWoxXtg.png)
+
+**How to Set Your Nickname**
+
+Button Found on mouseover
+![nickname button](https://i.imgur.com/5Bntfo2.png)
+
+Nickname Window - Yes, the share with alts is SYNCED info.
+![Nickname Edit Window](https://i.imgur.com/ew0F3vz.png)
+
+Yes, you can choose to ONLY show the nickname if you want.
+![Only Show Nickname](https://i.imgur.com/uYaE5pg.png)
+
+Or, show the toon name and nickname.
+![Show Both Names](https://i.imgur.com/GzdE8Y8.png)
+
+Nicknames Feature does sync to other GRM users
+![Sync Nicknames](https://i.imgur.com/5eKttGp.png)
+
+**Current Limitations**
+
+* Does not show in the log - yet. As of now, the actual player toon name is what shows in the log. I will give an option to change this eventually.
+
+* Limited to chat, and mouseover window.
+
+
+***QUALITY OF LIFE***
+
+***MASSIVE ONGOING OPTIMIZATION WORK***
+
+When I wrote GRM, I was not really a knowledgeable programmer. I had done some minor coding work in the Computational Biology world in college, but I was a biologist, not a coder. It did kind of spark my journey of interest into coding, however, and I started doing little fun personal side projects here and there. Eventually, as a long-time WOW player and Guild Leader, I got tired of waiting around for Blizz to enhance and update the guild interface, so I just thought to myself one day, "Maybe I can just write an addon to do a few things I want." And thus, GRM was born.
+
+But, it was messy. It started as journey where I told myself, "I'll just learn as I go." And so, over the years, I had many suggestions from people to use X library, or Y tool, and so on, and while those were definitely "smarter" choices, I said to myself that I wanted to learn, and I wanted to build every single line of code myself, no external depencies. It wasn't because that was better, or smarter, but purely because I was enjoying coding, it had become my main hobby, and I just wanted to learn how to do it myself.
+
+Well, here I am, nearly 10 years later. I have since went back to school and obtained a new degree, and now I work professionally as a software engineer. I am still just an average coder, but I have learned a lot, and as I revisit the mess of code that is GRM, I am able to look at it with new eyes and see all the work that needs to be done to rewrite much of the more amateurish work I had done before. Ultimately, GRM was brute forced out of sheer will in my coding ignorance, but it works. And so now, every major update I am slowly bringing in more appropriate coding standards and principles. I am making things more efficient. I am optimizing extensively. But, to not get overly bogged down by it, I cansider this a journey of baby steps. Every update recently has been taking steps towards this process. This update is no different. I've even gotten my super class core file below 20k lines of code now haha!
+
+Anyway, I just wanted to share that I look forward to continue optimizing until I am satisfied. So, if you see an extensive change to the file structure of the addon, that will explain why. At the end of the day, it will be better as a result. For most of you, this might not make too much of a difference and will largely be unnoticeable, but it does make the process of working with GRM all the more easier in the future.
+
+Thank you to all who have been great support and even coding mentors over the years in my journey here, and you may not realize it, but it was my direct community support of other software and tech people in discord that ultimately inspired me to take this late life career change that I should have done so many years ago. While I was comfortable in my former career, nothing could have prepared me for the whirlwind of opportunity in the software world. So thank you!
+
+**Example of a Major Optimization this Patch:**
+**Patching System for GRM updates has been completely overhauled**
+
+* If patching fails, a heartbeat check will inform you rather than the addon completely failing.
+
+* Patching is now done far more efficiently. Previously, to prevent freezes, the patching strategically added time gaps between patches. Well, not all patches and databases are equal, so some patches might take far more processing time than others, and these time gaps were fixed. Now, it does an overall time delay on patching, to prevent stuttering, where if you have even 10 minor patches process through, if you haven't updated in a long time, compared to 1 long one. It doesn't matter. It only delays patching now if the elapsed timer is reached.
+
+* The codebase for patching was significantly overhauled in that GRM in its lifespan had reached 157 total patches. That's a lot of If/Else statements to run through now. Instead, since the patches increment up, I created a large table of all the patches, which can quickly identified where your build needs to be patched with binary search, and then quickly processed forward. Far more quick and efficient than previously.
+
+*Example:* I took a 185Mb save file with over 113,000 log entries and it took only 18 seconds to patch 72 patches. Previously this would have taken over 2 minutes with my fixed delays. For most people the patching now will take less than 1 second. This larger one was due to massive overhauls over the last 4 years, and I have a save file I use for stress testing massive changes.
+
+***ADDITIONAL QUALITY OF LIFE IMPROVEMENTS***
+
+* The Alt list has been revamped a bit in the mouseover window. There is no longer a floating "Add" button but a bar at the top, as well as a numeber indicator of how many alts.
+
+* Some better messaging has been added to the addon confirm your actions. For example, if you Ctrl-Shift click the "restore defaults button, it informs you that you reset all addon settings. Before it just said nothing and you just had to flip through tabs to confirm it worked.
+
+* Color Picker (colorwheel window) has been more smartly implemented with universal compatibility of any other color picker modification addon, like Color Picker Plus, Color Picker Advanced, or even ElvUI. Before I had modified things significantly which requried me to build carve-out compatibility specifically. Now, that is no longer necessary. I now hook the baseline actions, allowing GRM to instead enjoy the colorpicker modifications
+
+* Promotion macros can now ALSO add a custom note to be added when players get promotions.
+
+* The .toc files are now unified as a single file, no matter which GRM build you use.
+
+***BUG FIXES***
+
+* SetCVar and GetCVar are now protected functions by Blizz. GRM does not use these heavily, but they are occasionally used with things like on configuring some settings within the addon. For example, GRM hooks into Blizz's profanity filter so that if you have the profanity filter enabled, it will apply it to GRM notes too so people can't bypass the game settings. Well, I need to check if this setting is enabled or not to use this feature. Well, I can't do that if you reload that when in an instance. So this is taken into account to prevent Lua errors. This will actually throw a strong force **taint** so it is fairly serious.
+
+* Cleaned up a lot of redundant and unused variables from the Former Players database. There are many variables that were stored on the former player references just because it was a pure copy of the member data to former member, and I just realized a lot of it is not necessary to store in the database, like what zone you are currently in, if you are safe from macro ignore, as that no longer applies, status, and several others. This is handled much cleaner now.
+
+* Made some of the player data bloat not to have empty placeholders needlessly as that took a LOT of data.
+
+* Fixed a Lua error that could occur if You didn't have Chattynator installed but you checked the setting of GRM messaging destinations. This shouldn't trigger UNLESS Chattynator was installed, but there was one gate that didn't check if you had the addon loaded before running a check, so it was saying "Chattynator" doesn't exist and threw an error. Woops!
+
+* Fixed Lua error preventing the change of rank restrictions for guild leader ranked players in the Sync Options tab
+
+* Fixed a Lua error that would occur when resetting the sync restrictions of only the custom notes.
+
+* Fixed a bug where right-clicking and resetting the player data on a single player from the mouseover would not fully reset the data and also requried a re-scan to add them.
+
+* Fixed a bug where if you mouseover the side alt details frame where you can get a more detailed list of alt data on the mouseover, then you would lose your window locked status.
+
+* Fixed a serious bug in the General Options where if you chose to make your settings specific to each toon, rather than guild-wide settings, it would cause a lua error and prevent GRM from working until your next session. This now instantly works when selecting. No need for reload.
+
+* Fixed an issue where if you were sending a customNote to a player note with the macro tool, when they got demoted, it wasn't working. This was a side-effect of the addongeddon changes in Midnight when I tried to adapt but it ended up gimping all builds, including Retail. This is now fixed (and expanded to promotions).
+
+* Fixed a Lua error that could occur if you had GRM installed but never joined a guild. It is also much more efficient now and never loads the GRM frames in the background unless you join a guild.
+
+* Fixed an error where if you logged in in ANY of the Asian language regions, were not guilded, and then joined a guild, it would auto-select the wrong default language for you. Like Korean would select Portuguese, etc... So when you joined a guild it would now be loaded and configured in the wrong language. This is now fixed.
+
+* Many other minor bugs were resolved...
+
+
 ## **VERSION 1.99423 - October 15th, 2026**
 
 *12.1.5 Compatibility Update*
@@ -59,6 +171,18 @@ Here's the thing, when I cached the messages for reporting on the next scan, I c
 ***BUG FIXES***
 
 * Fixed a MAJOR bug in MoP that completely kills GRM from properly configuring and loading. GRM may appear to partially be working but it is unable to collect new changes. Blizz has merged the backend API in MoP Classic with the Retail API purges changes. HOWEVER, they did not restrict the new API like they did in Retail, which is great, so you can still access and edit public/officer notes in Classic, but there was still a bit of a rewrite due to being forced to use the `SetNote` API. This is fine, except Anniversary and Vanilla Classic/HC modes still use the old API so writing GRM as a single codebase I have to wrap in my own function for duel-compatibility. Not hard, just busy work. All is well now!
+
+* GRM would occasionally print out a false message that a public or officer note had had the join date added. Then, some time later it would correct it saying the note was removed. This is due to the note restriction in retail, where Blizz has now blocked all addons from editing public and officer notes. But, GRM's API check was occurring too soon in setting a global variable as to whether this build was note restricted or not. So, it would ignore the restriction and try anyway. This is now resolved and you should stop seeing these occasional messages.
+
+
+
+
+
+
+
+
+
+
 
 ## **VERSION 1.994 - June 17th, 2026**
 
@@ -7410,7 +7534,7 @@ Bug5: Fixed an issue where sync message was stating the wrong person was adding 
 
 * Bug Fix1: Before, it could do a check before server returned data, thus you would get generic message rather than full details on who did what.
 
-* Bug Fix2: "Clearing" the Rank Promotion history, the "Date Promoted?" button was not returning to proper position.
+* Bug Fix2: "Clearing" the Rank Promotion history, the "Date Promoted" button was not returning to proper position.
 
 * Bug Fix3: "Guild Log" button will now seat properly if frame is dragged over it.
 
