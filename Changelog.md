@@ -13,7 +13,6 @@
 * Fixed a bug resolving the fact that if you are in a special consideration time, where secret variables are in play, like in Raid combat, it was not double checking that. It will now no longer throw that error. Please be aware that addons are unable to modify the chat to inject nicknames or even main/alt tags when in these situations.
 
 
-
 ## **VERSION 1.995 - November 5th, 2026**
 
 ***WOW FOREVER COMPATIBILITY LAUNCH***
