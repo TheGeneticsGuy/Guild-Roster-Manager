@@ -233,64 +233,99 @@ chattynator.HookChattynatorAPI = function()
         
         Chattynator.API.AddModifier(function(data)
             
-            -- If data.text exists and contains our hidden GRM marker...
-            if data.text and type(data.text) == "string" and string.find(data.text, "\001GRM\001", 1, true) then
+            -- Ensure data.text exists before proceeding
+            if data.text and type(data.text) == "string" then
                 
-                -- Remove the hidden marker GRM adds so it doesn't print the weird box
-                data.text = string.gsub(data.text, "\001GRM\001", "")
-
-                -- 2. Find the FIRST player hyperlink (the sender) and replace the displayed name
-                data.text = string.gsub(data.text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", function(prefix, playerName, displayedName, suffix)
+                -- ==========================================================
+                -- HYPERLINK CHAT (Guild, Party, and Come Online)
+                -- ==========================================================
+                if string.find(data.text, "\001GRM\001", 1, true) or string.find(data.text, "\001GRMON\001", 1, true) then
                     
-                    local fullName = GRM.AppendServerName(playerName)
-                    local player = GRM.GetPlayer(fullName)
+                    -- Remove our invisible markers
+                    data.text = string.gsub(data.text, "\001GRM\001", "")
+                    data.text = string.gsub(data.text, "\001GRMON\001", "")
                     
-                    if player and GRM.GetGuild() then
-                        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+                    data.text = string.gsub(data.text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", function(prefix, playerName, displayedName, suffix)
+                        local fullName = GRM.AppendServerName(playerName)
+                        local player = GRM.GetPlayer(fullName)
                         
-                        if addTag then
-                            local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
-                            local nickname = GRM.NN.GetNickname(nil, player)
-
-                            -- Import GRM's formatting
-                            local formattedName = GRM_Name.GetFormattedNameString(playerName, mainName, nickname, isMain, isUnassigned, nil, false)
-
-                            -- Try to find a level tag that has its own specific color ("|cffAAAAAA(90)|r")
-                            local coloredLevel = string.match(displayedName, "|c%x%x%x%x%x%x%x%x%s*%([%d]+%)%s*|r")
+                        if player then
+                            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
                             
-                            -- Try to find a plain level tag ("(90)")
-                            local plainLevel = string.match(displayedName, "%([%d]+%)")
+                            if addTag then
+                                local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+                                local nickname = GRM.NN.GetNickname(nil, player)
 
-                            -- Coloring
-                            local classColor = GRM.GetStringClassColorByName(fullName)
-                            formattedName = classColor .. formattedName .. "|r"
+                                local formattedName = GRM_Name.GetFormattedNameString(playerName, mainName, nickname, isMain, isUnassigned, nil, false)
+                                
+                                local cleanName = string.gsub(displayedName, "|c%x%x%x%x%x%x%x%x", "")
+                                cleanName = string.gsub(cleanName, "|r", "")
 
-                            if coloredLevel then
-                                -- The level has its own unique color. Put it OUTSIDE the class color reset
-                                formattedName = classColor .. formattedName .. "|r " .. coloredLevel
-                            elseif plainLevel then
-                                -- The level doesn't have a unique color. Tuck it INSIDE our class color wrapper
-                                formattedName = classColor .. formattedName .. " " .. plainLevel .. "|r"
-                            else
-                                -- No level tag found at all
-                                formattedName = classColor .. formattedName .. "|r"
+                                local coloredPrefixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%d+%s*[:-]%s*|r)")
+                                local plainPrefixLvl = string.match(cleanName, "^%s*%[?%s*(%d+%s*[:-])")
+                                local coloredSuffixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%([%d]+%)%s*|r)")
+                                local plainSuffixLvl = string.match(cleanName, "(%([%d]+%))")
+
+                                local classColor = GRM.GetStringClassColorByName(fullName)
+                                
+                                if coloredPrefixLvl then formattedName = coloredPrefixLvl .. classColor .. formattedName .. "|r"
+                                elseif plainPrefixLvl then formattedName = classColor .. plainPrefixLvl .. formattedName .. "|r"
+                                else formattedName = classColor .. formattedName .. "|r" end
+
+                                if coloredSuffixLvl then formattedName = formattedName .. " " .. coloredSuffixLvl
+                                elseif plainSuffixLvl then formattedName = string.sub(formattedName, 1, -3) .. " " .. plainSuffixLvl .. "|r" end
+
+                                if string.match(cleanName, "^%s*%[") then
+                                    return prefix .. "[" .. formattedName .. "]" .. suffix
+                                else
+                                    return prefix .. formattedName .. suffix
+                                end
                             end
+                        end
+                        return prefix .. displayedName .. suffix
+                    end, 1)
 
-                            -- Chattynator appends levels to the name "[Arkaan (90)]"
-                            local cleanName = string.gsub(string.gsub(displayedName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+                -- ==========================================================
+                -- PLAINTEXT CHAT (Gone Offline)
+                -- ==========================================================
+                elseif string.find(data.text, "\001GRMOFF\001", 1, true) then
+                    local rawName = string.match(data.text, "\001GRMOFF\001(.-)\002")
+                    
+                    if rawName then
+                        -- Remove the marker payload
+                        data.text = string.gsub(data.text, "\001GRMOFF\001.-\002", "")
+                        
+                        -- Safe cleanup of the extracted name
+                        local cleanRawName = string.gsub(string.gsub(rawName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+                        local fullName = GRM.AppendServerName(cleanRawName)
+                        local player = GRM.GetPlayer(fullName)
+                        
+                        if player then
+                            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+                            
+                            if addTag then
+                                local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+                                local nickname = GRM.NN.GetNickname(nil, player)
 
-                            if string.match(cleanName, "^%s*%[") then
-                                return prefix .. "[" .. formattedName .. "]" .. suffix
-                            else
-                                return prefix .. formattedName .. suffix
+                                local formattedName = GRM_Name.GetFormattedNameString(cleanRawName, mainName, nickname, isMain, isUnassigned, nil, false)
+                                
+                                local classColor = GRM.GetStringClassColorByName(fullName)
+                                formattedName = classColor .. formattedName .. "|r"
+                                
+                                -- Protects hyphens in server names!
+                                local escapedRawName = string.gsub(cleanRawName, "([%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
+                                
+                                -- Replace colored name or plain name
+                                local pratPattern = "|c%x%x%x%x%x%x%x%x" .. escapedRawName .. "|r"
+                                if string.find(data.text, pratPattern) then
+                                    data.text = string.gsub(data.text, pratPattern, formattedName, 1)
+                                else
+                                    data.text = string.gsub(data.text, escapedRawName, formattedName, 1)
+                                end
                             end
                         end
                     end
-                    
-                    -- If no formatting needed, return it exactly as it was
-                    return prefix .. displayedName .. suffix
-                end, 1) -- The '1' ensures we ONLY replace the sender!
-
+                end
             end
         end)
         
