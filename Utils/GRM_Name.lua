@@ -30,12 +30,12 @@ local WrapByNickTag = function(text, index)
 end
 
 -- Helper on main tag
-local GetCurrentMainTag = function()
+GRM_Name.GetCurrentMainTag = function()
     return GRM_G.TagHexCode .. GRM_Name.GetMainTags(false, GRM.S().mainTagIndex) .. "|r";
 end
 
 -- Herlper on alt tag
-local GetCurrentAltTag = function()
+GRM_Name.GetCurrentAltTag = function()
     return GRM_G.TagHexCode .. GRM_Name.GetAltTags(false, GRM.S().mainTagIndex) .. "|r";
 end
 
@@ -137,8 +137,8 @@ end
 -- Purpose:         So, this only needs to be configured one time on load, or when the player updates the settings.
 GRM_Name.RefreshTagHexCode = function()
     GRM_G.TagHexCode = GRM.Util.rgbToHex({GRM.S().mainTagColor.r, GRM.S().mainTagColor.g, GRM.S().mainTagColor.b});
-    GRM_G.mainTag = GetCurrentMainTag();
-    GRM_G.altTag = GetCurrentAltTag();
+    GRM_G.mainTag = GRM_Name.GetCurrentMainTag();
+    GRM_G.altTag = GRM_Name.GetCurrentAltTag();
 end
 
 -- Helper for fetching the pure tag

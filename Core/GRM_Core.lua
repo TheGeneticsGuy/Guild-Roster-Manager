@@ -6472,27 +6472,6 @@ end
 GRM.GetLeveledString = function(simpleName, milestoneLevel, level, numGained, date, atLevelCap, fullName)
     local result = "";
 
-    -- NO LONGER APPLICABLE WITH NICKNAMES - HOLDING FOR NOW TIL OVERWRITE
-    -- if fullName then
-    --     local player = GRM.GetPlayer(fullName);
-
-    --     if player then
-
-    --         local mainDisplay = GRM_Name.GetMainTags(false, GRM.S().mainTagIndex);
-    --         if GRM.IsMain(player.name) then
-    --             simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r";
-    --         else
-
-    --             local altGroup = GRM.GetAltGroup(player.altGroup);
-    --             if GRM.PlayerHasAlts(player) and altGroup.main ~= "" then
-    --                 simpleName = simpleName .. " " .. GRM_G.TagHexCode .. mainDisplay .. "|r (" ..
-    --                                  GRM.GetStringClassColorByName(altGroup.main) .. GRM.SlimName(altGroup.main) ..
-    --                                  "|r)";
-    --             end
-    --         end
-    --     end
-    -- end
-
     if milestoneLevel == 0 or atLevelCap then
         if atLevelCap then
             result = GRM.L("{name} has Reached the {num} Level Cap! {custom1}", simpleName, nil,

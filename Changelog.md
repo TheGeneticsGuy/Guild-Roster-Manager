@@ -2,6 +2,8 @@
 
 ***BUG FIXES***
 
+* Fixed Chat addon compatibility. Kind of overlooked this when I implemented the new nickname system that overwrites the names. Chattynator and Prat, you guys are back in action! Things like ElvUI and others should have universal compatibility. Chattynator I had to build custom hooks to work with because it is a total rewrite from the ground up of its own custom chat frame. Very cool, but complicated lol. It is such a nice addon I feel I had no choice but to make GRM Compatible.
+
 * Lua error resolved that will spam you in all Classic builds that was an oversight from the WOW Forever/Retail adjustment. The !note feature will also work again.
 
 * Fixed a bug where attempts to process nicknames or main/alt configurations to chat were throwing secret protection errors.

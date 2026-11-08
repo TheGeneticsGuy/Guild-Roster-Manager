@@ -12,6 +12,7 @@ GRM.chattynator = chattynator;
 chattynator.IsChattynatorLoaded = function()
     if GRM.IsAddOnLoaded("Chattynator") then
         GRM_G.Compat.ChattynatorLoaded = true;
+        chattynator.HookChattynatorAPI();
         return true;
     end
     return false;
@@ -223,4 +224,76 @@ chattynator.CleanupChattynatorTabs = function()
 
     chattynator.InitializeTabsForGRM();
     
+end
+
+-- Method:          chattynator.HookChattynatorAPI()
+-- What it Does:    Uses Chattynator's native AddModifier API to format names before display.
+chattynator.HookChattynatorAPI = function()
+    if not GRM_G.Compat.ChattynatorHooked and Chattynator and Chattynator.API and Chattynator.API.AddModifier then
+        
+        Chattynator.API.AddModifier(function(data)
+            
+            -- If data.text exists and contains our hidden GRM marker...
+            if data.text and type(data.text) == "string" and string.find(data.text, "\001GRM\001", 1, true) then
+                
+                -- Remove the hidden marker GRM adds so it doesn't print the weird box
+                data.text = string.gsub(data.text, "\001GRM\001", "")
+
+                -- 2. Find the FIRST player hyperlink (the sender) and replace the displayed name
+                data.text = string.gsub(data.text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", function(prefix, playerName, displayedName, suffix)
+                    
+                    local fullName = GRM.AppendServerName(playerName)
+                    local player = GRM.GetPlayer(fullName)
+                    
+                    if player and GRM.GetGuild() then
+                        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+                        
+                        if addTag then
+                            local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+                            local nickname = GRM.NN.GetNickname(nil, player)
+
+                            -- Import GRM's formatting
+                            local formattedName = GRM_Name.GetFormattedNameString(playerName, mainName, nickname, isMain, isUnassigned, nil, false)
+
+                            -- Try to find a level tag that has its own specific color ("|cffAAAAAA(90)|r")
+                            local coloredLevel = string.match(displayedName, "|c%x%x%x%x%x%x%x%x%s*%([%d]+%)%s*|r")
+                            
+                            -- Try to find a plain level tag ("(90)")
+                            local plainLevel = string.match(displayedName, "%([%d]+%)")
+
+                            -- Coloring
+                            local classColor = GRM.GetStringClassColorByName(fullName)
+                            formattedName = classColor .. formattedName .. "|r"
+
+                            if coloredLevel then
+                                -- The level has its own unique color. Put it OUTSIDE the class color reset
+                                formattedName = classColor .. formattedName .. "|r " .. coloredLevel
+                            elseif plainLevel then
+                                -- The level doesn't have a unique color. Tuck it INSIDE our class color wrapper
+                                formattedName = classColor .. formattedName .. " " .. plainLevel .. "|r"
+                            else
+                                -- No level tag found at all
+                                formattedName = classColor .. formattedName .. "|r"
+                            end
+
+                            -- Chattynator appends levels to the name "[Arkaan (90)]"
+                            local cleanName = string.gsub(string.gsub(displayedName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+
+                            if string.match(cleanName, "^%s*%[") then
+                                return prefix .. "[" .. formattedName .. "]" .. suffix
+                            else
+                                return prefix .. formattedName .. suffix
+                            end
+                        end
+                    end
+                    
+                    -- If no formatting needed, return it exactly as it was
+                    return prefix .. displayedName .. suffix
+                end, 1) -- The '1' ensures we ONLY replace the sender!
+
+            end
+        end)
+        
+        GRM_G.Compat.ChattynatorHooked = true
+    end
 end

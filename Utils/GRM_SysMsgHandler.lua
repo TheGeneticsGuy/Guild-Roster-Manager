@@ -51,14 +51,14 @@ end
 GRM_Sys.MessageHookControl = function()
     if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
         
-        -- Hook the System Messages (Logons, logoffs, guild info)
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
-
         -- Hook all the chat messages, like Guild, Officer, Party, Raid, Instance, etc..
         for chat_event in pairs(MainTagEvents) do
             ChatFrame_AddMessageEventFilter(chat_event, GRM_Sys.AddFormattedNameToChat);
         end
         
+        -- Hook the System Messages (Logons, logoffs, guild info)
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
+
         -- Initialize the Visual Name Formatting
         GRM_Sys.HookChatFrames()
         
@@ -246,67 +246,62 @@ GRM_Sys.IsValidToAddTags = function(player)
     return result, isMain, isUnassigned
 end
 
--- Method:          AddMainTagToComeOnlineSystemMessage ( string )
--- What it Does:    Adds the formatted main/alt/nickname tags to the come online message
-local AddMainTagToComeOnlineSystemMessage = function(msg)
-    -- We use gsub to safely reconstruct the clickable player link!
-    return string.gsub(msg, "(|Hplayer:([^:]*).-|h)%[.-%](|h)", function(prefix, name, suffix)
-        local fullName = GRM.AppendServerName(name)
-        local player = GRM.GetPlayer(fullName)
-
-        if player and GRM.GetGuild() then
-            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player);
-
-            if addTag then
-                -- Fetch the core details
-                local mainName = isMain and fullName or GRM.GetPlayerMain(fullName)
-                local nickname = GRM.NN.GetNickname(fullName)
-                
-                -- Route it through your new universal formatter!
-                local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
-                
-                -- Reconstruct the chat link with the newly formatted name
-                return prefix .. "[" .. formattedName .. "]" .. suffix
-            end
-        end
+-- -- Method:          AddMainTagToComeOnlineSystemMessage ( string )
+-- -- What it Does:    Adds the formatted main/alt/nickname tags to the come online message
+-- local AddMainTagToComeOnlineSystemMessage = function(msg)
+--     -- We use gsub to safely reconstruct the clickable player link!
+--     return string.gsub(msg, "(|Hplayer:([^:]*).-|h)%[.-%](|h)", function(prefix, name, suffix)
+--         local fullName = GRM.AppendServerName(name)
+--         local player = GRM.GetPlayer(fullName)
+--         if player then
+--             local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player);
+--             if addTag then
+--                 -- Fetch the core details
+--                 local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+--                 local nickname = GRM.NN.GetNickname(nil, player)
+--                 -- Route it through your new universal formatter!
+--                 local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
+--                 -- Reconstruct the chat link with the newly formatted name
+--                 return prefix .. "[" .. formattedName .. "]" .. suffix
+--             end
+--         end
         
-        -- Fallback if not a guild member
-        return prefix .. "[" .. name .. "]" .. suffix
-    end, 1)
-end
+--         -- Fallback if not a guild member
+--         return prefix .. "[" .. name .. "]" .. suffix
+--     end, 1)
+-- end
 
--- Method:          AddMainTagToGoneOfflineSystemMessage ( string )
--- What it Does:    Adds the formatted main/alt/nickname tags to the gone offline message
-local AddMainTagToGoneOfflineSystemMessage = function(msg)
-    local breakIndex = string.find(msg, " ")
-    if not breakIndex then
-        breakIndex = string.find(msg, "下線了。") or string.find(msg, "下线了。")
-    end
+-- -- Method:          AddMainTagToGoneOfflineSystemMessage ( string )
+-- -- What it Does:    Adds the formatted main/alt/nickname tags to the gone offline message
+-- local AddMainTagToGoneOfflineSystemMessage = function(msg)
+--     local breakIndex = string.find(msg, " ")
+--     if not breakIndex then
+--         breakIndex = string.find(msg, "下線了。") or string.find(msg, "下线了。")
+--     end
 
-    if not breakIndex then return msg end
+--     if not breakIndex then return msg end
 
-    local name = string.sub(msg, 1, breakIndex - 1)
-    local fullName = GRM.AppendServerName(name)
-    local player = GRM.GetPlayer(fullName)
+--     local name = string.sub(msg, 1, breakIndex - 1)
+--     local fullName = GRM.AppendServerName(name)
+--     local player = GRM.GetPlayer(fullName)
 
-    if player and GRM.GetGuild() then
-        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player);
+--     if player then
+--         local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player);
 
-        if addTag then
-            -- Fetch the core details
-            local mainName = isMain and fullName or GRM.GetPlayerMain(fullName)
-            local nickname = GRM.NN.GetNickname(fullName)
+--         if addTag then
+--             -- Fetch the core details
+--             local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+--             local nickname = GRM.NN.GetNickname(fullName)
 
-            -- Route it through your new universal formatter!
-            local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
-            
-            -- Since going offline we don't need brackets as we can't click to msg
-            return formattedName .. string.sub(msg, breakIndex)
-        end
-    end
+--             -- Route it through your new universal formatter!
+--             local formattedName = GRM_Name.GetFormattedNameString(fullName, mainName, nickname, isMain, isUnassigned, nil, false)
+--             -- Since going offline we don't need brackets as we can't click to msg
+--             return formattedName .. string.sub(msg, breakIndex)
+--         end
+--     end
 
-    return msg
-end
+--     return msg
+-- end
 
 -- Method:          ProcessSystemMessage ( string )
 -- What it Does:    The core routing logic for all system messages.
@@ -365,11 +360,13 @@ local ProcessSystemMessage = function(msg)
         end
 
     -- Logon / Logoff Name injection
-    elseif not GRM_G.MainNameSystemMsgControl then
+     elseif not GRM_G.MainNameSystemMsgControl then
         if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() then
             if string.find(msg, GRM.L("has come online.")) then
                 GRM.GuildRoster()
-                msg = AddMainTagToComeOnlineSystemMessage(msg)
+                -- Inject online marker
+                msg = msg .. "\001GRMON\001"
+                
                 GRM.Scan.AnnounceIfBirthday(msg)
                 C_Timer.After(1.5, function() AnnounceIfMacroReady(msg) end)
 
@@ -378,7 +375,18 @@ local ProcessSystemMessage = function(msg)
                     GRMsync.EndSync(false)
                 end
                 GRM.GuildRoster()
-                msg = AddMainTagToGoneOfflineSystemMessage(msg)
+                
+                local breakIndex = string.find(msg, " ")
+                if not breakIndex then
+                    breakIndex = string.find(msg, "下線了。") or string.find(msg, "下线了。")
+                end
+                
+                if breakIndex then
+                    local rawName = string.sub(msg, 1, breakIndex - 1)
+
+                    -- Inject with the clean name
+                    msg = msg .. "\001GRMOFF\001" .. rawName .. "\002"
+                end
             end
         end
         
@@ -386,7 +394,6 @@ local ProcessSystemMessage = function(msg)
     elseif GRM_G.MainNameSystemMsgControl and string.find(msg, GRM.L("has gone offline.")) and GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
         GRMsync.EndSync(false)
     end
-
     return shouldFilter, msg
 end
 
@@ -396,7 +403,7 @@ GRM_Sys.SetSystemMessageFilter = function(_, _, msg, ...)
     local shouldFilter = false
     GRM_G.SystemMessagesEnabled = true
 
-    if GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage and not GRM.issecretvalue(msg) then
+    if not GRM.issecretvalue(msg) and GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
         shouldFilter, msg = ProcessSystemMessage(msg)
     else
         shouldFilter = true
@@ -443,65 +450,135 @@ end
 -- What it Does:    Calculates the formatted name and injects a hidden marker for the AddMessage hook.
 GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
     if not GRM.issecretvalue(msg) and IsInGuild() and GRM.S() and GRM_G.guildName ~= "" then
-        local tableString = tostring(chatFrame)
-
-        -- Dupe protection
-        if tableString == FormattingDupeProtect.tableString and 
-           time() == FormattingDupeProtect.time and
-           sender == FormattingDupeProtect.name and
-           string.find(msg, FormattingDupeProtect.msg, 1, true) then
-             return false, msg, sender, ...
-        end
-
-        FormattingDupeProtect.time = time()
-        FormattingDupeProtect.name = sender
-        FormattingDupeProtect.msg = msg
-        FormattingDupeProtect.tableString = tableString
-
-        local placeHolderMsg = msg -- Save raw message for the !note trigger if needed
-
-        local player = GRM.GetPlayer(sender)
-        if player then
-            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
-
-            if addTag then
-                local toonName = GRM.FormatName(sender)
-                local mainName = isMain and toonName or GRM.GetPlayerMain(player)
-                
-                local nickname = GRM.NN.GetNickname(sender)
-
-                -- Format the name using our universal helper
-                local formattedName = GRM_Name.GetFormattedNameString(toonName, mainName, nickname, isMain, isUnassigned, nil, false)
-                
-                -- Add class coloring if enabled
-                if GRM.S().colorizeNames then
-                    local classColor = GRM.GetStringClassColorByName(sender)
-                    formattedName = classColor .. formattedName .. "|r"
-                end
-
-                -- INJECT THE HIDDEN MARKER! 
-                -- \001 and \002 are invisible ASCII control characters that players cannot type.
-                if formattedName ~= toonName then
-                    msg = "\001GRM\001" .. formattedName .. "\002" .. msg
-                end
-            end
-        end
-
-        -- Public note hook (using the RAW message)
+        -- Public note hook 
         if GRM.S().noteSetEnabled and (event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER") then
             if not GRM_G.BuildHasRestrictions then
-                GRM_Sys.TriggerPlayerNote(sender, placeHolderMsg)
+                GRM_Sys.TriggerPlayerNote(sender, msg)
             end
         end
+        -- Inject the invisible flag at the very front of the message
+        msg = "\001GRM\001" .. msg
+
     end
     
     return false, msg, sender, ...
 end
 
--- Method:          GetNameWithMainTags( string)
+-- Method:          GRM_Sys.HookChatFrames()
+-- What it Does:    Catches the hidden GRM markers and safely swaps the name inside the hyperlink brackets.
+-- Purpose:         Allows replacing the default [Name] without breaking right-click hyperlinks, fully compatible with Prat/ElvUI!
+GRM_Sys.HookChatFrames = function()
+    if GRM_G.ChatFramesHooked then return end
+
+    for i = 1, NUM_CHAT_WINDOWS do
+        local chatFrame = _G["ChatFrame" .. i]
+        if chatFrame then
+            local originalAddMessage = chatFrame.AddMessage
+            
+            chatFrame.AddMessage = function(self, text, ...)
+                if GRM.issecretvalue(text) then
+                    return originalAddMessage(self, text, ...)
+                end
+
+                if text and type(text) == "string" then
+                    
+                    -- ==========================================================
+                    -- 1. HYPERLINK CHAT (Guild, Party, and Come Online)
+                    -- ==========================================================
+                    if string.find(text, "\001GRM\001", 1, true) or string.find(text, "\001GRMON\001", 1, true) then
+                        
+                        text = string.gsub(text, "\001GRM\001", "")
+                        text = string.gsub(text, "\001GRMON\001", "")
+                        
+                        text = string.gsub(text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", function(prefix, playerName, displayedName, suffix)
+                            local fullName = GRM.AppendServerName(playerName)
+                            local player = GRM.GetPlayer(fullName)
+                            
+                            if player then
+                                local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+                                
+                                if addTag then
+                                    local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+                                    local nickname = GRM.NN.GetNickname(nil, player)
+
+                                    local formattedName = GRM_Name.GetFormattedNameString(playerName, mainName, nickname, isMain, isUnassigned, nil, false)
+                                    
+                                    local cleanName = string.gsub(displayedName, "|c%x%x%x%x%x%x%x%x", "")
+                                    cleanName = string.gsub(cleanName, "|r", "")
+
+                                    local coloredPrefixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%d+%s*[:-]%s*|r)")
+                                    local plainPrefixLvl = string.match(cleanName, "^%s*%[?%s*(%d+%s*[:-])")
+                                    local coloredSuffixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%([%d]+%)%s*|r)")
+                                    local plainSuffixLvl = string.match(cleanName, "(%([%d]+%))")
+
+                                    local classColor = GRM.GetStringClassColorByName(fullName)
+                                    
+                                    if coloredPrefixLvl then formattedName = coloredPrefixLvl .. classColor .. formattedName .. "|r"
+                                    elseif plainPrefixLvl then formattedName = classColor .. plainPrefixLvl .. formattedName .. "|r"
+                                    else formattedName = classColor .. formattedName .. "|r" end
+
+                                    if coloredSuffixLvl then formattedName = formattedName .. " " .. coloredSuffixLvl
+                                    elseif plainSuffixLvl then formattedName = string.sub(formattedName, 1, -3) .. " " .. plainSuffixLvl .. "|r" end
+
+                                    if string.match(cleanName, "^%s*%[") then
+                                        return prefix .. "[" .. formattedName .. "]" .. suffix
+                                    else
+                                        return prefix .. formattedName .. suffix
+                                    end
+                                end
+                            end
+                            return prefix .. displayedName .. suffix
+                        end, 1)
+
+                    -- ==========================================================
+                    -- 2. PLAINTEXT CHAT (Gone Offline)
+                    -- ==========================================================
+                    elseif string.find(text, "\001GRMOFF\001", 1, true) then
+                        local rawName = string.match(text, "\001GRMOFF\001(.-)\002")
+                        if rawName then
+                            text = string.gsub(text, "\001GRMOFF\001.-\002", "")
+                            local cleanName = string.gsub(string.gsub(rawName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+                            local fullName = GRM.AppendServerName(cleanName)
+                            local player = GRM.GetPlayer(fullName)
+                            if player then
+                                local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+                                
+                                if addTag then
+                                    local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+                                    local nickname = GRM.NN.GetNickname(nil, player)
+
+                                    local formattedName = GRM_Name.GetFormattedNameString(cleanName, mainName, nickname, isMain, isUnassigned, nil, false)
+                                    
+                                    local classColor = GRM.GetStringClassColorByName(fullName)
+                                    formattedName = classColor .. formattedName .. "|r"
+                                    
+                                    -- Protects hyphens in server names from crashing the game!
+                                    local escapedRawName = string.gsub(cleanName, "([%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
+                                    
+                                    -- Replace Prat's colored name or Standard WoW's plain name
+                                    local pratPattern = "|c%x%x%x%x%x%x%x%x" .. escapedRawName .. "|r"
+                                    if string.find(text, pratPattern) then
+                                        text = string.gsub(text, pratPattern, formattedName, 1)
+                                    else
+                                        text = string.gsub(text, escapedRawName, formattedName, 1)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                return originalAddMessage(self, text, ...)
+            end
+        end
+    end
+    GRM_G.ChatFramesHooked = true
+end
+
+-- Method:          GRM_Sys.GetNameWithMainTags( string)
 -- What it Does:    Retrieves the fully formatted string for UI elements and Achievements
 -- Purpose:         Global accessibility for formatting strings according to dropdown settings.
-local GetNameWithMainTags = function(name)
+GRM_Sys.GetNameWithMainTags = function(name)
     local player = GRM.GetPlayer(name)
 
     if player then
@@ -509,11 +586,11 @@ local GetNameWithMainTags = function(name)
             GRM_G.IsAltGrouping = true
         end
 
-        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(name)
+        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
 
         if addTag then
-            local mainName = isMain and name or GRM.GetPlayerMain(name)
-            local nickname = GRM.NN.GetNickname(name)
+            local mainName = isMain and name or GRM.GetPlayerMain(nil, player)
+            local nickname = GRM.NN.GetNickname(nil, player)
             
             name = GRM_Name.GetFormattedNameString(name, mainName, nickname, isMain, isUnassigned, nil, false)
         end
@@ -525,7 +602,7 @@ end
 -- Method:          GRM_Sys.AnnounceAchievement( string, string )
 -- What it Does:    Announced earned achievements from the guild in classic
 GRM_Sys.AnnounceAchievement = function(source, link)
-    local formattedName = GetNameWithMainTags(source)
+    local formattedName = GRM_Sys.GetNameWithMainTags(source)
     local message = string.gsub(string.gsub(BROADCAST_ACHIEVEMENT, "%%s", formattedName), "$a", link)
     local color = ChatTypeInfo["GUILD"]
     GRM.Report("|cff00c8ff" .. GRM.L("GRM:") .. "|r " .. message, color.r, color.g, color.b)
@@ -717,40 +794,4 @@ GRM_Sys.TriggerPlayerNote = function(playerName, msg)
             end
         end
     end
-end
-
--- Method:          GRM_Sys.HookChatFrames()
--- What it Does:    Catches the hidden GRM markers and safely swaps the name inside the hyperlink brackets.
-GRM_Sys.HookChatFrames = function()
-    if GRM_G.ChatFramesHooked then return end
-
-    for i = 1, NUM_CHAT_WINDOWS do
-        local chatFrame = _G["ChatFrame" .. i]
-        if chatFrame then
-            local originalAddMessage = chatFrame.AddMessage
-            
-            chatFrame.AddMessage = function(self, text, ...)
-                if GRM.issecretvalue(text) then
-                    return originalAddMessage(self, text, ...)
-                end
-
-                if text and type(text) == "string" and string.find(text, "\001GRM\001", 1, true) then
-                    
-                    -- Extract the  formatted name from between the  invisible markers
-                    local formattedName = string.match(text, "\001GRM\001(.-)\002")
-                    
-                    if formattedName then
-                        text = string.gsub(text, "\001GRM\001.-\002", "")
-                        text = string.gsub(text, "(|Hplayer:([^:]*).-|h)%[([^%]]+)%](|h)", function(prefix, name, displayedName, suffix)
-                            return prefix .. "[" .. formattedName .. "]" .. suffix
-                        end, 1)
-                    end
-                end
-                
-                -- Pass the modified string back to WoW
-                return originalAddMessage(self, text, ...)
-            end
-        end
-    end
-    GRM_G.ChatFramesHooked = true
 end
