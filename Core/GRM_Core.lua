@@ -18,7 +18,7 @@ GRM_G.RetailBaseBuild = 120105;
 GRM_G.ForeverBaseBuild = 16001;
 
 -- GroupInfo Module
-GRM_G.GroupInfoV = 1.66;
+GRM_G.GroupInfoV = 1.67;
 
 -- Guild Details
 GRM_G.guildName = "";
