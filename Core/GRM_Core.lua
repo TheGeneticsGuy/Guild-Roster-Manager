@@ -7,9 +7,9 @@ SLASH_GRM1 = '/grm';
 
 -- Addon Details:
 GRM_G.addonName = "Guild_Roster_Manager";
-GRM_G.Version = "R1.995";
-GRM_G.PatchDayString = "1793753094";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1793753094;            -- In Epoch Time
+GRM_G.Version = "R1.9951";
+GRM_G.PatchDayString = "1794121223";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1794121223;            -- In Epoch Time
 
 -- Build Details
 GRM_G.RealmFree = GRM_RF.IsRealmFree();
@@ -18,7 +18,7 @@ GRM_G.RetailBaseBuild = 120105;
 GRM_G.ForeverBaseBuild = 16001;
 
 -- GroupInfo Module
-GRM_G.GroupInfoV = 1.65;
+GRM_G.GroupInfoV = 1.66;
 
 -- Guild Details
 GRM_G.guildName = "";

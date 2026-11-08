@@ -1,4 +1,4 @@
-## **VERSION 1.9951 - November 6th, 2026**
+## **VERSION 1.9951 - November 8th, 2026**
 
 ***BUG FIXES***
 
@@ -9,6 +9,8 @@
 * Fixed a bug where attempts to process nicknames or main/alt configurations to chat were throwing secret protection errors.
 
 * Anyone not English/Korean build users were getting spammed with missing localization files. Sorry about that guys, forgot to include them for non-English users.
+
+* Fixed a bug resolving the fact that if you are in a special consideration time, where secret variables are in play, like in Raid combat, it was not double checking that. It will now no longer throw that error. Please be aware that addons are unable to modify the chat to inject nicknames or even main/alt tags when in these situations.
 
 
 
