@@ -46,26 +46,6 @@ local SystemMessageHookControl = function()
     end
 end
 
--- Method:          GRM_Sys.MessageHookControl()
--- What it Does:    Initializes all chat interceptions
-GRM_Sys.MessageHookControl = function()
-    if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
-        
-        -- Hook all the chat messages, like Guild, Officer, Party, Raid, Instance, etc..
-        for chat_event in pairs(MainTagEvents) do
-            ChatFrame_AddMessageEventFilter(chat_event, GRM_Sys.AddFormattedNameToChat);
-        end
-        
-        -- Hook the System Messages (Logons, logoffs, guild info)
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
-
-        -- Initialize the Visual Name Formatting
-        GRM_Sys.HookChatFrames()
-        
-        GRM_G.MainHookConfigured = true
-    end
-end
-
 -- Method:          SyncPlayerGoneOffline ( string )
 -- What it Does:    Reports back if player you are syncing with has gone offline.
 -- Purpose:         Will need to break sync if players has gone offline.
@@ -246,128 +226,6 @@ GRM_Sys.IsValidToAddTags = function(player)
     return result, isMain, isUnassigned
 end
 
--- Method:          ProcessSystemMessage ( string )
--- What it Does:    The core routing logic for all system messages.
--- Returns:         boolean (shouldFilter), string (modifiedMsg)
-local ProcessSystemMessage = function(msg)
-    local shouldFilter = false
-
-    GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or string.sub(GUILD_INFO_TEMPLATE, 1, string.find(GUILD_INFO_TEMPLATE, "%%") - 1)
-
-    -- GuildInfo filter (GuildInfo())
-    if GRM_G.MsgFilterDelay and (string.find(msg, GRM_G.guildInfoSystemMessage) or string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND))) then
-        if string.find(msg, GRM_G.guildInfoSystemMessage) and ((time() - GRM_G.SystemMsgThrottle) > 1) then
-            GRM_G.SystemMsgThrottle = time()
-            GRM_G.CreationDatePattern = GRM_G.CreationDatePattern or CreateGuildCreationDatePattern()
-            local a, b, c, _, numUniqueAccounts = string.match(msg, GRM_G.CreationDatePattern)
-            if a and b and c then
-                local month, day, year
-                if GRM_G.Region == "deDE" or GRM_G.Region == "esES" or GRM_G.Region == "esMX" or GRM_G.Region == "frFR" then
-                    day, month, year = a, b, c
-                elseif GRM_G.Region == "koKR" then
-                    day, month, year = c, b, a
-                else
-                    day, month, year = b, a, c
-                end
-
-                if day ~= "0" then
-                    numUniqueAccounts = tonumber(numUniqueAccounts)
-                    if numUniqueAccounts > GRM_G.numAccounts and GRM_G.numAccounts ~= 0 then
-                        GRM_G.DesignateMain = true
-                        C_Timer.After(10.1, function() GRM_G.DesignateMain = false end)
-                    end
-                    GRM_G.numAccounts = numUniqueAccounts
-                    local date = day .. "-" .. month .. "-" .. year
-                    if GRM_G.guildCreationDate == "" or GRM_G.guildCreationDate ~= date then
-                        GRM_G.guildCreationDate = date
-                    end
-                end
-            end
-        end
-        shouldFilter = true
-
-    -- Player Not Found / Friend List Spam, etc
-    elseif (GRM_G.MsgFilterDelay or GRM_G.MsgFilterDelay2) and (msg == GRM.L("Player not found.") or string.find(msg, GRM.L("added to friends")) or string.find(msg, GRM.L("is already your friend"))) then
-        shouldFilter = true
-
-    -- Sync Player Disconnects
-    elseif GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and SystemMessagePatternMatchCheck(1, msg, GRMsyncGlobals.CurrentSyncPlayer) then
-        if GRMsyncGlobals.currentlySyncing then GRMsync.EndSync(false) end
-        shouldFilter = true
-
-    -- Guild Event Spam Control (Promoted, Demoted, Kicked, etc.)
-    elseif string.find(msg, GRM.L("has promoted")) or string.find(msg, GRM.L("has demoted")) or string.find(msg, GRM.L("joined the guild.")) or string.find(msg, GRM.L("left the guild.")) or string.find(msg, GRM.L("has been kicked")) then
-        shouldFilter = GRM.SystemMessageLiveDetectionControl(msg)
-        if string.find(msg, GRM.L("has been kicked")) and (GRM_UI.GRM_ToolCoreFrame:IsVisible() and GRM.S().disableMacroToolLogSpam) then
-            shouldFilter = true
-        end
-
-    -- Logon / Logoff Name injection
-     elseif not GRM_G.MainNameSystemMsgControl then
-        if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() then
-            if string.find(msg, GRM.L("has come online.")) then
-                GRM.GuildRoster()
-                -- Inject online marker
-                msg = msg .. "\001GRMON\001"
-                
-                GRM.Scan.AnnounceIfBirthday(msg)
-                C_Timer.After(1.5, function() AnnounceIfMacroReady(msg) end)
-
-            elseif string.find(msg, GRM.L("has gone offline.")) then
-                if GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
-                    GRMsync.EndSync(false)
-                end
-                GRM.GuildRoster()
-                
-                local breakIndex = string.find(msg, " ")
-                if not breakIndex then
-                    breakIndex = string.find(msg, "下線了。") or string.find(msg, "下线了。")
-                end
-                
-                if breakIndex then
-                    local rawName = string.sub(msg, 1, breakIndex - 1)
-
-                    -- Inject with the clean name
-                    msg = msg .. "\001GRMOFF\001" .. rawName .. "\002"
-                end
-            end
-        end
-        
-    -- Fallback Sync Disconnect Check
-    elseif GRM_G.MainNameSystemMsgControl and string.find(msg, GRM.L("has gone offline.")) and GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
-        GRMsync.EndSync(false)
-    end
-    return shouldFilter, msg
-end
-
--- Method:          GRM_Sys.SetSystemMessageFilter
--- Purpose:         Filters chat spam during server inquiries and injects tags.
-GRM_Sys.SetSystemMessageFilter = function(_, _, msg, ...)
-    local shouldFilter = false
-    GRM_G.SystemMessagesEnabled = true
-
-    if not GRM.issecretvalue(msg) and GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
-        shouldFilter, msg = ProcessSystemMessage(msg)
-    else
-        shouldFilter = true
-    end
-
-    SystemMessageHookControl()
-    return shouldFilter, msg, ...
-end
-
--- Method:          GRM_Sys.SystemMessageHandler
--- Purpose:         Tracks events when filtering is OFF, while still injecting name tags.
-GRM_Sys.SystemMessageHandler = function(_, _, msg)
-    if not GRM_G.SystemMessagesEnabled and not GRM.issecretvalue(msg) then
-        if GRM.S() and GRM.GetGuild() ~= nil and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
-            -- Ignoring return, just processing
-            ProcessSystemMessage(msg)
-        end
-        SystemMessageHookControl()
-    end
-end
-
 -- Method:          GRM_Sys.SetGuildInfoDetails()
 -- Purpose:         Calls the server info on the guild and parses out the number of exact unique accounts are in the guild.
 --                  It also filters the chat msg to avoid chat spam, then unfilters it immediately after
@@ -387,135 +245,6 @@ GRM_Sys.SetGuildInfoDetails = function()
     C_Timer.After(2, function()
         GRM_G.MsgFilterDelay = false;
     end);
-end
-
--- Method:          GRM_Sys.AddFormattedNameToChat ( ... )
--- What it Does:    Calculates the formatted name and injects a hidden marker for the AddMessage hook.
-GRM_Sys.AddFormattedNameToChat = function(chatFrame, event, msg, sender, ...)
-    if not GRM.issecretvalue(msg) and IsInGuild() and GRM.S() and GRM_G.guildName ~= "" then
-        -- Public note hook 
-        if GRM.S().noteSetEnabled and (event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER") then
-            if not GRM_G.BuildHasRestrictions then
-                GRM_Sys.TriggerPlayerNote(sender, msg)
-            end
-        end
-        -- Inject the invisible flag at the very front of the message
-        msg = "\001GRM\001" .. msg
-
-    end
-    
-    return false, msg, sender, ...
-end
-
--- Method:          GRM_Sys.HookChatFrames()
--- What it Does:    Catches the hidden GRM markers and safely swaps the name inside the hyperlink brackets.
--- Purpose:         Allows replacing the default [Name] without breaking right-click hyperlinks, fully compatible with Prat/ElvUI!
-GRM_Sys.HookChatFrames = function()
-    if GRM_G.ChatFramesHooked then return end
-
-    for i = 1, NUM_CHAT_WINDOWS do
-        local chatFrame = _G["ChatFrame" .. i]
-        if chatFrame then
-            local originalAddMessage = chatFrame.AddMessage
-            
-            chatFrame.AddMessage = function(self, text, ...)
-                if GRM.issecretvalue(text) then
-                    return originalAddMessage(self, text, ...)
-                end
-
-                if text and type(text) == "string" then
-                    
-                    -- ==========================================================
-                    -- 1. HYPERLINK CHAT (Guild, Party, and Come Online)
-                    -- ==========================================================
-                    if string.find(text, "\001GRM\001", 1, true) or string.find(text, "\001GRMON\001", 1, true) then
-                        
-                        text = string.gsub(text, "\001GRM\001", "")
-                        text = string.gsub(text, "\001GRMON\001", "")
-                        
-                        text = string.gsub(text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", function(prefix, playerName, displayedName, suffix)
-                            local fullName = GRM.AppendServerName(playerName)
-                            local player = GRM.GetPlayer(fullName)
-                            
-                            if player then
-                                local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
-                                
-                                if addTag then
-                                    local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
-                                    local nickname = GRM.NN.GetNickname(nil, player)
-
-                                    local formattedName = GRM_Name.GetFormattedNameString(playerName, mainName, nickname, isMain, isUnassigned, nil, false)
-                                    
-                                    local cleanName = string.gsub(displayedName, "|c%x%x%x%x%x%x%x%x", "")
-                                    cleanName = string.gsub(cleanName, "|r", "")
-
-                                    local coloredPrefixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%d+%s*[:-]%s*|r)")
-                                    local plainPrefixLvl = string.match(cleanName, "^%s*%[?%s*(%d+%s*[:-])")
-                                    local coloredSuffixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%([%d]+%)%s*|r)")
-                                    local plainSuffixLvl = string.match(cleanName, "(%([%d]+%))")
-
-                                    local classColor = GRM.GetStringClassColorByName(fullName)
-                                    
-                                    if coloredPrefixLvl then formattedName = coloredPrefixLvl .. classColor .. formattedName .. "|r"
-                                    elseif plainPrefixLvl then formattedName = classColor .. plainPrefixLvl .. formattedName .. "|r"
-                                    else formattedName = classColor .. formattedName .. "|r" end
-
-                                    if coloredSuffixLvl then formattedName = formattedName .. " " .. coloredSuffixLvl
-                                    elseif plainSuffixLvl then formattedName = string.sub(formattedName, 1, -3) .. " " .. plainSuffixLvl .. "|r" end
-
-                                    if string.match(cleanName, "^%s*%[") then
-                                        return prefix .. "[" .. formattedName .. "]" .. suffix
-                                    else
-                                        return prefix .. formattedName .. suffix
-                                    end
-                                end
-                            end
-                            return prefix .. displayedName .. suffix
-                        end, 1)
-
-                    -- ==========================================================
-                    -- 2. PLAINTEXT CHAT (Gone Offline)
-                    -- ==========================================================
-                    elseif string.find(text, "\001GRMOFF\001", 1, true) then
-                        local rawName = string.match(text, "\001GRMOFF\001(.-)\002")
-                        if rawName then
-                            text = string.gsub(text, "\001GRMOFF\001.-\002", "")
-                            local cleanName = string.gsub(string.gsub(rawName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
-                            local fullName = GRM.AppendServerName(cleanName)
-                            local player = GRM.GetPlayer(fullName)
-                            if player then
-                                local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
-                                
-                                if addTag then
-                                    local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
-                                    local nickname = GRM.NN.GetNickname(nil, player)
-
-                                    local formattedName = GRM_Name.GetFormattedNameString(cleanName, mainName, nickname, isMain, isUnassigned, nil, false)
-                                    
-                                    local classColor = GRM.GetStringClassColorByName(fullName)
-                                    formattedName = classColor .. formattedName .. "|r"
-                                    
-                                    -- Protects hyphens in server names from crashing the game!
-                                    local escapedRawName = string.gsub(cleanName, "([%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
-                                    
-                                    -- Replace Prat's colored name or Standard WoW's plain name
-                                    local pratPattern = "|c%x%x%x%x%x%x%x%x" .. escapedRawName .. "|r"
-                                    if string.find(text, pratPattern) then
-                                        text = string.gsub(text, pratPattern, formattedName, 1)
-                                    else
-                                        text = string.gsub(text, escapedRawName, formattedName, 1)
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-                
-                return originalAddMessage(self, text, ...)
-            end
-        end
-    end
-    GRM_G.ChatFramesHooked = true
 end
 
 -- Method:          GRM_Sys.GetNameWithMainTags( string)
@@ -736,5 +465,280 @@ GRM_Sys.TriggerPlayerNote = function(playerName, msg)
                 end
             end
         end
+    end
+end
+
+
+-- =========================
+-- SHARED FORMATTING HELPERS
+-- =========================
+
+GRM_Sys.ReplaceHyperlink = function(prefix, playerName, displayedName, suffix)
+    local cleanNameStr = string.gsub(string.gsub(playerName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+    local fullName = GRM.AppendServerName(cleanNameStr)
+    local player = GRM.GetPlayer(fullName)
+    
+    if player and GRM.GetGuild() then
+        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+        if addTag then
+            local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+            local nickname = GRM.NN.GetNickname(nil, player)
+            local formattedName = GRM_Name.GetFormattedNameString(cleanNameStr, mainName, nickname, isMain, isUnassigned, nil, false)
+            
+            local cleanDisplay = string.gsub(string.gsub(displayedName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+            local coloredPrefixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%d+%s*[:-]%s*|r)")
+            local plainPrefixLvl = string.match(cleanDisplay, "^%s*%[?%s*(%d+%s*[:-])")
+            local coloredSuffixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%([%d]+%)%s*|r)")
+            local plainSuffixLvl = string.match(cleanDisplay, "(%([%d]+%))")
+
+            if GRM.S().colorizeNames then
+                local classColor = GRM.GetStringClassColorByName(fullName)
+                if coloredPrefixLvl then formattedName = coloredPrefixLvl .. classColor .. formattedName .. "|r"
+                elseif plainPrefixLvl then formattedName = classColor .. plainPrefixLvl .. formattedName .. "|r"
+                else formattedName = classColor .. formattedName .. "|r" end
+
+                if coloredSuffixLvl then formattedName = formattedName .. " " .. coloredSuffixLvl
+                elseif plainSuffixLvl then formattedName = string.sub(formattedName, 1, -3) .. " " .. plainSuffixLvl .. "|r" end
+            else
+                if coloredPrefixLvl then formattedName = coloredPrefixLvl .. formattedName
+                elseif plainPrefixLvl then formattedName = plainPrefixLvl .. formattedName end
+                if coloredSuffixLvl then formattedName = formattedName .. " " .. coloredSuffixLvl
+                elseif plainSuffixLvl then formattedName = formattedName .. " " .. plainSuffixLvl end
+            end
+
+            if string.match(cleanDisplay, "^%s*%[") then return prefix .. "[" .. formattedName .. "]" .. suffix
+            else return prefix .. formattedName .. suffix end
+        end
+    end
+    return prefix .. displayedName .. suffix
+end
+
+GRM_Sys.ReplaceOfflineMessage = function(text)
+    local offlineStr = GRM.L("has gone offline.")
+    local offStart = string.find(text, offlineStr, 1, true)
+    if not offStart then return text end
+    
+    -- Grab everything before the offline string (this includes timestamps and the name)
+    local beforeText = string.sub(text, 1, offStart - 1)
+    
+    -- Safely isolate the name from the timestamp using a reverse space search
+    local prefix = ""
+    local rawName = beforeText
+    local trimmed = GRM.Util.Trim(beforeText)
+    local lastSpace = string.match(trimmed, "^.*()%s")
+    
+    if lastSpace then
+        prefix = string.sub(beforeText, 1, lastSpace)
+        rawName = string.sub(beforeText, lastSpace + 1)
+    end
+    
+    local cleanRawName = string.gsub(string.gsub(rawName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+    cleanRawName = GRM.Util.Trim(cleanRawName)
+    local fullName = GRM.AppendServerName(cleanRawName)
+    local player = GRM.GetPlayer(fullName)
+    
+    if player and GRM.GetGuild() then
+        local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
+        if addTag then
+            local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
+            local nickname = GRM.NN.GetNickname(nil, player)
+            local formattedName = GRM_Name.GetFormattedNameString(cleanRawName, mainName, nickname, isMain, isUnassigned, nil, false)
+            
+            if GRM.S().colorizeNames then
+                local classColor = GRM.GetStringClassColorByName(fullName)
+                formattedName = classColor .. formattedName .. "|r"
+            end
+            
+            local escapedRawName = string.gsub(cleanRawName, "([%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
+            local pratPattern = "|c%x%x%x%x%x%x%x%x" .. escapedRawName .. "|r"
+            
+            if string.find(rawName, pratPattern) then rawName = string.gsub(rawName, pratPattern, formattedName, 1)
+            else rawName = string.gsub(rawName, escapedRawName, formattedName, 1) end
+            
+            return prefix .. rawName .. string.sub(text, offStart)
+        end
+    end
+    return text
+end
+
+-- =====================
+-- EVENT ROUTING & HOOKS
+-- =====================
+
+
+-- Method:          ProcessSystemMessage ( string )
+-- What it Does:    The core routing logic for all system messages.
+-- Returns:         boolean (shouldFilter), string (modifiedMsg)
+local ProcessSystemMessage = function(msg)
+    local shouldFilter = false
+
+    GRM_G.guildInfoSystemMessage = GRM_G.guildInfoSystemMessage or string.sub(GUILD_INFO_TEMPLATE, 1, string.find(GUILD_INFO_TEMPLATE, "%%") - 1)
+
+    -- GuildInfo filter (GuildInfo())
+    if GRM_G.MsgFilterDelay and (string.find(msg, GRM_G.guildInfoSystemMessage) or string.find(msg, GRM.Util.Trim(CHAT_GUILD_SEND))) then
+        if string.find(msg, GRM_G.guildInfoSystemMessage) and ((time() - GRM_G.SystemMsgThrottle) > 1) then
+            GRM_G.SystemMsgThrottle = time()
+            GRM_G.CreationDatePattern = GRM_G.CreationDatePattern or CreateGuildCreationDatePattern()
+            local a, b, c, _, numUniqueAccounts = string.match(msg, GRM_G.CreationDatePattern)
+            if a and b and c then
+                local month, day, year
+                if GRM_G.Region == "deDE" or GRM_G.Region == "esES" or GRM_G.Region == "esMX" or GRM_G.Region == "frFR" then
+                    day, month, year = a, b, c
+                elseif GRM_G.Region == "koKR" then
+                    day, month, year = c, b, a
+                else
+                    day, month, year = b, a, c
+                end
+
+                if day ~= "0" then
+                    numUniqueAccounts = tonumber(numUniqueAccounts)
+                    if numUniqueAccounts > GRM_G.numAccounts and GRM_G.numAccounts ~= 0 then
+                        GRM_G.DesignateMain = true
+                        C_Timer.After(10.1, function() GRM_G.DesignateMain = false end)
+                    end
+                    GRM_G.numAccounts = numUniqueAccounts
+                    local date = day .. "-" .. month .. "-" .. year
+                    if GRM_G.guildCreationDate == "" or GRM_G.guildCreationDate ~= date then
+                        GRM_G.guildCreationDate = date
+                    end
+                end
+            end
+        end
+        shouldFilter = true
+
+    -- Player Not Found / Friend List Spam, etc
+    elseif (GRM_G.MsgFilterDelay or GRM_G.MsgFilterDelay2) and (msg == GRM.L("Player not found.") or string.find(msg, GRM.L("added to friends")) or string.find(msg, GRM.L("is already your friend"))) then
+        shouldFilter = true
+
+    -- Sync Player Disconnects
+    elseif GRMsyncGlobals.CurrentSyncPlayer and GRMsyncGlobals.CurrentSyncPlayer ~= "" and SystemMessagePatternMatchCheck(1, msg, GRMsyncGlobals.CurrentSyncPlayer) then
+        if GRMsyncGlobals.currentlySyncing then GRMsync.EndSync(false) end
+        shouldFilter = true
+
+    -- Guild Event Spam Control (Promoted, Demoted, Kicked, etc.)
+    elseif string.find(msg, GRM.L("has promoted")) or string.find(msg, GRM.L("has demoted")) or string.find(msg, GRM.L("joined the guild.")) or string.find(msg, GRM.L("left the guild.")) or string.find(msg, GRM.L("has been kicked")) then
+        shouldFilter = GRM.SystemMessageLiveDetectionControl(msg)
+        if string.find(msg, GRM.L("has been kicked")) and (GRM_UI.GRM_ToolCoreFrame:IsVisible() and GRM.S().disableMacroToolLogSpam) then
+            shouldFilter = true
+        end
+
+     elseif not GRM_G.MainNameSystemMsgControl then
+        if (time() - GRMsyncGlobals.timeAtLogin) > 5 and GRM.S() then
+            if string.find(msg, GRM.L("has come online.")) then
+                GRM.GuildRoster()
+                GRM.Scan.AnnounceIfBirthday(msg)
+                C_Timer.After(1.5, function() AnnounceIfMacroReady(msg) end)
+            elseif string.find(msg, GRM.L("has gone offline.")) then
+                if GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
+                    GRMsync.EndSync(false)
+                end
+                GRM.GuildRoster()
+            end
+        end
+        
+    -- Fallback Sync Disconnect Check
+    elseif GRM_G.MainNameSystemMsgControl and string.find(msg, GRM.L("has gone offline.")) and GRMsyncGlobals.currentlySyncing and SyncPlayerGoneOffline(msg) then
+        GRMsync.EndSync(false)
+    end
+    return shouldFilter, msg
+end
+
+
+GRM_Sys.SetSystemMessageFilter = function(_, _, msg, ...)
+    local shouldFilter = false
+    GRM_G.SystemMessagesEnabled = true
+    if not GRM.issecretvalue(msg) and GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
+        shouldFilter, msg = ProcessSystemMessage(msg)
+    else
+        shouldFilter = true
+    end
+    SystemMessageHookControl()
+    return shouldFilter, msg, ...
+end
+
+GRM_Sys.SystemMessageHandler = function(_, _, msg)
+    if not GRM_G.SystemMessagesEnabled and not GRM.issecretvalue(msg) then
+        if GRM.S() and GRM.GetGuild() ~= nil and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
+            ProcessSystemMessage(msg)
+        end
+        SystemMessageHookControl()
+    end
+end
+
+GRM_Sys.ParseChatForNote = function(chatFrame, event, msg, sender, ...)
+    if IsInGuild() and GRM.S() and GRM.S().noteSetEnabled and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg) then
+        if not GRM_G.BuildHasRestrictions then
+            GRM_Sys.TriggerPlayerNote(sender, msg)
+        end
+    end
+    return false, msg, sender, ...
+end
+
+-- ===============
+-- THE MASTER HOOK
+-- ===============
+
+-- Helper: Hooks a single frame (and prevents double-hooking!)
+local function HookSingleChatFrame(chatFrame)
+    if not chatFrame or chatFrame.GRM_Hooked then return end
+
+    local originalAddMessage = chatFrame.AddMessage
+    
+    chatFrame.AddMessage = function(self, text, ...)
+        if GRM.issecretvalue(text) then 
+            return originalAddMessage(self, text, ...) 
+        end
+
+        if text and type(text) == "string" then
+            -- Natural Hyperlink Detection (Chat, Come Online)
+            if string.find(text, "|Hplayer:", 1, true) then
+                text = string.gsub(text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", GRM_Sys.ReplaceHyperlink, 1)
+            
+            -- Natural Offline Detection
+            elseif string.find(text, GRM.L("has gone offline."), 1, true) then
+                text = GRM_Sys.ReplaceOfflineMessage(text)
+            end
+        end
+        
+        return originalAddMessage(self, text, ...)
+    end
+    
+    chatFrame.GRM_Hooked = true
+end
+
+-- Method:          GRM_Sys.HookChatFrames()
+-- What it Does:    Hooks all existing chat frames, and listens for dynamically created ones (like whisper tabs)
+GRM_Sys.HookChatFrames = function()
+    if GRM_G.ChatFramesHooked then return end
+
+    -- Function to loop through WoW's official active chat frame list
+    local function HookAllActiveFrames()
+        for _, frameName in ipairs(CHAT_FRAMES) do
+            local chatFrame = _G[frameName]
+            if chatFrame then
+                HookSingleChatFrame(chatFrame)
+            end
+        end
+    end
+
+    -- Hook all frames that exist right now (1 through 10)
+    HookAllActiveFrames()
+
+    -- Watch for ANY new permanent tabs created by the user
+    hooksecurefunc("FCF_OpenNewWindow", HookAllActiveFrames)
+    
+    -- Watch for ANY new temporary tabs created by whispers (ChatFrame11+)
+    hooksecurefunc("FCF_OpenTemporaryWindow", HookAllActiveFrames)
+
+    GRM_G.ChatFramesHooked = true
+end
+
+GRM_Sys.MessageHookControl = function()
+    if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", GRM_Sys.ParseChatForNote)
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_OFFICER", GRM_Sys.ParseChatForNote)
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
+        GRM_Sys.HookChatFrames()
+        GRM_G.MainHookConfigured = true
     end
 end

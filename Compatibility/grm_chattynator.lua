@@ -232,99 +232,15 @@ chattynator.HookChattynatorAPI = function()
     if not GRM_G.Compat.ChattynatorHooked and Chattynator and Chattynator.API and Chattynator.API.AddModifier then
         
         Chattynator.API.AddModifier(function(data)
-            
-            -- Ensure data.text exists before proceeding
             if data.text and type(data.text) == "string" then
                 
-                -- ==========================================================
-                -- HYPERLINK CHAT (Guild, Party, and Come Online)
-                -- ==========================================================
-                if string.find(data.text, "\001GRM\001", 1, true) or string.find(data.text, "\001GRMON\001", 1, true) then
-                    
-                    -- Remove our invisible markers
-                    data.text = string.gsub(data.text, "\001GRM\001", "")
-                    data.text = string.gsub(data.text, "\001GRMON\001", "")
-                    
-                    data.text = string.gsub(data.text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", function(prefix, playerName, displayedName, suffix)
-                        local fullName = GRM.AppendServerName(playerName)
-                        local player = GRM.GetPlayer(fullName)
-                        
-                        if player then
-                            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
-                            
-                            if addTag then
-                                local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
-                                local nickname = GRM.NN.GetNickname(nil, player)
-
-                                local formattedName = GRM_Name.GetFormattedNameString(playerName, mainName, nickname, isMain, isUnassigned, nil, false)
-                                
-                                local cleanName = string.gsub(displayedName, "|c%x%x%x%x%x%x%x%x", "")
-                                cleanName = string.gsub(cleanName, "|r", "")
-
-                                local coloredPrefixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%d+%s*[:-]%s*|r)")
-                                local plainPrefixLvl = string.match(cleanName, "^%s*%[?%s*(%d+%s*[:-])")
-                                local coloredSuffixLvl = string.match(displayedName, "(|c%x%x%x%x%x%x%x%x%s*%([%d]+%)%s*|r)")
-                                local plainSuffixLvl = string.match(cleanName, "(%([%d]+%))")
-
-                                local classColor = GRM.GetStringClassColorByName(fullName)
-                                
-                                if coloredPrefixLvl then formattedName = coloredPrefixLvl .. classColor .. formattedName .. "|r"
-                                elseif plainPrefixLvl then formattedName = classColor .. plainPrefixLvl .. formattedName .. "|r"
-                                else formattedName = classColor .. formattedName .. "|r" end
-
-                                if coloredSuffixLvl then formattedName = formattedName .. " " .. coloredSuffixLvl
-                                elseif plainSuffixLvl then formattedName = string.sub(formattedName, 1, -3) .. " " .. plainSuffixLvl .. "|r" end
-
-                                if string.match(cleanName, "^%s*%[") then
-                                    return prefix .. "[" .. formattedName .. "]" .. suffix
-                                else
-                                    return prefix .. formattedName .. suffix
-                                end
-                            end
-                        end
-                        return prefix .. displayedName .. suffix
-                    end, 1)
-
-                -- ==========================================================
-                -- PLAINTEXT CHAT (Gone Offline)
-                -- ==========================================================
-                elseif string.find(data.text, "\001GRMOFF\001", 1, true) then
-                    local rawName = string.match(data.text, "\001GRMOFF\001(.-)\002")
-                    
-                    if rawName then
-                        -- Remove the marker payload
-                        data.text = string.gsub(data.text, "\001GRMOFF\001.-\002", "")
-                        
-                        -- Safe cleanup of the extracted name
-                        local cleanRawName = string.gsub(string.gsub(rawName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
-                        local fullName = GRM.AppendServerName(cleanRawName)
-                        local player = GRM.GetPlayer(fullName)
-                        
-                        if player then
-                            local addTag, isMain, isUnassigned = GRM_Sys.IsValidToAddTags(player)
-                            
-                            if addTag then
-                                local mainName = isMain and fullName or GRM.GetPlayerMain(nil, player)
-                                local nickname = GRM.NN.GetNickname(nil, player)
-
-                                local formattedName = GRM_Name.GetFormattedNameString(cleanRawName, mainName, nickname, isMain, isUnassigned, nil, false)
-                                
-                                local classColor = GRM.GetStringClassColorByName(fullName)
-                                formattedName = classColor .. formattedName .. "|r"
-                                
-                                -- Protects hyphens in server names!
-                                local escapedRawName = string.gsub(cleanRawName, "([%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
-                                
-                                -- Replace colored name or plain name
-                                local pratPattern = "|c%x%x%x%x%x%x%x%x" .. escapedRawName .. "|r"
-                                if string.find(data.text, pratPattern) then
-                                    data.text = string.gsub(data.text, pratPattern, formattedName, 1)
-                                else
-                                    data.text = string.gsub(data.text, escapedRawName, formattedName, 1)
-                                end
-                            end
-                        end
-                    end
+                -- Natural Hyperlink Detection
+                if string.find(data.text, "|Hplayer:", 1, true) then
+                    data.text = string.gsub(data.text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", GRM_Sys.ReplaceHyperlink, 1)
+                
+                -- Natural Offline Detection
+                elseif string.find(data.text, GRM.L("has gone offline."), 1, true) then
+                    data.text = GRM_Sys.ReplaceOfflineMessage(data.text)
                 end
             end
         end)

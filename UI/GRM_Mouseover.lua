@@ -3878,7 +3878,7 @@ GRM_UI.PopulateMemberDetails = function(handle, memberInfo, doubleCopy)
         -- Player Details
         local zone, online = "", false
         if memberInfo and memberInfo.guid ~= nil then
-            zone = memberInfo.zone
+            zone = memberInfo.zone  
             online = GRM.IsPresenceOnline(memberInfo.presence)
         else
             local member = GRM.GetClubMemberInfo(handle, GRM_G.gClubID)

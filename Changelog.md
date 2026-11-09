@@ -1,3 +1,16 @@
+## **VERSION 1.9952 - November 8th, 2026**
+
+***BUG FIXES***
+
+* Fixed a bug where the ignore list was getting wiped for promotions/demotions. In other words, you wanted to bypass promotions for certain players, so you add them. They were auto getting removed from ignore list and it was never being saved. This should work correctly now. Sorry about that. Kind of annoying bug.
+
+* German file had missing localization file added
+
+* Fixed an issue with the ban list where it would spam you saying you didn't have something localized also when you tried to add a new ban.
+
+*
+
+
 ## **VERSION 1.9951 - November 8th, 2026**
 
 ***BUG FIXES***

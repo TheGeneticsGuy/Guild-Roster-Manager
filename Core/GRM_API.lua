@@ -298,7 +298,7 @@ GRM_API.SetAllUnknownPromoteDates = function ( day , month , year )
                     player.rankHist[1][2] = day;
                     player.rankHist[1][3] = month;
                     player.rankHist[1][4] = year;
-                    player.rankHist[1][5] = GRM.ConvertToStandardFormatDate ( day , month , year );
+                    player.rankHist[1][5] = GRM.Time.ConvertToStandardFormatDate ( day , month , year );
                     player.rankHist[1][6] = time();
                     player.rankHist[1][7] = true;
                     player.rankHist[1][8] = 1;
@@ -472,7 +472,7 @@ end
 
 GRM_API.AddCustomRejoinEntry = function( player_who_invited , player_who_rejoined , date_rejoined_table , date_left_table , first_ever_join_table , times_in_guild , player_level, optional_previous_name, orig_rank )
 
-    local how_long_ago = GRM.ConvertToStandardFormatDate ( date_left_table[1] , date_left_table[2] , date_left_table[3] )
+    local how_long_ago = GRM.Time.ConvertToStandardFormatDate ( date_left_table[1] , date_left_table[2] , date_left_table[3] )
 
     local rejoinText = GRM.GetJoinOrRejoinString( true , player_who_invited, player_who_rejoined , date_rejoined_table, true , player_level, optional_previous_name, times_in_guild, false, "", date_left_table , how_long_ago, first_ever_join_table, orig_rank, "", false);
 

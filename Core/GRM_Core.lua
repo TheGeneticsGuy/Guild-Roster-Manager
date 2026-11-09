@@ -2850,7 +2850,7 @@ GRM.BanInfo = function()
 
     local noRealmsMsg = GRM.L("Due to the elimination of Realms, when banning players who have never been in your guild, some queries for important identification data cannot be currently obtained. This may be a technical hiccup. To bypass, add the ban when still grouped with a player or while you are targeting them.");
     local noRealmsMsg2 = GRM.L("This only applies to players who have never been a member of your guild that you wish to ban.");
-    local hasRealmsMsg = GRM.L("Due to the implementation of x-realm guilds, when banning players from servers other than your own,important identification data cannot be obtained. To bypass this limitation, add the ban when still grouped with the player, or while you are targeting them.")
+    local hasRealmsMsg = GRM.L("Due to the implementation of x-realm guilds, when banning players from servers other than your own, important identification data cannot be obtained. To bypass this limitation, add the ban when still grouped with the player, or while you are targeting them.")
     local hasRealmMsg2 = GRM.L("This only applies to players who have never been a member of your guild and are not on your personal realm ({name}).", GRM_G.realmName)
     local displayMsg1 = GRM_G.RealmFree and noRealmsMsg or hasRealmsMsg
     local displayMsg2 = GRM_G.RealmFree and noRealmsMsg2 or hasRealmMsg2
@@ -4244,12 +4244,13 @@ GRM.VerifySafeList = function(player)
         local list = { "kick" , "promote" , "demote" };
         local purge = true;
 
-        if player.safeList then
+        if playerList then
             for i = 1 , #list do
-                if playerList[list[i]] and defaultList[list[i]] and
-                    playerList[list[i]][1] ~= defaultList[list[i]][1] then -- Only need to check if enabled
+                if playerList[list[i]] ~= nil and defaultList[list[i]] ~= nil then
+                    if playerList[list[i]][1] == true then -- Only need to check if enabled
                         purge = false
                         break;
+                    end
                 else
                     purge = true; -- Table format is messed up
                     break;

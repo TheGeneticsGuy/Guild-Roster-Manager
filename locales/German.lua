@@ -1380,6 +1380,7 @@ GRML.German = function()
     GRM_L["Ctrl-Shift-Click"] = "Strg-Shift-Klick"
     GRM_L["Alt-Shiift-Click"] = "Alt-Shift-Klick"
     GRM_L["Right-Click"] = "Rechtsklick"
+    GRM_L["Left-Click"] = "Linksklick"
     GRM_L["Ctrl-Left-Click"] = "Strg-Linksklick"
 
     GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = "{custom1}, um Spieler zu allen 3 Makro-Ignorier-Listen hinzuzufügen"
