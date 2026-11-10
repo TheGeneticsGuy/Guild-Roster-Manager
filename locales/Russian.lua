@@ -2118,6 +2118,14 @@ GRML.Russian = function()
     GRM_L["(Forever)"] = true
     GRM_L["Only Available in Classic or Forever"] = true
     
+    -- 1.9952
+    GRM_L["First:"] = true
+    GRM_L["Last:"] = true
+    GRM_L["Spelling and Case must be EXACT!"] = true
+    GRM_L["It is |CFFFF0000CRITICAL|r the player's First and Last name are spelled correctly, with the correct case, or they cannot be tracked correctly."] = true
+    GRM_L["Please Enter a Valid Player First Name"] = true
+    GRM_L["Please Enter a Valid Player Last Name"] = true
+    
 end
 
     -- Anazing work Максим#0406 on Discord - Incredible work, really!
