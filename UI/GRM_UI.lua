@@ -7554,7 +7554,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox , "BOTTOMLEFT" , 0 , -5 );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetSize ( 125 , 20 );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetTextInsets( 2 , 3 , 3 , 2 );
-    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetMaxLetters ( 75 );
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetMaxLetters ( GRM_G.RealmFree and 12 or 50 );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetFontObject ( "GameFontWhiteTiny" );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:EnableMouse( true );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetAutoFocus( false );
@@ -8199,13 +8199,13 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame:SetFrameStrata ( "DIALOG" );
 
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameYesButton:SetPoint ( "BOTTOMLEFT" , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame , "BOTTOMLEFT" , 25 , 20 );
-    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameYesButton:SetSize ( 50 , 30 );
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameYesButton:SetSize ( 80 , 30 );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameYesButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameYesButton );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameYesButtonText:SetText ( GRM.L ( "Confirm" ) );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameYesButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
 
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameCancelButton:SetPoint ( "BOTTOMRIGHT" , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrame , "BOTTOMRIGHT" , -25 , 20 );
-    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameCancelButton:SetSize ( 50 , 30 );
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameCancelButton:SetSize ( 80 , 30 );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameCancelButtonText:SetPoint ( "CENTER" , GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameCancelButton );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameCancelButtonText:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 10 );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_PopupWindowConfirmFrameCancelButtonText:SetText ( GRM.L ( "Cancel" ) );
@@ -8449,8 +8449,6 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
             if banReason == GRM.L ( "Reason Banned?" ) or banReason == nil then
                 banReason = "";
             end
-
-            print("FullName: " .. fullName)
 
             -- Ok, let's check if this player is already currently in the guild.
             local isFoundInLeft = false;
@@ -8827,22 +8825,35 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
         if button == "LeftButton" then
             if GRM.IsAnyBanHighlighted() then
                 GRM_G.InitiatingBanEdit = true;
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame:Show();
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanConfirmButtonText:SetText ( GRM.L ( "Update Ban" ) );
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( GRM.SlimName ( GRM_G.TempBanTarget[1] ) );
-                if not GRM_G.RealmFree then
-                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( string.sub ( GRM_G.TempBanTarget[1] , string.find ( GRM_G.TempBanTarget[1] , "-" ) + 1 ) );
+
+                local addBanFrame = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame;
+                local fullTargetName = GRM_G.TempBanTarget[1];
+
+                addBanFrame:Show();
+                addBanFrame.GRM_AddBanConfirmButtonText:SetText ( GRM.L ( "Update Ban" ) );
+
+                if GRM_G.RealmFree then
+                    -- WoW Forever: Split "First Last" into the First Name and Last Name boxes
+                    local firstName, lastName = string.match ( fullTargetName , "^(%S+)%s*(.*)$" );
+                    addBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( firstName or fullTargetName );
+                    addBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( lastName or "" );
+                else
+                    -- Retail/Classic: Split "First-Server" into the Name and Server boxes
+                    addBanFrame.GRM_AddBanNameSelectionEditBox:SetText ( GRM.SlimName ( fullTargetName ) );
+                    local dashIndex = string.find ( fullTargetName , "-" );
+                    local serverName = dashIndex and string.sub ( fullTargetName , dashIndex + 1 ) or "";
+                    addBanFrame.GRM_AddBanServerSelectionEditBox:SetText ( serverName );
                 end
 
                 GRM_G.tempAddBanClass = "DEATHKNIGHT"; -- Placeholder
                 local banReason = "";
-                local player = GRM.GetPlayer ( GRM_G.TempBanTarget[1] );
+                local player = GRM.GetPlayer ( fullTargetName );
 
                 if player then
                     GRM_G.tempAddBanClass = player.class;
                     banReason = player.reasonBanned;
                 else
-                    player = GRM.GetFormerPlayer ( GRM_G.TempBanTarget[1] );
+                    player = GRM.GetFormerPlayer ( fullTargetName );
 
                     if player then
                         GRM_G.tempAddBanClass = player.class;
@@ -8851,16 +8862,15 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
                 end
 
                 local colors = GRM.GetClassColorRGB ( GRM_G.tempAddBanClass );
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetText( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] , 1 );
+                addBanFrame.GRM_AddBanDropDownClassSelectedText:SetText( GRM.GetClassName ( GRM_G.tempAddBanClass ) );
+                addBanFrame.GRM_AddBanDropDownClassSelectedText:SetTextColor ( colors[1] , colors[2] , colors[3] , 1 );
                 if banReason ~= GRM.L ( "None Given" ) and banReason ~= "" then
-
-                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetText ( banReason );
+                    addBanFrame.GRM_AddBanReasonEditBox:SetText ( banReason );
                 else
-                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetText ( GRM.L ( "Reason Banned?" ) );
+                    addBanFrame.GRM_AddBanReasonEditBox:SetText ( GRM.L ( "Reason Banned?" ) );
                 end
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:SetFocus();
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanReasonEditBox:HighlightText ( 0 );
+                addBanFrame.GRM_AddBanReasonEditBox:SetFocus();
+                addBanFrame.GRM_AddBanReasonEditBox:HighlightText ( 0 );
             else
                 GRM.Report ( GRM.L ( "Please Select a Player to Edit their Ban!" ) );
             end

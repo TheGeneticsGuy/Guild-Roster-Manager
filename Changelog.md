@@ -1,4 +1,4 @@
-## **VERSION 1.9952 - November 8th, 2026**
+## **VERSION 1.9952 - November 10th, 2026**
 
 ***BUG FIXES***
 
@@ -8,7 +8,7 @@
 
 * Fixed an issue with the ban list where it would spam you saying you didn't have something localized also when you tried to add a new ban.
 
-*
+* Fixed the ban list so you can add bans in WOW Forever, Edit them, and Delete them. This was completely broken. It has been revamped and fully adapted to the new First Name/Last Name convention instead of "server"
 
 
 ## **VERSION 1.9951 - November 8th, 2026**

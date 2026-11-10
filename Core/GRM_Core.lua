@@ -7,9 +7,9 @@ SLASH_GRM1 = '/grm';
 
 -- Addon Details:
 GRM_G.addonName = "Guild_Roster_Manager";
-GRM_G.Version = "R1.9951";
-GRM_G.PatchDayString = "1794121223";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
-GRM_G.PatchDay = 1794121223;            -- In Epoch Time
+GRM_G.Version = "R1.9952";
+GRM_G.PatchDayString = "1794297222";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
+GRM_G.PatchDay = 1794297222;            -- In Epoch Time
 
 -- Build Details
 GRM_G.RealmFree = GRM_RF.IsRealmFree();
@@ -882,7 +882,7 @@ end
 GRM.SlimName = function(name)
     if name ~= nil then
         if not GRM_G.RealmFree and string.find(name, "-") then
-            return string.gsub(name, "%-.+", "");
+            return (string.gsub(name, "%-.+", ""));
         else
             return name;
         end
@@ -9966,13 +9966,13 @@ GRM.GetPlayerWhoBanned = function(name, isInGuild)
     local player;
 
     if isInGuild then
-        player = GRM.GetPlayer(name);
+        player = GRM.GetPlayer(name) or GRM.GetFormerPlayer(name);
     else
-        player = GRM.GetFormerPlayer(name);
+        player = GRM.GetFormerPlayer(name) or GRM.GetPlayer(name);
     end
 
-    if player then
-        if player.bannedInfo[1] and player.bannedInfo[4] ~= "" then -- No point in stating who banned them if they don't currently have a ban
+    if player and player.bannedInfo then
+        if player.bannedInfo[1] and player.bannedInfo[4] and player.bannedInfo[4] ~= "" then
             result = player.bannedInfo[4];
         end
     end
@@ -10364,18 +10364,12 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
                  tempButton:CreateFontString(nil, "OVERLAY", "GameFontWhiteTiny"), false});
         end
 
-        local BanButtons = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                               .allFrameButtons[i][1];
-        local BanNameText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[i][2];
-        local BanRankText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[i][3];
-        local BanDateText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[i][4];
-        local BanReasonText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                  .allFrameButtons[i][5];
-        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] =
-            false; -- Reset the highlights.
+        local BanButtons = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1];
+        local BanNameText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][2];
+        local BanRankText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][3];
+        local BanDateText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][4];
+        local BanReasonText = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][5];
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][6] = false; -- Reset the highlights.
 
         local classColor = GRM.GetClassColorRGB(banList[i][2]);
         local nameDetails = banList[i][1];
@@ -10460,7 +10454,13 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
                 local R, G, B = BanNameText:GetTextColor();
 
                 if self.noIdentity or self.stillInGuild or self.notOnServer then
-                    fullName = string.sub(fullName, 1, string.find(fullName, " ") - 1);
+                    if GRM_G.RealmFree then
+                        -- Extracts "First Last" up to the second space
+                        fullName = string.match(fullName, "^(%S+%s+%S+)") or fullName;
+                    else
+                        -- Extracts "First-Server" up to the first space
+                        fullName = string.match(fullName, "^(%S+)") or fullName;
+                    end
                 end
 
                 if IsShiftKeyDown() and IsControlKeyDown() then
@@ -10472,29 +10472,20 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
                         GRM.OpenPlayerWindow(fullName);
                     end
                 else
-
                     -- For highlighting purposes
-                    for j = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                        .allFrameButtons do
-                        if self ~=
-                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[j][1] then
-
-                            -- Selected button differs from this, so we can
-                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[j][1]:UnlockHighlight();
-                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[j][6] = false;
+                    local allButtons = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons;
+                    for j = 1, #allButtons do
+                        if self ~= allButtons[j][1] then
+                            -- Selected button differs from this, so we can unlock
+                            allButtons[j][1]:UnlockHighlight();
+                            allButtons[j][6] = false;
                         else
-                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[j][1]:LockHighlight();
-                            GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                .allFrameButtons[j][6] = true;
+                            allButtons[j][1]:LockHighlight();
+                            allButtons[j][6] = true;
                         end
-
                     end
 
-                    GRM_G.TempBanTarget = {fullName, {R, G, B}}; -- Need to parse out the "(Still in Guild)"
+                    GRM_G.TempBanTarget = {fullName, {R, G, B}};
                 end
             end
         end);
@@ -10528,8 +10519,7 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
 
     -- Ok, let's add a count to how many banned
     if count > 0 then
-        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetText("(" ..
-                                                                                                           GRM.L(
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:SetText("(" .. GRM.L(
                 "Total Banned:") .. " " .. count .. ")");
         GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameNumBannedText:Show();
         GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListFrameAllOfflineText:Hide();
@@ -10546,54 +10536,45 @@ GRM.RefreshBanListFrames = function(listNeedingUpdate, textSearch, banList, coun
 
     -- Set Button Logic
     for i = 1, #GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons do
-        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript(
-            "OnEnter", function(self)
-                local playerName = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
-                                       .allFrameButtons[i][2]:GetText();
-                local playerWhoBanned = "";
-                local stillInGuild = false;
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript( "OnEnter", function(self)
+            local playerName = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame
+                                .allFrameButtons[i][2]:GetText();
+            local stillInGuild = self.stillInGuild or false;
 
-                if string.find(playerName, " ") ~= nil then
-
-                    local inGuild = true;
-                    if string.find(playerName, GRM.L("(Unable to Identify)"), 1, true) ~= nil then
-                        inGuild = false;
-                    end
-
-                    playerName = GRM.Util.Trim(string.sub(playerName, 1, string.find(playerName, " ") - 1));
-                    playerWhoBanned = GRM.GetPlayerWhoBanned(playerName, inGuild);
-
-                    if inGuild then
-                        stillInGuild = true;
-                    end
+            -- Strip any appended tags like "(Still in Guild)", "(Unable to Identify)", or "(Not on Server)"
+            if self.noIdentity or self.stillInGuild or self.notOnServer then
+                if GRM_G.RealmFree then
+                    -- Matches "First Last" up to the 2nd space
+                    playerName = string.match(playerName, "^(%S+%s+%S+)") or playerName;
                 else
-                    playerWhoBanned = GRM.GetPlayerWhoBanned(playerName, false);
+                    -- Matches "First-Server" up to the 1st space
+                    playerName = string.match(playerName, "^(%S+)") or playerName;
                 end
+            end
 
-                if playerWhoBanned == "" then
-                    playerWhoBanned = GRM.L("Unknown");
-                else
-                    playerWhoBanned = GRM.GetClassifiedName(playerWhoBanned, true);
-                end
+            playerName = GRM.Util.Trim(playerName);
+            local playerWhoBanned = GRM.GetPlayerWhoBanned(playerName, stillInGuild);
 
-                GRM_UI.SetTooltipScale();
-                GameTooltip:SetOwner(self, "ANCHOR_CURSOR");
-                GameTooltip:AddLine(GRM.L("Player Was Banned By: {name}", playerWhoBanned));
-                GameTooltip:AddLine(" ");
-                if stillInGuild then
-                    GameTooltip:AddLine(GRM.L("{custom1} to open Player Window", nil, nil, nil,
-                        "|CFFE6CC7F" .. GRM.L("Ctrl-Click") .. "|r"));
-                end
-                GameTooltip:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
-                    "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
-                GameTooltip:Show();
-            end);
+            if playerWhoBanned == "" then
+                playerWhoBanned = GRM.L("Unknown");
+            else
+                playerWhoBanned = GRM.GetClassifiedName(playerWhoBanned, true);
+            end
 
-        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript(
-            "OnLeave", function()
-                GRM.RestoreTooltip();
-            end);
+            GRM_UI.SetTooltipScale();
+            GameTooltip:SetOwner(self, "ANCHOR_CURSOR");
+            GameTooltip:AddLine(GRM.L("Player Was Banned By: {name}", playerWhoBanned));
+            GameTooltip:AddLine(" ");
+            if stillInGuild then
+                GameTooltip:AddLine(GRM.L("{custom1} to open Player Window", nil, nil, nil,
+                    "|CFFE6CC7F" .. GRM.L("Ctrl-Click") .. "|r"));
+            end
+            GameTooltip:AddLine(GRM.L("{custom1} to Search the Log for Player", nil, nil, nil,
+                "|CFFE6CC7F" .. GRM.L("Ctrl-Shift-Click") .. "|r"));
+            GameTooltip:Show();
+        end);
 
+        GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_CoreBanListScrollChildFrame.allFrameButtons[i][1]:SetScript("OnLeave", GRM.RestoreTooltip);
     end
 
     GRM_UI.UpdateBanTabCurrentlyInGuild();
