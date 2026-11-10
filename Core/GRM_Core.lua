@@ -4977,11 +4977,12 @@ GRM.BuildAutoCompleteBanNames = function(names, isServers)
 
              elseif GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:HasFocus() then
                 local text = GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanScrollChildFrame.AllButtons[i][2]:GetText();
-                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(GRM.SlimName(text));
+                local firstName = GRM_G.RealmFree and string.match(text, "^%S+") or GRM.SlimName(text)
+                GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanNameSelectionEditBox:SetText(firstName);
 
                 if text and text ~= "" then
-                    local server = string.match(text, "-(.+)")
-                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(server);
+                    local serverOrLastName = GRM_G.RealmFree and string.match(text, "%S+$") or string.match(text, "-(.+)")
+                    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.GRM_AddBanFrame.GRM_AddBanServerSelectionEditBox:SetText(serverOrLastName);
                 end
 
                 local player = GRM.GetPlayer(text);

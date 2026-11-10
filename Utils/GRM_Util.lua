@@ -169,23 +169,43 @@ Util.WarnTableSize = function()
     end
 end
 
--- Method:          Util.IsValidName(string)
--- What it Does:    Returns true if the name only contains valid characters in it... based on ASCII numeric values
--- Purpose:         When player is manually adding someone to the player data, we need ot ensure only proper characters are allowed.
-Util.IsValidName = function(name)
-    local result = true;
-    name = Util.Trim(name); -- In case any whitespace before or after...
-    for i = 1, #name do
-        -- As a stopgap until I scan for all fonts, let's check this.
-        local char = string.sub(name, i, i);
-        -- local byteValue = string.byte ( char );
-        if tonumber(char) ~= nil or char == " " or char == "\\" or char == "\n" or char == ":" or char == "(" or char ==
-            "$" or char == "%" or char == "/" then
-            return false;
-        end
+-- Method:          Util.IsValidName(name, minLength, maxLength)
+-- What it Does:    Validates first or last names across all WoW locales (Latin, Cyrillic, CJK).
+Util.IsValidName = function(name, minLength, maxLength)
+    if type(name) ~= "string" then return false end
 
+    name = Util.Trim(name)
+    maxLength = maxLength or 12
+
+    -- Block any ASCII digits (%d), punctuation/symbols (%p), whitespace (%s), or control chars (%c)
+    if string.find(name, "[%d%p%s%c]") then
+        return false
     end
-    return result;
+
+    -- Block common multi-byte non-letter spaces/punctuatio
+    if string.find(name, "\194\160")         -- U+00A0 Non-breaking space
+        or string.find(name, "\227\128\128") -- U+3000 Ideographic (CJK) full-width space
+        or string.find(name, "\226\128")     -- U+2000..U+203F General Unicode punctuation
+        or string.find(name, "\239\188")     -- U+FF00..U+FF3F Full-width CJK ASCII punctuation/numbers
+    then
+        return false
+    end
+
+    -- Determine Minimum Length:
+    -- CJK (Chinese/Korean) characters are 3-byte UTF-8 sequences (lead byte 224-239) and allow 1-character names.
+    -- Latin and Cyrillic characters are 1-2 bytes and require at least 2 characters.
+    if not minLength then
+        local hasAsianChars = string.find(name, "[\224-\239]") ~= nil
+        minLength = hasAsianChars and 1 or 2
+    end
+
+    -- Check UTF-8 character count
+    local charCount = strlenutf8(name)
+    if charCount < minLength or charCount > maxLength then
+        return false
+    end
+
+    return true
 end
 
 -- Method:          Util.UTF8char ( int , int )
