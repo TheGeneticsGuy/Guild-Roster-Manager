@@ -1,14 +1,25 @@
 ## **VERSION 1.9952 - November 10th, 2026**
 
+*Please note, the WOW Forever API seems to have gimped the Profession data API call. Right now it is only returning all members of the guild with professions as Rank1 skill level, which is wrong. The API query to the server is just not pulling your the profession info fully anymore. I am hoping that this is a mistake by Blizzard and not intentional as this data has been accessible for YEARS by Blizz and would seem odd to limit access to it just in WOW Forever.*
+
+If you can, please, in WOW Forever, submit a bug report (Esc > Support > Submit Feedback or Bug report) that the following API is not pulling data correctly:
+
+`C_Club.GetMemberInfo(memberID, clubID)`
+* Profession1Rank and Profession2Rank are only returning rank skill of 1, regardless of the true rank.
+
+Thank you!
+
 ***BUG FIXES***
+
+* Fixed some major chat pollution. If you are seeing this in chat []GRM[] (notably in whispers) it is because I had been using some hidden injection tags when I was working on and testing my nickname insertion system and I accidentally left some of this in on release. Sorry about that. Super annoying. The chat will no longer do this. GRM naming should be properly working and fully compatible, universally, with most chat addons for adding GRM nicknames/main/alt tagging. Chattynator I even wrote a custom compatibility translotr since they have their own fully custom frames. Most UI addons just hook the existing Blizz frames and slightly modify, so GRM will work without issue.
 
 * Fixed a bug where the ignore list was getting wiped for promotions/demotions. In other words, you wanted to bypass promotions for certain players, so you add them. They were auto getting removed from ignore list and it was never being saved. This should work correctly now. Sorry about that. Kind of annoying bug.
 
-* German file had missing localization file added
-
 * Fixed an issue with the ban list where it would spam you saying you didn't have something localized also when you tried to add a new ban.
 
-* Fixed the ban list so you can add bans in WOW Forever, Edit them, and Delete them. This was completely broken. It has been revamped and fully adapted to the new First Name/Last Name convention instead of "server"
+* Fixed the ban list so you can add bans in WOW Forever, Edit them, and Delete them. This was completely broken. It has been revamped and fully adapted to the new First Name/Last Name convention instead of "server." Please be aware, WOW Forever still has the same limitations on banning players who have never been in your guild. You cannot pull server data on players NOT in your guild unless you are grouped with them, or currently targeting them, which GRM accounts for. If they are a former member, you are fine. But if you add a ban for someone you didn't like because they were say, rude in your raid, but you add the ban AFTER they had already left, there is no API call to query their data from the server by name alone. GRM will inform you of this in-game. This message is only a reminder of this limitation of banning players. So, current member not yet kicked from the guild? Good. Former meber? Good. Currently grouped with them or targeting them? Good. Other than that, ban will be meaningless.
+
+* German file had missing localization file added
 
 
 ## **VERSION 1.9951 - November 8th, 2026**
