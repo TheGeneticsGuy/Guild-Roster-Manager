@@ -1,3 +1,7 @@
+## **VERSION 1.99521 - November 10th, 2026**
+
+* Quick update - missing localization files added. Whoops!
+
 ## **VERSION 1.9952 - November 10th, 2026**
 
 *Please note, the WOW Forever API seems to have gimped the Profession data API call. Right now it is only returning all members of the guild with professions as Rank1 skill level, which is wrong. The API query to the server is just not pulling your the profession info fully anymore. I am hoping that this is a mistake by Blizzard and not intentional as this data has been accessible for YEARS by Blizz and would seem odd to limit access to it just in WOW Forever.*
