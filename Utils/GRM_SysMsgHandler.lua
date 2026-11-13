@@ -645,6 +645,8 @@ end
 
 
 GRM_Sys.SetSystemMessageFilter = function(_, _, msg, ...)
+    -- Leave inaccessible messages entirely to Blizzard; do not return replacement arguments.
+    if GRM.issecretvalue(msg) then return end
     local shouldFilter = false
     GRM_G.SystemMessagesEnabled = true
     if not GRM.issecretvalue(msg) and GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
@@ -653,7 +655,8 @@ GRM_Sys.SetSystemMessageFilter = function(_, _, msg, ...)
         shouldFilter = true
     end
     SystemMessageHookControl()
-    return shouldFilter, msg, ...
+    -- ProcessSystemMessage only decides visibility; it does not rewrite the message.
+    return shouldFilter
 end
 
 GRM_Sys.SystemMessageHandler = function(_, _, msg)
@@ -666,12 +669,14 @@ GRM_Sys.SystemMessageHandler = function(_, _, msg)
 end
 
 GRM_Sys.ParseChatForNote = function(chatFrame, event, msg, sender, ...)
+    if GRM.issecretvalue(msg) or GRM.issecretvalue(sender) then return end
     if IsInGuild() and GRM.S() and GRM.S().noteSetEnabled and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg) then
         if not GRM_G.BuildHasRestrictions then
             GRM_Sys.TriggerPlayerNote(sender, msg)
         end
     end
-    return false, msg, sender, ...
+    -- This listener does not rewrite chat; leave the original event arguments intact.
+    return false
 end
 
 -- ===============
@@ -706,10 +711,44 @@ local function HookSingleChatFrame(chatFrame)
     chatFrame.GRM_Hooked = true
 end
 
+-- Display-only name filter: never change the real sender or the whisper target.
+GRM_Sys.FormatSenderName = function(_, decoratedName, _, sender)
+    if GRM.issecretvalue(decoratedName) or GRM.issecretvalue(sender) then return end
+    if type(decoratedName) ~= "string" or type(sender) ~= "string" or not GRM.S() then return end
+    local formatted = GRM_Sys.ReplaceHyperlink("", sender, decoratedName, "")
+    if formatted ~= decoratedName then return formatted end
+end
+
+-- Preserve online/offline name decoration through the supported system-message filter.
+GRM_Sys.FormatSystemNames = function(_, _, msg, ...)
+    if GRM.issecretvalue(msg) or type(msg) ~= "string" or not GRM.S() then return end
+    for i = 1, select("#", ...) do
+        if GRM.issecretvalue(select(i, ...)) then return end
+    end
+    local formatted = msg
+    if string.find(msg, "|Hplayer:", 1, true) then
+        formatted = string.gsub(msg, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", GRM_Sys.ReplaceHyperlink, 1)
+    elseif string.find(msg, GRM.L("has gone offline."), 1, true) then
+        formatted = GRM_Sys.ReplaceOfflineMessage(msg)
+    end
+    if formatted ~= msg then return false, formatted, ... end
+end
+
 -- Method:          GRM_Sys.HookChatFrames()
--- What it Does:    Hooks all existing chat frames, and listens for dynamically created ones (like whisper tabs)
+-- Purpose:         Decorate names without tainting Blizzard's AddMessage callers.
 GRM_Sys.HookChatFrames = function()
     if GRM_G.ChatFramesHooked then return end
+
+    if ChatFrameUtil and ChatFrameUtil.AddSenderNameFilter and ChatFrameUtil.AddMessageEventFilter then
+        ChatFrameUtil.AddSenderNameFilter(GRM_Sys.FormatSenderName)
+        ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.FormatSystemNames)
+        GRM_G.ChatFramesHooked = true
+        return
+    end
+
+    -- Older secret-value clients must keep the native display method too.
+    -- Retain the legacy formatting hook only on clients without secret values.
+    if issecretvalue then return end
 
     -- Function to loop through WoW's official active chat frame list
     local function HookAllActiveFrames()
