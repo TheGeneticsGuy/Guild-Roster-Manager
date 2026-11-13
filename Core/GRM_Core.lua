@@ -2958,6 +2958,9 @@ GRM.RegisterVersionCheck = function()
     end);
 end
 
+-- Pace availability retries so peers can discover us after their roster finishes loading.
+local lastAddonUserAnnouncement = 0;
+
 -- Method:          GRM.RegisterGuildAddonUsersRefresh()
 -- What it Does:    Two uses. One, it checks to see if all the people on the list of users with addon installed are still online, and if not, purges them
 --                  and two, requests data from the players again to be updated. This is useful because players may change their settings.
@@ -2987,6 +2990,17 @@ GRM.RegisterGuildAddonUsersRefresh = function() -- LoadRefresh is just OnShow() 
         end
         -- Request the updated info!
         C_ChatInfo.SendAddonMessage("GRMUSER", "REQ?", GRMsyncGlobals.channelName);
+
+        -- A peer may have missed our startup announcement while its roster was loading.
+        -- Re-advertise on the existing refresh, at most once per 15 seconds on Forever.
+        if GRM_G.RealmFree and GRMsyncGlobals.DatabaseLoaded and not GRM_G.OnFirstLoad
+            and IsInGuild() and GRM_G.HasAccessToGuildChat and GRM.GetPlayer(GRM_G.addonUser)
+            and time() - lastAddonUserAnnouncement >= 15 then
+            local locked = C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown();
+            if not (issecretvalue and issecretvalue(locked)) and not locked then
+                GRM.RegisterMessage();
+            end
+        end
 
         -- Updating the frames. Giving 2 seconds to receive responses!
         if GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:IsVisible() then
@@ -3180,7 +3194,8 @@ end
 -- Purpose:         This is kept in its own function so it can be called whenever status changes, or as requested.
 GRM.RegisterMessage = function()
     if GRM.S() ~= nil then
-        C_ChatInfo.SendAddonMessage("GRMUSER",
+        lastAddonUserAnnouncement = time();
+        return C_ChatInfo.SendAddonMessage("GRMUSER",
             "REG?" .. GRM_G.Version .. "?" .. GRM_G.PatchDayString .. "?" .. tostring(GRM.S().syncRank) .. "?" ..
                 tostring(GRM.S().syncRankBanList) .. "?" .. tostring(IsInGroup()) .. "?" ..
                 tostring(GRM.S().syncEnabled) .. "?" .. tostring(GRM.S().exportAllRanks), "GUILD");

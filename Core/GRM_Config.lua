@@ -84,16 +84,15 @@ end
 -- Purpose:         If a guild is on more than one server with the same name, that can complicate things. This helps idenitfy the server by the creation date as well...
 GRM.DelayForGuildInfoCallback = function()
     if GRM_G.guildCreationDate == "" then
-        if not GRM_G.secretValueOnLoadDelay then
-            if GRM_G.secretValueDelay then
-                GRM_G.secretValueOnLoadDelay = true
-                GRM.SecretValueLoadDelayHandler();
-            else
-                GRM_Sys.SetGuildInfoDetails();
-                GRM.GuildRoster();
-                if GRM_G.RestrictionAnnounced then
-                    GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
-                end
+        -- Reuse the existing retry timer; the release called an undefined delay handler.
+        -- GuildInfo replies cannot be parsed while combat/PvP restrictions are active.
+        if not GRM_G.inCombat and not GRM.IsInAnyPvPInstance() and not GRM_G.AddonRestricted then
+            GRM.SecretValueRestrictionRestore();
+            GRM_Sys.SetGuildInfoDetails();
+            GRM.GuildRoster();
+            if GRM_G.RestrictionAnnounced then
+                GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons are no longer restricted. Continuing GRM initialization now.") );
+                GRM_G.RestrictionAnnounced = false;
             end
         end
         C_Timer.After(1, GRM.DelayForGuildInfoCallback);
