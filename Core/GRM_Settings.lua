@@ -30,6 +30,7 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.JDAuditToolFilter = false;
         setting.JDAuditToolIgnoreProtected = false;
 
+        setting.rosterColumns = {};
         setting.showMains = true;
         setting.showAlts = true;
         setting.showMainTags = false;

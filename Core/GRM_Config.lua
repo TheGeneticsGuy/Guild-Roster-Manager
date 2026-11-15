@@ -79,6 +79,36 @@ Config.ActivateAddon = function(_, event, addon, isReload )
     end
 end
 
+-- Method:          SecretValueLoadDelayHandler()
+-- What it Does:    Handles the delay logic for when the addon is loaded while in a PVP instance or in raid combat
+-- Purpose:         In 12.0 Blizz introduced addon restrictions. This accomodates that to prevent spam as GRM is unable to fully configure able if reload
+local function SecretValueLoadDelayHandler()
+    if GRM.IsInAnyPvPInstance() then
+        local pvpType = select(2, IsInInstance());
+        if pvpType == "pvp" then
+            pvpType = BATTLEGROUND;
+        elseif pvpType == "arena" then
+            pvpType = ARENA ;
+        end
+        GRM_G.RestrictionAnnounced = true;
+        GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends." , pvpType));
+    else
+        -- Sometimes GRM can trigger early...
+        if IsInInstance() and UnitAffectingCombat("player") then
+            GRM_G.RestrictionAnnounced = true;
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"));
+        elseif not IsInInstance() and GRM_G.AddonRestricted then
+            GRM_G.RestrictionAnnounced = true;
+            GRM.Report(GRM.L("GRM:") .. " " .. GRM.L("Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."));
+        end
+
+        -- C_Timer.After(5, function()
+        --     GRM.SecretValueRestrictionRestore();    -- Restore it one time
+        -- end);
+        
+    end
+end
+
 -- Method:          GRM.DelayForGuildInfoCallback()
 -- What it Does:    It basically recursively waits til the conditions are met and the server properly retrieved the guildCreationDate
 -- Purpose:         If a guild is on more than one server with the same name, that can complicate things. This helps idenitfy the server by the creation date as well...
@@ -87,7 +117,7 @@ GRM.DelayForGuildInfoCallback = function()
         if not GRM_G.secretValueOnLoadDelay then
             if GRM_G.secretValueDelay then
                 GRM_G.secretValueOnLoadDelay = true
-                GRM.SecretValueLoadDelayHandler();
+                SecretValueLoadDelayHandler();
             else
                 GRM_Sys.SetGuildInfoDetails();
                 GRM.GuildRoster();

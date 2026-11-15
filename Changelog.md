@@ -1,3 +1,9 @@
+## **VERSION 1.9953 - November 14th, 2026**
+
+***BUG FIXES***
+
+* Fixed a bug where it was failing to do a proper secret protections check when in te new Midnight/Forever API restrictions state (like in BGs, raid combat, etc).  There was an issue with a missing function. I reorganized a lot of the configuration to the actual config file, but must have left out one of my functions.
+
 ## **VERSION 1.99521 - November 10th, 2026**
 
 * Quick update - missing localization files added. Whoops!

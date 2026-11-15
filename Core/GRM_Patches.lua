@@ -1065,6 +1065,12 @@ GRM_Patch.PatchHistory = {
             GRM_Patch.SetAllNoteMacroRulesToCustom()
         end
     },
+    {
+        version = 1.9953,
+        apply = function()
+            GRM_Patch.AddNewSetting("rosterColumns", {})
+        end
+    }
 }
 
 -- Final report is good to go!

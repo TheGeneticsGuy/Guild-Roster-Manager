@@ -7,7 +7,7 @@ SLASH_GRM1 = '/grm';
 
 -- Addon Details:
 GRM_G.addonName = "Guild_Roster_Manager";
-GRM_G.Version = "R1.99521";
+GRM_G.Version = "R1.9953";
 GRM_G.PatchDayString = "1794318178";    -- 2 Versions saves on conversion computational costs... just keep one stored in memory.
 GRM_G.PatchDay = 1794318178;            -- In Epoch Time
 

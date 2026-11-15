@@ -9930,8 +9930,13 @@ GRM_UI.GetDefaultFrameSize = function ( frameName )
 
     local rosterFrameDefault = 885;
 
-    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then     -- Larger for Mythic Scores which didn't come in until 8.0
+    if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
         rosterFrameDefault = rosterFrameDefault + 90;
+    end
+
+    --
+    if frameName == "GRM_RosterFrame" and GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame.baseWidth then
+        rosterFrameDefault = GRM_UI.GRM_RosterFrame.baseWidth;
     end
 
     local sizeTable = {
@@ -9987,6 +9992,8 @@ end
 -- Purpose:         Quality of life sizing controls.
 GRM_UI.RescaleFrame = function ( frame , hide , tooltips , customCornerPos )
     local W , H = frame:GetWidth() , frame:GetHeight()
+    frame.baseWidth = W;
+    frame.baseHeight = H;
     local frameName = frame:GetName() .. "ReScale";
     local cornerPos = customCornerPos or { -10 , 10 };
     frame:SetResizable ( true );
@@ -10057,6 +10064,12 @@ GRM_UI.RescaleFrame = function ( frame , hide , tooltips , customCornerPos )
         frame.scrollFrame:SetPoint ( "Topleft" , frame , "Topleft" , 0 , 0 )
 
         frame:SetScript ( "OnSizeChanged" , function ( self )
+            if self.ignoreSizeChange then
+                return
+            end -- Bypass scaling when manually changing columns in the main roster, for example
+
+            local W = self.baseWidth or W;
+            local H = self.baseHeight or H;
 
             local scale = 0;
             local defTop , defBotton = 1.5 , 0.5;
