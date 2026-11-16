@@ -2133,6 +2133,8 @@ GRML.English = function()
     GRM_L["Name column is required and cannot be removed."] = true
     GRM_L["Click to remove and move to Unused."] = true
     GRM_L["Click to add to Active Columns (or drag into position above)."] = true
+    GRM_L["Only available in Cataclysm or later."] = true
+    GRM_L["Reputation"] = true
 
 
 

@@ -1,7 +1,7 @@
 -- Creating a new Guild Roster window
 GRM_R = {};
 
--- Master Column Definitions (Note: textIndex maps to AllButtons[ind][textIndex] so data indices never shift!)
+-- Master Column Definitions (Note: textIdx maps to AllButtons[ind][textIdx] so data indices never shift!)
 GRM_R.ColumnDefs = {
     { id = "lvl",        header = "GRM_RosterColumnLvl",         width = 40,  textIdx = 2,  sortMin = 7,  sortMax = 8,  sortFunc = "SortLevel",       labelKey = "Lvl" },
     { id = "name",       header = "GRM_RosterColumnName",        width = 200, textIdx = 3,  sortMin = 1,  sortMax = 2,  sortFunc = "SortNames",       labelKey = "Name", required = true },
@@ -12,15 +12,28 @@ GRM_R.ColumnDefs = {
     { id = "note",       header = "GRM_RosterColumnNote",        width = 150, textIdx = 7,  sortMin = 11, sortMax = 12, sortFunc = "SortNote",        labelKey = "Note",           ttIdx = 10, isNote = true },
     { id = "onote",      header = "GRM_RosterColumnOfficerNote", width = 150, textIdx = 8,  sortMin = 13, sortMax = 14, sortFunc = "SortOfficerNote", labelKey = "Officer's Note", ttIdx = 11, isNote = true },
     { id = "cnote",      header = "GRM_RosterColumnCustomNote",  width = 150, textIdx = 9,  sortMin = 15, sortMax = 16, sortFunc = "SortCustomNote",  labelKey = "Custom Note",    ttIdx = 12, isNote = true },
+    -- Optional Columns (Start in Unused by default!)
+    { id = "class",      header = "GRM_RosterColumnClass",       width = 110, textIdx = 14, sortMin = 19, sortMax = 20, sortFunc = "SortClass",       labelKey = "Class" },
+    { id = "race",       header = "GRM_RosterColumnRace",        width = 115, textIdx = 15, sortMin = 21, sortMax = 22, sortFunc = "SortRace",        labelKey = "Race" },
+    { id = "joinDate",   header = "GRM_RosterColumnJoinDate",    width = 115, textIdx = 16, sortMin = 23, sortMax = 24, sortFunc = "SortJoinDate",    labelKey = "Join Date" },
+    { id = "bday",       header = "GRM_RosterColumnBirthday",    width = 105, textIdx = 17, sortMin = 25, sortMax = 26, sortFunc = "SortBirthday",    labelKey = "Birthday" },
+    { id = "rep",        header = "GRM_RosterColumnReputation",  width = 115, textIdx = 18, sortMin = 27, sortMax = 28, sortFunc = "SortReputation",  labelKey = "Reputation", cataOnly = true },
 };
 
 GRM_R.ColumnDefById = {};
-
 for _, def in ipairs(GRM_R.ColumnDefs) do
     GRM_R.ColumnDefById[def.id] = def;
 end
 
--- Returns the default ordered array of column IDs
+-- Helper: Checks if a column is supported in the current game expansion
+GRM_R.IsColumnSupported = function(def)
+    if not def then return false end
+    if def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then return false end
+    if def.cataOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then return false end
+    return true;
+end
+
+-- Returns the default ordered array of column IDs (Optional columns stay in Unused by default)
 GRM_R.GetDefaultRosterColumns = function()
     if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
         return { "lvl", "name", "nickname", "lastOnline", "rank", "mplus", "note", "onote", "cnote" };
@@ -42,12 +55,10 @@ GRM_R.EnsureRosterColumnsValid = function()
 
     for _, id in ipairs(GRM.S().rosterColumns) do
         local def = GRM_R.ColumnDefById[id];
-        if def and not seen[id] then
-            if not (def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA) then
-                table.insert(validList, id);
-                seen[id] = true;
-                if id == "name" then hasName = true end
-            end
+        if def and not seen[id] and GRM_R.IsColumnSupported(def) then
+            table.insert(validList, id);
+            seen[id] = true;
+            if id == "name" then hasName = true end
         end
     end
 
@@ -73,6 +84,20 @@ local function CompareNicknames(a, b, isAscending)
         return nickA < nickB;
     else
         return nickA > nickB;
+    end
+end
+
+-- Helper: Smart Nullable Value Comparator (keeps valid values at the top, and nil/unknown values at the bottom)
+local function CompareNullableValues(valA, valB, nameA, nameB, isAscending)
+    if valA ~= nil and valB == nil then return true end
+    if valA == nil and valB ~= nil then return false end
+    if valA == nil and valB == nil then return nameA < nameB end
+    if valA == valB then return nameA < nameB end
+
+    if isAscending then
+        return valA < valB;
+    else
+        return valA > valB;
     end
 end
 
@@ -336,7 +361,7 @@ GRM_R.BuildRosterFrames = function ()
     -- Number of Rows Options Slider
     GRM_UI.CreateOptionsSlider( "GRM_RowsCountSlider" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "MinimalSliderWithSteppersTemplate" , { "RIGHT" , GRM_UI.GRM_RosterFrame.GRM_RosterOptions , "RIGHT" , -325 , 0 } , 10 , 40 , 1 , 11 , GRM.L ( "Rows:" ) , 18 ,  "GameFontNormal"  , GRM_R.NumRowsSliderLogic, GRM_R.NumRowsSliderTT , GRM_R.TooltipReset  ,GRM_R.SliderMouseUpLogic , false )
 
--- ==================================================
+    -- ==============================================
     -- 2-TIER HORIZONTAL DRAG-AND-DROP COLUMN MANAGER
     -- ==============================================
     GRM_UI.CreateButton (
@@ -452,6 +477,10 @@ GRM_R.BuildRosterFrames = function ()
             btn.Text:SetPoint("CENTER", btn, "CENTER", 0, 0);
 
             btn:SetScript("OnMouseDown", function(self, button)
+                -- Early return if unsupported (like Reputations prior to Cata)
+                if self.isUnsupported then
+                    return
+                end
                 if button == "LeftButton" and self:IsEnabled() then
                     local cx, cy = GetCursorPosition();
                     colCfg.dragSourceBtn = self;
@@ -488,6 +517,8 @@ GRM_R.BuildRosterFrames = function ()
                 GameTooltip:AddLine(GRM.L(def.labelKey), 0, 0.8, 1);
                 if def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
                     GameTooltip:AddLine(GRM.L("Only available in Battle for Azeroth or later."), 1, 0.3, 0.3);
+                elseif def.cataOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
+                    GameTooltip:AddLine(GRM.L("Only available in Cataclysm or later."), 1, 0.3, 0.3);
                 elseif self.isActiveCol then
                     GameTooltip:AddLine(GRM.L("Drag Left/Right to reorder this column."), 1, 0.82, 0);
                     if def.required then
@@ -596,11 +627,7 @@ end
 GRM_R.ToggleColumnActive = function(colId)
     local activeCols = GRM_R.EnsureRosterColumnsValid();
     local def = GRM_R.ColumnDefById[colId];
-    if not def then return end
-
-    if def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
-        return;
-    end
+    if not GRM_R.IsColumnSupported(def) then return end
 
     local foundIdx = nil;
     for i, id in ipairs(activeCols) do
@@ -611,7 +638,6 @@ GRM_R.ToggleColumnActive = function(colId)
     end
 
     if foundIdx then
-        -- Don't allow removing "Name", only dragging it!
         if def.required then
             GRM_R.UpdateColumnConfigUI();
             return;
@@ -631,7 +657,7 @@ end
 GRM_R.MoveOrInsertColumn = function(colId, targetDropIdx)
     local activeCols = GRM_R.EnsureRosterColumnsValid();
     local def = GRM_R.ColumnDefById[colId];
-    if not def or (def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA) then
+    if not GRM_R.IsColumnSupported(def) then
         GRM_R.UpdateColumnConfigUI();
         return;
     end
@@ -651,7 +677,6 @@ GRM_R.MoveOrInsertColumn = function(colId, targetDropIdx)
         end
         newIdx = math.max(1, math.min(#activeCols, newIdx));
 
-        -- If dropped onto its own existing slot, treat as a Click to remove!
         if newIdx == currentIdx then
             GRM_R.ToggleColumnActive(colId);
             return;
@@ -669,8 +694,31 @@ GRM_R.MoveOrInsertColumn = function(colId, targetDropIdx)
     GRM_R.RefreshRosterName(true);
 end
 
+-- Helper: Visually greys out or restores a UIPanelButtonTemplate while keeping OnEnter tooltips active!
+local function SetColButtonVisualEnabled(btn, isSupported)
+    btn.isUnsupported = not isSupported;
+    if btn.SetMotionScriptsWhileDisabled then
+        btn:SetMotionScriptsWhileDisabled(true);
+    end
+
+    if isSupported then
+        btn:Enable();
+        if btn.Left then btn.Left:SetDesaturated(false) end
+        if btn.Middle then btn.Middle:SetDesaturated(false) end
+        if btn.Right then btn.Right:SetDesaturated(false) end
+        if btn:GetNormalTexture() then btn:GetNormalTexture():SetDesaturated(false) end
+    else
+        -- Disable button click/push animations, desaturate textures, but allow mouseover tooltips!
+        btn:Disable();
+        if btn.Left then btn.Left:SetDesaturated(true) end
+        if btn.Middle then btn.Middle:SetDesaturated(true) end
+        if btn.Right then btn.Right:SetDesaturated(true) end
+        if btn:GetNormalTexture() then btn:GetNormalTexture():SetDesaturated(true) end
+    end
+end
+
 -- Method:          GRM_R.UpdateColumnConfigUI()
--- What it Does:    Layouts the Active Row (with "|" drop dividers) and Unused Row horizontally, and auto-fits the frame width!
+-- What it Does:    Layouts the Active Row and Unused Row (grouping disabled columns on the far left!)
 GRM_R.UpdateColumnConfigUI = function()
     local colCfg = GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame.GRM_RosterColumnConfig;
     if not colCfg or not colCfg.initialized then return end
@@ -681,7 +729,6 @@ GRM_R.UpdateColumnConfigUI = function()
         activeSet[id] = true;
     end
 
-    -- Hide all dividers and buttons first for a clean slate
     for i = 1, #colCfg.Dividers do
         colCfg.Dividers[i]:Hide();
     end
@@ -714,13 +761,13 @@ GRM_R.UpdateColumnConfigUI = function()
             btn:ClearAllPoints();
             btn:SetPoint("LEFT", div, "RIGHT", 3, 0);
             btn:SetAlpha(1.0);
-            btn:Enable();
+            SetColButtonVisualEnabled(btn, true);
             btn.isActiveCol = true;
             btn.Text:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 11);
             btn.Text:SetText("|cff00ccff" .. i .. "|r " .. GRM.L(def.labelKey));
             btn.Text:SetTextColor(1.0, 0.82, 0.0, 1.0);
 
-            local btnW = math.max(56, math.ceil(btn.Text:GetStringWidth()) + 20);
+            local btnW = math.max(54, math.ceil(btn.Text:GetStringWidth()) + 18);
             btn:SetWidth(btnW);
             btn:Show();
 
@@ -729,7 +776,6 @@ GRM_R.UpdateColumnConfigUI = function()
         end
     end
 
-    -- Final trailing "|" divider after the last active column
     local lastDiv = colCfg.Dividers[#activeCols + 1];
     if lastDiv and prevAnchor then
         lastDiv:ClearAllPoints();
@@ -740,46 +786,71 @@ GRM_R.UpdateColumnConfigUI = function()
         activeRowWidth = activeRowWidth + 14;
     end
 
-    -- 2. Layout Bottom Row: Unused Columns
-    local prevUnused = nil;
-    local unusedRowWidth = 18;
+    local maxUnusedRowWidth = math.max(720, activeRowWidth);
 
+    -- 2. Collect Unused Columns: Group Disabled/Unsupported columns on the FAR LEFT first, then usable columns!
+    local orderedUnusedDefs = {};
     for _, def in ipairs(GRM_R.ColumnDefs) do
-        if not activeSet[def.id] then
-            local btn = colCfg.ColButtons[def.id];
-            if btn then
-                btn:ClearAllPoints();
-                if not prevUnused then
-                    btn:SetPoint("TOPLEFT", colCfg, "TOPLEFT", 18, -106);
-                else
-                    btn:SetPoint("LEFT", prevUnused, "RIGHT", 6, 0);
-                end
-                btn:SetAlpha(1.0);
-                btn.isActiveCol = false;
-                btn.Text:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 11);
-                btn.Text:SetText(GRM.L(def.labelKey));
-
-                if def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
-                    btn:Disable();
-                    btn.Text:SetTextColor(0.45, 0.45, 0.45, 1.0);
-                else
-                    btn:Enable();
-                    btn.Text:SetTextColor(0.85, 0.85, 0.85, 1.0);
-                end
-
-                local btnW = math.max(56, math.ceil(btn.Text:GetStringWidth()) + 20);
-                btn:SetWidth(btnW);
-                btn:Show();
-
-                unusedRowWidth = unusedRowWidth + btnW + 6;
-                prevUnused = btn;
-            end
+        if not activeSet[def.id] and not GRM_R.IsColumnSupported(def) then
+            table.insert(orderedUnusedDefs, def);
+        end
+    end
+    for _, def in ipairs(GRM_R.ColumnDefs) do
+        if not activeSet[def.id] and GRM_R.IsColumnSupported(def) then
+            table.insert(orderedUnusedDefs, def);
         end
     end
 
-    -- 3. Auto-fit the Column Manager width so all buttons fit with margin to spare!
-    local requiredWidth = math.max(760, activeRowWidth + 20, unusedRowWidth + 20);
+    -- 3. Layout Bottom Tray: Unused Columns
+    local prevUnused = nil;
+    local currentLineWidth = 18;
+    local maxUsedUnusedWidth = 18;
+    local numUnusedLines = 1;
+
+    for _, def in ipairs(orderedUnusedDefs) do
+        local btn = colCfg.ColButtons[def.id];
+        if btn then
+            local isSupported = GRM_R.IsColumnSupported(def);
+            btn:SetAlpha(1.0);
+            btn.isActiveCol = false;
+            btn.Text:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 11);
+            btn.Text:SetText(GRM.L(def.labelKey));
+
+            SetColButtonVisualEnabled(btn, isSupported);
+            if isSupported then
+                btn.Text:SetTextColor(0.85, 0.85, 0.85, 1.0);
+            else
+                btn.Text:SetTextColor(0.45, 0.45, 0.45, 1.0);
+            end
+
+            local btnW = math.max(54, math.ceil(btn.Text:GetStringWidth()) + 18);
+            btn:SetWidth(btnW);
+
+            btn:ClearAllPoints();
+            if not prevUnused then
+                btn:SetPoint("TOPLEFT", colCfg, "TOPLEFT", 18, -106);
+                currentLineWidth = 18 + btnW;
+            elseif (currentLineWidth + 6 + btnW) > maxUnusedRowWidth then
+                numUnusedLines = 2;
+                btn:SetPoint("TOPLEFT", colCfg, "TOPLEFT", 18, -134);
+                currentLineWidth = 18 + btnW;
+            else
+                btn:SetPoint("LEFT", prevUnused, "RIGHT", 6, 0);
+                currentLineWidth = currentLineWidth + 6 + btnW;
+            end
+
+            if currentLineWidth > maxUsedUnusedWidth then
+                maxUsedUnusedWidth = currentLineWidth;
+            end
+
+            btn:Show();
+            prevUnused = btn;
+        end
+    end
+
+    local requiredWidth = math.max(760, activeRowWidth + 20, maxUsedUnusedWidth + 20);
     colCfg:SetWidth(requiredWidth);
+    colCfg:SetHeight(numUnusedLines > 1 and 172 or 148);
 end
 
 -- Method:          GRM_R.LayoutRosterColumns()
@@ -954,7 +1025,12 @@ GRM_R.ResetColumnTextColors = function()
         { min = 11 , max = 12 , column = "GRM_RosterColumnNote" } ,
         { min = 13 , max = 14 , column = "GRM_RosterColumnOfficerNote" },
         { min = 15 , max = 16 , column = "GRM_RosterColumnCustomNote" },
-        { min = 17 , max = 18 , column = "GRM_RosterColumnNickname" }
+        { min = 17 , max = 18 , column = "GRM_RosterColumnNickname" },
+        { min = 19 , max = 20 , column = "GRM_RosterColumnClass" },
+        { min = 21 , max = 22 , column = "GRM_RosterColumnRace" },
+        { min = 23 , max = 24 , column = "GRM_RosterColumnJoinDate" },
+        { min = 25 , max = 26 , column = "GRM_RosterColumnBirthday" },
+        { min = 27 , max = 28 , column = "GRM_RosterColumnReputation" }
     };
 
     local function lookupValue ( input )
@@ -1294,6 +1370,64 @@ GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
                     tempPlayer.note = player.note;
                     tempPlayer.customNote = player.customNote[4];
 
+                    -- Class & Race
+                    tempPlayer.className = (GRM.GetClassName and GRM.GetClassName(player.class)) or player.class or "";
+                    tempPlayer.raceName = player.race or "";
+
+                    -- Join Date (Blank "" if unset; only shows "Unknown" if player.joinDateUnknown is explicitly true)
+                    local jdText = "";
+                    local jdSort = nil;
+                    if player.joinDateUnknown then
+                        jdText = GRM.L("Unknown");
+                    elseif type(player.joinDateHist) == "table" and #player.joinDateHist > 0 then
+                        local jd = player.joinDateHist[#player.joinDateHist];
+                        local d, m, y;
+                        if type(jd.date) == "table" then
+                            d, m, y = tonumber(jd.date[1]), tonumber(jd.date[2]), tonumber(jd.date[3]);
+                        else
+                            d, m, y = tonumber(jd[1]), tonumber(jd[2]), tonumber(jd[3]);
+                        end
+                        if d and m and y and d > 0 and m > 0 and y > 0 then
+                            jdText = GRM.Time.FormatTimeStamp({ d, m, y }, false, false, GRM.S().dateFormat);
+                            jdSort = (jd[4] and tonumber(jd[4]) and tonumber(jd[4]) > 0) and tonumber(jd[4]) or ((y * 10000) + (m * 100) + d);
+                        end
+                    end
+                    tempPlayer.joinDateText = jdText;
+                    tempPlayer.joinDateSort = jdSort;
+
+                    -- Birthday (Uses GRM.GetBirthday and omits the year via FormatTimeStamp(..., false, true))
+                    local bdayText = "";
+                    local bdaySort = nil;
+                    local birthdayInfo = GRM.GetBirthday(player);
+                    if birthdayInfo then
+                        if birthdayInfo.unknown then
+                            bdayText = GRM.L("Unknown");
+                        elseif birthdayInfo.date and birthdayInfo.date[1] ~= 0 then
+                            bdayText = GRM.Time.FormatTimeStamp({ birthdayInfo.date[1], birthdayInfo.date[2] }, false, true);
+                            bdaySort = (tonumber(birthdayInfo.date[2]) * 100) + tonumber(birthdayInfo.date[1]);
+                        end
+                    end
+                    tempPlayer.bdayText = bdayText;
+                    tempPlayer.bdaySort = bdaySort;
+
+                    -- Guild Reputation (Cataclysm+)
+                    local rawRep = player.reputation or player.rep or player.guildRep;
+                    local repText = "";
+                    local repSort = nil;
+                    if type(rawRep) == "number" and rawRep > 0 then
+                        repSort = rawRep;
+                        if GRM.GetReputationTextLevel then
+                            repText = GRM.GetReputationTextLevel(rawRep, true) or tostring(rawRep);
+                        else
+                            repText = _G["FACTION_STANDING_LABEL" .. rawRep] or tostring(rawRep);
+                        end
+                    elseif type(rawRep) == "string" and rawRep ~= "" then
+                        repText = rawRep;
+                        repSort = rawRep;
+                    end
+                    tempPlayer.repText = repText;
+                    tempPlayer.repSort = repSort;
+
                     if GRM_G.HardcoreActive then
                         tempPlayer.isDead = player.HC.isDead and true or false;
                     end
@@ -1455,6 +1589,82 @@ GRM_R.SortNickname = function ( _ , keepType , reSizeButtons )
     end
 
     GRM_R.BuildGuildRoster ( true , true , members , reSizeButtons );
+end
+
+-- Generic helper for single-level sorting on the 5 new optional columns
+local function SortByOptionalColumn(minType, maxType, keepType, reSizeButtons, compareFunc)
+    local nameSearch = GRM_R.GetNameSearch();
+    local noteSearch = GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:GetText();
+    if noteSearch == "" then
+        noteSearch = nil;
+    else
+        noteSearch = string.lower(GRM.RemoveSpecialCharacters(noteSearch));
+    end
+
+    if not keepType then
+        if GRM_UI.GRM_RosterFrame.SortType ~= minType and GRM_UI.GRM_RosterFrame.SortType ~= maxType then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = minType;
+        elseif GRM_UI.GRM_RosterFrame.SortType == minType then
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = maxType;
+        else
+            GRM_UI.GRM_RosterFrame.FormerSortType = GRM_UI.GRM_RosterFrame.SortType;
+            GRM_UI.GRM_RosterFrame.SortType = minType;
+        end
+    end
+
+    local members = GRM_R.GetAllMembersAsArray(nameSearch, noteSearch);
+    local isAscending = (GRM_UI.GRM_RosterFrame.SortType == minType);
+
+    sort(members, function(a, b) return compareFunc(a, b, isAscending) end);
+
+    if GRM.S().groupByMain then
+        local i = 1;
+        while i <= #members do
+            if members[i].alts and #members[i].alts > 0 then
+                sort(members[i].alts, function(a, b) return compareFunc(a, b, isAscending) end);
+                for j = 1, #members[i].alts do
+                    table.insert(members, i + j, members[i].alts[j]);
+                end
+                i = i + #members[i].alts;
+                members[i].alts = nil;
+            end
+            i = i + 1;
+        end
+    end
+
+    GRM_R.BuildGuildRoster(true, true, members, reSizeButtons);
+end
+
+GRM_R.SortClass = function(_, keepType, reSizeButtons)
+    SortByOptionalColumn(19, 20, keepType, reSizeButtons, function(a, b, isAsc)
+        return CompareNullableValues(a.className ~= "" and string.lower(a.className) or nil, b.className ~= "" and string.lower(b.className) or nil, a.name, b.name, isAsc);
+    end);
+end
+
+GRM_R.SortRace = function(_, keepType, reSizeButtons)
+    SortByOptionalColumn(21, 22, keepType, reSizeButtons, function(a, b, isAsc)
+        return CompareNullableValues(a.raceName ~= "" and string.lower(a.raceName) or nil, b.raceName ~= "" and string.lower(b.raceName) or nil, a.name, b.name, isAsc);
+    end);
+end
+
+GRM_R.SortJoinDate = function(_, keepType, reSizeButtons)
+    SortByOptionalColumn(23, 24, keepType, reSizeButtons, function(a, b, isAsc)
+        return CompareNullableValues(a.joinDateSort, b.joinDateSort, a.name, b.name, isAsc);
+    end);
+end
+
+GRM_R.SortBirthday = function(_, keepType, reSizeButtons)
+    SortByOptionalColumn(25, 26, keepType, reSizeButtons, function(a, b, isAsc)
+        return CompareNullableValues(a.bdaySort, b.bdaySort, a.name, b.name, isAsc);
+    end);
+end
+
+GRM_R.SortReputation = function(_, keepType, reSizeButtons)
+    SortByOptionalColumn(27, 28, keepType, reSizeButtons, function(a, b, isAsc)
+        return CompareNullableValues(a.repSort, b.repSort, a.name, b.name, isAsc);
+    end);
 end
 
 -- Method:          GRM_R.SortLastOnline( buttonObject , bool , bool )
@@ -2146,6 +2356,16 @@ GRM_R.RefreshRosterName = function ( reSizeButtons )
         GRM_R.SortCustomNote( nil , true , reSizeButtons );
     elseif GRM_UI.GRM_RosterFrame.SortType == 17 or GRM_UI.GRM_RosterFrame.SortType == 18 then
         GRM_R.SortNickname( nil , true , reSizeButtons );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 19 or GRM_UI.GRM_RosterFrame.SortType == 20 then
+        GRM_R.SortClass( nil , true , reSizeButtons );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 21 or GRM_UI.GRM_RosterFrame.SortType == 22 then
+        GRM_R.SortRace( nil , true , reSizeButtons );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 23 or GRM_UI.GRM_RosterFrame.SortType == 24 then
+        GRM_R.SortJoinDate( nil , true , reSizeButtons );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 25 or GRM_UI.GRM_RosterFrame.SortType == 26 then
+        GRM_R.SortBirthday( nil , true , reSizeButtons );
+    elseif GRM_UI.GRM_RosterFrame.SortType == 27 or GRM_UI.GRM_RosterFrame.SortType == 28 then
+        GRM_R.SortReputation( nil , true , reSizeButtons );
     end
 
 end
@@ -2212,7 +2432,12 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
                     button2,                                                                -- [10] Note Tooltip Button
                     button3,                                                                -- [11] Officer Note Tooltip Button
                     button4,                                                                -- [12] Custom Note Tooltip Button
-                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )       -- [13] Nickname
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- [13] Nickname
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- [14] Class
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- [15] Race
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- [16] Join Date
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" ),      -- [17] Birthday
+                    button:CreateFontString ( nil , "OVERLAY" , "GameFontWhiteTiny" )       -- [18] Reputation
                 };
 
                 button = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i][1];
@@ -2290,15 +2515,11 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
     local buttonTextNick = rowTable[13];
 
     local fontSize = GRM_G.FontModifier + 11 - GRM_UI.GRM_RosterFrame.fontModifier;
-    buttonText1:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonText2:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonText3:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonText4:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonText5:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonText6:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonText7:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonText8:SetFont ( GRM_G.FontChoice , fontSize );
-    buttonTextNick:SetFont ( GRM_G.FontChoice , fontSize );
+    for _, fsIdx in ipairs({ 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 15, 16, 17, 18 }) do
+        if rowTable[fsIdx] then
+            rowTable[fsIdx]:SetFont(GRM_G.FontChoice, fontSize);
+        end
+    end
 
     -- Layout columns dynamically according to user's saved column order
     local activeCols = GRM_R.EnsureRosterColumnsValid();
@@ -2634,6 +2855,22 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
                 GRM_R.UpdateNoteText ( line[12] , ind , 9 );
             end
         end
+
+        -- Optional Columns ([14] Class, [15] Race, [16] Join Date, [17] Birthday, [18] Reputation)
+        line[14]:SetText ( entry.className or "" );
+        line[14]:SetTextColor ( entry.classColor[1] , entry.classColor[2] , entry.classColor[3] );
+
+        line[15]:SetText ( entry.raceName or "" );
+        line[15]:SetTextColor ( 1 , 1 , 1 );
+
+        line[16]:SetText ( entry.joinDateText or "" );
+        line[16]:SetTextColor ( 1 , 1 , 1 );
+
+        line[17]:SetText ( entry.bdayText or "" );
+        line[17]:SetTextColor ( 1 , 1 , 1 );
+
+        line[18]:SetText ( entry.repText or "" );
+        line[18]:SetTextColor ( 1 , 1 , 1 );
     end
 end
 
@@ -2667,8 +2904,10 @@ GRM_R.RosterShiftDown = function()
             buttons[i][9]:SetText( buttons[i+1][9]:GetText() );
             buttons[i][9]:SetTextColor ( buttons[i+1][9]:GetTextColor ( buttons[i+1][9]:GetText() ) );
 
-            buttons[i][13]:SetText( buttons[i+1][13]:GetText() );
-            buttons[i][13]:SetTextColor ( buttons[i+1][13]:GetTextColor ( buttons[i+1][13]:GetText() ) );
+            for _, colIdx in ipairs({ 13, 14, 15, 16, 17, 18 }) do
+                buttons[i][colIdx]:SetText( buttons[i+1][colIdx]:GetText() );
+                buttons[i][colIdx]:SetTextColor( buttons[i+1][colIdx]:GetTextColor() );
+            end
 
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;
@@ -2722,8 +2961,10 @@ GRM_R.RosterShiftUp = function()
             buttons[i][9]:SetText( buttons[i-1][9]:GetText() );
             buttons[i][9]:SetTextColor ( buttons[i-1][9]:GetTextColor ( buttons[i-1][9]:GetText() ) );
 
-            buttons[i][13]:SetText( buttons[i-1][13]:GetText() );
-            buttons[i][13]:SetTextColor ( buttons[i-1][13]:GetTextColor ( buttons[i-1][13]:GetText() ) );
+            for _, colIdx in ipairs({ 13, 14, 15, 16, 17, 18 }) do
+                buttons[i][colIdx]:SetText( buttons[i-1][colIdx]:GetText() );
+                buttons[i][colIdx]:SetTextColor( buttons[i-1][colIdx]:GetTextColor() );
+            end
 
             if MouseOverButton == 0 and buttons[i][1]:IsMouseOver() then
                 MouseOverButton = i;
