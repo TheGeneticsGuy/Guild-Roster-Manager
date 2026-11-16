@@ -2136,7 +2136,5 @@ GRML.English = function()
     GRM_L["Only available in Cataclysm or later."] = true
     GRM_L["Reputation"] = true
 
-
-
 end
 
