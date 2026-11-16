@@ -919,11 +919,11 @@ GRM_UI.ReloadAllFrames = function( isManualUpdate , defaultSettingsReset )
 
         -- Guild Roster GRM Window
         if GRM_UI.GRM_RosterFrame and GRM_G.RosterFrameInitialized then
-            GRM_R.BuildRosterFrames();
+            GRM_UI.BuildRosterFrames( true );
 
             if GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons ~= nil then
                 for i = 1 , #GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons do
-                    GRM_R.BuildGuildRosterButtons ( i , true )
+                    GRM_UI.BuildGuildRosterButtons ( i , true )
                 end
             end
         end
@@ -1959,7 +1959,7 @@ GRM_UI.PreAddonLoadUI = function()
     end);
 
     -- Load Custom Roster frames
-    GRM_R.BuildRosterFrames();
+    GRM_UI.BuildRosterFrames();
 
     GRM_UI.IsLoaded = true;
 end
@@ -9718,7 +9718,7 @@ GRM_UI.BlizzardFramePinHookInitializations = function ( isManualUpdate )
 
             local pinFrame = CommunitiesFrame.GuildPreferredPlaySettingsTab ~= nil and CommunitiesFrame.GuildPreferredPlaySettingsTab or CommunitiesFrame.GuildInfoTab;
                 
-            GRM_R.InitializeRosterLoadButton ( CommunitiesFrame , { "TOP" , pinFrame , "BOTTOM" , 0 , -10 } , { 44 , 44 } , { 32 , 32 } );
+            GRM_UI.InitializeRosterLoadButton ( CommunitiesFrame , { "TOP" , pinFrame , "BOTTOM" , 0 , -10 } , { 44 , 44 } , { 32 , 32 } );
         end
     end
 
@@ -9907,7 +9907,7 @@ GRM_UI.RefreshSelectFrames = function ( log , audit , ban , macroTool , customRo
     end
 
     if customRoster and GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame:IsVisible() then
-        GRM_R.RefreshRosterName();
+        GRM_UI.RefreshRosterName();
     end
 
     if events and GRM_UI.GRM_CoreFrame.GRM_EventsFrame:IsVisible() then

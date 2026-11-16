@@ -255,7 +255,7 @@ HC.HardCoreInitialize = function()
             end
 
             if GRM_UI.GRM_RosterFrame ~= nil and GRM_UI.GRM_RosterFrame:IsVisible() then
-                GRM_R.RefreshRosterName();
+                GRM_UI.RefreshRosterName();
             end
 
         end

@@ -1517,7 +1517,7 @@ GRM.KickAllAlts = function ( playerName , alts , banReason , epochTimeStamp )
                     GRM_UI.GRM_ToolCoreFrame:Show();
                 end
 
-                GRM_R.ConfigureMacroForRightClick ( 1 , kickAllAltsTable );
+                GRM_UI.ConfigureMacroForRightClick ( 1 , kickAllAltsTable );
             end
         end
 

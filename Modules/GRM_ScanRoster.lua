@@ -3075,7 +3075,7 @@ Scan.CheckForDeadAccounts = function(isManual)
                         GRM_UI.GRM_ToolCoreFrame:Show();
                     end
 
-                    GRM_R.ConfigureMacroForRightClick( 1 , customKickList);
+                    GRM_UI.ConfigureMacroForRightClick( 1 , customKickList);
                 end
 
                 local ignoreDeadNames = function()

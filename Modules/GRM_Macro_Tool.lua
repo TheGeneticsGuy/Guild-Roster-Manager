@@ -14,6 +14,60 @@ GRM_G.RefreshKickDelay = false;
 GRM_G.RosterRightClickControl = false;
 GRM_G.PlayersWithNotesToAdd = {};
 
+-- Method:          SetRuleCheckedStatus()
+-- What it Does:    Returns a numeric indication of the rule status for checkbox quality logic
+-- Purpose:         I need to know how to set the Enable all or Disable all checkbox
+local function SetRuleCheckedStatus()
+
+    if GRM_UI.GRM_ToolCoreFrame:IsVisible() then
+        local status;
+
+        -- 1 = allChecked , 2 = allUnchecked, 3 = someChecked , 4 = No Rules
+        local numRules = 0;
+        if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and CanGuildRemove() or
+                GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() or
+                GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() or
+                GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 and CanGuildDemote() and CanGuildPromote() then
+
+            numRules = GRM.Util.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
+        end
+
+        if numRules == 0 then
+            status = 4;
+        else
+            local count = 0;
+            for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
+                if rule.isEnabled then
+                    count = count + 1;
+                end
+            end
+
+            if count == numRules then
+                status = 1;
+            elseif count == 0 then
+                status = 2;
+            else
+                status = 3;
+            end
+        end
+
+        if status == 4 then
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Disable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 0.5 , 0.5 , 0.5 );
+        else
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Enable();
+            GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 1 , 0.82 , 0 );
+            if status == 1 then
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( true );
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Disable All" ) );
+            else
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( false );
+                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
+            end
+        end
+    end
+end
+
 GRM_UI.BuildSpcialRules = function()
 
     GRM_Macro.SpecialRule1Button = function()
@@ -1132,10 +1186,10 @@ GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_RankDestinationText = GRM_
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton = CreateFrame ( "CheckButton" , "GRM_ToolSyncButton" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "InterfaceOptionsCheckButtonTemplate" );
 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButtonText = GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolSyncButton:CreateFontString ( nil , "OVERLAY" , "GameFontNormalSmall" );
 
--- Method:          GRM_R.SelectAllRuleLogic ( buttonLogic )
+-- Method:          GRM_UI.SelectAllRuleLogic ( buttonLogic )
 -- What it Does:    Activates and Deactivates all the rules in that category
 -- Purpose:         Quality of life convenience to enable or disable all rules.
-GRM_R.SelectAllRuleLogic = function( self )
+GRM_UI.SelectAllRuleLogic = function( self )
 
     GRM.ClearQuedAndMacroFrames();
 
@@ -1161,7 +1215,7 @@ end
 
 GRM_UI.LoadAdditionalMacroToolFrames = function()
 
-    GRM_UI.CreateCheckBox ( "GRM_MacroRuleSelectAllCheckBox" , GRM_UI.GRM_ToolCoreFrame , nil , {26,26} , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "BOTTOMLEFT" , 15 , 5 } , GRM_R.SelectAllRuleLogic , GRM.L ( "Enable All" ) , "GameFontNormal" , 11 );
+    GRM_UI.CreateCheckBox ( "GRM_MacroRuleSelectAllCheckBox" , GRM_UI.GRM_ToolCoreFrame , nil , {26,26} , { "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame , "BOTTOMLEFT" , 15 , 5 } , GRM_UI.SelectAllRuleLogic , GRM.L ( "Enable All" ) , "GameFontNormal" , 11 );
 
     GRM_UI.BuildMacroToolFrame(); -- To be expanded
 
@@ -2121,7 +2175,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM.TriggerIgnoredQueuedWindowRefresh();
                 end
 
-                GRM_R.SetRuleCheckedStatus();
+                SetRuleCheckedStatus();
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolSpecialRulesSelectionFrame:Hide();
             end
@@ -2163,7 +2217,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM.TriggerIgnoredQueuedWindowRefresh();
                 end
 
-                GRM_R.SetRuleCheckedStatus();
+                SetRuleCheckedStatus();
             end
         end);
 
@@ -2206,7 +2260,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                     GRM.TriggerIgnoredQueuedWindowRefresh();
                 end
 
-                GRM_R.SetRuleCheckedStatus();
+                SetRuleCheckedStatus();
             end
         end);
 
@@ -2252,7 +2306,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 self:LockHighlight();                                       -- Lock Highlight
                 GRM_UI.ConfigureToolTab();
 
-                GRM_R.SetRuleCheckedStatus();
+                SetRuleCheckedStatus();
             end
         end);
 
@@ -2514,60 +2568,6 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
         end
     end);
-
-    -- Method:          GRM_R.SetRuleCheckedStatus()
-    -- What it Does:    Returns a numeric indication of the rule status for checkbox quality logic
-    -- Purpose:         I need to know how to set the Enable all or Disable all checkbox
-    GRM_R.SetRuleCheckedStatus = function()
-
-        if GRM_UI.GRM_ToolCoreFrame:IsVisible() then
-            local status;
-
-            -- 1 = allChecked , 2 = allUnchecked, 3 = someChecked , 4 = No Rules
-            local numRules = 0;
-            if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 and CanGuildRemove() or
-                 GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 and CanGuildPromote() or
-                 GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 and CanGuildDemote() or
-                 GRM_UI.GRM_ToolCoreFrame.TabPosition == 4 and CanGuildDemote() and CanGuildPromote() then
-
-                numRules = GRM.Util.TableLength ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] );
-            end
-
-            if numRules == 0 then
-                status = 4;
-            else
-                local count = 0;
-                for _ , rule in pairs ( GRM.S()[GRM_UI.ruleTypeEnum[GRM_UI.GRM_ToolCoreFrame.TabPosition]] ) do
-                    if rule.isEnabled then
-                        count = count + 1;
-                    end
-                end
-
-                if count == numRules then
-                    status = 1;
-                elseif count == 0 then
-                    status = 2;
-                else
-                    status = 3;
-                end
-            end
-
-            if status == 4 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Disable();
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 0.5 , 0.5 , 0.5 );
-            else
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:Enable();
-                GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetTextColor( 1 , 0.82 , 0 );
-                if status == 1 then
-                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( true );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Disable All" ) );
-                else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox:SetChecked ( false );
-                    GRM_UI.GRM_ToolCoreFrame.GRM_MacroRuleSelectAllCheckBox.GRM_MacroRuleSelectAllCheckBoxText:SetText ( GRM.L ( "Enable All" ) );
-                end
-            end
-        end
-    end
 
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetText( GRM.L ( "Name:" ) );
     GRM_UI.GRM_ToolCoreFrame.GRM_ToolRulesScrollBorderFrame.GRM_ToolCoreFrameText1:SetFont ( GRM_G.FontChoice , GRM_G.FontModifier + 14 );
@@ -6589,7 +6589,7 @@ GRM_UI.LoadToolFrames = function ( isManual )
     -- UI modications as needed for localization purposes as well as different pinning and additional options depening on macro type.
     GRM_UI.LocalizationMModifications();
     GRM_UI.ModifyRuleUI();
-    GRM_R.SetRuleCheckedStatus();
+    SetRuleCheckedStatus();
 
 end
 
@@ -6666,7 +6666,7 @@ GRM.BuildCustomKickEntries = function( playerList , forceRefresh )
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
 
-        GRM_R.ConfigureMacroForRightClick ( 1 , result );
+        GRM_UI.ConfigureMacroForRightClick ( 1 , result );
     end
 
     return result;
@@ -6721,7 +6721,7 @@ GRM.BuildCustomPromoteEntries = function ( playerList , forceRefresh , button )
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
 
-        GRM_R.ConfigureMacroForRightClick ( 2 , result );
+        GRM_UI.ConfigureMacroForRightClick ( 2 , result );
     end
 
     return result;
@@ -6775,7 +6775,7 @@ GRM.BuildCustomDemoteEntries = function ( playerList , forceRefresh , button )
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
 
-        GRM_R.ConfigureMacroForRightClick ( 3 , result );
+        GRM_UI.ConfigureMacroForRightClick ( 3 , result );
     end
 
     return result;
@@ -12377,7 +12377,7 @@ GRM.RuleCountsFrameHandler = function()
 
     if GRM_G.RefreshMacroToolText then
         GRM_G.RefreshMacroToolText = false;
-        GRM_R.SetRuleCheckedStatus();
+        SetRuleCheckedStatus();
     end
 
     GRM_UI.FrameRefreshFlagReady("quedMacro");

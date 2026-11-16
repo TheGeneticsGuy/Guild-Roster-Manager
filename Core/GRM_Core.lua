@@ -3855,7 +3855,7 @@ GRM.KickAllBanned = function()
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
 
-        GRM_R.ConfigureMacroForRightClick ( 1 , kickBannedEntries );
+        GRM_UI.ConfigureMacroForRightClick ( 1 , kickBannedEntries );
     end
 
     -- Refresh the frames!

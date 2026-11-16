@@ -1,8 +1,8 @@
 -- Creating a new Guild Roster window
-GRM_R = {};
+local GRM_R = {};
 
--- Master Column Definitions (Note: textIdx maps to AllButtons[ind][textIdx] so data indices never shift!)
-GRM_R.ColumnDefs = {
+-- Master Column Definitions
+local ColumnDefs = {
     { id = "lvl",        header = "GRM_RosterColumnLvl",         width = 40,  textIdx = 2,  sortMin = 7,  sortMax = 8,  sortFunc = "SortLevel",       labelKey = "Lvl" },
     { id = "name",       header = "GRM_RosterColumnName",        width = 200, textIdx = 3,  sortMin = 1,  sortMax = 2,  sortFunc = "SortNames",       labelKey = "Name", required = true },
     { id = "nickname",   header = "GRM_RosterColumnNickname",    width = 160, textIdx = 13, sortMin = 17, sortMax = 18, sortFunc = "SortNickname",    labelKey = "Nickname" },
@@ -20,21 +20,28 @@ GRM_R.ColumnDefs = {
     { id = "rep",        header = "GRM_RosterColumnReputation",  width = 115, textIdx = 18, sortMin = 27, sortMax = 28, sortFunc = "SortReputation",  labelKey = "Reputation", cataOnly = true },
 };
 
-GRM_R.ColumnDefById = {};
-for _, def in ipairs(GRM_R.ColumnDefs) do
-    GRM_R.ColumnDefById[def.id] = def;
+local ColumnDefById = {};
+
+for _, def in ipairs(ColumnDefs) do
+    ColumnDefById[def.id] = def;
 end
 
 -- Helper: Checks if a column is supported in the current game expansion
-GRM_R.IsColumnSupported = function(def)
-    if not def then return false end
-    if def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then return false end
-    if def.cataOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then return false end
+local function IsColumnSupported(def)
+    if not def then
+        return false
+    end
+    if def.bfaOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.BFA then
+        return false
+    end
+    if def.cataOnly and GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA then
+        return false
+    end
     return true;
 end
 
 -- Returns the default ordered array of column IDs (Optional columns stay in Unused by default)
-GRM_R.GetDefaultRosterColumns = function()
+local function GetDefaultRosterColumns()
     if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
         return { "lvl", "name", "nickname", "lastOnline", "rank", "mplus", "note", "onote", "cnote" };
     else
@@ -43,10 +50,12 @@ GRM_R.GetDefaultRosterColumns = function()
 end
 
 -- Ensures GRM.S().rosterColumns is initialized and valid for the current game build
-GRM_R.EnsureRosterColumnsValid = function()
-    if not GRM.S() then return GRM_R.GetDefaultRosterColumns() end
+local function EnsureRosterColumnsValid()
+    if not GRM.S() then
+        return GetDefaultRosterColumns()
+    end
     if type(GRM.S().rosterColumns) ~= "table" or #GRM.S().rosterColumns == 0 then
-        GRM.S().rosterColumns = GRM_R.GetDefaultRosterColumns();
+        GRM.S().rosterColumns = GetDefaultRosterColumns();
     end
 
     local validList = {};
@@ -54,11 +63,13 @@ GRM_R.EnsureRosterColumnsValid = function()
     local hasName = false;
 
     for _, id in ipairs(GRM.S().rosterColumns) do
-        local def = GRM_R.ColumnDefById[id];
-        if def and not seen[id] and GRM_R.IsColumnSupported(def) then
+        local def = ColumnDefById[id];
+        if def and not seen[id] and IsColumnSupported(def) then
             table.insert(validList, id);
             seen[id] = true;
-            if id == "name" then hasName = true end
+            if id == "name" then
+                hasName = true
+            end
         end
     end
 
@@ -75,10 +86,18 @@ local function CompareNicknames(a, b, isAscending)
     local nickA = (a.nickname and a.nickname ~= "") and string.lower(a.nickname) or nil;
     local nickB = (b.nickname and b.nickname ~= "") and string.lower(b.nickname) or nil;
 
-    if nickA and not nickB then return true end
-    if not nickA and nickB then return false end
-    if not nickA and not nickB then return a.name < b.name end
-    if nickA == nickB then return a.name < b.name end
+    if nickA and not nickB then
+        return true
+    end
+    if not nickA and nickB then
+        return false
+    end
+    if not nickA and not nickB then
+        return a.name < b.name
+    end
+    if nickA == nickB then
+        return a.name < b.name
+    end
 
     if isAscending then
         return nickA < nickB;
@@ -89,10 +108,18 @@ end
 
 -- Helper: Smart Nullable Value Comparator (keeps valid values at the top, and nil/unknown values at the bottom)
 local function CompareNullableValues(valA, valB, nameA, nameB, isAscending)
-    if valA ~= nil and valB == nil then return true end
-    if valA == nil and valB ~= nil then return false end
-    if valA == nil and valB == nil then return nameA < nameB end
-    if valA == valB then return nameA < nameB end
+    if valA ~= nil and valB == nil then
+        return true
+    end
+    if valA == nil and valB ~= nil then
+        return false
+    end
+    if valA == nil and valB == nil then
+        return nameA < nameB
+    end
+    if valA == valB then
+        return nameA < nameB
+    end
 
     if isAscending then
         return valA < valB;
@@ -101,10 +128,120 @@ local function CompareNullableValues(valA, valB, nameA, nameB, isAscending)
     end
 end
 
--- Method:          GRM_R.BuildRosterFrames()
+-- Method:          GRM_UI.LoadRosterFrame()
+GRM_UI.LoadRosterFrame = function( firstLoad )
+    if not GRM_G.RosterFrameInitialized then
+        if IsInGuild() then
+            if not GRM_G.currentlyPatching and GRM.GetGuild() and GRM.S() then
+                GRM_UI.BuildRosterFrames();
+                GRM_G.RosterFrameInitialized = true;
+
+                GRM_UI.GRM_RosterFrame:ClearAllPoints();
+                if GRM.S().RosterFramePOS[1] == "" then
+                    GRM_UI.GRM_RosterFrame:SetPoint ( "CENTER" , UIParent , "CENTER" , 0 , 0 );
+                else
+                    GRM_UI.GRM_RosterFrame:SetPoint ( GRM.S().RosterFramePOS[1] , UIParent , GRM.S().RosterFramePOS[2] , GRM.S().RosterFramePOS[3] , GRM.S().RosterFramePOS[4] );
+                end
+
+                if not firstLoad then
+                    GRM_UI.GRM_RosterFrame:Show();
+                end
+            else
+                GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
+            end
+        else
+            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Player is Not Currently in a Guild" ) );
+        end
+
+    elseif GRM_UI.GRM_RosterFrame:IsVisible() then
+        GRM_UI.GRM_RosterFrame:Hide();
+    else
+        if GRM.GetGuild() and GRM.S() then
+            GRM_UI.GRM_RosterFrame:Show();
+        else
+            GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
+        end
+    end
+end
+
+-- Method:          GRM_UI.InitializeRosterLoadButton ( frame , table , table , table )
+GRM_UI.InitializeRosterLoadButton = function ( parentFrame , points , size , textureSize )
+    parentFrame.GRM_RosterTab = CreateFrame ( "Button" , "GRM_RosterTab" , parentFrame , "UIPanelButtonGrayTemplate" );
+    GRM.CreateTexture ( parentFrame.GRM_RosterTab , "GRM_RosterIconTexture" , "OVERLAY" , false );
+
+    parentFrame.GRM_RosterTab:SetSize ( size[1] , size[2] );
+    parentFrame.GRM_RosterTab:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
+    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 2.5 , -1.5 );
+
+    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\GRM_Logo.blp" );
+    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetWidth ( textureSize[1] );
+    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetHeight ( textureSize[2] );
+
+    parentFrame.GRM_RosterTab:SetScript ( "OnEnter" , function ( self )
+        GRM_UI.SetTooltipScale();
+        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+        if IsInGuild() then
+            local slashCommand = "/roster";
+            if GRM_L["/YYYY"] ~= true then
+                slashCommand = GRM_L["/YYYY"];
+            end
+            GameTooltip:AddLine ( GRM.L ( "GRM Custom Guild Roster" ) );
+            GameTooltip:AddLine ( GRM.L ( "{custom1} to Open" , nil , nil , nil , slashCommand ) );
+        else
+            GameTooltip:AddLine ( GRM.L ( "Player is Not Currently in a Guild" ) );
+        end
+
+        GameTooltip:Show();
+    end);
+    parentFrame.GRM_RosterTab:SetScript ( "OnLeave" , function ()
+        GRM.RestoreTooltip()
+    end);
+
+    parentFrame.GRM_RosterTab:SetScript ( "OnClick" , function ( _ , button)
+        if button == "LeftButton" then
+            GRM_UI.LoadRosterFrame();
+        end
+    end);
+end
+
+-- Method:          GRM_UI.ConfigureMacroForRightClick ( int , table )
+GRM_UI.ConfigureMacroForRightClick = function ( tabNum , entries )
+    GRM_UI.GRM_ToolCoreFrame.TabPosition = tabNum;
+    C_Timer.After ( 0.1 , function()
+        GRM_UI.ConfigureToolTab();
+        if GRM_UI.GRM_ToolCoreFrame.rightClickMode and #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > 0 then
+            if ( entries[1].action == "Kick" and GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Kick" ) or (
+                ( entries[1].action == "Promote" or entries[1].action == "Demote" ) and ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Promote" or GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Demote" ) ) then
+
+                for i = 1, #entries do
+                    table.insert(GRM_UI.GRM_ToolCoreFrame.QueuedEntries , entries[i] );
+                end
+                entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
+            else
+                local msg = "";
+                if entries[1].action == "Kick" then
+                    msg = GRM.L ( "Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to Kick will remove {num} player(s) you currently have queued up for rank changes." , nil , nil , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries ) .. "\n\n" .. GRM.L ( "Do you wish to continue?" );
+                elseif entries[1].action == "Promote" or entries[1].action == "Demote" then
+                    msg = GRM.L ( "Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to {custom1} will remove {num} player(s) you currently have qued up to kick.", nil , nil , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries , entries[1].action ) .. "\n\n" .. GRM.L ( "Do you wish to continue?" );
+                end
+                local confirmLogic = function()
+                    GRM_UI.GRM_ToolCoreFrame.rightClickMode = true;
+                    GRM_UI.RefreshManagementTool( entries );
+                end
+
+                GRM.SetConfirmationWindow(confirmLogic, msg, nil, { 400 , 175 });
+                return;
+            end
+        end
+        GRM_UI.GRM_ToolCoreFrame.rightClickMode = true;
+        GRM_UI.RefreshManagementTool( entries );
+    end)
+end
+
+-- Method:          GRM_UI.BuildRosterFrames( bool )
 -- What it Does:    Initiates building of all of the Custom GRM Guild Roster window
 -- Purpose:         Provide players more controls than default communities offers.
-GRM_R.BuildRosterFrames = function ()
+GRM_UI.BuildRosterFrames = function ( isManualUpdate )
     local coreSize = 1175;
     local coreHybridSize = 1120;
 
@@ -125,14 +262,14 @@ GRM_R.BuildRosterFrames = function ()
     -- So it can be called in AddonSkins
     GRM_UI.RosterFrameSetScript = function()
         GRM_R.LayoutRosterColumns();
-        GRM_R.RefreshRosterName();
+        GRM_UI.RefreshRosterName();
         GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameSlider.ThumbTexture:Show()
         GRM_UI.GRM_Mouseover:Hide();
 
         GRM_R.ConfigureRosterOptions();
     end
 
-    if not GRM_UI.GRM_RosterFrame:GetScript("OnShow") then
+    if not isManualUpdate and not GRM_UI.GRM_RosterFrame:GetScript("OnShow") then
         GRM_UI.GRM_RosterFrame:SetScript ( "OnShow" , GRM_UI.RosterFrameSetScript )
     end
 
@@ -161,7 +298,7 @@ GRM_R.BuildRosterFrames = function ()
     GRM_UI.CreateString ( "GRM_RosterFrameTitle" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Guild Roster" ) , 18 , { "TOP" , GRM_UI.GRM_RosterFrame , "TOP" , 0 , -17 } );
 
     -- Create All Column Header Buttons from Registry
-    for _, def in ipairs(GRM_R.ColumnDefs) do
+    for _, def in ipairs(ColumnDefs) do
         GRM_UI.CreateButton (
             def.header,
             GRM_UI.GRM_RosterFrame,
@@ -189,12 +326,14 @@ GRM_R.BuildRosterFrames = function ()
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.rankIndex = 0;
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.canKick = false
 
-    GRM_UI.GRM_RosterFrame:SetScript ( "OnHide" , function()
-        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
-        if GRM_UI.GRM_RosterFrame.GRM_RosterColumnConfig then
-            GRM_UI.GRM_RosterFrame.GRM_RosterColumnConfig:Hide();
-        end
-    end)
+    if not isManualUpdate then
+        GRM_UI.GRM_RosterFrame:SetScript ( "OnHide" , function()
+            GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
+            if GRM_UI.GRM_RosterFrame.GRM_RosterColumnConfig then
+                GRM_UI.GRM_RosterFrame.GRM_RosterColumnConfig:Hide();
+            end
+        end)
+    end
 
     -- Guild Roster Title
     GRM_UI.CreateString ( "GRM_RosterFrameDropDownName" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown , "GameFontNormal" , "" , 13 , { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown , "TOPLEFT" , 7 , -7 } , 100 , nil , "LEFT" , false );
@@ -219,72 +358,75 @@ GRM_R.BuildRosterFrames = function ()
     -- Cancel
     GRM_UI.CreateButton ( "GRM_RosterDropDownCancel" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown , nil , GRM.L ( "Cancel" ) , 100 , 22 , { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownWhisper , "BOTTOMLEFT" , 0 , -3 } , GRM_R.RosterRightClickCancel , "GameFontWhite" , 12 , "LEFT" , 5 , -5 );
 
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownKick:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownWhisper:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownCancel:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+    if not isManualUpdate then
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownKick:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownWhisper:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownCancel:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
 
-    -- Tooltip Promote
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:SetScript ( "OnEnter" , function( self )
-        if GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.numPromoteRanks == 0 then
-            GRM_UI.SetTooltipScale()
-            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            if CanGuildPromote() then
-                GameTooltip:AddLine( GRM.L ( "Unable to Promote players at this rank" ) );
+        -- Tooltip Promote
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:SetScript ( "OnEnter" , function( self )
+            if GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.numPromoteRanks == 0 then
+                GRM_UI.SetTooltipScale()
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                if CanGuildPromote() then
+                    GameTooltip:AddLine( GRM.L ( "Unable to Promote players at this rank" ) );
+                else
+                    GameTooltip:AddLine( GRM.L ( "No Rank Permission to Promote" ) );
+                end
+                GameTooltip:Show();
             else
-                GameTooltip:AddLine( GRM.L ( "No Rank Permission to Promote" ) );
+                GRM_R.BuildPromotionRankSelectionDropDown( self );
             end
-            GameTooltip:Show();
-        else
-            GRM_R.BuildPromotionRankSelectionDropDown( self );
-        end
-    end);
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-        if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:IsMouseOver() then
-            GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:Hide();
-        end
-    end)
+        end);
 
-    -- Tooltip Demote
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:SetScript ( "OnEnter" , function( self )
-        if GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.numDemoteRanks == 0 then
-            GRM_UI.SetTooltipScale()
-            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            if CanGuildDemote() then
-                GameTooltip:AddLine( GRM.L ( "Unable to Demote players at this rank" ) );
-            else
-                GameTooltip:AddLine( GRM.L ( "No Rank Permission to Demote" ) );
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip()
+            if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:IsMouseOver() then
+                GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:Hide();
             end
-            GameTooltip:Show();
-        else
-            GRM_R.BuildDemotionRankSelectionDropDown( self );
-        end
-    end);
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip()
-        if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:IsMouseOver() then
-            GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:Hide();
-        end
-    end)
+        end)
 
-    -- Tooltip Kick
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownKick:SetScript ( "OnEnter" , function( self )
-        if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.canKick then
-            GRM_UI.SetTooltipScale()
-            GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-            if CanGuildRemove() then
-                GameTooltip:AddLine( GRM.L ( "Unable to kick players at this rank" ) );
+        -- Tooltip Demote
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:SetScript ( "OnEnter" , function( self )
+            if GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.numDemoteRanks == 0 then
+                GRM_UI.SetTooltipScale()
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                if CanGuildDemote() then
+                    GameTooltip:AddLine( GRM.L ( "Unable to Demote players at this rank" ) );
+                else
+                    GameTooltip:AddLine( GRM.L ( "No Rank Permission to Demote" ) );
+                end
+                GameTooltip:Show();
             else
-                GameTooltip:AddLine( GRM.L ( "No Rank Permission to Kick" ) );
+                GRM_R.BuildDemotionRankSelectionDropDown( self );
             end
-            GameTooltip:Show();
-        end
-    end);
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownKick:SetScript ( "OnLeave" , function()
-        GRM.RestoreTooltip();
-    end)
+        end);
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip()
+            if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:IsMouseOver() then
+                GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:Hide();
+            end
+        end)
+
+        -- Tooltip Kick
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownKick:SetScript ( "OnEnter" , function( self )
+            if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.canKick then
+                GRM_UI.SetTooltipScale()
+                GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
+                if CanGuildRemove() then
+                    GameTooltip:AddLine( GRM.L ( "Unable to kick players at this rank" ) );
+                else
+                    GameTooltip:AddLine( GRM.L ( "No Rank Permission to Kick" ) );
+                end
+                GameTooltip:Show();
+            end
+        end);
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownKick:SetScript ( "OnLeave" , function()
+            GRM.RestoreTooltip();
+        end)
+    end
 
     -- Rank selection - Right click menu
     GRM_UI.CreateCoreFrame ( "GRM_RosterFrameDropDownRank" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown , nil , 135 , 210 , BackdropTemplateMixin and "BackdropTemplate" , false , nil , "FULLSCREEN_DIALOG" , false , true );
@@ -297,42 +439,37 @@ GRM_R.BuildRosterFrames = function ()
     -- Guild Roster Title
     GRM_UI.CreateString ( "GRM_RosterFrameDropDownRankText" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank , "GameFontNormal" , "" , 12 , { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank , "TOPLEFT" , 7 , -7 } , 125 , nil , "LEFT" , false );
 
-    -- Set the 9 possible rank options
-    local points = { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank.GRM_RosterFrameDropDownRankText , "BOTTOMLEFT" , 0 , -8 };
-    for i = 1 , 9 do
-        if i > 1 then
-            points = { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank["GRM_RosterDropDownRankButton" .. ( i-1 )] , "BOTTOMLEFT" , 0 , -1 };
+    if not isManualUpdate then
+        -- Set the 9 possible rank options
+        local points = { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank.GRM_RosterFrameDropDownRankText , "BOTTOMLEFT" , 0 , -8 };
+        for i = 1 , 9 do
+            if i > 1 then
+                points = { "TOPLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank["GRM_RosterDropDownRankButton" .. ( i-1 )] , "BOTTOMLEFT" , 0 , -1 };
+            end
+
+            GRM_UI.CreateButton ( "GRM_RosterDropDownRankButton" .. i , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank , nil , "" , ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:GetWidth() - 5 ) , 20 , points , GRM_R.RankSelection , "GameFontWhite" , 12 , "LEFT" , 10 , 0 );
+
+            GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank["GRM_RosterDropDownRankButton" .. i]:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
+            GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank["GRM_RosterDropDownRankButton" .. i].destinationRank = 0;
         end
+    
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:SetScript ( "OnHide" , function()
+            GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:Hide();
+        end);
 
-        GRM_UI.CreateButton ( "GRM_RosterDropDownRankButton" .. i , GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank , nil , "" , ( GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:GetWidth() - 5 ) , 20 , points , GRM_R.RankSelection , "GameFontWhite" , 12 , "LEFT" , 10 , 0 );
-
-        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank["GRM_RosterDropDownRankButton" .. i]:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
-        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank["GRM_RosterDropDownRankButton" .. i].destinationRank = 0;
+        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:SetScript ( "OnLeave" , function( self )
+            if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:IsMouseOver() and not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:IsMouseOver() and not GRM_R.IsOverAnyRankSelectionButtons() then
+                self:Hide();
+            end
+        end)
     end
-
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:SetScript ( "OnHide" , function()
-        GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:Hide();
-    end);
-
-    GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterFrameDropDownRank:SetScript ( "OnLeave" , function( self )
-        if not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownPromote:IsMouseOver() and not GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.GRM_RosterDropDownDemote:IsMouseOver() and not GRM_R.IsOverAnyRankSelectionButtons() then
-            self:Hide();
-        end
-    end)
 
     -- SEARCH EDIT BOXES (Pinned near outer edges of ScrollFrameBorder so they never collide with "Guild Roster" title!)
-    GRM_UI.CreateEditBox ( "GRM_RosterFrameNameEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 165 , 30 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameBorder , "TOPLEFT" , 15 , 21 } , "CENTER" , nil , 50 , false , GRM_R.NameSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName , true , true );
+    GRM_UI.CreateEditBox ( "GRM_RosterFrameNameEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 165 , 30 , { "BOTTOMLEFT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameBorder , "TOPLEFT" , 15 , 21 } , "CENTER" , nil , 50 , false , GRM_R.NameSearchTT , GRM_R.TooltipReset , GRM_UI.RefreshRosterName , true , true );
     GRM_UI.CreateString ( "GRM_RosterFrameNameEditBoxText" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Player Search" ) , 16 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox , "TOP" , 0 , 3 } , 155 , nil , "CENTER" , false );
 
-    GRM_UI.CreateEditBox ( "GRM_RosterNoteEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 200 , 30 , { "BOTTOMRIGHT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameBorder , "TOPRIGHT" , -15 , 21 } , "LEFT" , nil , 31 , false , GRM_R.NoteSearchTT , GRM_R.TooltipReset , GRM_R.RefreshRosterName , true , false );
+    GRM_UI.CreateEditBox ( "GRM_RosterNoteEditBox" , GRM_UI.GRM_RosterFrame , "InputBoxTemplate" , 200 , 30 , { "BOTTOMRIGHT" , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameBorder , "TOPRIGHT" , -15 , 21 } , "LEFT" , nil , 31 , false , GRM_R.NoteSearchTT , GRM_R.TooltipReset , GRM_UI.RefreshRosterName , true , false );
     GRM_UI.CreateString ( "GRM_RosterNoteEditBoxText" , GRM_UI.GRM_RosterFrame , "GameFontNormal" , GRM.L ( "Note Search" ) , 16 , { "BOTTOM" , GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox , "TOP" , 0 , 3 } , 205 , nil , "CENTER" , false );
-
-    GRM_R.ClearPlayerSearch = function()
-        GRM_UI.GRM_RosterFrame.GRM_RosterFrameNameEditBox:SetText("");
-    end
-    GRM_R.ClearNoteSearch = function()
-        GRM_UI.GRM_RosterFrame.GRM_RosterNoteEditBox:SetText("");
-    end
 
     -- Show Offline Checkbox
     GRM_UI.CreateCheckBox ( "GRM_RosterShowOfflineCheckBox" , GRM_UI.GRM_RosterFrame , nil , nil , { "TOPLEFT" , GRM_UI.GRM_RosterFrame , "TOPLEFT" , 15 , -15 } , GRM_R.ShowOfflineLogic , GRM.L ( "Show Offline Members" ) , "GameFontNormal" , 11 );
@@ -414,7 +551,7 @@ GRM_R.BuildRosterFrames = function ()
             GRM.S().rosterColumns = { "name" };
             GRM_R.LayoutRosterColumns();
             GRM_R.UpdateColumnConfigUI();
-            GRM_R.RefreshRosterName(true);
+            GRM_UI.RefreshRosterName(true);
         end,
         "GameFontNormal",
         10,
@@ -430,10 +567,10 @@ GRM_R.BuildRosterFrames = function ()
         20,
         { "TOPRIGHT", colCfg, "TOPRIGHT", -30, -10 },
         function()
-            GRM.S().rosterColumns = GRM_R.GetDefaultRosterColumns();
+            GRM.S().rosterColumns = GetDefaultRosterColumns();
             GRM_R.LayoutRosterColumns();
             GRM_R.UpdateColumnConfigUI();
-            GRM_R.RefreshRosterName(true);
+            GRM_UI.RefreshRosterName(true);
         end,
         "GameFontNormal",
         10,
@@ -456,7 +593,7 @@ GRM_R.BuildRosterFrames = function ()
 
         -- Create Drop Divider Bars ("|") for the Active Row (10 slots for up to 9 columns)
         colCfg.Dividers = {};
-        for i = 1, #GRM_R.ColumnDefs + 1 do
+        for i = 1, #ColumnDefs + 1 do
             local div = CreateFrame("Frame", nil, colCfg);
             div:SetSize(10, 26);
             div.Bar = div:CreateTexture(nil, "OVERLAY");
@@ -469,7 +606,7 @@ GRM_R.BuildRosterFrames = function ()
 
         -- Create Draggable/Clickable Column Pill Buttons for each ColumnDef
         colCfg.ColButtons = {};
-        for _, def in ipairs(GRM_R.ColumnDefs) do
+        for _, def in ipairs(ColumnDefs) do
             local btn = CreateFrame("Button", "GRM_ColMgrBtn_" .. def.id, colCfg, "UIPanelButtonTemplate");
             btn:SetHeight(24);
             btn.colId = def.id;
@@ -569,7 +706,7 @@ GRM_R.BuildRosterFrames = function ()
 
             -- Find which "|" divider in the Active Row is closest to the cursor X
             local cursorFrameX = cx / uiScale;
-            local activeCols = GRM_R.EnsureRosterColumnsValid();
+            local activeCols = EnsureRosterColumnsValid();
             local numDivs = #activeCols + 1;
             local bestIdx = 1;
             local bestDist = 999999;
@@ -625,9 +762,9 @@ end
 -- Method:          GRM_R.ToggleColumnActive( string )
 -- What it Does:    Called when clicking (without dragging) a column button to move it between Active and Unused
 GRM_R.ToggleColumnActive = function(colId)
-    local activeCols = GRM_R.EnsureRosterColumnsValid();
-    local def = GRM_R.ColumnDefById[colId];
-    if not GRM_R.IsColumnSupported(def) then return end
+    local activeCols = EnsureRosterColumnsValid();
+    local def = ColumnDefById[colId];
+    if not IsColumnSupported(def) then return end
 
     local foundIdx = nil;
     for i, id in ipairs(activeCols) do
@@ -649,15 +786,15 @@ GRM_R.ToggleColumnActive = function(colId)
 
     GRM_R.LayoutRosterColumns();
     GRM_R.UpdateColumnConfigUI();
-    GRM_R.RefreshRosterName(true);
+    GRM_UI.RefreshRosterName(true);
 end
 
 -- Method:          GRM_R.MoveOrInsertColumn( string, int )
 -- What it Does:    Moves an active column or inserts an unused column into the exact "|" drop slot!
 GRM_R.MoveOrInsertColumn = function(colId, targetDropIdx)
-    local activeCols = GRM_R.EnsureRosterColumnsValid();
-    local def = GRM_R.ColumnDefById[colId];
-    if not GRM_R.IsColumnSupported(def) then
+    local activeCols = EnsureRosterColumnsValid();
+    local def = ColumnDefById[colId];
+    if not IsColumnSupported(def) then
         GRM_R.UpdateColumnConfigUI();
         return;
     end
@@ -691,7 +828,7 @@ GRM_R.MoveOrInsertColumn = function(colId, targetDropIdx)
 
     GRM_R.LayoutRosterColumns();
     GRM_R.UpdateColumnConfigUI();
-    GRM_R.RefreshRosterName(true);
+    GRM_UI.RefreshRosterName(true);
 end
 
 -- Helper: Visually greys out or restores a UIPanelButtonTemplate while keeping OnEnter tooltips active!
@@ -723,7 +860,7 @@ GRM_R.UpdateColumnConfigUI = function()
     local colCfg = GRM_UI.GRM_RosterFrame and GRM_UI.GRM_RosterFrame.GRM_RosterColumnConfig;
     if not colCfg or not colCfg.initialized then return end
 
-    local activeCols = GRM_R.EnsureRosterColumnsValid();
+    local activeCols = EnsureRosterColumnsValid();
     local activeSet = {};
     for _, id in ipairs(activeCols) do
         activeSet[id] = true;
@@ -732,7 +869,7 @@ GRM_R.UpdateColumnConfigUI = function()
     for i = 1, #colCfg.Dividers do
         colCfg.Dividers[i]:Hide();
     end
-    for _, def in ipairs(GRM_R.ColumnDefs) do
+    for _, def in ipairs(ColumnDefs) do
         if colCfg.ColButtons[def.id] then
             colCfg.ColButtons[def.id]:Hide();
         end
@@ -743,7 +880,7 @@ GRM_R.UpdateColumnConfigUI = function()
     local activeRowWidth = 14;
 
     for i, id in ipairs(activeCols) do
-        local def = GRM_R.ColumnDefById[id];
+        local def = ColumnDefById[id];
         local btn = colCfg.ColButtons[id];
         local div = colCfg.Dividers[i];
 
@@ -790,13 +927,13 @@ GRM_R.UpdateColumnConfigUI = function()
 
     -- 2. Collect Unused Columns: Group Disabled/Unsupported columns on the FAR LEFT first, then usable columns!
     local orderedUnusedDefs = {};
-    for _, def in ipairs(GRM_R.ColumnDefs) do
-        if not activeSet[def.id] and not GRM_R.IsColumnSupported(def) then
+    for _, def in ipairs(ColumnDefs) do
+        if not activeSet[def.id] and not IsColumnSupported(def) then
             table.insert(orderedUnusedDefs, def);
         end
     end
-    for _, def in ipairs(GRM_R.ColumnDefs) do
-        if not activeSet[def.id] and GRM_R.IsColumnSupported(def) then
+    for _, def in ipairs(ColumnDefs) do
+        if not activeSet[def.id] and IsColumnSupported(def) then
             table.insert(orderedUnusedDefs, def);
         end
     end
@@ -810,7 +947,7 @@ GRM_R.UpdateColumnConfigUI = function()
     for _, def in ipairs(orderedUnusedDefs) do
         local btn = colCfg.ColButtons[def.id];
         if btn then
-            local isSupported = GRM_R.IsColumnSupported(def);
+            local isSupported = IsColumnSupported(def);
             btn:SetAlpha(1.0);
             btn.isActiveCol = false;
             btn.Text:SetFont(GRM_G.FontChoice, GRM_G.FontModifier + 11);
@@ -858,14 +995,14 @@ end
 GRM_R.LayoutRosterColumns = function()
     if not GRM_UI.GRM_RosterFrame then return end
 
-    local activeCols = GRM_R.EnsureRosterColumnsValid();
+    local activeCols = EnsureRosterColumnsValid();
     local activeSet = {};
     for _, id in ipairs(activeCols) do
         activeSet[id] = true;
     end
 
     -- 1. Hide inactive Column Headers
-    for _, def in ipairs(GRM_R.ColumnDefs) do
+    for _, def in ipairs(ColumnDefs) do
         local headerBtn = GRM_UI.GRM_RosterFrame[def.header];
         if headerBtn and not activeSet[def.id] then
             headerBtn:Hide();
@@ -878,7 +1015,7 @@ GRM_R.LayoutRosterColumns = function()
     local anyNoteActive = false;
 
     for i, id in ipairs(activeCols) do
-        local def = GRM_R.ColumnDefById[id];
+        local def = ColumnDefById[id];
         local headerBtn = GRM_UI.GRM_RosterFrame[def.header];
         if def and headerBtn then
             headerBtn:ClearAllPoints();
@@ -966,7 +1103,7 @@ GRM_R.LayoutSingleRosterRow = function(rowTable, activeCols, activeSet, buttonWi
     end
 
     -- Hide inactive FontStrings and Note Tooltip overlays
-    for _, def in ipairs(GRM_R.ColumnDefs) do
+    for _, def in ipairs(ColumnDefs) do
         local fs = rowTable[def.textIdx];
         if fs and not activeSet[def.id] then
             fs:Hide();
@@ -979,7 +1116,7 @@ GRM_R.LayoutSingleRosterRow = function(rowTable, activeCols, activeSet, buttonWi
     -- Anchor active FontStrings left-to-right so their spacing matches the Headers identically!
     local prevFS = nil;
     for i, id in ipairs(activeCols) do
-        local def = GRM_R.ColumnDefById[id];
+        local def = ColumnDefById[id];
         local fs = def and rowTable[def.textIdx];
         if def and fs then
             fs:ClearAllPoints();
@@ -1158,40 +1295,6 @@ GRM_R.RankSelection = function( button )
     end
 end
 
--- Method:          GRM_R.ConfigureMacroForRightClick ( int , table )
-GRM_R.ConfigureMacroForRightClick = function ( tabNum , entries )
-    GRM_UI.GRM_ToolCoreFrame.TabPosition = tabNum;
-    C_Timer.After ( 0.1 , function()
-        GRM_UI.ConfigureToolTab();
-        if GRM_UI.GRM_ToolCoreFrame.rightClickMode and #GRM_UI.GRM_ToolCoreFrame.QueuedEntries > 0 then
-            if ( entries[1].action == "Kick" and GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Kick" ) or (
-                ( entries[1].action == "Promote" or entries[1].action == "Demote" ) and ( GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Promote" or GRM_UI.GRM_ToolCoreFrame.QueuedEntries[1].action == "Demote" ) ) then
-
-                for i = 1, #entries do
-                    table.insert(GRM_UI.GRM_ToolCoreFrame.QueuedEntries , entries[i] );
-                end
-                entries = GRM_UI.GRM_ToolCoreFrame.QueuedEntries;
-            else
-                local msg = "";
-                if entries[1].action == "Kick" then
-                    msg = GRM.L ( "Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to Kick will remove {num} player(s) you currently have queued up for rank changes." , nil , nil , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries ) .. "\n\n" .. GRM.L ( "Do you wish to continue?" );
-                elseif entries[1].action == "Promote" or entries[1].action == "Demote" then
-                    msg = GRM.L ( "Warning! You cannot combine promotions or demotion with kick macros using this tool. Selecting a player to {custom1} will remove {num} player(s) you currently have qued up to kick.", nil , nil , #GRM_UI.GRM_ToolCoreFrame.QueuedEntries , entries[1].action ) .. "\n\n" .. GRM.L ( "Do you wish to continue?" );
-                end
-                local confirmLogic = function()
-                    GRM_UI.GRM_ToolCoreFrame.rightClickMode = true;
-                    GRM_UI.RefreshManagementTool( entries );
-                end
-
-                GRM.SetConfirmationWindow(confirmLogic, msg, nil, { 400 , 175 });
-                return;
-            end
-        end
-        GRM_UI.GRM_ToolCoreFrame.rightClickMode = true;
-        GRM_UI.RefreshManagementTool( entries );
-    end)
-end
-
 -- Method:          GRM_R.PromotePlayer ( button )
 GRM_R.PromotePlayer = function ( button )
     local promoEntries = GRM.BuildCustomPromoteEntries ( { GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown.playerName } , false , button );
@@ -1201,7 +1304,7 @@ GRM_R.PromotePlayer = function ( button )
         GRM_UI.GRM_ToolCoreFrame:Show();
     end
 
-    GRM_R.ConfigureMacroForRightClick( 2 , promoEntries);
+    GRM_UI.ConfigureMacroForRightClick( 2 , promoEntries);
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
 end
 
@@ -1214,7 +1317,7 @@ GRM_R.DemotePlayer = function( button )
         GRM_UI.GRM_ToolCoreFrame:Show();
     end
 
-    GRM_R.ConfigureMacroForRightClick ( 3 , demoteEntries );
+    GRM_UI.ConfigureMacroForRightClick ( 3 , demoteEntries );
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
 end
 
@@ -1228,7 +1331,7 @@ GRM_R.KickPlayer = function()
             GRM_UI.GRM_ToolCoreFrame:Show();
         end
 
-        GRM_R.ConfigureMacroForRightClick( 1 , kickEntries );
+        GRM_UI.ConfigureMacroForRightClick( 1 , kickEntries );
         GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
     end
 end
@@ -1273,9 +1376,9 @@ end
 
 local toonsAdded = {};
 local mainsShown = {};
--- Method:          GRM_R.GetAllMembersAsArray( string , string )
+-- Method:          GetAllMembersAsArray( string , string )
 -- What it Does:    Returns an unsorted list of all guild members as an array, as well as some accompanying details.
-GRM_R.GetAllMembersAsArray = function( nameSearch , noteSearch )
+local function GetAllMembersAsArray( nameSearch , noteSearch )
     local result = {};
     local guildData = GRM.GetGuild();
     local addPlayer;
@@ -1510,7 +1613,7 @@ GRM_R.SortNames = function ( _ , keepType , reSizeButtons )
             GRM_UI.GRM_RosterFrame.SortType = 1;
         end
     end
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 1 then
         sort ( members , function ( a , b ) return a.name < b.name end );
@@ -1567,7 +1670,7 @@ GRM_R.SortNickname = function ( _ , keepType , reSizeButtons )
         end
     end
 
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
     local isAscending = (GRM_UI.GRM_RosterFrame.SortType == 17);
 
     sort ( members , function ( a , b ) return CompareNicknames(a, b, isAscending) end );
@@ -1614,7 +1717,7 @@ local function SortByOptionalColumn(minType, maxType, keepType, reSizeButtons, c
         end
     end
 
-    local members = GRM_R.GetAllMembersAsArray(nameSearch, noteSearch);
+    local members = GetAllMembersAsArray(nameSearch, noteSearch);
     local isAscending = (GRM_UI.GRM_RosterFrame.SortType == minType);
 
     sort(members, function(a, b) return compareFunc(a, b, isAscending) end);
@@ -1689,7 +1792,7 @@ GRM_R.SortLastOnline = function ( _ , keepType , reSizeButtons )
         end
     end
 
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 3 then
         sort ( members , function ( a , b ) return a.lastOnline < b.lastOnline end );
@@ -1744,7 +1847,7 @@ GRM_R.SortMythicScore = function ( _ , keepType , reSizeButtons )
         end
     end
 
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 9 then
         sort ( members , function ( a , b ) return a.MythicScore > b.MythicScore end );
@@ -1799,7 +1902,7 @@ GRM_R.SortNote = function ( _ , keepType , reSizeButtons )
             GRM_UI.GRM_RosterFrame.SortType = 11;
         end
     end
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 11 then
         sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.note ) ) < string.lower ( GRM.Util.Trim ( b.note ) ) end );
@@ -1854,7 +1957,7 @@ GRM_R.SortOfficerNote = function ( _ , keepType , reSizeButtons )
             GRM_UI.GRM_RosterFrame.SortType = 13;
         end
     end
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 13 then
         sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.officerNote ) ) < string.lower ( GRM.Util.Trim ( b.officerNote ) ) end );
@@ -1909,7 +2012,7 @@ GRM_R.SortCustomNote = function ( _ , keepType , reSizeButtons )
             GRM_UI.GRM_RosterFrame.SortType = 15;
         end
     end
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 15 then
         sort ( members , function ( a , b ) return string.lower ( GRM.Util.Trim ( a.customNote ) ) < string.lower ( GRM.Util.Trim ( b.customNote ) ) end );
@@ -1966,7 +2069,7 @@ GRM_R.SortRank = function ( _ , keepType , reSizeButtons )
         end
     end
 
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch , noteSearch );
+    local members = GetAllMembersAsArray ( nameSearch , noteSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 5 then
         sort ( members , function ( a , b ) return a.rankIndex < b.rankIndex end );
@@ -2288,7 +2391,7 @@ GRM_R.SortLevel = function ( _ , keepType , reSizeButtons )
         end
     end
 
-    local members = GRM_R.GetAllMembersAsArray ( nameSearch );
+    local members = GetAllMembersAsArray ( nameSearch );
 
     if GRM_UI.GRM_RosterFrame.SortType == 7 then
         sort ( members , function ( a , b ) return a.level > b.level end );
@@ -2334,9 +2437,9 @@ GRM_R.RosterRightClickWhisper = function()
     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Hide();
 end
 
--- Method:          GRM_R.RefreshRosterName( bool )
+-- Method:          GRM_UI.RefreshRosterName( bool )
 -- What it Does:    Refreshes the guild custom roster without changing sort direction
-GRM_R.RefreshRosterName = function ( reSizeButtons )
+GRM_UI.RefreshRosterName = function ( reSizeButtons )
 
     if GRM_UI.GRM_RosterFrame.SortType < 3 then
         GRM_R.SortNames ( nil , true , reSizeButtons );
@@ -2449,7 +2552,7 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
 
                 button:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
                 button:SetSize ( buttonWidth , buttonHeight );
-                GRM_R.BuildGuildRosterButtons ( i  , false );
+                GRM_UI.BuildGuildRosterButtons ( i  , false );
 
             elseif reSizeButtons then
                 local button = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[i][1];
@@ -2463,7 +2566,7 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
 
                 button:SetHighlightTexture ( "Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight" );
                 button:SetSize ( buttonWidth , buttonHeight );
-                GRM_R.BuildGuildRosterButtons ( i  , false );
+                GRM_UI.BuildGuildRosterButtons ( i  , false );
             end
         end
 
@@ -2496,9 +2599,9 @@ GRM_R.BuildGuildRoster = function ( showAll , fullRefresh , entries , reSizeButt
     GRM_R.ResetColumnTextColors();
 end
 
--- Method:          GRM_R.BuildGuildRosterButtons ( int , boolean )
+-- Method:          GRM_UI.BuildGuildRosterButtons ( int , boolean )
 -- What it Does:    Initiates the buttons and their values for each line of custom roster
-GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
+GRM_UI.BuildGuildRosterButtons = function ( ind , isResizeAction )
     local rowTable = GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.AllButtons[ind];
     local coreButton = rowTable[1];
     local buttonText1 = rowTable[2];
@@ -2522,7 +2625,7 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
     end
 
     -- Layout columns dynamically according to user's saved column order
-    local activeCols = GRM_R.EnsureRosterColumnsValid();
+    local activeCols = EnsureRosterColumnsValid();
     local activeSet = {};
     for _, id in ipairs(activeCols) do activeSet[id] = true end
     GRM_R.LayoutSingleRosterRow(rowTable, activeCols, activeSet);
@@ -2637,7 +2740,7 @@ GRM_R.BuildGuildRosterButtons = function ( ind , isResizeAction )
                     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:SetPoint ( "TOPRIGHT" , button , "TOPLEFT" , -10 , 0 );
                     GRM_UI.GRM_RosterFrame.GRM_RosterFrameDropDown:Show();
                 else
-                    GRM_R.RefreshRosterName();
+                    GRM_UI.RefreshRosterName();
                 end
             end
         end
@@ -2819,11 +2922,7 @@ GRM_R.SetGuildRosterValues = function ( ind , ind2 )
 
         -- Nickname Column ([13])
         line[13]:SetText ( entry.nickname or "" );
-        if GRM.S() and GRM.S().nicknameTagColor then
-            line[13]:SetTextColor ( GRM.S().nicknameTagColor.r , GRM.S().nicknameTagColor.g , GRM.S().nicknameTagColor.b );
-        else
-            line[13]:SetTextColor ( 0.0 , 0.8 , 1.0 );
-        end
+        line[13]:SetTextColor ( entry.classColor[1] , entry.classColor[2] , entry.classColor[3] );
 
         line[4]:SetText ( entry.hoursReport );
         if entry.hoursReport == GRM.L ( "Online" ) then
@@ -3008,82 +3107,6 @@ GRM_R.RosterSetFirstValue = function()
     GRM_R.SetGuildRosterValues ( 1 , GRM_UI.GRM_RosterFrame.GRM_RosterFrameScrollFrameChild.Offset - numButtons + 1 );
 end
 
--- Method:          GRM_R.LoadRosterFrame()
-GRM_R.LoadRosterFrame = function( firstLoad )
-    if not GRM_G.RosterFrameInitialized then
-        if IsInGuild() then
-            if not GRM_G.currentlyPatching and GRM.GetGuild() and GRM.S() then
-                GRM_R.BuildRosterFrames();
-                GRM_G.RosterFrameInitialized = true;
-
-                GRM_UI.GRM_RosterFrame:ClearAllPoints();
-                if GRM.S().RosterFramePOS[1] == "" then
-                    GRM_UI.GRM_RosterFrame:SetPoint ( "CENTER" , UIParent , "CENTER" , 0 , 0 );
-                else
-                    GRM_UI.GRM_RosterFrame:SetPoint ( GRM.S().RosterFramePOS[1] , UIParent , GRM.S().RosterFramePOS[2] , GRM.S().RosterFramePOS[3] , GRM.S().RosterFramePOS[4] );
-                end
-
-                if not firstLoad then
-                    GRM_UI.GRM_RosterFrame:Show();
-                end
-            else
-                GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
-            end
-        else
-            GRM.Report ( GRM.L ( "GRM:" ) .. " " .. GRM.L ( "Player is Not Currently in a Guild" ) );
-        end
-
-    elseif GRM_UI.GRM_RosterFrame:IsVisible() then
-        GRM_UI.GRM_RosterFrame:Hide();
-    else
-        if GRM.GetGuild() and GRM.S() then
-            GRM_UI.GRM_RosterFrame:Show();
-        else
-            GRM.Report ( GRM.L ( "One moment, GRM is still being configured." ) );
-        end
-    end
-end
-
--- Method:          GRM_R.InitializeRosterLoadButton ( frame , table , table , table )
-GRM_R.InitializeRosterLoadButton = function ( parentFrame , points , size , textureSize )
-    parentFrame.GRM_RosterTab = CreateFrame ( "Button" , "GRM_RosterTab" , parentFrame , "UIPanelButtonGrayTemplate" );
-    GRM.CreateTexture ( parentFrame.GRM_RosterTab , "GRM_RosterIconTexture" , "OVERLAY" , false );
-
-    parentFrame.GRM_RosterTab:SetSize ( size[1] , size[2] );
-    parentFrame.GRM_RosterTab:SetPoint ( points[1] , points[2] , points[3] , points[4] , points[5] );
-    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetPoint ( "CENTER" , parentFrame.GRM_RosterTab , "CENTER" , 2.5 , -1.5 );
-
-    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetTexture ( "Interface\\AddOns\\Guild_Roster_Manager\\media\\Icons\\GRM_Logo.blp" );
-    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetWidth ( textureSize[1] );
-    parentFrame.GRM_RosterTab.GRM_RosterIconTexture:SetHeight ( textureSize[2] );
-
-    parentFrame.GRM_RosterTab:SetScript ( "OnEnter" , function ( self )
-        GRM_UI.SetTooltipScale();
-        GameTooltip:SetOwner ( self , "ANCHOR_CURSOR" );
-        if IsInGuild() then
-            local slashCommand = "/roster";
-            if GRM_L["/YYYY"] ~= true then
-                slashCommand = GRM_L["/YYYY"];
-            end
-            GameTooltip:AddLine ( GRM.L ( "GRM Custom Guild Roster" ) );
-            GameTooltip:AddLine ( GRM.L ( "{custom1} to Open" , nil , nil , nil , slashCommand ) );
-        else
-            GameTooltip:AddLine ( GRM.L ( "Player is Not Currently in a Guild" ) );
-        end
-
-        GameTooltip:Show();
-    end);
-    parentFrame.GRM_RosterTab:SetScript ( "OnLeave" , function ()
-        GRM.RestoreTooltip()
-    end);
-
-    parentFrame.GRM_RosterTab:SetScript ( "OnClick" , function ( _ , button)
-        if button == "LeftButton" then
-            GRM_R.LoadRosterFrame();
-        end
-    end);
-end
-
 -- Method:          GRM_R.ShowOfflineLogic ( buttonObject )
 GRM_R.ShowOfflineLogic = function ( button )
     if button:GetChecked() then
@@ -3095,7 +3118,7 @@ GRM_R.ShowOfflineLogic = function ( button )
             GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsGroupByMain:SetChecked ( false );
         end
     end
-    GRM_R.RefreshRosterName();
+    GRM_UI.RefreshRosterName();
 end
 
 -- Method:          GRM_R.OpenRosterOptions()
@@ -3145,7 +3168,7 @@ GRM_R.ShowMainsLogic = function ( button )
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowMainTag.GRM_RosterOptionsShowMainTagText:SetTextColor ( 0.5 , 0.5 , 0.5 );
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsGroupByMain.GRM_RosterOptionsGroupByMainText:SetTextColor ( 0.5 , 0.5 , 0.5 );
     end
-    GRM_R.RefreshRosterName();
+    GRM_UI.RefreshRosterName();
 end
 
 -- Method:          GRM_R.ShowAltsLogic ( buttonObject )
@@ -3159,19 +3182,19 @@ GRM_R.ShowAltsLogic = function ( button )
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowAltTag:Disable();
         GRM_UI.GRM_RosterFrame.GRM_RosterOptions.GRM_RosterOptionsShowAltTag.GRM_RosterOptionsShowAltTagText:SetTextColor ( 0.5 , 0.5 , 0.5 );
     end
-    GRM_R.RefreshRosterName();
+    GRM_UI.RefreshRosterName();
 end
 
 -- Method:          GRM_R.ShowMainTag ( buttonObject )
 GRM_R.ShowMainTag = function ( button )
     GRM.S().showMainTags = button:GetChecked() and true or false;
-    GRM_R.RefreshRosterName();
+    GRM_UI.RefreshRosterName();
 end
 
 -- Method:          GRM_R.ShowAltTag ( buttonObject )
 GRM_R.ShowAltTag = function ( button )
     GRM.S().showAltTags = button:GetChecked() and true or false;
-    GRM_R.RefreshRosterName();
+    GRM_UI.RefreshRosterName();
 end
 
 -- Method:          GRM_R.GroupByMainLogic ( buttonObject )
@@ -3186,7 +3209,7 @@ GRM_R.GroupByMainLogic = function ( button )
     else
         GRM.S().groupByMain = false;
     end
-    GRM_R.RefreshRosterName();
+    GRM_UI.RefreshRosterName();
     GRM_R.TooltipReset();
 end
 
@@ -3211,7 +3234,7 @@ GRM_R.NumRowsSliderLogic = function ( value )
         );
     end);
 
-    GRM_R.RefreshRosterName( true );
+    GRM_UI.RefreshRosterName( true );
 end
 
 -- Method:          GRM_R.NumRowsSliderTT( frameTable )

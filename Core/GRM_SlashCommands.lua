@@ -484,7 +484,7 @@ GRM.SlashCommandSearch = function(text)
                 GRM_UI.GRM_CoreFrame.GRM_AuditFrame.GRM_PlayerSearchAuditEditBox:SetText(GRM.Util.Trim(searchName));
                 GRM.RefreshAuditFrames(false, false, GRM.Util.Trim(searchName));
             else
-                GRM_R.LoadRosterFrame();
+                GRM_UI.LoadRosterFrame();
                 GRM_UI.GRM_RosterFrame.GRM_PlayerSearchRosterEditBox:SetText(GRM.Util.Trim(searchName));
             end
         end
@@ -624,7 +624,7 @@ GRM.SlashCommandRosterActions = function ( slashCommand )
         local isAlreadyReported = false;
 
         if input == nil or input:trim() == "" then
-            GRM_R.LoadRosterFrame();
+            GRM_UI.LoadRosterFrame();
         else
             isAlreadyReported = true;
             GRM.Report(GRM.L("Invalid Command: Please type '/grm help' for More Info!"));
