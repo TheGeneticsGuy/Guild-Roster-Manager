@@ -31,11 +31,17 @@ end
 
 -- Helper on main tag
 GRM_Name.GetCurrentMainTag = function()
+    if not GRM.S().mainTagIndex then
+        GRM.S().mainTagIndex = 1
+    end
     return GRM_G.TagHexCode .. GRM_Name.GetMainTags(false, GRM.S().mainTagIndex) .. "|r";
 end
 
 -- Herlper on alt tag
 GRM_Name.GetCurrentAltTag = function()
+    if not GRM.S().mainTagIndex then
+        GRM.S().mainTagIndex = 1
+    end
     return GRM_G.TagHexCode .. GRM_Name.GetAltTags(false, GRM.S().mainTagIndex) .. "|r";
 end
 

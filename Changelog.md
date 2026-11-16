@@ -1,8 +1,26 @@
-## **VERSION 1.9953 - November 14th, 2026**
+## **VERSION 1.9953 - November 16th, 2026**
+
+***QUALITY OF LIFE***
+
+**Custom GRM Roster has been ENHANCED**
+
+![Demo](https://i.imgur.com/FS62x28.gif)
+
+* Column Manager built - customize which columns you want to see, and it whatever order you want.
+
+* Nickname column integration.
+
+* Class, Race, Join Date, Birthday, and Reputation columns added (all off by default)
+
+Additional Images:
+![column_manager](https://i.imgur.com/9N3vPnj.png)
+
 
 ***BUG FIXES***
 
-* Fixed a bug where it was failing to do a proper secret protections check when in te new Midnight/Forever API restrictions state (like in BGs, raid combat, etc).  There was an issue with a missing function. I reorganized a lot of the configuration to the actual config file, but must have left out one of my functions.
+* Fixed a bug where it was failing to do a proper secret protections check when in te new Midnight/Forever API restrictions state (like in BGs, raid combat, etc).  There was an issue with a missing function. I reorganized a lot of the configuration to the actual config file, but must have left out one of my functions. This could potentially cause THOUSANDS of errors spamming you.
+
+* Fixed an issue where GRM was failing to fully configure due to a missing variable. Sort of odd, but it is now working properly. This would have prevented the addon from even loading.
 
 ## **VERSION 1.99521 - November 10th, 2026**
 
