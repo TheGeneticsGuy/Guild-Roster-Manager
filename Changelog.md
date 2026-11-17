@@ -1,3 +1,12 @@
+## **VERSION 1.9951 - November 17th, 2026**
+
+***BUG FIXES***
+
+* Fixed an issue with the alt name spacing in the alt grouping window in the mouseover
+
+* The side alt group details window now is properly spaced for WOW Forever.
+
+
 ## **VERSION 1.9953 - November 16th, 2026**
 
 ***QUALITY OF LIFE***

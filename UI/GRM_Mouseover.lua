@@ -699,10 +699,10 @@ local function BuildAltGroupingScrollFrame(currentName)
             local stringHeight = AltLastOnline:GetStringHeight()
 
             if i == 1 then
-                AltName:SetPoint("TOPLEFT", child, "TOPLEFT", 14, -5)
-                AltLvl:SetPoint("TOP", child, "TOP", -60, -5)
-                AltRank:SetPoint("TOP", child, "TOP", 10, -5)
-                AltLastOnline:SetPoint("TOP", child, "TOP", 98, -5)
+                AltName:SetPoint("TOPLEFT", child, "TOPLEFT", 8, -5)
+                AltLvl:SetPoint("TOP", child, "TOP", -13, -5)
+                AltRank:SetPoint("TOP", child, "TOP", 42, -5)
+                AltLastOnline:SetPoint("TOP", child, "TOP", 117, -5)
                 scrollHeight = scrollHeight + stringHeight
             else
                 AltName:SetPoint("TOPLEFT", child.AllFrameFontstrings[i - 1][1], "BOTTOMLEFT", 0, -buffer)
@@ -1069,7 +1069,7 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
     AddAltEditFrame.GRM_AddAltScrollFrame:SetPoint("TOP", AddAltEditFrame.GRM_AddAltEditBox, "BOTTOM", 2, 0)    
 
     -- ALT GROUP SCROLL FRAME
-    GRM_UI.CreateCoreFrame("GRM_AltGroupingScrollBorderFrame", GRM_UI.GRM_Mouseover , UIParent, 340, 150, "TranslucentFrameTemplate", false, nil, "HIGH", true, false)
+    GRM_UI.CreateCoreFrame("GRM_AltGroupingScrollBorderFrame", GRM_UI.GRM_Mouseover , UIParent, 355, 150, "TranslucentFrameTemplate", false, nil, "HIGH", true, false)
     local altGroupBorderFrame = GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame
     altGroupBorderFrame.timer1 = 0
     altGroupBorderFrame.timer2 = 0
@@ -1083,9 +1083,9 @@ GRM_UI.InitializeMouseover = function(isManualUpdate)
 
     GRM_UI.CreateString("GRM_MainTag", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame, "GameFontWhiteTiny", GRM.L("(main)"), 7, {"CENTER", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupingScrollChildFrame, "CENTER", 0, 0}, nil, {1.0, 0.0, 0.0})
     GRM_UI.CreateString("GRM_AltGroupingName", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameFontNormal", GRM.L("Name"), 10, {"TOPLEFT", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "TOPLEFT", 25, -15})
-    GRM_UI.CreateString("GRM_AltGroupingLevel", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameFontNormal", GRM.L("Level"), 10, {"TOP", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "TOP", -60, -15}, 75, nil, "CENTER")
-    GRM_UI.CreateString("GRM_AltGroupingRank", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameFontNormal", GRM.L("Rank"), 10, {"TOP", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "TOP", 8, -15}, 75, nil, "CENTER")
-    GRM_UI.CreateString("GRM_AltGroupingLastOnline", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameFontNormal", GRM.L("Last Online"), 10, {"TOP", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "TOP", 98, -15}, 75, nil, "CENTER")
+    GRM_UI.CreateString("GRM_AltGroupingLevel", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameFontNormal", GRM.L("Level"), 10, {"TOP", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "TOP", -15, -15}, 75, nil, "CENTER")
+    GRM_UI.CreateString("GRM_AltGroupingRank", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameFontNormal", GRM.L("Rank"), 10, {"TOP", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "TOP", 40, -15}, 75, nil, "CENTER")
+    GRM_UI.CreateString("GRM_AltGroupingLastOnline", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameFontNormal", GRM.L("Last Online"), 10, {"TOP", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "TOP", 115, -15}, 75, nil, "CENTER")
     GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame.GRM_AltGroupHeaderTooltip = CreateFrame("GameTooltip", "GRM_AltGroupHeaderTooltip", GRM_UI.GRM_Mouseover.GRM_AltGroupingScrollBorderFrame, "GameTooltipTemplate")
 
     -- Horde/Ally icons
@@ -1173,6 +1173,8 @@ GRM_UI.InitializeMouseoverUI_Logic = function()
         end
     end);
     GRM_UI.SetCloseButtonTooltip(f.GRM_MouseoverCloseButton)
+    f.GRM_MouseoverCloseButton:ClearAllPoints()
+    f.GRM_MouseoverCloseButton:SetPoint("TOPRIGHT", f, "TOPRIGHT", -5, -5)
 
     f:SetScript("OnUpdate", GRM.MemberDetailToolTips)
     f:SetScript("OnKeyDown", function(self, key)
@@ -3509,7 +3511,7 @@ GRM_UI.PopulateAltFrames = function(playerName)
 
         -- Position the button in the grid
         if i == 1 then
-            AltButton:SetPoint("TOPLEFT", child, "TOPLEFT", 0, -1)
+            AltButton:SetPoint("TOPLEFT", child, "TOPLEFT", 0, -4)
             scrollHeight = scrollHeight + AltButton:GetHeight()
         elseif i == 2 then
             AltButton:SetPoint("TOPLEFT", child.allFrameButtons[i - 1][1], "TOPRIGHT", 1, 0)
