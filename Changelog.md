@@ -2,7 +2,7 @@
 
 ***QUALITY OF LIFE***
 
-* Added the full localization for German, Russian, and Chinese (Mandarin)
+* Added the full localization for German, and partial for Russian. Program I put together to help use AI to translate will be adding it, but I hit my token limits for the day, so it will be slow progress as there is over 20,000 localization lines over 13 languages to fully finish lol.
 
 * Fixed the spacing in the macro tool for German/Russian as it was a little wonky due to some wrapped text requiring frame to be bigger. Looks much cleaner now.
 

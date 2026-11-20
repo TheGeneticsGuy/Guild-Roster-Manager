@@ -9,9 +9,7 @@
 -- 5 ) THANK YOU SO MUCH FOR ADDING THIS TRANSLATION WORK!!! I will ensure you are mentioned in the release notes and at the top of this header for your contribution
 
 -- Data insert points:
---  {name} and {name2}
---  {num}
---  {custom1} and {custom2}
+--  {name} and {name2} and {num} and {custom1} and {custom2}
 
     -- EXAMPLE NOTATION (English to Spanish)
 
@@ -24,15 +22,13 @@
     ---------------------------------
     -- BEGIN TRANSLATION WORK HERE --
     ---------------------------------
-
 GRML.MandarinCN = function()
-
     -- Auto Localized (Only use this on Client languages)
     GRM_L["Friend"] = FRIEND;
 
     -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-    GRM_L["/XXXX"] = true   -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
-    GRM_L["/YYYY"] = true;  -- /roster              -- This is the custom GRM roster
+    GRM_L["/XXXX"] = true    -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
+    GRM_L["/YYYY"] = true    -- /roster              -- This is the custom GRM roster
 
     GRM_L["German"] = "Deutsch 德语"
 	GRM_L["English"] = "English 英语"
@@ -58,20 +54,20 @@ GRML.MandarinCN = function()
     GRM_L["Officer's Note"] = "官员备注"
     GRM_L["Zone:"] = "地区："
     GRM_L["(main)"] = "(主号)"
-    GRM_L["( Main )"] = "( 主号 )"                                -- Context: This one is used on player data window, the other is smaller used in the alts list...
+    GRM_L["( Main )"] = "( 主号 )"    -- Context: This one is used on player data window, the other is smaller used in the alts list...
     GRM_L["Set as Main"] = "设为主号"
     GRM_L["Set as Alt"] = "设为小号"
     GRM_L["Remove"] = "移除"
     GRM_L["Please Type the Name of the alt"] = "请输入小号角色名"
     GRM_L["Promoted:"] = "会阶提升："
-    GRM_L["Unknown"] = "未知"                                                                -- Context: The date of their promotion is "Unknown"
+    GRM_L["Unknown"] = "未知"    -- Context: The date of their promotion is "Unknown"
     GRM_L["Click here to set a Public Note"] = "点击此处设置公共备注"
     GRM_L["Unable to Edit Public Note at Rank"] = "无权限修改公共备注"
     GRM_L["Click here to set an Officer's Note"] = "点击此处设置官员备注"
     GRM_L["Unable to Edit Officer Note at Rank"] = "无权限修改官员备注"
     GRM_L["Unable to View Officer Note at Rank"] = "无权限查看官员备注"
     GRM_L["Online"] = "在线"
-    GRM_L["( Active )"] = "( 活跃 )"                       -- I included the parentheses here as I am not sure if any languages abstain from them, or use other notation. Feel free to remove if necessary
+    GRM_L["( Active )"] = "( 活跃 )"    -- I included the parentheses here as I am not sure if any languages abstain from them, or use other notation. Feel free to remove if necessary
     GRM_L["( AFK )"] = "( 离开 )"
     GRM_L["( Busy )"] = "( 忙碌 )"
     GRM_L["( Mobile )"] = "( 移动端 )"
@@ -83,7 +79,7 @@ GRML.MandarinCN = function()
     GRM_L["Group Invite"] = "小队邀请"
     GRM_L["Date Promoted"] = "会阶提升日期"
     GRM_L["Last Online"] = "上一次在线"
-    GRM_L["Time In:"] = "已在该地区:"                           -- Context: "Time In" the current zone...
+    GRM_L["Time In:"] = "已在该地区:"    -- Context: "Time In" the current zone...
     GRM_L["Date Joined"] = "加入日期"
     GRM_L["Join Date?"] = "加入日期?"
     GRM_L["Player Was Previously Banned!"] = "该玩家曾被拉黑!"
@@ -99,10 +95,10 @@ GRML.MandarinCN = function()
     GRM_L["Right-Click to Edit"] = "右键编辑"
     GRM_L["Left Guild"] = "离开公会"
     GRM_L["Membership History"] = "成员历史"
-    GRM_L["Joined:"] = "加入于:"                            -- as in "Joined" the guild
+    GRM_L["Joined:"] = "加入于:"    -- as in "Joined" the guild
     GRM_L["Joined"] = "加入"
-    GRM_L["Left:"] = "离开于:"                              -- as in, "Left" the guild
-    GRM_L["Rejoined:"] = "重新加入于:"                          -- as in, "Rejoined" the guild
+    GRM_L["Left:"] = "离开于:"    -- as in, "Left" the guild
+    GRM_L["Rejoined:"] = "重新加入于:"    -- as in, "Rejoined" the guild
     GRM_L["Rejoined"] = "重新加入"
     GRM_L["Reset Data!"] = "重置数据!"
     GRM_L["Notify When Player is Active"] = "当玩家活跃时发送通知"
@@ -113,27 +109,27 @@ GRML.MandarinCN = function()
     GRM_L["Options"] = "选项"
 
     -- LOG
-    GRM_L["LOG"] = "日志"                                                    -- Context - The guild Log shorthand for the tab
+    GRM_L["LOG"] = "日志"    -- Context - The guild Log shorthand for the tab
     GRM_L["Guild Roster Event Log"] = "成员变动日志"
     GRM_L["Clear Log"] = "清除日志"
     GRM_L["{name} KICKED {name2} from the Guild!"] = "{name} 已将 {name2} 开除出公会!"
     GRM_L["kicked"] = "已开除"
-    GRM_L["{name} has Left the guild"] = "{name} 离开了公会"
     GRM_L["{name} has BANNED {name2} and all linked alts from the guild!"] = "{name} 已将 {name2} 及其所有小号加入黑名单!"
     GRM_L["{name} has BANNED {name2} from the guild!"] = "{name} 已将 {name2} 加入黑名单!"
     GRM_L["Reason Banned:"] = "拉黑原因:"
-    GRM_L["has Left the guild"] = "离开了公会"                                     -- Context: PlayerName "has left the guild"
-    GRM_L["ALTS IN GUILD:"] = "仍在公会中的小号:"                                         -- Context: This appears If a person leaves the guild and there are still alts in the guild. It is like - "ALTS IN GUILD: Arkaan, Chris, Matt, and 4 others.""
+    GRM_L["{name} has Left the guild"] = "{name} 离开了公会"
+    GRM_L["has Left the guild"] = "离开了公会"    -- Context: PlayerName "has left the guild"  -- THESE MUST BE EXACT MATCH WITH PREVIOUS LINE (just without the name on this one)
+    GRM_L["ALTS IN GUILD:"] = "仍在公会中的小号:"    -- Context: This appears If a person leaves the guild and there are still alts in the guild. It is like - "ALTS IN GUILD: Arkaan, Chris, Matt, and 4 others.""
     GRM_L["Player no longer on Server"] = "玩家已不在该服务器"
     GRM_L["{name} PROMOTED {name2} from {custom1} to {custom2}"] = "{name} 将 {name2} 的会阶从 {custom1} 提升至 {custom2}"
     GRM_L["{name} has been PROMOTED from {custom1} to {custom2}"] = "{name} 的会阶已从 {custom1} 提升至 {custom2}"
     GRM_L["{name} DEMOTED {name2} from {custom1} to {custom2}"] = "{name} 将 {name2} 的会阶从 {custom1} 降级至 {custom2}"
     GRM_L["{name} has been DEMOTED from {custom1} to {custom2}"] = "{name} 的会阶已从 {custom1} 降级至 {custom2}"
-    GRM_L["(+ {num} More)"] = "(及另外 {num} 个)"                                         -- Context: Referencing num of alts if player leaves guild, that are stil in it. Example "ALTS IN GUILD: Christ, Matt, Sarah (and 4 more)"
+    GRM_L["(+ {num} More)"] = "(及另外 {num} 个)"    -- Context: Referencing num of alts if player leaves guild, that are stil in it. Example "ALTS IN GUILD: Christ, Matt, Sarah (+ 4 more)"
     GRM_L["{name} has Been in the Guild {num} Times Before"] = "{name} 已 {num} 次重新加入过公会"
     GRM_L["{name} is Returning for the First Time."] = "{name} 首次重新加入公会。"
-    GRM_L["None Given"] = "未给出"                                             -- Context: No reason given for player ban. This is displayed when a player was banned, but the addon users did not input a reason why.
-    GRM_L["WARNING!"] = "警告!"                                               -- Context: WARNING - banned player rejoined the guild!
+    GRM_L["None Given"] = "未给出"    -- Context: No reason given for player ban. This is displayed when a player was banned, but the addon users did not input a reason why.
+    GRM_L["WARNING!"] = "警告!"    -- Context: WARNING - banned player rejoined the guild!
     GRM_L["{name} REJOINED the guild but was previously BANNED!"] = "{name} 重新加入了公会但该玩家曾在黑名单中!"
     GRM_L["(Invited by: {name})"] = "(邀请人: {name})"
     GRM_L["Invited By: {name}"] = "邀请人: {name}"
@@ -142,16 +138,16 @@ GRML.MandarinCN = function()
     GRM_L["Old Guild Rank:"] = "曾经的公会会阶:"
     GRM_L["Additional Notes:"] = "额外备注:"
     GRM_L["{name} has REINVITED {name2} to the guild"] = "{name} 邀请了 {name2} 重新加入公会"
-    GRM_L["(LVL: {num})"] = "(等级: {num})"                                           -- Context: LVL means Player Level - so Ex: (LVL: 110)
+    GRM_L["(LVL: {num})"] = "(等级: {num})"    -- Context: LVL means Player Level - so Ex: (LVL: 110)
     GRM_L["{name} has REJOINED the guild"] = "{name} 重新加入了公会"
     GRM_L["{name} has JOINED the guild!"] = "{name} 加入了公会!"
     GRM_L["Date Left:"] = "离开公会日期:"
     GRM_L["{name} has Leveled to {num}"] = "{name} 的等级已提升至 {num}"
-    GRM_L["(+{num} levels)"] = "(+{num} 级)"                                        -- Context: Person gained more than one level, hence the plural
-    GRM_L["(+{num} level)"] = "(+{num} 级)"                                         -- Context: Person gains a level, just one level.
-    GRM_L["{name}'s PUBLIC Note: \"{custom1}\" was Added"] = "{name}的公共备注被添加: \"{custom1}\""          -- Of note, the \" in the text here will just appear as " in-game. The \" notation is telling the program not to end the string, but to include quotation
+    GRM_L["(+{num} levels)"] = "(+{num} 级)"    -- Context: Person gained more than one level, hence the plural
+    GRM_L["(+{num} level)"] = "(+{num} 级)"    -- Context: Person gains a level, just one level.
+    GRM_L["{name}'s PUBLIC Note: \"{custom1}\" was Added"] = "{name}的公共备注被添加: \"{custom1}\""    -- Of note, the \" in the text here will just appear as " in-game. The \" notation is telling the program not to end the string, but to include quotation
     GRM_L["{name}'s PUBLIC Note: \"{custom1}\" was Removed"] = "{name}的公共备注: \"{custom1}\" 被移除"
-    GRM_L["{name}'s PUBLIC Note: \"{custom1}\" to \"{custom2}\""] = "{name}的公共备注: \"{custom1}\" 被改为 \"{custom2}\""   -- Context: "Arkaan's PUBLIC Note: "ilvl 920" to "Beast Mode ilvl 960""  -- Changing of the note. custom1 = old note, custom2 = new note
+    GRM_L["{name}'s PUBLIC Note: \"{custom1}\" to \"{custom2}\""] = "{name}的公共备注: \"{custom1}\" 被改为 \"{custom2}\""    -- Context: "Arkaan's PUBLIC Note: "ilvl 920" to "Beast Mode ilvl 960""  -- Changing of the note. custom1 = old note, custom2 = new note
     GRM_L["{name}'s OFFICER Note: \"{custom1}\" was Added"] = "{name}的官员备注被添加: \"{custom1}\""
     GRM_L["{name}'s OFFICER Note: \"{custom1}\" was Removed"] = "{name}的官员备注: \"{custom1}\" 被移除"
     GRM_L["{name}'s OFFICER Note: \"{custom1}\" to \"{custom2}\""] = "{name}的官员备注: \"{custom1}\" 被改为 \"{custom2}\""
@@ -159,35 +155,37 @@ GRML.MandarinCN = function()
     GRM_L["{name} has Name-Changed to {name2}"] = "{name} 已改名为 {name2}"
     GRM_L["{name} has Come ONLINE after being INACTIVE for {num}"] = "{name} 在离线 {num} 后重新上线"
     GRM_L["{name} has been OFFLINE for {num}. Kick Recommended!"] = "{name} 已离线 {num}。建议开除!"
-    GRM_L["({num} ago)"] = "({num} 前)"                                            -- Context: (5 minutes ago) or (5 months 24 days ago) -- the {num} will automatically include the time-passed date.
+    GRM_L["({num} ago)"] = "({num} 前)"    -- Context: (5 minutes ago) or (5 months 24 days ago) -- the {num} will automatically include the time-passed date.
     GRM_L["{name}'s Guild has Name-Changed to \"{name2}\""] = "{name}的公会已改名为 \"{name2}\""
     GRM_L["Promotions"] = "升阶"
     GRM_L["Demotions"] = "降阶"
 
     -- EVENTS WINDOW
-    GRM_L["EVENTS"] = "活动"                                         -- Events tab
+    GRM_L["EVENTS"] = "活动"    -- Events tab
+    GRM_L["{name}'s Anniversary!"] = "{name}的入会周年日!"
+    GRM_L["{name}'s Birthday!"] = "{name}的生日!"
+    GRM_L["No Calendar Events to Add"] = "无活动可添加"
     GRM_L["Event Calendar Manager"] = "活动日历管理"
     GRM_L["Event:"] = "活动:"
     GRM_L["Description:"] = "描述:"
     GRM_L["Add to\nCalendar"] = "添加至日历"
     GRM_L["Ignore Event"] = "忽略活动"
     GRM_L["No Player Event Has Been Selected"] = "未选择玩家活动"
-    GRM_L["Event Added to Calendar: {custom1}"] = "活动{custom1}已添加至日历"             -- Custom1 = the title of the event, like "Arkaan's Anniversary"
+    GRM_L["Event Added to Calendar: {custom1}"] = "活动{custom1}已添加至日历"    -- Custom1 = the title of the event, like "Arkaan's Anniversary"
     GRM_L["Please Select Event to Add to Calendar"] = "请选择活动添加至日历"
-    GRM_L["No Calendar Events to Add"] = "无活动可添加"
     GRM_L["{name}'s event has already been added to the calendar!"] = "{name}的活动已经添加至日历!"
     GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = "请等待{num}秒后再添加活动至日历!"
     GRM_L["{name}'s Event Removed From the Queue!"] = "{name}的活动已从队列中移除!"
     GRM_L["Full Description:"] = "完整描述:"
 
     -- BAN WINDOW
-    GRM_L["BAN LIST"] = "黑名单"                                       -- Ban List Tab
+    GRM_L["BAN LIST"] = "黑名单"    -- Ban List Tab
     GRM_L["Reason Banned?"] = "拉黑理由?"
-    GRM_L["Click \"YES\" When Done"] = "完成后点击\"是\""                        -- Of note, the \" is how you notate for quotations to actually appear. Adjust as needed
+    GRM_L["Click \"YES\" When Done"] = "完成后点击\"是\""    -- Of note, the \" is how you notate for quotations to actually appear. Adjust as needed
     GRM_L["Select a Player"] = "选择一名玩家"
     GRM_L["Player Selected"] = "已选择玩家"
     GRM_L["{name}(Still in Guild)"] = "{name}(仍是公会成员)"
-    GRM_L["(Still in Guild)"] = "(仍是公会成员)"
+    GRM_L["(Still in Guild)"] = "(仍是公会成员)"    -- same as previous, just formatting simplicity...
     GRM_L["No Ban Reason Given"] = "无拉黑理由"
     GRM_L["Total Banned:"] = "完全拉黑:"
     GRM_L["Rank"] = "会阶"
@@ -202,12 +200,12 @@ GRML.MandarinCN = function()
     GRM_L["Submit Ban"] = "提交拉黑"
     GRM_L["Confirm"] = "确认"
     GRM_L["Cancel"] = "取消"
-    GRM_L["Add"] = "添加"                                        -- Context: "Add" player to ban list
+    GRM_L["Add"] = "添加"    -- Context: "Add" player to ban list
     GRM_L["Confirm Ban for the Following Player?"] = "确认将下列玩家加入黑名单?"
-    GRM_L["Please Enter a Valid Player Name"] = "请输入正确的角色名"           -- Player Name
-    GRM_L["Please Enter a Valid Server Name"] = "请输入正确的服务器名称"           -- Server Name
+    GRM_L["Please Enter a Valid Player Name"] = "请输入正确的角色名"    -- Player Name
+    GRM_L["Please Enter a Valid Server Name"] = "请输入正确的服务器名称"    -- Server Name
     GRM_L["Please Select a Player to Unban!"] = "请选择一名玩家从黑名单中移除!"
-    GRM_L["{name} - Ban List"] = "{name} - 黑名单"                          -- Context: "GuildName - Ban List"
+    GRM_L["{name} - Ban List"] = "{name} - 黑名单"    -- Context: "GuildName - Ban List"
     GRM_L["No Reason Given"] = "未给出理由"
 
     -- ADDON USERS WINDOW
@@ -222,7 +220,7 @@ GRML.MandarinCN = function()
     GRM_L["ONE Person is Online. Recommend It!"] = "一位玩家在线，请推荐这个插件!"
     GRM_L["{num} others are Online! Recommend It!"] = "{num}位玩家在线，请推荐这个插件!"
     GRM_L["GRM Sync Info"] = "GRM同步信息"
-    GRM_L["Ver: {custom1}"] = "版本: {custom1}"                                 -- Context:  Ver: R1.125  - Ver is short for Version
+    GRM_L["Ver: {custom1}"] = "版本: {custom1}"    -- Context:  Ver: R1.125  - Ver is short for Version
     GRM_L["Name:"] = "名字:"
     GRM_L["Version"] = "版本"
     GRM_L["Sync"] = "同步"
@@ -239,13 +237,13 @@ GRML.MandarinCN = function()
     GRM_L["Centers all Windows"] = "将所有窗口居中"
     GRM_L["Slash command info"] = "命令项信息"
     GRM_L["Resets ALL data"] = "重置所有数据"
-    GRM_L["Report addon ver"] = "报告插件版本"                                   -- Ver is short for Version
+    GRM_L["Report addon ver"] = "报告插件版本"    -- Ver is short for Version
     GRM_L["Resets Guild data"] = "重置公会数据"
     GRM_L["Show at Logon"] = "登录后显示"
     GRM_L["Only Show if Log Changes"] = "只在有新日志时显示"
 
     -- This do need to be translated still
-    GRM_L["Before Scan Timer"] = "每"                  -- Context: "Scan for Changes Every 10 Seconds" -- There will be a number added here and may require custom positioning, so please provide full statement and Arkaan will allign
+    GRM_L["Before Scan Timer"] = "每"    -- Context: "Scan for Changes Every 10 Seconds" -- There will be a number added here and may require custom positioning, so please provide full statement and Arkaan will allign
     GRM_L["After Scan Timer"] = "秒扫描变动"
     GRM_L["Before Inactive Timer"] = "当离线超过"
     GRM_L["After Inactive Timer"] = "天的玩家上线时发送通告"
@@ -255,17 +253,17 @@ GRML.MandarinCN = function()
     GRM_L["Please choose a scan interval {num} seconds or higher!"] = "请选择不少于{num}秒的扫描间隔时长!"
     GRM_L["{num} is too Low!"] = "{num}太短了!"
     GRM_L["The Current Lvl Cap is {num}."] = "当前等级上限为{num}。"
-    GRM_L["Kick Inactive Player Reminder at"] = true        -- Context: "Kick Inactive Player Reminder at X Months" - Again, allignment will need to be adjusted for options UI, so please post
+    GRM_L["Kick Inactive Player Reminder at"] = true    -- Context: "Kick Inactive Player Reminder at X Months" - Again, allignment will need to be adjusted for options UI, so please post
     GRM_L["Please choose a month between 1 and 999"] = "选择的月数需在1到999之间"
     GRM_L["Please choose a month between 0 and 999"] = "选择的月数需在0到999之间"
     GRM_L["Sync BAN List With Guildies at Rank"] = "同步成员黑名单，会阶为"    -- Context: "Sync Ban List with Guildies at Rank [DROPDOWNMENU OF RANKS] or Higher" - Please show where dropdown menu should be pinned
-    GRM_L["or Higher"] = "或以上"                              -- Context: Look at the above statement. Show where this needs to go in regards to dropdown menu of rank selection in Options
+    GRM_L["or Higher"] = "或以上"    -- Context: Look at the above statement. Show where this needs to go in regards to dropdown menu of rank selection in Options
     GRM_L["Restore Defaults"] = "恢复默认设置"
     GRM_L["Please choose between 1 and 180 days!"] = "选择的天数需在1到180之间"
-    GRM_L["Announce Events"] = "提前"                        -- Context: "Announce Events X number of days in advance" -- the X is the editbox to modify number of days. Please include the location of where to pin that.
+    GRM_L["Announce Events"] = "提前"    -- Context: "Announce Events X number of days in advance" -- the X is the editbox to modify number of days. Please include the location of where to pin that.
     GRM_L["Days in Advance"] = "天通告活动"
     GRM_L["Add Events to Calendar"] = "添加活动至日历"
-    GRM_L["SYNC Changes With Guildies at Rank"] = "同步成员变动，会阶为"     -- Context: at Rank [DROPDOWNRANKSELECTION] or Higher. - Please note where to place dropdown box in the position of the sentence.
+    GRM_L["SYNC Changes With Guildies at Rank"] = "同步成员变动，会阶为"    -- Context: at Rank [DROPDOWNRANKSELECTION] or Higher. - Please note where to place dropdown box in the position of the sentence.
     GRM_L["Reactivating Data SYNC with Guildies..."] = "正在重启同步公会成员..."
     GRM_L["Deactivating Data SYNC with Guildies..."] = "正在关闭同步公会成员..."
     GRM_L["Display Sync Update Messages"] = "显示同步更新信息"
@@ -278,24 +276,24 @@ GRML.MandarinCN = function()
     GRM_L["Name Change"] = "名字变更"
     GRM_L["Rank Renamed"] = "会阶改名"
     GRM_L["Event Announce"] = "活动通知"
-    GRM_L["Left"] = "离开"                       -- Context: As in, "Left" the guild...
+    GRM_L["Left"] = "离开"    -- Context: As in, "Left" the guild...
     GRM_L["Recommendations"] = "推荐"
     GRM_L["Banned"] = "拉黑"
-    GRM_L["To Chat:"] = "在聊天框中:"                   -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
-    GRM_L["To Log:"] = "在日志中:"                    -- Context: To show it in the guild log.
+    GRM_L["To Chat:"] = "在聊天框中:"    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
+    GRM_L["To Log:"] = "在日志中:"    -- Context: To show it in the guild log.
     GRM_L["Display Changes"] = "显示变更"
 
     -- AUDIT WINDOW
-    GRM_L["AUDIT"] = "详单"                                              -- Audit Tab name
+    GRM_L["AUDIT"] = "详单"    -- Audit Tab name
     GRM_L["No Date Set"] = "日期未设定"
     GRM_L["Main"] = "主号"
     GRM_L["Main or Alt?"] = "主号还是小号?"
     GRM_L["Alt"] = "小号"
-    GRM_L["Total Incomplete: {num} / {custom1}"] = "信息不完整: {num} / {custom1}"                -- Context: Total incomplete: 50 / 100    (50 out of 100)
-    GRM_L["Mains:\n{num}"] = "主号:\n{num}"                                       -- Context: Number of "main" toons
+    GRM_L["Total Incomplete: {num} / {custom1}"] = "信息不完整: {num} / {custom1}"    -- Context: Total incomplete: 50 / 100    (50 out of 100)
+    GRM_L["Mains:\n{num}"] = "主号:\n{num}"    -- Context: Number of "main" toons
     GRM_L["Unique Accounts:\n{num}"] = "游戏账号:\n{num}"
-    GRM_L["All Complete"] = "信息完整"                                       -- Context: All dates have been added and are known, thus it states it is "All Complete"
-    GRM_L["Set Incomplete to Unknown"] = "将信息不完整设为未知"                          -- Context: Implied to set ALL incomplete to unknown
+    GRM_L["All Complete"] = "信息完整"    -- Context: All dates have been added and are known, thus it states it is "All Complete"
+    GRM_L["Set Incomplete to Unknown"] = "将信息不完整设为未知"    -- Context: Implied to set ALL incomplete to unknown
     GRM_L["Clear All Unknown"] = "清除所有未知"
     GRM_L["Please Wait {num} more Seconds"] = "请等待{num}秒"
     GRM_L["Guild Data Audit"] = "公会信息详单"
@@ -307,8 +305,8 @@ GRML.MandarinCN = function()
 
     -- ADDON SYSTEM MESSAGES
     GRM_L["Guild Roster Manager"] = true
-    GRM_L["GRM:"] = true                                                                -- Abbreviation for "Guild Roster Manager"
-    GRM_L["(Ver:"] = "(版本号:"                                                              -- Ver: is short for Version:
+    GRM_L["GRM:"] = true    -- Abbreviation for "Guild Roster Manager"
+    GRM_L["(Ver:"] = "(版本号:"    -- Ver: is short for Version:
     GRM_L["GRM Updated:"] = "GRM已更新:"
     GRM_L["Configuring Guild Roster Manager for {name} for the first time."] = "为{name}首次配置Guild Roster Manager"
     GRM_L["Notification Set:"] = "通告已设置:"
@@ -326,8 +324,8 @@ GRML.MandarinCN = function()
     GRM_L["SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted."] = "同步不可用! 当公会聊天受限时无法与公会成员同步。"
     GRM_L["Manual Scan Complete"] = "手动扫描完成"
     GRM_L["Analyzing guild for the first time..."] = "首次分析公会..."
-    GRM_L["Building Profiles on ALL \"{name}\" members"] = "为\"{name}\"所有成员创建档案"                -- {name} will be the Guild Name, for context
-    GRM_L["NOTIFICATION:"] = "通知:"                                              -- Context:  "Notification: Player is no longer AFK"
+    GRM_L["Building Profiles on ALL \"{name}\" members"] = "为\"{name}\"所有成员创建档案"    -- {name} will be the Guild Name, for context
+    GRM_L["NOTIFICATION:"] = "通知:"    -- Context:  "Notification: Player is no longer AFK"
     GRM_L["{name} is now ONLINE!"] = "{name}上线了!"
     GRM_L["{name} is now OFFLINE!"] = "{name}下线了!"
     GRM_L["{name} is No Longer AFK or Busy!"] = "{name}不再处于离开或忙碌状态!"
@@ -348,14 +346,14 @@ GRML.MandarinCN = function()
     GRM_L["Triggers manual re-sync if sync is enabled"] = "如果同步已开启，则手动启动重同步"
     GRM_L["Does a one-time manual scan for changes"] = "执行单次变更扫描"
     GRM_L["Displays current Addon version"] = "显示当前插件版本"
-    GRM_L["WARNING! Complete hard wipe, including settings, as if addon was just installed."] = "警告! 重置所有数据，包括设置，恢复出厂。"
+    GRM_L["WARNING! Complete hard wipe, including settings, as if addon was just installed."] = "警告! 重置所有数据，包括设置，恢复出厂。";
 
     -- General Misc UI
     GRM_L["Really Clear All Account-Wide Saved Data?"] = "确定要清除此账号下的所有数据?"
     GRM_L["Really Clear All Guild Saved Data?"] = "确定要清除所有公会数据?"
     GRM_L["Yes!"] = "是!"
     GRM_L["Ban Player?"] = "拉黑玩家?"
-    GRM_L["Ban the Player's {num} alts too?"] = "同时拉黑此玩家的{num}个小号?"     -- Plural number of alts
+    GRM_L["Ban the Player's {num} alts too?"] = "同时拉黑此玩家的{num}个小号?"    -- Plural number of alts
     GRM_L["Ban the Player's {num} alt too?"] = "同时拉黑此玩家的{num}个小号?"    -- Singular number of alts, just 1
     GRM_L["Please Click \"Yes\" to Ban the Player!"] = "点击\"是\"以拉黑此玩家!"
 
@@ -388,21 +386,21 @@ GRML.MandarinCN = function()
     GRM_L["Please choose a VALID character to set as an Alt"] = "请选择一个有效的角色为小号。"
     GRM_L["Please choose a character to set as alt."] = "请选择一个角色为小号。"
     GRM_L["GRM ERROR:"] = "GRM错误:"
-    GRM_L["Com Message too large for server"] = "通讯信息量超出服务器负载"                   -- Context: "Com message" is short-hand for "Communications message" - this is a technical error on syncing data.
+    GRM_L["Com Message too large for server"] = "通讯信息量超出服务器负载"    -- Context: "Com message" is short-hand for "Communications message" - this is a technical error on syncing data.
     GRM_L["Prefix:"] = "前缀:"
-    GRM_L["Msg:"] = "信息:"                                               -- Context: Msg is short for Message
-    GRM_L["Unable to register prefix > 16 characters: {name}"] = "无法注册前缀>16个字符: {name}"  -- Context: The {name} is the string code for the prefix. This is for debugging.
+    GRM_L["Msg:"] = "信息:"    -- Context: Msg is short for Message
+    GRM_L["Unable to register prefix > 16 characters: {name}"] = "无法注册前缀>16个字符: {name}"    -- Context: The {name} is the string code for the prefix. This is for debugging.
 
     --SLASH COMMANDS
     -- These are generally written in general shorthand. The original commands will ALWAYS work, but if there is one that makes more sense in your language, please feel free to modify
-    GRM_L["clearall"] = true                        -- Context: In regards, "Clear All" saved data account wide
-    GRM_L["clearguild"] = true                      -- Context: In regards, "Clear All" saved data from ONLY the current guild.
-    GRM_L["hardreset"] = true                       -- Context: In regards, "Hard Reset" ALL data account wide, including wiping player settings
-    GRM_L["help"] = true                            -- Context: "help" with info on the how to use addon
-    GRM_L["version"] = true                         -- Context: "version" of the addon
-    GRM_L["center"] = true                          -- Context: "center" the movable addon window back to center of screen
-    GRM_L["sync"] = true                            -- Context: "sync" the data between players one time now.
-    GRM_L["scan"] = true                            -- Context: "scan" for guild roster changes one time now.
+    GRM_L["clearall"] = true    -- Context: In regards, "Clear All" saved data account wide
+    GRM_L["clearguild"] = true    -- Context: In regards, "Clear All" saved data from ONLY the current guild.
+    GRM_L["hardreset"] = true    -- Context: In regards, "Hard Reset" ALL data account wide, including wiping player settings
+    GRM_L["help"] = true    -- Context: "help" with info on the how to use addon
+    GRM_L["version"] = true    -- Context: "version" of the addon
+    GRM_L["center"] = true    -- Context: "center" the movable addon window back to center of screen
+    GRM_L["sync"] = true    -- Context: "sync" the data between players one time now.
+    GRM_L["scan"] = true    -- Context: "scan" for guild roster changes one time now.
 
     -- CLASSES
     GRM_L["Deathknight"] = "死亡骑士"
@@ -419,7 +417,7 @@ GRML.MandarinCN = function()
     GRM_L["Warrior"] = "战士"
 
     -- TIME AND DATES
-    GRM_L["1 Mar"] = "3月1日"                           -- This date is used in a specific circumstance. If someone's anniversary/bday landed on a leap year (Feb 29th), it defaults to the 1st of March on non-leap year
+    GRM_L["1 Mar"] = "3月1日"    -- This date is used in a specific circumstance. If someone's anniversary/bday landed on a leap year (Feb 29th), it defaults to the 1st of March on non-leap year
     -- Full Month Name
     GRM_L["January"] = "一月"
     GRM_L["February"] = "二月"
@@ -446,7 +444,6 @@ GRML.MandarinCN = function()
     GRM_L["Oct"] = "十月"
     GRM_L["Nov"] = "十一月"
     GRM_L["Dec"] = "十二月"
-
     -- Time Notifcation
     GRM_L["Seconds"] = "秒"
     GRM_L["Second"] = "秒"
@@ -458,11 +455,11 @@ GRML.MandarinCN = function()
     GRM_L["Day"] = "天"
     GRM_L["Months"] = "月"
     GRM_L["Month"] = "月"
-    GRM_L["HourBreak"] = ":"            -- Context, in English, and many languages, 11am = 11:00 -- or in French, 11h00   - the hour break is the ":" or the "h"
+    GRM_L["HourBreak"] = ":"    -- Context, in English, and many languages, 11am = 11:00 -- or in French, 11h00   - the hour break is the ":" or the "h"
 
     GRM_L["am"] = "上午"
     GRM_L["pm"] = "下午"
-    GRM_L["24HR_Notation"] = "";        -- if someone is using 24hr time notation in your country, instead of 12hr, how do you notate it? In English, there is no am/pm (though "hours" is technically right, but unnecessary)
+    GRM_L["24HR_Notation"] = "";    -- if someone is using 24hr time notation in your country, instead of 12hr, how do you notate it? In English, there is no am/pm (though "hours" is technically right, but unnecessary)
 
     GRM_L["{num} year"] = "{num}年"
     GRM_L["{num} years"] = "{num}年"
@@ -479,41 +476,41 @@ GRML.MandarinCN = function()
     GRM_L["{num} hr"] = "{num}小时"
     GRM_L["{num} hrs"] = "{num}小时"
     GRM_L["< 1 hour"] = "< 1小时"
-    GRM_L["{num} {custom1}"] = true     -- Context: This is a placeholder for ANY generic time data -- Ex:  "1 year" or "15 months" - The translation is set this is just to set the orientation of the number properly.
+    GRM_L["{num} {custom1}"] = true    -- Context: This is a placeholder for ANY generic time data -- Ex:  "1 year" or "15 months" - The translation is set this is just to set the orientation of the number properly.
 
     -- MISC Punctuation
-    GRM_L[","] = true                               -- I know in some Asia languages, a comma is not used, but something similar, for example.
+    GRM_L[","] = true    -- I know in some Asia languages, a comma is not used, but something similar, for example.
 
     -- Updates 1.126
     GRM_L["General"] = "综合"
     GRM_L["General:"] = "综合:"
     GRM_L["Scan"] = "扫描"
     GRM_L["Help"] = "帮助"
-    GRM_L["UI"] = "界面"                             -- UI for User Interface. Abbreviation for changing custom UI featuers, like coloring of <M> main
-    GRM_L["Officer"] = "官员"                        -- as in, "Officer" rank
+    GRM_L["UI"] = "界面"    -- UI for User Interface. Abbreviation for changing custom UI featuers, like coloring of <M> main
+    GRM_L["Officer"] = "官员"    -- as in, "Officer" rank
     GRM_L["Open Addon Window"] = "打开插件窗口"
     GRM_L["Sync Addon Settings on All Alts in Same Guild"] = "为所有在公会中的小号同步插件设定"
     GRM_L["Show Minimap Button"] = "显示小地图按键"
     GRM_L["Player is Not Currently in a Guild"] = "玩家不在一个公会中"
     -- tooltips
-    GRM_L["|CFFE6CC7FClick|r to open GRM"] = "|CFFE6CC7F点击|r以打开GRM"                          -- Please maintain the color coding
-    GRM_L["|CFFE6CC7FRight-Click|r to Reset to 100%"] = "|CFFE6CC7F右击|r以重置为100%"               -- for the Options slider tooltip
+    GRM_L["|CFFE6CC7FClick|r to open GRM"] = "|CFFE6CC7F点击|r以打开GRM"    -- Please maintain the color coding
+    GRM_L["|CFFE6CC7FRight-Click|r to Reset to 100%"] = "|CFFE6CC7F右击|r以重置为100%"    -- for the Options slider tooltip
     GRM_L["|CFFE6CC7FRight-Click|r to Set Notification of Status Change"] = "|CFFE6CC7F右击|r以设定状态变化通告"
     -- tooltip end
     GRM_L["GRM"] = true
-    GRM_L["Include Unknown as Incomplete"] = "将未知作为信息不完整"                          -- Context: Unknown in the Audit Tab will be hidden if filtering out complete players
+    GRM_L["Include Unknown as Incomplete"] = "将未知作为信息不完整"    -- Context: Unknown in the Audit Tab will be hidden if filtering out complete players
     GRM_L["You Do Not Have Permission to Add Events to Calendar"] = "你没有在日历中添加活动的权限"
     GRM_L["Please Select Which Join Date to Sync"] = "请选择同步一个加入日期"
     GRM_L["Sync All Alts to {name}'s Join Date"] = "将{name}的加入日期同步给所有小号"
     GRM_L["Sync All Alts to the Earliest Join Date: {name}"] = "将{name}最早的加入日期同步给所有小号"
-    GRM_L["Sync All Alts to {name}'s |cffff0000(main)|r Join Date"] = "将{name}|cffff0000(主号)|r的加入日期同步给所有小号" -- The coloring ensures that "(main)" maintains the RED color. Please keep it consistent if relevant to your language.
+    GRM_L["Sync All Alts to {name}'s |cffff0000(main)|r Join Date"] = "将{name}|cffff0000(主号)|r的加入日期同步给所有小号"    -- The coloring ensures that "(main)" maintains the RED color. Please keep it consistent if relevant to your language.
     GRM_L["Join Date of All Alts is Currently Synced"] = "所有小号的啊加入日期已同步"
 
     -- Update 1.130
     GRM_L["|CFFE6CC7FCtrl-Shift-Click|r to Hide this Button."] = "|CFFE6CC7FCtrl-Shift左键|r以隐藏此按钮"
     GRM_L["Invited By:"] = "邀请人:"
     GRM_L["Error: Guild Not Found..."] = "错误: 未找到公会..."
-    GRM_L["Debugger Start"] = "开始调试"
+    GRM_L["Debugger Start"] = "开始调试";
 
     -- Update 1.136
     GRM_L["Backup Point Removed for Guild \"{name}\""] = "\"{name}\"公会的备份点已移除"
@@ -527,7 +524,7 @@ GRML.MandarinCN = function()
     GRM_L["None"] = "无"
     GRM_L["Restore"] = "恢复"
     GRM_L["Set Backup"] = "建立备份"
-    GRM_L["Memory Usage: {num} MB"] = "内存占用: {num} MB"         -- MB references the number of MegaBytes of memory used.
+    GRM_L["Memory Usage: {num} MB"] = "内存占用: {num} MB"    -- MB references the number of MegaBytes of memory used.
 
     -- Update 1.137
     GRM_L["GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database."] = "GRM: 公会创建日期未知，无法建立备份! 请登录任何在该公会的角色以更新旧数据库。"
@@ -539,7 +536,7 @@ GRML.MandarinCN = function()
     GRM_L["Player Cannot Purge the Guild Data they are Currently In!!!"] = "请先退出当前公会再进行数据抹除!!!"
     GRM_L["To reset your current guild data type '/grm clearguild'"] = "请输入'/grm clearguild'以重置当前公会数据"
     GRM_L["Click Here to Remove all traces of this guild, or hit ESC"] = "点击此处删除该公会所有信息, 或按ESC"
-    GRM_L["{name} has been removed from the database."] = "{name}已从数据库中移除。"             -- The Guild Name has been removed from the database
+    GRM_L["{name} has been removed from the database."] = "{name}已从数据库中移除。"    -- The Guild Name has been removed from the database
 
     -- update 1.141
     GRM_L["Only Restrict Incoming Player Data to Rank Threshold, not Outgoing"] = "会阶限制只作用于传入的数据，不作用于传出的数据"
@@ -560,7 +557,7 @@ GRML.MandarinCN = function()
     GRM_L["Export Log"] = "导出日志"
     GRM_L["Clear Lines:"] = "清除行:"
     GRM_L["Enable Ctrl-Shift-Click Line Removal"] = "启用Ctrl-Shift-Click清除行"
-    GRM_L["To"] = "至"                                     -- Clear Lines:  50 To 100     -- It stands between 2 edit boxes as its own fontstring, so work with that.
+    GRM_L["To"] = "至"    -- Clear Lines:  50 To 100     -- It stands between 2 edit boxes as its own fontstring, so work with that.
     GRM_L["Confirm Clear"] = "确认清除"
     GRM_L["Please Select Range of Lines from the Log You Wish to Remove"] = "请选择清除日志行的范围"
     GRM_L["Please put the lowest number in the first box"] = "请在第一格中输入最小值"
@@ -569,7 +566,7 @@ GRML.MandarinCN = function()
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = "启用行计数... 请在该范围中选择"
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "按Ctrl-C复制 <> 按Ctrl-P粘贴 <> 按Ctrl-A全选"
     GRM_L["Language:"] = "选择语言:"
-    GRM_L["{num} phrases still need translation to {name}"] = "仍有{num}条字句需要被翻译成{name}"                 -- Ex: 300 phrases still need translation to German
+    GRM_L["{num} phrases still need translation to {name}"] = "仍有{num}条字句需要被翻译成{name}"    -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
     GRM_L["You currently are at {num} non-Battletag friends. To fully take advantage of all of GRM features, please consider clearing some room."] = "你目前有{num}位非战网好友。如需使用GRM的所有功能, 请清除部分。"
@@ -589,8 +586,8 @@ GRML.MandarinCN = function()
     GRM_L["Custom Notes:"] = "自定义备注:"
     GRM_L["GRM Debugging Enabled."] = "启用GRM调试"
     GRM_L["GRM Debugging Disabled."] = "禁用GRM调试"
-    GRM_L["Please type \"/grm debug 10\" to report 10 events (or any number)"] = "请输入\"/grm debug 10\"以显示10条报告 (或输入其他数值)"       -- Please keep the \"/grm debug 10)\" in-tact for slash command to work
-    GRM_L["Format: \"/grm debug 10\""] = "格式: \"/grm debug 10\""                                                                 -- "" Likewise
+    GRM_L["Please type \"/grm debug 10\" to report 10 events (or any number)"] = "请输入\"/grm debug 10\"以显示10条报告 (或输入其他数值)"    -- Please keep the \"/grm debug 10)\" in-tact for slash command to work
+    GRM_L["Format: \"/grm debug 10\""] = "格式: \"/grm debug 10\""    -- "" Likewise
     GRM_L["Error: Debug Command not recognized."] = "错误: 未知调试命令。"
     GRM_L["You may want to temporarily disable SYNC in the options if you are debugging another feature."] = "调试其他功能时请在设置中禁用同步。"
     GRM_L["Sync Custom Notes"] = "同步自定义备注"
@@ -607,8 +604,8 @@ GRML.MandarinCN = function()
     GRM_L["Custom Note"] = "自定义备注"
     GRM_L["|CFFE6CC7FClick|r to Change Rank Restriction"] = "|CFFE6CC7F点击|r以修改会阶限制"
     GRM_L["|CFFE6CC7FClick|r to Change Day"] = "|CFFE6CC7F点击|r以修改日期"
-    GRM_L["|CFFE6CC7FClick|r to Change Month"] = "|CFFE6CC7F点击|r以修改月份"
-    GRM_L["|CFFE6CC7FClick|r to Change Year"] = "|CFFE6CC7F点击|r以修改年份"
+    GRM_L["|CFFE6CC7FClick|r to Change Month"] = "|CFFE6CC7F点击|r以修改月份";
+    GRM_L["|CFFE6CC7FClick|r to Change Year"] = "|CFFE6CC7F点击|r以修改年份";
     GRM_L["Edited by {name}"] = "修改人：{name}"
     GRM_L["Note Removed by {name}"] = "备注被{name}移除"
     GRM_L["|CFFFF0000Player No Longer in Guild"] = "|CFFFF0000玩家不是公会成员"
@@ -631,8 +628,6 @@ GRML.MandarinCN = function()
     -- R1.1500
     GRM_L["Unique accounts pull from the server is known to be faulty"] = "从服务器获取的战网账号有几率出错"
     GRM_L["Use only as an estimate. Hopefully Blizz fixes this soon"] = "仅作为估算用，希望暴雪尽快修复"
-    GRM_L["{name}'s Anniversary!"] = "{name}的入会周年日!"
-    GRM_L["{name}'s Birthday!"] = "{name}的生日!"
     GRM_L["Add Upcoming Events to the Calendar"] = "将活动添加至日历"
     GRM_L["Player rank unable to add events to calendar"] = "玩家没有添加活动的权限"
     GRM_L["Anniversaries, Birthdays, and Other Events can be added with permission"] = "有权限的玩家可以添加入会周年日、生日及其他活动"
@@ -653,39 +648,39 @@ GRML.MandarinCN = function()
     GRM_L["A new rank has been added to the guild!"] = "公会新增了1个会阶!"
     GRM_L["{num} new ranks have been added to the guild!"] = "公会新增了{num}个会阶!"
     GRM_L["The guild has removed a rank!"] = "公会移除了1个会阶!"
-    GRM_L["{num} guild ranks have been removed!" ] = "公会移除了{num}个会阶!"
+    GRM_L["{num} guild ranks have been removed!"] = "公会移除了{num}个会阶!"
     GRM_L["Edit Ban"] = "编辑黑名单状态"
     GRM_L["Please Select a Player to Edit their Ban!"] = "选择一个玩家以编辑其黑名单状态!"
     GRM_L["Update Ban"] = "更新黑名单状态"
     GRM_L["{name}'s Ban Info has Been Updated!"] = "{name}的黑名单状态已更新!"
 
     -- R1.1530
-    GRM_L["{name} plays the {custom1} class, not {custom2}."] = "{name}的职业是{custom1}而非{custom2}."            -- Example: Arkaan plays the Hunter class, not Paladin.
+    GRM_L["{name} plays the {custom1} class, not {custom2}."] = "{name}的职业是{custom1}而非{custom2}."    -- Example: Arkaan plays the Hunter class, not Paladin.
     GRM_L["{num} Items Updated"] = "{num}个物品已更新"
     GRM_L["You Currently Have Disabled Adding Events to Calendar"] = "向日历添加活动功能已禁用"
 
     -- R1.20
-    GRM_L["|CFFE6CC7FHold Shift|r to view more alt details."] = "|CFFE6CC7F按住Shift|r显示更多小号信息。"               -- "Hold Shift to view more alt details" is the phrase, but the |CFF|r is the text coloring hex code. Please keep it in there on the keyboard command coloring
+    GRM_L["|CFFE6CC7FHold Shift|r to view more alt details."] = "|CFFE6CC7F按住Shift|r显示更多小号信息。"    -- "Hold Shift to view more alt details" is the phrase, but the |CFF|r is the text coloring hex code. Please keep it in there on the keyboard command coloring
     GRM_L["|CFFE6CC7FClick|r to view more alt details."] = "|CFFE6CC7F点击|r显示更多小号信息。"
-    GRM_L["{custom1} to keep alt details open."] = "{custom1}以保持显示小号信息。"              -- The same can be said here. ^^
-    GRM_L["|CFFE6CC7FClick|r to flip player name ordering"] = "|CFFE6CC7F点击|r按照玩家名称反向排列"                -- and the reset...
+    GRM_L["{custom1} to keep alt details open."] = "{custom1}以保持显示小号信息。"    -- The same can be said here. ^^
+    GRM_L["|CFFE6CC7FClick|r to flip player name ordering"] = "|CFFE6CC7F点击|r按照玩家名称反向排列"    -- and the reset...
     GRM_L["|CFFE6CC7FClick|r to sort Join Dates by Newest"] = "|CFFE6CC7F点击|r按照加入日期由新到旧排列"
     GRM_L["|CFFE6CC7FClick|r to sort Join Dates by Oldest"] = "|CFFE6CC7F点击|r按照加入日期由旧到新排列"
     GRM_L["|CFFE6CC7FClick|r to sort Promotion Dates by Newest"] = "|CFFE6CC7F点击|r按照晋升日期由新到旧排列"
     GRM_L["|CFFE6CC7FClick|r to sort Promotion Dates by Oldest"] = "|CFFE6CC7F点击|r按照晋升日期由旧到新排列"
     GRM_L["|CFFE6CC7FClick|r to sort all Mains first"] = "|CFFE6CC7F点击|r按照主号优先排列"
     GRM_L["|CFFE6CC7FClick|r to sort all Alts first."] = "|CFFE6CC7F点击|r按照小号优先排列"
-    GRM_L["{name}'s Alts"] = "{name}的小号"                                  -- Like "Arkaan's Alts"
+    GRM_L["{name}'s Alts"] = "{name}的小号"    -- Like "Arkaan's Alts"
     GRM_L["GRM window will open when combat ends."] = "GRM窗口会在离开战斗后打开。"
 
     -- R1.24
     GRM_L["This also will change the <Alt> format to match"] = "此选项也会改变<小号>格式"
-    GRM_L["M"] = "主"                                           -- Of note, the "M" is short for "Main" and this is the reference to the main tag on alts in guild chat. For use in the Main tagging <M> (M) etc...
+    GRM_L["M"] = "主"    -- Of note, the "M" is short for "Main" and this is the reference to the main tag on alts in guild chat. For use in the Main tagging <M> (M) etc...
     GRM_L["A"] = "小"
 
     -- R1.25
-    GRM_L["Include \"Joined:\" tag with the date."] = true                                        -- the \" is so you include the qutoations in the actual text. You need them or it closes the phrase.
-    GRM_L["GRM Auto-Detect! {name} has joined the guild and will be set as Main"] = "GRM自动检测：{name}加入了公会，此角色已被设为主号。"           -- Main auto-detect message
+    GRM_L["Include \"Joined:\" tag with the date."] = true    -- the \" is so you include the qutoations in the actual text. You need them or it closes the phrase.
+    GRM_L["GRM Auto-Detect! {name} has joined the guild and will be set as Main"] = "GRM自动检测：{name}加入了公会，此角色已被设为主号。"    -- Main auto-detect message
 
     -- R1.26
     GRM_L["Click to Disable Sync of Custom Note"] = "点击以禁用自定义备注同步"
@@ -713,8 +708,8 @@ GRML.MandarinCN = function()
     GRM_L["The highlighted character is not valid for messages. Please remove."] = "信息中无法含有高亮部分字符，请移除。"
     GRM_L["Not all characters are valid. Please remove any non-text characters."] = "含有无效字符，请移除任何非文字字符。"
     GRM_L["Kick macro created. Press \"CTRL-SHIFT-K\" to kick all of {name}'s alts"] = "踢出宏已创建。按 \"CTRL-SHIFT-K\" 以将 {name} 的所有小号踢出公会。"
-    GRM_L["Kick the Player's {num} alts too?"] = "要将此玩家的 {num} 个小号一同踢出吗？"      -- Plural
-    GRM_L["Kick the Player's {num} alt too?"] = "要将此玩家的 {num} 个小号一同踢出吗？"       -- Not Plural  - "Kick the Player's 1 alt too?"
+    GRM_L["Kick the Player's {num} alts too?"] = "要将此玩家的 {num} 个小号一同踢出吗？"    -- Plural
+    GRM_L["Kick the Player's {num} alt too?"] = "要将此玩家的 {num} 个小号一同踢出吗？"    -- Not Plural  - "Kick the Player's 1 alt too?"
     GRM_L["Ban and Kick the Player's {num} alts too?"] = "要将此玩家的 {num} 个小号一同加入黑名单并踢出吗？"
     GRM_L["Ban and Kick the Player's {num} alt too?"] = "要将此玩家的 {num} 个小号一同加入黑名单并踢出吗？"
 
@@ -722,7 +717,7 @@ GRML.MandarinCN = function()
     GRM_L["Sync With {name} is Complete..."] = "与 {name} 的同步已完成..."
     GRM_L["|CFFE6CC7FLeft-Click|r and drag to move this button."] = "|CFFE6CC7F点击|r 并拖动此按钮。"
     GRM_L["{custom1} and drag to move this button anywhere."] = "{custom1} 并拖动以将此按钮移动至任何位置。"
-    GRM_L["MOTD:"] = "今日信息:"      -- Message Of The Day = M.O.T.D = MOTD -
+    GRM_L["MOTD:"] = "今日信息:"    -- Message Of The Day = M.O.T.D = MOTD -
     GRM_L["minimap"] = "小地图"
 
     -- R1.31
@@ -742,13 +737,13 @@ GRML.MandarinCN = function()
     GRM_L["Show Guild Member Birthdays"] = "显示公会成员的生日"
     GRM_L["Set Birthday"] = "设定生日"
     GRM_L["Edit Birthday"] = "编辑生日"
-    GRM_L["Remove Date"] = "移除生日"            -- Clear Birthday shorthand
+    GRM_L["Remove Date"] = "移除生日"    -- Clear Birthday shorthand
     GRM_L["Birthday"] = "生日"
     GRM_L["Only Announce Birthdays and Anniversaries if Listed as 'Main'"] = "只公告'主号'的生日及周年日"
-    GRM_L["{name} will be celebrating {num} year in the Guild!"] = "这天是 {name} 加入公会 {num} 周年纪念日!"           -- {custom1} will reference the DATE. Ex: "Arkaan will be celebrating 1 year in the Guild! ( 1 May )" - SINGULAR
-    GRM_L["{name} will be celebrating {num} years in the Guild!"] = "这天是 {name} 加入公会 {num} 周年纪念日!"          -- Same thing but PLURAL - "years" in stead of "year"
+    GRM_L["{name} will be celebrating {num} year in the Guild!"] = "这天是 {name} 加入公会 {num} 周年纪念日!"    -- {custom1} will reference the DATE. Ex: "Arkaan will be celebrating 1 year in the Guild! ( 1 May )" - SINGULAR
+    GRM_L["{name} will be celebrating {num} years in the Guild!"] = "这天是 {name} 加入公会 {num} 周年纪念日!"    -- Same thing but PLURAL - "years" in stead of "year"
     GRM_L["No player's currently available to sync {name}'s Guild Data..."] = "无法与任何玩家同步 {name} 的公会信息..."
-    GRM_L["{name} has set {name2}'s Birthday: {custom1}"] = "{name} 已将 {name2} 的生日设为: {custom1}"                  -- custom note is the date like "12 Dec"
+    GRM_L["{name} has set {name2}'s Birthday: {custom1}"] = "{name} 已将 {name2} 的生日设为: {custom1}"    -- custom note is the date like "12 Dec"
     GRM_L["{name}'s Birthday has been set: {custom1}"] = "{name} 的生日已被设为: {custom1}"
 
     -- R1.34
@@ -762,13 +757,13 @@ GRML.MandarinCN = function()
     GRM_L["No player was found to have that birthday."] = "没有玩家在这天过生日。"
 
     -- R1.35
-    GRM_L["Your Guild Leader Has Set Join Dates to only be added to the {name}"] = "只能在 {name} 中添加加入日期"        -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
+    GRM_L["Your Guild Leader Has Set Join Dates to only be added to the {name}"] = "只能在 {name} 中添加加入日期"    -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
     GRM_L["Warning - Global Controls:"] = "警告 - 全局设置:"
     GRM_L["Sync Restrictions Globally Changed to {name} or Higher"] = "同步限制全局设置已改为 {name} 或更高的会阶成员"
     GRM_L["BAN Sync Restrictions Globally Changed to {name} or Higher"] = "黑名单同步限制全局设置已改为 {name} 或更高的会阶成员"
     GRM_L["CUSTOM NOTE Sync Restrictions Globally Changed to {name} or Higher"] = "自定义备注同步限制全局设置已改为 {name} 或更高的会阶成员"
     GRM_L["Join Dates Globally Changed to only be added to the {name}"] = "加入日期全局设置已改为仅为 {name} 添加"
-    GRM_L["Unable to Modify. Global setting is set to the {name}"] = "无法修改，全局设置为 {name}"                          -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
+    GRM_L["Unable to Modify. Global setting is set to the {name}"] = "无法修改，全局设置为 {name}"    -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
 
     -- R1.37
     GRM_L["No Action Configured"] = "无设置修改"
@@ -779,7 +774,7 @@ GRML.MandarinCN = function()
 
     -- R1.39
     GRM_L["Only Report if there are no Active Alts in the Group"] = "仅在所有小号也未活跃时通告"
-    GRM_L["Level Filter Minimum:"] = "通告的最低等级:"                               -- As in player level
+    GRM_L["Level Filter Minimum:"] = "通告的最低等级:"    -- As in player level
     GRM_L["Report Milestones:"] = "通告里程碑:"
     GRM_L["Report Level Up Changes"] = "通告升级"
     GRM_L["Reporting:"] = "通告范围:"
@@ -792,25 +787,25 @@ GRML.MandarinCN = function()
     GRM_L["One moment, GRM is still being configured."] = "请稍后, GRM仍在设置中。"
     GRM_L["Player Was Banned By: {name}"] = "玩家已被加入黑名单，操作者： {name}"
     GRM_L["|cffff0000WARNING!!!|r {num} BANNED players are currently in the guild."] = "|cffff0000警告!!!|r 公会中有 {num} 个位于黑名单中的玩家。"    -- plural
-    GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000警告!!!|r 公会中有 {num} 个位于黑名单中的玩家。"       -- Singular  -- please keep the color coding... this keeps the Warning in red
+    GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000警告!!!|r 公会中有 {num} 个位于黑名单中的玩家。"    -- Singular  -- please keep the color coding... this keeps the Warning in red
 
     -- R1.41
     GRM_L["Auto-Focus the search box"] = "自动聚焦搜索栏"
-    GRM_L["This will skip the first time if set to load on logon"] = "如果设为登录时读取，则将跳过第一次。" -- Referring to the auto-focusing on the search box, this is a tooltip helper
+    GRM_L["This will skip the first time if set to load on logon"] = "如果设为登录时读取，则将跳过第一次。"    -- Referring to the auto-focusing on the search box, this is a tooltip helper
     GRM_L["Please enter a valid level between 1 and {num}"] = "请从 1 至 {num}中选择一个有效等级"
     GRM_L["Player's Main: {name}"] = "玩家的主号: {name}"
 
     -- R1.43
     GRM_L["One moment, requesting additional details on {name} from the server. Ban List will soon update."] = "请等待，正在从服务器获取 {name} 的额外数据，黑名单将在稍后更新。"
     GRM_L["Unable to identify {name}. Ensure your spelling is accurate and the correct realm is selected!"] = "未找到 {name} ，请输入正确的角色名并选择正确的服务器名！"
-    GRM_L["(Unable to Identify)"] = "(未找到)"                                                                   -- As in, unable to identify on the server, they possibly server transferred off but are still on ban list
+    GRM_L["(Unable to Identify)"] = "(未找到)"    -- As in, unable to identify on the server, they possibly server transferred off but are still on ban list
     GRM_L["|CFFE6CC7FClick|r to select player class"] = "|CFFE6CC7F点击|r 选择玩家职业。"
     GRM_L["|CFFE6CC7FClick|r to select player's realm."] = "|CFFE6CC7F点击|r 选择玩家服务器。"
     GRM_L["All Connected Realms are available to choose."] = "可选择所有合并服务器。"
     GRM_L["{num} players were found to have the same name. Please manually select the player's realm"] = "找到 {num} 个此名字的玩家，请手动选择玩家所在的服务器"
     GRM_L["Click or Press TAB to cycle through each step."] = "左键点击或按TAB切换各个步骤。"
     GRM_L["Former and Current Members"] = "前成员及现有成员"
-    GRM_L["No Matches Found. Add a Custom New Player or Match"] = true       -- as in, autocomplete typing matching
+    GRM_L["No Matches Found. Add a Custom New Player or Match"] = true    -- as in, autocomplete typing matching
 
     --1.50
     GRM_L["{name}'s alt grouping has had their Birthday removed by: {name2}"] = "{name} 及其所有角色的生日已被 {name2} 移除"
@@ -829,7 +824,7 @@ GRML.MandarinCN = function()
     GRM_L["kick"] = true
     GRM_L["ban"] = true
     GRM_L["audit"] = true
-    GRM_L["log" ] = true
+    GRM_L["log"] = true
     GRM_L["event"] = true
     GRM_L["events"] = true
     GRM_L["users"] = true
@@ -847,9 +842,9 @@ GRML.MandarinCN = function()
     GRM_L["Fix selected mismatched note dates with GRM saved date"] = "用GRM保存的数据来修复所选择的不匹配的备注日期。"
     GRM_L["Fix all mismatched GRM dates with the note date"] = "用备注日期数据来修复所有GRM的不匹配日期。"
     GRM_L["Fix selected mismatched GRM dates with the note date"] = "用备注日期数据来修复所选择的GRM的不匹配日期。"
-    GRM_L["Import all missing join dates from the note date"] = "将备注日期导入至所有缺失的加入日期"
+    GRM_L["Import all missing join dates from the note date"] = "将备注日期导入至所有缺失的加入日期";
     GRM_L["Import selected missing join dates from the note date"] = "将备注日期导入至所选择的缺失加入日期"
-    GRM_L["Add all missing saved dates to the {name}"] = "为 {name} 添加所有缺失的保存日期"
+    GRM_L["Add all missing saved dates to the {name}"] = "为 {name} 添加所有缺失的保存日期";
     GRM_L["Add selected missing saved dates to {name}"] = "为 {name} 添加所选择的缺失保存日期"
     GRM_L["Clear all join dates from incorrect note locations"] = "从错误的备注位置中清除所有的加入日期"
     GRM_L["Clear selected join dates from incorrect note locations"] = "从错误的备注位置中清除所选择的加入日期"
@@ -863,12 +858,12 @@ GRML.MandarinCN = function()
     GRM_L["|CFFE6CC7FShift-Click|r Second Button to Select All In-Between"] = "|CFFE6CC7FShift左键|r 第二个按钮以选择之间的所有"
     GRM_L["|CFFE6CC7FClick|r to select player"] = "|CFFE6CC7F点击|r 以选择玩家"
     GRM_L["Only Show Players With Incomplete Status"] = "仅显示状态不完整的玩家"
-    GRM_L["{num} Join Dates Need Attention"] = "{num} 个加入日期需特别注意"            -- In other words, "155 join dates need attention" as an example
+    GRM_L["{num} Join Dates Need Attention"] = "{num} 个加入日期需特别注意"    -- In other words, "155 join dates need attention" as an example
     GRM_L["Do you really want to remove the join dates from notes other than the {name}?"] = "确认将除 {name} 以外所有的加入日期从备注中清除吗?"
     GRM_L["Do you really want to fix mismatched dates using the note?"] = "确认使用备注来修复所有不匹配的日期吗?"
     GRM_L["Do you really want to fix note dates using the saved GRM dates?"] = "确认使用GRM日期来修复备注中的日期吗?"
-    GRM_L["Do you really want to add the missing join dates to the {name}?"] = "确认将确实的加入日期写入 {name}?"                    -- add the missing join dates to the default note name - like "... to the Officer Note?"
-    GRM_L["Auto-adding join dates to the {name} is disabled. Do you still wish to continue?"] = "自动向 {name} 添加加入日期的功能已被禁用，仍要继续吗?"   -- Just as above
+    GRM_L["Do you really want to add the missing join dates to the {name}?"] = "确认将确实的加入日期写入 {name}?"    -- add the missing join dates to the default note name - like "... to the Officer Note?"
+    GRM_L["Auto-adding join dates to the {name} is disabled. Do you still wish to continue?"] = "自动向 {name} 添加加入日期的功能已被禁用，仍要继续吗?"    -- Just as above
     GRM_L["There are currently {num} mismatched dates to fix"] = "有 {num} 个不匹配的日期需要修复"
     GRM_L["There are currently no mismatched dates that need to be fixed."] = "没有不匹配的日期需要修复。"
     GRM_L["There are currently no dates that need to be imported."] = "没有日期需要导入。"
@@ -876,7 +871,7 @@ GRML.MandarinCN = function()
     GRM_L["There are currently no dates that need to be removed from incorrect notes"] = "没有日期需要从错误的备注种类中清除"
     GRM_L["There are currently {num} players who have join dates listed in the incorrect note"] = "有 {num} 名玩家的加入日期位于错误的备注种类中"
     GRM_L["Warning! Your function is extremely limited without officer permissions"] = "警告! 没有公会官员的许可，你的功能将受限"
-    GRM_L["Advanced Join Date Tool" ] = "进阶加入日期工具"
+    GRM_L["Advanced Join Date Tool"] = "进阶加入日期工具"
 
     -- JD tool reasons
     GRM_L["Mismatched dates"] = "不匹配的日期"
@@ -912,7 +907,7 @@ GRML.MandarinCN = function()
     GRM_L["Unable to create GRM hotkey macro. You currently are at the cap of {num} macros."] = "无法创建GRM热键宏，你的当前宏已达到{num}个的最大数目。"
 
     -- 1.60
-    GRM_L["Really remove {name} Backup Point?"] = "确认要清除{name}的备份点?"     -- The {name} is the guildName
+    GRM_L["Really remove {name} Backup Point?"] = "确认要清除{name}的备份点?"    -- The {name} is the guildName
 
     -- 1.63
     GRM_L["Disabled"] = "已禁用"
@@ -921,7 +916,7 @@ GRML.MandarinCN = function()
 
     -- 1.64
     GRM_L["Chat Window for All GRM Messages:"] = "所有GRM信息的聊天窗口:"
-    GRM_L["\"{name}\" Chat Window\nDo you wish to create it?" ] = "\"{name}\"聊天窗口\n确认创建?"             -- the \n indicates a line break.
+    GRM_L["\"{name}\" Chat Window\nDo you wish to create it?"] = "\"{name}\"聊天窗口\n确认创建?"    -- the \n indicates a line break.
     GRM_L["GRM will automatically send messages to the \"{name}\" window if you close this one."] = "如果关闭此窗口，GRM会自动将信息发送至\"{name}\"窗口"
     GRM_L["Channel Settings Are Character Specific and Will Not Be Sync'd"] = "频道设置为角色专有，无法被同步"
 
@@ -941,30 +936,30 @@ GRML.MandarinCN = function()
     GRM_L["Your Guild Leader has changed the Custom Rejoin Tag from \"{name}\" to \"{name2}\""] = "公会领袖已把自定义重新加入标签\"{name}\"修改为\"{name2}\""
     GRM_L["Your Guild Leader has set the Custom Rejoin Tag to \"{name}\""] = "\"{name}\"已被公会领袖设置为自定义重新加入标签"
 
-     -- 1.67
+    -- 1.67
     -- Note, lots of plural/singular forms here for just a superior user experience, albeit a bit of extra work
     GRM_L["Kick"] = "踢出"
     GRM_L["Promote"] = "升阶"
     GRM_L["Demote"] = "降阶"
     GRM_L["Macro:"] = "宏:"
-    GRM_L["Macro Size: {num}/255"] = "宏字数: {num}/255"       -- "Macro Size: 242/255"
+    GRM_L["Macro Size: {num}/255"] = "宏字数: {num}/255"    -- "Macro Size: 242/255"
     GRM_L["Action"] = "操作"
-    GRM_L["Ignored Action:"] = "忽略的操作:"                -- As in, the action being ignored, be it kick or promote or demote.
+    GRM_L["Ignored Action:"] = "忽略的操作:"    -- As in, the action being ignored, be it kick or promote or demote.
     GRM_L["Click to Build Macro"] = "点击以创建宏"
     GRM_L["No Current Names to Add"] = "无现有名字可添加"
     GRM_L["No Names to Add to the Macro"] = "无名字可添加至宏"
     GRM_L["Hot Key: {name}"] = "热键: {name}"
     GRM_L["Permissions"] = "许可"
     GRM_L["Player rank change detected, re-checking permissions and rebuilding GRM Macro Tool."] = "检测到会阶变化，重新确认许可并重新创建GRM宏工具。"
-    GRM_L["Click to remove selected names from the macro"] = "点击以将名字从宏中移除"          -- Plural form of statement
-    GRM_L["Click to remove selected name from the macro"] = "点击以将名字从宏中移除"           -- Singular form of statement
-    GRM_L["Click to remove selected names from Ignore List"] = "点击以将名字从忽略名单中移除"        -- Plural
-    GRM_L["Click to remove selected name from Ignore List"] = "点击以将名字从忽略名单中移除"         -- Singular
+    GRM_L["Click to remove selected names from the macro"] = "点击以将名字从宏中移除"    -- Plural form of statement
+    GRM_L["Click to remove selected name from the macro"] = "点击以将名字从宏中移除"    -- Singular form of statement
+    GRM_L["Click to remove selected names from Ignore List"] = "点击以将名字从忽略名单中移除"    -- Plural
+    GRM_L["Click to remove selected name from Ignore List"] = "点击以将名字从忽略名单中移除"    -- Singular
     GRM_L["No names selected to remove from macro"] = "未从宏中移除名字"
     GRM_L["No names selected to remove from Ignore List"] = "未从忽略名单中移除名字"
     GRM_L["Macro is currently empty"] = "宏是空的"
-    GRM_L["{num} players removed from the macro"] = "{num}名玩家已从宏中移除"                   -- plural form of the statement
-    GRM_L["{num} player was removed from the macro"] = "{num}名玩家已从宏中移除"                -- singular form of the statement
+    GRM_L["{num} players removed from the macro"] = "{num}名玩家已从宏中移除"    -- plural form of the statement
+    GRM_L["{num} player was removed from the macro"] = "{num}名玩家已从宏中移除"    -- singular form of the statement
     GRM_L["{num} players removed from the Ignored List"] = "{num}名玩家已从忽略名单中移除"
     GRM_L["{num} player was removed from Ignore List"] = "{num}名玩家已从忽略名单中移除"
     GRM_L["There are no names currently selected to be removed from the Ignore List."] = "未选择要从忽略名单中移除的名字。"
@@ -980,7 +975,6 @@ GRML.MandarinCN = function()
     GRM_L["Player's rank does not have permission to remove others from the guild"] = "玩家没有将成员踢出公会的许可"
     GRM_L["Player's rank does not have permission to promote others in the guild"] = "玩家没有将成员升阶的许可"
     GRM_L["Player's rank does not have permission to demote others in the guild"] = "玩家没有将成员降阶的许可"
-
     GRM_L["Queued Actions"] = "队列中的操作"
     GRM_L["Current Actions"] = "当前操作"
     GRM_L["View Ignore List"] = "查看忽略名单"
@@ -995,18 +989,17 @@ GRML.MandarinCN = function()
     GRM_L["Ignored Players Safe From Action"] = "操作不会影响被忽略的玩家"
     GRM_L["Only show players with ignored action"] = "仅显示操作忽略的玩家"
     GRM_L["No players on Ignore List"] = "忽略名单中没有玩家"
-    GRM_L["No players to select. 1 player filtered"] = "没有可选择的玩家，已过滤1名玩家。"                    -- Singular
-    GRM_L["No players to select. {num} players filtered"] = "没有可选择的玩家，已过滤{num}名玩家。"               -- Plural
-    GRM_L["There are no names to select. 1 player is filtered"] = "没有可选择的名字，已过滤1名玩家。"         -- these 2 statements might seem redundant, but often the text on a button is more short hand. This gives a cleaner statement in the chat. Useful for translating in some languages that need a bit more room to be more clear.
+    GRM_L["No players to select. 1 player filtered"] = "没有可选择的玩家，已过滤1名玩家。"    -- Singular
+    GRM_L["No players to select. {num} players filtered"] = "没有可选择的玩家，已过滤{num}名玩家。"    -- Plural
+    GRM_L["There are no names to select. 1 player is filtered"] = "没有可选择的名字，已过滤1名玩家。"    -- these 2 statements might seem redundant, but often the text on a button is more short hand. This gives a cleaner statement in the chat. Useful for translating in some languages that need a bit more room to be more clear.
     GRM_L["There are no names to select. {num} players are filtered"] = "没有可选择的名字，已过滤{num}名玩家。"
     GRM_L["Really remove selected player from the ignore list?"] = "真的要将所选玩家从忽略名单中移除吗?"
     GRM_L["Really remove the {num} selected players from the ignore list?"] = "真的要将所选的{num}名玩家从忽略名单中移除吗?"
     GRM_L["Do you really wish to clear all players from the Ignore List?"] = "真的要将所有玩家从忽略名单中移除吗?"
-
     GRM_L["There are currently no players on the Ignore List"] = "忽略名单中无玩家"
     GRM_L["Remove all players from Ignore List"] = "将所有玩家从忽略名单中移除"
     GRM_L["Ignored Players: {num}"] = "已忽略玩家: {num}"
-    GRM_L["Tool"] = "工具"                                            -- /grm tool
+    GRM_L["Tool"] = "工具"    -- /grm tool
     GRM_L["Macro Tool"] = "宏命令工具"
     GRM_L["Macro Tool: {num}"] = "宏命令工具: {num}"
 
@@ -1014,105 +1007,102 @@ GRML.MandarinCN = function()
     GRM_L["Social"] = "社交"
     GRM_L["Roster"] = "名单"
     GRM_L["Feature is disabled in WoW Classic"] = "功能在魔兽世界怀旧服中被禁用"
-    GRM_L["Feature is disabled in TBC Classic"] = "功能在燃烧的远征怀旧服中被禁用"         -- Just laying groundwork now in case Blizz ever releases it. Calendar was not added until WOTLK
-    GRM_L["(Classic)"] = "(怀旧服)"      -- tooltip tag that shows only on the minimap mosueover version tooltip in Classic
+    GRM_L["Feature is disabled in TBC Classic"] = "功能在燃烧的远征怀旧服中被禁用"    -- Just laying groundwork now in case Blizz ever releases it. Calendar was not added until WOTLK
+    GRM_L["(Classic)"] = "(怀旧服)"    -- tooltip tag that shows only on the minimap mosueover version tooltip in Classic
 
     -- 1.69
     GRM_L["Importing dates must be done in a compatible format"] = "导入的日期必须是兼容的格式"
     GRM_L["The date selection in OPTIONS shows all supported"] = "请前往设置标签的日期选择查看所有支持的格式"
     GRM_L["Headers, like \"Joined,\" are supported"] = "支持使用标头, 例如：\"加入于\""
-    GRM_L["To confirm or edit the date, open the player window, right click the date, edit, and submit"] = "若要确认或编辑日期，请打开玩家窗口，右键日期并编辑，然后提交"       --The "!!" tags are the {name}
+    GRM_L["To confirm or edit the date, open the player window, right click the date, edit, and submit"] = "若要确认或编辑日期，请打开玩家窗口，右键日期并编辑，然后提交"    --The "!!" tags are the {name}
     GRM_L["To confirm or edit the date, right click the date, edit, and submit"] = "若要确认或编辑日期，请右键日期并编辑，然后提交"    -- Slightly shorter explanation if already on player window
     GRM_L["The {name} tag indicates a date must be verified to sync"] = "{name}标签代表一个日期在同步前需被核实"
 
     -- 1.70
     GRM_L["GRM has errored due to a previous incompatible build with Classic that was enabled. Click YES to reload UI and fix the issue"] = "由于存在旧的与怀旧服不兼容的版本，GRM出现错误，点击确认以重载界面并修复此问题。"
-
-    -- 1.71
-    GRM_L["(Disabled in Classic)"] = "(在怀旧服中禁用)"          -- For the Options... rather than removing them all
+    GRM_L["(Disabled in Classic)"] = "(在怀旧服中禁用)"    -- For the Options... rather than removing them all
 
     -- 1.73
-    GRM_L["{name} is no longer in the Guild!"] = "{name}已不是公会成员!"      -- There should really be 3 options. They got kicked, they left on their own, or if not found in the event log, they are just no longer in the guild
-    GRM_L["is no longer in the Guild!"] = "已不是公会成员!"             -- THIS MUST MATCH THE PREVIOUS LINE with missing name.
+    GRM_L["{name} is no longer in the Guild!"] = "{name}已不是公会成员!"    -- There should really be 3 options. They got kicked, they left on their own, or if not found in the event log, they are just no longer in the guild
+    GRM_L["is no longer in the Guild!"] = "已不是公会成员!"    -- THIS MUST MATCH THE PREVIOUS LINE with missing name.
     GRM_L["Applying update patches... one moment."] = "正在应用更新补丁...请稍后。"
-    GRM_L["Update Complete... {num} patches applied."] = "更新完成...应用了{num}个补丁。"  -- Plural
-    GRM_L["Update Complete... 1 patch applied."] = "更新完成...应用了1个补丁。"        -- Singular version
-    GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = "禁用此项也会在名单鼠标提示中隐藏生日信息"      -- Enable/disable birthday chekbox on UI Options and the Audit windoppw
+    GRM_L["Update Complete... {num} patches applied."] = "更新完成...应用了{num}个补丁。"    -- Plural
+    GRM_L["Update Complete... 1 patch applied."] = "更新完成...应用了1个补丁。"    -- Singular version
+    GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = "禁用此项也会在名单鼠标提示中隐藏生日信息"    -- Enable/disable birthday chekbox on UI Options and the Audit windoppw
     GRM_L["Confirm Date"] = "确认日期"
     GRM_L["If the date is accurate, right click and select 'Confirm Date'"] = "如果日期正确，请右键点击并选择“确认日期”"
 
-     -- 1.74
+    -- 1.74
     GRM_L["Class Colorize Names in Guild Member Alerts"] = "在公会成员警告中以职业色显示名字"
     GRM_L["All player custom notes re-enabled for sync and their checkboxes set."] = true
 
     -- 1.75
-    GRM_L["!note"] = true               -- !note in English will always work. This gives you the option of creating your own key to register a public note.
+    GRM_L["!note"] = true    -- !note in English will always work. This gives you the option of creating your own key to register a public note.
     GRM_L["No officer online to set {name}'s note"] = "无官员在线，无法设置{name}的备注"
     GRM_L["No officer is currently online to update your note"] = "无官员在线，无法更新你的备注"
     GRM_L["Allow Guild Members to Type \"!note notehere\" to Set Their Own Public Note"] = "允许公会成员输入\"!note notehere\"以设置他们自己的公共备注"
-    GRM_L["Enabled"] = "已启用"        -- As in, the opposite of Disabled
+    GRM_L["Enabled"] = "已启用"    -- As in, the opposite of Disabled
     GRM_L["'!note' trigger has been globally ENABLED"] = "'!note'触发已启用"
     GRM_L["'!note' trigger has been globally DISABLED"] = "'!note'触发已禁用"
 
     -- 1.76
-    GRM_L["Same Rank"] = "相同会阶"                                                                  -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
-    GRM_L["Higher Rank"] = "更高的会阶"                                                                -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
-    GRM_L["Limited Features. There is no Calendar in Classic"] = "怀旧服无日历，此功能受限"                          -- Events Tab top warning
-    GRM_L["This only affects settings for your current guild: {name}"] = "此设置只会影响你当前所在的公会: {name}"                  -- Tooltip for Options > General > Sync settings to all alts in same guild
-    GRM_L["GC"] = "全"                                                                         -- Options window, acronym for "Global Controls" and will be adjacent to all settings that have global controls
-    GRM_L["*GC = Global Control - Use Guild Info to Force Setting For All"] = "*全 = 全局设置 - 强制用公会信息为所有人设定"             -- Top left Options window
-    GRM_L["Set Global Controls"] = "设定全局设置"                                                     -- Options > Officer Tab > Bottom left export button
-    GRM_L["Global Control Values Set in Guild Info"] = "将全局设置写入公会信息"                                    -- Export GuildInfo tool tooltip
-    GRM_L["Configure your settings. Click to set in Guild Info"] = "调整你的设置，然后点击以写入公会信息"                                   -- Tooltip line 2- same as above
-    GRM_L["Unable to add globals controls to GuildInfo. There is not enough room."] = "无法将全局设置添加到公会信息，没有足够的空间。"     -- If export of globals is not able to complete
-    GRM_L["Global controls exported to the guild info note. Updating..."] = "全局设定已导出至公会信息文档，更新中..."               -- Success in exporting
-    GRM_L["Your rank cannot edit the Guild Info"] = "你没有编辑公会信息的权限"                                             -- Mouseover tooltip helper for people without MOTD edit access
-    GRM_L["All global controls are already set. You must Edit or Remove the settings manually in the guild Info."] = "全局设置已完成，你需要手动在公会信息中编辑或移除设置。"
+    GRM_L["Same Rank"] = "相同会阶"    -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
+    GRM_L["Higher Rank"] = "更高的会阶"    -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
+    GRM_L["Limited Features. There is no Calendar in Classic"] = "怀旧服无日历，此功能受限"    -- Events Tab top warning
+    GRM_L["This only affects settings for your current guild: {name}"] = "此设置只会影响你当前所在的公会: {name}"    -- Tooltip for Options > General > Sync settings to all alts in same guild
+    GRM_L["GC"] = "全"    -- Options window, acronym for "Global Controls" and will be adjacent to all settings that have global controls
+    GRM_L["*GC = Global Control - Use Guild Info to Force Setting For All"] = "*全 = 全局设置 - 强制用公会信息为所有人设定"    -- Top left Options window
+    GRM_L["Set Global Controls"] = "设定全局设置"    -- Options > Officer Tab > Bottom left export button
+    GRM_L["Global Control Values Set in Guild Info"] = "将全局设置写入公会信息"    -- Export GuildInfo tool tooltip
+    GRM_L["Configure your settings. Click to set in Guild Info"] = "调整你的设置，然后点击以写入公会信息"    -- Tooltip line 2- same as above
+    GRM_L["Unable to add globals controls to GuildInfo. There is not enough room."] = "无法将全局设置添加到公会信息，没有足够的空间。"    -- If export of globals is not able to complete
+    GRM_L["Global controls exported to the guild info note. Updating..."] = "全局设定已导出至公会信息文档，更新中..."    -- Success in exporting
+    GRM_L["Your rank cannot edit the Guild Info"] = "你没有编辑公会信息的权限"    -- Mouseover tooltip helper for people without MOTD edit access
+    GRM_L["All global controls are already set. You must Edit or Remove the settings manually in the guild Info."] = "全局设置已完成，你需要手动在公会信息中编辑或移除设置。";
     GRM_L["Do you really want to wipe all GRM data and settings account-wide?"] = "确认将此账号下的所有GRM数据移除吗?"
     GRM_L["Are you sure your settings are configured and ready for global controls?"] = "确认所有设定已完成并可以进入全局设定?"
     GRM_L["Players the same rank or higher will not be shown"] = "不会显示相同或更高会阶的玩家"
-    GRM_L["Macro"] = "宏"      -- For the slash command  /grm tool or /grm macro - same thing
+    GRM_L["Macro"] = "宏"    -- For the slash command  /grm tool or /grm macro - same thing
 
-	-- 1.77
-	GRM_L["Add Custom Rule"] = "添加自定义规则"        -- Kick Macro Tool - custom rule button right side
-	GRM_L["Former Members"] = "前成员"         -- Export tool
-	GRM_L["Data Export"] = "数据导出"
-	GRM_L["*Max Export is 500 Log Entries at a Time"] = "*单次最多只能导出500条日志"
-	GRM_L["*Max Export is 500 Members at a Time"] = "*单次最多只能导出500名成员"
-	GRM_L["*Max Export is 500 Former Members at a Time"] = "*单次最多只能导出500名前成员"
-	GRM_L["*Export obeys the current log display filters"] = "*导出会遵循现有的日志过滤规则"
-	GRM_L["Select Line Range:"] = "选择条目范围:"
-	GRM_L["Select Member Range:"] = "选择成员范围:"
-	GRM_L["Export Selection"] = "导出选择项"
-	GRM_L["Export Next {num}"] = "导出之后的{num}个"      -- As in, "Export next 500" names or log lines
-	GRM_L["Export Prev {num}"] = "导出之前的{num}个"      -- As in, Export Previous name
-	GRM_L["Total Members: {num}"] = "成员总计: {num}"
-	GRM_L["Total Former Members: {num}"] = "前成员总计: {num}"
-	GRM_L["Class"] = "职业"                      -- As in Class Name, there is currently a "Class:" we need one with the colon
-	GRM_L["Guild Rep"] = "公会声望"                  -- Guild Faction reputation (abbreviated)
-	GRM_L["Last Online (Days)"] = "上一次在线(天)"
-	GRM_L["Spreadsheet Headers"] = "表格项目名"
-	GRM_L["Auto Include Headers"] = "自动包含项目名"       -- Auto include headers on the export frame, as in the column headers for each category on member and former mebers
-	GRM_L["These will only be included if exporting from the top of the table"] = "当从表格开头输出时才会包含这些项"     -- tooltip for the auto-Included export checkbutton
-	GRM_L["Export"] = "导出"
-	GRM_L["This will be rounded to the nearest day"] = "此日期将会被设为最近的日期"
-	GRM_L["Clearing Log Export. A filter setting has been changed."] = "清除日志输出，过滤器被修改"            -- If the filter settings have been modified, the export string should be cleared and re-done
-	GRM_L["No Tag"] = "无标签"                                                             -- Main Tag
-	GRM_L["Delimiter:"] = "分隔符:"                                                         -- Delimiter selection for Export window
-	GRM_L["|CFFE6CC7FClick|r to view more alt details."] = "|CFFE6CC7F点击|r以查看更多小号信息。"                        -- Calendar tooltip
-	GRM_L["The selected delimiter will be removed from all notes on export"] = "在输出时会从所有文档中移除选择的分隔符"
-	GRM_L["Choose thoughtfully"] = "请谨慎选择"
-	GRM_L["{name}'s note has been updated!"] = "{name}的备注已被更新！"
-	GRM_L["Locked. Press ESC"] = "已锁定，按ESC解锁"                                       -- Mouseover Locked text in top right.
-	GRM_L["|CFFE6CC7FClick|r to Select for Removal"] = "|CFFE6CC7F点击|r以选择移除"
+    -- 1.77
+    GRM_L["Add Custom Rule"] = "添加自定义规则"    -- Kick Macro Tool - custom rule button right side
+    GRM_L["Former Members"] = "前成员"    -- Export tool
+    GRM_L["Data Export"] = "数据导出"
+    GRM_L["*Max Export is 500 Log Entries at a Time"] = "*单次最多只能导出500条日志"
+    GRM_L["*Max Export is 500 Members at a Time"] = "*单次最多只能导出500名成员"
+    GRM_L["*Max Export is 500 Former Members at a Time"] = "*单次最多只能导出500名前成员"
+    GRM_L["*Export obeys the current log display filters"] = "*导出会遵循现有的日志过滤规则"
+    GRM_L["Select Line Range:"] = "选择条目范围:"
+    GRM_L["Select Member Range:"] = "选择成员范围:"
+    GRM_L["Export Selection"] = "导出选择项"
+    GRM_L["Export Next {num}"] = "导出之后的{num}个"    -- As in, "Export next 500" names or log lines
+    GRM_L["Export Prev {num}"] = "导出之前的{num}个"    -- As in, Export Previous name
+    GRM_L["Total Members: {num}"] = "成员总计: {num}"
+    GRM_L["Total Former Members: {num}"] = "前成员总计: {num}"
+    GRM_L["Class"] = "职业"    -- As in Class Name, there is currently a "Class:" we need one with the colon
+    GRM_L["Guild Rep"] = "公会声望"    -- Guild Faction reputation (abbreviated)
+    GRM_L["Last Online (Days)"] = "上一次在线(天)"
+    GRM_L["Spreadsheet Headers"] = "表格项目名"
+    GRM_L["Auto Include Headers"] = "自动包含项目名"    -- Auto include headers on the export frame, as in the column headers for each category on member and former mebers
+    GRM_L["These will only be included if exporting from the top of the table"] = "当从表格开头输出时才会包含这些项"    -- tooltip for the auto-Included export checkbutton
+    GRM_L["Export"] = "导出"
+    GRM_L["This will be rounded to the nearest day"] = "此日期将会被设为最近的日期"
+    GRM_L["Clearing Log Export. A filter setting has been changed."] = "清除日志输出，过滤器被修改"    -- If the filter settings have been modified, the export string should be cleared and re-done
+    GRM_L["No Tag"] = "无标签"    -- Main Tag
+    GRM_L["Delimiter:"] = "分隔符:"    -- Delimiter selection for Export window
+    GRM_L["The selected delimiter will be removed from all notes on export"] = "在输出时会从所有文档中移除选择的分隔符"
+    GRM_L["Choose thoughtfully"] = "请谨慎选择"
+    GRM_L["{name}'s note has been updated!"] = "{name}的备注已被更新！"
+    GRM_L["Locked. Press ESC"] = "已锁定，按ESC解锁"    -- Mouseover Locked text in top right.
+    GRM_L["|CFFE6CC7FClick|r to Select for Removal"] = "|CFFE6CC7F点击|r以选择移除"
     GRM_L["Feel free to recommend a delimiter you wish to use to the author"] = "可联系作者添加你想要的分隔符"
     GRM_L["Export Tool"] = "导出工具"
     GRM_L["Opens the Data Export Tool"] = "打开数据导出工具"
     GRM_L["Opens the Advanced Macro Tool"] = "打开进阶宏命令工具"
 
     -- 1.78
-    GRM_L["Hurray!"] = "好耶!"                                                             -- A short cheer! Like "Yay!" except "Hurray!"
-    GRM_L["{name} has Reached the {num} Level Cap! {custom1}"] = "{name}已达到满级{num}级! {custom1}"                 -- Arkaan has Reached the 120 Level Cap! Hurray!
+    GRM_L["Hurray!"] = "好耶!"    -- A short cheer! Like "Yay!" except "Hurray!"
+    GRM_L["{name} has Reached the {num} Level Cap! {custom1}"] = "{name}已达到满级{num}级! {custom1}"    -- Arkaan has Reached the 120 Level Cap! Hurray!
 
     -- 1.80
     GRM_L["Core Window:"] = "核心窗口:"
@@ -1133,18 +1123,18 @@ GRML.MandarinCN = function()
     GRM_L["Sex"] = "性别"
     GRM_L["Male"] = "男性"
     GRM_L["Female"] = "女性"
-    GRM_L["{name} {name2}"] = "{name2}{name}"         -- This might seem weird, but the format is "Race Sex" In other words, "Orc Male" or "Nightborne Female" and so on. Adjust how you see fit, it appears in the mouseover tooltip on the player name
+    GRM_L["{name} {name2}"] = "{name2}{name}"    -- This might seem weird, but the format is "Race Sex" In other words, "Orc Male" or "Nightborne Female" and so on. Adjust how you see fit, it appears in the mouseover tooltip on the player name
 
     -- 1.82
     GRM_L["Disabled While Player is Grouped"] = "玩家在队伍中, 已被禁用"
     GRM_L["SYNC is currently disabled while you are grouped. Due to server restricted addon to addon talk data caps, and in an effort to avoid clogging up the shared global comm space of all addons, sync will be temporarily restricted while grouped."] = "当你在队伍中时同步将被禁用。原因：游戏服务器对插件之间的数据传递有最大限制，为了避免过多占用所有插件的共用沟通空间，当你在一个队伍中时同步将暂时被禁用。"
 
-    -- 1.84
+    -- 1.85
     GRM_L["The note is too long. Only the first {num} characters will be set."] = "备注过长, 将只写入前{num}个字符"
     GRM_L["Apply Only to Selected Ranks"] = "只对选择的会阶采用"
     GRM_L["Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat."] = "战斗中无法创建热键宏, 玩家离开战斗后宏将自动创建。"
     GRM_L["No player data found, recommend full removal."] = "未找到玩家数据，建议完全移除。"
-    GRM_L["OR"] = "或"     -- "Or" as in  This OR that  Use this button OR that button -- Advanced JD audit tool.
+    GRM_L["OR"] = "或"    -- "Or" as in  This OR that  Use this button OR that button -- Advanced JD audit tool.
     GRM_L["Use Promo Date"] = "使用升阶日期"
     GRM_L["Use Join Date"] = "使用加入日期"
     GRM_L["Send to Promo Date"] = "发送至升阶日期"
@@ -1159,9 +1149,9 @@ GRML.MandarinCN = function()
     GRM_L["Ban Sync"] = "黑名单同步"
     GRM_L["Custom Sync"] = "自定义同步"
     GRM_L["Auto Join date"] = "自动加入日期"
-    GRM_L["Include Headers"] = "包含标头"
-    GRM_L["Join Header"] = "加入公会标头"
-    GRM_L["ReJoin Header"] = "重新加入标头"
+    GRM_L["Include Headers"] = "包含标头";
+    GRM_L["Join Header"] = "加入公会标头";
+    GRM_L["ReJoin Header"] = "重新加入标头";
     GRM_L["!note Control"] = "!note控制"
     GRM_L["You need to clear {num} characters to fit the control tags"] = "控制标签过长，请删除至少{num}个字符"
     GRM_L["A new format exists for global settings controls."] = "全局设置控制已存在新格式"
@@ -1177,17 +1167,17 @@ GRML.MandarinCN = function()
     GRM_L["Global controls have not yet been set!"] = true
     GRM_L["Include Birthdays as Incomplete"] = true
     GRM_L["Make room and transfer before clearing"] = true
-    GRM_L["1 player has a join date listed in the incorrect note."] = true             -- Singular (Join Date Audit tool - bottom button mouseover) - rare tooltip use
-    GRM_L["{num} players have join dates listed in the incorrect note."] = true        -- Plural (same)
-    GRM_L["Otherwise, {num} notes are ready to be cleared from the incorrect location"] = true                      -- Plural (same tooltip)
-    GRM_L["Otherwise, 1 note is ready to be cleared from the incorrect location"] = true                            -- Plural (same tooltip)
+    GRM_L["1 player has a join date listed in the incorrect note."] = true    -- Singular (Join Date Audit tool - bottom button mouseover) - rare tooltip use
+    GRM_L["{num} players have join dates listed in the incorrect note."] = true    -- Plural (same)
+    GRM_L["Otherwise, {num} notes are ready to be cleared from the incorrect location"] = true    -- Plural (same tooltip)
+    GRM_L["Otherwise, 1 note is ready to be cleared from the incorrect location"] = true    -- Plural (same tooltip)
     GRM_L["There are currently {num} dates that can be added to the {name}"] = true
-    GRM_L["The previous action still has 1 recommended task. It is advised to do that first."] = true               -- Singular
-    GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = true         -- Plural
-    GRM_L["Step {num}"] = true
+    GRM_L["The previous action still has 1 recommended task. It is advised to do that first."] = true    -- Singular
+    GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = true    -- Plural
+    GRM_L["Step {num}"] = true    -- Like Step 1 , Step 2 , etc.
 
-    -- 1.86
-	GRM_L["What tags look like:"] = true
+    -- R1.86
+    GRM_L["What tags look like:"] = true
     GRM_L["Add Join Date to:"] = true
 
     -- R1.87
@@ -1200,23 +1190,23 @@ GRML.MandarinCN = function()
     GRM_L["Apply to All Levels"] = true
     GRM_L["Apply Only to Level Range"] = true
     GRM_L["Level Range:"] = true
-    GRM_L["{num} to {custom1}"] = true          -- Example: "Level Range: 100 to 120"
-    GRM_L["1 to {num}"] = true                  -- Same principle.
+    GRM_L["{num} to {custom1}"] = true    -- Example: "Level Range: 100 to 120"
+    GRM_L["1 to {num}"] = true    -- Same principle.
     GRM_L["Require Text Match"] = true
     GRM_L["Click to Set"] = true
     GRM_L["Inactivity:"] = true
-    GRM_L["Notify if inactive for {num} {name}" ] = true       -- Notify if inactive for 15 Days  or Notify if inactive for 10 Months
+    GRM_L["Notify if inactive for {num} {name}"] = true    -- Notify if inactive for 15 Days  or Notify if inactive for 10 Months
     GRM_L["Rule Filter: {name}"] = true
     GRM_L["Ranks:"] = true
     GRM_L["All Ranks"] = true
     GRM_L["Note Match:"] = true
     GRM_L["Please Set a Name for this Rule. It can be 1 to 30 characters in length."] = true
     GRM_L["This will also clear all of your saved rules."] = true
-    GRM_L["Within Level Range: {num} - {custom1}"] = true               -- Qued macro tool tooltip
-    GRM_L["Note match: {name}"] = true                                  -- Same
-    GRM_L["Matching Rank"] = true                                       -- ''
-    GRM_L["Right-Click|r to Edit or Remove custom rule"] = true         -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
-    GRM_L["(Applies Only to Classic)"] = true           -- For the Options... rather than removing them all
+    GRM_L["Within Level Range: {num} - {custom1}"] = true    -- Qued macro tool tooltip
+    GRM_L["Note match: {name}"] = true    -- Same
+    GRM_L["Matching Rank"] = true    -- ''
+    GRM_L["Right-Click|r to Edit or Remove custom rule"] = true    -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
+    GRM_L["(Applies Only to Classic)"] = true    -- For the Options... rather than removing them all
 
     -- R1.88
     -- Group Info Module
@@ -1226,15 +1216,15 @@ GRML.MandarinCN = function()
     GRM_L["Click to Lock Info Window"] = true
     GRM_L["Guildies: {num}"] = true
     GRM_L["Former Guildies: {num}"] = true
-    GRM_L["Other {name} Members: {num}"] = true           -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
+    GRM_L["Other {name} Members: {num}"] = true    -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
     GRM_L["Total in Group: {num}"] = true
     GRM_L["Date Left"] = true
     GRM_L["1 Alt Still in Guild"] = true
     GRM_L["{num} Alts Still in Guild"] = true
     GRM_L["Known Alts:"] = true
     GRM_L["Close Enough to Trade"] = true
-    GRM_L["Plugins"] = true         -- plural
-    GRM_L["Plugin"] = true          -- Singular
+    GRM_L["Plugins"] = true    -- plural
+    GRM_L["Plugin"] = true    -- Singular
     GRM_L["Module"] = true
     GRM_L["GRM Optional Modules"] = true
     GRM_L["Enable Module"] = true
@@ -1254,9 +1244,10 @@ GRML.MandarinCN = function()
     GRM_L["The guild name \"{name}\" cannot be found in the database. Ensure proper formatting."] = true
     GRM_L["The player name \"{name}\" cannot be found in the database. Ensure proper spelling."] = true
     GRM_L["Unable to change officer notes at current rank"] = true
+    GRM_L["Player is not currently in a Guild"] = true
     GRM_L["Mains Only"] = true
     GRM_L["Alts Only"] = true
-    GRM_L["Custom Public Notes:"] = true        -- Updated from "Custom Notes"
+    GRM_L["Custom Public Notes:"] = true    -- Updated from Custom Notes
     GRM_L["Leave unchecked to export every member of the guild"] = true
     GRM_L["Only the 10 most recent rank changes will be included"] = true
     GRM_L["When you are ready to remove the players, press the Hot-Key {name} 1 time to complete all actions"] = true
@@ -1274,11 +1265,11 @@ GRML.MandarinCN = function()
     GRM_L["{num} guild members have incomplete info."] = true
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = true
     GRM_L["No Audit Necessary! Great Work!"] = true
-    GRM_L["GRM Audit Report:"] = true                                                               -- Appears after the player's first sync that game secssion.
+    GRM_L["GRM Audit Report:"] = true    -- Appears after the player's first sync that game secssion.
     GRM_L["100% complete. Great work!"] = true
     GRM_L["{num}% complete."] = true
-    GRM_L["Only 1 member with incomplete data."] = true     -- singular phrase
-    GRM_L["{num} members with incomplete data."] = true     -- plural version of it
+    GRM_L["Only 1 member with incomplete data."] = true    -- singular phrase
+    GRM_L["{num} members with incomplete data."] = true    -- plural version of it
     GRM_L["Colorize Names in Chat Window to Match Class"] = true
     GRM_L["Only Match Empty Notes"] = true
     -- macro Tool
@@ -1286,8 +1277,8 @@ GRML.MandarinCN = function()
     GRM_L["Empty Notes"] = true
     GRM_L["Public"] = true
     GRM_L["Custom"] = true
-    GRM_L["Apply Rules to:"] = true         -- Macro tool rule (top selection)
-    GRM_L["All"] = true                     -- As in, apply to everyone.
+    GRM_L["Apply Rules to:"] = true    -- Macro tool rule (top selection)
+    GRM_L["All"] = true    -- As in, apply to everyone.
     GRM_L["Player is an Alt"] = true
     GRM_L["Player is a Main"] = true
     GRM_L["This only applies to KNOWN alts. Unconfigured will be excluded."] = true
@@ -1296,8 +1287,8 @@ GRML.MandarinCN = function()
     GRM_L["Use Cautiously. Applies to all at rank, regardless of being active or inactive."] = true
     GRM_L["This will only apply to players with verified promotion dates."] = true
     GRM_L["Time at Rank: {name}"] = true
-    GRM_L["Notify if at Rank for {num} {name}"] = true      -- "Notify if at Rank for 30 Days" or "Notify if at Rank for 12 Months"
-    GRM_L["Player Guild Rep is"] = true         -- Ex: "Player Guild Rep is < Honored" or "Player Guild Rep is = Neutral"  -- Dropdown selection options immediately follow this line. If ordering of boxes before the line would be better, please inform me and I can accomadate your localization efforts
+    GRM_L["Notify if at Rank for {num} {name}"] = true    -- "Notify if at Rank for 30 Days" or "Notify if at Rank for 12 Months"
+    GRM_L["Player Guild Rep is"] = true    -- Ex: "Player Guild Rep is < Honored" or "Player Guild Rep is = Neutral"  -- Dropdown selection options immediately follow this line. If ordering of boxes before the line would be better, please inform me and I can accomadate your localization efforts
     GRM_L["|CFFE6CC7FClick|r to Change Rep"] = true
     GRM_L["Guild Rep:"] = true
     GRM_L["Guild Rep lower than {name}"] = true
@@ -1317,9 +1308,9 @@ GRML.MandarinCN = function()
     GRM_L["Addon restrictions require manual selection of guild rank"] = true
     GRM_L["Shift Rank Down"] = true
 
-        -- R1.90
+    -- R1.90
     GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = true
-    GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true      -- if sync is triggered after logon too soon
+    GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = true    -- if sync is triggered after logon too soon
     GRM_L["Type '/grm sync' to initiate a one-time sync."] = true
     -- Due to language differences on the edit box, this is to explain where to put the edit box. In Englist it will appear: "Auto Trigger Sync [ 30 ] Seconds After Logging On" - Please place the edit box in the appropriate position for your translation.
     GRM_L["Before Auto Trigger"] = "Auto Trigger Sync"
@@ -1338,7 +1329,7 @@ GRML.MandarinCN = function()
     GRM_L["Promote to Rank:"] = true
     GRM_L["Demote to Rank:"] = true
     GRM_L["Only recommend to Demote if all player linked alts exceed max time"] = true
-    GRM_L["Unable to promote players to this rank"] = true                                                                                  -- etc...
+    GRM_L["Unable to promote players to this rank"] = true
     GRM_L["Unable to demote players to this rank"] = true
     GRM_L["Unable to promote players at this rank."] = true
     GRM_L["Unable to demote players from this rank."] = true
@@ -1346,10 +1337,10 @@ GRML.MandarinCN = function()
     GRM_L["Unable to promote players at this rank to \"{name}\""] = true
     GRM_L["Unable to demote players at this rank to \"{name}\""] = true
     GRM_L["Disable chat log spam while using the Macro Tool"] = true
-    GRM_L["When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions"] = true           -- Similar entries demote/promote plura/singular versions
-    GRM_L["When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions"] = true                -- ''
-    GRM_L["When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions"] = true         -- ''
-    GRM_L["When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions"] = true          -- ''
+    GRM_L["When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions"] = true    -- Similar entries demote/promote plura/singular versions
+    GRM_L["When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions"] = true    -- ''
+    GRM_L["When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions"] = true    -- ''
+    GRM_L["When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions"] = true    -- ''
 
     -- Mouseover tooltip on the macro button on the roster
     GRM_L["Players to Kick:"] = true
@@ -1367,19 +1358,19 @@ GRML.MandarinCN = function()
     -- Promote?Demote tooltup updates on the rules
     GRM_L["Time at Rank:"] = true
     GRM_L["Destination Rank:"] = true
-    GRM_L["# Moves:"] = true        -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
-    GRM_L["Notify if at current rank for {num} {name}" ] = true
+    GRM_L["# Moves:"] = true    -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
+    GRM_L["Notify if at current rank for {num} {name}"] = true
 
     -- Macro Tool Log reporting
-    GRM_L["{name} matches {num} macro tool rules. Promotion Recommended!"] = true     -- I know, a little redundancy here, but I don't want to go back to the kick rules above and modify for all. Just copy/paste the first sentence for each singular/plural.
+    GRM_L["{name} matches {num} macro tool rules. Promotion Recommended!"] = true    -- I know, a little redundancy here, but I don't want to go back to the kick rules above and modify for all. Just copy/paste the first sentence for each singular/plural.
     GRM_L["{name} matches {num} macro tool rule. Promotion Recommended!"] = true
     GRM_L["{name} matches {num} macro tool rules. Demotion Recommended!"] = true
     GRM_L["{name} matches {num} macro tool rule. Demotion Recommended!"] = true
 
     -- 1.921
     -- These are going to be used to cleanup some of the string formatting in the future
-    GRM_L["Click"] = true                   -- Referencing a mouse click
-    GRM_L["Ctrl-Click"] = true              -- Ctrl = Control
+    GRM_L["Click"] = true    -- Referencing a mouse click
+    GRM_L["Ctrl-Click"] = true    -- Ctrl = Control
     GRM_L["Alt-Click"] = true
     GRM_L["Shift-Click"] = true
     GRM_L["Ctrl-Shift-Click"] = true
@@ -1388,10 +1379,10 @@ GRML.MandarinCN = function()
     GRM_L["Left-Click"] = true
     GRM_L["Ctrl-Left-Click"] = true
 
-    GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = true           -- custom1 = "Ctrl-Click"  - it is basically a macro action
+    GRM_L["{custom1} to add player to all 3 macro tool ignore lists"] = true    -- custom1 = "Ctrl-Click"  - it is basically a macro action
     GRM_L["{custom1} to remove player from all 3 macro tool ignore lists"] = true
     GRM_L["{custom1} to push ignore list settings to {name}'s alts"] = true
-    GRM_L["Type \"{name} {name2}\" to Bring Up Macro Tool. {custom1} also work."] = true         -- This is how it looks in final form in English - "Type "/grm macro" to Bring Up Macro Tool (tool, kick, promote, demote also work)""
+    GRM_L["Type \"{name} {name2}\" to Bring Up Macro Tool. {custom1} also work."] = true    -- This is how it looks in final form in English - "Type "/grm macro" to Bring Up Macro Tool (tool, kick, promote, demote also work)""
     GRM_L["Kick Rules"] = true
     GRM_L["Promote Rules"] = true
     GRM_L["Demote Rules"] = true
@@ -1402,7 +1393,7 @@ GRML.MandarinCN = function()
     GRM_L["Macro Rules"] = true
     GRM_L["{name}'s alts now share the same macro rule ignore settings."] = true
     GRM_L["{name} or Press ESC"] = true
-    GRM_L["Please choose a day between {num} and {custom1}"] = true         -- Example: "Please choose a day between 1 and 999"
+    GRM_L["Please choose a day between {num} and {custom1}"] = true    -- Example: "Please choose a day between 1 and 999"
     GRM_L["Reactivate monitoring after {num} days."] = true
     GRM_L["Set Days:"] = true
     GRM_L["Configured: {custom1}"] = true
@@ -1425,7 +1416,7 @@ GRML.MandarinCN = function()
 
     -- 1.93
     GRM_L["Customize Color"] = true
-    GRM_L["Officer Only Access"] = true   -- Tooltip on the advanced join date tool button
+    GRM_L["Officer Only Access"] = true    -- Tooltip on the advanced join date tool button
     GRM_L["Player no longer has officer access. Advanced Join Date Tool has been closed."] = true
     GRM_L["{custom1} to open Player Window"] = true
     GRM_L["{custom1} for Additional Options"] = true
@@ -1450,8 +1441,8 @@ GRML.MandarinCN = function()
     GRM_L["There are no events listed here to remove."] = true
     GRM_L["All events have been removed."] = true
     GRM_L["Ignore All Events"] = true
-    GRM_L["Day:"] = true        -- Events window title header on list
-    GRM_L["Copy"] = true        -- Macro tool - copying
+    GRM_L["Day:"] = true    -- Events window title header on list
+    GRM_L["Copy"] = true    -- Macro tool - copying
     GRM_L["There are {num} players in your guild on dead accounts."] = true
     GRM_L["There is 1 player in your guild on a dead account."] = true
     GRM_L["Click CONFIRM to review the names, IGNORE to remove this pop-up permanently, or CANCEL to be reminded next session."] = true
@@ -1467,7 +1458,7 @@ GRML.MandarinCN = function()
     GRM_L["Dead player accounts found: {num}"] = true
     GRM_L["Rule Sync Enabled"] = true
     GRM_L["Rule Sync Disabled"] = true
-    GRM_L["Created By: {name}"] = true          -- Macro rule tooltip
+    GRM_L["Created By: {name}"] = true    -- Macro rule tooltip
     GRM_L["{name}'s Kick Rule {num}"] = true
     GRM_L["{name}'s Promote Rule {num}"] = true
     GRM_L["{name}'s Demote Rule {num}"] = true
@@ -1489,19 +1480,19 @@ GRML.MandarinCN = function()
     GRM_L["Search to find a player quicker"] = true
 
     -- Additonal slash command
-    GRM_L["dead"] = true            -- slash command for checking dead names
-    GRM_L["deadnames"] = true       -- slash command for checking dead names
+    GRM_L["dead"] = true    -- slash command for checking dead names
+    GRM_L["deadnames"] = true    -- slash command for checking dead names
     GRM_L["TabName"] = true
     GRM_L["Add unique player GUID to chat window to copy"] = true
     GRM_L["Achievement Announce"] = ACHIEVEMENT
     GRM_L["Only Guild Members with GRM installed will see."] = true
 
     -- R1.935
-    GRM_L["Search"] = "搜索" -- This is the global string for "Search"
+    GRM_L["Search"] = "搜索"    -- This is the global string for "Search"
 
     -- R1.936
     GRM_L["Use '{name} search PlayerName' to also find guild members"] = true
-    GRM_L["{custom1} to Copy Name to Chat"] = true  -- "Shift-Click to Copy Name to Chat" is the default
+    GRM_L["{custom1} to Copy Name to Chat"] = true    -- "Shift-Click to Copy Name to Chat" is the default
 
     -- R1.944
     GRM_L["Promote Player if in Guild for"] = true
@@ -1515,15 +1506,15 @@ GRML.MandarinCN = function()
     GRM_L["Ignore Rule With Text Match"] = true
     GRM_L["This only searches the officer note for the safe tag"] = true
     GRM_L["Examples of simple tags:"] = true
-    GRM_L["Do Not Kick" ] = true
-    GRM_L["[S]"] = true  -- While this is just a tag, it is short for the word "Safe"
+    GRM_L["Do Not Kick"] = true
+    GRM_L["[S]"] = true    -- While this is just a tag, it is short for the word "Safe"
     GRM_L["Safe"] = true
     GRM_L["Must be an exact match"] = true
     GRM_L["No safe tag '{name}' in officer note"] = true
     GRM_L["Safe Text Match:"] = true
 
     -- R1.946
-    GRM_L["GRM Tools" ] = true
+    GRM_L["GRM Tools"] = true
     GRM_L["Style Choices:"] = true
     GRM_L["Applies only to date format used for note"] = true
 
@@ -1560,7 +1551,7 @@ GRML.MandarinCN = function()
     GRM_L["Their Rank is too Low. All data is restricted."] = true
     GRM_L["Your Rank is too Low. Player is restricting all data."] = true
     GRM_L["Sync is Currently Disabled. Do you wish to re-enable?"] = true
-    GRM_L["SYNC DATA"] = true       -- AddonUsers Tab in Options
+    GRM_L["SYNC DATA"] = true    -- AddonUsers Tab in Options
     GRM_L["Players"] = true
     GRM_L["Bans"] = true
     GRM_L["Details"] = true
@@ -1569,7 +1560,7 @@ GRML.MandarinCN = function()
     GRM_L["Syncing all data except ban list. Your rank is too low."] = true
     GRM_L["Currently Syncing With: {name}"] = true
     GRM_L["Sync has begun after waiting in queue for {num} seconds"] = true
-    GRM_L["Not Determined"] = true  -- Ban List
+    GRM_L["Not Determined"] = true    -- Ban List
 
     --R1.97
     GRM_L["You are added to the sync queue. Position: {num}"] = true
@@ -1584,7 +1575,7 @@ GRML.MandarinCN = function()
     GRM_L["Guild Transfer Tool"] = true
     GRM_L["Transfer Tool Guide"] = true
     GRM_L["Step-by-Step guide on how to use transfer tool"] = true
-    GRM_L["Step {num}:"] = true  -- Step 1: , Step 2: etc...
+    GRM_L["Step {num}:"] = true    -- Step 1: , Step 2: etc...
     GRM_L["Click \"Set Restore Point\" to the guild you are currently in (remove save first if one already exists)."] = true
     GRM_L["Initiate the guild transfer process."] = true
     GRM_L["Log into the new guild on the new server."] = true
@@ -1598,7 +1589,7 @@ GRML.MandarinCN = function()
     -- R1.972
     GRM_L["Show Player Level"] = true
     GRM_L["Show Mythic+ Rating"] = true
-    GRM_L["M+ Rating:" ] = true
+    GRM_L["M+ Rating:"] = true
     GRM_L["Do Not Show if at Max Level {num}"] = true
     GRM_L["Not on Server"] = true
     GRM_L["Mythic+ rating will only appear on members at max level {num}."] = true
@@ -1647,8 +1638,8 @@ GRML.MandarinCN = function()
     GRM_L["{num} Join Dates Have Been Confirmed."] = true
     GRM_L["Searching Log..."] = true
 
-    -- R1.990
-    GRM_L["M+ Score" ] = true
+    -- R1.980
+    GRM_L["M+ Score"] = true
     GRM_L["Search Public, Officer, and Custom Notes"] = true
     GRM_L["Note Search"] = true
     GRM_L["Tips"] = true    -- Options > Help tab - "Tips" as in helpful info.
@@ -1664,18 +1655,18 @@ GRML.MandarinCN = function()
     GRM_L["Anniversaries, Birthdays, and Other Events can be viewed."] = true
     GRM_L["Please confirm the removal of {num} events."] = true
     GRM_L["Show Offline Members"] = true
-    GRM_L["{num}/{custom1} Online"] = true  -- Format on GRM Roster "10/154 Online"
+    GRM_L["{num}/{custom1} Online"] = true    -- Format on GRM Roster "10/154 Online"
     GRM_L["Hide Options"] = true
     GRM_L["Show Options"] = true
     GRM_L["Show Mains"] = true
     GRM_L["Show Alts"] = true
     GRM_L["Show Tag"] = true
-    GRM_L["Group Alts With Main"] = true  -- Roster Options - grouping alts under the main.
+    GRM_L["Group Alts With Main"] = true    -- Roster Options - grouping alts under the main.
     GRM_L["If enabled, sorting will be based on the Mains"] = true
-    GRM_L["Rows:"] = true       -- Referencing the number of rows on the Guild Roster
+    GRM_L["Rows:"] = true    -- Referencing the number of rows on the Guild Roster
     GRM_L["{num} Rows"] = true
     GRM_L["Right-Click to Reset to {num} Rows"] = true
-    GRM_L["Mythic+ Rating is"] = true -- New Macro rule
+    GRM_L["Mythic+ Rating is"] = true    -- New Macro rule
     GRM_L["Mythic+ Rating:"] = true
     GRM_L["Mythic+ Rating: {num}"] = true
     GRM_L["Mythic+ Rating greater or equal to {num}"] = true
@@ -1684,7 +1675,7 @@ GRML.MandarinCN = function()
 
     -- R1.983
     GRM_L["Special Rules that don't fit nicely into the other categories."] = true
-    GRM_L["Special"] = true     -- Macro Tool tab "Special"
+    GRM_L["Special"] = true    -- Macro Tool tab "Special"
     GRM_L["Special Rules Not Available at Current Rank"] = true
     GRM_L["Add Special Rule"] = true
     GRM_L["The \"Special\" rules bypass any safe and ignore restrictions."] = true
@@ -1708,7 +1699,7 @@ GRML.MandarinCN = function()
     GRM_L["WARNING! Keybind is already in use for \"{name}\"."] = true
 
     -- R1.986
-    GRM_L["D"] = true -- Hardcore mode death tag [D] -- Change to any letter
+    GRM_L["D"] = true    -- Hardcore mode death tag [D] -- Change to any letter
     GRM_L["Classic Hardcore Mode"] = true
     GRM_L["Hardcore"] = true
     GRM_L["Include Date Player Died"] = true
@@ -1717,9 +1708,9 @@ GRML.MandarinCN = function()
     GRM_L["{name} has died at level {num}."] = true
     GRM_L["Player is Still Alive"] = true
     GRM_L["{name} is no longer reported as Dead."] = true
-    GRM_L["The \"{custom1}\" indicates the player is dead." ] = true
+    GRM_L["The \"{custom1}\" indicates the player is dead."] = true
     GRM_L["Your rank does not have permission to remove the tag."] = true
-    GRM_L["R.I.P. - {custom1}"] = true      -- "R.I.P. - 15/09/2023"
+    GRM_L["R.I.P. - {custom1}"] = true    -- "R.I.P. - 15/09/2023"
     GRM_L["Dead"] = true
     GRM_L["Total Deaths Recorded: {num}"] = true
     GRM_L["Time of Death"] = true
@@ -1755,9 +1746,9 @@ GRML.MandarinCN = function()
     GRM_L["Apply to Mains at:"] = true
     GRM_L["Only Selected Ranks"] = true
     GRM_L["Ignore if Offline for:"] = true
-    GRM_L["{custom1} to Change."] = true        -- "Click to change"
+    GRM_L["{custom1} to Change."] = true    -- "Click to change"
     GRM_L["Sync Alts to Main:"] = true
-    GRM_L["Main's Rank: {name}"] = true      -- Example: "Main's Rank: Guild Leader"
+    GRM_L["Main's Rank: {name}"] = true    -- Example: "Main's Rank: Guild Leader"
     GRM_L["Alt's Rank: {name}"] = true
     GRM_L["Destination Rank: {name}"] = true
     GRM_L["Up 1 Rank"] = true
@@ -1783,13 +1774,13 @@ GRML.MandarinCN = function()
     GRM_L["You will not be asked this again."] = true
     GRM_L["Please note, GRM will now track the deaths behind the scenes. If you wish to see the full server message, you will need to manually enable in the General Chat Settings."] = true
     GRM_L["Join \"{name}\" Channel to Track Deaths"] = true
-    GRM_L["HardcoreDeaths"] = true      -- Default Placeholder
+    GRM_L["HardcoreDeaths"] = true    -- Default Placeholder
     GRM_L["Configuring channel... one moment."] = true
 
     -- R1.9911
     GRM_L["Data collected. Ban list updated."] = true
     GRM_L["Birthday set for {name} and {num} alt: {custom1}"] = true
-    GRM_L["Birthday set for {name} and {num} alts: {custom1}"] = true       -- Plural version
+    GRM_L["Birthday set for {name} and {num} alts: {custom1}"] = true    -- Plural version
     GRM_L["{name} has set {name2}'s Birthday, and {num} alt: {custom1}"] = true
     GRM_L["{name} has set {name2}'s Birthday, and {num} alts: {custom1}"] = true
     GRM_L["{name}'s Birthday has been removed."] = true
@@ -1805,7 +1796,7 @@ GRML.MandarinCN = function()
     GRM_L["Alts/Mains"] = true
     GRM_L["Custom Notes"] = true
     GRM_L["Birthdays"] = true
-    GRM_L["Normalized Realm Names is Acceptable" ] = true
+    GRM_L["Normalized Realm Names is Acceptable"] = true
     GRM_L["Example: \'Aerie Peak\' or \'AeriePeak\'"] = true
     GRM_L["Banned Player in Group: {name} - Identify Verified and Ban List Updated"] = true
     GRM_L["{name}'s Profile Succcessfully Updated!"] = true
@@ -1821,16 +1812,16 @@ GRML.MandarinCN = function()
 
     --R1.9914
     -- PROFESSION TRACKING DETAILS
-    GRM_L["BS"] = true      -- Blacksmithing
-    GRM_L["LW"] = true      -- Leatherworking
-    GRM_L["Alc"] = true     -- Alchemy
+    GRM_L["BS"] = true    -- Blacksmithing
+    GRM_L["LW"] = true    -- Leatherworking
+    GRM_L["Alc"] = true    -- Alchemy
     GRM_L["Herb"] = true    -- Herbalism
     GRM_L["Mine"] = true    -- Mining
-    GRM_L["TL"] = true      -- Tailoring
-    GRM_L["Eng"] = true     -- Engineering
+    GRM_L["TL"] = true    -- Tailoring
+    GRM_L["Eng"] = true    -- Engineering
     GRM_L["Ench"] = true    -- Enchanting
     GRM_L["Skin"] = true    -- Skinning
-    GRM_L["JC"] = true      -- Jewelcrafting
+    GRM_L["JC"] = true    -- Jewelcrafting
     GRM_L["Insc"] = true    -- Inscription
     GRM_L["Classic"] = true
     GRM_L["Classic Era, HC, and SOD"] = true    -- Classic Era, Hardcore, and Season of Discovery is the acronymns
@@ -1849,15 +1840,15 @@ GRML.MandarinCN = function()
     GRM_L["Note too long: Free up {num} characters"] = true
     GRM_L["Click to Continue - {num} Members Remaining"] = true
     GRM_L["Choose Destination:"] = true
-    GRM_L["Click to Set\nProfession Details"] = true        --\n is a line break -- It just looks better this way. Remove translation if you can write itm ore concise
-    GRM_L["This will add or update available profession details to every member's {name}."] = true      -- ...every member's public note [officer, [custom ]
+    GRM_L["Click to Set\nProfession Details"] = true    --\n is a line break -- It just looks better this way. Remove translation if you can write itm ore concise
+    GRM_L["This will add or update available profession details to every member's {name}."] = true    -- ...every member's public note [officer, [custom ]
     GRM_L["Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."] = true
     GRM_L["Auto-update is disabled. This will only update your notes a single time"] = true
     GRM_L["Cancel Auto-Update"] = true
     GRM_L["Only Available for Officers"] = true
     GRM_L["One moment. Processing profession data..."] = true
     GRM_L["Update profession ranks (Classic Era Only)"] = true
-    GRM_L["Prof"] = true        -- /grm prof SLASH COMMAND -- Make your own slash command
+    GRM_L["Prof"] = true    -- /grm prof SLASH COMMAND -- Make your own slash comm.0and
     GRM_L["Realm Name"] = true
     GRM_L["{name} is no longer in the guild"] = true
     GRM_L["{custom1} Entry to Open Player Window"] = true
@@ -1895,7 +1886,7 @@ GRML.MandarinCN = function()
     GRM_L["{num} notes have had profession details removed."] = true
     -- Main/Alt Display Settings
     GRM_L["Alt, Main, and Nickname settings"] = true
-    GRM_L["Names"] = true       -- Represents the Options "Names" tab
+    GRM_L["Names"] = true    -- Represents the Options "Names" tab
     GRM_L["Main and Alt Formatting"] = true
     GRM_L["Show both {name} and {name2} tags in Chat"] = true
     GRM_L["Show Main Name in Chat"] = true
@@ -1913,7 +1904,7 @@ GRML.MandarinCN = function()
     GRM_L["Would you like to recreate these chat windows for messages unique to the GRM addon?"] = true
     GRM_L["Add Channel"] = true
     GRM_L["Add Channels"] = true
-    GRM_L["Set to {name}"] = true   -- Referencing the default chat channel "Set to General"
+    GRM_L["Set to {name}"] = true    -- Referencing the default chat channel "Set to General"
     GRM_L["Keep Only {name}"] = true
     GRM_L["GRM will now send all messages to the default \"{name}\" channel"] = true
     GRM_L["The missing GRM channel has been recreated."] = true
@@ -1969,7 +1960,7 @@ GRML.MandarinCN = function()
     GRM_L["The web app can extract your GRM logs to Text, CSV, or JSON"] = true
     GRM_L["Alt Group Limit Audit"] = true
     GRM_L["None Found"] = true
-    GRM_L["altlimit"] = true        -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
+    GRM_L["altlimit"] = true    -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
 
     -- 1.99346
     GRM_L["View Official GRM Website"] = true
@@ -2012,32 +2003,32 @@ GRML.MandarinCN = function()
     GRM_L["API restricted by Blizzard - Officer note editing not possible."] = true
     GRM_L["(Unavailable in Retail)"] = true
     GRM_L["The Global Control string in your guild info needs to be updated. GRM no longer has the ability to do it. Please type /grm and go to the Options and Officer tab to re-obtain a new control text string to manually copy over."] = true
-    
+
     -- 1.99384
     GRM_L["NOTICE - Note Editing Restrictions Active - Unable to Edit"] = true
     GRM_L["Public Note Locations:"] = true
     GRM_L["Officer Note Locations:"] = true
     GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = true
     GRM_L["Disregard notes located in Public or Officer notes"] = true
-    
+
     -- R1.99386
     GRM_L["Unable to Retrieve. Addons currently restricted."] = true
     GRM_L["The Log is already empty."] = true
     GRM_L["Only the visible non-filtered log entries will be cleared. Do you really wish to delete the {num} log entries?"] = true
     GRM_L["Only the currently filtered {num} log entries will be removed."] = true
-    
+
     -- R1.99387
-    GRM_L["Custom note exceeds maximum character limit of {num} and cannot be saved." ] = true
+    GRM_L["Custom note exceeds maximum character limit of {num} and cannot be saved."] = true
     GRM_L["Appended custom note for {name} exceeds the maximum character limit of {num} and cannot be saved."] = true
-    
+
     -- R1.99388
     GRM_L["You must be in a guild to view the Guild Log!"] = true
     GRM_L["You must be in a guild to view the Guild Macro Tool!"] = true
-    
+
     -- R1.99389
     GRM_L["Analyzing Guild Event Log..."] = true
     GRM_L["Relevant Log Entries Added: {num}"] = true
-    
+
     -- R1.9942
     GRM_L["Profession feature has been globally set to FULLY DISABLED."] = true
     GRM_L["Profession auto-updating has been globally DISABLED."] = true
@@ -2051,8 +2042,8 @@ GRML.MandarinCN = function()
     GRM_L["You do not have permission to edit the officer note."] = true
     GRM_L["This will remove the profession details from all player Custom Notes. Public and Officer Notes are restricted at your rank."] = true
     GRM_L["This will remove the profession details from all player notes: public, and custom. Officer Notes are restricted at your rank."] = true
-    GRM_L["This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank." ] = true
-    
+    GRM_L["This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank."] = true
+
     -- Nickname Update
     -- 1.995
     GRM_L["Player Nicknames must be no longer than {num} letters in length"] = true
@@ -2064,9 +2055,7 @@ GRML.MandarinCN = function()
     GRM_L["A shared nickname ({name}) has been set to {name2}'s alt group."] = true
     GRM_L["A nickname ({name}) has been set to {name2}"] = true
     GRM_L["{name} has removed the shared nickname from {name2}'s alt group."] = true
-    GRM_L["{name} has removed {name2}'s nickname."] = true
     GRM_L["Invalid Character: \"|\" is not allowed when making a nickname."] = true
-    GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
 
     -- Patching update
     GRM_L["The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"] = true
@@ -2118,7 +2107,7 @@ GRML.MandarinCN = function()
     -- Forever labeling
     GRM_L["(Forever)"] = true
     GRM_L["Only Available in Classic or Forever"] = true
-    
+
     -- 1.9952
     GRM_L["First:"] = true
     GRM_L["Last:"] = true
@@ -2144,13 +2133,14 @@ GRML.MandarinCN = function()
     GRM_L["Click to add to Active Columns (or drag into position above)."] = true
     GRM_L["Only available in Cataclysm or later."] = true
     GRM_L["Reputation"] = true
-    
+
     -- 1.99531
     GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = true
     GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
     GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
-    
+
 end
+
 
 -- Thank you 阿拉贝比-回音山 for you amazing work!
 -- 谢谢你，阿拉贝比-回音山，你的工作太棒了！
