@@ -251,11 +251,3 @@ NN.IsNicknameFormatValid = function ( nickname )
 
     return true;
 end
-
-
--- Enhanced permissions controls - currently treated as public info
--- tooltips - show nicnkname when hovering over player in the 3D world
--- Add nicknames to export feature
--- Analytics - % of guild with nicknames
--- searchable nickname in the roster
--- /nick! can be enabled or disabled

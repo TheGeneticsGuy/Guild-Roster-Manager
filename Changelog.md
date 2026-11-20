@@ -1,6 +1,8 @@
-## **VERSION 1.9951 - November 17th, 2026**
+## **VERSION 1.99531 - November 17th, 2026**
 
 ***BUG FIXES***
+
+* Retail and Forever should no longer have BG spam from the addon causing taint. Same with chat hooks attempting when in raid combat. This might have caused some blocking actions too. This was a MAJOR chore for me to adapt to with some recent backend changes that I almost gave up. 20hrs later I got it resolved.
 
 * Fixed an issue with the alt name spacing in the alt grouping window in the mouseover
 

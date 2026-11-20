@@ -108,7 +108,7 @@ NamesTab.BuildNamesTab = function()
 
     -- Main & Alt Tag Dropdowns
     GRM_UI.CreateString("GRM_MainTagLbl", f, "GameFontNormal", GRM.L("Main Tag") .. ":", 12, {"TOPLEFT", f.GRM_NameOptionsTitle, "BOTTOMLEFT", 5, -15})
-    GRM_UI.CreateDropDownMenu("GRM_MainTagDD", f, nil, {"LEFT", f.GRM_MainTagLbl, "RIGHT", 5, -2}, {60, 25}, GRM_Name.GetMainTags(true), 12, {1,1,1}, nil, nil, function(idx) GRM.S().mainTagIndex = idx; UpdateText() end, nil, nil, true, function() CloseOtherDropdowns(1) end, 4)
+    GRM_UI.CreateDropDownMenu("GRM_MainTagDD", f, nil, {"LEFT", f.GRM_MainTagLbl, "RIGHT", 5, -2}, {60, 25}, GRM_Name.GetMainTags(true), 12, {1,1,1}, nil, nil, function(idx) if idx then GRM.S().mainTagIndex = idx; end UpdateText() end, nil, nil, true, function() CloseOtherDropdowns(1) end, 4)
 
     GRM_UI.CreateString("GRM_AltTagLbl", f, "GameFontNormal", GRM.L("Alt Tag") .. ":", 12, {"LEFT", f.GRM_MainTagDDSelected, "RIGHT", 15, 2})
     GRM_UI.CreateDropDownMenu("GRM_AltTagDD", f, nil, {"LEFT", f.GRM_AltTagLbl, "RIGHT", 5, -2}, {60, 25}, GRM_Name.GetAltTags(true), 12, {1,1,1}, nil, nil, function(idx) GRM.S().altTagIndex = idx; UpdateText() end, nil, nil, true, function() CloseOtherDropdowns(2) end, 4)

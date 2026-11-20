@@ -1070,6 +1070,12 @@ GRM_Patch.PatchHistory = {
         apply = function()
             GRM_Patch.AddNewSetting("rosterColumns", {})
         end
+    },
+    {
+        version = 1.99531,
+        apply = function()
+            GRM_Patch.EditSetting("mainTagIndex", GRM_Patch.FixingMissingSetting)
+        end
     }
 }
 
@@ -9719,4 +9725,12 @@ GRM_Patch.SetAllNoteMacroRulesToCustom = function()
             end
         end
     end
+end
+
+-- R1.99531
+GRM_Patch.FixingMissingSetting = function (mainTagIndex)
+    if mainTagIndex == nil then
+        mainTagIndex = 1;
+    end
+    return mainTagIndex
 end

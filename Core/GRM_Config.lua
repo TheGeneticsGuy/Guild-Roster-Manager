@@ -185,6 +185,10 @@ GRM.LoadAddon = function()
     SystemMessageChecking:RegisterEvent("CHAT_MSG_SYSTEM");
     SystemMessageChecking:SetScript("OnEvent", GRM_Sys.SystemMessageHandler);
 
+    C_Timer.After(5, function()
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
+    end)
+
     if GRM_G.BuildVersion < GRM_ENUM.BUILD.CATA and GRM_G.BuildVersion >= GRM_ENUM.BUILD.WOTLK then
         -- Achievements are broken in WotLK classic - so don't announce for modern versions or it'll duplicate
         C_ChatInfo.RegisterAddonMessagePrefix("GRMACHIEV");

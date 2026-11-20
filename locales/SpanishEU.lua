@@ -2146,4 +2146,9 @@ GRML.SpanishEU = function()
     GRM_L["Only available in Cataclysm or later."] = true
     GRM_L["Reputation"] = true
     
+    -- 1.99531
+    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = true
+    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
+    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
+    
 end

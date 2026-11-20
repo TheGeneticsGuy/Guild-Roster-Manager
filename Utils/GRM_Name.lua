@@ -31,18 +31,20 @@ end
 
 -- Helper on main tag
 GRM_Name.GetCurrentMainTag = function()
+    local index = GRM.S().maintTagIndex or 1
     if not GRM.S().mainTagIndex then
         GRM.S().mainTagIndex = 1
     end
-    return GRM_G.TagHexCode .. GRM_Name.GetMainTags(false, GRM.S().mainTagIndex) .. "|r";
+    return GRM_G.TagHexCode .. GRM_Name.GetMainTags(false, index) .. "|r";
 end
 
 -- Herlper on alt tag
 GRM_Name.GetCurrentAltTag = function()
+    local index = GRM.S().maintTagIndex or 1
     if not GRM.S().mainTagIndex then
         GRM.S().mainTagIndex = 1
     end
-    return GRM_G.TagHexCode .. GRM_Name.GetAltTags(false, GRM.S().mainTagIndex) .. "|r";
+    return GRM_G.TagHexCode .. GRM_Name.GetAltTags(false, index) .. "|r";
 end
 
 -- Used to determine which index is the one indicating no changes are to be made to text.

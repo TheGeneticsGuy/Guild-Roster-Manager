@@ -1,23 +1,118 @@
 GRM_Sys = {};
 
-local MainTagEvents = {
-    CHAT_MSG_GUILD                 = true,
-    CHAT_MSG_OFFICER               = true,
-    CHAT_MSG_WHISPER               = true,
-    CHAT_MSG_PARTY                 = true,
-    CHAT_MSG_PARTY_LEADER          = true,
-    CHAT_MSG_RAID                  = true,
-    CHAT_MSG_RAID_LEADER           = true,
-    CHAT_MSG_INSTANCE_CHAT         = true,
-    CHAT_MSG_INSTANCE_CHAT_LEADER  = true,
-}
+local ProcessedChatCache = {}
+local ProcessedChatQueue = {}
+local MAX_CACHE_SIZE = 100
+local hookedFrames = setmetatable({}, { __mode = "k" })
 
--- Main Tag Duplication protection
-local FormattingDupeProtect = {};
-FormattingDupeProtect.time = 0;
-FormattingDupeProtect.name = "";
-FormattingDupeProtect.msg = "";
-FormattingDupeProtect.tableString = "";
+-- Tells Blizzard which chat lines actually need to be transformed
+local function ChatMessagePredicate(text, ...)
+    if GRM.issecretvalue(text) or type(text) ~= "string" or ProcessedChatCache[text] then
+        return false 
+    end
+    
+    -- Only return true if the line contains a player link or offline message
+    if string.find(text, "|Hplayer:", 1, true) or string.find(text, GRM.L("has gone offline."), 1, true) then
+        return true
+    end
+    
+    return false
+end
+
+-- Formats the text and returns it along with all original metadata
+local function ProcessChatMessageSafe(text, ...)
+    if GRM.issecretvalue(text) then
+        return text, ...
+    end
+    local originalText = text
+    local modified = false
+
+    -- Hyperlink Detection
+    if string.find(text, "|Hplayer:", 1, true) then
+        text = string.gsub(text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", GRM_Sys.ReplaceHyperlink)
+        if text ~= originalText then modified = true end
+    
+    -- Offline Detection
+    elseif string.find(text, GRM.L("has gone offline."), 1, true) then
+        text = GRM_Sys.ReplaceOfflineMessage(text)
+        if text ~= originalText then modified = true end
+    end
+    
+    -- If we modified the text, save string to our cache so we never process it again
+    if modified then
+        ProcessedChatCache[text] = true
+        table.insert(ProcessedChatQueue, text)
+        
+        -- Prevent memory leaks by capping the cache size
+        if #ProcessedChatQueue > MAX_CACHE_SIZE then
+            local oldestString = table.remove(ProcessedChatQueue, 1)
+            ProcessedChatCache[oldestString] = nil
+        end
+    end
+    
+    return text, ...
+end
+
+-- Any chat frame can be modified
+GRM_Sys.HookChatFrames = function()
+    if GRM_G.ChatFramesHooked then
+        return
+    end
+
+    local function HookSingleChatFrame(chatFrame)
+        if not chatFrame or hookedFrames[chatFrame] then
+            return
+        end
+
+        hookedFrames[chatFrame] = true
+
+        -- Retail and WOW Forever Addogeddon taint free hook.
+        if chatFrame.TransformMessages then
+            hooksecurefunc(chatFrame, "AddMessage", function(self, text)
+                if GRM.issecretvalue(text) or type(text) ~= "string" then return end
+                
+                -- Only trigger a buffer transform if this new line contains actionable targets
+                if string.find(text, "|Hplayer:", 1, true) or string.find(text, GRM.L("has gone offline."), 1, true) then
+                    -- FIX: We now pass BOTH the Predicate and the Transform function!
+                    self:TransformMessages(ChatMessagePredicate, ProcessChatMessageSafe)
+                end
+            end)
+            
+        -- CLASSIC ERA / WOTLK: Safe to use the legacy hook (No chat taint lockdown exists here)
+        else
+            local originalAddMessage = chatFrame.AddMessage
+            chatFrame.AddMessage = function(self, text, ...)
+                if GRM.issecretvalue(text) then return originalAddMessage(self, text, ...) end
+                
+                if text and type(text) == "string" then
+                    local success, modifiedText = pcall(ProcessChatMessageSafe, text)
+                    if success and modifiedText then text = modifiedText end
+                end
+                
+                return originalAddMessage(self, text, ...)
+            end
+        end
+    end
+
+    -- Hook all existing frames
+    for _, frameName in ipairs(CHAT_FRAMES) do
+        if _G[frameName] then HookSingleChatFrame(_G[frameName]) end
+    end
+
+    -- Watch for dynamically created whisper/BNET tabs
+    hooksecurefunc("FCF_OpenNewWindow", function()
+        for _, frameName in ipairs(CHAT_FRAMES) do
+            if _G[frameName] then HookSingleChatFrame(_G[frameName]) end
+        end
+    end)
+    hooksecurefunc("FCF_OpenTemporaryWindow", function()
+        for _, frameName in ipairs(CHAT_FRAMES) do
+            if _G[frameName] then HookSingleChatFrame(_G[frameName]) end
+        end
+    end)
+
+    GRM_G.ChatFramesHooked = true
+end
 
 -- Method:          CreateGuildCreationDatePattern()
 -- What it Does:    Creates the guild Creation Date Pattern
@@ -34,16 +129,6 @@ local CreateGuildCreationDatePattern = function()
     end
 
     return pattern;
-end
-
--- Method:          SystemMessageHookControl()
--- What it Does:    Checks to ensure script modification happens at the end of the sequential table to ensure all addon compatibility
--- Purpose:         Quality of life - prevent frustration for other addon devs
-local SystemMessageHookControl = function()
-    if (time() - GRMsyncGlobals.timeAtLogin) < 30 then
-        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter);
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter);
-    end
 end
 
 -- Method:          SyncPlayerGoneOffline ( string )
@@ -173,14 +258,14 @@ end
 -- Method:          GRM_Sys.IsValidToAddTags( playerTable )
 -- What it Does:    Evaluates if a player should receive tags based on dropdown settings
 GRM_Sys.IsValidToAddTags = function(player)
-    -- Nickname first
-    local nickname = GRM.NN.GetNickname(player.name)
+    local nickname = GRM.NN.GetNickname(nil, player)
     local result = false
     local isUnassigned = false
     local isMain = GRM.IsMain(player.name)
+    local hasAlts = GRM.PlayerHasAlts(player)
 
     if nickname and nickname ~= "" then
-        -- Player has nickname, let's check nickname settings for main
+        -- Player has nickname, check nickname settings
         local nickMainDisabled = GRM_Name.IsTagDisabled("NICKMAIN", GRM.S().nicknameFormatMain)
         local nickAltDisabled = GRM_Name.IsTagDisabled("NICKALT", GRM.S().nicknameFormatAlt)
         local nickUnassignedDisabled = GRM_Name.IsTagDisabled("NICKUNASSIGNED", GRM.S().nnFormatUnassigned)
@@ -188,30 +273,26 @@ GRM_Sys.IsValidToAddTags = function(player)
         if isMain then
             result = not nickMainDisabled
         else
-            -- In a group
-            if GRM.PlayerHasAlts(player) then
-                -- Player is an Alt or unassigned
+            if hasAlts then
                 if not GRM.PlayerIsUnassignedInGroup(player) then
-                    -- Player is an Alt and IS assigned
                     result = not nickAltDisabled
                 else
                     isUnassigned = true
-                    -- player is unassigned
                     result = not nickUnassignedDisabled
                 end
             else
-                -- player is unassigned
                 isUnassigned = true
                 result = not nickUnassignedDisabled
             end
         end
-    
     else
-        -- No nickname - alt/main only
-        if GRM.PlayerHasAlts(player) then
+        -- No nickname, check standard Main/Alt settings
+        if hasAlts then
             if not GRM.PlayerIsUnassignedInGroup(player) then
-                local mainDisabled = GRM_Name.IsTagDisabled("NICKMAIN", GRM.S().nicknameFormatMain)
-                local altDisabled = GRM_Name.IsTagDisabled("NICKKALT", GRM.S().nicknameFormatAlt)
+                -- FIXED: Check MAIN and ALT settings, not NICK settings!
+                local mainDisabled = GRM_Name.IsTagDisabled("MAIN", GRM.S().nameFormatMain)
+                local altDisabled = GRM_Name.IsTagDisabled("ALT", GRM.S().nameFormatAlt)
+                
                 if isMain then
                     result = not mainDisabled
                 else
@@ -468,11 +549,6 @@ GRM_Sys.TriggerPlayerNote = function(playerName, msg)
     end
 end
 
-
--- =========================
--- SHARED FORMATTING HELPERS
--- =========================
-
 GRM_Sys.ReplaceHyperlink = function(prefix, playerName, displayedName, suffix)
     local cleanNameStr = string.gsub(string.gsub(playerName, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
     local fullName = GRM.AppendServerName(cleanNameStr)
@@ -506,8 +582,11 @@ GRM_Sys.ReplaceHyperlink = function(prefix, playerName, displayedName, suffix)
                 elseif plainSuffixLvl then formattedName = formattedName .. " " .. plainSuffixLvl end
             end
 
-            if string.match(cleanDisplay, "^%s*%[") then return prefix .. "[" .. formattedName .. "]" .. suffix
-            else return prefix .. formattedName .. suffix end
+            if string.match(cleanDisplay, "^%s*%[") and not string.match(formattedName, "^%s*%[") then
+                return prefix .. "[" .. formattedName .. "]" .. suffix
+            else
+                return prefix .. formattedName .. suffix
+            end
         end
     end
     return prefix .. displayedName .. suffix
@@ -560,11 +639,6 @@ GRM_Sys.ReplaceOfflineMessage = function(text)
     end
     return text
 end
-
--- =====================
--- EVENT ROUTING & HOOKS
--- =====================
-
 
 -- Method:          ProcessSystemMessage ( string )
 -- What it Does:    The core routing logic for all system messages.
@@ -643,102 +717,66 @@ local ProcessSystemMessage = function(msg)
     return shouldFilter, msg
 end
 
+GRM_Sys.SetSystemMessageFilter = function(chatFrame, event, msg, ...)
+    if GRM.issecretvalue(msg) then
+        return false, msg, ...
+    end
 
-GRM_Sys.SetSystemMessageFilter = function(_, _, msg, ...)
     local shouldFilter = false
     GRM_G.SystemMessagesEnabled = true
-    if not GRM.issecretvalue(msg) and GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
+    
+    if GRM.S() and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
         shouldFilter, msg = ProcessSystemMessage(msg)
     else
         shouldFilter = true
     end
-    SystemMessageHookControl()
+
     return shouldFilter, msg, ...
 end
 
 GRM_Sys.SystemMessageHandler = function(_, _, msg)
-    if not GRM_G.SystemMessagesEnabled and not GRM.issecretvalue(msg) then
+    if GRM.issecretvalue(msg) then
+        return
+    end
+    
+    if not GRM_G.SystemMessagesEnabled then
         if GRM.S() and GRM.GetGuild() ~= nil and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
             ProcessSystemMessage(msg)
         end
-        SystemMessageHookControl()
+        -- SystemMessageHookControl()
     end
 end
 
+-- Method:          GRM_Sys.ParseChatForNote
+-- What it Does:    Parses every comment in the guild frame and looks for the !note tag
 GRM_Sys.ParseChatForNote = function(chatFrame, event, msg, sender, ...)
+    if GRM.issecretvalue(msg) or GRM.issecretvalue(sender) then
+        return false, msg, sender, ...
+    end
+
     if IsInGuild() and GRM.S() and GRM.S().noteSetEnabled and GRM_G.guildName ~= "" and not GRM.issecretvalue(msg) then
         if not GRM_G.BuildHasRestrictions then
             GRM_Sys.TriggerPlayerNote(sender, msg)
         end
     end
+    
+    -- Must return all arguments back to the chat frame securely!
     return false, msg, sender, ...
-end
-
--- ===============
--- THE MASTER HOOK
--- ===============
-
--- Helper: Hooks a single frame (and prevents double-hooking!)
-local function HookSingleChatFrame(chatFrame)
-    if not chatFrame or chatFrame.GRM_Hooked then return end
-
-    local originalAddMessage = chatFrame.AddMessage
-    
-    chatFrame.AddMessage = function(self, text, ...)
-        if GRM.issecretvalue(text) then 
-            return originalAddMessage(self, text, ...) 
-        end
-
-        if text and type(text) == "string" then
-            -- Natural Hyperlink Detection (Chat, Come Online)
-            if string.find(text, "|Hplayer:", 1, true) then
-                text = string.gsub(text, "(|Hplayer:([^|:]+)[^|]-|h)(.-)(|h)", GRM_Sys.ReplaceHyperlink, 1)
-            
-            -- Natural Offline Detection
-            elseif string.find(text, GRM.L("has gone offline."), 1, true) then
-                text = GRM_Sys.ReplaceOfflineMessage(text)
-            end
-        end
-        
-        return originalAddMessage(self, text, ...)
-    end
-    
-    chatFrame.GRM_Hooked = true
-end
-
--- Method:          GRM_Sys.HookChatFrames()
--- What it Does:    Hooks all existing chat frames, and listens for dynamically created ones (like whisper tabs)
-GRM_Sys.HookChatFrames = function()
-    if GRM_G.ChatFramesHooked then return end
-
-    -- Function to loop through WoW's official active chat frame list
-    local function HookAllActiveFrames()
-        for _, frameName in ipairs(CHAT_FRAMES) do
-            local chatFrame = _G[frameName]
-            if chatFrame then
-                HookSingleChatFrame(chatFrame)
-            end
-        end
-    end
-
-    -- Hook all frames that exist right now (1 through 10)
-    HookAllActiveFrames()
-
-    -- Watch for ANY new permanent tabs created by the user
-    hooksecurefunc("FCF_OpenNewWindow", HookAllActiveFrames)
-    
-    -- Watch for ANY new temporary tabs created by whispers (ChatFrame11+)
-    hooksecurefunc("FCF_OpenTemporaryWindow", HookAllActiveFrames)
-
-    GRM_G.ChatFramesHooked = true
 end
 
 GRM_Sys.MessageHookControl = function()
     if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
+        
+        -- 1. Safely hook Guild and Officer chat to scan for the !note command
         ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", GRM_Sys.ParseChatForNote)
         ChatFrame_AddMessageEventFilter("CHAT_MSG_OFFICER", GRM_Sys.ParseChatForNote)
+        
+        -- 2. Safely hook the system messages to process guild info and spam filters
         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
+        
+        -- 3. Initialize the 100% Taint-Free Chat Formatter (TransformMessages)
         GRM_Sys.HookChatFrames()
+        
         GRM_G.MainHookConfigured = true
     end
 end
