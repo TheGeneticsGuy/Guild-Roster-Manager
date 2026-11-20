@@ -635,7 +635,7 @@ GRML.PortugueseBR = function()
     -- R1.1510
     GRM_L["Check the \"Sync Users\" tab to find out why!"] = "Cheque a aba \"Sinc Usuários\" para saber o porque!"
     GRM_L["Time as Member:"] = "Tempo como Membro:"
-    GRM_L["|CFFE6CC7FClick|r to select player event"] = "| CFFE6CC7FClique|r para selecionar o evento do jogador"
+    GRM_L["|CFFE6CC7FClick|r to select player event"] = "|CFFE6CC7FClique|r para selecionar o evento do jogador"
     GRM_L["Timestamp Format:"] = "Formato Data/Hora:"
     GRM_L["Timestamp:"] = "Data/Hora:"
     GRM_L["Hour Format:"] = "Formato da Hora:"
@@ -756,7 +756,7 @@ GRML.PortugueseBR = function()
     GRM_L["No player was found to have that birthday."] = "Nenhum jogador com esse aniversário foi encontrado."
 
     -- R1.35
-    GRM_L["Your Guild Leader Has Set Join Dates to only be added to the {name}"] = "Seu Líder da Guilda Setou Datas de Entrada para serem adicionadas apenas a {nome}"        -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
+    GRM_L["Your Guild Leader Has Set Join Dates to only be added to the {name}"] = "Seu Líder da Guilda Setou Datas de Entrada para serem adicionadas apenas a {name}"        -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
     GRM_L["Warning - Global Controls:"] = "Aviso - Controles Globais:"
     GRM_L["Sync Restrictions Globally Changed to {name} or Higher"] = "Restrições de Sincronia foram Mudadas Globalmente para {name} ou Maior"
     GRM_L["BAN Sync Restrictions Globally Changed to {name} or Higher"] = "Restrições de Sincronia de BAN foram Mudadas Globalmente para {name} ou Maior"
@@ -843,8 +843,8 @@ GRML.PortugueseBR = function()
     GRM_L["Fix selected mismatched GRM dates with the note date"] = "Corrijir as datas selecionadas do GRM incompatíveis com a data da nota"
     GRM_L["Import all missing join dates from the note date"] = "Importar todas as datas de entrada que faltam da data da nota"
     GRM_L["Import selected missing join dates from the note date"] = "Importar datas de entrada selecionadas que faltam da data da nota"
-    GRM_L["Add all missing saved dates to the {name}"] = "Adicionar todas as datas salvas que faltam á {nome}"
-    GRM_L["Add selected missing saved dates to {name}"] = "Adicionar as datas selecionadas salvas que faltam á {nome}"
+    GRM_L["Add all missing saved dates to the {name}"] = "Adicionar todas as datas salvas que faltam á {name}"
+    GRM_L["Add selected missing saved dates to {name}"] = "Adicionar as datas selecionadas salvas que faltam á {name}"
     GRM_L["Clear all join dates from incorrect note locations"] = "Limpar todas as datas de entrada dos locais incorretos nas notas"
     GRM_L["Clear selected join dates from incorrect note locations"] = "Limpar datas de entrada selecionadas dos locais incorretos nas notas"
     GRM_L["Not Found"] = "Não Encontrado"
@@ -854,11 +854,11 @@ GRML.PortugueseBR = function()
     GRM_L["Location"] = "Localização"
 
     -- JD tool button actions and tooltips
-    GRM_L["|CFFE6CC7FShift-Click|r Second Button to Select All In-Between"] = "| CFFE6CC7FShift-Clique | r o Segundo Botão para Selecionar Todos os Itens Intermediários"
+    GRM_L["|CFFE6CC7FShift-Click|r Second Button to Select All In-Between"] = "|CFFE6CC7FShift-Clique |r o Segundo Botão para Selecionar Todos os Itens Intermediários"
     GRM_L["|CFFE6CC7FClick|r to select player"] = "|CFFE6CC7FClique|r para selecionar jogador"
     GRM_L["Only Show Players With Incomplete Status"] = "Somente Mostrar Jogadores Com Status Incompleto"
     GRM_L["{num} Join Dates Need Attention"] = "{num} Datas de Entrada Precisam de Atenção"            -- In other words, "155 join dates need attention" as an example
-    GRM_L["Do you really want to remove the join dates from notes other than the {name}?"] = "Deseja mesmo remover as datas de entrada de outras notas que não sejam {nome}?"
+    GRM_L["Do you really want to remove the join dates from notes other than the {name}?"] = "Deseja mesmo remover as datas de entrada de outras notas que não sejam {name}?"
     GRM_L["Do you really want to fix mismatched dates using the note?"] = "Deseja mesmo corrigir datas incompatíveis usando a nota?"
     GRM_L["Do you really want to fix note dates using the saved GRM dates?"] = "Deseja mesmo corrigir datas de nota usando as datas salvas no GRM?"
     GRM_L["Do you really want to add the missing join dates to the {name}?"] = "Deseja mesmo adicionar as datas de entrada que faltam para {name}?"                    -- add the missing join dates to the default note name - like "... to the Officer Note?"
@@ -922,13 +922,13 @@ GRML.PortugueseBR = function()
     GRM_L["Custom Join Tag:"] = "Tag de Entrada Custom:"
     GRM_L["Custom Rejoin Tag:"] = "Tag de Retorno Custom:"
         -- Join Tag
-    GRM_L["Custom Join Date Tag \"{name}\" cannot be set as it is {num} characters. The max is {custom1}."] = "A Tag Customizada de Data de Entrada \"{nome}\" não pode ser setada, pois possui {num} caractéres. O máximo é {custom1}."
+    GRM_L["Custom Join Date Tag \"{name}\" cannot be set as it is {num} characters. The max is {custom1}."] = "A Tag Customizada de Data de Entrada \"{name}\" não pode ser setada, pois possui {num} caractéres. O máximo é {custom1}."
     GRM_L["Custom Join Tag has been changed from \"{name}\" to \"{name2}\""] = "A Tag Customizada de Entrada foi mudada de \"{name}\" para \"{name2}\""
     GRM_L["Custom Join Tag has been set to \"{name}\""] = "A Tag Customizada de Entrada foi setada para \"{name}\""
     GRM_L["Your Guild Leader has changed the Custom Join Tag from \"{name}\" to \"{name2}\""] = "Seu Líder da Guilda mudou A Tag Customizada de Entrada de \"{name}\" para \"{name2}\""
     GRM_L["Your Guild Leader has set the Custom Join Tag to \"{name}\""] = "Seu Líder da Guilda setou A Tag Customizada de Entrada para \"{name}\""
         -- Rejoin Tag
-    GRM_L["Custom Rejoin Date Tag \"{name}\" cannot be set as it is {num} characters. The max is {custom1}."] = "A Tag Customizada de Data de Retorno \"{nome}\" não pode ser setada, pois possui {num} caractéres. O máximo é {custom1}."
+    GRM_L["Custom Rejoin Date Tag \"{name}\" cannot be set as it is {num} characters. The max is {custom1}."] = "A Tag Customizada de Data de Retorno \"{name}\" não pode ser setada, pois possui {num} caractéres. O máximo é {custom1}."
     GRM_L["Custom Rejoin Tag has been changed from \"{name}\" to \"{name2}\""] = "A Tag Customizada de Retorno foi mudada de \"{name}\" para \"{name2}\""
     GRM_L["Custom Rejoin Tag has been set to \"{name}\""] = "A Tag Customizada de Retorno foi setada para \"{name}\""
     GRM_L["Your Guild Leader has changed the Custom Rejoin Tag from \"{name}\" to \"{name2}\""] = "Seu Líder da Guilda mudou A Tag Customizada de Retorno de \"{name}\" para \"{name2}\""

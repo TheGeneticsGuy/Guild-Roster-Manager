@@ -906,7 +906,7 @@ GRML.Russian = function()
     GRM_L["Adding the Join Date cannot be disabled due to the global setting"] = "Добавление даты присоединения нельзя отключить из-за глобальной настройки"
     GRM_L["Due to your current rank, you will be unable to add Join Date Timestamps"] = "Из-за вашего текущего звания вы не сможете добавлять отметки времени для даты присоединения."
     GRM_L["Warning! Due to your rank you will be unable to add Join Date timestamps to the {name}"] = "Предупреждение! Из-за вашего звания вы не сможете добавлять отметки времени даты присоединения к {name}"
-    GRM_L["Unable to Modify Format:  {name}"] = "Невозможно изменить формат: {имя}"
+    GRM_L["Unable to Modify Format:  {name}"] = "Невозможно изменить формат: {name}"
     GRM_L["Show Mouseover"] = "Показать по курсору"
     GRM_L["Unable to create GRM hotkey macro. You currently are at the cap of {num} macros."] = "Невозможно создать макрос горячих клавиш ГРМ. В настоящее время у вас максимальное количество макросов: {num}."
 
@@ -1082,7 +1082,7 @@ GRML.Russian = function()
     GRM_L["Export Next {num}"] = "Экспорт следующего {num}"       -- As in, "Export next 500" names or log lines
     GRM_L["Export Prev {num}"] = "Экспорт предыдущего {num}"       -- As in, Export Previous name
     GRM_L["Total Members: {num}"] = "Всего участников: {num}"
-    GRM_L["Total Former Members: {num}"] = "Всего бывших участников: {number}"
+    GRM_L["Total Former Members: {num}"] = "Всего бывших участников: {num}"
     GRM_L["Class"] = "Класс"                       -- As in Class Name, there is currently a "Class:" we need one with the colon
     GRM_L["Guild Rep"] = "Репутация в гильдии"                  -- Guild Faction reputation (abbreviated)
     GRM_L["Last Online (Days)"] = "Последний онлайн (дни)"
@@ -1134,7 +1134,7 @@ GRML.Russian = function()
     GRM_L["SYNC is currently disabled while you are grouped. Due to server restricted addon to addon talk data caps, and in an effort to avoid clogging up the shared global comm space of all addons, sync will be temporarily restricted while grouped."] = "Синхронизация в настоящее время отключена, пока вы в группе. Из-за ограниченного сервером надстройки для ограничений данных разговоров надстройки и во избежание засорения общего глобального пространства связи всех надстроек синхронизация будет временно ограничена пока вы находитесь в группе/рейде."
 
     -- 1.85
-    GRM_L["The note is too long. Only the first {num} characters will be set."] = "Заметка слишком длинная. Будут установлены только первые {число} символов."
+    GRM_L["The note is too long. Only the first {num} characters will be set."] = "Заметка слишком длинная. Будут установлены только первые {num} символов."
     GRM_L["Apply Only to Selected Ranks"] = "Применить только к выбранным званиям"
     GRM_L["Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat."] = "Невозможно создать макрос горячих клавиш. Игрок сейчас находится в бою, и действия ограничены. Он будет автоматически построен после выхода из боя."
     GRM_L["No player data found, recommend full removal."] = "Данные игрока не найдены, рекомендуется полное удаление."
