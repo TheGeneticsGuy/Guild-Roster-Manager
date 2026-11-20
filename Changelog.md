@@ -1,5 +1,12 @@
 ## **VERSION 1.99531 - November 17th, 2026**
 
+***QUALITY OF LIFE***
+
+* Added the full localization for German, Russian, and Chinese (Mandarin)
+
+* Fixed the spacing in the macro tool for German/Russian as it was a little wonky due to some wrapped text requiring frame to be bigger. Looks much cleaner now.
+
+
 ***BUG FIXES***
 
 * Retail and Forever should no longer have BG spam from the addon causing taint. Same with chat hooks attempting when in raid combat. This might have caused some blocking actions too. This was a MAJOR chore for me to adapt to with some recent backend changes that I almost gave up. 20hrs later I got it resolved.

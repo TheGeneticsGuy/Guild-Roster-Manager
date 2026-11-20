@@ -9,9 +9,7 @@
 -- 5 ) THANK YOU SO MUCH FOR ADDING THIS TRANSLATION WORK!!! I will ensure you are mentioned in the release notes and at the top of this header for your contribution
 
 -- Data insert points:
---  {name} and {name2}
---  {num}
---  {custom1} and {custom2}
+--  {name} and {name2} and {num} and {custom1} and {custom2}
 
     -- EXAMPLE NOTATION (English to Spanish)
 
@@ -24,27 +22,25 @@
     ---------------------------------
     -- BEGIN TRANSLATION WORK HERE --
     ---------------------------------
-
 GRML.German = function()
-
     -- Auto Localized (Only use this on Client languages)
     GRM_L["Friend"] = FRIEND;
 
     -- SET YOUR OWN CUSTOM SLASH COMMAND FOR GRM
-    GRM_L["/XXXX"] = true   -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
-    GRM_L["/YYYY"] = true;  -- /roster              -- This is the custom GRM roster
+    GRM_L["/XXXX"] = true    -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
+    GRM_L["/YYYY"] = true    -- /roster              -- This is the custom GRM roster
 
     GRM_L["German"] = "Deutsch"
-    GRM_L["English"] = "Englisch"
-    GRM_L["French"] = "Französisch"
-    GRM_L["Italian"] = "Italienisch"
-    GRM_L["Russian"] = "Russisch"
-    GRM_L["SpanishMX"] = "Spanisch (Mexiko)"
-    GRM_L["SpanishEU"] = "Spanisch (EU)"
+	GRM_L["English"] = "Englisch"
+	GRM_L["French"] = "Französisch"
+	GRM_L["Italian"] = "Italienisch"
+	GRM_L["Russian"] = "Russisch"
+	GRM_L["SpanishMX"] = "Spanisch (Mexiko)"
+	GRM_L["SpanishEU"] = "Spanisch (EU)"
     GRM_L["Portuguese"] = "Portugiesisch"
     GRM_L["PortugueseBR"] = "Portugiesisch (Brasilien)"
-    GRM_L["Korean"] = "Koreanisch"
-    GRM_L["MandarinCN"] = "Mandarin (China)"
+	GRM_L["Korean"] = "Koreanisch"
+	GRM_L["MandarinCN"] = "Mandarin (China)"
     GRM_L["MandarinTW"] = "Mandarin (Taiwan)"
     GRM_L["Dutch"] = "Holländisch"
     GRM_L["Danish"] = "Dänisch"
@@ -58,20 +54,20 @@ GRML.German = function()
     GRM_L["Officer's Note"] = "Offiziersnotiz"
     GRM_L["Zone:"] = "Zone:"
     GRM_L["(main)"] = "Main"
-    GRM_L["( Main )"] = "Main"                                -- Context: This one is used on player data window, the other is smaller used in the alts list...
+    GRM_L["( Main )"] = "Main"    -- Context: This one is used on player data window, the other is smaller used in the alts list...
     GRM_L["Set as Main"] = "Als Main setzen"
     GRM_L["Set as Alt"] = "Als Twink setzen"
     GRM_L["Remove"] = "Entfernen"
     GRM_L["Please Type the Name of the alt"] = "Bitte den Namen des Twinks eingeben"
     GRM_L["Promoted:"] = "Befördert:"
-    GRM_L["Unknown"] = "unbekannt"                                                                 -- Context: The date of their promotion is "Unknown"
+    GRM_L["Unknown"] = "unbekannt"    -- Context: The date of their promotion is "Unknown"
     GRM_L["Click here to set a Public Note"] = "Hier öffentliche Notiz eintragen"
     GRM_L["Unable to Edit Public Note at Rank"] = "Rang ist zu niedrig, um die öffentliche Notiz zu ändern"
     GRM_L["Click here to set an Officer's Note"] = "Hier Offiziersnotiz eintragen"
     GRM_L["Unable to Edit Officer Note at Rank"] = "Rang ist zu niedrig, um die öffentliche Notiz zu ändern"
     GRM_L["Unable to View Officer Note at Rank"] = "Rang ist zu niedrig, um die öffentliche Notiz zu sehen"
     GRM_L["Online"] = "online"
-    GRM_L["( Active )"] = "aktiv"                       -- I included the parentheses here as I am not sure if any languages abstain from them, or use other notation. Feel free to remove if necessary
+    GRM_L["( Active )"] = "aktiv"    -- I included the parentheses here as I am not sure if any languages abstain from them, or use other notation. Feel free to remove if necessary
     GRM_L["( AFK )"] = "AFK"
     GRM_L["( Busy )"] = "DND"
     GRM_L["( Mobile )"] = "Handy"
@@ -83,7 +79,7 @@ GRML.German = function()
     GRM_L["Group Invite"] = "Gruppeneinladung"
     GRM_L["Date Promoted"] = "Beförderungsdatum"
     GRM_L["Last Online"] = "zuletzt online"
-    GRM_L["Time In:"] = "Zeit in Zone:"                            -- Context: "Time In" the current zone...
+    GRM_L["Time In:"] = "Zeit in Zone:"    -- Context: "Time In" the current zone...
     GRM_L["Date Joined"] = "Beigetreten"
     GRM_L["Join Date?"] = "Beigetreten?"
     GRM_L["Player Was Previously Banned!"] = "Spieler war gebannt!"
@@ -96,14 +92,13 @@ GRML.German = function()
 
     -- TOOLTIPS
     GRM_L["Rank History"] = "Rang-Verlauf"
-    GRM_L["Time at Rank:"] = "Zeit auf Rang"
     GRM_L["Right-Click to Edit"] = "Rechtsklick zum Ändern"
     GRM_L["Left Guild"] = "hat die Gilde verlassen"
     GRM_L["Membership History"] = "Mitgliedschafts-Verlauf"
-    GRM_L["Joined:"] = "Beigetreten"                             -- as in "Joined" the guild
+    GRM_L["Joined:"] = "Beigetreten"    -- as in "Joined" the guild
     GRM_L["Joined"] = "Beigetreten"
-    GRM_L["Left:"] = "verlassen"                               -- as in, "Left" the guild
-    GRM_L["Rejoined:"] = "Wiedereintritt:"                           -- as in, "Rejoined" the guild
+    GRM_L["Left:"] = "verlassen"    -- as in, "Left" the guild
+    GRM_L["Rejoined:"] = "Wiedereintritt:"    -- as in, "Rejoined" the guild
     GRM_L["Rejoined"] = "Wiedereintritt"
     GRM_L["Reset Data!"] = "Daten verwerfen!"
     GRM_L["Notify When Player is Active"] = "Benachrichtigen, wenn Spieler nicht mehr AFK ist"
@@ -114,27 +109,27 @@ GRML.German = function()
     GRM_L["Options"] = "Optionen"
 
     -- LOG
-    GRM_L["LOG"] = "LOG"                                                     -- Context - The guild Log shorthand for the tab
+    GRM_L["LOG"] = "LOG"    -- Context - The guild Log shorthand for the tab
     GRM_L["Guild Roster Event Log"] = "Guild Roster Event Verlauf"
     GRM_L["Clear Log"] = "Verlauf löschen"
     GRM_L["{name} KICKED {name2} from the Guild!"] = "{name} hat {name2} aus der Gilde geworfen!"
     GRM_L["kicked"] = "geworfen"
-    GRM_L["{name} has Left the guild"] = "{name} hat die Gilde verlassen"
     GRM_L["{name} has BANNED {name2} and all linked alts from the guild!"] = "{name} hat {name2} und alle verbundenen Twinks aus der Gilde VERBANNT!"
     GRM_L["{name} has BANNED {name2} from the guild!"] = "{name} hat {name2} aus der Gilde VERBANNT!"
     GRM_L["Reason Banned:"] = "Bann-Grund:"
-    GRM_L["has Left the guild"] = "hat die Gilde verlassen"                                      -- Context: PlayerName "has left the guild"
-    GRM_L["ALTS IN GUILD:"] = "Twinks in der Gilde:"                                          -- Context: This appears If a person leaves the guild and there are still alts in the guild. It is like - "ALTS IN GUILD: Arkaan, Chris, Matt, and 4 others.""
+    GRM_L["{name} has Left the guild"] = "{name} hat die Gilde verlassen"
+    GRM_L["has Left the guild"] = "hat die Gilde verlassen"    -- Context: PlayerName "has left the guild"  -- THESE MUST BE EXACT MATCH WITH PREVIOUS LINE (just without the name on this one)
+    GRM_L["ALTS IN GUILD:"] = "Twinks in der Gilde:"    -- Context: This appears If a person leaves the guild and there are still alts in the guild. It is like - "ALTS IN GUILD: Arkaan, Chris, Matt, and 4 others.""
     GRM_L["Player no longer on Server"] = "Spieler ist nicht mehr auf dem Server"
     GRM_L["{name} PROMOTED {name2} from {custom1} to {custom2}"] = "{name} hat {name2} von {custom1} zu {custom2} BEFÖRDERT"
     GRM_L["{name} has been PROMOTED from {custom1} to {custom2}"] = "{name} wurde von {custom1} zu {custom2} BEFÖRDERT"
     GRM_L["{name} DEMOTED {name2} from {custom1} to {custom2}"] = "{name} hat {name2} von {custom1} zu {custom2} DEGRADIERT"
     GRM_L["{name} has been DEMOTED from {custom1} to {custom2}"] = "{name} wurde von {custom1} zu {custom2} DEGRADIERT"
-    GRM_L["(+ {num} More)"] = "(+ {num} mehr)"                                          -- Context: Referencing num of alts if player leaves guild, that are stil in it. Example "ALTS IN GUILD: Christ, Matt, Sarah (and 4 more)"
+    GRM_L["(+ {num} More)"] = "(+ {num} mehr)"    -- Context: Referencing num of alts if player leaves guild, that are stil in it. Example "ALTS IN GUILD: Christ, Matt, Sarah (+ 4 more)"
     GRM_L["{name} has Been in the Guild {num} Times Before"] = "{name} war bereits {num} mal in der Gilde"
     GRM_L["{name} is Returning for the First Time."] = "{name} kehrt zum ersten Mal zurück in die Gilde"
-    GRM_L["None Given"] = "Kein Grund angegeben"                                              -- Context: No reason given for player ban. This is displayed when a player was banned, but the addon users did not input a reason why.
-    GRM_L["WARNING!"] = "ACHTUNG!"                                                -- Context: WARNING - banned player rejoined the guild!
+    GRM_L["None Given"] = "Kein Grund angegeben"    -- Context: No reason given for player ban. This is displayed when a player was banned, but the addon users did not input a reason why.
+    GRM_L["WARNING!"] = "ACHTUNG!"    -- Context: WARNING - banned player rejoined the guild!
     GRM_L["{name} REJOINED the guild but was previously BANNED!"] = "{name} ist zurück in der Gilde, wurde aber vorher GEBANNT!"
     GRM_L["(Invited by: {name})"] = "(eingeladen von: {name})"
     GRM_L["Invited By: {name}"] = "eingeladen von: {name}"
@@ -143,14 +138,14 @@ GRML.German = function()
     GRM_L["Old Guild Rank:"] = "Alter Gildenrang:"
     GRM_L["Additional Notes:"] = "zusätzliche Notizen:"
     GRM_L["{name} has REINVITED {name2} to the guild"] = "{name} hat {name2} WIEDER in die Gilde EINGELADEN"
-    GRM_L["(LVL: {num})"] = "(Lvl: {num})"                                            -- Context: LVL means Player Level - so Ex: (LVL: 110)
+    GRM_L["(LVL: {num})"] = "(Lvl: {num})"    -- Context: LVL means Player Level - so Ex: (LVL: 110)
     GRM_L["{name} has REJOINED the guild"] = "{name} ist der Gilde erneut beigetreten"
     GRM_L["{name} has JOINED the guild!"] = "{name} ist der Gilde BEIGETRETEN"
     GRM_L["Date Left:"] = "Austrittsdatum:"
     GRM_L["{name} has Leveled to {num}"] = "{name} hat Level {num} erreicht"
-    GRM_L["(+{num} levels)"] = "(+{num} Level)"                                         -- Context: Person gained more than one level, hence the plural
-    GRM_L["(+{num} level)"] = "(+{num} Level)"                                          -- Context: Person gains a level, just one level.
-    GRM_L["{name}'s PUBLIC Note: \"{custom1}\" was Added"] = "Öffentliche Notiz von {name}: \"{custom1}\" hinzugefügt"           -- Of note, the \" in the text here will just appear as " in-game. The \" notation is telling the program not to end the string, but to include quotation
+    GRM_L["(+{num} levels)"] = "(+{num} Level)"    -- Context: Person gained more than one level, hence the plural
+    GRM_L["(+{num} level)"] = "(+{num} Level)"    -- Context: Person gains a level, just one level.
+    GRM_L["{name}'s PUBLIC Note: \"{custom1}\" was Added"] = "Öffentliche Notiz von {name}: \"{custom1}\" hinzugefügt"    -- Of note, the \" in the text here will just appear as " in-game. The \" notation is telling the program not to end the string, but to include quotation
     GRM_L["{name}'s PUBLIC Note: \"{custom1}\" was Removed"] = "Öffentliche Notiz von {name}: \"{custom1}\" wurde gelöscht"
     GRM_L["{name}'s PUBLIC Note: \"{custom1}\" to \"{custom2}\""] = "Öffentliche Notiz von {name}: \"{custom1}\" geändert zu \"{custom2}\""    -- Context: "Arkaan's PUBLIC Note: "ilvl 920" to "Beast Mode ilvl 960""  -- Changing of the note. custom1 = old note, custom2 = new note
     GRM_L["{name}'s OFFICER Note: \"{custom1}\" was Added"] = "Offiziersotiz von {name}: \"{custom1}\" hinzugefügt"
@@ -160,37 +155,37 @@ GRML.German = function()
     GRM_L["{name} has Name-Changed to {name2}"] = "Spieler {name} hat seinen Namen zu {name2} geändert"
     GRM_L["{name} has Come ONLINE after being INACTIVE for {num}"] = "Spieler {name} kam ONLINE, nachdem er für {num} INAKTIV war"
     GRM_L["{name} has been OFFLINE for {num}. Kick Recommended!"] = "{name} war für {num} OFFLINE. Kick empfohlen!"
-    GRM_L["({num} ago)"] = "vor {num}"                                             -- Context: (5 minutes ago) or (5 months 24 days ago) -- the {num} will automatically include the time-passed date.
+    GRM_L["({num} ago)"] = "vor {num}"    -- Context: (5 minutes ago) or (5 months 24 days ago) -- the {num} will automatically include the time-passed date.
     GRM_L["{name}'s Guild has Name-Changed to \"{name2}\""] = "Der Gildenname {name} wurde in \"{name2}\" geändert."
     GRM_L["Promotions"] = "Beförderungen"
     GRM_L["Demotions"] = "Degradierungen"
 
     -- EVENTS WINDOW
-    GRM_L["EVENTS"] = "EREIGNISSE"                                          -- Events tab
+    GRM_L["EVENTS"] = "EREIGNISSE"    -- Events tab
     GRM_L["{name}'s Anniversary!"] = "{name} hat Jahrestag!"
     GRM_L["{name}'s Birthday!"] = "{name} hat Geburtstag!"
+    GRM_L["No Calendar Events to Add"] = "Keine Ereignisse zu erstellen"
     GRM_L["Event Calendar Manager"] = "Ereignismanager"
     GRM_L["Event:"] = "Ereignis:"
     GRM_L["Description:"] = "Beschreibung:"
     GRM_L["Add to\nCalendar"] = "Zum\nKalender\nhinzufügen"
     GRM_L["Ignore Event"] = "Ignoriere Ereignis"
     GRM_L["No Player Event Has Been Selected"] = "Kein Ereignis ausgewählt"
-    GRM_L["Event Added to Calendar: {custom1}"] = "Ereignis zum Kalender hinzugefügt: {custom1}"              -- Custom1 = the title of the event, like "Arkaan's Anniversary"
+    GRM_L["Event Added to Calendar: {custom1}"] = "Ereignis zum Kalender hinzugefügt: {custom1}"    -- Custom1 = the title of the event, like "Arkaan's Anniversary"
     GRM_L["Please Select Event to Add to Calendar"] = "Wähle ein Ereignis aus, um einen Kalendereintrag zu erstellen"
-    GRM_L["No Calendar Events to Add"] = "Keine Ereignisse zu erstellen"
     GRM_L["{name}'s event has already been added to the calendar!"] = "Ereignis von {name} wurde bereits zum Kalender hinzugefügt!"
     GRM_L["Please wait {num} more seconds to Add Event to the Calendar!"] = "Bitte warte {num} Sekunden, bis du das Ereignis im Kalender erstellst!"
     GRM_L["{name}'s Event Removed From the Queue!"] = "Ereignis von {name} aus der Liste entfernt!"
     GRM_L["Full Description:"] = "Beschreibung:"
 
     -- BAN WINDOW
-    GRM_L["BAN LIST"] = "BANNLISTE"                                        -- Ban List Tab
+    GRM_L["BAN LIST"] = "BANNLISTE"    -- Ban List Tab
     GRM_L["Reason Banned?"] = "Grund?"
-    GRM_L["Click \"YES\" When Done"] = "Klicke \"JA\", wenn fertig"                         -- Of note, the \" is how you notate for quotations to actually appear. Adjust as needed
+    GRM_L["Click \"YES\" When Done"] = "Klicke \"JA\", wenn fertig"    -- Of note, the \" is how you notate for quotations to actually appear. Adjust as needed
     GRM_L["Select a Player"] = "Wähle einen Charakter aus"
     GRM_L["Player Selected"] = "Ausgewählt:"
     GRM_L["{name}(Still in Guild)"] = "{name} (in der Gilde)"
-    GRM_L["(Still in Guild)"] = "(in der Gilde)"
+    GRM_L["(Still in Guild)"] = "(in der Gilde)"    -- same as previous, just formatting simplicity...
     GRM_L["No Ban Reason Given"] = "Kein Grund angegeben"
     GRM_L["Total Banned:"] = "Gebannte Charaktere:"
     GRM_L["Rank"] = "Rang"
@@ -205,12 +200,12 @@ GRML.German = function()
     GRM_L["Submit Ban"] = "Bannen"
     GRM_L["Confirm"] = "Bestätigen"
     GRM_L["Cancel"] = "Abbrechen"
-    GRM_L["Add"] = "Hinzufügen"                                         -- Context: "Add" player to ban list
+    GRM_L["Add"] = "Hinzufügen"    -- Context: "Add" player to ban list
     GRM_L["Confirm Ban for the Following Player?"] = "Möchtest du diesen Charakter wirklich bannen?"
-    GRM_L["Please Enter a Valid Player Name"] = "Gültigen Charakternamen eingeben."            -- Player Name
-    GRM_L["Please Enter a Valid Server Name"] = "Gültigen Servernamen eingeben."            -- Server Name
+    GRM_L["Please Enter a Valid Player Name"] = "Gültigen Charakternamen eingeben."    -- Player Name
+    GRM_L["Please Enter a Valid Server Name"] = "Gültigen Servernamen eingeben."    -- Server Name
     GRM_L["Please Select a Player to Unban!"] = "Bitte wähle einen Charakter aus."
-    GRM_L["{name} - Ban List"] = "{name} - Bannliste"                           -- Context: "GuildName - Ban List"
+    GRM_L["{name} - Ban List"] = "{name} - Bannliste"    -- Context: "GuildName - Ban List"
     GRM_L["No Reason Given"] = "Kein Grund angegeben"
 
     -- ADDON USERS WINDOW
@@ -225,14 +220,13 @@ GRML.German = function()
     GRM_L["ONE Person is Online. Recommend It!"] = "EIN Spieler ist online. Empfiehl ihm GRM!"
     GRM_L["{num} others are Online! Recommend It!"] = "{num} andere Spieler sind online! Empfiehl ihnen GRM!"
     GRM_L["GRM Sync Info"] = "GRM Sync Info"
-    GRM_L["Ver: {custom1}"] = "Version: {custom1}"                                 -- Context:  Ver: R1.125  - Ver is short for Version
+    GRM_L["Ver: {custom1}"] = "Version: {custom1}"    -- Context:  Ver: R1.125  - Ver is short for Version
     GRM_L["Name:"] = "Name"
     GRM_L["Version"] = "Version"
     GRM_L["Sync"] = "Sync"
     GRM_L["Your Sync is Currently Disabled"] = "Die Sync mit anderen Spielern ist momentan deaktiviert"
 
     -- OPTIONS WINDOW
-    GRM_L["Public Note"] = "Öffentliche Notiz"
     GRM_L["Scanning Roster:"] = "Scan:"
     GRM_L["Guild Rank Restricted:"] = "Durch Gildenrang beschränkte Einstellungen:"
     GRM_L["Sync:"] = "Sync:"
@@ -243,14 +237,14 @@ GRML.German = function()
     GRM_L["Centers all Windows"] = "Alle Fenster zentrieren"
     GRM_L["Slash command info"] = "Slash-Befehle im Chatfenster ausgeben"
     GRM_L["Resets ALL data"] = "ALLE Daten verwerfen"
-    GRM_L["Report addon ver"] = "Ausgabe der installierten Version"                                    -- Ver is short for Version
+    GRM_L["Report addon ver"] = "Ausgabe der installierten Version"    -- Ver is short for Version
     GRM_L["Resets Guild data"] = "Gildendaten verwerfen"
     GRM_L["Show at Logon"] = "Zeige Fenster als Pop-up beim Login"
     GRM_L["Only Show if Log Changes"] = "Nur bei Änderungen anzeigen"
 
-    GRM_L["Before Scan Timer"] = "Alle"               -- Context: "Scan for Changes Every 10 Seconds" -- There will be a number added here and may require custom positioning, so please provide full statement and Arkaan will allign
+    -- This do need to be translated still
+    GRM_L["Before Scan Timer"] = "Alle"    -- Context: "Scan for Changes Every 10 Seconds" -- There will be a number added here and may require custom positioning, so please provide full statement and Arkaan will allign
     GRM_L["After Scan Timer"] = "Sekunden nach Änderungen scannen"
-
     GRM_L["Before Inactive Timer"] = "Melde Rückkehr nach"
     GRM_L["After Inactive Timer"] = "Tagen Inaktivität."
 
@@ -259,22 +253,21 @@ GRML.German = function()
     GRM_L["Please choose a scan interval {num} seconds or higher!"] = "Bitte ein Scanintervall von mindestens {num} Sekunden wählen"
     GRM_L["{num} is too Low!"] = "{num} ist zu klein!"
     GRM_L["The Current Lvl Cap is {num}."] = "Das aktuelle Maximallevel ist {num}"
-    GRM_L["Kick Inactive Player Reminder at"] = "Erinnerung zum Kicken inaktiver Spieler ab"        -- Context: "Kick Inactive Player Reminder at X Months" - Again, allignment will need to be adjusted for options UI, so please post
+    GRM_L["Kick Inactive Player Reminder at"] = "Erinnerung zum Kicken inaktiver Spieler ab"    -- Context: "Kick Inactive Player Reminder at X Months" - Again, allignment will need to be adjusted for options UI, so please post
     GRM_L["Please choose a month between 1 and 999"] = "Bitte eine Zahl zwischen 1 und 999 auswählen!"
     GRM_L["Please choose a month between 0 and 999"] = "Bitte eine Zahl zwischen 0 und 999 auswählen!"
-    GRM_L["Sync BAN List With Guildies at Rank"] = "Bannliste teilen mit"     -- Context: "Sync Ban List with Guildies at Rank [DROPDOWNMENU OF RANKS] or Higher" - Please show where dropdown menu should be pinned
-    GRM_L["or Higher"] = "oder höher"                               -- Context: Look at the above statement. Show where this needs to go in regards to dropdown menu of rank selection in Options
+    GRM_L["Sync BAN List With Guildies at Rank"] = "Bannliste teilen mit"    -- Context: "Sync Ban List with Guildies at Rank [DROPDOWNMENU OF RANKS] or Higher" - Please show where dropdown menu should be pinned
+    GRM_L["or Higher"] = "oder höher"    -- Context: Look at the above statement. Show where this needs to go in regards to dropdown menu of rank selection in Options
     GRM_L["Restore Defaults"] = "Auf Standard\nzurücksetzen"
     GRM_L["Please choose between 1 and 180 days!"] = "Bitte eine Zahl zwischen 1 und 180 auswählen!"
-    GRM_L["Announce Events"] = "Ereignisse"                         -- Context: "Announce Events X number of days in advance" -- the X is the editbox to modify number of days. Please include the location of where to pin that.
+    GRM_L["Announce Events"] = "Ereignisse"    -- Context: "Announce Events X number of days in advance" -- the X is the editbox to modify number of days. Please include the location of where to pin that.
     GRM_L["Days in Advance"] = "Tage vorher ankündigen"
     GRM_L["Add Events to Calendar"] = "Ereignisse zum Kalender hinzufügen"
-    GRM_L["SYNC Changes With Guildies at Rank"] = "Änderungen teilen mit"      -- Context: at Rank [DROPDOWNRANKSELECTION] or Higher. - Please note where to place dropdown box in the position of the sentence.
+    GRM_L["SYNC Changes With Guildies at Rank"] = "Änderungen teilen mit"    -- Context: at Rank [DROPDOWNRANKSELECTION] or Higher. - Please note where to place dropdown box in the position of the sentence.
     GRM_L["Reactivating Data SYNC with Guildies..."] = "Synchronisation der Änderungen |cff00FF00aktiviert|r"
     GRM_L["Deactivating Data SYNC with Guildies..."] = "Synchronisation der Änderungen |cffFF0000deaktiviert|r"
     GRM_L["Display Sync Update Messages"] = "Updatemeldungen für GRM anzeigen"
     GRM_L["Only Sync With Up-to-Date Addon Users"] = "Nur mit Mitgliedern synchronisieren, die die aktuelle Version von GRM installiert haben"
-
     GRM_L["Leveled"] = "Leveländerungen"
     GRM_L["Inactive Return"] = "Wieder aktiv"
     GRM_L["resetall"] = "resetall"
@@ -283,24 +276,24 @@ GRML.German = function()
     GRM_L["Name Change"] = "Namensänderungen"
     GRM_L["Rank Renamed"] = "Rang umbenannt"
     GRM_L["Event Announce"] = "Ereignisse"
-    GRM_L["Left"] = "Austritte"                        -- Context: As in, "Left" the guild...
+    GRM_L["Left"] = "Austritte"    -- Context: As in, "Left" the guild...
     GRM_L["Recommendations"] = "Erinnerungen"
     GRM_L["Banned"] = "Banne"
-    GRM_L["To Chat:"] = "Im Chat"                    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
-    GRM_L["To Log:"] = "Im Log"                     -- Context: To show it in the guild log.
+    GRM_L["To Chat:"] = "Im Chat"    -- Context: "To Chat Message frame -- in regards to announcing events like when a player leveled"
+    GRM_L["To Log:"] = "Im Log"    -- Context: To show it in the guild log.
     GRM_L["Display Changes"] = "Änderungen anzeigen"
 
     -- AUDIT WINDOW
-    GRM_L["AUDIT"] = "PRÜFUNG"                                               -- Audit Tab name
+    GRM_L["AUDIT"] = "PRÜFUNG"    -- Audit Tab name
     GRM_L["No Date Set"] = "Kein Datum"
     GRM_L["Main"] = "Main"
     GRM_L["Main or Alt?"] = "Main oder Twink?"
     GRM_L["Alt"] = "Twink"
-    GRM_L["Total Incomplete: {num} / {custom1}"] = "Unvollständig {num} von {custom1}"                 -- Context: Total incomplete: 50 / 100    (50 out of 100)
-    GRM_L["Mains:\n{num}"] = "Mains:\n{num}"                                                                  -- Context: Number of "main" toons
+    GRM_L["Total Incomplete: {num} / {custom1}"] = "Unvollständig {num} von {custom1}"    -- Context: Total incomplete: 50 / 100    (50 out of 100)
+    GRM_L["Mains:\n{num}"] = "Mains:\n{num}"    -- Context: Number of "main" toons
     GRM_L["Unique Accounts:\n{num}"] = "Accounts:\n{num}"
-    GRM_L["All Complete"] = "Alles komplett"                                                                -- Context: All dates have been added and are known, thus it states it is "All Complete"
-    GRM_L["Set Incomplete to Unknown"] = "Ändere \"kein Datum\" zu \"unbekannt\""                           -- Context: Implied to set ALL incomplete to unknown
+    GRM_L["All Complete"] = "Alles komplett"    -- Context: All dates have been added and are known, thus it states it is "All Complete"
+    GRM_L["Set Incomplete to Unknown"] = "Ändere \"kein Datum\" zu \"unbekannt\""    -- Context: Implied to set ALL incomplete to unknown
     GRM_L["Clear All Unknown"] = "Ändere \"unbekannt\" zu \"kein Datum\""
     GRM_L["Please Wait {num} more Seconds"] = "Bitte warte {num} Sekunden"
     GRM_L["Guild Data Audit"] = "Überprüfung der Gildendaten"
@@ -312,8 +305,8 @@ GRML.German = function()
 
     -- ADDON SYSTEM MESSAGES
     GRM_L["Guild Roster Manager"] = "Guild Roster Manager"
-    GRM_L["GRM:"] = "GRM:"                                                                -- Abbreviation for "Guild Roster Manager"
-    GRM_L["(Ver:"] = "Version:"                                                               -- Ver: is short for Version:
+    GRM_L["GRM:"] = "GRM:"    -- Abbreviation for "Guild Roster Manager"
+    GRM_L["(Ver:"] = "Version:"    -- Ver: is short for Version:
     GRM_L["GRM Updated:"] = "GRM aktualisiert:"
     GRM_L["Configuring Guild Roster Manager for {name} for the first time."] = "Erstmalige Konfiguration von Guild Roster Manager für {name}"
     GRM_L["Notification Set:"] = "Benachrichtigung eingestellt:"
@@ -331,14 +324,13 @@ GRML.German = function()
     GRM_L["SYNC is currently not possible! Unable to Sync with guildies when guild chat is restricted."] = "Synchronisation nicht möglich, wenn der Gildenchat eingeschränkt ist."
     GRM_L["Manual Scan Complete"] = "Manueller Scan nach Änderungen abgeschlossen"
     GRM_L["Analyzing guild for the first time..."] = "Erstmalige Analyse der Gilde..."
-    GRM_L["Building Profiles on ALL \"{name}\" members"] = "Erstelle Profile für alle Mitglieder von \"{name}\""                 -- {name} will be the Guild Name, for context
-    GRM_L["NOTIFICATION:"] = "BENACHRICHTIGUNG:"                                               -- Context:  "Notification: Player is no longer AFK"
+    GRM_L["Building Profiles on ALL \"{name}\" members"] = "Erstelle Profile für alle Mitglieder von \"{name}\""    -- {name} will be the Guild Name, for context
+    GRM_L["NOTIFICATION:"] = "BENACHRICHTIGUNG:"    -- Context:  "Notification: Player is no longer AFK"
     GRM_L["{name} is now ONLINE!"] = "{name} ist jetzt |cff00FF00online|r!"
     GRM_L["{name} is now OFFLINE!"] = "{name} ist jetzt |cffFF0000offline|r!"
     GRM_L["{name} is No Longer AFK or Busy!"] = "{name} ist nicht mehr |cffFFFF00AFK|r!"
     GRM_L["{name} is No Longer AFK or Busy, but they Went OFFLINE!"] = "{name} ist nun |cffFF0000online|r und nicht mehr |cffFFFF00AFK|r!"
     GRM_L["{name}'s saved data has been wiped!"] = "Die gespeicherten Daten von {name} wurden gelöscht!"
-
     GRM_L["Wiping all Saved Roster Data Account Wide! Rebuilding from Scratch..."] = "Alle gespeicherten Daten werden gelöscht! Kompletter Neuaufbau wird durchgeführt..."
     GRM_L["Wiping all saved Guild data! Rebuilding from scratch..."] = "Alle gespeicherten Gildendaten werden gelöscht! Kompletter Neuaufbau wird durchgeführt..."
     GRM_L["Guild Log has been RESET!"] = "Gildenlog wurde gelöscht!"
@@ -361,8 +353,8 @@ GRML.German = function()
     GRM_L["Really Clear All Guild Saved Data?"] = "Möchtest du wirklich alle Gildendaten löschen?"
     GRM_L["Yes!"] = "Ja!"
     GRM_L["Ban Player?"] = "Spieler bannen?"
-    GRM_L["Ban the Player's {num} alts too?"] = "Auch die {num} dazugehörigen Twinks bannen?"      -- Plural number of alts
-    GRM_L["Ban the Player's {num} alt too?"] = "Auch den dazugehörigen Twink bannen?"     -- Singular number of alts, just 1
+    GRM_L["Ban the Player's {num} alts too?"] = "Auch die {num} dazugehörigen Twinks bannen?"    -- Plural number of alts
+    GRM_L["Ban the Player's {num} alt too?"] = "Auch den dazugehörigen Twink bannen?"    -- Singular number of alts, just 1
     GRM_L["Please Click \"Yes\" to Ban the Player!"] = "Bitte drücke \"Ja\" um den Charakter zu bannen!"
 
     -- Sync Messages
@@ -394,21 +386,21 @@ GRML.German = function()
     GRM_L["Please choose a VALID character to set as an Alt"] = "Bitte einen gültigen Spieler auswählen"
     GRM_L["Please choose a character to set as alt."] = "Bitte einen Spieler auswählen, um ihn als Twink einzutragen."
     GRM_L["GRM ERROR:"] = "GRM FEHLER:"
-    GRM_L["Com Message too large for server"] = "Nachricht ist zu lang für den Server"                    -- Context: "Com message" is short-hand for "Communications message" - this is a technical error on syncing data.
+    GRM_L["Com Message too large for server"] = "Nachricht ist zu lang für den Server"    -- Context: "Com message" is short-hand for "Communications message" - this is a technical error on syncing data.
     GRM_L["Prefix:"] = "Präfix:"
-    GRM_L["Msg:"] = "Nachricht:"                                                -- Context: Msg is short for Message
-    GRM_L["Unable to register prefix > 16 characters: {name}"] = "Kann Präfix nicht registrieren, maximal 16 Buchstaben: {name}"   -- Context: The {name} is the string code for the prefix. This is for debugging.
+    GRM_L["Msg:"] = "Nachricht:"    -- Context: Msg is short for Message
+    GRM_L["Unable to register prefix > 16 characters: {name}"] = "Kann Präfix nicht registrieren, maximal 16 Buchstaben: {name}"    -- Context: The {name} is the string code for the prefix. This is for debugging.
 
     --SLASH COMMANDS
     -- These are generally written in general shorthand. The original commands will ALWAYS work, but if there is one that makes more sense in your language, please feel free to modify
-    GRM_L["clearall"] = "clearall"                         -- Context: In regards, "Clear All" saved data account wide
-    GRM_L["clearguild"] = "clearguild"                     -- Context: In regards, "Clear All" saved data from ONLY the current guild.
-    GRM_L["hardreset"] = "hardreset"                       -- Context: In regards, "Hard Reset" ALL data account wide, including wiping player settings
-    GRM_L["help"] = "hilfe"                                -- Context: "help" with info on the how to use addon
-    GRM_L["version"] = "version"                           -- Context: "version" of the addon
-    GRM_L["center"] = "zentrieren"                         -- Context: "center" the movable addon window back to center of screen
-    GRM_L["sync"] = "sync"                                 -- Context: "sync" the data between players one time now.
-    GRM_L["scan"] = "scan"                                 -- Context: "scan" for guild roster changes one time now.
+    GRM_L["clearall"] = "clearall"    -- Context: In regards, "Clear All" saved data account wide
+    GRM_L["clearguild"] = "clearguild"    -- Context: In regards, "Clear All" saved data from ONLY the current guild.
+    GRM_L["hardreset"] = "hardreset"    -- Context: In regards, "Hard Reset" ALL data account wide, including wiping player settings
+    GRM_L["help"] = "hilfe"    -- Context: "help" with info on the how to use addon
+    GRM_L["version"] = "version"    -- Context: "version" of the addon
+    GRM_L["center"] = "zentrieren"    -- Context: "center" the movable addon window back to center of screen
+    GRM_L["sync"] = "sync"    -- Context: "sync" the data between players one time now.
+    GRM_L["scan"] = "scan"    -- Context: "scan" for guild roster changes one time now.
 
     -- CLASSES
     GRM_L["Deathknight"] = "Todesritter"
@@ -424,8 +416,8 @@ GRML.German = function()
     GRM_L["Warlock"] = "Hexenmeister"
     GRM_L["Warrior"] = "Krieger"
 
--- TIME AND DATES
-    GRM_L["1 Mar"] = "1. März"                           -- This date is used in a specific circumstance. If someone's anniversary/bday landed on a leap year (Feb 29th), it defaults to the 1st of March on non-leap year
+    -- TIME AND DATES
+    GRM_L["1 Mar"] = "1. März"    -- This date is used in a specific circumstance. If someone's anniversary/bday landed on a leap year (Feb 29th), it defaults to the 1st of March on non-leap year
     -- Full Month Name
     GRM_L["January"] = "Januar"
     GRM_L["February"] = "Februar"
@@ -444,7 +436,7 @@ GRML.German = function()
     GRM_L["Feb"] = "Feb"
     GRM_L["Mar"] = "Mär"
     GRM_L["Apr"] = "Apr"
-    -- Removed May here as the short name is equal to the long name
+    GRM_L["May"] = "Mai"
     GRM_L["Jun"] = "Jun"
     GRM_L["Jul"] = "Jul"
     GRM_L["Aug"] = "Aug"
@@ -463,11 +455,11 @@ GRML.German = function()
     GRM_L["Day"] = "Tag"
     GRM_L["Months"] = "Monate"
     GRM_L["Month"] = "Monat"
-    GRM_L["HourBreak"] = ":"
+    GRM_L["HourBreak"] = ":"    -- Context, in English, and many languages, 11am = 11:00 -- or in French, 11h00   - the hour break is the ":" or the "h"
 
     GRM_L["am"] = "am"
     GRM_L["pm"] = "pm"
-    GRM_L["24HR_Notation"] = ""
+    GRM_L["24HR_Notation"] = "";    -- if someone is using 24hr time notation in your country, instead of 12hr, how do you notate it? In English, there is no am/pm (though "hours" is technically right, but unnecessary)
 
     GRM_L["{num} year"] = "{num} Jahr"
     GRM_L["{num} years"] = "{num} Jahre"
@@ -484,34 +476,34 @@ GRML.German = function()
     GRM_L["{num} hr"] = "{num} Std"
     GRM_L["{num} hrs"] = "{num} Std"
     GRM_L["< 1 hour"] = "< 1 Stunde"
-    GRM_L["{num} {custom1}"] = true                 -- Context: This is a placeholder for ANY generic time data -- Ex:  "1 year" or "15 months" - - The translation is already set, this is just to set the orientation of the number properly.
+    GRM_L["{num} {custom1}"] = true    -- Context: This is a placeholder for ANY generic time data -- Ex:  "1 year" or "15 months" - The translation is set this is just to set the orientation of the number properly.
 
     -- MISC Punctuation
-    GRM_L[","] = ","                               -- I know in some Asia languages, a comma is not used, but something similar, for example.
+    GRM_L[","] = ","    -- I know in some Asia languages, a comma is not used, but something similar, for example.
 
     -- Updates 1.126
     GRM_L["General"] = "Allgemein"
     GRM_L["General:"] = "Allgemein:"
     GRM_L["Scan"] = "Scan"
     GRM_L["Help"] = "Hilfe"
-    GRM_L["UI"] = "Interface"                              -- UI for User Interface. Abbreviation for changing custom UI featuers, like coloring of <M> main
-    GRM_L["Officer"] = "Offizier"                        -- as in, "Officer" rank
+    GRM_L["UI"] = "Interface"    -- UI for User Interface. Abbreviation for changing custom UI featuers, like coloring of <M> main
+    GRM_L["Officer"] = "Offizier"    -- as in, "Officer" rank
     GRM_L["Open Addon Window"] = "Öffne Addon-Fenster"
     GRM_L["Sync Addon Settings on All Alts in Same Guild"] = "Addon-Einstellungen für alle Twinks in der gleichen Gilde übernehmen"
     GRM_L["Show Minimap Button"] = "Zeige Minimap-Knopf"
     GRM_L["Player is Not Currently in a Guild"] = "Spieler ist momentan in keiner Gilde"
     -- tooltips
-    GRM_L["|CFFE6CC7FClick|r to open GRM"] = "|CFFE6CC7FKlicken|r, um GRM zu öffnen"                           -- Please maintain the color coding
-    GRM_L["|CFFE6CC7FRight-Click|r to Reset to 100%"] = "|CFFE6CC7FRechtsklicken|r, um auf 100% zurückzusetzen"                -- for the Options slider tooltip
+    GRM_L["|CFFE6CC7FClick|r to open GRM"] = "|CFFE6CC7FKlicken|r, um GRM zu öffnen"    -- Please maintain the color coding
+    GRM_L["|CFFE6CC7FRight-Click|r to Reset to 100%"] = "|CFFE6CC7FRechtsklicken|r, um auf 100% zurückzusetzen"    -- for the Options slider tooltip
     GRM_L["|CFFE6CC7FRight-Click|r to Set Notification of Status Change"] = "|CFFE6CC7FRechtsklicken|r, um eine Benachrichtigung zu erhalten, wenn der Status sich ändert"
     -- tooltip end
     GRM_L["GRM"] = "GRM"
-    GRM_L["Include Unknown as Incomplete"] = "Unbekannt als unvollständig anzeigen"                           -- Context: Unknown in the Audit Tab will be hidden if filtering out complete players
+    GRM_L["Include Unknown as Incomplete"] = "Unbekannt als unvollständig anzeigen"    -- Context: Unknown in the Audit Tab will be hidden if filtering out complete players
     GRM_L["You Do Not Have Permission to Add Events to Calendar"] = "Du hast keine Rechte, um Ereignisse im Kalender zu erstellen"
     GRM_L["Please Select Which Join Date to Sync"] = "Bitte Beitrittsdatum zum teilen auswählen"
     GRM_L["Sync All Alts to {name}'s Join Date"] = "Allen Twinks das Beitrittsdatum von {name} übertragen"
     GRM_L["Sync All Alts to the Earliest Join Date: {name}"] = "Allen Twinks das früheste Beitrittsdatum übertragen: {name}"
-    GRM_L["Sync All Alts to {name}'s |cffff0000(main)|r Join Date"] = "Allen Twinks das Beitrittsdatum übertragen: {name}|cffff0000(Main)"   -- The coloring ensures that "(main)" maintains the RED color. Please keep it consistent if relevant to your language.
+    GRM_L["Sync All Alts to {name}'s |cffff0000(main)|r Join Date"] = "Allen Twinks das Beitrittsdatum übertragen: {name}|cffff0000(Main)"    -- The coloring ensures that "(main)" maintains the RED color. Please keep it consistent if relevant to your language.
     GRM_L["Join Date of All Alts is Currently Synced"] = "Beitrittsdaten aller Twinks sind übertragen"
 
     -- Update 1.130
@@ -532,7 +524,7 @@ GRML.German = function()
     GRM_L["None"] = "leer"
     GRM_L["Restore"] = "Wiederherstellen"
     GRM_L["Set Backup"] = "Backup erstellen"
-    GRM_L["Memory Usage: {num} MB"] = "genutzter Speicher: {num} MB"          -- MB references the number of MegaBytes of memory used.
+    GRM_L["Memory Usage: {num} MB"] = "genutzter Speicher: {num} MB"    -- MB references the number of MegaBytes of memory used.
 
     -- Update 1.137
     GRM_L["GRM: Unable to Create Backup for a Guild With Unknown Creation Date! Log into that guild on any alt to update old database."] = "Kann kein Backup für eine Gilde ohne Erstellungsdatum anlegen. Bitte logge auf einen Char in der Gilde, um veraltete Daten zu aktualisieren."
@@ -544,7 +536,7 @@ GRML.German = function()
     GRM_L["Player Cannot Purge the Guild Data they are Currently In!!!"] = "Du kannst nicht die Daten einer Gilde aufräumen, in der du gerade drin bist!"
     GRM_L["To reset your current guild data type '/grm clearguild'"] = "Um deine momentanen Gildendaten zurückzusetzen, tippe '/grm clearguild'"
     GRM_L["Click Here to Remove all traces of this guild, or hit ESC"] = "Hier klicken, um alle Spuren dieser Gilde zu beseitigen, ansonsten ESC drücken"
-    GRM_L["{name} has been removed from the database."] = "{name} wurde aus der Datenbank gelöscht."              -- The Guild Name has been removed from the database
+    GRM_L["{name} has been removed from the database."] = "{name} wurde aus der Datenbank gelöscht."    -- The Guild Name has been removed from the database
 
     -- update 1.141
     GRM_L["Only Restrict Incoming Player Data to Rank Threshold, not Outgoing"] = "Begrenze nur eingehende Spielerdaten mit dem Rang, nicht ausgehende"
@@ -565,7 +557,7 @@ GRML.German = function()
     GRM_L["Export Log"] = "Exportiere Log"
     GRM_L["Clear Lines:"] = "Lösche Zeilen:"
     GRM_L["Enable Ctrl-Shift-Click Line Removal"] = "Erlaube STRG-Shift-Klick, um Zeilen zu löschen"
-    GRM_L["To"] = "bis"                                      -- Clear Lines:  50 To 100     -- It stands between 2 edit boxes as its own fontstring, so work with that.
+    GRM_L["To"] = "bis"    -- Clear Lines:  50 To 100     -- It stands between 2 edit boxes as its own fontstring, so work with that.
     GRM_L["Confirm Clear"] = "Löschen bestätigen"
     GRM_L["Please Select Range of Lines from the Log You Wish to Remove"] = "Wähle Zeilen aus, die du löschen möchtest"
     GRM_L["Please put the lowest number in the first box"] = "Bitte schreibe die niedrigere Zahl in das erste Feld"
@@ -574,7 +566,7 @@ GRML.German = function()
     GRM_L["Enabling Line Numbers... Please choose within the given range"] = "Aktiviere nummerierte Zeilen...Bitte wähle aus den Vorhandenen"
     GRM_L["Ctrl-C to Copy <> Ctrl-P to Paste <> Ctrl-A to Select All"] = "STRG+C zum Kopieren <> STRG+V zum Einfügen <> STRG+A un alles auszuwählen"
     GRM_L["Language:"] = "Sprache:"
-    GRM_L["{num} phrases still need translation to {name}"] = "{num} Sätze müssen noch übersetzt werden"                  -- Ex: 300 phrases still need translation to German
+    GRM_L["{num} phrases still need translation to {name}"] = "{num} Sätze müssen noch übersetzt werden"    -- Ex: 300 phrases still need translation to German
 
     -- update 1.145
     GRM_L["You currently are at {num} non-Battletag friends. To fully take advantage of all of GRM features, please consider clearing some room."] = "Du hast momentan {num} Freunde (nicht Battle-net Freunde!). Um alle Funktionen von GRM nutzen zu können, musst du bitte einen Freund entfernen."
@@ -590,12 +582,12 @@ GRML.German = function()
     -- Update 1.147
     GRM_L["{custom1} to Search the Log for Player"] = "{custom1}, um das Log nach diesem Spieler zu durchsuchen"
 
-    -- Update 1.148
+    -- Update 1.1480
     GRM_L["Custom Notes:"] = "Eigene Notizen:"
     GRM_L["GRM Debugging Enabled."] = "GRM Debugging aktiviert"
     GRM_L["GRM Debugging Disabled."] = "GRM Debugging deaktiviert"
-    GRM_L["Please type \"/grm debug 10\" to report 10 events (or any number)"] = "Gib \"/grm debug 10\" ein, um die letzten 10 Einträge auszugeben (oder jede andere Zahl)"        -- Please keep the \"/grm debug 10)\" in-tact for slash command to work
-    GRM_L["Format: \"/grm debug 10\""] = "Format: \"/grm debug 10\""                                                                  -- "" Likewise
+    GRM_L["Please type \"/grm debug 10\" to report 10 events (or any number)"] = "Gib \"/grm debug 10\" ein, um die letzten 10 Einträge auszugeben (oder jede andere Zahl)"    -- Please keep the \"/grm debug 10)\" in-tact for slash command to work
+    GRM_L["Format: \"/grm debug 10\""] = "Format: \"/grm debug 10\""    -- "" Likewise
     GRM_L["Error: Debug Command not recognized."] = "Fehler: Debug-Befehl unbekannt"
     GRM_L["You may want to temporarily disable SYNC in the options if you are debugging another feature."] = "Deaktiviere eventuell den Sync, während du andere Inhalte debugst"
     GRM_L["Sync Custom Notes"] = "Teile eigene Notizen"
@@ -648,47 +640,47 @@ GRML.German = function()
     GRM_L["Timestamp Format:"] = "Datumsformat"
     GRM_L["Hour Format:"] = "Zeitformat:"
     GRM_L["24 Hour"] = "24 Stunden"
-    GRM_L["12 Hour (am/pm)"] = "12 Stunden"                             -- removed the am/pm due to spacing. Context prob just fine
-    GRM_L["Confirm Custom Note"] = "Bestätige Eigene Notiz"
+    GRM_L["12 Hour (am/pm)"] = "12 Stunden"
     GRM_L["Enable Fade on Tab Change"] = "Aktiviere Verblassen bei Tabwechsel"
+    GRM_L["Confirm Custom Note"] = "Bestätige Eigene Notiz"
 
     -- R1.1520
     GRM_L["A new rank has been added to the guild!"] = "Ein neuer Rang wurde der Gilde hinzugefügt!"
     GRM_L["{num} new ranks have been added to the guild!"] = "{num} neue Ränge wurden der Gilde hinzugefügt!"
     GRM_L["The guild has removed a rank!"] = "Ein Rang wurde der Gilde entfernt!"
-    GRM_L["{num} guild ranks have been removed!" ] = "{num} Ränge wurden der Gilde entfernt!"
+    GRM_L["{num} guild ranks have been removed!"] = "{num} Ränge wurden der Gilde entfernt!"
     GRM_L["Edit Ban"] = "Bann bearbeiten"
     GRM_L["Please Select a Player to Edit their Ban!"] = "Bitte einen Spieler auswählen, um seinen Bann zu bearbeiten!"
     GRM_L["Update Ban"] = "Bann aktualisiert"
     GRM_L["{name}'s Ban Info has Been Updated!"] = "Bann-Info von {name} aktualisiert!"
 
     -- R1.1530
-    GRM_L["{name} plays the {custom1} class, not {custom2}."] = "{name} spielt {custom1},  nicht {custom2}."             -- Example: Arkaan plays the Hunter class, not Paladin.
+    GRM_L["{name} plays the {custom1} class, not {custom2}."] = "{name} spielt {custom1},  nicht {custom2}."    -- Example: Arkaan plays the Hunter class, not Paladin.
     GRM_L["{num} Items Updated"] = "{num} Gegenstände aktualisiert"
     GRM_L["You Currently Have Disabled Adding Events to Calendar"] = "Du hast es momentan deaktiviert, Kalenderereignisse zu erstellen"
 
     -- R1.20
-    GRM_L["|CFFE6CC7FHold Shift|r to view more alt details."] = "|CFFE6CC7FHalte Shift|r, um mehr Twink-Details zu sehen."               -- "Hold Shift to view more alt details" is the phrase, but the |CFF|r is the text coloring hex code. Please keep it in there on the keyboard command coloring
+    GRM_L["|CFFE6CC7FHold Shift|r to view more alt details."] = "|CFFE6CC7FHalte Shift|r, um mehr Twink-Details zu sehen."    -- "Hold Shift to view more alt details" is the phrase, but the |CFF|r is the text coloring hex code. Please keep it in there on the keyboard command coloring
     GRM_L["|CFFE6CC7FClick|r to view more alt details."] = "|CFFE6CC7FKlicke|r, um mehr Twink-Details zu sehen."
-    GRM_L["{custom1} to keep alt details open."] = "{custom1}, um die Twink-Details offen zu lassen"               -- The same can be said here. ^^
-    GRM_L["|CFFE6CC7FClick|r to flip player name ordering"] = "|CFFE6CC7FKlicke|r, um die Sortierreihenfolge umzudrehen"                  -- and the reset...
+    GRM_L["{custom1} to keep alt details open."] = "{custom1}, um die Twink-Details offen zu lassen"    -- The same can be said here. ^^
+    GRM_L["|CFFE6CC7FClick|r to flip player name ordering"] = "|CFFE6CC7FKlicke|r, um die Sortierreihenfolge umzudrehen"    -- and the reset...
     GRM_L["|CFFE6CC7FClick|r to sort Join Dates by Newest"] = "|CFFE6CC7FKlicke|r, um Neueste Eintrittsdaten oben zu sehen"
     GRM_L["|CFFE6CC7FClick|r to sort Join Dates by Oldest"] = "|CFFE6CC7FKlicke|r, um Älteste Eintrittsdaten oben zu sehen"
     GRM_L["|CFFE6CC7FClick|r to sort Promotion Dates by Newest"] = "|CFFE6CC7FKlicke|r, um Neueste Beförderungen oben zu sehen"
     GRM_L["|CFFE6CC7FClick|r to sort Promotion Dates by Oldest"] = "|CFFE6CC7FKlicke|r, um Älteste Beförderungen oben zu sehen"
     GRM_L["|CFFE6CC7FClick|r to sort all Mains first"] = "|CFFE6CC7FKlicke|r, um alle Mains zuerst zu sehen"
     GRM_L["|CFFE6CC7FClick|r to sort all Alts first."] = "|CFFE6CC7FKlicke|r, um alle Twinks zuerst zu sehen"
-    GRM_L["{name}'s Alts"] = "Twinks von {name}"                                            -- Like "Arkaan's Alts"
+    GRM_L["{name}'s Alts"] = "Twinks von {name}"    -- Like "Arkaan's Alts"
     GRM_L["GRM window will open when combat ends."] = "GRM wird geöffnet, wenn der Kampf zu Ende ist."
 
     -- R1.24
     GRM_L["This also will change the <Alt> format to match"] = "Dies ändert auch das <Twink>-Format entsprechend"
-    GRM_L["M"] = "M"                                           -- Anmerkung: "M" für Main ist universell verständlich.
-    GRM_L["A"] = "T"                                            -- Anmerkung: "T" für "Twink" wäre die logische deutsche Abkürzung für Alt.
+    GRM_L["M"] = "M"    -- Of note, the "M" is short for "Main" and this is the reference to the main tag on alts in guild chat. For use in the Main tagging <M> (M) etc...
+    GRM_L["A"] = "T"
 
     -- R1.25
-    GRM_L["Include \"Joined:\" tag with the date."] = "Füge den \"Beigetreten:\"-Tag zum Datum hinzu."
-    GRM_L["GRM Auto-Detect! {name} has joined the guild and will be set as Main"] = "GRM Auto-Erkennung! {name} ist der Gilde beigetreten und wird als Main gesetzt"
+    GRM_L["Include \"Joined:\" tag with the date."] = "Füge den \"Beigetreten:\"-Tag zum Datum hinzu."    -- the \" is so you include the qutoations in the actual text. You need them or it closes the phrase.
+    GRM_L["GRM Auto-Detect! {name} has joined the guild and will be set as Main"] = "GRM Auto-Erkennung! {name} ist der Gilde beigetreten und wird als Main gesetzt"    -- Main auto-detect message
 
     -- R1.26
     GRM_L["Click to Disable Sync of Custom Note"] = "Klicken, um die Synchronisation der eigenen Notiz zu deaktivieren"
@@ -700,13 +692,14 @@ GRML.German = function()
     -- R1.28
     GRM_L["Public Note:"] = "Öffentliche Notiz:"
     GRM_L["Officer Note:"] = "Offiziersnotiz:"
-    GRM_L["Officer Note"] = "Offiziersnotiz" -- This was already translated, but included for completeness from your list.
+    GRM_L["Public Note"] = "Öffentliche Notiz"
+    GRM_L["Officer Note"] = "Offiziersnotiz"
     GRM_L["Show Public, Officer, and Custom Notes on Log Entries of Left Players"] = "Öffentliche, Offiziers- & eigene Notizen bei Austritten im Log anzeigen"
     GRM_L["Hard Reset"] = "Hard Reset"
     GRM_L["Hard reset of ALL GRM data, account-wide. Game will reload!"] = "Hard Reset ALLER GRM-Daten, accountweit. Das Spiel wird neu geladen!"
     GRM_L["Only recommend to kick if all player linked alts exceed max time"] = "Kick nur empfehlen, wenn alle Twinks des Spielers die maximale Zeit überschreiten"
     GRM_L["Your Guild Leader Has Set Sync Restrictions to {name} or Higher"] = "Dein Gildenleiter hat die Sync-Beschränkungen auf {name} oder höher festgelegt"
-    GRM_L["Unable to Change Rank. Guild Leader has set restriction to {name} or higher"] = "Rang kann nicht geändert werden. Gildenleiter hat die Beschränkung auf {name} oder höher gesetzt"
+    GRM_L["Unable to Change Rank. Guild Leader has set restriction to {name} or higher"] = "Rang kann nicht geändert werden. Gildenleiter hat die Beschränkung auf {name} oder höher gesetzt"    -- Like Initiate or higher
     GRM_L["Unable to Change Rank. Guild Leader has set restriction level."] = "Rang kann nicht geändert werden. Gildenleiter hat eine Beschränkungsstufe festgelegt."
     GRM_L["Force Settings with Guild Info Tags"] = "Einstellungen mit Gildeninfo-Tags erzwingen"
     GRM_L["Database Still Loading. GRM will open automatically when finished."] = "Datenbank lädt noch. GRM öffnet sich automatisch, wenn fertig."
@@ -715,8 +708,8 @@ GRML.German = function()
     GRM_L["The highlighted character is not valid for messages. Please remove."] = "Das markierte Zeichen ist für Nachrichten ungültig. Bitte entfernen."
     GRM_L["Not all characters are valid. Please remove any non-text characters."] = "Nicht alle Zeichen sind gültig. Bitte entferne alle Sonderzeichen."
     GRM_L["Kick macro created. Press \"CTRL-SHIFT-K\" to kick all of {name}'s alts"] = "Kick-Makro erstellt. Drücke \"STRG-SHIFT-K\", um alle Twinks von {name} zu kicken"
-    GRM_L["Kick the Player's {num} alts too?"] = "Auch die {num} Twinks des Spielers kicken?"
-    GRM_L["Kick the Player's {num} alt too?"] = "Auch den Twink des Spielers kicken?"
+    GRM_L["Kick the Player's {num} alts too?"] = "Auch die {num} Twinks des Spielers kicken?"    -- Plural
+    GRM_L["Kick the Player's {num} alt too?"] = "Auch den Twink des Spielers kicken?"    -- Not Plural  - "Kick the Player's 1 alt too?"
     GRM_L["Ban and Kick the Player's {num} alts too?"] = "Auch die {num} Twinks des Spielers bannen und kicken?"
     GRM_L["Ban and Kick the Player's {num} alt too?"] = "Auch den Twink des Spielers bannen und kicken?"
 
@@ -724,7 +717,7 @@ GRML.German = function()
     GRM_L["Sync With {name} is Complete..."] = "Synchronisation mit {name} abgeschlossen..."
     GRM_L["|CFFE6CC7FLeft-Click|r and drag to move this button."] = "|CFFE6CC7FLinksklick|r und ziehen, um diesen Button zu verschieben."
     GRM_L["{custom1} and drag to move this button anywhere."] = "{custom1} und ziehen, um diesen Button zu verschieben."
-    GRM_L["MOTD:"] = "NdT:" -- Nachricht des Tages
+    GRM_L["MOTD:"] = "NdT:"    -- Message Of The Day = M.O.T.D = MOTD -
     GRM_L["minimap"] = "minimap"
 
     -- R1.31
@@ -744,13 +737,13 @@ GRML.German = function()
     GRM_L["Show Guild Member Birthdays"] = "Geburtstage von Gildenmitgliedern anzeigen"
     GRM_L["Set Birthday"] = "Geburtstag setzen"
     GRM_L["Edit Birthday"] = "Geburtstag bearbeiten"
-    GRM_L["Remove Date"] = "Datum entfernen"
+    GRM_L["Remove Date"] = "Datum entfernen"    -- Clear Birthday shorthand
     GRM_L["Birthday"] = "Geburtstag"
     GRM_L["Only Announce Birthdays and Anniversaries if Listed as 'Main'"] = "Geburtstage und Jahrestage nur für 'Mains' ankündigen"
-    GRM_L["{name} will be celebrating {num} year in the Guild!"] = "{name} feiert das {num}. Jahr in der Gilde!"
-    GRM_L["{name} will be celebrating {num} years in the Guild!"] = "{name} feiert {num} Jahre in der Gilde!"
+    GRM_L["{name} will be celebrating {num} year in the Guild!"] = "{name} feiert das {num}. Jahr in der Gilde!"    -- {custom1} will reference the DATE. Ex: "Arkaan will be celebrating 1 year in the Guild! ( 1 May )" - SINGULAR
+    GRM_L["{name} will be celebrating {num} years in the Guild!"] = "{name} feiert {num} Jahre in der Gilde!"    -- Same thing but PLURAL - "years" in stead of "year"
     GRM_L["No player's currently available to sync {name}'s Guild Data..."] = "Kein Spieler verfügbar, um die Gildendaten von {name} zu synchronisieren..."
-    GRM_L["{name} has set {name2}'s Birthday: {custom1}"] = "{name} hat den Geburtstag von {name2} gesetzt: {custom1}"
+    GRM_L["{name} has set {name2}'s Birthday: {custom1}"] = "{name} hat den Geburtstag von {name2} gesetzt: {custom1}"    -- custom note is the date like "12 Dec"
     GRM_L["{name}'s Birthday has been set: {custom1}"] = "Der Geburtstag von {name} wurde gesetzt: {custom1}"
 
     -- R1.34
@@ -764,13 +757,13 @@ GRML.German = function()
     GRM_L["No player was found to have that birthday."] = "Kein Spieler mit diesem Geburtstag gefunden."
 
     -- R1.35
-    GRM_L["Your Guild Leader Has Set Join Dates to only be added to the {name}"] = "Dein Gildenleiter hat festgelegt, dass Beitrittsdaten nur zur {name} hinzugefügt werden"
+    GRM_L["Your Guild Leader Has Set Join Dates to only be added to the {name}"] = "Dein Gildenleiter hat festgelegt, dass Beitrittsdaten nur zur {name} hinzugefügt werden"    -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
     GRM_L["Warning - Global Controls:"] = "Achtung - Globale Steuerung:"
     GRM_L["Sync Restrictions Globally Changed to {name} or Higher"] = "Sync-Beschränkungen global auf {name} oder höher geändert"
     GRM_L["BAN Sync Restrictions Globally Changed to {name} or Higher"] = "BANN-Sync-Beschränkungen global auf {name} oder höher geändert"
     GRM_L["CUSTOM NOTE Sync Restrictions Globally Changed to {name} or Higher"] = "EIGENE-NOTIZ-Sync-Beschränkungen global auf {name} oder höher geändert"
     GRM_L["Join Dates Globally Changed to only be added to the {name}"] = "Beitrittsdaten werden global nur noch zur {name} hinzugefügt"
-    GRM_L["Unable to Modify. Global setting is set to the {name}"] = "Kann nicht geändert werden. Globale Einstellung ist auf {name} gesetzt"
+    GRM_L["Unable to Modify. Global setting is set to the {name}"] = "Kann nicht geändert werden. Globale Einstellung ist auf {name} gesetzt"    -- The {name} will be the "Officer note" or "Public Note" or "Custom Note"  set, based on their settings...
 
     -- R1.37
     GRM_L["No Action Configured"] = "Keine Aktion konfiguriert"
@@ -781,7 +774,7 @@ GRML.German = function()
 
     -- R1.39
     GRM_L["Only Report if there are no Active Alts in the Group"] = "Nur melden, wenn keine aktiven Twinks in der Gruppe sind"
-    GRM_L["Level Filter Minimum:"] = "Mindestlevel-Filter:"
+    GRM_L["Level Filter Minimum:"] = "Mindestlevel-Filter:"    -- As in player level
     GRM_L["Report Milestones:"] = "Meilensteine melden:"
     GRM_L["Report Level Up Changes"] = "Levelaufstiege melden"
     GRM_L["Reporting:"] = "Meldungen:"
@@ -793,26 +786,26 @@ GRML.German = function()
     GRM_L["{name} has Updated {name2}'s BAN and also BANNED all linked alts from the guild!"] = "{name} hat den BANN von {name2} aktualisiert und auch alle Twinks verbannt!"
     GRM_L["One moment, GRM is still being configured."] = "Einen Moment, GRM wird noch konfiguriert."
     GRM_L["Player Was Banned By: {name}"] = "Spieler wurde gebannt von: {name}"
-    GRM_L["|cffff0000WARNING!!!|r {num} BANNED players are currently in the guild."] = "|cffff0000ACHTUNG!!!|r {num} GEBANNTE Spieler sind aktuell in der Gilde."
-    GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000ACHTUNG!!!|r {num} GEBANNTER Spieler ist aktuell in der Gilde."
+    GRM_L["|cffff0000WARNING!!!|r {num} BANNED players are currently in the guild."] = "|cffff0000ACHTUNG!!!|r {num} GEBANNTE Spieler sind aktuell in der Gilde."    -- plural
+    GRM_L["|cffff0000WARNING!!!|r {num} BANNED player is currently in the guild."] = "|cffff0000ACHTUNG!!!|r {num} GEBANNTER Spieler ist aktuell in der Gilde."    -- Singular  -- please keep the color coding... this keeps the Warning in red
 
     -- R1.41
     GRM_L["Auto-Focus the search box"] = "Suchfeld automatisch fokussieren"
-    GRM_L["This will skip the first time if set to load on logon"] = "Wird beim ersten Mal übersprungen, wenn 'Bei Login laden' aktiv ist"
+    GRM_L["This will skip the first time if set to load on logon"] = "Wird beim ersten Mal übersprungen, wenn 'Bei Login laden' aktiv ist"    -- Referring to the auto-focusing on the search box, this is a tooltip helper
     GRM_L["Please enter a valid level between 1 and {num}"] = "Bitte gib ein gültiges Level zwischen 1 und {num} ein"
     GRM_L["Player's Main: {name}"] = "Main des Spielers: {name}"
 
     -- R1.43
     GRM_L["One moment, requesting additional details on {name} from the server. Ban List will soon update."] = "Moment, frage Details zu {name} vom Server an. Bannliste wird gleich aktualisiert."
     GRM_L["Unable to identify {name}. Ensure your spelling is accurate and the correct realm is selected!"] = "Kann {name} nicht identifizieren. Achte auf korrekte Schreibweise und Realm!"
-    GRM_L["(Unable to Identify)"] = "(Unbekannt)"
+    GRM_L["(Unable to Identify)"] = "(Unbekannt)"    -- As in, unable to identify on the server, they possibly server transferred off but are still on ban list
     GRM_L["|CFFE6CC7FClick|r to select player class"] = "|CFFE6CC7FKlicken|r, um die Spielerklasse auszuwählen"
     GRM_L["|CFFE6CC7FClick|r to select player's realm."] = "|CFFE6CC7FKlicken|r, um den Realm des Spielers auszuwählen."
     GRM_L["All Connected Realms are available to choose."] = "Alle verbundenen Realms stehen zur Auswahl."
     GRM_L["{num} players were found to have the same name. Please manually select the player's realm"] = "{num} Spieler mit demselben Namen gefunden. Bitte wähle den Realm manuell aus."
     GRM_L["Click or Press TAB to cycle through each step."] = "Klicken oder TAB drücken, um durch die Schritte zu wechseln."
     GRM_L["Former and Current Members"] = "Ehemalige und aktuelle Mitglieder"
-    GRM_L["No Matches Found. Add a Custom New Player or Match"] = "Keine Treffer. Füge einen neuen Spieler hinzu."
+    GRM_L["No Matches Found. Add a Custom New Player or Match"] = "Keine Treffer. Füge einen neuen Spieler hinzu."    -- as in, autocomplete typing matching
 
     --1.50
     GRM_L["{name}'s alt grouping has had their Birthday removed by: {name2}"] = "Der Geburtstag der Twink-Gruppe von {name} wurde von {name2} entfernt"
@@ -849,9 +842,9 @@ GRML.German = function()
     GRM_L["Fix selected mismatched note dates with GRM saved date"] = "Ausgewählte falsche Notiz-Daten mit GRM-Datum korrigieren"
     GRM_L["Fix all mismatched GRM dates with the note date"] = "Alle falschen GRM-Daten mit Notiz-Datum korrigieren"
     GRM_L["Fix selected mismatched GRM dates with the note date"] = "Ausgewählte falsche GRM-Daten mit Notiz-Datum korrigieren"
-    GRM_L["Import all missing join dates from the note date"] = "Alle fehlenden Beitrittsdaten aus Notizen importieren"
+    GRM_L["Import all missing join dates from the note date"] = "Alle fehlenden Beitrittsdaten aus Notizen importieren";
     GRM_L["Import selected missing join dates from the note date"] = "Ausgewählte fehlende Beitrittsdaten aus Notizen importieren"
-    GRM_L["Add all missing saved dates to the {name}"] = "Alle fehlenden Daten zu {name} hinzufügen"
+    GRM_L["Add all missing saved dates to the {name}"] = "Alle fehlenden Daten zu {name} hinzufügen";
     GRM_L["Add selected missing saved dates to {name}"] = "Ausgewählte fehlende Daten zu {name} hinzufügen"
     GRM_L["Clear all join dates from incorrect note locations"] = "Alle Beitrittsdaten aus falschen Notizen entfernen"
     GRM_L["Clear selected join dates from incorrect note locations"] = "Ausgewählte Beitrittsdaten aus falschen Notizen entfernen"
@@ -865,12 +858,12 @@ GRML.German = function()
     GRM_L["|CFFE6CC7FShift-Click|r Second Button to Select All In-Between"] = "|CFFE6CC7FShift-Klick|r auf zweiten Button wählt alle dazwischen aus"
     GRM_L["|CFFE6CC7FClick|r to select player"] = "|CFFE6CC7FKlicken|r, um Spieler auszuwählen"
     GRM_L["Only Show Players With Incomplete Status"] = "Nur Spieler mit unvollständigem Status anzeigen"
-    GRM_L["{num} Join Dates Need Attention"] = "{num} Beitrittsdaten benötigen Aufmerksamkeit"
+    GRM_L["{num} Join Dates Need Attention"] = "{num} Beitrittsdaten benötigen Aufmerksamkeit"    -- In other words, "155 join dates need attention" as an example
     GRM_L["Do you really want to remove the join dates from notes other than the {name}?"] = "Möchtest du wirklich Beitrittsdaten aus anderen Notizen als {name} entfernen?"
     GRM_L["Do you really want to fix mismatched dates using the note?"] = "Möchtest du wirklich falsche Daten mit der Notiz korrigieren?"
     GRM_L["Do you really want to fix note dates using the saved GRM dates?"] = "Möchtest du wirklich Notiz-Daten mit den GRM-Daten korrigieren?"
-    GRM_L["Do you really want to add the missing join dates to the {name}?"] = "Möchtest du wirklich die fehlenden Beitrittsdaten zu {name} hinzufügen?"
-    GRM_L["Auto-adding join dates to the {name} is disabled. Do you still wish to continue?"] = "Automatisches Hinzufügen zu {name} ist deaktiviert. Fortfahren?"
+    GRM_L["Do you really want to add the missing join dates to the {name}?"] = "Möchtest du wirklich die fehlenden Beitrittsdaten zu {name} hinzufügen?"    -- add the missing join dates to the default note name - like "... to the Officer Note?"
+    GRM_L["Auto-adding join dates to the {name} is disabled. Do you still wish to continue?"] = "Automatisches Hinzufügen zu {name} ist deaktiviert. Fortfahren?"    -- Just as above
     GRM_L["There are currently {num} mismatched dates to fix"] = "Es gibt aktuell {num} falsche Daten zu korrigieren"
     GRM_L["There are currently no mismatched dates that need to be fixed."] = "Es gibt aktuell keine falschen Daten zu korrigieren."
     GRM_L["There are currently no dates that need to be imported."] = "Es gibt aktuell keine Daten zum Importieren."
@@ -914,7 +907,7 @@ GRML.German = function()
     GRM_L["Unable to create GRM hotkey macro. You currently are at the cap of {num} macros."] = "GRM-Hotkey-Makro kann nicht erstellt werden. Du hast das Maximum von {num} Makros erreicht."
 
     -- 1.60
-    GRM_L["Really remove {name} Backup Point?"] = "Backup-Punkt für {name} wirklich entfernen?"
+    GRM_L["Really remove {name} Backup Point?"] = "Backup-Punkt für {name} wirklich entfernen?"    -- The {name} is the guildName
 
     -- 1.63
     GRM_L["Disabled"] = "Deaktiviert"
@@ -923,7 +916,7 @@ GRML.German = function()
 
     -- 1.64
     GRM_L["Chat Window for All GRM Messages:"] = "Chatfenster für alle GRM-Nachrichten:"
-    GRM_L["\"{name}\" Chat Window\nDo you wish to create it?" ] = "\"{name}\" Chatfenster\nMöchtest du es erstellen?"
+    GRM_L["\"{name}\" Chat Window\nDo you wish to create it?"] = "\"{name}\" Chatfenster\nMöchtest du es erstellen?"    -- the \n indicates a line break.
     GRM_L["GRM will automatically send messages to the \"{name}\" window if you close this one."] = "GRM sendet Nachrichten automatisch an das \"{name}\"-Fenster, wenn du dieses schließt."
     GRM_L["Channel Settings Are Character Specific and Will Not Be Sync'd"] = "Kanaleinstellungen sind charakterspezifisch und werden nicht synchronisiert"
 
@@ -943,29 +936,30 @@ GRML.German = function()
     GRM_L["Your Guild Leader has changed the Custom Rejoin Tag from \"{name}\" to \"{name2}\""] = "Dein Gildenleiter hat den Wiederbeitritts-Tag von \"{name}\" zu \"{name2}\" geändert"
     GRM_L["Your Guild Leader has set the Custom Rejoin Tag to \"{name}\""] = "Dein Gildenleiter hat den Wiederbeitritts-Tag auf \"{name}\" gesetzt"
 
-        -- 1.67
+    -- 1.67
+    -- Note, lots of plural/singular forms here for just a superior user experience, albeit a bit of extra work
     GRM_L["Kick"] = "Kicken"
     GRM_L["Promote"] = "Befördern"
     GRM_L["Demote"] = "Degradieren"
     GRM_L["Macro:"] = "Makro:"
-    GRM_L["Macro Size: {num}/255"] = "Makrogröße: {num}/255"
+    GRM_L["Macro Size: {num}/255"] = "Makrogröße: {num}/255"    -- "Macro Size: 242/255"
     GRM_L["Action"] = "Aktion"
-    GRM_L["Ignored Action:"] = "Ignorierte Aktion:"
+    GRM_L["Ignored Action:"] = "Ignorierte Aktion:"    -- As in, the action being ignored, be it kick or promote or demote.
     GRM_L["Click to Build Macro"] = "Klicken, um Makro zu erstellen"
     GRM_L["No Current Names to Add"] = "Keine Namen zum Hinzufügen"
     GRM_L["No Names to Add to the Macro"] = "Keine Namen zum Makro hinzuzufügen"
     GRM_L["Hot Key: {name}"] = "Hotkey: {name}"
     GRM_L["Permissions"] = "Berechtigungen"
     GRM_L["Player rank change detected, re-checking permissions and rebuilding GRM Macro Tool."] = "Rangänderung erkannt, Berechtigungen werden geprüft und Makro-Werkzeug neu erstellt."
-    GRM_L["Click to remove selected names from the macro"] = "Klicken, um ausgewählte Namen aus dem Makro zu entfernen"
-    GRM_L["Click to remove selected name from the macro"] = "Klicken, um ausgewählten Namen aus dem Makro zu entfernen"
-    GRM_L["Click to remove selected names from Ignore List"] = "Klicken, um ausgewählte Namen von der Ignorier-Liste zu entfernen"
-    GRM_L["Click to remove selected name from Ignore List"] = "Klicken, um ausgewählten Namen von der Ignorier-Liste zu entfernen"
+    GRM_L["Click to remove selected names from the macro"] = "Klicken, um ausgewählte Namen aus dem Makro zu entfernen"    -- Plural form of statement
+    GRM_L["Click to remove selected name from the macro"] = "Klicken, um ausgewählten Namen aus dem Makro zu entfernen"    -- Singular form of statement
+    GRM_L["Click to remove selected names from Ignore List"] = "Klicken, um ausgewählte Namen von der Ignorier-Liste zu entfernen"    -- Plural
+    GRM_L["Click to remove selected name from Ignore List"] = "Klicken, um ausgewählten Namen von der Ignorier-Liste zu entfernen"    -- Singular
     GRM_L["No names selected to remove from macro"] = "Keine Namen zum Entfernen aus dem Makro ausgewählt"
     GRM_L["No names selected to remove from Ignore List"] = "Keine Namen zum Entfernen von der Ignorier-Liste ausgewählt"
     GRM_L["Macro is currently empty"] = "Makro ist derzeit leer"
-    GRM_L["{num} players removed from the macro"] = "{num} Spieler aus dem Makro entfernt"
-    GRM_L["{num} player was removed from the macro"] = "1 Spieler wurde aus dem Makro entfernt"
+    GRM_L["{num} players removed from the macro"] = "{num} Spieler aus dem Makro entfernt"    -- plural form of the statement
+    GRM_L["{num} player was removed from the macro"] = "1 Spieler wurde aus dem Makro entfernt"    -- singular form of the statement
     GRM_L["{num} players removed from the Ignored List"] = "{num} Spieler von der Ignorier-Liste entfernt"
     GRM_L["{num} player was removed from Ignore List"] = "1 Spieler wurde von der Ignorier-Liste entfernt"
     GRM_L["There are no names currently selected to be removed from the Ignore List."] = "Es sind keine Namen zum Entfernen von der Ignorier-Liste ausgewählt."
@@ -975,8 +969,8 @@ GRML.German = function()
     GRM_L["There are currently no names to add"] = "Derzeit keine Namen zum Hinzufügen"
     GRM_L["There are currently no names to remove"] = "Derzeit keine Namen zum Entfernen"
     GRM_L["Rules"] = "Regeln"
-    GRM_L["Please choose a day between 1 and 99"] = "Bitte wähle einen Tag zwischen 1 und 99"
-    GRM_L["Please choose a day between 0 and 99"] = "Bitte wähle einen Tag zwischen 0 und 99"
+    GRM_L["Please choose a day between 1 and 999"] = "Bitte wähle einen Tag zwischen 1 und 999"
+    GRM_L["Please choose a day between 0 and 999"] = "Bitte wähle einen Tag zwischen 0 und 999"
     GRM_L["Pressing the ESC key will also clear all lines"] = "Drücken von ESC löscht ebenfalls alle Zeilen"
     GRM_L["Player's rank does not have permission to remove others from the guild"] = "Der Rang des Spielers hat keine Berechtigung, andere aus der Gilde zu entfernen"
     GRM_L["Player's rank does not have permission to promote others in the guild"] = "Der Rang des Spielers hat keine Berechtigung, andere zu befördern"
@@ -995,9 +989,9 @@ GRML.German = function()
     GRM_L["Ignored Players Safe From Action"] = "Ignorierte Spieler (sicher vor Aktion)"
     GRM_L["Only show players with ignored action"] = "Nur Spieler mit ignorierter Aktion anzeigen"
     GRM_L["No players on Ignore List"] = "Keine Spieler auf der Ignorier-Liste"
-    GRM_L["No players to select. 1 player filtered"] = "Keine Spieler wählbar. 1 Spieler gefiltert"
-    GRM_L["No players to select. {num} players filtered"] = "Keine Spieler wählbar. {num} Spieler gefiltert"
-    GRM_L["There are no names to select. 1 player is filtered"] = "Keine Namen wählbar. 1 Spieler wird gefiltert."
+    GRM_L["No players to select. 1 player filtered"] = "Keine Spieler wählbar. 1 Spieler gefiltert"    -- Singular
+    GRM_L["No players to select. {num} players filtered"] = "Keine Spieler wählbar. {num} Spieler gefiltert"    -- Plural
+    GRM_L["There are no names to select. 1 player is filtered"] = "Keine Namen wählbar. 1 Spieler wird gefiltert."    -- these 2 statements might seem redundant, but often the text on a button is more short hand. This gives a cleaner statement in the chat. Useful for translating in some languages that need a bit more room to be more clear.
     GRM_L["There are no names to select. {num} players are filtered"] = "Keine Namen wählbar. {num} Spieler werden gefiltert."
     GRM_L["Really remove selected player from the ignore list?"] = "Ausgewählten Spieler wirklich von der Ignorier-Liste entfernen?"
     GRM_L["Really remove the {num} selected players from the ignore list?"] = "Die {num} ausgewählten Spieler wirklich von der Ignorier-Liste entfernen?"
@@ -1005,7 +999,7 @@ GRML.German = function()
     GRM_L["There are currently no players on the Ignore List"] = "Derzeit keine Spieler auf der Ignorier-Liste"
     GRM_L["Remove all players from Ignore List"] = "Alle Spieler von Ignorier-Liste entfernen"
     GRM_L["Ignored Players: {num}"] = "Ignorierte Spieler: {num}"
-    GRM_L["Tool"] = "werkzeug"
+    GRM_L["Tool"] = "werkzeug"    -- /grm tool
     GRM_L["Macro Tool"] = "Makro-Werkzeug"
     GRM_L["Macro Tool: {num}"] = "Makro-Werkzeug: {num}"
 
@@ -1013,68 +1007,66 @@ GRML.German = function()
     GRM_L["Social"] = "Soziales"
     GRM_L["Roster"] = "Liste"
     GRM_L["Feature is disabled in WoW Classic"] = "Funktion in WoW Classic deaktiviert"
-    GRM_L["Feature is disabled in TBC Classic"] = "Funktion in TBC Classic deaktiviert"
-    GRM_L["(Classic)"] = "(Classic)"
+    GRM_L["Feature is disabled in TBC Classic"] = "Funktion in TBC Classic deaktiviert"    -- Just laying groundwork now in case Blizz ever releases it. Calendar was not added until WOTLK
+    GRM_L["(Classic)"] = "(Classic)"    -- tooltip tag that shows only on the minimap mosueover version tooltip in Classic
 
     -- 1.69
     GRM_L["Importing dates must be done in a compatible format"] = "Daten müssen in einem kompatiblen Format importiert werden"
     GRM_L["The date selection in OPTIONS shows all supported"] = "Die Datumsauswahl in den OPTIONEN zeigt alle unterstützten Formate"
     GRM_L["Headers, like \"Joined,\" are supported"] = "Überschriften, wie \"Beigetreten:\", werden unterstützt"
-    GRM_L["To confirm or edit the date, open the player window, right click the date, edit, and submit"] = "Zum Bestätigen/Bearbeiten das Spielerfenster öffnen, Rechtsklick auf das Datum, bearbeiten und absenden"
-    GRM_L["To confirm or edit the date, right click the date, edit, and submit"] = "Zum Bestätigen/Bearbeiten, Rechtsklick auf das Datum, bearbeiten und absenden"
+    GRM_L["To confirm or edit the date, open the player window, right click the date, edit, and submit"] = "Zum Bestätigen/Bearbeiten das Spielerfenster öffnen, Rechtsklick auf das Datum, bearbeiten und absenden"    --The "!!" tags are the {name}
+    GRM_L["To confirm or edit the date, right click the date, edit, and submit"] = "Zum Bestätigen/Bearbeiten, Rechtsklick auf das Datum, bearbeiten und absenden"    -- Slightly shorter explanation if already on player window
     GRM_L["The {name} tag indicates a date must be verified to sync"] = "Der {name}-Tag zeigt an, dass ein Datum zum Synchronisieren bestätigt werden muss"
 
     -- 1.70
     GRM_L["GRM has errored due to a previous incompatible build with Classic that was enabled. Click YES to reload UI and fix the issue"] = "GRM-Fehler durch inkompatiblen Classic-Build. Klicke JA, um die UI neuzuladen und das Problem zu beheben"
-
-    -- 1.71
-    GRM_L["(Disabled in Classic)"] = "(In Classic deaktiviert)"
+    GRM_L["(Disabled in Classic)"] = "(In Classic deaktiviert)"    -- For the Options... rather than removing them all
 
     -- 1.73
-    GRM_L["{name} is no longer in the Guild!"] = "{name} ist nicht mehr in der Gilde!"
-    GRM_L["is no longer in the Guild!"] = "ist nicht mehr in der Gilde!"
+    GRM_L["{name} is no longer in the Guild!"] = "{name} ist nicht mehr in der Gilde!"    -- There should really be 3 options. They got kicked, they left on their own, or if not found in the event log, they are just no longer in the guild
+    GRM_L["is no longer in the Guild!"] = "ist nicht mehr in der Gilde!"    -- THIS MUST MATCH THE PREVIOUS LINE with missing name.
     GRM_L["Applying update patches... one moment."] = "Wende Update-Patches an... einen Moment."
-    GRM_L["Update Complete... {num} patches applied."] = "Update abgeschlossen... {num} Patches angewendet."
-    GRM_L["Update Complete... 1 patch applied."] = "Update abgeschlossen... 1 Patch angewendet."
-    GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = "Deaktivieren versteckt auch die Geburtstags-Infos im Roster-Tooltip"
+    GRM_L["Update Complete... {num} patches applied."] = "Update abgeschlossen... {num} Patches angewendet."    -- Plural
+    GRM_L["Update Complete... 1 patch applied."] = "Update abgeschlossen... 1 Patch angewendet."    -- Singular version
+    GRM_L["Disabling will also hide the Birthday info on the roster mouseover window"] = "Deaktivieren versteckt auch die Geburtstags-Infos im Roster-Tooltip"    -- Enable/disable birthday chekbox on UI Options and the Audit windoppw
     GRM_L["Confirm Date"] = "Datum bestätigen"
     GRM_L["If the date is accurate, right click and select 'Confirm Date'"] = "Wenn das Datum korrekt ist, rechtsklicke und wähle 'Datum bestätigen'"
 
-        -- 1.74
+    -- 1.74
     GRM_L["Class Colorize Names in Guild Member Alerts"] = "Namen in Gilden-Meldungen klassenfarbig markieren"
     GRM_L["All player custom notes re-enabled for sync and their checkboxes set."] = "Alle eigenen Notizen wieder für Sync aktiviert und Checkboxen gesetzt."
 
     -- 1.75
-    GRM_L["!note"] = "!notiz"
+    GRM_L["!note"] = "!notiz"    -- !note in English will always work. This gives you the option of creating your own key to register a public note.
     GRM_L["No officer online to set {name}'s note"] = "Kein Offizier online, um die Notiz von {name} zu setzen"
     GRM_L["No officer is currently online to update your note"] = "Kein Offizier ist online, um deine Notiz zu aktualisieren"
     GRM_L["Allow Guild Members to Type \"!note notehere\" to Set Their Own Public Note"] = "Mitgliedern erlauben, \"!notiz Text\" zu tippen, um ihre öffentliche Notiz zu setzen"
-    GRM_L["Enabled"] = "Aktiviert"
+    GRM_L["Enabled"] = "Aktiviert"    -- As in, the opposite of Disabled
     GRM_L["'!note' trigger has been globally ENABLED"] = "'!notiz'-Auslöser wurde global AKTIVIERT"
     GRM_L["'!note' trigger has been globally DISABLED"] = "'!notiz'-Auslöser wurde global DEAKTIVIERT"
 
     -- 1.76
-    GRM_L["Same Rank"] = "Gleicher Rang"
-    GRM_L["Higher Rank"] = "Höherer Rang"
-    GRM_L["Limited Features. There is no Calendar in Classic"] = "Begrenzte Funktionen. Es gibt keinen Kalender in Classic."
-    GRM_L["This only affects settings for your current guild: {name}"] = "Dies betrifft nur Einstellungen für deine aktuelle Gilde: {name}"
-    GRM_L["GC"] = "GS"
-    GRM_L["*GC = Global Control - Use Guild Info to Force Setting For All"] = "*GS = Globale Steuerung - Nutze Gildeninfo, um Einstellungen für alle zu erzwingen"
-    GRM_L["Set Global Controls"] = "Globale Steuerung setzen"
-    GRM_L["Global Control Values Set in Guild Info"] = "Globale Steuerungswerte in Gildeninfo gesetzt"
-    GRM_L["Configure your settings. Click to set in Guild Info"] = "Einstellungen konfigurieren. Klicken, um in Gildeninfo zu setzen."
-    GRM_L["Unable to add globals controls to GuildInfo. There is not enough room."] = "Globale Steuerung kann nicht zur Gildeninfo hinzugefügt werden. Nicht genug Platz."
-    GRM_L["Global controls exported to the guild info note. Updating..."] = "Globale Steuerung in Gildeninfo exportiert. Aktualisiere..."
-    GRM_L["Your rank cannot edit the Guild Info"] = "Dein Rang kann die Gildeninfo nicht bearbeiten"
-    GRM_L["All global controls are already set. You must Edit or Remove the settings manually in the guild Info."] = "Alle globalen Steuerungen sind bereits gesetzt. Du musst sie manuell in der Gildeninfo bearbeiten/entfernen."
+    GRM_L["Same Rank"] = "Gleicher Rang"    -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
+    GRM_L["Higher Rank"] = "Höherer Rang"    -- Macro Tool, Ignore List window - tooltip info on why no action is being done on some players who may be on it.
+    GRM_L["Limited Features. There is no Calendar in Classic"] = "Begrenzte Funktionen. Es gibt keinen Kalender in Classic."    -- Events Tab top warning
+    GRM_L["This only affects settings for your current guild: {name}"] = "Dies betrifft nur Einstellungen für deine aktuelle Gilde: {name}"    -- Tooltip for Options > General > Sync settings to all alts in same guild
+    GRM_L["GC"] = "GS"    -- Options window, acronym for "Global Controls" and will be adjacent to all settings that have global controls
+    GRM_L["*GC = Global Control - Use Guild Info to Force Setting For All"] = "*GS = Globale Steuerung - Nutze Gildeninfo, um Einstellungen für alle zu erzwingen"    -- Top left Options window
+    GRM_L["Set Global Controls"] = "Globale Steuerung setzen"    -- Options > Officer Tab > Bottom left export button
+    GRM_L["Global Control Values Set in Guild Info"] = "Globale Steuerungswerte in Gildeninfo gesetzt"    -- Export GuildInfo tool tooltip
+    GRM_L["Configure your settings. Click to set in Guild Info"] = "Einstellungen konfigurieren. Klicken, um in Gildeninfo zu setzen."    -- Tooltip line 2- same as above
+    GRM_L["Unable to add globals controls to GuildInfo. There is not enough room."] = "Globale Steuerung kann nicht zur Gildeninfo hinzugefügt werden. Nicht genug Platz."    -- If export of globals is not able to complete
+    GRM_L["Global controls exported to the guild info note. Updating..."] = "Globale Steuerung in Gildeninfo exportiert. Aktualisiere..."    -- Success in exporting
+    GRM_L["Your rank cannot edit the Guild Info"] = "Dein Rang kann die Gildeninfo nicht bearbeiten"    -- Mouseover tooltip helper for people without MOTD edit access
+    GRM_L["All global controls are already set. You must Edit or Remove the settings manually in the guild Info."] = "Alle globalen Steuerungen sind bereits gesetzt. Du musst sie manuell in der Gildeninfo bearbeiten/entfernen.";
     GRM_L["Do you really want to wipe all GRM data and settings account-wide?"] = "Möchtest du wirklich alle GRM-Daten und Einstellungen accountweit löschen?"
     GRM_L["Are you sure your settings are configured and ready for global controls?"] = "Bist du sicher, dass deine Einstellungen für die globale Steuerung konfiguriert und bereit sind?"
     GRM_L["Players the same rank or higher will not be shown"] = "Spieler mit gleichem oder höherem Rang werden nicht angezeigt"
-    GRM_L["Macro"] = "makro"
+    GRM_L["Macro"] = "makro"    -- For the slash command  /grm tool or /grm macro - same thing
 
     -- 1.77
-    GRM_L["Add Custom Rule"] = "Eigene Regel hinzufügen"
-    GRM_L["Former Members"] = "Ehemalige Mitglieder"
+    GRM_L["Add Custom Rule"] = "Eigene Regel hinzufügen"    -- Kick Macro Tool - custom rule button right side
+    GRM_L["Former Members"] = "Ehemalige Mitglieder"    -- Export tool
     GRM_L["Data Export"] = "Datenexport"
     GRM_L["*Max Export is 500 Log Entries at a Time"] = "*Maximal 500 Log-Einträge auf einmal exportieren"
     GRM_L["*Max Export is 500 Members at a Time"] = "*Maximal 500 Mitglieder auf einmal exportieren"
@@ -1083,25 +1075,25 @@ GRML.German = function()
     GRM_L["Select Line Range:"] = "Zeilenbereich auswählen:"
     GRM_L["Select Member Range:"] = "Mitgliederbereich auswählen:"
     GRM_L["Export Selection"] = "Auswahl exportieren"
-    GRM_L["Export Next {num}"] = "Nächste {num} exportieren"
-    GRM_L["Export Prev {num}"] = "Vorherige {num} exportieren"
+    GRM_L["Export Next {num}"] = "Nächste {num} exportieren"    -- As in, "Export next 500" names or log lines
+    GRM_L["Export Prev {num}"] = "Vorherige {num} exportieren"    -- As in, Export Previous name
     GRM_L["Total Members: {num}"] = "Mitglieder gesamt: {num}"
     GRM_L["Total Former Members: {num}"] = "Ehemalige gesamt: {num}"
-    GRM_L["Class"] = "Klasse"
-    GRM_L["Guild Rep"] = "Gildenruf"
+    GRM_L["Class"] = "Klasse"    -- As in Class Name, there is currently a "Class:" we need one with the colon
+    GRM_L["Guild Rep"] = "Gildenruf"    -- Guild Faction reputation (abbreviated)
     GRM_L["Last Online (Days)"] = "Zuletzt online (Tage)"
     GRM_L["Spreadsheet Headers"] = "Tabellen-Überschriften"
-    GRM_L["Auto Include Headers"] = "Überschriften autom. einfügen"
-    GRM_L["These will only be included if exporting from the top of the table"] = "Diese werden nur beim Export vom Anfang der Tabelle eingefügt"
+    GRM_L["Auto Include Headers"] = "Überschriften autom. einfügen"    -- Auto include headers on the export frame, as in the column headers for each category on member and former mebers
+    GRM_L["These will only be included if exporting from the top of the table"] = "Diese werden nur beim Export vom Anfang der Tabelle eingefügt"    -- tooltip for the auto-Included export checkbutton
     GRM_L["Export"] = "Export"
     GRM_L["This will be rounded to the nearest day"] = "Dies wird auf den nächsten Tag gerundet"
-    GRM_L["Clearing Log Export. A filter setting has been changed."] = "Log-Export wird gelöscht. Eine Filter-Einstellung wurde geändert."
-    GRM_L["No Tag"] = "Kein Tag"
-    GRM_L["Delimiter:"] = "Trennzeichen:"
+    GRM_L["Clearing Log Export. A filter setting has been changed."] = "Log-Export wird gelöscht. Eine Filter-Einstellung wurde geändert."    -- If the filter settings have been modified, the export string should be cleared and re-done
+    GRM_L["No Tag"] = "Kein Tag"    -- Main Tag
+    GRM_L["Delimiter:"] = "Trennzeichen:"    -- Delimiter selection for Export window
     GRM_L["The selected delimiter will be removed from all notes on export"] = "Das gewählte Trennzeichen wird beim Export aus allen Notizen entfernt"
     GRM_L["Choose thoughtfully"] = "Wähle mit Bedacht"
     GRM_L["{name}'s note has been updated!"] = "Die Notiz von {name} wurde aktualisiert!"
-    GRM_L["Locked. Press ESC"] = "Gesperrt. Drücke ESC"
+    GRM_L["Locked. Press ESC"] = "Gesperrt. Drücke ESC"    -- Mouseover Locked text in top right.
     GRM_L["|CFFE6CC7FClick|r to Select for Removal"] = "|CFFE6CC7FKlicken|r, um zum Entfernen auszuwählen"
     GRM_L["Feel free to recommend a delimiter you wish to use to the author"] = "Schlage dem Autor gerne ein Trennzeichen vor, das du verwenden möchtest"
     GRM_L["Export Tool"] = "Export-Werkzeug"
@@ -1109,8 +1101,8 @@ GRML.German = function()
     GRM_L["Opens the Advanced Macro Tool"] = "Öffnet das erweiterte Makro-Werkzeug"
 
     -- 1.78
-    GRM_L["Hurray!"] = "Hurra!"
-    GRM_L["{name} has Reached the {num} Level Cap! {custom1}"] = "{name} hat die Max-Stufe {num} erreicht! {custom1}"
+    GRM_L["Hurray!"] = "Hurra!"    -- A short cheer! Like "Yay!" except "Hurray!"
+    GRM_L["{name} has Reached the {num} Level Cap! {custom1}"] = "{name} hat die Max-Stufe {num} erreicht! {custom1}"    -- Arkaan has Reached the 120 Level Cap! Hurray!
 
     -- 1.80
     GRM_L["Core Window:"] = "Hauptfenster:"
@@ -1131,18 +1123,18 @@ GRML.German = function()
     GRM_L["Sex"] = "Geschlecht"
     GRM_L["Male"] = "Männlich"
     GRM_L["Female"] = "Weiblich"
-    GRM_L["{name} {name2}"] = "{name} {name2}" -- e.g. "Ork Männlich"
+    GRM_L["{name} {name2}"] = "{name} {name2}"    -- This might seem weird, but the format is "Race Sex" In other words, "Orc Male" or "Nightborne Female" and so on. Adjust how you see fit, it appears in the mouseover tooltip on the player name
 
     -- 1.82
     GRM_L["Disabled While Player is Grouped"] = "Deaktiviert, während Spieler in Gruppe ist"
     GRM_L["SYNC is currently disabled while you are grouped. Due to server restricted addon to addon talk data caps, and in an effort to avoid clogging up the shared global comm space of all addons, sync will be temporarily restricted while grouped."] = "SYNC ist deaktiviert, während du in einer Gruppe bist. Aufgrund von Server-Datenlimits für Addon-Kommunikation wird die Synchronisation vorübergehend eingeschränkt, um den globalen Kommunikationskanal nicht zu überlasten."
 
-    -- 1.84
+    -- 1.85
     GRM_L["The note is too long. Only the first {num} characters will be set."] = "Die Notiz ist zu lang. Nur die ersten {num} Zeichen werden gesetzt."
     GRM_L["Apply Only to Selected Ranks"] = "Nur auf ausgewählte Ränge anwenden"
     GRM_L["Unable to create hotkey macro. Player is currently in combat and action is restricted. It will auto-build once out of combat."] = "Hotkey-Makro kann nicht erstellt werden. Spieler ist im Kampf. Es wird nach dem Kampf automatisch erstellt."
     GRM_L["No player data found, recommend full removal."] = "Keine Spielerdaten gefunden, vollständige Entfernung empfohlen."
-    GRM_L["OR"] = "ODER"
+    GRM_L["OR"] = "ODER"    -- "Or" as in  This OR that  Use this button OR that button -- Advanced JD audit tool.
     GRM_L["Use Promo Date"] = "Beförderungsdatum nutzen"
     GRM_L["Use Join Date"] = "Beitrittsdatum nutzen"
     GRM_L["Send to Promo Date"] = "An Beförderungsdatum senden"
@@ -1175,16 +1167,16 @@ GRML.German = function()
     GRM_L["Global controls have not yet been set!"] = "Globale Steuerungen wurden noch nicht gesetzt!"
     GRM_L["Include Birthdays as Incomplete"] = "Geburtstage als unvollständig einstufen"
     GRM_L["Make room and transfer before clearing"] = "Platz schaffen und übertragen vor dem Löschen"
-    GRM_L["1 player has a join date listed in the incorrect note."] = "1 Spieler hat ein Beitrittsdatum in der falschen Notiz."
-    GRM_L["{num} players have join dates listed in the incorrect note."] = "{num} Spieler haben Beitrittsdaten in der falschen Notiz."
-    GRM_L["Otherwise, {num} notes are ready to be cleared from the incorrect location"] = "Andernfalls können {num} Notizen vom falschen Ort entfernt werden."
-    GRM_L["Otherwise, 1 note is ready to be cleared from the incorrect location"] = "Andernfalls kann 1 Notiz vom falschen Ort entfernt werden."
+    GRM_L["1 player has a join date listed in the incorrect note."] = "1 Spieler hat ein Beitrittsdatum in der falschen Notiz."    -- Singular (Join Date Audit tool - bottom button mouseover) - rare tooltip use
+    GRM_L["{num} players have join dates listed in the incorrect note."] = "{num} Spieler haben Beitrittsdaten in der falschen Notiz."    -- Plural (same)
+    GRM_L["Otherwise, {num} notes are ready to be cleared from the incorrect location"] = "Andernfalls können {num} Notizen vom falschen Ort entfernt werden."    -- Plural (same tooltip)
+    GRM_L["Otherwise, 1 note is ready to be cleared from the incorrect location"] = "Andernfalls kann 1 Notiz vom falschen Ort entfernt werden."    -- Plural (same tooltip)
     GRM_L["There are currently {num} dates that can be added to the {name}"] = "Derzeit können {num} Daten zu {name} hinzugefügt werden."
-    GRM_L["The previous action still has 1 recommended task. It is advised to do that first."] = "Die vorherige Aktion hat noch 1 empfohlene Aufgabe. Es wird geraten, diese zuerst zu erledigen."
-    GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = "Die vorherige Aktion hat noch {num} empfohlene Aufgaben. Es wird geraten, diese zuerst zu erledigen."
-    GRM_L["Step {num}"] = "Schritt {num}"
+    GRM_L["The previous action still has 1 recommended task. It is advised to do that first."] = "Die vorherige Aktion hat noch 1 empfohlene Aufgabe. Es wird geraten, diese zuerst zu erledigen."    -- Singular
+    GRM_L["The previous action still has {num} recommended tasks. It is advised to do those first."] = "Die vorherige Aktion hat noch {num} empfohlene Aufgaben. Es wird geraten, diese zuerst zu erledigen."    -- Plural
+    GRM_L["Step {num}"] = "Schritt {num}"    -- Like Step 1 , Step 2 , etc.
 
-    -- 1.86
+    -- R1.86
     GRM_L["What tags look like:"] = "So sehen die Tags aus:"
     GRM_L["Add Join Date to:"] = "Füge Beitrittsdatum hinzu:"
 
@@ -1198,23 +1190,23 @@ GRML.German = function()
     GRM_L["Apply to All Levels"] = "Auf alle Level anwenden"
     GRM_L["Apply Only to Level Range"] = "Nur auf Levelbereich anwenden"
     GRM_L["Level Range:"] = "Levelbereich:"
-    GRM_L["{num} to {custom1}"] = "{num} bis {custom1}"
-    GRM_L["1 to {num}"] = "1 bis {num}"
+    GRM_L["{num} to {custom1}"] = "{num} bis {custom1}"    -- Example: "Level Range: 100 to 120"
+    GRM_L["1 to {num}"] = "1 bis {num}"    -- Same principle.
     GRM_L["Require Text Match"] = "Nur mit Text-Match"
     GRM_L["Click to Set"] = "Klicken zum Setzen"
     GRM_L["Inactivity:"] = "Inaktivität:"
-    GRM_L["Notify if inactive for {num} {name}" ] = "Melden, wenn inaktiv für {num} {name}"
+    GRM_L["Notify if inactive for {num} {name}"] = "Melden, wenn inaktiv für {num} {name}"    -- Notify if inactive for 15 Days  or Notify if inactive for 10 Months
     GRM_L["Rule Filter: {name}"] = "Regelfilter: {name}"
     GRM_L["Ranks:"] = "Ränge:"
     GRM_L["All Ranks"] = "Alle Ränge"
     GRM_L["Note Match:"] = "Notiz-Übereinstimmung:"
     GRM_L["Please Set a Name for this Rule. It can be 1 to 30 characters in length."] = "Bitte gib einen Namen für diese Regel ein (1-30 Zeichen)."
     GRM_L["This will also clear all of your saved rules."] = "Dies wird auch alle deine gespeicherten Regeln löschen."
-    GRM_L["Within Level Range: {num} - {custom1}"] = "Innerhalb Levelbereich: {num} - {custom1}"
-    GRM_L["Note match: {name}"] = "Notiz-Übereinstimmung: {name}"
-    GRM_L["Matching Rank"] = "Passender Rang"
-    GRM_L["Right-Click|r to Edit or Remove custom rule"] = "Rechtsklick|r, um Regel zu bearbeiten/entfernen"
-    GRM_L["(Applies Only to Classic)"] = "(Gilt nur für Classic)"
+    GRM_L["Within Level Range: {num} - {custom1}"] = "Innerhalb Levelbereich: {num} - {custom1}"    -- Qued macro tool tooltip
+    GRM_L["Note match: {name}"] = "Notiz-Übereinstimmung: {name}"    -- Same
+    GRM_L["Matching Rank"] = "Passender Rang"    -- ''
+    GRM_L["Right-Click|r to Edit or Remove custom rule"] = "Rechtsklick|r, um Regel zu bearbeiten/entfernen"    -- Please keep the '|r' immediately after the click info - as it indicates a text color change point
+    GRM_L["(Applies Only to Classic)"] = "(Gilt nur für Classic)"    -- For the Options... rather than removing them all
 
     -- R1.88
     -- Group Info Module
@@ -1224,15 +1216,15 @@ GRML.German = function()
     GRM_L["Click to Lock Info Window"] = "Klicken, um Infofenster zu sperren"
     GRM_L["Guildies: {num}"] = "Gildies: {num}"
     GRM_L["Former Guildies: {num}"] = "Ehemalige: {num}"
-    GRM_L["Other {name} Members: {num}"] = "Andere {name}-Mitglieder: {num}"
+    GRM_L["Other {name} Members: {num}"] = "Andere {name}-Mitglieder: {num}"    -- "Other Zul'jin Members: 5"  - basically just your realm name. This can be useful to know who in your raid is your realm as you can trade more freely.
     GRM_L["Total in Group: {num}"] = "Gesamt in Gruppe: {num}"
     GRM_L["Date Left"] = "Austrittsdatum"
     GRM_L["1 Alt Still in Guild"] = "1 Twink noch in der Gilde"
     GRM_L["{num} Alts Still in Guild"] = "{num} Twinks noch in der Gilde"
     GRM_L["Known Alts:"] = "Bekannte Twinks:"
     GRM_L["Close Enough to Trade"] = "Nah genug zum Handeln"
-    GRM_L["Plugins"] = "Plugins"
-    GRM_L["Plugin"] = "Plugin"
+    GRM_L["Plugins"] = "Plugins"    -- plural
+    GRM_L["Plugin"] = "Plugin"    -- Singular
     GRM_L["Module"] = "Modul"
     GRM_L["GRM Optional Modules"] = "Optionale GRM-Module"
     GRM_L["Enable Module"] = "Modul aktivieren"
@@ -1247,14 +1239,15 @@ GRML.German = function()
     GRM_L["Multi-Channel support. Just separate with commas"] = "Multi-Kanal-Unterstützung. Einfach mit Kommas trennen."
     GRM_L["Disable tooltip. Only show popout window."] = "Tooltip deaktivieren. Nur Popout-Fenster anzeigen."
 
-    -- R1.89 (Already one translated, here's the other)
+    -- R1.89
     GRM_L["GRM API Error:"] = "GRM API-Fehler:"
     GRM_L["The guild name \"{name}\" cannot be found in the database. Ensure proper formatting."] = "Gildenname \"{name}\" nicht in Datenbank gefunden. Achte auf das Format."
     GRM_L["The player name \"{name}\" cannot be found in the database. Ensure proper spelling."] = "Spielername \"{name}\" nicht in Datenbank gefunden. Achte auf die Schreibweise."
     GRM_L["Unable to change officer notes at current rank"] = "Kann Offiziersnotizen mit aktuellem Rang nicht ändern"
+    GRM_L["Player is not currently in a Guild"] = "Spieler ist derzeit in keiner Gilde"
     GRM_L["Mains Only"] = "Nur Mains"
     GRM_L["Alts Only"] = "Nur Twinks"
-    GRM_L["Custom Public Notes:"] = "Eigene öffentliche Notizen:"
+    GRM_L["Custom Public Notes:"] = "Eigene öffentliche Notizen:"    -- Updated from Custom Notes
     GRM_L["Leave unchecked to export every member of the guild"] = "Leer lassen, um jedes Mitglied zu exportieren"
     GRM_L["Only the 10 most recent rank changes will be included"] = "Nur die 10 neuesten Rangänderungen werden einbezogen"
     GRM_L["When you are ready to remove the players, press the Hot-Key {name} 1 time to complete all actions"] = "Wenn du bereit bist, die Spieler zu entfernen, drücke den Hotkey {name} 1 Mal"
@@ -1264,18 +1257,19 @@ GRML.German = function()
     GRM_L["Unable to promote players within the guild at current rank."] = "Kann mit aktuellem Rang keine Spieler befördern."
     GRM_L["Unable to demote players within the guild at current rank."] = "Kann mit aktuellem Rang keine Spieler degradieren."
     GRM_L["Feature disabled."] = "Funktion deaktiviert."
+    GRM_L["Does NOT apply to Ban List"] = "Gilt NICHT für die Bannliste"
     GRM_L["This only applies to Alt/Main Groupings, Join Dates, Promotion Dates, Birthdates, and Custom Notes."] = "Gilt nur für Twink/Main-Gruppen, Beitritts-/Beförderungsdaten, Geburtstage und eigene Notizen."
     GRM_L["Custom Notes can be Restricted Further Below"] = "Eigene Notizen können unten weiter eingeschränkt werden"
     GRM_L["All ranks will receive the outgoing player data. Only players of the selected rank or higher can modify and share that data."] = "Alle Ränge erhalten die Daten. Nur Spieler des gewählten Rangs oder höher können sie ändern und teilen."
-    GRM_L["Default Open Tab:"] = true
+    GRM_L["Default Open Tab:"] = "Standard-Start-Tab:"
     GRM_L["{num} guild members have incomplete info."] = "{num} Gildenmitglieder haben unvollständige Infos."
     GRM_L["Just 1 guild member still has incomplete info. Great job!"] = "Nur noch 1 Gildenmitglied mit unvollständigen Infos. Super!"
     GRM_L["No Audit Necessary! Great Work!"] = "Keine Prüfung nötig! Tolle Arbeit!"
-    GRM_L["GRM Audit Report:"] = "GRM Prüfungsbericht:"
+    GRM_L["GRM Audit Report:"] = "GRM Prüfungsbericht:"    -- Appears after the player's first sync that game secssion.
     GRM_L["100% complete. Great work!"] = "100% vollständig. Tolle Arbeit!"
     GRM_L["{num}% complete."] = "{num}% vollständig."
-    GRM_L["Only 1 member with incomplete data."] = "Nur 1 Mitglied mit unvollständigen Daten."
-    GRM_L["{num} members with incomplete data."] = "{num} Mitglieder mit unvollständigen Daten."
+    GRM_L["Only 1 member with incomplete data."] = "Nur 1 Mitglied mit unvollständigen Daten."    -- singular phrase
+    GRM_L["{num} members with incomplete data."] = "{num} Mitglieder mit unvollständigen Daten."    -- plural version of it
     GRM_L["Colorize Names in Chat Window to Match Class"] = "Namen im Chatfenster klassenfarbig markieren"
     GRM_L["Only Match Empty Notes"] = "Nur leere Notizen abgleichen"
     -- macro Tool
@@ -1283,8 +1277,8 @@ GRML.German = function()
     GRM_L["Empty Notes"] = "Leere Notizen"
     GRM_L["Public"] = "Öffentlich"
     GRM_L["Custom"] = "Eigene"
-    GRM_L["Apply Rules to:"] = "Regeln anwenden auf:"
-    GRM_L["All"] = "Alle"
+    GRM_L["Apply Rules to:"] = "Regeln anwenden auf:"    -- Macro tool rule (top selection)
+    GRM_L["All"] = "Alle"    -- As in, apply to everyone.
     GRM_L["Player is an Alt"] = "Spieler ist ein Twink"
     GRM_L["Player is a Main"] = "Spieler ist ein Main"
     GRM_L["This only applies to KNOWN alts. Unconfigured will be excluded."] = "Gilt nur für BEKANNTE Twinks. Nicht konfigurierte werden ignoriert."
@@ -1293,8 +1287,8 @@ GRML.German = function()
     GRM_L["Use Cautiously. Applies to all at rank, regardless of being active or inactive."] = "Vorsichtig verwenden. Gilt für alle auf dem Rang, egal ob aktiv oder inaktiv."
     GRM_L["This will only apply to players with verified promotion dates."] = "Gilt nur für Spieler mit bestätigtem Beförderungsdatum."
     GRM_L["Time at Rank: {name}"] = "Zeit auf Rang: {name}"
-    GRM_L["Notify if at Rank for {num} {name}"] = "Melden, wenn auf Rang für {num} {name}"
-    GRM_L["Player Guild Rep is"] = "Gildenruf des Spielers ist"
+    GRM_L["Notify if at Rank for {num} {name}"] = "Melden, wenn auf Rang für {num} {name}"    -- "Notify if at Rank for 30 Days" or "Notify if at Rank for 12 Months"
+    GRM_L["Player Guild Rep is"] = "Gildenruf des Spielers ist"    -- Ex: "Player Guild Rep is < Honored" or "Player Guild Rep is = Neutral"  -- Dropdown selection options immediately follow this line. If ordering of boxes before the line would be better, please inform me and I can accomadate your localization efforts
     GRM_L["|CFFE6CC7FClick|r to Change Rep"] = "|CFFE6CC7FKlicken|r, um Ruf zu ändern"
     GRM_L["Guild Rep:"] = "Gildenruf:"
     GRM_L["Guild Rep lower than {name}"] = "Gildenruf niedriger als {name}"
@@ -1316,9 +1310,9 @@ GRML.German = function()
 
     -- R1.90
     GRM_L["GRM WARNING!!! FAILURE TO LOAD THIS KEY: {name}\nPLEASE REPORT TO ADDON DEV! THANK YOU!"] = "GRM WARNUNG!!! FEHLER BEIM LADEN DES KEYS: {name}\nBITTE DEM ADDON-ENTWICKLER MELDEN! DANKE!"
-    GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = "Sync ist für {num} Sekunden nach dem Login deaktiviert. Bitte warte noch {custom1} Sekunden."
+    GRM_L["Sync is disabled for {num} seconds after logging in. Please wait {custom1} seconds longer."] = "Sync ist für {num} Sekunden nach dem Login deaktiviert. Bitte warte noch {custom1} Sekunden."    -- if sync is triggered after logon too soon
     GRM_L["Type '/grm sync' to initiate a one-time sync."] = "Tippe '/grm sync' für eine einmalige Synchronisation."
-    -- Due to language differences on the edit box, this is to explain where to put the edit box. In English it will appear: "Auto Trigger Sync [ 30 ] Seconds After Logging On" - Please place the edit box in the appropriate position for your translation.
+    -- Due to language differences on the edit box, this is to explain where to put the edit box. In Englist it will appear: "Auto Trigger Sync [ 30 ] Seconds After Logging On" - Please place the edit box in the appropriate position for your translation.
     GRM_L["Before Auto Trigger"] = "Sync automatisch starten"
     GRM_L["After Auto Trigger"] = "Sekunden nach dem Einloggen"
     GRM_L["Report When Other Members Have Outdated Versions"] = "Melden, wenn andere Mitglieder veraltete Versionen haben"
@@ -1343,10 +1337,10 @@ GRML.German = function()
     GRM_L["Unable to promote players at this rank to \"{name}\""] = "Spieler auf diesem Rang können nicht zu \"{name}\" befördert werden"
     GRM_L["Unable to demote players at this rank to \"{name}\""] = "Spieler auf diesem Rang können nicht zu \"{name}\" degradiert werden"
     GRM_L["Disable chat log spam while using the Macro Tool"] = "Chat-Spam bei Nutzung des Makro-Werkzeugs deaktivieren"
-    GRM_L["When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions"] = "Wenn du bereit bist, den Spieler zu befördern, drücke den Hotkey {name} 1 Mal"
-    GRM_L["When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions"] = "Wenn du bereit bist, den Spieler zu degradieren, drücke den Hotkey {name} 1 Mal"
-    GRM_L["When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions"] = "Wenn du bereit bist, die Spieler zu befördern, drücke den Hotkey {name} {num} Mal"
-    GRM_L["When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions"] = "Wenn du bereit bist, die Spieler zu degradieren, drücke den Hotkey {name} {num} Mal"
+    GRM_L["When you are ready to Promote the player, press the Hot-Key {name} 1 time to complete all actions"] = "Wenn du bereit bist, den Spieler zu befördern, drücke den Hotkey {name} 1 Mal"    -- Similar entries demote/promote plura/singular versions
+    GRM_L["When you are ready to Demote the player, press the Hot-Key {name} 1 time to complete all actions"] = "Wenn du bereit bist, den Spieler zu degradieren, drücke den Hotkey {name} 1 Mal"    -- ''
+    GRM_L["When you are ready to Promote the players, press the Hot-Key {name} {num} times to complete all actions"] = "Wenn du bereit bist, die Spieler zu befördern, drücke den Hotkey {name} {num} Mal"    -- ''
+    GRM_L["When you are ready to Demote the players, press the Hot-Key {name} {num} times to complete all actions"] = "Wenn du bereit bist, die Spieler zu degradieren, drücke den Hotkey {name} {num} Mal"    -- ''
 
     -- Mouseover tooltip on the macro button on the roster
     GRM_L["Players to Kick:"] = "Spieler zum Kicken:"
@@ -1362,19 +1356,21 @@ GRML.German = function()
     GRM_L["Player has been at rank for more than {num} Months"] = "Spieler ist seit mehr als {num} Monaten auf dem Rang"
 
     -- Promote?Demote tooltup updates on the rules
+    GRM_L["Time at Rank:"] = "Zeit auf Rang"
     GRM_L["Destination Rank:"] = "Zielrang:"
-    GRM_L["# Moves:"] = "Stufen:"
-    GRM_L["Notify if at current rank for {num} {name}" ] = "Melden, wenn auf Rang für {num} {name}"
+    GRM_L["# Moves:"] = "Stufen:"    -- This is shorthand in American English for "Number of Ranks:" - This is top right on macro tool promote/demote - indicating the number of ranks player needs to be promoted or demoted
+    GRM_L["Notify if at current rank for {num} {name}"] = "Melden, wenn auf Rang für {num} {name}"
 
     -- Macro Tool Log reporting
-    GRM_L["{name} matches {num} macro tool rules. Promotion Recommended!"] = "{name} passt zu {num} Makro-Regeln. Beförderung empfohlen!"
+    GRM_L["{name} matches {num} macro tool rules. Promotion Recommended!"] = "{name} passt zu {num} Makro-Regeln. Beförderung empfohlen!"    -- I know, a little redundancy here, but I don't want to go back to the kick rules above and modify for all. Just copy/paste the first sentence for each singular/plural.
     GRM_L["{name} matches {num} macro tool rule. Promotion Recommended!"] = "{name} passt zu 1 Makro-Regel. Beförderung empfohlen!"
     GRM_L["{name} matches {num} macro tool rules. Demotion Recommended!"] = "{name} passt zu {num} Makro-Regeln. Degradierung empfohlen!"
     GRM_L["{name} matches {num} macro tool rule. Demotion Recommended!"] = "{name} passt zu 1 Makro-Regel. Degradierung empfohlen!"
 
     -- 1.921
-    GRM_L["Click"] = "Klick"
-    GRM_L["Ctrl-Click"] = "Strg-Klick"
+    -- These are going to be used to cleanup some of the string formatting in the future
+    GRM_L["Click"] = "Klick"    -- Referencing a mouse click
+    GRM_L["Ctrl-Click"] = "Strg-Klick"    -- Ctrl = Control
     GRM_L["Alt-Click"] = "Alt-Klick"
     GRM_L["Shift-Click"] = "Shift-Klick"
     GRM_L["Ctrl-Shift-Click"] = "Strg-Shift-Klick"
@@ -1383,10 +1379,10 @@ GRML.German = function()
     GRM_L["Left-Click"] = "Linksklick"
     GRM_L["Ctrl-Left-Click"] = "Strg-Linksklick"
 
-    GRM_L["{custom1} to add player to all 3 macro tool ignore lists" ] = "{custom1}, um Spieler zu allen 3 Makro-Ignorier-Listen hinzuzufügen"
+    GRM_L["{custom1} to add player to all 3 macro tool ignore lists"] = "{custom1}, um Spieler zu allen 3 Makro-Ignorier-Listen hinzuzufügen"    -- custom1 = "Ctrl-Click"  - it is basically a macro action
     GRM_L["{custom1} to remove player from all 3 macro tool ignore lists"] = "{custom1}, um Spieler von allen 3 Makro-Ignorier-Listen zu entfernen"
     GRM_L["{custom1} to push ignore list settings to {name}'s alts"] = "{custom1}, um Ignorier-Einstellungen auf die Twinks von {name} zu übertragen"
-    GRM_L["Type \"{name} {name2}\" to Bring Up Macro Tool. {custom1} also work."] = "Tippe \"{name} {name2}\", um das Makro-Werkzeug zu öffnen. {custom1} funktionieren auch."
+    GRM_L["Type \"{name} {name2}\" to Bring Up Macro Tool. {custom1} also work."] = "Tippe \"{name} {name2}\", um das Makro-Werkzeug zu öffnen. {custom1} funktionieren auch."    -- This is how it looks in final form in English - "Type "/grm macro" to Bring Up Macro Tool (tool, kick, promote, demote also work)""
     GRM_L["Kick Rules"] = "Kick-Regeln"
     GRM_L["Promote Rules"] = "Beförderungs-Regeln"
     GRM_L["Demote Rules"] = "Degradierungs-Regeln"
@@ -1397,7 +1393,7 @@ GRML.German = function()
     GRM_L["Macro Rules"] = "Makro-Regeln"
     GRM_L["{name}'s alts now share the same macro rule ignore settings."] = "Die Twinks von {name} teilen nun dieselben Makro-Regel Ignorier-Einstellungen."
     GRM_L["{name} or Press ESC"] = "{name} oder drücke ESC"
-    GRM_L["Please choose a day between {num} and {custom1}"] = "Bitte wähle einen Tag zwischen {num} und {custom1}"
+    GRM_L["Please choose a day between {num} and {custom1}"] = "Bitte wähle einen Tag zwischen {num} und {custom1}"    -- Example: "Please choose a day between 1 and 999"
     GRM_L["Reactivate monitoring after {num} days."] = "Überwachung nach {num} Tagen reaktivieren."
     GRM_L["Set Days:"] = "Tage festlegen:"
     GRM_L["Configured: {custom1}"] = "Konfiguriert: {custom1}"
@@ -1418,12 +1414,14 @@ GRML.German = function()
     GRM_L["Macro rank changes have been validated!"] = "Makro-Rangänderungen wurden validiert!"
     GRM_L["Warning! Macro changes were not able to be validated. Please verify expected results before using the macro tool further."] = "Warnung! Makro-Änderungen konnten nicht validiert werden. Bitte überprüfe die Ergebnisse, bevor du fortfährst."
 
-    -- 1.93 (and onward to the end)
+    -- 1.93
     GRM_L["Customize Color"] = "Farbe anpassen"
-    GRM_L["Officer Only Access"] = "Nur für Offiziere"
+    GRM_L["Officer Only Access"] = "Nur für Offiziere"    -- Tooltip on the advanced join date tool button
     GRM_L["Player no longer has officer access. Advanced Join Date Tool has been closed."] = "Spieler hat keinen Offiziers-Zugriff mehr. Erweitertes Beitrittsdatum-Werkzeug geschlossen."
     GRM_L["{custom1} to open Player Window"] = "{custom1}, um Spielerfenster zu öffnen"
     GRM_L["{custom1} for Additional Options"] = "{custom1} für zusätzliche Optionen"
+
+    --1.93
     GRM_L["Unable to notify yourself if you go offline."] = "Du kannst dich nicht selbst benachrichtigen, wenn du offline gehst."
     GRM_L["{custom1} to sync join date among all alts in grouping."] = "{custom1}, um Beitrittsdatum für alle Twinks der Gruppe zu synchronisieren."
     GRM_L["Total Patch Time:"] = "Gesamte Patch-Zeit:"
@@ -1443,8 +1441,8 @@ GRML.German = function()
     GRM_L["There are no events listed here to remove."] = "Hier sind keine Ereignisse zum Entfernen aufgelistet."
     GRM_L["All events have been removed."] = "Alle Ereignisse wurden entfernt."
     GRM_L["Ignore All Events"] = "Alle Ereignisse ignorieren"
-    GRM_L["Day:"] = "Tag:"
-    GRM_L["Copy"] = "Kopieren"
+    GRM_L["Day:"] = "Tag:"    -- Events window title header on list
+    GRM_L["Copy"] = "Kopieren"    -- Macro tool - copying
     GRM_L["There are {num} players in your guild on dead accounts."] = "Es gibt {num} Spieler in deiner Gilde mit toten Accounts."
     GRM_L["There is 1 player in your guild on a dead account."] = "Es gibt 1 Spieler in deiner Gilde mit einem toten Account."
     GRM_L["Click CONFIRM to review the names, IGNORE to remove this pop-up permanently, or CANCEL to be reminded next session."] = "Klicke BESTÄTIGEN, um die Namen zu prüfen, IGNORIEREN, um das Pop-up dauerhaft zu entfernen, oder ABBRECHEN für eine Erinnerung."
@@ -1454,12 +1452,13 @@ GRML.German = function()
     GRM_L["Dead Account"] = "Toter Account"
     GRM_L["Kicking {name}'s alts"] = "Kicke die Twinks von {name}"
     GRM_L["Kicking Banned Player"] = "Kicke gebannten Spieler"
+
     GRM_L["Open any GRM window: {name}, {name2}, {custom1}, etc."] = "Öffne ein GRM-Fenster: {name}, {name2}, {custom1}, etc."
     GRM_L["Does a one-time check for dead accounts"] = "Einmalige Prüfung auf tote Accounts"
     GRM_L["Dead player accounts found: {num}"] = "Tote Spieler-Accounts gefunden: {num}"
     GRM_L["Rule Sync Enabled"] = "Regel-Sync aktiviert"
     GRM_L["Rule Sync Disabled"] = "Regel-Sync deaktiviert"
-    GRM_L["Created By: {name}"] = "Erstellt von: {name}"
+    GRM_L["Created By: {name}"] = "Erstellt von: {name}"    -- Macro rule tooltip
     GRM_L["{name}'s Kick Rule {num}"] = "Kick-Regel {num} von {name}"
     GRM_L["{name}'s Promote Rule {num}"] = "Beförderungs-Regel {num} von {name}"
     GRM_L["{name}'s Demote Rule {num}"] = "Degradierungs-Regel {num} von {name}"
@@ -1479,19 +1478,21 @@ GRML.German = function()
     GRM_L["Reject"] = "Ablehnen"
     GRM_L["Player Search"] = "Spielersuche"
     GRM_L["Search to find a player quicker"] = "Suchen, um einen Spieler schneller zu finden"
-    GRM_L["dead"] = "tot"
-    GRM_L["deadnames"] = "totechars"
+
+    -- Additonal slash command
+    GRM_L["dead"] = "tot"    -- slash command for checking dead names
+    GRM_L["deadnames"] = "totechars"    -- slash command for checking dead names
     GRM_L["TabName"] = "Tab-Name"
     GRM_L["Add unique player GUID to chat window to copy"] = "Einzigartige Spieler-GUID zum Kopieren ins Chatfenster einfügen"
     GRM_L["Achievement Announce"] = ACHIEVEMENT
     GRM_L["Only Guild Members with GRM installed will see."] = "Nur Gildenmitglieder mit installiertem GRM werden dies sehen."
 
     -- R1.935
-    GRM_L["Search"] = "Suchen" -- This is the global string for "Search"
+    GRM_L["Search"] = "Suchen"    -- This is the global string for "Search"
 
     -- R1.936
     GRM_L["Use '{name} search PlayerName' to also find guild members"] = "Nutze '{name} suche Spielername', um auch Gildenmitglieder zu finden"
-    GRM_L["{custom1} to Copy Name to Chat"] = "{custom1}, um Namen in den Chat zu kopieren"
+    GRM_L["{custom1} to Copy Name to Chat"] = "{custom1}, um Namen in den Chat zu kopieren"    -- "Shift-Click to Copy Name to Chat" is the default
 
     -- R1.944
     GRM_L["Promote Player if in Guild for"] = "Spieler befördern, wenn in Gilde für"
@@ -1505,15 +1506,15 @@ GRML.German = function()
     GRM_L["Ignore Rule With Text Match"] = "Bei Text-Match ignorieren"
     GRM_L["This only searches the officer note for the safe tag"] = "Dies durchsucht nur die Offiziersnotiz nach dem Schutz-Tag"
     GRM_L["Examples of simple tags:"] = "Beispiele für einfache Tags:"
-    GRM_L["Do Not Kick" ] = "Nicht kicken"
-    GRM_L["[S]"] = "[S]"  -- "S" für "Sicher" ist passend
+    GRM_L["Do Not Kick"] = "Nicht kicken"
+    GRM_L["[S]"] = "[S]"    -- While this is just a tag, it is short for the word "Safe"
     GRM_L["Safe"] = "Sicher"
     GRM_L["Must be an exact match"] = "Muss exakt übereinstimmen"
     GRM_L["No safe tag '{name}' in officer note"] = "Kein Schutz-Tag '{name}' in Offiziersnotiz"
     GRM_L["Safe Text Match:"] = "Schutz-Text-Übereinstimmung:"
 
     -- R1.946
-    GRM_L["GRM Tools" ] = "GRM-Werkzeuge"
+    GRM_L["GRM Tools"] = "GRM-Werkzeuge"
     GRM_L["Style Choices:"] = "Stil-Optionen:"
     GRM_L["Applies only to date format used for note"] = "Gilt nur für das Datumsformat in der Notiz"
 
@@ -1550,7 +1551,7 @@ GRML.German = function()
     GRM_L["Their Rank is too Low. All data is restricted."] = "Ihr Rang ist zu niedrig. Alle Daten sind eingeschränkt."
     GRM_L["Your Rank is too Low. Player is restricting all data."] = "Dein Rang ist zu niedrig. Spieler schränkt alle Daten ein."
     GRM_L["Sync is Currently Disabled. Do you wish to re-enable?"] = "Sync ist deaktiviert. Möchtest du ihn reaktivieren?"
-    GRM_L["SYNC DATA"] = "DATEN SYNCRONISIEREN"
+    GRM_L["SYNC DATA"] = "DATEN SYNCRONISIEREN"    -- AddonUsers Tab in Options
     GRM_L["Players"] = "Spieler"
     GRM_L["Bans"] = "Banns"
     GRM_L["Details"] = "Details"
@@ -1559,7 +1560,7 @@ GRML.German = function()
     GRM_L["Syncing all data except ban list. Your rank is too low."] = "Synchronisiere alle Daten außer Bannliste. Dein Rang ist zu niedrig."
     GRM_L["Currently Syncing With: {name}"] = "Synchronisiere derzeit mit: {name}"
     GRM_L["Sync has begun after waiting in queue for {num} seconds"] = "Sync hat nach {num} Sekunden in der Warteschlange begonnen"
-    GRM_L["Not Determined"] = "Nicht ermittelt"
+    GRM_L["Not Determined"] = "Nicht ermittelt"    -- Ban List
 
     --R1.97
     GRM_L["You are added to the sync queue. Position: {num}"] = "Du wurdest zur Sync-Warteschlange hinzugefügt. Position: {num}"
@@ -1574,7 +1575,7 @@ GRML.German = function()
     GRM_L["Guild Transfer Tool"] = "Gildentransfer-Werkzeug"
     GRM_L["Transfer Tool Guide"] = "Anleitung Transfer-Werkzeug"
     GRM_L["Step-by-Step guide on how to use transfer tool"] = "Schritt-für-Schritt-Anleitung für das Transfer-Werkzeug"
-    GRM_L["Step {num}:"] = "Schritt {num}:"
+    GRM_L["Step {num}:"] = "Schritt {num}:"    -- Step 1: , Step 2: etc...
     GRM_L["Click \"Set Restore Point\" to the guild you are currently in (remove save first if one already exists)."] = "Klicke \"Wiederherstellungspunkt setzen\" für deine aktuelle Gilde (ggf. alten Speicherpunkt zuerst löschen)."
     GRM_L["Initiate the guild transfer process."] = "Starte den Gildentransfer-Prozess."
     GRM_L["Log into the new guild on the new server."] = "Logge dich in die neue Gilde auf dem neuen Server ein."
@@ -1588,7 +1589,7 @@ GRML.German = function()
     -- R1.972
     GRM_L["Show Player Level"] = "Spielerlevel anzeigen"
     GRM_L["Show Mythic+ Rating"] = "Mythic+ Wertung anzeigen"
-    GRM_L["M+ Rating:" ] = "M+ Wertung:"
+    GRM_L["M+ Rating:"] = "M+ Wertung:"
     GRM_L["Do Not Show if at Max Level {num}"] = "Nicht auf Max-Level {num} anzeigen"
     GRM_L["Not on Server"] = "Nicht auf dem Server"
     GRM_L["Mythic+ rating will only appear on members at max level {num}."] = "Mythic+ Wertung wird nur bei Mitgliedern auf Max-Level {num} angezeigt."
@@ -1637,11 +1638,11 @@ GRML.German = function()
     GRM_L["{num} Join Dates Have Been Confirmed."] = "{num} Beitrittsdaten wurden bestätigt."
     GRM_L["Searching Log..."] = "Durchsuche Log..."
 
-    -- R1.990
-    GRM_L["M+ Score" ] = "M+ Score"
+    -- R1.980
+    GRM_L["M+ Score"] = "M+ Score"
     GRM_L["Search Public, Officer, and Custom Notes"] = "Öffentliche, Offiziers- & eigene Notizen durchsuchen"
     GRM_L["Note Search"] = "Notiz-Suche"
-    GRM_L["Tips"] = "Tipps"
+    GRM_L["Tips"] = "Tipps"    -- Options > Help tab - "Tips" as in helpful info.
     GRM_L["Hold the CONTROL key down to scroll 3x the speed"] = "Halte die STRG-Taste für 3x Scroll-Geschwindigkeit"
     GRM_L["Hold the SHIFT key down to scroll instantly to the top or bottom"] = "Halte die SHIFT-Taste, um sofort nach oben/unten zu scrollen"
 
@@ -1654,18 +1655,18 @@ GRML.German = function()
     GRM_L["Anniversaries, Birthdays, and Other Events can be viewed."] = "Jahrestage, Geburtstage und andere Ereignisse können angesehen werden."
     GRM_L["Please confirm the removal of {num} events."] = "Bitte die Entfernung von {num} Ereignissen bestätigen."
     GRM_L["Show Offline Members"] = "Offline-Mitglieder anzeigen"
-    GRM_L["{num}/{custom1} Online"] = "{num}/{custom1} Online"
+    GRM_L["{num}/{custom1} Online"] = "{num}/{custom1} Online"    -- Format on GRM Roster "10/154 Online"
     GRM_L["Hide Options"] = "Optionen verbergen"
     GRM_L["Show Options"] = "Optionen anzeigen"
     GRM_L["Show Mains"] = "Mains anzeigen"
     GRM_L["Show Alts"] = "Twinks anzeigen"
     GRM_L["Show Tag"] = "Tag anzeigen"
-    GRM_L["Group Alts With Main"] = "Twinks mit Main gruppieren"
+    GRM_L["Group Alts With Main"] = "Twinks mit Main gruppieren"    -- Roster Options - grouping alts under the main.
     GRM_L["If enabled, sorting will be based on the Mains"] = "Wenn aktiviert, wird nach den Mains sortiert"
-    GRM_L["Rows:"] = "Zeilen:"
+    GRM_L["Rows:"] = "Zeilen:"    -- Referencing the number of rows on the Guild Roster
     GRM_L["{num} Rows"] = "{num} Zeilen"
     GRM_L["Right-Click to Reset to {num} Rows"] = "Rechtsklick für {num} Zeilen"
-    GRM_L["Mythic+ Rating is"] = "Mythic+ Wertung ist"
+    GRM_L["Mythic+ Rating is"] = "Mythic+ Wertung ist"    -- New Macro rule
     GRM_L["Mythic+ Rating:"] = "Mythic+ Wertung:"
     GRM_L["Mythic+ Rating: {num}"] = "Mythic+ Wertung: {num}"
     GRM_L["Mythic+ Rating greater or equal to {num}"] = "Mythic+ Wertung größer/gleich {num}"
@@ -1674,7 +1675,7 @@ GRML.German = function()
 
     -- R1.983
     GRM_L["Special Rules that don't fit nicely into the other categories."] = "Spezialregeln, die nicht in die anderen Kategorien passen."
-    GRM_L["Special"] = "Spezial"
+    GRM_L["Special"] = "Spezial"    -- Macro Tool tab "Special"
     GRM_L["Special Rules Not Available at Current Rank"] = "Spezialregeln auf aktuellem Rang nicht verfügbar"
     GRM_L["Add Special Rule"] = "Spezialregel hinzufügen"
     GRM_L["The \"Special\" rules bypass any safe and ignore restrictions."] = "Die \"Spezial\"-Regeln umgehen alle Schutz- und Ignorier-Beschränkungen."
@@ -1698,7 +1699,7 @@ GRML.German = function()
     GRM_L["WARNING! Keybind is already in use for \"{name}\"."] = "WARNUNG! Tastenbelegung wird bereits für \"{name}\" verwendet."
 
     -- R1.986
-    GRM_L["D"] = "T" -- T for "Tot"
+    GRM_L["D"] = "T"    -- Hardcore mode death tag [D] -- Change to any letter
     GRM_L["Classic Hardcore Mode"] = "Classic Hardcore-Modus"
     GRM_L["Hardcore"] = "Hardcore"
     GRM_L["Include Date Player Died"] = "Todesdatum des Spielers einfügen"
@@ -1707,9 +1708,9 @@ GRML.German = function()
     GRM_L["{name} has died at level {num}."] = "{name} ist auf Level {num} gestorben."
     GRM_L["Player is Still Alive"] = "Spieler lebt noch"
     GRM_L["{name} is no longer reported as Dead."] = "{name} wird nicht mehr als tot gemeldet."
-    GRM_L["The \"{custom1}\" indicates the player is dead." ] = "Das \"{custom1}\" zeigt an, dass der Spieler tot ist."
+    GRM_L["The \"{custom1}\" indicates the player is dead."] = "Das \"{custom1}\" zeigt an, dass der Spieler tot ist."
     GRM_L["Your rank does not have permission to remove the tag."] = "Dein Rang hat keine Berechtigung, den Tag zu entfernen."
-    GRM_L["R.I.P. - {custom1}"] = "R.I.P. - {custom1}"
+    GRM_L["R.I.P. - {custom1}"] = "R.I.P. - {custom1}"    -- "R.I.P. - 15/09/2023"
     GRM_L["Dead"] = "Tot"
     GRM_L["Total Deaths Recorded: {num}"] = "Gesamte Tode aufgezeichnet: {num}"
     GRM_L["Time of Death"] = "Todeszeitpunkt"
@@ -1745,9 +1746,9 @@ GRML.German = function()
     GRM_L["Apply to Mains at:"] = "Auf Mains anwenden bei:"
     GRM_L["Only Selected Ranks"] = "Nur ausgewählte Ränge"
     GRM_L["Ignore if Offline for:"] = "Ignorieren, wenn offline für:"
-    GRM_L["{custom1} to Change."] = "{custom1} zum Ändern."
+    GRM_L["{custom1} to Change."] = "{custom1} zum Ändern."    -- "Click to change"
     GRM_L["Sync Alts to Main:"] = "Twinks mit Main synchronisieren:"
-    GRM_L["Main's Rank: {name}"] = "Rang des Mains: {name}"
+    GRM_L["Main's Rank: {name}"] = "Rang des Mains: {name}"    -- Example: "Main's Rank: Guild Leader"
     GRM_L["Alt's Rank: {name}"] = "Rang des Twinks: {name}"
     GRM_L["Destination Rank: {name}"] = "Zielrang: {name}"
     GRM_L["Up 1 Rank"] = "1 Rang hoch"
@@ -1773,13 +1774,13 @@ GRML.German = function()
     GRM_L["You will not be asked this again."] = "Du wirst nicht erneut gefragt."
     GRM_L["Please note, GRM will now track the deaths behind the scenes. If you wish to see the full server message, you will need to manually enable in the General Chat Settings."] = "Bitte beachte, GRM verfolgt die Tode nun im Hintergrund. Um die volle Servernachricht zu sehen, aktiviere sie in den allgemeinen Chat-Einstellungen."
     GRM_L["Join \"{name}\" Channel to Track Deaths"] = "Kanal \"{name}\" beitreten, um Tode zu verfolgen"
-    GRM_L["HardcoreDeaths"] = "HardcoreTode"
+    GRM_L["HardcoreDeaths"] = "HardcoreTode"    -- Default Placeholder
     GRM_L["Configuring channel... one moment."] = "Konfiguriere Kanal... einen Moment."
 
     -- R1.9911
     GRM_L["Data collected. Ban list updated."] = "Daten gesammelt. Bannliste aktualisiert."
     GRM_L["Birthday set for {name} and {num} alt: {custom1}"] = "Geburtstag für {name} und {num} Twink gesetzt: {custom1}"
-    GRM_L["Birthday set for {name} and {num} alts: {custom1}"] = "Geburtstag für {name} und {num} Twinks gesetzt: {custom1}"
+    GRM_L["Birthday set for {name} and {num} alts: {custom1}"] = "Geburtstag für {name} und {num} Twinks gesetzt: {custom1}"    -- Plural version
     GRM_L["{name} has set {name2}'s Birthday, and {num} alt: {custom1}"] = "{name} hat den Geburtstag von {name2} und {num} Twink gesetzt: {custom1}"
     GRM_L["{name} has set {name2}'s Birthday, and {num} alts: {custom1}"] = "{name} hat den Geburtstag von {name2} und {num} Twinks gesetzt: {custom1}"
     GRM_L["{name}'s Birthday has been removed."] = "Der Geburtstag von {name} wurde entfernt."
@@ -1795,7 +1796,7 @@ GRML.German = function()
     GRM_L["Alts/Mains"] = "Twinks/Mains"
     GRM_L["Custom Notes"] = "Eigene Notizen"
     GRM_L["Birthdays"] = "Geburtstage"
-    GRM_L["Normalized Realm Names is Acceptable" ] = "Normalisierte Realm-Namen sind zulässig"
+    GRM_L["Normalized Realm Names is Acceptable"] = "Normalisierte Realm-Namen sind zulässig"
     GRM_L["Example: \'Aerie Peak\' or \'AeriePeak\'"] = "Beispiel: 'Aegwynn' oder 'Aegwynn'"
     GRM_L["Banned Player in Group: {name} - Identify Verified and Ban List Updated"] = "Gebannter Spieler in Gruppe: {name} - Identität geprüft und Bannliste aktualisiert"
     GRM_L["{name}'s Profile Succcessfully Updated!"] = "Profil von {name} erfolgreich aktualisiert!"
@@ -1811,19 +1812,19 @@ GRML.German = function()
 
     --R1.9914
     -- PROFESSION TRACKING DETAILS
-    GRM_L["BS"] = "Schmied"
-    GRM_L["LW"] = "Lederer"
-    GRM_L["Alc"] = "Alchi"
-    GRM_L["Herb"] = "Kräuter"
-    GRM_L["Mine"] = "Bergbau"
-    GRM_L["TL"] = "Schneider"
-    GRM_L["Eng"] = "Ingi"
-    GRM_L["Ench"] = "VZ"
-    GRM_L["Skin"] = "Kürschner"
-    GRM_L["JC"] = "Juwe"
-    GRM_L["Insc"] = "Inschrift"
+    GRM_L["BS"] = "Schmied"    -- Blacksmithing
+    GRM_L["LW"] = "Lederer"    -- Leatherworking
+    GRM_L["Alc"] = "Alchi"    -- Alchemy
+    GRM_L["Herb"] = "Kräuter"    -- Herbalism
+    GRM_L["Mine"] = "Bergbau"    -- Mining
+    GRM_L["TL"] = "Schneider"    -- Tailoring
+    GRM_L["Eng"] = "Ingi"    -- Engineering
+    GRM_L["Ench"] = "VZ"    -- Enchanting
+    GRM_L["Skin"] = "Kürschner"    -- Skinning
+    GRM_L["JC"] = "Juwe"    -- Jewelcrafting
+    GRM_L["Insc"] = "Inschrift"    -- Inscription
     GRM_L["Classic"] = "Classic"
-    GRM_L["Classic Era, HC, and SOD"] = "Classic Ära, HC und SoD"
+    GRM_L["Classic Era, HC, and SOD"] = "Classic Ära, HC und SoD"    -- Classic Era, Hardcore, and Season of Discovery is the acronymns
     GRM_L["Classic Professions"] = "Classic-Berufe"
     GRM_L["Auto Set and Update Profession Details to Player Notes"] = "Berufsdetails automatisch in Spielernotizen setzen & aktualisieren"
     GRM_L["Display Settings"] = "Anzeigeeinstellungen"
@@ -1839,15 +1840,15 @@ GRML.German = function()
     GRM_L["Note too long: Free up {num} characters"] = "Notiz zu lang: Gib {num} Zeichen frei"
     GRM_L["Click to Continue - {num} Members Remaining"] = "Klicken zum Fortfahren - {num} Mitglieder übrig"
     GRM_L["Choose Destination:"] = "Ziel auswählen:"
-    GRM_L["Click to Set\nProfession Details"] = "Klicken, um\nBerufsdetails\nzu setzen"
-    GRM_L["This will add or update available profession details to every member's {name}."] = "Dies fügt Berufsdetails zur {name} jedes Mitglieds hinzu oder aktualisiert sie."
+    GRM_L["Click to Set\nProfession Details"] = "Klicken, um\nBerufsdetails\nzu setzen"    --\n is a line break -- It just looks better this way. Remove translation if you can write itm ore concise
+    GRM_L["This will add or update available profession details to every member's {name}."] = "Dies fügt Berufsdetails zur {name} jedes Mitglieds hinzu oder aktualisiert sie."    -- ...every member's public note [officer, [custom ]
     GRM_L["Auto-update will occur once per session, shortly after logging in. You will not need to click this button again."] = "Auto-Update erfolgt einmal pro Sitzung nach dem Login. Du musst diesen Knopf nicht erneut klicken."
     GRM_L["Auto-update is disabled. This will only update your notes a single time"] = "Auto-Update ist deaktiviert. Dies aktualisiert deine Notizen nur einmalig."
     GRM_L["Cancel Auto-Update"] = "Auto-Update abbrechen"
     GRM_L["Only Available for Officers"] = "Nur für Offiziere verfügbar"
     GRM_L["One moment. Processing profession data..."] = "Einen Moment. Verarbeite Berufsdaten..."
     GRM_L["Update profession ranks (Classic Era Only)"] = "Berufs-Ränge aktualisieren (nur Classic Ära)"
-    GRM_L["Prof"] = "berufe"
+    GRM_L["Prof"] = "berufe"    -- /grm prof SLASH COMMAND -- Make your own slash comm.0and
     GRM_L["Realm Name"] = "Realmname"
     GRM_L["{name} is no longer in the guild"] = "{name} ist nicht mehr in der Gilde"
     GRM_L["{custom1} Entry to Open Player Window"] = "{custom1}, um das Spielerfenster zu öffnen"
@@ -1885,7 +1886,7 @@ GRML.German = function()
     GRM_L["{num} notes have had profession details removed."] = "{num} Notizen wurden von Berufsdetails befreit."
     -- Main/Alt Display Settings
     GRM_L["Alt, Main, and Nickname settings"] = "Twink-, Main- und Spitznamen-Einstellungen"
-    GRM_L["Names"] = "Namen"
+    GRM_L["Names"] = "Namen"    -- Represents the Options "Names" tab
     GRM_L["Main and Alt Formatting"] = "Main- und Twink-Formatierung"
     GRM_L["Show both {name} and {name2} tags in Chat"] = "Zeige {name} und {name2} - Tags im Chat"
     GRM_L["Show Main Name in Chat"] = "Zeige Main-Namen im Chat"
@@ -1903,7 +1904,7 @@ GRML.German = function()
     GRM_L["Would you like to recreate these chat windows for messages unique to the GRM addon?"] = "Möchtest du diese Chatfenster für GRM-spezifische Nachrichten neu erstellen?"
     GRM_L["Add Channel"] = "Kanal hinzufügen"
     GRM_L["Add Channels"] = "Kanäle hinzufügen"
-    GRM_L["Set to {name}"] = "Auf {name} setzen"
+    GRM_L["Set to {name}"] = "Auf {name} setzen"    -- Referencing the default chat channel "Set to General"
     GRM_L["Keep Only {name}"] = "Nur {name} behalten"
     GRM_L["GRM will now send all messages to the default \"{name}\" channel"] = "GRM sendet nun alle Nachrichten an den Standardkanal \"{name}\""
     GRM_L["The missing GRM channel has been recreated."] = "Der fehlende GRM-Kanal wurde neu erstellt."
@@ -1932,7 +1933,7 @@ GRML.German = function()
     GRM_L["Your guild Log has {num} entries. Warcraft addons are limited in how much data can be stored. GRM provides this warning as a cushion to help ensure this is never broken as it would result in a catastrophic overflow error that will potentially destroy the GRM save file."] = "Dein Gilden-Log hat {num} Einträge. WoW-Addons haben begrenzten Speicherplatz. GRM warnt dich, um einen katastrophalen Überlauffehler zu vermeiden, der deine GRM-Speicherdatei zerstören könnte."
     GRM_L["You are currently storing {num} log entries across {custom1} guilds, taking up approximately {custom2}% of the addon's storage capacity."] = "Du speicherst derzeit {num} Log-Einträge in {custom1} Gilden, was ca. {custom2}% der Speicherkapazität des Addons ausmacht."
     GRM_L["You are currently storing {num} log entries in your guild, taking up approximately {custom1}% of the addon's storage capacity."] = "Du speicherst derzeit {num} Log-Einträge in deiner Gilde, was ca. {custom1}% der Speicherkapazität des Addons ausmacht."
-    GRM_L["To Cleanup the log, if you wish to keep the data, please go to the export window by typing `/grm export` and copying the log to an external document. Then, on the log page, click on the 'Open Log Tools' button on the right side."] = "Um das Log zu bereinigen, gehe mit '/grm export' zum Exportfenster, kopiere das Log in ein externes Dokument und klicke dann im Log auf 'Log-Werkzeuge öffnen'."
+    GRM_L["To Cleanup the log, if you wish to keep the data, please go to the export window by typing `/grm export` and copying the log to an external document. Then, on the log page, click on the \'Open Log Tools\' button on the right side."] = "Um das Log zu bereinigen, gehe mit '/grm export' zum Exportfenster, kopiere das Log in ein externes Dokument und klicke dann im Log auf 'Log-Werkzeuge öffnen'."
     GRM_L["You are at risk for GRM data loss. It is CRITICAL this is handled imediately. Click OK to acknowledge. You will not be warned again."] = "Es besteht die Gefahr von GRM-Datenverlust. Es ist KRITISCH, dies sofort zu beheben. Klicke OK zur Bestätigung. Du wirst nicht erneut gewarnt."
     GRM_L["You are nearing max GRM storage limit. It is CRITICAL this is handled soon. Click OK to acknowledge."] = "Du näherst dich dem GRM-Speicherlimit. Es ist KRITISCH, dies bald zu beheben. Klicke OK zur Bestätigung."
     GRM_L["Press OK to acknowledge and you will not be reminded again until you are at {num}% capacity."] = "Drücke OK zur Bestätigung. Du wirst erst bei {num}% Kapazität erneut erinnert."
@@ -1949,199 +1950,197 @@ GRML.German = function()
     GRM_L["Not in Guild"] = "Nicht in Gilde"
 
     -- 1.99345
-    GRM_L["Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file"] = true
-    GRM_L["Use Web App"] = true
-    GRM_L["Total Alts"] = true
-    GRM_L["No Main Set"] = true
-    GRM_L["Alts in Group"] = true
-    GRM_L["Total Alt Groups Over Limit of {num}: {custom1}"] = true
-    GRM_L["Limit must be at least 1 or greater."] = true
-    GRM_L["The web app can extract your GRM logs to Text, CSV, or JSON"] = true
-    GRM_L["Alt Group Limit Audit"] = true
-    GRM_L["None Found"] = true
-    GRM_L["altlimit"] = true        -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
+    GRM_L["Copy this link to use a web app to Export the contents of your log to a Text, CRV, or JSON file"] = "Kopiere diesen Link, um den Log über eine Web-App als Text-, CRV- oder JSON-Datei zu exportieren"
+    GRM_L["Use Web App"] = "Zur Web-App"
+    GRM_L["Total Alts"] = "Twinks ges."
+    GRM_L["No Main Set"] = "Kein Main"
+    GRM_L["Alts in Group"] = "Twinks in Gruppe"
+    GRM_L["Total Alt Groups Over Limit of {num}: {custom1}"] = "Twink-Gruppen über Limit von {num}: {custom1}"
+    GRM_L["Limit must be at least 1 or greater."] = "Das Limit muss mindestens 1 betragen."
+    GRM_L["The web app can extract your GRM logs to Text, CSV, or JSON"] = "Die Web-App kann deine GRM-Logs als Text, CSV oder JSON extrahieren"
+    GRM_L["Alt Group Limit Audit"] = "Twink-Gruppenlimit-Audit"
+    GRM_L["None Found"] = "Keine gef."
+    GRM_L["altlimit"] = "twinklimit"    -- Slash command for alt group limit audit (original Eng always works, so feel free to change)
 
     -- 1.99346
-    GRM_L["View Official GRM Website"] = true
-    GRM_L["Want to learn more about GRM, check out the FAQ, changelog, and receive general tips and tricks? Check out the website!"] = true
-    GRM_L["Check out the new GRM website"] = true
+    GRM_L["View Official GRM Website"] = "Offizielle GRM-Website ansehen"
+    GRM_L["Want to learn more about GRM, check out the FAQ, changelog, and receive general tips and tricks? Check out the website!"] = "Möchtest du mehr über GRM erfahren, die FAQ und das Changelog lesen sowie Tipps und Tricks erhalten? Besuch unsere Website!"
+    GRM_L["Check out the new GRM website"] = "Besuch die neue GRM-Website"
 
     -- 1.99347
-    GRM_L["Expansion Change Detected - Updating player server IDs..."] = true
-    GRM_L["Database updated with new server IDs!"] = true
+    GRM_L["Expansion Change Detected - Updating player server IDs..."] = "Erweiterungswechsel erkannt – Aktualisiere Spieler-Server-IDs..."
+    GRM_L["Database updated with new server IDs!"] = "Datenbank mit neuen Server-IDs aktualisiert!"
 
     -- 1.99372
-    GRM_L["No"] = true
-    GRM_L["Loading..."] = true
-
+    GRM_L["No"] = "Nein"
+    GRM_L["Loading..."] = "Lade..."
 
     -- 1.99373
-    GRM_L["Standard"] = true
-    GRM_L["Move Anywhere"] = true
+    GRM_L["Standard"] = "Standard"
+    GRM_L["Move Anywhere"] = "Frei bewegen"
 
     -- 1.99374
-    GRM_L["Addons are no longer restricted. Continuing GRM initialization now."] = true
-    GRM_L["Please specify a number limit after the altlimit command."] = true
-    GRM_L["Nickname is too long. Max {num} letters."] = true
-    GRM_L["Invalid Character: \"|\" is not allowed."] = true
-    GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
-    GRM_L["Nickname contains invalid hidden characters."] = true
+    GRM_L["Addons are no longer restricted. Continuing GRM initialization now."] = "Addons sind nicht mehr eingeschränkt. GRM-Initialisierung wird jetzt fortgesetzt."
+    GRM_L["Please specify a number limit after the altlimit command."] = "Bitte gib nach dem Befehl altlimit ein Zahlenlimit an."
+    GRM_L["Nickname is too long. Max {num} letters."] = "Spitzname ist zu lang. Max. {num} Buchstaben."
+    GRM_L["Invalid Character: \"|\" is not allowed."] = "Ungültiges Zeichen: \"|\" ist nicht erlaubt."
+    GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = "Spitznamen dürfen keine Sonderzeichen wie '{name}' enthalten"
+    GRM_L["Nickname contains invalid hidden characters."] = "Spitzname enthält ungültige versteckte Zeichen."
 
     -- 1.99383
-    GRM_L["Apply to Max Level Only"] = true
-    GRM_L["Copy this text anywhere into the Guild Info window (preferably the end)."] = true
-    GRM_L["Addon currently restricted by the server from reading Guild Info. Please adjust the settings when addon is not restricted to update global controls."] = true
-    GRM_L["Addon currently restricted by the server from reading Guild Info. Please wait to export the global control text when addon is not restricted."] = true
-    GRM_L["Get Join Date"] = true
-    GRM_L["Copy the Join date to add to your note (Ctrl-C)"] = true
-    GRM_L["{name}'s Join Date is not yet Established."] = true
-    GRM_L["{name}'s Join Date is NOT VERIFIED. Please verify join date before adding."] = true
-    GRM_L["FEATURE DISABLED - Addons restricted from editing Public or Officer notes with Midnight 12.0.1 Launch"] = true
-    GRM_L["Public Note not set"] = true
-    GRM_L["Officer Note not Set"] = true
-    GRM_L["API restricted by Blizzard - Public note editing not possible."] = true
-    GRM_L["API restricted by Blizzard - Officer note editing not possible."] = true
-    GRM_L["(Unavailable in Retail)"] = true
-    GRM_L["The Global Control string in your guild info needs to be updated. GRM no longer has the ability to do it. Please type /grm and go to the Options and Officer tab to re-obtain a new control text string to manually copy over."] = true
+    GRM_L["Apply to Max Level Only"] = "Nur auf Max-Level anwenden"
+    GRM_L["Copy this text anywhere into the Guild Info window (preferably the end)."] = "Kopiere diesen Text an eine beliebige Stelle im Gildeninfo-Fenster (vorzugsweise ans Ende)."
+    GRM_L["Addon currently restricted by the server from reading Guild Info. Please adjust the settings when addon is not restricted to update global controls."] = "Das Addon darf die Gildeninfo serverseitig derzeit nicht lesen. Bitte passe die Einstellungen an, wenn das Addon nicht eingeschränkt ist, um die globalen Steuerungen zu aktualisieren."
+    GRM_L["Addon currently restricted by the server from reading Guild Info. Please wait to export the global control text when addon is not restricted."] = "Das Addon darf die Gildeninfo serverseitig derzeit nicht lesen. Bitte warte mit dem Exportieren des globalen Steuerungstextes, bis das Addon nicht mehr eingeschränkt ist."
+    GRM_L["Get Join Date"] = "Beitritt abrufen"
+    GRM_L["Copy the Join date to add to your note (Ctrl-C)"] = "Beitrittsdatum kopieren, um es deiner Notiz hinzuzufügen (Strg-C)"
+    GRM_L["{name}'s Join Date is not yet Established."] = "Beitrittsdatum von {name} steht noch nicht fest."
+    GRM_L["{name}'s Join Date is NOT VERIFIED. Please verify join date before adding."] = "Beitrittsdatum von {name} ist NICHT VERIFIZIERT. Bitte vor dem Hinzufügen überprüfen."
+    GRM_L["FEATURE DISABLED - Addons restricted from editing Public or Officer notes with Midnight 12.0.1 Launch"] = "FUNKTION DEAKTIVIERT - Addons dürfen seit Start von Midnight 12.0.1 keine öffentl. oder Offiziersnotizen mehr bearbeiten"
+    GRM_L["Public Note not set"] = "Öffentl. Notiz fehlt"
+    GRM_L["Officer Note not Set"] = "Offiziersnotiz fehlt"
+    GRM_L["API restricted by Blizzard - Public note editing not possible."] = "API von Blizzard eingeschränkt - Bearbeiten öffentl. Notizen nicht möglich."
+    GRM_L["API restricted by Blizzard - Officer note editing not possible."] = "API von Blizzard eingeschränkt - Bearbeiten von Offiziersnotizen nicht möglich."
+    GRM_L["(Unavailable in Retail)"] = "(In Retail nicht verfügbar)"
+    GRM_L["The Global Control string in your guild info needs to be updated. GRM no longer has the ability to do it. Please type /grm and go to the Options and Officer tab to re-obtain a new control text string to manually copy over."] = "Der globale Kontroll-String in eurer Gildeninfo muss aktualisiert werden. GRM kann dies nicht mehr tun. Bitte gib /grm ein und gehe zu Optionen -> Offizier, um einen neuen Kontrolltext zum manuellen Kopieren zu erhalten."
 
     -- 1.99384
-    GRM_L["NOTICE - Note Editing Restrictions Active - Unable to Edit"] = true
-    GRM_L["Public Note Locations:"] = true
-    GRM_L["Officer Note Locations:"] = true
-    GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = true
-    GRM_L["Disregard notes located in Public or Officer notes"] = true
+    GRM_L["NOTICE - Note Editing Restrictions Active - Unable to Edit"] = "HINWEIS - Notiz-Bearbeitung eingeschränkt - Bearbeiten nicht möglich"
+    GRM_L["Public Note Locations:"] = "Orte (Öffentl. Notiz):"
+    GRM_L["Officer Note Locations:"] = "Orte (Offiziersnotiz):"
+    GRM_L["Due to addon limitations, the {num} public or officer notes cannot be edited automatically. You must edit manually."] = "Aufgrund von Addon-Einschränkungen können die {num} öffentl. oder Offiziersnotizen nicht automatisch bearbeitet werden. Du musst sie manuell bearbeiten."
+    GRM_L["Disregard notes located in Public or Officer notes"] = "Notizen in öffentl. oder Offiziersnotizen ignorieren"
 
     -- R1.99386
-    GRM_L["Unable to Retrieve. Addons currently restricted."] = true
-    GRM_L["The Log is already empty."] = true
-    GRM_L["Only the visible non-filtered log entries will be cleared. Do you really wish to delete the {num} log entries?"] = true
-    GRM_L["Only the currently filtered {num} log entries will be removed."] = true
-    
+    GRM_L["Unable to Retrieve. Addons currently restricted."] = "Abruf nicht möglich. Addons derzeit eingeschränkt."
+    GRM_L["The Log is already empty."] = "Das Log ist bereits leer."
+    GRM_L["Only the visible non-filtered log entries will be cleared. Do you really wish to delete the {num} log entries?"] = "Nur die sichtbaren, ungefilterten Log-Einträge werden geleert. Möchtest du die {num} Log-Einträge wirklich löschen?"
+    GRM_L["Only the currently filtered {num} log entries will be removed."] = "Nur die aktuell gefilterten {num} Log-Einträge werden entfernt."
+
     -- R1.99387
-    GRM_L["Custom note exceeds maximum character limit of {num} and cannot be saved." ] = true
-    GRM_L["Appended custom note for {name} exceeds the maximum character limit of {num} and cannot be saved."] = true
-    
+    GRM_L["Custom note exceeds maximum character limit of {num} and cannot be saved."] = "Eigene Notiz überschreitet das Zeichenlimit von {num} und kann nicht gespeichert werden."
+    GRM_L["Appended custom note for {name} exceeds the maximum character limit of {num} and cannot be saved."] = "Angehängte eigene Notiz für {name} überschreitet das Zeichenlimit von {num} und kann nicht gespeichert werden."
+
     -- R1.99388
-    GRM_L["You must be in a guild to view the Guild Log!"] = true
-    GRM_L["You must be in a guild to view the Guild Macro Tool!"] = true
-    
+    GRM_L["You must be in a guild to view the Guild Log!"] = "Du musst in einer Gilde sein, um das Gilden-Log anzusehen!"
+    GRM_L["You must be in a guild to view the Guild Macro Tool!"] = "Du musst in einer Gilde sein, um das Gilden-Makro-Tool anzusehen!"
+
     -- R1.99389
-    GRM_L["Analyzing Guild Event Log..."] = true
-    GRM_L["Relevant Log Entries Added: {num}"] = true
-    
+    GRM_L["Analyzing Guild Event Log..."] = "Analysiere Gildenereignis-Log..."
+    GRM_L["Relevant Log Entries Added: {num}"] = "Relevante Log-Einträge hinzugefügt: {num}"
+
     -- R1.9942
-    GRM_L["Profession feature has been globally set to FULLY DISABLED."] = true
-    GRM_L["Profession auto-updating has been globally DISABLED."] = true
-    GRM_L["Profession auto-updating globally changed to be added to the {name}"] = true
-    GRM_L["Your Guild Leadership has globally set the Profession feature to FULLY DISABLED."] = true
-    GRM_L["Your Guild Leadership has globally DISABLED Profession auto-updating."] = true
-    GRM_L["Your Guild Leadership has globally set Profession auto-updating to the {name}"] = true
-    GRM_L["Unlock Profession Feature for Use"] = true
-    GRM_L["Addons are restricted from writing to the player note or officer note."] = true
-    GRM_L["You do not have permission to edit the public note."] = true
-    GRM_L["You do not have permission to edit the officer note."] = true
-    GRM_L["This will remove the profession details from all player Custom Notes. Public and Officer Notes are restricted at your rank."] = true
-    GRM_L["This will remove the profession details from all player notes: public, and custom. Officer Notes are restricted at your rank."] = true
-    GRM_L["This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank." ] = true
-    
+    GRM_L["Profession feature has been globally set to FULLY DISABLED."] = "Berufsfunktion wurde global auf VOLLSTÄNDIG DEAKTIVIERT gesetzt."
+    GRM_L["Profession auto-updating has been globally DISABLED."] = "Auto-Aktualisierung der Berufe wurde global DEAKTIVIERT."
+    GRM_L["Profession auto-updating globally changed to be added to the {name}"] = "Auto-Aktualisierung der Berufe global auf Hinzufügen zu {name} geändert"
+    GRM_L["Your Guild Leadership has globally set the Profession feature to FULLY DISABLED."] = "Deine Gildenleitung hat die Berufsfunktion global auf VOLLSTÄNDIG DEAKTIVIERT gesetzt."
+    GRM_L["Your Guild Leadership has globally DISABLED Profession auto-updating."] = "Deine Gildenleitung hat die Auto-Aktualisierung der Berufe global DEAKTIVIERT."
+    GRM_L["Your Guild Leadership has globally set Profession auto-updating to the {name}"] = "Deine Gildenleitung hat die Auto-Aktualisierung der Berufe global auf {name} gesetzt"
+    GRM_L["Unlock Profession Feature for Use"] = "Berufsfunktion zur Nutzung freischalten"
+    GRM_L["Addons are restricted from writing to the player note or officer note."] = "Addons dürfen nicht in die Spielernotiz oder Offiziersnotiz schreiben."
+    GRM_L["You do not have permission to edit the public note."] = "Du hast keine Berechtigung, die öffentl. Notiz zu bearbeiten."
+    GRM_L["You do not have permission to edit the officer note."] = "Du hast keine Berechtigung, die Offiziersnotiz zu bearbeiten."
+    GRM_L["This will remove the profession details from all player Custom Notes. Public and Officer Notes are restricted at your rank."] = "Dies entfernt die Berufsdetails aus allen eigenen Spielernotizen. Öffentl. und Offiziersnotizen sind für deinen Rang gesperrt."
+    GRM_L["This will remove the profession details from all player notes: public, and custom. Officer Notes are restricted at your rank."] = "Dies entfernt die Berufsdetails aus allen Spielernotizen: öffentl. und eigene. Offiziersnotizen sind für deinen Rang gesperrt."
+    GRM_L["This will remove the profession details from all player notes: officer, and custom. Public Notes are restricted at your rank."] = "Dies entfernt die Berufsdetails aus allen Spielernotizen: Offizier und eigene. Öffentl. Notizen sind für deinen Rang gesperrt."
+
     -- Nickname Update
     -- 1.995
-    GRM_L["Player Nicknames must be no longer than {num} letters in length"] = true
-    GRM_L["Player Nicknames must be at least {num} characters in length"] = true
-    GRM_L["{name} has set a shared nickname ({custom1}) for {name2}'s alt group."] = true
-    GRM_L["{name} has removed the shared nickname for {name2}'s alt group."] = true
-    GRM_L["{name} has removed {name2}'s nickname."] = true
-    GRM_L["{name} has set {name2}'s nickname ({custom1})."] = true
-    GRM_L["A shared nickname ({name}) has been set to {name2}'s alt group."] = true
-    GRM_L["A nickname ({name}) has been set to {name2}"] = true
-    GRM_L["{name} has removed the shared nickname from {name2}'s alt group."] = true
-    GRM_L["{name} has removed {name2}'s nickname."] = true
-    GRM_L["Invalid Character: \"|\" is not allowed when making a nickname."] = true
-    GRM_L["Nicknames cannot contain special symbols like \'{name}\'"] = true
+    GRM_L["Player Nicknames must be no longer than {num} letters in length"] = "Spielerspitznamen dürfen maximal {num} Buchstaben lang sein"
+    GRM_L["Player Nicknames must be at least {num} characters in length"] = "Spielerspitznamen müssen mindestens {num} Zeichen lang sein"
+    GRM_L["{name} has set a shared nickname ({custom1}) for {name2}'s alt group."] = "{name} hat einen gemeinsamen Spitznamen ({custom1}) für die Twink-Gruppe von {name2} festgelegt."
+    GRM_L["{name} has removed the shared nickname for {name2}'s alt group."] = "{name} hat den gemeinsamen Spitznamen für die Twink-Gruppe von {name2} entfernt."
+    GRM_L["{name} has removed {name2}'s nickname."] = "{name} hat den Spitznamen von {name2} entfernt."
+    GRM_L["{name} has set {name2}'s nickname ({custom1})."] = "{name} hat {name2}s Spitznamen festgelegt ({custom1})."
+    GRM_L["A shared nickname ({name}) has been set to {name2}'s alt group."] = "Ein geteilter Spitzname ({name}) wurde für {name2}s Twink-Gruppe festgelegt."
+    GRM_L["A nickname ({name}) has been set to {name2}"] = "Ein Spitzname ({name}) wurde für {name2} festgelegt"
+    GRM_L["{name} has removed the shared nickname from {name2}'s alt group."] = "{name} hat den geteilten Spitznamen von {name2}s Twink-Gruppe entfernt."
+    GRM_L["Invalid Character: \"|\" is not allowed when making a nickname."] = "Ungültiges Zeichen: \"|\" ist in Spitznamen nicht erlaubt."
 
     -- Patching update
-    GRM_L["The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"] = true
+    GRM_L["The GRM update process has stalled due to a Lua error. Please report this bug to addon author on Discord!"] = "Der GRM-Aktualisierungsprozess wurde durch einen Lua-Fehler angehalten. Bitte melde diesen Fehler dem Addon-Autor auf Discord!"
 
     -- Secret Protection warnings
-    GRM_L["Failed to enable Communities Roster. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
-    GRM_L["Failed to enable Classic chat class coloring. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = true
+    GRM_L["Failed to enable Communities Roster. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = "Community-Mitgliederliste konnte nicht aktiviert werden. Addons sind derzeit eingeschränkt. Bitte manuell in den Einstellungen aktivieren oder neu laden."
+    GRM_L["Failed to enable Classic chat class coloring. Addons are currently restricted. Please enable in the settings manually or reload to try again."] = "Classic-Chat-Klassenfarben konnten nicht aktiviert werden. Addons sind derzeit eingeschränkt. Bitte manuell in den Einstellungen aktivieren oder neu laden."
 
     -- Misc
-    GRM_L["All GRM Settings have been set to default."] = true
-    GRM_L["Public and Officer notes are addon restricted in current Warcraft version. GRM will only consider Custom Note if empty."] = true
-    GRM_L["Due to the elimination of Realms, when banning players who have never been in your guild, some queries for important identification data cannot be currently obtained. This may be a technical hiccup. To bypass, add the ban when still grouped with a player or while you are targeting them."] = true
-    GRM_L["This only applies to players who have never been a member of your guild that you wish to ban."] = true
-    GRM_L["Realms are Not Applicable"] = true
-    GRM_L["(Restricted)"] = true
+    GRM_L["All GRM Settings have been set to default."] = "Alle GRM-Einstellungen wurden auf Standard zurückgesetzt."
+    GRM_L["Public and Officer notes are addon restricted in current Warcraft version. GRM will only consider Custom Note if empty."] = "Öffentliche und Offiziersnotizen sind in der aktuellen WoW-Version für Addons eingeschränkt. GRM berücksichtigt die eigene Notiz nur, wenn sie leer ist."
+    GRM_L["Due to the elimination of Realms, when banning players who have never been in your guild, some queries for important identification data cannot be currently obtained. This may be a technical hiccup. To bypass, add the ban when still grouped with a player or while you are targeting them."] = "Durch den Wegfall der Realms können beim Bannen von Spielern, die nie in eurer Gilde waren, wichtige Identifikationsdaten derzeit nicht abgefragt werden. Dies kann ein technisches Problem sein. Füge den Bann hinzu, während du noch mit dem Spieler in einer Gruppe bist oder ihn im Ziel hast."
+    GRM_L["This only applies to players who have never been a member of your guild that you wish to ban."] = "Dies gilt nur für Spieler, die noch nie Mitglied eurer Gilde waren und die du bannen möchtest."
+    GRM_L["Realms are Not Applicable"] = "Realms nicht anwendbar"
+    GRM_L["(Restricted)"] = "(Eingeschränkt)"
 
     -- NamesTab in options
-    GRM_L["Tag Color"] = true
-    GRM_L["Nickname Tag Color"] = true
-    GRM_L["Name Formatting (No Nickname)"] = true
-    GRM_L["Format for Mains"] = true
-    GRM_L["Format for Alts"] = true
-    GRM_L["Nickname Formatting"] = true
-    GRM_L["Format for Mains with Nicknames"] = true
-    GRM_L["Format for Alts with Nicknames"] = true
-    GRM_L["Format for Unassigned with Nicknames"] = true
-    GRM_L["Nickname"] = true
-    GRM_L["AltName"] = true
-    GRM_L["MainName"] = true
-    GRM_L["ToonName"] = true
-    GRM_L["Main Tag"] = true
-    GRM_L["Alt Tag"] = true
-    GRM_L["Nick Tag"] = true
-    GRM_L["Tagging Disabled"] = true
-    GRM_L["Nickname Disabled"] = true
-    GRM_L["Set Nickname"] = true
-    GRM_L["Edit Nickname"] = true
-    GRM_L["Share Nickname across all Alts"] = true
-    GRM_L["Save"] = true
-    GRM_L["Nickname for {name}"] = true
-    GRM_L["Unable to Process Nickname. Player no longer found."] = true
-    GRM_L["No nickname has been set."] = true
-    GRM_L["Nickname sharing for ({name}) has been {name2}."] = true
-    GRM_L["{name} has {custom1} nickname sharing for {name2}."] = true
+    GRM_L["Tag Color"] = "Tag-Farbe"
+    GRM_L["Nickname Tag Color"] = "Spitznamen-Tag-Farbe"
+    GRM_L["Name Formatting (No Nickname)"] = "Namensformatierung (Kein Spitzname)"
+    GRM_L["Format for Mains"] = "Format für Mains"
+    GRM_L["Format for Alts"] = "Format für Twinks"
+    GRM_L["Nickname Formatting"] = "Spitznamen-Formatierung"
+    GRM_L["Format for Mains with Nicknames"] = "Format für Mains mit Spitznamen"
+    GRM_L["Format for Alts with Nicknames"] = "Format für Twinks mit Spitznamen"
+    GRM_L["Format for Unassigned with Nicknames"] = "Format für Nicht-Zugewiesene mit Spitznamen"
+    GRM_L["Nickname"] = "Spitzname"
+    GRM_L["AltName"] = "TwinkName"
+    GRM_L["MainName"] = "MainName"
+    GRM_L["ToonName"] = "CharName"
+    GRM_L["Main Tag"] = "Main-Tag"
+    GRM_L["Alt Tag"] = "TwinkTag"
+    GRM_L["Nick Tag"] = "Nick-Tag"
+    GRM_L["Tagging Disabled"] = "Tags deaktiviert"
+    GRM_L["Nickname Disabled"] = "Spitzname deaktiviert"
+    GRM_L["Set Nickname"] = "Spitzn. setzen"
+    GRM_L["Edit Nickname"] = "Spitzn. ändern"
+    GRM_L["Share Nickname across all Alts"] = "Spitznamen für alle Twinks teilen"
+    GRM_L["Save"] = "Sich."
+    GRM_L["Nickname for {name}"] = "Spitzname für {name}"
+    GRM_L["Unable to Process Nickname. Player no longer found."] = "Spitzname konnte nicht verarbeitet werden. Spieler nicht mehr gefunden."
+    GRM_L["No nickname has been set."] = "Kein Spitzname festgelegt."
+    GRM_L["Nickname sharing for ({name}) has been {name2}."] = "Spitznamen-Teilen für ({name}) wurde {name2}."
+    GRM_L["{name} has {custom1} nickname sharing for {name2}."] = "{name} hat die Spitznamen-Freigabe für {name2} {custom1}."
 
     -- General Tab
-    GRM_L["{custom1} to Change Default GRM Tab on First Open."] = true
+    GRM_L["{custom1} to Change Default GRM Tab on First Open."] = "{custom1}, um Standard-GRM-Tab beim ersten Öffnen zu ändern."
 
     -- Forever labeling
-    GRM_L["(Forever)"] = true
-    GRM_L["Only Available in Classic or Forever"] = true
+    GRM_L["(Forever)"] = "(Forever)"
+    GRM_L["Only Available in Classic or Forever"] = "Nur in Classic oder Forever verfügbar"
 
     -- 1.9952
-    GRM_L["First:"] = true
-    GRM_L["Last:"] = true
-    GRM_L["Spelling and Case must be EXACT!"] = true
-    GRM_L["It is |CFFFF0000CRITICAL|r the player's First and Last name are spelled correctly, with the correct case, or they cannot be tracked correctly."] = true
-    GRM_L["Please Enter a Valid Player First Name"] = true
-    GRM_L["Please Enter a Valid Player Last Name"] = true
-    
+    GRM_L["First:"] = "Vorn.:"
+    GRM_L["Last:"] = "Nachn.:"
+    GRM_L["Spelling and Case must be EXACT!"] = "Schreibweise und Groß-/Kleinschreibung müssen EXAKT sein!"
+    GRM_L["It is |CFFFF0000CRITICAL|r the player's First and Last name are spelled correctly, with the correct case, or they cannot be tracked correctly."] = "Es ist |CFFFF0000KRITISCH|r, dass Vor- und Nachname des Spielers korrekt und mit richtiger Groß-/Kleinschreibung geschrieben sind, da sie sonst nicht richtig verfolgt werden können."
+    GRM_L["Please Enter a Valid Player First Name"] = "Bitte einen gültigen Spielervornamen eingeben"
+    GRM_L["Please Enter a Valid Player Last Name"] = "Bitte einen gültigen Spielernachnamen eingeben"
+
     -- 1.9953
-    GRM_L["Columns Manager"] = true
-    GRM_L["Click in order to add columns:"] = true
-    GRM_L["Reset Default"] = true
-    GRM_L["Search by Player Name or Nickname"] = true
-    GRM_L["Drag Left/Right to Reorder  •  Click to Remove"] = true
-    GRM_L["Click to Add  •  Or Drag Up into Active Row"] = true
-    GRM_L["Clear Optional"] = true
-    GRM_L["Active Columns"] = true
-    GRM_L["Unused Columns"] = true
-    GRM_L["Only available in Battle for Azeroth or later."] = true
-    GRM_L["Drag Left/Right to reorder this column."] = true
-    GRM_L["Name column is required and cannot be removed."] = true
-    GRM_L["Click to remove and move to Unused."] = true
-    GRM_L["Click to add to Active Columns (or drag into position above)."] = true
-    GRM_L["Only available in Cataclysm or later."] = true
-    GRM_L["Reputation"] = true
+    GRM_L["Columns Manager"] = "Spaltenmanager"
+    GRM_L["Click in order to add columns:"] = "Klicken, um Spalten der Reihe nach hinzuzufügen:"
+    GRM_L["Reset Default"] = "Standard setzen"
+    GRM_L["Search by Player Name or Nickname"] = "Nach Spieler- oder Spitznamen suchen"
+    GRM_L["Drag Left/Right to Reorder  •  Click to Remove"] = "Links/Rechts ziehen zum Sortieren  •  Klicken zum Entfernen"
+    GRM_L["Click to Add  •  Or Drag Up into Active Row"] = "Klicken zum Hinzufügen  •  Oder hoch in aktive Zeile ziehen"
+    GRM_L["Clear Optional"] = "Optionale leeren"
+    GRM_L["Active Columns"] = "Aktive Spalten"
+    GRM_L["Unused Columns"] = "Ungenutzte Spalt."
+    GRM_L["Only available in Battle for Azeroth or later."] = "Nur in Battle for Azeroth oder neuer verfügbar."
+    GRM_L["Drag Left/Right to reorder this column."] = "Links/Rechts ziehen, um diese Spalte neu anzuordnen."
+    GRM_L["Name column is required and cannot be removed."] = "Die Namensspalte ist erforderlich und kann nicht entfernt werden."
+    GRM_L["Click to remove and move to Unused."] = "Klicken, um zu entfernen und nach Ungenutzt zu verschieben."
+    GRM_L["Click to add to Active Columns (or drag into position above)."] = "Klicken, um zu Aktive Spalten hinzuzufügen (oder oben an Position ziehen)."
+    GRM_L["Only available in Cataclysm or later."] = "Nur in Cataclysm oder neuer verfügbar."
+    GRM_L["Reputation"] = "Ruf"
 
     -- 1.99531
-    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = true
-    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
-    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
-    
+    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = "Addons im PvP eingeschränkt. GRM-Initialisierung wird fortgesetzt, sobald {name} endet."
+    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = "Addons während eines Bosskampfs eingeschränkt. GRM-Initialisierung wird fortgesetzt, sobald der Kampf endet"
+    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = "Addons im aktuellen Zustand eingeschränkt. Funktionalität begrenzt. GRM-Initialisierung wird bald fortgesetzt."
+
 end
+
 
     -- THANK YOU @Nehry for this full translation up to R1.20
     -- TY @Mythos for cleaning up translation work done up to R1.88

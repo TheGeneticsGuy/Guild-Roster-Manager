@@ -3794,7 +3794,11 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
 
-            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 790 );
+            local height = 795
+            if GRM.S().selectedLang == 2 or GRM.S().selectedLang == 5 then
+                height = 825
+            end
+            GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , height );
 
         end
 
@@ -4448,9 +4452,17 @@ GRM_UI.LoadToolFrames = function ( isManual )
             end
 
             if GRM_UI.GRM_ToolCoreFrame.TabPosition == 2 then
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 920 );
-            else
-                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 855 );
+                local height = 920
+                if GRM.S().selectedLang == 2 or GRM.S().selectedLang == 5 then
+                    height = 950
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , height );
+            elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                local height = 860
+                if GRM.S().selectedLang == 2 or GRM.S().selectedLang == 5  then
+                    height = 890
+                end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , height );
             end
 
             GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.isEdit = isEdit;
@@ -6391,11 +6403,18 @@ GRM_UI.LoadToolFrames = function ( isManual )
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolRecommendKickCheckButton , "BOTTOMRIGHT" , 0 , -10 );
 
-                if GRM.S().selectedLang == 5 then -- Russian
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
-                else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
+                local height = 795
+                if GRM_UI.GRM_ToolCoreFrame.TabPosition == 1 then
+                    if GRM.S().selectedLang == 2 or GRM.S().selectedLang == 5  then
+                        height = 825
+                    end
+                elseif GRM_UI.GRM_ToolCoreFrame.TabPosition == 3 then
+                    height = 860
+                    if GRM.S().selectedLang == 2 or GRM.S().selectedLang == 5  then
+                        height = 890
+                    end
                 end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , height );
 
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Hide();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Hide();
@@ -6423,11 +6442,12 @@ GRM_UI.LoadToolFrames = function ( isManual )
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ToolAltsOfflineTimed:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_KickEvenIfActiveButtonText , "BOTTOMLEFT" , -5 , -10 );
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRulesText:SetPoint ( "TOPLEFT" , GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame , "TOPLEFT" , 38 , -80 );
 
-                if GRM.S().selectedLang == 5 then -- Russian
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
-                else
-                    GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , 795 );
+                local height = 920
+                if GRM.S().selectedLang == 2 or GRM.S().selectedLang == 5 then
+                    height = 950
                 end
+                GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame:SetSize ( 450 , height );
+
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton1:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_ApplyRegardlessActivityRadialButton2:Show();
                 GRM_UI.GRM_ToolCoreFrame.GRM_ToolCustomRulesFrame.GRM_DestinationRankSelected:Show();
