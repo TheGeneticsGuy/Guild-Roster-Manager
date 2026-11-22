@@ -67,12 +67,14 @@ UI\Options\GRM_OfficerTab.lua
 UI\Options\GRM_ScanTab.lua
 UI\Options\GRM_NamesTab.lua
 
+Modules\GRM_Audit.lua
+
 Compatibility\GRM_ClassicFrames.lua
 Modules\GRM_Macro_Tool.lua
 Utils\GRM_EE.lua
 Core\GRM_Patches.lua
 Core\GRM_API.lua
-Modules\GRM_Stats.lua
+Modules\GRM_ProgressBar.lua
 Modules\GRM_HC.lua
 Utils\GRM_Realms.lua
 Modules\GRM_Professions.lua

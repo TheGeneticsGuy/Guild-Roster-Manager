@@ -300,9 +300,25 @@ GRM.CreateAltGroup = function ( playerName , setAsMain , timestamp )
             group.birthdayInfo.timeUpdated = player.birthdayInfo.timeUpdated;      -- Epoch Timestamp of update
             group.birthdayInfo.unknown = player.birthdayInfo.unknown;
         end
-
     end
-    
+end
+
+-- Method:          GRM.GetNumMains()
+-- What it Does:    Returns the total number of players designated as "Main" in the guild
+-- Purpose:         Mainly for audit log stat reporting.
+GRM.GetNumMains = function()
+    local alts = GRM.GetGuildAlts();
+    local mains = {};
+    local count = 0;
+
+    for _ , altGroup in pairs ( alts ) do
+        if altGroup.main and altGroup.main ~= "" and not mains[altGroup.main] then
+            count = count + 1;
+            mains[altGroup.main] = {};
+        end
+    end
+
+    return count;
 end
 
 -- Method:          GRM.AddAlt ( string, string , int )
