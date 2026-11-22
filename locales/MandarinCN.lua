@@ -30,20 +30,20 @@ GRML.MandarinCN = function()
     GRM_L["/XXXX"] = true    -- /grm will always work -- now you can make your own acronym that fits your language. Example: GRM_L["/XXXX"] = "/грм" - Now, if you type /грм it will work in-game
     GRM_L["/YYYY"] = true    -- /roster              -- This is the custom GRM roster
 
-    GRM_L["German"] = "Deutsch 德语"
-	GRM_L["English"] = "English 英语"
-	GRM_L["French"] = "Français 法语"
-	GRM_L["Italian"] = "Italiano 意大利语"
-	GRM_L["Russian"] = "Русский 俄语"
-	GRM_L["SpanishMX"] = "Español(MX) 西班牙语（墨西哥）"
-	GRM_L["SpanishEU"] = "Español(EU) 西班牙语（欧洲）"
-    GRM_L["Portuguese"] = "Português(EU) 葡萄牙语（欧洲）"
-    GRM_L["PortugueseBR"] = "Português(BR) 葡萄牙语（巴西）"
-	GRM_L["Korean"] = "한국어 韩语"
+    GRM_L["German"] = "德语"
+	GRM_L["English"] = "英语"
+	GRM_L["French"] = "法语"
+	GRM_L["Italian"] = "意大利语"
+	GRM_L["Russian"] = "俄语"
+	GRM_L["SpanishMX"] = "西班牙语 (墨西哥)"
+	GRM_L["SpanishEU"] = "西班牙语 (欧洲)"
+    GRM_L["Portuguese"] = "葡萄牙语 (欧洲)"
+    GRM_L["PortugueseBR"] = "葡萄牙语 (巴西)"
+	GRM_L["Korean"] = "韩语"
 	GRM_L["MandarinCN"] = "简体中文"
     GRM_L["MandarinTW"] = "繁體中文"
-    GRM_L["Dutch"] = "Nederlands 荷兰语"
-    GRM_L["Danish"] = "dansk 丹麦语"
+    GRM_L["Dutch"] = "荷兰语"
+    GRM_L["Danish"] = "丹麦语"
 
     -- PLAYER MAIN ROSTER DETAILS WINDOW
     GRM_L["Level: "] = "等级"
@@ -2088,56 +2088,56 @@ GRML.MandarinCN = function()
     GRM_L["ToonName"] = "角色名"
     GRM_L["Main Tag"] = "大号标签"
     GRM_L["Alt Tag"] = "小号标签"
-    GRM_L["Nick Tag"] = true
-    GRM_L["Tagging Disabled"] = true
-    GRM_L["Nickname Disabled"] = true
-    GRM_L["Set Nickname"] = true
-    GRM_L["Edit Nickname"] = true
-    GRM_L["Share Nickname across all Alts"] = true
-    GRM_L["Save"] = true
-    GRM_L["Nickname for {name}"] = true
-    GRM_L["Unable to Process Nickname. Player no longer found."] = true
-    GRM_L["No nickname has been set."] = true
-    GRM_L["Nickname sharing for ({name}) has been {name2}."] = true
-    GRM_L["{name} has {custom1} nickname sharing for {name2}."] = true
+    GRM_L["Nick Tag"] = "昵称标签"
+    GRM_L["Tagging Disabled"] = "标签已禁用"
+    GRM_L["Nickname Disabled"] = "昵称已禁用"
+    GRM_L["Set Nickname"] = "设置昵称"
+    GRM_L["Edit Nickname"] = "编辑昵称"
+    GRM_L["Share Nickname across all Alts"] = "在所有小号间共享昵称"
+    GRM_L["Save"] = "保存"
+    GRM_L["Nickname for {name}"] = "{name} 的昵称"
+    GRM_L["Unable to Process Nickname. Player no longer found."] = "无法处理昵称。未找到该玩家。"
+    GRM_L["No nickname has been set."] = "尚未设置昵称。"
+    GRM_L["Nickname sharing for ({name}) has been {name2}."] = "({name}) 的昵称共享已{name2}。"
+    GRM_L["{name} has {custom1} nickname sharing for {name2}."] = "{name} 已为 {name2} {custom1}昵称共享。"
 
     -- General Tab
-    GRM_L["{custom1} to Change Default GRM Tab on First Open."] = true
+    GRM_L["{custom1} to Change Default GRM Tab on First Open."] = "{custom1}以更改首次打开时的默认 GRM 标签页。"
 
     -- Forever labeling
-    GRM_L["(Forever)"] = true
-    GRM_L["Only Available in Classic or Forever"] = true
+    GRM_L["(Forever)"] = "(永久)"
+    GRM_L["Only Available in Classic or Forever"] = "仅在经典怀旧服或永久服可用"
 
     -- 1.9952
-    GRM_L["First:"] = true
-    GRM_L["Last:"] = true
-    GRM_L["Spelling and Case must be EXACT!"] = true
-    GRM_L["It is |CFFFF0000CRITICAL|r the player's First and Last name are spelled correctly, with the correct case, or they cannot be tracked correctly."] = true
-    GRM_L["Please Enter a Valid Player First Name"] = true
-    GRM_L["Please Enter a Valid Player Last Name"] = true
+    GRM_L["First:"] = "名："
+    GRM_L["Last:"] = "姓："
+    GRM_L["Spelling and Case must be EXACT!"] = "拼写和大小写必须完全一致！"
+    GRM_L["It is |CFFFF0000CRITICAL|r the player's First and Last name are spelled correctly, with the correct case, or they cannot be tracked correctly."] = "|CFFFF0000极其重要|r：玩家的名和姓必须拼写正确且大小写一致，否则无法正确追踪。"
+    GRM_L["Please Enter a Valid Player First Name"] = "请输入有效的玩家名"
+    GRM_L["Please Enter a Valid Player Last Name"] = "请输入有效的玩家姓"
 
     -- 1.9953
-    GRM_L["Columns Manager"] = true
-    GRM_L["Click in order to add columns:"] = true
-    GRM_L["Reset Default"] = true
-    GRM_L["Search by Player Name or Nickname"] = true
-    GRM_L["Drag Left/Right to Reorder  •  Click to Remove"] = true
-    GRM_L["Click to Add  •  Or Drag Up into Active Row"] = true
-    GRM_L["Clear Optional"] = true
-    GRM_L["Active Columns"] = true
-    GRM_L["Unused Columns"] = true
-    GRM_L["Only available in Battle for Azeroth or later."] = true
-    GRM_L["Drag Left/Right to reorder this column."] = true
-    GRM_L["Name column is required and cannot be removed."] = true
-    GRM_L["Click to remove and move to Unused."] = true
-    GRM_L["Click to add to Active Columns (or drag into position above)."] = true
-    GRM_L["Only available in Cataclysm or later."] = true
-    GRM_L["Reputation"] = true
+    GRM_L["Columns Manager"] = "列管理器"
+    GRM_L["Click in order to add columns:"] = "按顺序点击以添加列："
+    GRM_L["Reset Default"] = "恢复默认"
+    GRM_L["Search by Player Name or Nickname"] = "按玩家名或昵称搜索"
+    GRM_L["Drag Left/Right to Reorder  •  Click to Remove"] = "左右拖动排序  •  点击移除"
+    GRM_L["Click to Add  •  Or Drag Up into Active Row"] = "点击添加  •  或向上拖入启用栏"
+    GRM_L["Clear Optional"] = "清除可选项"
+    GRM_L["Active Columns"] = "已启用列"
+    GRM_L["Unused Columns"] = "未启用列"
+    GRM_L["Only available in Battle for Azeroth or later."] = "仅在《争霸艾泽拉斯》或更高版本可用。"
+    GRM_L["Drag Left/Right to reorder this column."] = "左右拖动以重新排列此列。"
+    GRM_L["Name column is required and cannot be removed."] = "名称列为必需列，无法移除。"
+    GRM_L["Click to remove and move to Unused."] = "点击移除并移至未启用。"
+    GRM_L["Click to add to Active Columns (or drag into position above)."] = "点击添加到已启用列（或拖入上方位置）。"
+    GRM_L["Only available in Cataclysm or later."] = "仅在《大地的裂变》或更高版本可用。"
+    GRM_L["Reputation"] = "声望"
 
     -- 1.99531
-    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = true
-    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = true
-    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = true
+    GRM_L["Addons Restricted while engaged in PVP. GRM initialization will continue when the {name} ends."] = "PVP 战斗中插件受限。GRM 将在{name}结束后继续初始化。"
+    GRM_L["Addons Restricted while engaged in a Boss Fight. GRM initialization will continue when the combat ends"] = "首领战中插件受限。GRM 将在战斗结束后继续初始化。"
+    GRM_L["Addons Restrcited in current state. Functionality Limited. GRM initialization will continue soon."] = "当前状态下插件受限，功能有限。GRM 将很快继续初始化。"
 
 end
 
