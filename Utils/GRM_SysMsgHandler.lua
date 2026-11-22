@@ -100,7 +100,7 @@ GRM_Sys.HookChatFrames = function()
     end
 
     -- Watch for dynamically created whisper/BNET tabs
-    hooksecurefunc("FCF_OpenNewWindow", function()
+     hooksecurefunc("FCF_OpenNewWindow", function()
         for _, frameName in ipairs(CHAT_FRAMES) do
             if _G[frameName] then HookSingleChatFrame(_G[frameName]) end
         end
@@ -743,7 +743,6 @@ GRM_Sys.SystemMessageHandler = function(_, _, msg)
         if GRM.S() and GRM.GetGuild() ~= nil and msg and time() - GRMsyncGlobals.timeAtLogin > 1 and not GRM_G.TempBanSystemMessage then
             ProcessSystemMessage(msg)
         end
-        -- SystemMessageHookControl()
     end
 end
 
@@ -767,14 +766,14 @@ end
 GRM_Sys.MessageHookControl = function()
     if not GRM_G.MainHookConfigured and IsInGuild() and GRM.S() then
         
-        -- 1. Safely hook Guild and Officer chat to scan for the !note command
+        -- Safely hook Guild and Officer chat to scan for the !note command
         ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", GRM_Sys.ParseChatForNote)
         ChatFrame_AddMessageEventFilter("CHAT_MSG_OFFICER", GRM_Sys.ParseChatForNote)
         
-        -- 2. Safely hook the system messages to process guild info and spam filters
+        -- Safely hook the system messages to process guild info and spam filters
         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", GRM_Sys.SetSystemMessageFilter)
         
-        -- 3. Initialize the 100% Taint-Free Chat Formatter (TransformMessages)
+        -- Initialize the 100% Taint-Free Chat Formatter (TransformMessages)
         GRM_Sys.HookChatFrames()
         
         GRM_G.MainHookConfigured = true
