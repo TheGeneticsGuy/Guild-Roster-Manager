@@ -882,7 +882,11 @@ end
 -- What it Does:    Stores the frame save position
 -- Purpose:         Reusable code for saving frame positions and storing them between sessions.
 GRM_UI.SaveFramePosition = function ( frame )
-    local framePOS = { ["GRM_RosterFrame"] = "RosterFramePOS" };
+    local framePOS = { 
+        ["GRM_RosterFrame"] = "RosterFramePOS",
+        ["GRM_AuditWindow"] = "AuditFramePos",
+        ["GRM_StatsFrame"]  = "StatsFramePos"
+    };
     local side1, _ , side2 , point1 , point2 = frame:GetPoint();
     local savePoints = framePOS[frame:GetName()];
 

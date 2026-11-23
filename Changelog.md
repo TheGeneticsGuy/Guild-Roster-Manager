@@ -1,3 +1,8 @@
+TODO: Add new settings:
+setting.AuditFramePos =  {"", "", 0, 0};
+        setting.StatsFramePos =  {"", "", 0, 0};
+
+
 ## **VERSION 1.99531 - November 20th, 2026**
 
 ***QUALITY OF LIFE***
