@@ -1153,7 +1153,7 @@ GRM_UI.BuildAuditFrames = function()
 
     -- AUDIT FRAME
     GRM_UI.GRM_CoreFrame.GRM_AuditFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame , "TOPLEFT" );
-    GRM_UI.GRM_CoreFrame.GRM_AuditFrame:SetSize ( 600 , 535 );
+    GRM_UI.GRM_CoreFrame.GRM_AuditFrame:SetSize ( GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H );
     GRM_UI.GRM_CoreFrame.GRM_AuditFrame:Hide();
     GRM_UI.GRM_CoreFrame.GRM_AuditFrame:SetAlpha ( 0 );
     GRM_UI.GRM_CoreFrame.GRM_AuditFrame.timer = 0;

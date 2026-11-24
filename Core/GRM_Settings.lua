@@ -45,8 +45,10 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.classicUIInformed = false;
         setting.LogSizeWarning = { false , false , false , false };
 
-        local rosterFrameDefault = GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and 975 or 885;
-        setting.UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0}, {rosterFrameDefault, 525, 1.0}};
+        local rosterFrameDefault = GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA and GRM_ENUM.ROSTER_WINDOW_W or GRM_ENUM.ROSTER_WINDOW_W_PREBFA;
+        setting.UIScaling = {{GRM_ENUM.CORE_FRAME_W, GRM_ENUM.CORE_FRAME_H, 1.0}, {GRM_ENUM.MOUSEOVER_WINDOW_W, GRM_ENUM.MOUSEOVER_WINDOW_H, 1.0},
+                             {GRM_ENUM.MACRO_WINDOW_W, GRM_ENUM.MACRO_WINDOW_H, 1.0}, {GRM_ENUM.EXPORT_WINDOW_W, GRM_ENUM.EXPORT_WINDOW_H, 1.0},
+                             {GRM_ENUM.JDTOOL_WINDOW_W, GRM_ENUM.JDTOOL_WINDOW_H, 1.0}, {rosterFrameDefault, GRM_ENUM.ROSTER_WINDOW_H, 1.0}, {GRM_ENUM.AUDIT_WINDOW_W, GRM_ENUM.AUDIT_WINDOW_H, 1.0}};
 
     -- =======================================================
     elseif page == TABS.GENERAL then
@@ -205,6 +207,7 @@ GRM_S.SetDefaultAddonSettings = function(setting, page)
         setting.onlyShowIncomplete = false;
         setting.unknownIsComplete = true;
         setting.includeBirthdaysInAudit = false;
+        setting.includeNicknamesInAudit = false;
 
     -- =======================================================
     elseif page == TABS.SPECIAL then

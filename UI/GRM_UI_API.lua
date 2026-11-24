@@ -895,7 +895,7 @@ GRM_UI.SaveFramePosition = function ( frame )
         GRM.S()[savePoints][2] = side2;
         GRM.S()[savePoints][3] = point1;
         GRM.S()[savePoints][4] = point2;
-    end
+    end 
 
 end
 

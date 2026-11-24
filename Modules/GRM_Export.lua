@@ -1746,7 +1746,7 @@ Export.LoadExportUI = function( isManualUpdate )
 
         GRM_UI.GRM_ExportLogBorderFrame:ClearAllPoints();
         GRM_UI.GRM_ExportLogBorderFrame:SetPoint ( "CENTER" , UIParent );
-        GRM_UI.GRM_ExportLogBorderFrame:SetSize ( 1100 , 540 );
+        GRM_UI.GRM_ExportLogBorderFrame:SetSize ( GRM_ENUM.EXPORT_WINDOW_W, GRM_ENUM.EXPORT_WINDOW_H );
         GRM_UI.GRM_ExportLogBorderFrame:SetToplevel ( true );
         GRM_UI.GRM_ExportLogBorderFrame:SetMovable ( true );
         GRM_UI.GRM_ExportLogBorderFrame:EnableMouse ( true );

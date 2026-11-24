@@ -1241,7 +1241,7 @@ GRM_G.counts = { { 0 , 0 } , { 0 , 0 } , { 0 , 0 } , { 0 , 0 } };       -- count
 GRM_UI.GRM_ToolCoreFrame:ClearAllPoints();
 GRM_UI.GRM_ToolCoreFrame:SetPoint ( "CENTER" , UIParent );
 GRM_UI.GRM_ToolCoreFrame:SetFrameStrata ( "MEDIUM" );
-GRM_UI.GRM_ToolCoreFrame:SetSize ( 1200 , 515 );
+GRM_UI.GRM_ToolCoreFrame:SetSize ( GRM_ENUM.MACRO_WINDOW_W, GRM_ENUM.MACRO_WINDOW_H );
 GRM_UI.GRM_ToolCoreFrame:EnableMouse ( true );
 GRM_UI.GRM_ToolCoreFrame:SetMovable ( true );
 GRM_UI.GRM_ToolCoreFrame:SetToplevel ( true );

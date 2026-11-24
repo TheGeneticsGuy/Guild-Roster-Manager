@@ -1535,7 +1535,7 @@ GRM_UI.PreAddonLoadUI = function()
     end
 
     GRM_UI.GRM_CoreFrame:SetFrameStrata ( "MEDIUM" );
-    GRM_UI.GRM_CoreFrame:SetSize ( 600 , 535 );
+    GRM_UI.GRM_CoreFrame:SetSize ( GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H );
     GRM_UI.GRM_CoreFrame:EnableMouse ( true );
     GRM_UI.GRM_CoreFrame:SetToplevel ( true );
     GRM_UI.GRM_CoreFrame:SetMovable ( true );
@@ -1549,7 +1549,7 @@ GRM_UI.PreAddonLoadUI = function()
 
     -- OPTIONS TAB FRAME
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame , "TOPLEFT" );
-    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame:SetSize ( 600 , 535 );
+    GRM_UI.GRM_CoreFrame.GRM_OptionsFrame:SetSize ( GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H );
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame:Hide();
     GRM_UI.GRM_CoreFrame.GRM_OptionsFrame:SetAlpha ( 0 );
 
@@ -1559,7 +1559,7 @@ GRM_UI.PreAddonLoadUI = function()
 
     -- LOG TAB FRAME
     GRM_UI.GRM_CoreFrame.GRM_LogFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame , "TOPLEFT" );
-    GRM_UI.GRM_CoreFrame.GRM_LogFrame:SetSize ( 600 , 535 );
+    GRM_UI.GRM_CoreFrame.GRM_LogFrame:SetSize ( GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H );
 
     GRM_UI.GRM_CoreFrame.GRM_LogFrame:SetScript ( "OnHide" , function()
         GRM.RestoreTooltip();
@@ -1576,7 +1576,7 @@ GRM_UI.PreAddonLoadUI = function()
 
     -- ADDON USERS FRAME
     GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame , "TOPLEFT" );
-    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:SetSize ( 600 , 535 );
+    GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:SetSize ( GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H );
     GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:Hide();
     GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame:SetAlpha ( 0 );
     GRM_UI.GRM_CoreFrame.GRM_AddonUsersFrame.timer = 0;
@@ -1584,13 +1584,13 @@ GRM_UI.PreAddonLoadUI = function()
 
     -- EVENTS TO ADD FRAME
     GRM_UI.GRM_CoreFrame.GRM_EventsFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame , "TOPLEFT" );
-    GRM_UI.GRM_CoreFrame.GRM_EventsFrame:SetSize ( 600 , 535 );
+    GRM_UI.GRM_CoreFrame.GRM_EventsFrame:SetSize ( GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H );
     GRM_UI.GRM_CoreFrame.GRM_EventsFrame:Hide();
     GRM_UI.GRM_CoreFrame.GRM_EventsFrame:SetAlpha ( 0 );
 
     -- BAN LIST FRAME
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:SetPoint ( "TOPLEFT" , GRM_UI.GRM_CoreFrame , "TOPLEFT" );
-    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:SetSize ( 600 , 535 );
+    GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:SetSize ( GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:Hide();
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame:SetAlpha ( 0 );
     GRM_UI.GRM_CoreFrame.GRM_CoreBanListFrame.timer = 0;
@@ -6208,7 +6208,7 @@ GRM_UI.MetaDataInitializeUIrosterLog2 = function( isManualUpdate )
     GRM_UI.GRM_AuditJDTool:ClearAllPoints();
     GRM_UI.GRM_AuditJDTool:SetPoint ( "CENTER" , UIParent );
     GRM_UI.GRM_AuditJDTool:SetFrameStrata ( "MEDIUM" );
-    GRM_UI.GRM_AuditJDTool:SetSize ( 875 , 400 );
+    GRM_UI.GRM_AuditJDTool:SetSize ( GRM_ENUM.JDTOOL_WINDOW_W, GRM_ENUM.JDTOOL_WINDOW_H );
     GRM_UI.GRM_AuditJDTool:EnableMouse ( true );
     GRM_UI.GRM_AuditJDTool:SetMovable ( true );
     GRM_UI.GRM_AuditJDTool:SetToplevel ( true );
@@ -9165,10 +9165,10 @@ end
 -- Purpose:
 GRM_UI.GetDefaultFrameSize = function ( frameName )
 
-    local rosterFrameDefault = 885;
+    local rosterFrameDefault = GRM_ENUM.ROSTER_WINDOW_W_PREBFA;
 
     if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then
-        rosterFrameDefault = rosterFrameDefault + 90;
+        rosterFrameDefault = GRM_ENUM.ROSTER_WINDOW_W
     end
 
     --
@@ -9177,12 +9177,13 @@ GRM_UI.GetDefaultFrameSize = function ( frameName )
     end
 
     local sizeTable = {
-        ["GRM_CoreFrame"] = { 600 , 535 },
-        ["GRM_Mouseover"] = { 400 , 439 },
-        ["GRM_ToolCoreFrame"] = { 1200 , 515 },
-        ["GRM_ExportLogBorderFrame"] = { 1100 , 540 },
-        ["GRM_AuditJDTool"] = { 875 , 400 },
-        ["GRM_RosterFrame"] = { rosterFrameDefault , 525 }
+        ["GRM_CoreFrame"] = { GRM_ENUM.CORE_FRAME_W , GRM_ENUM.CORE_FRAME_H },
+        ["GRM_Mouseover"] = { GRM_ENUM.MOUSEOVER_WINDOW_W, GRM_ENUM.MOUSEOVER_WINDOW_H },
+        ["GRM_ToolCoreFrame"] = { GRM_ENUM.MACRO_WINDOW_W, GRM_ENUM.MACRO_WINDOW_H },
+        ["GRM_ExportLogBorderFrame"] = { GRM_ENUM.EXPORT_WINDOW_W, GRM_ENUM.EXPORT_WINDOW_H },
+        ["GRM_AuditJDTool"] = { GRM_ENUM.JDTOOL_WINDOW_W, GRM_ENUM.JDTOOL_WINDOW_H },
+        ["GRM_RosterFrame"] = { rosterFrameDefault , GRM_ENUM.ROSTER_WINDOW_H },
+        ["GRM_AuditWindow"] = {GRM_ENUM.AUDIT_WINDOW_W, GRM_ENUM.AUDIT_WINDOW_H}
     }
 
     local size = sizeTable[frameName];

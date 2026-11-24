@@ -192,14 +192,15 @@ GRM.SlashCommandCenter = function()
     GRM.S().macroToolCoordinates = {"", "", 0, 0};
 
     GRM_UI.ResetScalingForAll();
-    local rosterFrameDefault = 885;
+    local rosterFrameDefault = GRM_ENUM.ROSTER_WINDOW_W_PREBFA;
 
     if GRM_G.BuildVersion >= GRM_ENUM.BUILD.BFA then -- Mythic Rating Frame Size
-        rosterFrameDefault = rosterFrameDefault + 90;
+        rosterFrameDefault = GRM_ENUM.ROSTER_WINDOW_W
     end
 
-    GRM.S().UIScaling = {{600, 535, 1.0}, {400, 439, 1.0}, {1200, 515, 1.0}, {1100, 540, 1.0}, {875, 400, 1.0},
-                         {rosterFrameDefault, 525, 1.0}};
+    GRM.S().UIScaling = {{GRM_ENUM.CORE_FRAME_W, GRM_ENUM.CORE_FRAME_H, 1.0}, {GRM_ENUM.MOUSEOVER_WINDOW_W, GRM_ENUM.MOUSEOVER_WINDOW_H, 1.0},
+                         {GRM_ENUM.MACRO_WINDOW_W, GRM_ENUM.MACRO_WINDOW_H, 1.0}, {GRM_ENUM.EXPORT_WINDOW_W, GRM_ENUM.EXPORT_WINDOW_H, 1.0},
+                         {GRM_ENUM.JDTOOL_WINDOW_W, GRM_ENUM.JDTOOL_WINDOW_H, 1.0}, {rosterFrameDefault, GRM_ENUM.ROSTER_WINDOW_H, 1.0}, {GRM_ENUM.AUDIT_WINDOW_W, GRM_ENUM.AUDIT_WINDOW_H, 1.0}};
 end
 
 -- Method:          GRM.SlashCommandHelp()
